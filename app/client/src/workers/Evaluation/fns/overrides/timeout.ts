@@ -1,7 +1,7 @@
-import { createEvaluationContext } from "../evaluate";
-import { dataTreeEvaluator } from "../handlers/evalTree";
-import ExecutionMetaData from "./utils/ExecutionMetaData";
-import { addFn } from "./utils/fnGuard";
+import { createEvaluationContext } from "../../evaluate";
+import { dataTreeEvaluator } from "../../handlers/evalTree";
+import ExecutionMetaData from "../utils/ExecutionMetaData";
+import { addFn } from "../utils/fnGuard";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;

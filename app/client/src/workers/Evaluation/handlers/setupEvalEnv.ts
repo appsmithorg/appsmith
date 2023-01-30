@@ -1,12 +1,12 @@
 import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
-import initFetch from "../fns/fetch";
+import initFetch from "../fns/overrides/fetch";
 import { resetJSLibraries } from "../../common/JSLibrary";
 import setupDOM from "../SetupDOM";
-import initTimeoutFns from "../fns/timeout";
+import initTimeoutFns from "../fns/overrides/timeout";
 import { EvalWorkerSyncRequest } from "../types";
-import userLogs from "../fns/console";
+import userLogs from "../fns/overrides/console";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
-import initLocalStorage from "../fns/localStorage";
+import initLocalStorage from "../fns/overrides/localStorage";
 
 export default function() {
   const libraries = resetJSLibraries();

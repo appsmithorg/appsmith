@@ -1,37 +1,8 @@
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { PluginType } from "entities/Action";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
-const dataTree: DataTree = {
-  action1: {
-    actionId: "123",
-    pluginId: "",
-    data: {},
-    config: {},
-    datasourceUrl: "",
-    pluginType: PluginType.API,
-    dynamicBindingPathList: [],
-    name: "action1",
-    bindingPaths: {},
-    reactivePaths: {},
-    isLoading: false,
-    run: {},
-    clear: {},
-    responseMeta: { isExecutionSuccess: false },
-    ENTITY_TYPE: ENTITY_TYPE.ACTION,
-    dependencyMap: {},
-    logBlackList: {},
-  },
-};
-const evalContext = createEvaluationContext({
-  dataTree,
-  resolvedFunctions: {},
-  isTriggerBased: true,
-  context: {},
-});
+import { evalContext } from "./mockData";
 
 jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {

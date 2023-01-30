@@ -2,18 +2,30 @@ import { promisify } from "./utils/Promisify";
 
 function showModalFnDescriptor(modalName: string) {
   return {
-    type: "SHOW_MODAL_BY_NAME",
+    type: "SHOW_MODAL_BY_NAME" as const,
     payload: { modalName },
   };
 }
-const showModal = promisify(showModalFnDescriptor);
+
+export type TShowModalArgs = Parameters<typeof showModalFnDescriptor>;
+export type TShowModalDescription = ReturnType<typeof showModalFnDescriptor>;
+
+async function showModal(...args: TShowModalArgs) {
+  return promisify(showModalFnDescriptor)(...args);
+}
 
 function closeModalFnDescriptor(modalName: string) {
   return {
-    type: "CLOSE_MODAL",
+    type: "CLOSE_MODAL" as const,
     payload: { modalName },
   };
 }
-const closeModal = promisify(closeModalFnDescriptor);
+
+export type TCloseModalArgs = Parameters<typeof closeModalFnDescriptor>;
+export type TCloseModalDescription = ReturnType<typeof closeModalFnDescriptor>;
+
+async function closeModal(...args: TCloseModalArgs) {
+  return promisify(closeModalFnDescriptor)(...args);
+}
 
 export { showModal, closeModal };

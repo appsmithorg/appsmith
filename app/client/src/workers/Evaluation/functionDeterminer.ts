@@ -1,7 +1,7 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import userLogs from "./fns/console";
+import userLogs from "./fns/overrides/console";
 
 class FunctionDeterminer {
   private evalContext: EvalContext = {};
@@ -41,7 +41,6 @@ class FunctionDeterminer {
   }
 
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {
-    self.TRIGGER_COLLECTOR = [];
     self["$isAsync"] = false;
 
     return (function() {
@@ -53,9 +52,6 @@ class FunctionDeterminer {
           } else {
             const returnValue = userFunction();
             if (!!returnValue && returnValue instanceof Promise) {
-              self["$isAsync"] = true;
-            }
-            if (self.TRIGGER_COLLECTOR.length) {
               self["$isAsync"] = true;
             }
           }

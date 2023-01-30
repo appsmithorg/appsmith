@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { EvaluationVersion } from "api/ApplicationApi";
-import { initIntervalFns } from "workers/Evaluation/fns/interval";
+import { initIntervalFns } from "workers/Evaluation/fns/overrides/interval";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import { set } from "lodash";
 import { entityFns, platformFns } from "workers/Evaluation/fns";
@@ -17,7 +16,6 @@ declare global {
     $allowAsync: boolean;
     $isAsync: boolean;
     $evaluationVersion: EvaluationVersion;
-    TRIGGER_COLLECTOR: ActionDescription[];
   }
 }
 
@@ -38,8 +36,6 @@ export const addDataTreeToContext = (args: {
   } = args;
   const dataTreeEntries = Object.entries(dataTree);
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
-
-  self.TRIGGER_COLLECTOR = [];
 
   for (const [entityName, entity] of dataTreeEntries) {
     EVAL_CONTEXT[entityName] = entity;

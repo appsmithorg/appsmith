@@ -2,10 +2,16 @@ import { promisify } from "./utils/Promisify";
 
 function downloadFnDescriptor(data: string, name: string, type: string) {
   return {
-    type: "DOWNLOAD",
+    type: "DOWNLOAD" as const,
     payload: { data, name, type },
   };
 }
-const download = promisify(downloadFnDescriptor);
+
+export type TDownloadArgs = Parameters<typeof downloadFnDescriptor>;
+export type TDownloadDescription = ReturnType<typeof downloadFnDescriptor>;
+
+async function download(...args: Parameters<typeof downloadFnDescriptor>) {
+  return promisify(downloadFnDescriptor)(...args);
+}
 
 export default download;

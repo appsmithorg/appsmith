@@ -1,4 +1,4 @@
-import { addFn } from "./utils/fnGuard";
+import { addFn } from "../utils/fnGuard";
 
 const _originalFetch = self.fetch;
 

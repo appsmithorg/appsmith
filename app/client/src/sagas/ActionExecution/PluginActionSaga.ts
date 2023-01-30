@@ -80,7 +80,6 @@ import {
   CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import { RunPluginActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
@@ -108,6 +107,7 @@ import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
+import { TRunDescription } from "workers/Evaluation/fns/actionFns";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -321,10 +321,11 @@ function* evaluateActionParams(
 }
 
 export default function* executePluginActionTriggerSaga(
-  pluginAction: RunPluginActionDescription["payload"],
+  pluginAction: TRunDescription,
   eventType: EventType,
 ) {
-  const { actionId, params } = pluginAction;
+  const { payload: pluginPayload } = pluginAction;
+  const { actionId, params } = pluginPayload;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
       "RUN_PLUGIN_ACTION",

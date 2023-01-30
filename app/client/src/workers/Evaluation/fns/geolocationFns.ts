@@ -16,22 +16,22 @@ function getGeoLocationFnDescriptor(
   },
 ) {
   return {
-    type: "GET_CURRENT_LOCATION",
+    type: "GET_CURRENT_LOCATION" as const,
     payload: {
       options,
     },
   };
 }
 
+export type TGetGeoLocationArgs = Parameters<typeof getGeoLocationFnDescriptor>;
+export type TGetGeoLocationDescription = ReturnType<
+  typeof getGeoLocationFnDescriptor
+>;
+
 export async function getGeoLocation(
-  successCallback?: (position: GeolocationPosition) => unknown,
-  errorCallback?: (err: unknown) => unknown,
-  options?: {
-    maximumAge?: number;
-    timeout?: number;
-    enableHighAccuracy?: boolean;
-  },
+  ...args: Parameters<typeof getGeoLocationFnDescriptor>
 ) {
+  const [successCallback, errorCallback, options] = args;
   const executor = promisify(getGeoLocationFnDescriptor);
   let response;
   try {
@@ -61,7 +61,7 @@ function watchGeoLocationFnDescriptor(
   },
 ) {
   return {
-    type: "WATCH_CURRENT_LOCATION",
+    type: "WATCH_CURRENT_LOCATION" as const,
     payload: {
       options,
       listenerId: this.listenerId,
@@ -69,15 +69,15 @@ function watchGeoLocationFnDescriptor(
   };
 }
 
-export function watchGeoLocation(
-  onSuccessCallback?: (...args: any) => any,
-  onErrorCallback?: (...args: any) => any,
-  options?: {
-    maximumAge?: number;
-    timeout?: number;
-    enableHighAccuracy?: boolean;
-  },
-) {
+export type TWatchGeoLocationArgs = Parameters<
+  typeof watchGeoLocationFnDescriptor
+>;
+export type TWatchGeoLocationDescription = ReturnType<
+  typeof watchGeoLocationFnDescriptor
+>;
+
+export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
+  const [onSuccessCallback, onErrorCallback, options] = args;
   const listenerId = uniqueId("geoLocationListener_");
   const executor = batchedFn(
     watchGeoLocationFnDescriptor.bind({ listenerId }),
@@ -103,10 +103,17 @@ export function watchGeoLocation(
 
 function stopWatchGeoLocationFnDescriptor(this: any) {
   return {
-    type: "STOP_WATCHING_CURRENT_LOCATION",
+    type: "STOP_WATCHING_CURRENT_LOCATION" as const,
     payload: {},
   };
 }
+
+export type TStopWatchGeoLocationArgs = Parameters<
+  typeof stopWatchGeoLocationFnDescriptor
+>;
+export type TStopWatchGeoLocationDescription = ReturnType<
+  typeof stopWatchGeoLocationFnDescriptor
+>;
 
 export async function stopWatchGeoLocation() {
   const executor = promisify(stopWatchGeoLocationFnDescriptor);

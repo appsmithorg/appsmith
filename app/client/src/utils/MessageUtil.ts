@@ -44,6 +44,5 @@ export function sendMessage(
   this: Worker | typeof globalThis,
   message: TMessage<unknown>,
 ) {
-  //@ts-expect-error tetris
-  this.postMessage(message, "*");
+  this.postMessage(message);
 }

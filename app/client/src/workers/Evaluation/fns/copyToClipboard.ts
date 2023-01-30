@@ -5,7 +5,7 @@ function copyToClipboardFnDescriptor(
   options?: { debug?: boolean; format?: string },
 ) {
   return {
-    type: "COPY_TO_CLIPBOARD",
+    type: "COPY_TO_CLIPBOARD" as const,
     payload: {
       data,
       options: { debug: options?.debug, format: options?.format },
@@ -13,6 +13,15 @@ function copyToClipboardFnDescriptor(
   };
 }
 
-const copyToClipboard = promisify(copyToClipboardFnDescriptor);
+export type TCopyToClipboardArgs = Parameters<
+  typeof copyToClipboardFnDescriptor
+>;
+export type TCopyToClipboardDescription = ReturnType<
+  typeof copyToClipboardFnDescriptor
+>;
+
+async function copyToClipboard(...args: TCopyToClipboardArgs) {
+  return promisify(copyToClipboardFnDescriptor)(...args);
+}
 
 export default copyToClipboard;

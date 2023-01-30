@@ -25,7 +25,7 @@ import {
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
 } from "../types";
-import { clearAllIntervals } from "../fns/interval";
+import { clearAllIntervals } from "../fns/overrides/interval";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";

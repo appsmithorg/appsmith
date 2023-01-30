@@ -1,7 +1,3 @@
-import {
-  GetCurrentLocationDescription,
-  WatchCurrentLocationDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { call, put, spawn, take } from "redux-saga/effects";
@@ -9,6 +5,10 @@ import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import { Channel, channel } from "redux-saga";
 import { evalWorker } from "sagas/EvaluationsSaga";
+import {
+  TGetGeoLocationDescription,
+  TWatchGeoLocationDescription,
+} from "workers/Evaluation/fns/geolocationFns";
 
 class GeoLocationError extends Error {
   constructor(message: string, private data?: any) {
@@ -111,10 +111,11 @@ function* errorCallbackHandler(triggerMeta: TriggerMeta, listenerId?: string) {
 }
 
 export function* getCurrentLocationSaga(
-  actionPayload: GetCurrentLocationDescription["payload"],
+  action: TGetGeoLocationDescription,
   _: EventType,
   triggerMeta: TriggerMeta,
 ) {
+  const { payload: actionPayload } = action;
   try {
     const location: GeolocationPosition = yield call(
       getUserLocation,
@@ -138,10 +139,11 @@ export function* getCurrentLocationSaga(
 
 let watchId: number | undefined;
 export function* watchCurrentLocation(
-  actionPayload: WatchCurrentLocationDescription["payload"],
-  eventType: EventType,
+  action: TWatchGeoLocationDescription,
+  _: EventType,
   triggerMeta: TriggerMeta,
 ) {
+  const { payload: actionPayload } = action;
   if (watchId) {
     // When a watch is already active, we will not start a new watch.
     // at a given point in time, only one watch is active

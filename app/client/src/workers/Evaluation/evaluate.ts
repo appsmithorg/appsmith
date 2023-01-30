@@ -365,7 +365,6 @@ export async function evaluateAsync(
       return {
         result,
         errors,
-        triggers: Array.from(self.TRIGGER_COLLECTOR),
       };
     }
   })();

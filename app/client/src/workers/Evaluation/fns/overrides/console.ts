@@ -9,9 +9,9 @@ import {
 import { klona } from "klona/lite";
 import moment from "moment";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import TriggerEmitter from "./utils/TriggerEmitter";
+import TriggerEmitter from "../utils/TriggerEmitter";
 import { EventEmitter } from "events";
-import ExecutionMetaData from "./utils/ExecutionMetaData";
+import ExecutionMetaData from "../utils/ExecutionMetaData";
 
 class UserLog {
   private isEnabled = true;

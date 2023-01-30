@@ -2,11 +2,20 @@ import { promisify } from "./utils/Promisify";
 
 function resetWidgetFnDescriptor(widgetName: string, resetChildren = true) {
   return {
-    type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
+    type: "RESET_WIDGET_META_RECURSIVE_BY_NAME" as const,
     payload: { widgetName, resetChildren },
   };
 }
 
-const resetWidget = promisify(resetWidgetFnDescriptor);
+export type TResetWidgetArgs = Parameters<typeof resetWidgetFnDescriptor>;
+export type TResetWidgetDescription = ReturnType<
+  typeof resetWidgetFnDescriptor
+>;
+
+async function resetWidget(
+  ...args: Parameters<typeof resetWidgetFnDescriptor>
+) {
+  return promisify(resetWidgetFnDescriptor)(...args);
+}
 
 export default resetWidget;

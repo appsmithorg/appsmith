@@ -7,7 +7,7 @@ function postWindowMessageFnDescriptor(
   targetOrigin: string,
 ) {
   return {
-    type: "POST_MESSAGE",
+    type: "POST_MESSAGE" as const,
     payload: {
       message,
       source,
@@ -15,10 +15,16 @@ function postWindowMessageFnDescriptor(
     },
   };
 }
+export type TPostWindowMessageArgs = Parameters<
+  typeof postWindowMessageFnDescriptor
+>;
+export type TPostWindowMessageDescription = ReturnType<
+  typeof postWindowMessageFnDescriptor
+>;
 
-const postWindowMessage = batchedFn(
-  postWindowMessageFnDescriptor,
-  BatchKey.process_batched_triggers,
-);
-
-export default postWindowMessage;
+export default function postWindowMessage(...args: TPostWindowMessageArgs) {
+  return batchedFn(
+    postWindowMessageFnDescriptor,
+    BatchKey.process_batched_triggers,
+  )(...args);
+}

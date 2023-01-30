@@ -1,5 +1,27 @@
-import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
-import { TypeOptions } from "react-toastify";
+import { TPostWindowMessageDescription } from "workers/Evaluation/fns/postWindowMessage";
+import { TCopyToClipboardDescription } from "workers/Evaluation/fns/copyToClipboard";
+import {
+  TClearDescription,
+  TRunDescription,
+} from "workers/Evaluation/fns/actionFns";
+import { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
+import { TShowAlertDescription } from "workers/Evaluation/fns/showAlert";
+import {
+  TCloseModalDescription,
+  TShowModalDescription,
+} from "workers/Evaluation/fns/modalFns";
+import { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
+import {
+  TGetGeoLocationDescription,
+  TStopWatchGeoLocationDescription,
+  TWatchGeoLocationDescription,
+} from "workers/Evaluation/fns/geolocationFns";
+import {
+  TClearStoreDescription,
+  TRemoveValueDescription,
+  TStoreValueDescription,
+} from "workers/Evaluation/fns/storeFns";
+import { TDownloadDescription } from "workers/Evaluation/fns/download";
 
 export type ActionTriggerKeys =
   | "RUN_PLUGIN_ACTION"
@@ -19,7 +41,6 @@ export type ActionTriggerKeys =
   | "GET_CURRENT_LOCATION"
   | "WATCH_CURRENT_LOCATION"
   | "STOP_WATCHING_CURRENT_LOCATION"
-  | "CONFIRMATION_MODAL"
   | "POST_MESSAGE"
   | "SET_TIMEOUT"
   | "CLEAR_TIMEOUT";
@@ -42,183 +63,25 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerKeys, string> = {
   GET_CURRENT_LOCATION: "getCurrentLocation",
   WATCH_CURRENT_LOCATION: "watchLocation",
   STOP_WATCHING_CURRENT_LOCATION: "stopWatch",
-  CONFIRMATION_MODAL: "ConfirmationModal",
   POST_MESSAGE: "postWindowMessage",
   SET_TIMEOUT: "setTimeout",
   CLEAR_TIMEOUT: "clearTimeout",
 };
 
-export interface ActionDescriptionInterface<T, Type extends ActionTriggerKeys> {
-  type: Type;
-  payload: T;
-}
-
-export type RunPluginActionDescription = ActionDescriptionInterface<
-  {
-    actionId: string;
-    params?: Record<string, unknown>;
-    onSuccess?: string;
-    onError?: string;
-  },
-  "RUN_PLUGIN_ACTION"
->;
-
-export type ClearPluginActionDescription = ActionDescriptionInterface<
-  {
-    actionId: string;
-  },
-  "CLEAR_PLUGIN_ACTION"
->;
-
-export type NavigateActionDescription = ActionDescriptionInterface<
-  {
-    pageNameOrUrl: string;
-    params?: Record<string, string>;
-    target?: NavigationTargetType;
-  },
-  "NAVIGATE_TO"
->;
-
-export type ShowAlertActionDescription = ActionDescriptionInterface<
-  {
-    message: string | unknown;
-    style?: TypeOptions;
-  },
-  "SHOW_ALERT"
->;
-
-export type ShowModalActionDescription = ActionDescriptionInterface<
-  {
-    modalName: string;
-  },
-  "SHOW_MODAL_BY_NAME"
->;
-
-export type CloseModalActionDescription = ActionDescriptionInterface<
-  {
-    modalName: string;
-  },
-  "CLOSE_MODAL"
->;
-
-export type StoreValueActionDescription = ActionDescriptionInterface<
-  {
-    key: string;
-    value: string;
-    persist: boolean;
-  },
-  "STORE_VALUE"
->;
-
-export type RemoveValueActionDescription = ActionDescriptionInterface<
-  {
-    key: string;
-  },
-  "REMOVE_VALUE"
->;
-
-export type ClearStoreActionDescription = ActionDescriptionInterface<
-  null,
-  "CLEAR_STORE"
->;
-
-export type DownloadActionDescription = ActionDescriptionInterface<
-  {
-    data: any;
-    name: string;
-    type: string;
-  },
-  "DOWNLOAD"
->;
-
-export type CopyToClipboardDescription = ActionDescriptionInterface<
-  {
-    data: string;
-    options: { debug?: boolean; format?: string };
-  },
-  "COPY_TO_CLIPBOARD"
->;
-
-export type ResetWidgetDescription = ActionDescriptionInterface<
-  {
-    widgetName: string;
-    resetChildren: boolean;
-  },
-  "RESET_WIDGET_META_RECURSIVE_BY_NAME"
->;
-
-export type SetIntervalDescription = ActionDescriptionInterface<
-  {
-    callback: string;
-    interval: number;
-    id?: string;
-  },
-  "SET_INTERVAL"
->;
-
-export type ClearIntervalDescription = ActionDescriptionInterface<
-  {
-    id: string;
-  },
-  "CLEAR_INTERVAL"
->;
-
-type GeolocationOptions = {
-  maximumAge?: number;
-  timeout?: number;
-  enableHighAccuracy?: boolean;
-};
-
-type GeolocationPayload = {
-  options?: GeolocationOptions;
-};
-
-export type GetCurrentLocationDescription = ActionDescriptionInterface<
-  GeolocationPayload,
-  "GET_CURRENT_LOCATION"
->;
-
-export type WatchCurrentLocationDescription = ActionDescriptionInterface<
-  GeolocationPayload & { listenerId?: string },
-  "WATCH_CURRENT_LOCATION"
->;
-
-export type StopWatchingCurrentLocationDescription = ActionDescriptionInterface<
-  Record<string, never> | undefined,
-  "STOP_WATCHING_CURRENT_LOCATION"
->;
-
-export type ConfirmationModalDescription = ActionDescriptionInterface<
-  Record<string, any> | undefined,
-  "CONFIRMATION_MODAL"
->;
-
-export type PostMessageDescription = ActionDescriptionInterface<
-  {
-    message: unknown;
-    source: string;
-    targetOrigin: string;
-  },
-  "POST_MESSAGE"
->;
-
 export type ActionDescription =
-  | RunPluginActionDescription
-  | ClearPluginActionDescription
-  | NavigateActionDescription
-  | ShowAlertActionDescription
-  | ShowModalActionDescription
-  | CloseModalActionDescription
-  | StoreValueActionDescription
-  | RemoveValueActionDescription
-  | ClearStoreActionDescription
-  | DownloadActionDescription
-  | CopyToClipboardDescription
-  | ResetWidgetDescription
-  | SetIntervalDescription
-  | ClearIntervalDescription
-  | GetCurrentLocationDescription
-  | WatchCurrentLocationDescription
-  | StopWatchingCurrentLocationDescription
-  | ConfirmationModalDescription
-  | PostMessageDescription;
+  | TRunDescription
+  | TClearDescription
+  | TNavigateToDescription
+  | TShowAlertDescription
+  | TShowModalDescription
+  | TCloseModalDescription
+  | TStoreValueDescription
+  | TRemoveValueDescription
+  | TClearStoreDescription
+  | TDownloadDescription
+  | TCopyToClipboardDescription
+  | TResetWidgetDescription
+  | TGetGeoLocationDescription
+  | TWatchGeoLocationDescription
+  | TStopWatchGeoLocationDescription
+  | TPostWindowMessageDescription;

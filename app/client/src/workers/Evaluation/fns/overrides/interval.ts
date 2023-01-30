@@ -1,7 +1,7 @@
-import { createEvaluationContext } from "../evaluate";
-import { dataTreeEvaluator } from "../handlers/evalTree";
-import ExecutionMetaData from "./utils/ExecutionMetaData";
-import { addFn } from "./utils/fnGuard";
+import { createEvaluationContext } from "../../evaluate";
+import { dataTreeEvaluator } from "../../handlers/evalTree";
+import ExecutionMetaData from "../utils/ExecutionMetaData";
+import { addFn } from "../utils/fnGuard";
 
 const _internalSetInterval = self.setInterval;
 const _internalClearInterval = self.clearInterval;

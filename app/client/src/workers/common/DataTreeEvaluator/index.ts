@@ -98,7 +98,7 @@ import {
   validateAndParseWidgetProperty,
 } from "./validationUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
-import userLogs from "workers/Evaluation/fns/console";
+import userLogs from "workers/Evaluation/fns/overrides/console";
 import {
   isMetaWidgetTemplate,
   isWidgetDefaultPropertyPath,

@@ -9,7 +9,7 @@ export function addFn(
   Object.defineProperty(ctx, fnName, {
     value: function(...args: any[]) {
       for (const guard of fnGuards) {
-        guard(fn, fnName);
+        fn = guard(fn, fnName);
       }
       return fn(...args);
     },

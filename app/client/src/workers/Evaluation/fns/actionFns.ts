@@ -7,17 +7,21 @@ function runFnDescriptor(
   onError?: (e: string) => unknown,
   params = {},
 ) {
+  const type = "RUN_PLUGIN_ACTION" as const;
   const actionParams = isTrueObject(onSuccessOrParams)
     ? onSuccessOrParams
     : params;
   return {
-    type: "RUN_PLUGIN_ACTION",
+    type,
     payload: {
       actionId: this.actionId,
       params: actionParams,
     },
   };
 }
+
+export type TRunArgs = Parameters<typeof runFnDescriptor>;
+export type TRunDescription = ReturnType<typeof runFnDescriptor>;
 
 export default async function run(
   this: any,
@@ -45,12 +49,15 @@ export default async function run(
 
 function clearFnDescriptor(this: any) {
   return {
-    type: "CLEAR_PLUGIN_ACTION",
+    type: "CLEAR_PLUGIN_ACTION" as const,
     payload: {
       actionId: this.actionId,
     },
   };
 }
+
+export type TClearArgs = Parameters<typeof clearFnDescriptor>;
+export type TClearDescription = ReturnType<typeof clearFnDescriptor>;
 
 export async function clear(this: any) {
   return promisify(clearFnDescriptor.bind(this))();

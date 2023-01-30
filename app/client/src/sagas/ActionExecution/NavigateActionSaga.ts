@@ -9,15 +9,13 @@ import { getQueryStringfromObject } from "RouteBuilder";
 import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { NavigateActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { TriggerFailureError } from "./errorUtils";
 import { isValidURL } from "utils/URLUtils";
-
-export enum NavigationTargetType {
-  SAME_WINDOW = "SAME_WINDOW",
-  NEW_WINDOW = "NEW_WINDOW",
-}
+import {
+  NavigationTargetType,
+  TNavigateToDescription,
+} from "workers/Evaluation/fns/navigateTo";
 
 const isValidUrlScheme = (url: string): boolean => {
   return (
@@ -39,16 +37,10 @@ const isValidPageName = (
   return _.find(pageList, (page: Page) => page.pageName === pageNameOrUrl);
 };
 
-export default function* navigateActionSaga(
-  action: NavigateActionDescription["payload"],
-) {
+export default function* navigateActionSaga(action: TNavigateToDescription) {
+  const { payload } = action;
   const pageList: Page[] = yield select(getPageList);
-
-  const {
-    pageNameOrUrl,
-    params,
-    target = NavigationTargetType.SAME_WINDOW,
-  } = action;
+  const { pageNameOrUrl, params, target } = payload;
 
   const page = isValidPageName(pageNameOrUrl, pageList);
 
