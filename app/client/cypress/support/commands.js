@@ -1436,11 +1436,14 @@ Cypress.Commands.add("checkCodeInputValue", (selector) => {
   let inputVal = "";
   cy.get(selector).then(($field) => {
     cy.wrap($field)
-      .find(".CodeMirror")
+      .find(".CodeMirror-code span")
       .first()
-      .then((ins) => {
-        const input = ins[0].CodeMirror;
-        inputVal = input.getValue();
+      .invoke("text")
+      .then((text1) => {
+        inputVal = text1;
+        cy.log("checkCodeInputValue is:::: " + inputVal);
+        //  const input = ins[0].CodeMirror;
+        //   inputVal = input.getValue();
       });
 
     // to be chained with another cy command.
@@ -1515,27 +1518,44 @@ Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
     .wait(2000);
 });
 
-Cypress.Commands.add("EvaluatFieldValue", (fieldName = "") => {
-  if (fieldName) {
-    cy.get(fieldName).click();
-  } else {
-    cy.xpath("//div[@class='CodeMirror-code']")
-      .first()
-      .click();
-  }
-  cy.wait(3000); //Increasing wait time to evaluate non-undefined values
+Cypress.Commands.add(
+  "EvaluatFieldValue",
+  (fieldName = "", currentValue = "") => {
+    let val = "";
+    if (fieldName) {
+      cy.get(fieldName).click();
+      val = cy.get(fieldName).then(($field) => {
+        cy.wrap($field)
+          .find(".CodeMirror-code span")
+          .first()
+          .invoke("text");
+      });
+    } else {
+      cy.xpath("//div[@class='CodeMirror-code']")
+        .first()
+        .click();
+      val = cy
+        .xpath(
+          "//div[@class='CodeMirror-code']//span[contains(@class,'cm-m-javascript')]",
+        )
+        .then(($field) => {
+          cy.wrap($field).invoke("text");
+        });
+    }
+    //cy.wait(3000); //Increasing wait time to evaluate non-undefined values
+    // if (isDynamicValue) {
+    //   const val = cy
+    //     .get(commonlocators.evaluatedCurrentValue)
+    //     .first()
+    //     .should("be.visible")
+    //     .invoke("text");
+    //   if (toValidate) expect(val).to.eq(currentValue);
+    // }
+    if (currentValue) expect(val).to.eq(currentValue);
 
-  const val = cy.checkCodeInputValue(fieldName);
-  // if (isDynamicValue) {
-  //   const val = cy
-  //     .get(commonlocators.evaluatedCurrentValue)
-  //     .first()
-  //     .should("be.visible")
-  //     .invoke("text");
-  //   if (toValidate) expect(val).to.eq(currentValue);
-  // }
-  return val;
-});
+    return val;
+  },
+);
 
 // Cypress >=8.3.x  onwards
 cy.all = function(...commands) {

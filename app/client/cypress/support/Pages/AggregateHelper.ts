@@ -901,21 +901,34 @@ export class AggregateHelper {
 
   public ReturnCodeInputValue(selector: string) {
     let inputVal = "";
-    cy.xpath(this.locator._existingFieldValueByName(selector)).then(
-      ($field: any) => {
-        cy.wrap($field)
-          .find(".CodeMirror")
-          .first()
-          .then((ins: any) => {
-            const input = ins[0].CodeMirror;
-            inputVal = input.getValue();
-            this.Sleep(200);
-          });
+    this.GetElement(selector).then(($field) => {
+      cy.wrap($field)
+        .find(".CodeMirror-code span")
+        .first()
+        .invoke("text")
+        .then((text1) => {
+          inputVal = text1;
+        });
+    });
+    //if (currentValue) expect(val).to.eq(currentValue);
+    // to be chained with another cy command.
+    return cy.wrap(inputVal);
 
-        // to be chained with another cy command.
-        return inputVal;
-      },
-    );
+    // cy.xpath(this.locator._existingFieldValueByName(selector)).then(
+    //   ($field: any) => {
+    //     cy.wrap($field)
+    //       .find(".CodeMirror")
+    //       .first()
+    //       .then((ins: any) => {
+    //         const input = ins[0].CodeMirror;
+    //         inputVal = input.getValue();
+    //         this.Sleep(200);
+    //       });
+
+    //     // to be chained with another cy command.
+    //     return inputVal;
+    //   },
+    // );
   }
 
   public VerifyEvaluatedErrorMessage(errorMessage: string) {
@@ -945,17 +958,26 @@ export class AggregateHelper {
   }
 
   public EvaluateExistingPropertyFieldValue(fieldName = "") {
+    let val: any;
     if (fieldName) {
       cy.xpath(this.locator._existingFieldValueByName(fieldName))
         .eq(0)
         .click();
+      val = cy.get(fieldName).then(($field) => {
+        cy.wrap($field)
+          .find(".CodeMirror-code span")
+          .first()
+          .invoke("text");
+      });
     } else {
       cy.xpath(this.locator._codeMirrorCode).click();
+      val = cy.xpath("//div[@class='CodeMirror-code']//span[contains(@class,'cm-m-javascript')]").then(($field) => {
+        cy.wrap($field)
+          .invoke("text");
+      });
     }
     this.Sleep(3000); //Increasing wait time to evaluate non-undefined values
-
-    const val = this.ReturnCodeInputValue(fieldName);
-    return cy.wrap(val);
+    return val;
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true) {

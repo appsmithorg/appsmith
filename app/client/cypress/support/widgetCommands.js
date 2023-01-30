@@ -581,7 +581,7 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
     codeMirrorInput.focus();
     cy.wait(200);
     codeMirrorInput.setValue(value);
-    cy.wait(1000); //time for value to set
+    cy.wait(500); //time for value to set
   });
 });
 
