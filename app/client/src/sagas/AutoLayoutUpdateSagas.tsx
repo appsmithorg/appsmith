@@ -4,7 +4,11 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -17,6 +21,17 @@ import {
   wrapChildren,
 } from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
+import {
+  getCurrentAppPositioningType,
+  getMainCanvasProps,
+} from "selectors/editorSelectors";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 
 type LayoutUpdatePayload = {
   parentId: string;
@@ -130,6 +145,81 @@ export function* updateLayoutForMobileCheckpoint(
   }
 }
 
+export function* updateLayoutPositioningSaga(
+  actionPayload: ReduxAction<AppPositioningTypes>,
+) {
+  try {
+    const payloadPositioningType = actionPayload.payload;
+
+    if (payloadPositioningType === AppPositioningTypes.AUTO) {
+      const currPositioningType: AppPositioningTypes = yield select(
+        getCurrentAppPositioningType,
+      );
+
+      if (currPositioningType === AppPositioningTypes.AUTO) return;
+
+      const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+      const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
+        MAIN_CONTAINER_WIDGET_ID,
+        { canvasWidgets: allWidgets },
+      );
+
+      const autoDSL = convertDSLtoAuto(denormalizedDSL);
+      log.debug("autoDSL", autoDSL);
+
+      yield put(
+        updateAndSaveLayout(
+          CanvasWidgetsNormalizer.normalize(autoDSL).entities.canvasWidgets,
+        ),
+      );
+
+      yield call(recalculateOnPageLoad);
+    } else {
+      yield put(
+        batchUpdateMultipleWidgetProperties([
+          {
+            widgetId: MAIN_CONTAINER_WIDGET_ID,
+            updates: {
+              modify: {
+                positioning: Positioning.Fixed,
+                useAutoLayout: false,
+                direction: LayoutDirection.Vertical,
+              },
+            },
+          },
+        ]),
+      );
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.RECALCULATE_COLUMNS,
+        error,
+      },
+    });
+  }
+}
+
+export function* recalculateOnPageLoad() {
+  const appPositioningType: AppPositioningTypes = yield select(
+    getCurrentAppPositioningType,
+  );
+  const mainCanvasProps: MainCanvasReduxState = yield select(
+    getMainCanvasProps,
+  );
+
+  yield put(
+    updateLayoutForMobileBreakpointAction(
+      MAIN_CONTAINER_WIDGET_ID,
+      appPositioningType === AppPositioningTypes.AUTO
+        ? mainCanvasProps?.isMobile
+        : false,
+      mainCanvasProps.width,
+    ),
+  );
+}
 export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(ReduxActionTypes.ADD_CHILD_WRAPPERS, addChildWrappers),
@@ -138,6 +228,10 @@ export default function* layoutUpdateSagas() {
     takeLatest(
       ReduxActionTypes.RECALCULATE_COLUMNS,
       updateLayoutForMobileCheckpoint,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
+      updateLayoutPositioningSaga,
     ),
   ]);
 }

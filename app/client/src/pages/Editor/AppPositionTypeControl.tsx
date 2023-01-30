@@ -3,9 +3,7 @@ import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { Colors } from "constants/Colors";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { Icon, IconName, IconSize, TooltipComponent } from "design-system-old";
 import {
   AppPositioningTypeConfig,
@@ -15,8 +13,8 @@ import {
   getCurrentAppPositioningType,
   isAutoLayoutEnabled,
 } from "selectors/editorSelectors";
-import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
+import { updateLayoutPositioning } from "actions/autoLayoutActions";
 
 interface ApplicationPositionTypeConfigOption {
   name: string;
@@ -75,24 +73,7 @@ export function AppPositionTypeControl() {
   const updateAppPositioningLayout = (
     layoutOption: ApplicationPositionTypeConfigOption,
   ) => {
-    const selectedType =
-      layoutOption.type !== AppPositioningTypes.AUTO
-        ? Positioning.Fixed
-        : Positioning.Vertical;
-    dispatch(
-      batchUpdateMultipleWidgetProperties([
-        {
-          widgetId: MAIN_CONTAINER_WIDGET_ID,
-          updates: {
-            modify: {
-              positioning: selectedType,
-              useAutoLayout: selectedType !== Positioning.Fixed,
-              direction: LayoutDirection.Vertical,
-            },
-          },
-        },
-      ]),
-    );
+    dispatch(updateLayoutPositioning(layoutOption.type));
   };
 
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {

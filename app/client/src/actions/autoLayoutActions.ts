@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export const removeWrappersAction = (parentId: string) => ({
   type: ReduxActionTypes.REMOVE_CHILD_WRAPPERS,
@@ -24,3 +25,12 @@ export const updateLayoutForMobileBreakpointAction = (
     canvasWidth,
   },
 });
+
+export const updateLayoutPositioning = (
+  positioningType: AppPositioningTypes,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
+    payload: positioningType,
+  };
+};
