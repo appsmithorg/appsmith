@@ -1,5 +1,4 @@
-import { Collapse } from "@blueprintjs/core";
-import React, { useState, useMemo, PropsWithChildren } from "react";
+import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { get, keyBy } from "lodash";
 import {
@@ -12,7 +11,6 @@ import {
 } from "entities/AppsmithConsole";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "../EntityLink";
-import ReactJson from "react-json-view";
 import { getLogIcon } from "../helpers";
 import {
   Classes,
@@ -31,6 +29,7 @@ import {
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import { getPlugins } from "selectors/entitiesSelector";
 import { PluginType } from "entities/Action";
+import CollapseData from "./CollapseData";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -78,6 +77,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     margin-left: 4px;
+    font-weight: 500;
+    color: ${Colors.GRAY_500};
     cursor: default;
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
@@ -148,42 +149,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-type StyledCollapseProps = PropsWithChildren<{
-  category: LOG_CATEGORY;
-}>;
-
-const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
-  padding-top: ${(props) =>
-    props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
-      ? " -20px"
-      : " 4px"};
-  padding-left: 78px;
-`;
-
-const MessageInfo = styled.div`
-  ${getTypographyByKey("h6")}
-  font-weight: 400;
-  letter-spacing: -0.195px;
-  color: ${Colors.GRAY_800};
-`;
-
-const MessageWrapper = styled.div`
-  cpadding-bottom: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const JsonWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[1]}px;
-  svg {
-    color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
-    height: 12px !important;
-    width: 12px !important;
-    vertical-align: baseline !important;
-  }
-`;
-
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
   color: ${Colors.CHARCOAL};
@@ -227,10 +192,11 @@ export const getLogItemProps = (e: Log) => {
     messages: e.messages,
     collapsable: showToggleIcon(e),
     occurences: e.occurrenceCount || 1,
+    pluginErrorDetails: e.pluginErrorDetails,
   };
 };
 
-type LogItemProps = {
+export type LogItemProps = {
   collapsable?: boolean;
   icon: IconName;
   timestamp: string;
@@ -256,22 +222,6 @@ function ErrorLogItem(props: LogItemProps) {
   const theme = useTheme();
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-
-  const reactJsonProps = {
-    name: null,
-    enableClipboard: false,
-    displayObjectSize: false,
-    displayDataTypes: false,
-    style: {
-      fontFamily:
-        "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
-      fontSize: "11px",
-      fontWeight: "400",
-      letterSpacing: "-0.195px",
-      lineHeight: "13px",
-    },
-    collapsed: 1,
-  };
 
   const getIcon = () => {
     if (props.source) {
@@ -303,13 +253,7 @@ function ErrorLogItem(props: LogItemProps) {
   };
 
   return (
-    <Wrapper
-      className={props.severity}
-      collapsed={!isOpen}
-      onClick={() => {
-        if (collapsable) setIsOpen(!isOpen);
-      }}
-    >
+    <Wrapper className={props.severity} collapsed={!isOpen}>
       <InnerWrapper>
         <Icon
           clickable={collapsable}
@@ -394,32 +338,7 @@ function ErrorLogItem(props: LogItemProps) {
           )
         )}
       </InnerWrapper>
-      {collapsable && isOpen && (
-        <StyledCollapse
-          category={props.category}
-          isOpen={isOpen}
-          keepChildrenMounted
-        >
-          {props.pluginErrorDetails && (
-            <MessageWrapper>
-              <MessageInfo>
-                {props.pluginErrorDetails.appsmithErrorMessage}
-              </MessageInfo>
-              <MessageInfo>
-                {props.pluginErrorDetails.downstreamErrorMessage}
-              </MessageInfo>
-            </MessageWrapper>
-          )}
-          {props.state && (
-            <JsonWrapper
-              className="t--debugger-log-state"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ReactJson src={props.state} {...reactJsonProps} />
-            </JsonWrapper>
-          )}
-        </StyledCollapse>
-      )}
+      {collapsable && isOpen && <CollapseData isOpen={isOpen} {...props} />}
     </Wrapper>
   );
 }
