@@ -25,6 +25,11 @@ import {
   checkContainersForAutoHeightAction,
   updateWidgetAutoHeightAction,
 } from "actions/autoHeightActions";
+import {
+  selectWidgetInitAction,
+  WidgetSelectionRequest,
+} from "actions/widgetSelectionActions";
+
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
@@ -54,6 +59,7 @@ export type EditorContextType = {
   ) => void;
   updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
   checkContainersForAutoHeight?: () => void;
+  selectWidgetRequest?: WidgetSelectionRequest;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -70,6 +76,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     disableDrag,
     executeAction,
     resetChildrenMetaProperty,
+    selectWidgetRequest,
     syncUpdateWidgetMetaProperty,
     triggerEvalOnMetaUpdate,
     updateWidget,
@@ -92,6 +99,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       triggerEvalOnMetaUpdate,
       updateWidgetAutoHeight,
       checkContainersForAutoHeight,
+      selectWidgetRequest,
     }),
     [
       executeAction,
@@ -105,6 +113,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       triggerEvalOnMetaUpdate,
       updateWidgetAutoHeight,
       checkContainersForAutoHeight,
+      selectWidgetRequest,
     ],
   );
   return (
@@ -135,6 +144,7 @@ const mapDispatchToProps = {
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
   updateWidgetAutoHeight: updateWidgetAutoHeightAction,
   checkContainersForAutoHeight: checkContainersForAutoHeightAction,
+  selectWidgetRequest: selectWidgetInitAction,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

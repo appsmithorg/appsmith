@@ -20,7 +20,7 @@ export function addFn(
 }
 
 export function isAsyncGuard(_: (...args: any[]) => any, fnName: string) {
-  if (self.ALLOW_ASYNC) return;
-  self.IS_ASYNC = true;
+  if (!self.ALLOW_SYNC) return;
+  self.IS_SYNC = false;
   throw new ActionCalledInSyncFieldError(fnName);
 }
