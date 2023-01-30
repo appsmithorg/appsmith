@@ -508,6 +508,7 @@ export const TableHeaderWrapper = styled.div<{
 }>`
   position: relative;
   display: flex;
+  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
   width: ${(props) => props.width - 8}px;
   .show-page-items {
     display: ${(props) => (props.width < 700 ? "none" : "flex")};

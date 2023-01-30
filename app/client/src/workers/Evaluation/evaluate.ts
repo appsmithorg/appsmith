@@ -266,7 +266,7 @@ export default function evaluateSync(
       isTriggerBased: isJSCollection,
     });
 
-    evalContext.ALLOW_ASYNC = false;
+    evalContext.ALLOW_SYNC = true;
 
     const { script } = getUserScriptToEvaluate(
       userScript,
@@ -310,6 +310,7 @@ export default function evaluateSync(
         updateJSCollectionStateFromContext();
       }
       if (!skipLogsOperations) logs = userLogs.flushLogs();
+      evalContext.ALLOW_SYNC = false;
       for (const entityName in evalContext) {
         if (evalContext.hasOwnProperty(entityName)) {
           // @ts-expect-error: Types are not available
@@ -356,7 +357,7 @@ export async function evaluateAsync(
     });
 
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
-    evalContext.ALLOW_ASYNC = true;
+    evalContext.ALLOW_SYNC = false;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith

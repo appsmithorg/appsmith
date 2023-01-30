@@ -29,8 +29,8 @@ declare global {
    * */
 
   interface Window {
-    ALLOW_ASYNC?: boolean;
-    IS_ASYNC?: boolean;
+    ALLOW_SYNC?: boolean;
+    IS_SYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
   }
 }
@@ -290,8 +290,8 @@ export const pusher = function(
   ...args: any[]
 ) {
   const actionDescription = action(...args);
-  if (!self.ALLOW_ASYNC) {
-    self.IS_ASYNC = true;
+  if (self.ALLOW_SYNC) {
+    self.IS_SYNC = false;
     const actionName = ActionTriggerFunctionNames[actionDescription.type];
     throw new ActionCalledInSyncFieldError(actionName);
   }
