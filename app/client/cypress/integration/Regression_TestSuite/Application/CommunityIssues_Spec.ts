@@ -66,8 +66,11 @@ describe("AForce - Community Issues page validations", function() {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("serversidepagination", "checked");
 
-    agHelper
-      .EvaluateExistingPropertyFieldValue("Default Selected Row")
+    // agHelper
+    //   .EvaluateExistingPropertyFieldValue("Default Selected Row")
+    cy.xpath(locator._existingFieldValueByName("Default Selected Row"))
+      .eq(0)
+      .click()
       .then(($selectedRow) => {
         selectedRow = Number($selectedRow);
         table.AssertSelectedRow(selectedRow);
@@ -293,7 +296,7 @@ describe("AForce - Community Issues page validations", function() {
     );
 
     agHelper.ClickButton("Confirm");
-    agHelper.AssertElementAbsence(locator._toastMsg);//Making sure internal api doesnt throw error
+    agHelper.AssertElementAbsence(locator._toastMsg); //Making sure internal api doesnt throw error
     agHelper.Sleep(3000);
     table.SearchTable("Suggestion", 2);
     table.WaitUntilTableLoad();
