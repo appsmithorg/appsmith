@@ -124,7 +124,6 @@ public class UsagePulseServiceTest {
         Tenant testTenant = new Tenant();
         TenantConfiguration testTenantConfiguration = new TenantConfiguration();
         TenantConfiguration.License testLicense = new TenantConfiguration.License();
-        testLicense.setCsInstanceId("testCsInstanceId");
         testLicense.setKey("testLicenseKey");
         testTenantConfiguration.setLicense(testLicense);
         testTenant.setTenantConfiguration(testTenantConfiguration);

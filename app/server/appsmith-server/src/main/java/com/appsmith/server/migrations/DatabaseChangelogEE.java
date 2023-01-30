@@ -8,13 +8,17 @@ import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.EnvironmentVariable;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QTenant;
+import com.appsmith.server.domains.QUsagePulse;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
@@ -24,6 +28,7 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import io.changock.migration.api.annotations.NonLockGuarded;
+import io.mongock.api.annotations.ChangeUnit;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -32,6 +37,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +59,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
 @ChangeLog(order = "100")
@@ -325,6 +332,24 @@ public class DatabaseChangelogEE {
                 mongoTemplate.updateFirst(datasourceUpdatePolicyQuery, updatePolicy, Datasource.class);
             }
         });
+    }
+
+    /**
+     * We have modified the usage pulse format to include instanceId and tenantId. This migration removes the stale
+     * pulses created before updating the format
+     * @param mongoTemplate
+     */
+    @ChangeSet(order = "012", id = "remove-stale-usage-pulses", author = "")
+    public void removeStaleUsagePulses(MongoTemplate mongoTemplate) {
+        final Update update = new Update();
+        final Instant deletedAt = Instant.now();
+        update.set(fieldName(QUsagePulse.usagePulse.deletedAt) , deletedAt);
+        update.set(fieldName(QUsagePulse.usagePulse.deleted) , true);
+
+        mongoTemplate.updateMulti(
+            query(where(fieldName(QUsagePulse.usagePulse.tenantId)).exists(false)),
+            update,
+            UsagePulse.class);
     }
 
 }

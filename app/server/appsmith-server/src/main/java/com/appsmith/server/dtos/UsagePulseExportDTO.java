@@ -9,7 +9,6 @@ import java.time.Instant;
 @Setter
 public class UsagePulseExportDTO {
     String user;
-    String instanceId;
     String tenantId;
     Boolean viewMode;
     Boolean isAnonymousUser;

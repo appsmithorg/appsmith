@@ -115,7 +115,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      */
     public Mono<Tenant> checkAndUpdateDefaultTenantLicense() {
         return this.getDefaultTenant()
-                .flatMap(tenant -> checkTenantLicense(tenant).then(save(tenant)));
+                .flatMap(this::checkTenantLicense)
+                .flatMap(this::save);
     }
 
     /**
@@ -144,7 +145,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     public Boolean isValidLicenseConfiguration(Tenant tenant) {
         return tenant.getTenantConfiguration() != null &&
                 tenant.getTenantConfiguration().getLicense() != null &&
-                tenant.getTenantConfiguration().getLicense().getKey() != null &&
-                tenant.getTenantConfiguration().getLicense().getCsInstanceId() != null;
+                tenant.getTenantConfiguration().getLicense().getKey() != null;
     }
 }
