@@ -1,4 +1,4 @@
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import React from "react";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";

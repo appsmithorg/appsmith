@@ -7,7 +7,7 @@ import { generateReactKey } from "utils/generators";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
 import ActionCreator from "components/editorComponents/ActionCreator";
-import { Size, Category } from "design-system";
+import { Size, Category } from "design-system-old";
 
 export interface ColumnAction {
   label?: string;

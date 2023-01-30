@@ -3588,4 +3588,30 @@ public class ImportExportApplicationServiceTests {
             assertThat(fields.getBearerTokenAuth().getBearerToken()).isEqualTo("token_" + randomUUID);
         }).verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplicationTest_WithNavigationSettings() {
+
+        Application application = new Application();
+        application.setName("exportNavigationSettingsApplicationTest");
+        Application.NavigationSetting navSetting = new Application.NavigationSetting();
+        navSetting.setOrientation("top");
+        application.setUnpublishedNavigationSetting(navSetting);
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        Mono<ApplicationJson> resultMono =
+                importExportApplicationService.exportApplicationById(createdApplication.getId(), "");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    Application exportedApplication = applicationJson.getExportedApplication();
+                    assertThat(exportedApplication).isNotNull();
+                    assertThat(exportedApplication.getUnpublishedNavigationSetting()).isNotNull();
+                    assertThat(exportedApplication.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
+                })
+                .verifyComplete();
+    }
+
 }

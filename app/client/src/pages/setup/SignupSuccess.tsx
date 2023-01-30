@@ -11,7 +11,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import Landing from "pages/setup/Welcome";
 import { Center } from "pages/setup/common";
-import { IconSize, Spinner } from "design-system";
+import { IconSize, Spinner } from "design-system-old";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
 

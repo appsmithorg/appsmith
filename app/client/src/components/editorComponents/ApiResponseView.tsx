@@ -45,7 +45,7 @@ import {
   Text,
   TextType,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
