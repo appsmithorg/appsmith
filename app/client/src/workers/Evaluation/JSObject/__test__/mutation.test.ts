@@ -4,7 +4,10 @@ import {
   diffModifiedVariables,
 } from "../JSVariableUpdates";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { createEvaluationContext } from "workers/Evaluation/evaluate";
+import {
+  createEvaluationContext,
+  evaluateAsync,
+} from "workers/Evaluation/evaluate";
 import { VariableState, jsObjectCollection } from "../Collection";
 
 describe("Mutation", () => {
@@ -27,6 +30,8 @@ describe("Mutation", () => {
       skipEntityFunctions: true,
     });
 
+    jsVariableUpdates.enable();
+
     Object.assign(self, evalContext);
 
     eval(`
@@ -36,6 +41,8 @@ describe("Mutation", () => {
     JSObject1.var.b.a.push(2);
     JSObject1.var2.add(3);
     `);
+
+    jsVariableUpdates.disable();
 
     expect(jsVariableUpdates.getAll()).toEqual([
       { path: "JSObject1.var", method: "SET" },
@@ -47,6 +54,7 @@ describe("Mutation", () => {
   });
 
   it("Global scope value mutation tracking", async () => {
+    jsVariableUpdates.enable();
     const dataTree = ({
       JSObject1: {
         var: {},
@@ -79,6 +87,8 @@ describe("Mutation", () => {
 
     const modifiedVariablesList = filterPatches(jsVariableUpdates.getAll());
     const diffs = diffModifiedVariables(modifiedVariablesList);
+
+    jsVariableUpdates.disable();
 
     expect(modifiedVariablesList).toEqual(["JSObject1.var", "JSObject1.var2"]);
     expect(diffs).toEqual([
