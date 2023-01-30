@@ -295,7 +295,9 @@ export function codeToAction(
 
   const selectedOption = getSelectedFieldFromValue(jsCode, fieldOptions);
 
-  const mainActionType = (selectedOption.type || selectedOption.value) as any;
+  const mainActionType = (selectedOption.type ||
+    selectedOption.value ||
+    AppsmithFunction.none) as any;
 
   if (
     [AppsmithFunction.runAPI, AppsmithFunction.integration].includes(

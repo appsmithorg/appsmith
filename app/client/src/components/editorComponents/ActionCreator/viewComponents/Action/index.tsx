@@ -302,8 +302,7 @@ export const Action: React.FC<Props> = ({
               text="Add Action"
             />
           </div>
-        ) : // </div>
-        null}
+        ) : null}
       </div>
     );
   };
@@ -429,20 +428,22 @@ export const Action: React.FC<Props> = ({
       {/* <TooltipComponent boundary="viewport" content="Action"> */}
       {/* {" "} */}
 
-      <div className="mt-1">
-        <ActionBlockTree
-          actionTree={actionTree}
-          handleAddFailureBlock={addErrorAction}
-          handleAddSuccessBlock={addSuccessAction}
-          handleBlockSelection={setSelectedCallbackBlock}
-          onClick={() => {
-            onClick();
-            setSelectedCallbackBlock(null);
-          }}
-          selected={isOpen}
-          selectedCallbackBlock={selectedCallbackBlock}
-        />
-      </div>
+      {actionTree.actionType === AppsmithFunction.none ? null : (
+        <div className="mt-1">
+          <ActionBlockTree
+            actionTree={actionTree}
+            handleAddFailureBlock={addErrorAction}
+            handleAddSuccessBlock={addSuccessAction}
+            handleBlockSelection={setSelectedCallbackBlock}
+            onClick={() => {
+              onClick();
+              setSelectedCallbackBlock(null);
+            }}
+            selected={isOpen}
+            selectedCallbackBlock={selectedCallbackBlock}
+          />
+        </div>
+      )}
       {/* </TooltipComponent> */}
     </>
   );

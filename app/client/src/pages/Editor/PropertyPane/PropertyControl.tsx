@@ -56,6 +56,8 @@ import {
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
+import { getActionBlocks } from "@shared/ast";
+import { isEmptyBlock } from "components/editorComponents/ActionCreator";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -680,10 +682,24 @@ const PropertyControl = memo((props: Props) => {
               <button
                 className="ml-auto hover:bg-black"
                 onClick={() => {
+                  const valueWithoutMustache = getDynamicBindings(propertyValue)
+                    .jsSnippets[0];
+
+                  // If there is already an empty action configured, do not add another one
+                  const actionBlocks = getActionBlocks(
+                    valueWithoutMustache,
+                    self.evaluationVersion,
+                  );
+
+                  if (
+                    actionBlocks.length > 0 &&
+                    isEmptyBlock(actionBlocks[actionBlocks.length - 1])
+                  )
+                    return;
+
                   onPropertyChange(
                     propertyName,
-                    `{{${getDynamicBindings(propertyValue).jsSnippets[0] +
-                      ";"}}}`,
+                    `{{${valueWithoutMustache + ";"}}}`,
                   );
                 }}
               >
