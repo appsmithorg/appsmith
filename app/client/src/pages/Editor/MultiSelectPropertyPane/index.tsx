@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { getSelectedWidgets } from "selectors/ui";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 function MultiSelectPropertyPane() {
   const { focusWidget, selectWidget } = useWidgetSelection();
@@ -33,7 +34,7 @@ function MultiSelectPropertyPane() {
                 className={className}
                 key={selectedWidgetId}
                 onClick={() => {
-                  selectWidget(selectedWidgetId);
+                  selectWidget(SelectionRequestType.One, [selectedWidgetId]);
                   focusWidget(selectedWidgetId);
                 }}
               >
