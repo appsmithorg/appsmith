@@ -4,7 +4,7 @@ import {
   toggleShowDeviationDialog,
   toggleShowEndTourDialog,
 } from "actions/onboardingActions";
-import { Button, Category, DialogComponent, Size } from "design-system";
+import { Button, Category, DialogComponent, Size } from "design-system-old";
 import {
   CANCEL_DIALOG,
   createMessage,

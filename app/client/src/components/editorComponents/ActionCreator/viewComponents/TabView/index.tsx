@@ -3,7 +3,7 @@ import {
   ControlWrapper,
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
-import { Switcher } from "design-system";
+import { Switcher } from "design-system-old";
 import React from "react";
 
 export function TabView(props: TabViewProps) {

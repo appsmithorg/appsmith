@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
@@ -38,7 +39,10 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final ApplicationContext applicationContext;
 
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
+
     private boolean isRtsAccessible = false;
+
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -53,12 +57,16 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(performRtsHealthCheck())
                 .doFinally(ignored -> this.printReady());
 
-        checkInstanceSchemaVersion()
+        Mono<?> startupProcess = checkInstanceSchemaVersion()
                 .flatMap(signal -> registrationAndRtsCheckMono)
-                .subscribe(null, e -> {
-                    log.debug("Application start up encountered an error: {}", e.getMessage());
-                    Sentry.captureException(e);
-                });
+                // Prefill the server cache with anonymous user permission group ids.
+                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache());
+        try {
+            startupProcess.block();
+        } catch(Exception e) {
+            log.debug("Application start up encountered an error: {}", e.getMessage());
+            Sentry.captureException(e);
+        }
     }
 
     private Mono<Void> checkInstanceSchemaVersion() {
@@ -89,16 +97,18 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     private AppsmithException populateSchemaMismatchError(Integer currentInstanceSchemaVersion) {
 
         List<String> versions = new LinkedList<>();
+        List<String> docs = new LinkedList<>();
 
         // Keep adding version numbers that brought in breaking instance schema migrations here
         switch (currentInstanceSchemaVersion) {
             // Example, we expect that in v1.8.14, all instances will have been migrated to instanceSchemaVer 2
             case 1:
-                versions.add("v1.9.1");
+                versions.add("v1.9.2");
+                docs.add("https://docs.appsmith.com/help-and-support/troubleshooting-guide/deployment-errors#server-shuts-down-with-schema-mismatch-error");
             default:
         }
 
-        return new AppsmithException(AppsmithError.SCHEMA_MISMATCH_ERROR, versions);
+        return new AppsmithException(AppsmithError.SCHEMA_MISMATCH_ERROR, versions, docs);
     }
 
     private Mono<? extends Config> registerInstance() {

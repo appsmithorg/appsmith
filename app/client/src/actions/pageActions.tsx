@@ -367,6 +367,7 @@ export type GenerateCRUDSuccess = {
     name: string;
     isDefault?: boolean;
     slug: string;
+    description?: string;
   };
   isNewPage: boolean;
 };
@@ -439,6 +440,7 @@ export function redoAction() {
     },
   };
 }
+
 /**
  * action for delete page
  *

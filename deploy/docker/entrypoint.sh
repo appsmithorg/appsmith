@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -o xtrace
 
 stacks_path=/appsmith-stacks
 
@@ -153,14 +154,21 @@ init_replica_set() {
     echo "Waiting 10s for MongoDB to start"
     sleep 10
     echo "Creating MongoDB user"
-    bash "/opt/appsmith/templates/mongo-init.js.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" > "/appsmith-stacks/configuration/mongo-init.js"
-    mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
+    mongosh "127.0.0.1/appsmith" --eval "db.createUser({
+        user: '$APPSMITH_MONGODB_USER',
+        pwd: '$APPSMITH_MONGODB_PASSWORD',
+        roles: [{
+            role: 'root',
+            db: 'admin'
+        }, 'readWrite']
+      }
+    )"
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile /mongodb-key --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
-    mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
+    mongosh "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
   fi
 
@@ -168,7 +176,7 @@ init_replica_set() {
     # Check mongodb cloud Replica Set
     echo "Checking Replica Set of external MongoDB"
 
-    mongo_state="$(mongo --host "$APPSMITH_MONGODB_URI" --quiet --eval "rs.status().ok")"
+    mongo_state="$(mongosh "$APPSMITH_MONGODB_URI" --quiet --eval "rs.status().ok")"
     if [[ ${mongo_state: -1} -eq 1 ]]; then
       echo "Mongodb cloud Replica Set is enabled"
     else
@@ -182,10 +190,10 @@ init_replica_set() {
 }
 
 use-mongodb-key() {
-	# This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
-	# What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
-	# So the key file should be somewhere inside the container, and not in a volume.
-	cp -v "$1" /mongodb-key
+  # This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
+  # What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
+  # So the key file should be somewhere inside the container, and not in a volume.
+  cp -v "$1" /mongodb-key
   chmod 600 /mongodb-key
 }
 
@@ -248,8 +256,14 @@ configure_supervisord() {
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
       cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+      # Initialize Redis rdb directory
+      local redis_db_path="$stacks_path/data/redis"
+      mkdir -p "$redis_db_path"
       # Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
-      sed -i 's/^# save 60 10000$/save 60 1/g' /etc/redis/redis.conf
+      sed -i \
+        -e 's/^save 60 10000$/save 15 1/g' \
+        -e "s|^dir /var/lib/redis$|dir ${redis_db_path}|g" \
+        /etc/redis/redis.conf
     fi
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
       cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/

@@ -304,7 +304,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     };
   }
 
-  updateCenter = (lat: number, long: number, title?: string) => {
+  updateCenter = (lat?: number, long?: number, title?: string) => {
     this.props.updateWidgetMetaProperty("center", { lat, long, title });
   };
 
@@ -321,7 +321,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("markers", markers);
   };
 
-  onCreateMarker = (lat: number, long: number) => {
+  onCreateMarker = (lat?: number, long?: number) => {
     this.disableDrag(true);
     const marker = { lat, long, title: "" };
 
@@ -344,7 +344,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("selectedMarker", undefined);
   };
 
-  onMarkerClick = (lat: number, long: number, title: string) => {
+  onMarkerClick = (lat?: number, long?: number, title?: string) => {
     this.disableDrag(true);
     const selectedMarker = {
       lat: lat,
