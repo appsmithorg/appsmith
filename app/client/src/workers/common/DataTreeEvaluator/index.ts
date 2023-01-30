@@ -361,6 +361,10 @@ export default class DataTreeEvaluator {
 
   setupUpdateTree(
     unEvalTree: DataTree,
+    _differences?: Diff<
+      Record<string, DataTreeJSAction>,
+      Record<string, DataTreeJSAction>
+    >[],
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -375,13 +379,12 @@ export default class DataTreeEvaluator {
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
     this.updateLocalUnEvalTree(localUnEvalTree);
-    //get difference in js collection body to be parsed
-    const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
-    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
+
     const jsDifferences: Diff<
       Record<string, DataTreeJSAction>,
       Record<string, DataTreeJSAction>
-    >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
+    >[] =
+      _differences || this.getDifferencesInJSCollectionBody(localUnEvalTree);
     const jsTranslatedDiffs = flatten(
       jsDifferences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
@@ -403,7 +406,7 @@ export default class DataTreeEvaluator {
     );
 
     const differences: Diff<DataTree, DataTree>[] =
-      diff(this.oldUnEvalTree, localUnEvalTree) || [];
+      _differences || diff(this.oldUnEvalTree, localUnEvalTree) || [];
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
@@ -530,6 +533,13 @@ export default class DataTreeEvaluator {
         nonDynamicFieldValidationOrderSet,
       ),
     };
+  }
+
+  getDifferencesInJSCollectionBody(localUnEvalTree: DataTree) {
+    //get difference in js collection body to be parsed
+    const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
+    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
+    return diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
   }
 
   evalAndValidateSubTree(
