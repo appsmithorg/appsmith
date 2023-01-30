@@ -24,7 +24,13 @@ export type ActionTriggerKeys =
   | "SET_TIMEOUT"
   | "CLEAR_TIMEOUT";
 
-export const ActionTriggerFunctionNames: Record<ActionTriggerKeys, string> = {
+// isCloudHosting will be used in EE
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getActionTriggerFunctionNames = (isCloudHosting: boolean) => {
+  return ActionTriggerFunctionNames;
+};
+
+const ActionTriggerFunctionNames: Record<ActionTriggerKeys, string> = {
   CLEAR_INTERVAL: "clearInterval",
   CLEAR_PLUGIN_ACTION: "action.clear",
   CLOSE_MODAL: "closeModal",

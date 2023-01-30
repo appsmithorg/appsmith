@@ -3,6 +3,7 @@ import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { WorkerRequest } from "@appsmith/workers/common/types";
 
 export enum LINT_WORKER_ACTIONS {
+  SETUP = "SETUP",
   LINT_TREE = "LINT_TREE",
   UPDATE_LINT_GLOBALS = "UPDATE_LINT_GLOBALS",
 }

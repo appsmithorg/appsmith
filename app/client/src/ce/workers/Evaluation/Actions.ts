@@ -3,7 +3,7 @@ import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import set from "lodash/set";
 import {
   ActionDescription,
-  ActionTriggerFunctionNames,
+  getActionTriggerFunctionNames,
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -247,7 +247,14 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
     }
   }
 
-  for (const name of Object.values(ActionTriggerFunctionNames)) {
+  console.log(
+    "--------- env config in getAllAsync",
+    self,
+    self.APPSMITH_FEATURE_CONFIGS,
+  );
+  for (const name of Object.values(
+    getActionTriggerFunctionNames(self.APPSMITH_FEATURE_CONFIGS.cloudHosting),
+  )) {
     asyncFunctionNameMap[name] = true;
   }
 
@@ -278,7 +285,9 @@ export const pusher = function(
   const actionDescription = action(...args);
   if (self.ALLOW_SYNC) {
     self.IS_SYNC = false;
-    const actionName = ActionTriggerFunctionNames[actionDescription.type];
+    const actionName = getActionTriggerFunctionNames(
+      self.APPSMITH_FEATURE_CONFIGS.cloudHosting,
+    )[actionDescription.type];
     throw new ActionCalledInSyncFieldError(actionName);
   }
   const { executionType, payload, type } = actionDescription;

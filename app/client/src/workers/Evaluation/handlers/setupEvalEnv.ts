@@ -23,6 +23,7 @@ export default function(request: EvalWorkerSyncRequest) {
   });
   self.window = self;
   self.APPSMITH_FEATURE_CONFIGS = request.data.APPSMITH_FEATURE_CONFIGS;
+  console.log("--- env config set here", self, self.APPSMITH_FEATURE_CONFIGS);
   userLogs.overrideConsoleAPI();
   overrideTimeout();
   interceptAndOverrideHttpRequest();

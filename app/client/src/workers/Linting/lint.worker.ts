@@ -62,6 +62,10 @@ function eventRequestHandler({
   requestData: any;
 }): LintTreeResponse | unknown {
   switch (method) {
+    case LINT_WORKER_ACTIONS.SETUP: {
+      self.APPSMITH_FEATURE_CONFIGS = requestData.APPSMITH_FEATURE_CONFIGS;
+      return true;
+    }
     case LINT_WORKER_ACTIONS.LINT_TREE: {
       const lintTreeResponse: LintTreeResponse = { errors: {} };
       try {

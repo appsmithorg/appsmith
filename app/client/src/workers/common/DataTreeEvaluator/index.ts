@@ -678,6 +678,11 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
+    console.log(
+      "env config in data tree evaluator",
+      self,
+      self.APPSMITH_FEATURE_CONFIGS,
+    );
     errorModifier.updateAsyncFunctions(tree);
     const evalMetaUpdates: EvalMetaUpdates = [];
     const { isFirstTree, skipRevalidation, unevalUpdates } = options;

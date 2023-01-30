@@ -19,6 +19,11 @@ class ErrorModifier {
   private asyncFunctionsNameMap: Record<string, true> = {};
 
   updateAsyncFunctions(dataTree: DataTree) {
+    console.log(
+      "--------- env config in getAllAsync",
+      self,
+      self.APPSMITH_FEATURE_CONFIGS,
+    );
     this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree);
   }
 

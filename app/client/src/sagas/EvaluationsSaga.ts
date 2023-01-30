@@ -111,6 +111,7 @@ import {
 } from "workers/Evaluation/types";
 import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
+import { LINT_WORKER_ACTIONS } from "workers/Linting/types";
 
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -588,6 +589,9 @@ function* evaluationChangeListenerSaga(): any {
   ]);
 
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
+    APPSMITH_FEATURE_CONFIGS: self.APPSMITH_FEATURE_CONFIGS,
+  });
+  yield call(lintWorker.request, LINT_WORKER_ACTIONS.SETUP, {
     APPSMITH_FEATURE_CONFIGS: self.APPSMITH_FEATURE_CONFIGS,
   });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);

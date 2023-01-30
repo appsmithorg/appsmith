@@ -53,7 +53,7 @@ import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
 import { MessageType, sendMessage } from "utils/MessageUtil";
-import { ActionTriggerFunctionNames } from "@appsmith/entities/DataTree/actionTriggers";
+import { getActionTriggerFunctionNames } from "ce/entities/DataTree/actionTriggers";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -68,7 +68,11 @@ export function getlintErrorsFromTree(
     skipEntityFunctions: true,
   });
 
-  const platformFnNamesMap = Object.values(ActionTriggerFunctionNames).reduce(
+  // console.log("env config in lint worker", self.APPSMITH_FEATURE_CONFIGS);
+
+  const platformFnNamesMap = Object.values(
+    getActionTriggerFunctionNames(self.APPSMITH_FEATURE_CONFIGS.cloudHosting),
+  ).reduce(
     (acc, name) => ({ ...acc, [name]: true }),
     {} as { [x: string]: boolean },
   );
