@@ -4,7 +4,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Invalid JSObject export statement", function() {
-  it("Completes execution properly", function() {
+  it("Shows error toast for invalid js object export statement", function() {
     const JSObjectWithInvalidExport = `{
         myFun1: ()=>{
             return (name)=>name
