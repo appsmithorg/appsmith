@@ -172,4 +172,8 @@ export class CommonLocators {
   _editorVariable = ".cm-variable";
   _consoleString = ".cm-string";
   _commentString = ".cm-comment";
+  _buttonWidget = ".t--widget-buttonwidget";
+  _dividerWidget = ".t--widget-dividerwidget";
+  _checkboxWidget = ".t--widget-checkboxwidget";
+  _filepickerWidget = ".t--widget-filepickerwidgetv2";
 }
