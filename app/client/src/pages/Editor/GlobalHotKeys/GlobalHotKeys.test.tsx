@@ -13,6 +13,7 @@ import { MemoryRouter } from "react-router-dom";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as utilities from "selectors/editorSelectors";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as sagaSelectors from "sagas/selectors";
 import store, { runSagaMiddleware } from "store";
 import {
   buildChildren,
@@ -59,6 +60,7 @@ describe("Canvas Hot Keys", () => {
     useMockDsl(dsl);
     return <MainContainer />;
   }
+
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
     const mockGenerator = function*() {
@@ -457,6 +459,7 @@ describe("Cut/Copy/Paste hotkey", () => {
 
     let selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
+    jest.spyOn(sagaSelectors, "getWidgetMetaProps").mockReturnValue({});
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,

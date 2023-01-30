@@ -324,7 +324,8 @@ export function* evaluateAndExecuteDynamicTrigger(
       errors[0].errorMessage !==
       "UncaughtPromiseRejection: User cancelled action execution"
     ) {
-      throw new UncaughtPromiseError(errors[0].errorMessage);
+      const errorMessage = errors[0].errorMessage || errors[0].message;
+      throw new UncaughtPromiseError(errorMessage);
     }
   }
 
@@ -389,63 +390,98 @@ export function* clearEvalCache() {
   return true;
 }
 
-export function* executeFunction(
+interface JSFunctionExecutionResponse {
+  errors: unknown[];
+  result: unknown;
+  logs?: LogObject[];
+}
+
+function* executeAsyncJSFunction(
+  collectionName: string,
+  action: JSAction,
+  collectionId: string,
+) {
+  let response: JSFunctionExecutionResponse;
+  const functionCall = `${collectionName}.${action.name}()`;
+
+  try {
+    response = yield call(
+      evaluateAndExecuteDynamicTrigger,
+      functionCall,
+      EventType.ON_JS_FUNCTION_EXECUTE,
+      {
+        source: {
+          id: collectionId,
+          name: `${collectionName}.${action.name}`,
+        },
+        triggerPropertyName: `${collectionName}.${action.name}`,
+      },
+    );
+  } catch (e) {
+    if (e instanceof UncaughtPromiseError) {
+      logActionExecutionError(e.message);
+    }
+    response = { errors: [e], result: undefined };
+  }
+  return response;
+}
+
+function* executeSyncJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
 ) {
   const functionCall = `${collectionName}.${action.name}()`;
+  const response: JSFunctionExecutionResponse = yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS,
+    {
+      functionCall,
+    },
+  );
+  const { logs = [] } = response;
+  // Check for any logs in the response and store them in the redux store
+  yield call(
+    storeLogs,
+    logs,
+    collectionName + "." + action.name,
+    ENTITY_TYPE.JSACTION,
+    collectionId,
+  );
+  return response;
+}
+
+export function* executeJSFunction(
+  collectionName: string,
+  action: JSAction,
+  collectionId: string,
+) {
   const { isAsync } = action.actionConfiguration;
   let response: {
-    errors: any[];
-    result: any;
+    errors: unknown[];
+    result: unknown;
     logs?: LogObject[];
   };
 
   if (isAsync) {
-    try {
-      response = yield call(
-        evaluateAndExecuteDynamicTrigger,
-        functionCall,
-        EventType.ON_JS_FUNCTION_EXECUTE,
-        {
-          source: {
-            id: collectionId,
-            name: `${collectionName}.${action.name}`,
-          },
-          triggerPropertyName: `${collectionName}.${action.name}`,
-        },
-      );
-    } catch (e) {
-      if (e instanceof UncaughtPromiseError) {
-        logActionExecutionError(e.message);
-      }
-      response = { errors: [e], result: undefined };
-    }
+    response = yield call(
+      executeAsyncJSFunction,
+      collectionName,
+      action,
+      collectionId,
+    );
   } else {
     response = yield call(
-      evalWorker.request,
-      EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS,
-      {
-        functionCall,
-      },
-    );
-
-    const { logs = [] } = response;
-    // Check for any logs in the response and store them in the redux store
-    yield call(
-      storeLogs,
-      logs,
-      collectionName + "." + action.name,
-      ENTITY_TYPE.JSACTION,
+      executeSyncJSFunction,
+      collectionName,
+      action,
       collectionId,
     );
   }
-
   const { errors, result } = response;
-
   const isDirty = !!errors.length;
 
+  // After every function execution, log execution errors if present
   yield call(
     handleJSFunctionExecutionErrorLog,
     collectionId,
