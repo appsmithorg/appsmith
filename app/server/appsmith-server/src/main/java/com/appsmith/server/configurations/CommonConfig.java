@@ -67,7 +67,7 @@ public class CommonConfig {
     @Value("${appsmith.rts.port:8091}")
     private String rtsPort;
 
-    private String rtsBaseDomain = "http://127.0.0.1:" + rtsPort;
+    private String rtsBaseDomain;
 
     private List<String> allowedDomains;
 
@@ -131,5 +131,8 @@ public class CommonConfig {
         // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
         isSignupDisabled = "true".equalsIgnoreCase(value);
     }
-
+    
+    public String getRtsBaseDomain() {
+     return "http://127.0.0.1:" + rtsPort;
+}
 }
