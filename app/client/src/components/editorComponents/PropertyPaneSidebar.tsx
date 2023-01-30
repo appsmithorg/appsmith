@@ -27,6 +27,7 @@ import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
 import { quickScrollToWidget } from "utils/helpers";
 import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 type Props = {
   width: number;
@@ -73,6 +74,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
   const selectedWidgets = useSelector(selectedWidgetsPresentInCanvas, equal);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
@@ -89,7 +91,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       //update url hash with the selectedWidget
       dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
       if (selectedWidgetIds.length === 1) {
-        quickScrollToWidget(selectedWidgetIds[0]);
+        quickScrollToWidget(selectedWidgetIds[0], canvasWidgets);
       }
     }
   }, [selectedWidgetIds]);
