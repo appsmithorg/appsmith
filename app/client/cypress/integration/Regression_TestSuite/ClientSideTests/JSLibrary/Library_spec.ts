@@ -5,7 +5,6 @@ const explorer = ObjectsRegistry.EntityExplorer;
 const installer = ObjectsRegistry.LibraryInstaller;
 const aggregateHelper = ObjectsRegistry.AggregateHelper;
 const homePage = ObjectsRegistry.HomePage;
-const deployMode = ObjectsRegistry.DeployMode;
 
 describe("Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
