@@ -56,7 +56,11 @@ export const libraryReservedIdentifiers = defaultLibraries.reduce(
 export function resetJSLibraries() {
   JSLibraries.length = 0;
   JSLibraries.push(...defaultLibraries);
+  const defaultLibraryAccessors = defaultLibraries.map(
+    (lib) => lib.accessor[0],
+  );
   for (const key of Object.keys(libraryReservedIdentifiers)) {
+    if (defaultLibraryAccessors.includes(key)) continue;
     try {
       // @ts-expect-error: Types are not available
       delete self[key];
