@@ -1,7 +1,11 @@
 import { pickBy, sum } from "lodash";
 import React, { CSSProperties } from "react";
 import { Cell, Row } from "react-table";
-import { ReactTableColumnProps, StickyType } from "../Constants";
+import {
+  MULTISELECT_CHECKBOX_WIDTH,
+  ReactTableColumnProps,
+  StickyType,
+} from "../Constants";
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
 import { renderBodyCheckBoxCell } from "./SelectionCheckboxCell";
 
@@ -99,8 +103,15 @@ export const renderEmptyRows = (
                 .slice(1, colIndex + 1)
                 .map((col) => col.columnProperties.width);
 
-              distanceFromEdge["left"] =
-                colIndex === 0 ? 0 : sum(leftColWidths);
+              if (multiRowSelection) {
+                distanceFromEdge["left"] =
+                  colIndex === 0
+                    ? MULTISELECT_CHECKBOX_WIDTH
+                    : sum(leftColWidths) + MULTISELECT_CHECKBOX_WIDTH;
+              } else {
+                distanceFromEdge["left"] =
+                  colIndex === 0 ? 0 : sum(leftColWidths);
+              }
 
               if (colIndex === lastLeftIdx - 1)
                 stickyAttributes["data-sticky-last-left-td"] = true;

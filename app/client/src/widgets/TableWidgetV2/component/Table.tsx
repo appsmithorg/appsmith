@@ -227,7 +227,6 @@ const HeaderComponent = (props: HeaderComponentProps) => {
 
 export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
-  const scrollBarRef = React.useRef(null);
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnWidthMap = {
       ...props.columnWidthMap,
@@ -349,6 +348,15 @@ export function Table(props: TableProps) {
     props.isVisibleFilters ||
     props.isVisibleDownload ||
     props.isVisiblePagination;
+
+  const scrollContainerHeight = useMemo(() => {
+    return isHeaderVisible
+      ? props.height -
+          tableSizes.TABLE_HEADER_HEIGHT -
+          TABLE_SCROLLBAR_HEIGHT -
+          SCROLL_BAR_OFFSET
+      : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET;
+  }, [isHeaderVisible, props.height, tableSizes.TABLE_HEADER_HEIGHT]);
 
   const shouldUseVirtual =
     props.serverSidePaginationEnabled &&
@@ -499,55 +507,53 @@ export function Table(props: TableProps) {
         ref={tableWrapperRef}
       >
         <div {...getTableProps()} className="table column-freeze">
-          <SimpleBar
-            ref={scrollBarRef}
-            style={{
-              height: isHeaderVisible
-                ? props.height -
-                  tableSizes.TABLE_HEADER_HEIGHT -
-                  TABLE_SCROLLBAR_HEIGHT -
-                  SCROLL_BAR_OFFSET
-                : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
-            }}
-          >
-            {({ scrollableNodeRef }) => {
-              return !shouldUseVirtual ? (
-                <div className="simplebar-content-wrapper">
-                  <div className="simplebar-content">
-                    <HeaderComponent
-                      handleAllRowSelectClick={handleAllRowSelectClick}
-                      headerGroups={headerGroups}
-                      isResizingColumn={isResizingColumn}
-                      prepareRow={prepareRow}
-                      renderHeaderCheckBoxCell={renderHeaderCheckBoxCell}
-                      rowSelectionState={rowSelectionState}
-                      subPage={subPage}
-                      {...props}
-                    />
-                    <TableBody
-                      accentColor={props.accentColor}
-                      borderRadius={props.borderRadius}
-                      columns={props.columns}
-                      getTableBodyProps={getTableBodyProps}
-                      height={props.height}
-                      innerElementType={MemoizedInnerElement}
-                      isAddRowInProgress={props.isAddRowInProgress}
-                      multiRowSelection={!!props.multiRowSelection}
-                      pageSize={props.pageSize}
-                      prepareRow={prepareRow}
-                      primaryColumnId={props.primaryColumnId}
-                      ref={tableBodyRef}
-                      rows={subPage}
-                      selectTableRow={props.selectTableRow}
-                      selectedRowIndex={props.selectedRowIndex}
-                      selectedRowIndices={props.selectedRowIndices}
-                      tableSizes={tableSizes}
-                      useVirtual={shouldUseVirtual}
-                      width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
-                    />
-                  </div>
-                </div>
-              ) : (
+          {!shouldUseVirtual && (
+            <SimpleBar
+              style={{
+                height: scrollContainerHeight,
+              }}
+            >
+              <HeaderComponent
+                handleAllRowSelectClick={handleAllRowSelectClick}
+                headerGroups={headerGroups}
+                isResizingColumn={isResizingColumn}
+                prepareRow={prepareRow}
+                renderHeaderCheckBoxCell={renderHeaderCheckBoxCell}
+                rowSelectionState={rowSelectionState}
+                subPage={subPage}
+                {...props}
+              />
+              <TableBody
+                accentColor={props.accentColor}
+                borderRadius={props.borderRadius}
+                columns={props.columns}
+                getTableBodyProps={getTableBodyProps}
+                height={props.height}
+                innerElementType={MemoizedInnerElement}
+                isAddRowInProgress={props.isAddRowInProgress}
+                multiRowSelection={!!props.multiRowSelection}
+                pageSize={props.pageSize}
+                prepareRow={prepareRow}
+                primaryColumnId={props.primaryColumnId}
+                ref={tableBodyRef}
+                rows={subPage}
+                selectTableRow={props.selectTableRow}
+                selectedRowIndex={props.selectedRowIndex}
+                selectedRowIndices={props.selectedRowIndices}
+                tableSizes={tableSizes}
+                useVirtual={shouldUseVirtual}
+                width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
+              />
+            </SimpleBar>
+          )}
+
+          {shouldUseVirtual && (
+            <SimpleBar
+              style={{
+                height: scrollContainerHeight,
+              }}
+            >
+              {({ scrollableNodeRef }) => (
                 <TableBody
                   accentColor={props.accentColor}
                   borderRadius={props.borderRadius}
@@ -570,9 +576,9 @@ export function Table(props: TableProps) {
                   useVirtual={shouldUseVirtual}
                   width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
                 />
-              );
-            }}
-          </SimpleBar>
+              )}
+            </SimpleBar>
+          )}
         </div>
       </div>
     </TableWrapper>
