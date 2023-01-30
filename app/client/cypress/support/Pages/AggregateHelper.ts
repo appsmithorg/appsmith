@@ -944,7 +944,9 @@ export class AggregateHelper {
       });
   }
 
-  public EvaluateExistingPropertyFieldValue(fieldName = "") {
+  public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
+    let toValidate = false;
+    if (currentValue) toValidate = true;
     if (fieldName) {
       cy.xpath(this.locator._existingFieldValueByName(fieldName))
         .eq(0)
@@ -954,8 +956,14 @@ export class AggregateHelper {
     }
     this.Sleep(3000); //Increasing wait time to evaluate non-undefined values
 
-    const val = this.ReturnCodeInputValue(fieldName);
-    return cy.wrap(val);
+    // eslint-disable-next-line cypress/no-assigning-return-values
+    const val = cy
+      .get(this.locator._evaluatedCurrentValue)
+      .first()
+      .should("be.visible")
+      .invoke("text");
+    if (toValidate) expect(val).to.eq(currentValue);
+    return val;
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true) {
