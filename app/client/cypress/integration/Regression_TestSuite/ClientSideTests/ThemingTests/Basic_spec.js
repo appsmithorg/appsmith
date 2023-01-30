@@ -869,14 +869,14 @@ describe("App Theming funtionality", function() {
     cy.PublishtheApp();
 
     //Verify Background color
-    cy.get(".t--widget-buttonwidget:nth-child(3) button").should(
+    cy.get(".t--widget-buttonwidget:nth-child(4) button").should(
       "have.css",
       "background-color",
       "rgb(134, 239, 172)", //rgb(134, 239, 172)
     ); //new widget with its own color
 
     ////old widgets still conforming to theme color
-    cy.get(".t--widget-buttonwidget:nth-child(1) button").should(
+    cy.get(".t--widget-buttonwidget:nth-child(2) button").should(
       "have.css",
       "background-color",
       "rgb(126, 34, 206)",
@@ -1112,12 +1112,12 @@ describe("App Theming funtionality", function() {
     cy.PublishtheApp();
 
     //Verify Background color
-    cy.get(".t--widget-buttonwidget:nth-child(1) button")
+    cy.get(".t--widget-buttonwidget:nth-child(2) button")
       .eq(0)
       .should("have.css", "background-color", "rgb(252, 165, 165)"); //new widget with its own color
 
     ////old widgets still conforming to theme color
-    cy.get(".t--widget-buttonwidget:nth-child(3) button").should(
+    cy.get(".t--widget-buttonwidget:nth-child(4) button").should(
       "have.css",
       "background-color",
       "rgb(239, 68, 68)",
