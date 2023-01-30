@@ -10,8 +10,8 @@ class FunctionDeterminer {
   setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
-      ALLOW_ASYNC: false,
-      IS_ASYNC: false,
+      ALLOW_SYNC: true,
+      IS_SYNC: true,
     };
 
     jsVariableUpdates.disable();
@@ -49,22 +49,22 @@ class FunctionDeterminer {
 
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {
     self.TRIGGER_COLLECTOR = [];
-    self.IS_ASYNC = false;
-    self.ALLOW_ASYNC = false;
+    self.IS_SYNC = true;
+    self.ALLOW_SYNC = true;
 
     return (function() {
       try {
         if (typeof userFunction === "function") {
           if (userFunction.constructor.name === "AsyncFunction") {
             // functions declared with an async keyword
-            self.IS_ASYNC = true;
+            self.IS_SYNC = false;
           } else {
             const returnValue = userFunction();
             if (!!returnValue && returnValue instanceof Promise) {
-              self.IS_ASYNC = true;
+              self.IS_SYNC = false;
             }
             if (self.TRIGGER_COLLECTOR.length) {
-              self.IS_ASYNC = true;
+              self.IS_SYNC = false;
             }
           }
         }
@@ -73,7 +73,7 @@ class FunctionDeterminer {
         // logLevel should help us in debugging this.
         logs.push({ error: "Error when determining async function" + e });
       }
-      const isAsync = !!self.IS_ASYNC;
+      const isAsync = !self.IS_SYNC;
 
       return isAsync;
     })();

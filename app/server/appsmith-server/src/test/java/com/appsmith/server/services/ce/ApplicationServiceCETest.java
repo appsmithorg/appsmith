@@ -345,6 +345,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getColor()).isNotEmpty();
                     assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
+                    assertThat(application.getCollapseInvisibleWidgets()).isEqualTo(TRUE);
 
                     List<PermissionGroup> permissionGroups = tuple2.getT3();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
