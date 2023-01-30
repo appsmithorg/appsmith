@@ -205,7 +205,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       if (!isFocused) return;
 
       if (!isSelected) {
-        selectWidget(props.widgetId);
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
       const widgetHeight =
         props.widgetProps.bottomRow - props.widgetProps.topRow;
