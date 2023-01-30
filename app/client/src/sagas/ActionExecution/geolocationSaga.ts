@@ -20,7 +20,7 @@ let successChannel: Channel<GeolocationPosition> | null = null;
 let errorChannel: Channel<GeolocationPositionError> | null = null;
 
 // Making the getCurrentPosition call in a promise fashion
-const getUserLocation = (options?: PositionOptions) =>
+export const getUserLocation = (options?: PositionOptions) =>
   new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
       (location) => resolve(location),
