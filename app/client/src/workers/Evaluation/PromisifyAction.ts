@@ -50,7 +50,7 @@ export const promisifyAction = (
         if (!dataTreeEvaluator) {
           reject("No Data Tree Evaluator found");
         } else {
-          self.ALLOW_ASYNC = true;
+          self.ALLOW_SYNC = false;
           // Reset the global data with the correct request id for this promise
           const evalContext = createEvaluationContext({
             dataTree: dataTreeEvaluator.evalTree,
