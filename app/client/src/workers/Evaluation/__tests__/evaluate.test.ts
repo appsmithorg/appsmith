@@ -68,7 +68,10 @@ describe("evaluateSync", () => {
       logs: [],
       errors: [
         {
-          errorMessage: "ReferenceError: wrongJS is not defined",
+          errorMessage: {
+            name: "ReferenceError",
+            text: "wrongJS is not defined",
+          },
           errorType: "PARSE",
           raw: `
   function closedFunction () {
@@ -88,7 +91,10 @@ describe("evaluateSync", () => {
       logs: [],
       errors: [
         {
-          errorMessage: "TypeError: {}.map is not a function",
+          errorMessage: {
+            name: "TypeError",
+            text: "{}.map is not a function",
+          },
           errorType: "PARSE",
           raw: `
   function closedFunction () {
@@ -116,7 +122,10 @@ describe("evaluateSync", () => {
       logs: [],
       errors: [
         {
-          errorMessage: "ReferenceError: setImmediate is not defined",
+          errorMessage: {
+            name: "ReferenceError",
+            text: "setImmediate is not defined",
+          },
           errorType: "PARSE",
           raw: `
   function closedFunction () {
@@ -207,7 +216,10 @@ describe("evaluateAsync", () => {
     expect(result).toStrictEqual({
       errors: [
         {
-          errorMessage: expect.stringContaining("randomKeyword is not defined"),
+          errorMessage: {
+            name: "ReferenceError",
+            text: expect.stringContaining("randomKeyword is not defined"),
+          },
           errorType: "PARSE",
           originalBinding: expect.stringContaining("Promise"),
           raw: expect.stringContaining("Promise"),

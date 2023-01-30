@@ -40,24 +40,34 @@ describe("#defaultValueValidation", () => {
     "abcd",
   ];
   const expectedOutputs = [
-    { isValid: true, parsed: undefined, messages: [""] },
-    { isValid: true, parsed: undefined, messages: [""] },
-    { isValid: true, parsed: 0, messages: [""] },
-    { isValid: true, parsed: 123, messages: [""] },
-    { isValid: true, parsed: -23, messages: [""] },
-    { isValid: true, parsed: 0.000001, messages: [""] },
-    { isValid: true, parsed: -23, messages: [""] },
-    { isValid: true, parsed: 0, messages: [""] },
-    { isValid: true, parsed: 100, messages: [""] },
+    { isValid: true, parsed: undefined, messages: [{ name: "", text: "" }] },
+    { isValid: true, parsed: undefined, messages: [{ name: "", text: "" }] },
+    { isValid: true, parsed: 0, messages: [{ name: "", text: "" }] },
+    { isValid: true, parsed: 123, messages: [{ name: "", text: "" }] },
+    { isValid: true, parsed: -23, messages: [{ name: "", text: "" }] },
+    { isValid: true, parsed: 0.000001, messages: [{ name: "", text: "" }] },
+    { isValid: true, parsed: -23, messages: [{ name: "", text: "" }] },
+    { isValid: true, parsed: 0, messages: [{ name: "", text: "" }] },
+    { isValid: true, parsed: 100, messages: [{ name: "", text: "" }] },
     {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be a number"],
+      messages: [
+        {
+          name: "TypeError",
+          text: "This value must be a number",
+        },
+      ],
     },
     {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be a number"],
+      messages: [
+        {
+          name: "TypeError",
+          text: "This value must be a number",
+        },
+      ],
     },
   ];
 
@@ -123,7 +133,7 @@ describe("#defaultValueValidation", () => {
     expect(response).toStrictEqual({
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [{ name: "", text: "" }],
     });
   });
 });

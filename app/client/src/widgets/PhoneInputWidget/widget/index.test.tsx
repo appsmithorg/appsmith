@@ -14,7 +14,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: "0000000000",
-      messages: [""],
+      messages: [{ name: "", text: "" }],
     });
   });
 
@@ -25,7 +25,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: ["This value must be string"],
+      messages: [{ name: "TypeError", text: "This value must be string" }],
     });
   });
 });
