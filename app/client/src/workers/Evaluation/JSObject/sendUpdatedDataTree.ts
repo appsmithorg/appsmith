@@ -1,3 +1,9 @@
+import { Diff } from "deep-diff";
+import {
+  DataTree,
+  DataTreeJSAction,
+} from "../../../entities/DataTree/dataTreeFactory";
+
 /**
  * Input - differences
  * - evaluate using setupDataTree + evalAndValidate
@@ -20,3 +26,5 @@
 //     method: MAIN_THREAD_ACTION.PROCESS_LOGS,
 //   },
 // });
+
+//export function triggerEvalFromWorker(differences: Diff<DataTree, DataTree>[]) {}

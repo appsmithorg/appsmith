@@ -18,6 +18,7 @@ import {
 import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { jsObjectCollection } from "./Collection";
+import { Diff } from "deep-diff";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -48,6 +49,39 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
             localUnEvalTree,
             entity,
             jsEntityName,
+          );
+        }
+      }
+    });
+  }
+  return localUnEvalTree;
+};
+
+export const getUpdatedLocalUnEvalTreeAfterDifferences = (
+  differences: Diff<DataTree, DataTree>[],
+  localUnEvalTree: DataTree,
+) => {
+  if (!isEmpty(differences)) {
+    Object.keys(differences).forEach((jsEntityName) => {
+      const entity = localUnEvalTree[jsEntityName];
+      if (isJSAction(entity)) {
+        const actions = entity.actions;
+        const variables = entity.variables;
+        const variableState = jsObjectCollection.getCurrentVariableState(
+          jsEntityName,
+        );
+        const parsedBody = {
+          ...entity,
+          ...variableState,
+          actions,
+          variables,
+        };
+        if (!!parsedBody) {
+          //add/delete/update functions from dataTree
+          localUnEvalTree = updateJSCollectionInUnEvalTree(
+            parsedBody,
+            entity,
+            localUnEvalTree,
           );
         }
       }
