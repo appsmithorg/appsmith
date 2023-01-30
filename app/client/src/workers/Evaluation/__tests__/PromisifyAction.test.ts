@@ -30,7 +30,7 @@ describe("promise execution", () => {
   });
 
   beforeEach(() => {
-    self.ALLOW_ASYNC = true;
+    self.ALLOW_SYNC = false;
     self.postMessage = postMessageMock;
   });
   afterAll(() => {
@@ -38,10 +38,10 @@ describe("promise execution", () => {
   });
 
   it("throws when allow async is not enabled", () => {
-    self.ALLOW_ASYNC = false;
-    self.IS_ASYNC = false;
+    self.ALLOW_SYNC = true;
+    self.IS_SYNC = true;
     expect(evalContext.showAlert).toThrowError();
-    expect(self.IS_ASYNC).toBe(true);
+    expect(self.IS_SYNC).toBe(false);
     expect(postMessageMock).not.toHaveBeenCalled();
   });
   it("sends an event from the worker", () => {
