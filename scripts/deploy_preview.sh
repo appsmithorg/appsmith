@@ -58,7 +58,7 @@ echo "Add appsmith-ce to helm repo"
 AWS_REGION=ap-south-1 helm repo add $HELMCHART $HELMCHART_URL
 
 echo "Deploy appsmith helm chart"
-helm upgrade -i $CHARTNAME -n $NAMESPACE \
+helm upgrade -i $CHARTNAME appsmith/appsmith -n $NAMESPACE \
   --create-namespace --set image.repository=$DOCKER_HUB_ORGANIZATION/appsmith-dp --set image.tag=$IMAGE_HASH \
   --set image.pullSecrets=$SECRET --set redis.enabled=false --set mongodb.enabled=false --set ingress.enabled=true \
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
