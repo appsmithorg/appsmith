@@ -1,30 +1,87 @@
 import { Diff } from "deep-diff";
-import {
-  DataTree,
-  DataTreeJSAction,
-} from "../../../entities/DataTree/dataTreeFactory";
+import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import { dataTreeEvaluator } from "../handlers/evalTree";
+import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
+import { UserLogObject } from "entities/AppsmithConsole";
+import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
+import { EvalTreeResponseData } from "../types";
 
-/**
- * Input - differences
- * - evaluate using setupDataTree + evalAndValidate
- * - initiate linting
- *
- */
+import { MessageType, sendMessage } from "utils/MessageUtil";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
+import { JSUpdate } from "utils/JSPaneUtils";
 
-// import { sendMessage } from "utils/MessageUtil";
+export function triggerEvalWithDataTreeDiff(
+  differences: Diff<DataTree, DataTree>[],
+) {
+  let evalOrder: string[] = [];
+  const jsUpdates: Record<string, JSUpdate> = {};
+  let unEvalUpdates: DataTreeDiff[] = [];
+  let nonDynamicFieldValidationOrder: string[] = [];
+  const isCreateFirstTree = false;
+  let dataTree: DataTree = {};
+  const errors: EvalError[] = [];
+  const logs: any[] = [];
+  const userLogs: UserLogObject[] = [];
+  const dependencies: DependencyMap = {};
+  let evalMetaUpdates: EvalMetaUpdates = [];
+  let staleMetaIds: string[] = [];
 
-// sendMessage()
+  if (dataTreeEvaluator) {
+    const setupUpdateTreeResponse = dataTreeEvaluator?.setupUpdateTreeWithDifferences(
+      differences,
+    );
 
-// sendMessage.call(self, {
-//   messageType: MessageType.DEFAULT,
-//   body: {
-//     data: {
-//       logs,
-//       eventType: this.requestInfo?.eventType,
-//       triggerMeta: this.requestInfo?.triggerMeta,
-//     },
-//     method: MAIN_THREAD_ACTION.PROCESS_LOGS,
-//   },
-// });
-// TODO - finish this function
-//export function triggerEvalFromWorker(differences: Diff<DataTree, DataTree>[]) {}
+    console.log("$$$-Inside-triggerEvalWithDataTreeDiff", {
+      setupUpdateTreeResponse,
+    });
+
+    evalOrder = setupUpdateTreeResponse.evalOrder;
+
+    unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
+
+    nonDynamicFieldValidationOrder =
+      setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
+    const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      unEvalUpdates,
+    );
+    dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
+      evalProps: dataTreeEvaluator.evalProps,
+    });
+    evalMetaUpdates = JSON.parse(
+      JSON.stringify(updateResponse.evalMetaUpdates),
+    );
+    staleMetaIds = updateResponse.staleMetaIds;
+  }
+
+  const evalTreeResponse: EvalTreeResponseData = {
+    dataTree,
+    dependencies,
+    errors,
+    evalMetaUpdates,
+    evaluationOrder: evalOrder,
+    jsUpdates,
+    logs,
+    userLogs,
+    unEvalUpdates,
+    isCreateFirstTree,
+    staleMetaIds,
+  };
+
+  const data: UpdateDataTreeMessageData = {
+    workerResponse: evalTreeResponse,
+    unevalTree: dataTreeEvaluator?.oldUnEvalTree as UnEvalTree,
+  };
+
+  sendMessage.call(self, {
+    messageType: MessageType.DEFAULT,
+    body: {
+      data,
+      method: MAIN_THREAD_ACTION.UPDATE_DATATREE,
+    },
+  });
+}

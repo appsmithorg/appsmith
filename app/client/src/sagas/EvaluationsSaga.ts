@@ -128,7 +128,6 @@ export function* updateDataTreeHandler(
   data: EvalTreeResponseData,
   extraData: {
     unevalTree: UnEvalTree;
-    appMode?: APP_MODE;
     postEvalActions?: Array<AnyReduxAction>;
   },
 ) {
@@ -146,7 +145,8 @@ export function* updateDataTreeHandler(
     staleMetaIds,
   } = data;
 
-  const { appMode, postEvalActions, unevalTree } = extraData;
+  const { postEvalActions, unevalTree } = extraData;
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -154,7 +154,7 @@ export function* updateDataTreeHandler(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree: DataTree = yield select(getDataTree);
+  const oldDataTree: ReturnType<typeof getDataTree> = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
   // Replace empty object below with list of current metaWidgets present in the viewport
@@ -269,7 +269,6 @@ export function* evaluateTreeSaga(
 
   yield updateDataTreeHandler(workerResponse, {
     unevalTree,
-    appMode,
     postEvalActions,
   });
 }

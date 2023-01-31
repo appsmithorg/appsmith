@@ -548,7 +548,7 @@ export default class DataTreeEvaluator {
   }
 
   setupUpdateTreeWithDifferences(differences: Diff<DataTree, DataTree>[]) {
-    let localUnEvalTree = {};
+    let localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local un eval tree
     if (differences.length === 0) {
       return {

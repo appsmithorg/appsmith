@@ -14,6 +14,7 @@ import {
 import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
+  updateUnEvalTreeWithLatestJSVariableValue,
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
@@ -65,27 +66,7 @@ export const getUpdatedLocalUnEvalTreeAfterDifferences = (
     Object.keys(differences).forEach((jsEntityName) => {
       const entity = localUnEvalTree[jsEntityName];
       if (isJSAction(entity)) {
-        const actions = entity.actions;
-        const variables = entity.variables;
-        const variableState = jsObjectCollection.getCurrentVariableState(
-          jsEntityName,
-        );
-        const parsedBody = {
-          ...entity,
-          ...variableState,
-          actions,
-          variables,
-        };
-
-        // TODO - fix the type here
-        if (!!parsedBody) {
-          //add/delete/update functions from dataTree
-          localUnEvalTree = updateJSCollectionInUnEvalTree(
-            parsedBody,
-            entity,
-            localUnEvalTree,
-          );
-        }
+        updateUnEvalTreeWithLatestJSVariableValue(entity, localUnEvalTree);
       }
     });
   }

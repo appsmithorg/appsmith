@@ -21,6 +21,7 @@ import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { updateJSCollectionStateFromContext } from "./JSObject";
 import { jsVariableUpdates } from "./JSObject/JSVariableUpdates";
+import { addJSUpdateCheckTaskInQueue } from "./JSObject/checkUpdate";
 
 export type EvalResult = {
   result: any;
@@ -394,6 +395,7 @@ export async function evaluateAsync(
     } finally {
       setEvaluationEnd(true);
       updateJSCollectionStateFromContext();
+      addJSUpdateCheckTaskInQueue();
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.

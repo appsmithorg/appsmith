@@ -201,6 +201,23 @@ export const updateJSCollectionInUnEvalTree = (
   return modifiedUnEvalTree;
 };
 
+export const updateUnEvalTreeWithLatestJSVariableValue = (
+  jsCollection: DataTreeJSAction,
+  unEvalTree: DataTree,
+) => {
+  // jsCollection here means unEvalTree JSObject
+  const modifiedUnEvalTree = unEvalTree;
+  const varList: Array<string> = jsCollection.variables;
+
+  for (let i = 0; i < varList.length; i++) {
+    const variableName = varList[i];
+    const fullPath = `${jsCollection.name}.${variableName}`;
+    const latestValue = jsObjectCollection.getCurrentVariableState(fullPath);
+    set(modifiedUnEvalTree, fullPath, latestValue);
+  }
+  return modifiedUnEvalTree;
+};
+
 /**
  * When JSObject parseBody is empty we remove all variables and actions from unEvalTree
  * this will lead to removal of properties from the dataTree
