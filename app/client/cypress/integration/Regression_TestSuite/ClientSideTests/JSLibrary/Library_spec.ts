@@ -5,6 +5,7 @@ const explorer = ObjectsRegistry.EntityExplorer;
 const installer = ObjectsRegistry.LibraryInstaller;
 const aggregateHelper = ObjectsRegistry.AggregateHelper;
 const homePage = ObjectsRegistry.HomePage;
+const deployMode = ObjectsRegistry.DeployMode;
 
 describe("Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
@@ -31,6 +32,12 @@ describe("Tests JS Libraries", () => {
   it("4. Checks installation in duplicated app", () => {
     homePage.NavigateToHome();
     homePage.DuplicateApplication("Library_export");
+    aggregateHelper.AssertContains("true");
+  });
+  it("5. Deploy app and check installation", () => {
+    deployMode.DeployApp();
+    aggregateHelper.AssertContains("true");
+    deployMode.NavigateBacktoEditor();
     aggregateHelper.AssertContains("true");
   });
 });
