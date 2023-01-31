@@ -1,15 +1,7 @@
-import { SwitcherProps, TreeDropdownOption } from "design-system";
+import { IconName, SwitcherProps, TreeDropdownOption } from "design-system";
 import { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
 import React from "react";
-import {
-  FieldType,
-  ViewTypes,
-  AppsmithFunction,
-  APPSMITH_GLOBAL_FUNCTIONS,
-  APPSMITH_INTEGRATIONS,
-  APPSMITH_NAMESPACED_FUNCTIONS,
-} from "./constants";
-import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
+import { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 
 export type GenericFunction = (...args: any[]) => any;
 
@@ -147,6 +139,7 @@ export type FieldGroupValueType = {
   defaultParams: string;
   value?: string;
   children?: TreeDropdownOption[];
+  icon?: IconName;
 };
 
 export type FieldGroupConfig = {

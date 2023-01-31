@@ -75,12 +75,14 @@ export const SelectorDropdown: React.FC<Props> = ({
     <TreeDropdown
       className="right-8"
       defaultText="Some default text here"
-      menuWidth={260}
+      menuHeight={300}
+      menuWidth={256}
       onMenuToggle={(isOpen) => {
         setOpen(isOpen);
       }}
       onSelect={onSelect}
       optionTree={filteredOptions}
+      popoverClassName="absolute top-[12px]"
       position="left"
       selectedValue={fieldConfig.getter(value)}
       toggle={

@@ -1,3 +1,4 @@
+import React from "react";
 import {
   getFuncExpressionAtPosition,
   getFunction,
@@ -18,6 +19,7 @@ import {
   jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo } from "react";
+import { Icon } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -45,7 +47,6 @@ import {
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import {
   DataTreeForActionCreator,
-  Field,
   GenericFunction,
   SelectorField,
   SwitchType,
@@ -59,6 +60,7 @@ const actionList: {
   label: action[1].label,
   value: action[0],
   children: action[1].children,
+  icon: <Icon name={action[1].icon} />,
 }));
 
 export function getFieldFromValue(
@@ -187,8 +189,6 @@ function getActionEntityFields(
           : errorValue,
     });
   }
-
-  console.log("Ac**", { fields });
 
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()

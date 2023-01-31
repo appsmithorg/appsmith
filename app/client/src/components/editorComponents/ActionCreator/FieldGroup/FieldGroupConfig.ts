@@ -35,6 +35,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     fields: [],
     children: [{ label: "", value: "" }],
     defaultParams: "",
+    icon: "execute-query",
   },
   [AppsmithFunction.jsFunction]: {
     label: createMessage(EXECUTE_JS_FUNCTION),
@@ -42,12 +43,14 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     fields: [],
     children: [{ label: "", value: "" }],
     defaultParams: "",
+    icon: "execute-js",
   },
   [AppsmithFunction.runAPI]: {
     label: createMessage(RUN_API),
     fields: [],
     children: [{ label: "", value: "" }],
     defaultParams: "",
+    icon: "run-api",
   },
   [AppsmithFunction.navigateTo]: {
     label: createMessage(NAVIGATE_TO),
@@ -63,36 +66,43 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.NAVIGATION_TARGET_FIELD,
     ],
     defaultParams: `"", {}, 'SAME_WINDOW'`,
+    icon: "navigate-to",
   },
   [AppsmithFunction.showAlert]: {
     label: createMessage(SHOW_MESSAGE),
     fields: [FieldType.ALERT_TEXT_FIELD, FieldType.ALERT_TYPE_SELECTOR_FIELD],
     defaultParams: `"", ''`,
+    icon: "show-alert",
   },
   [AppsmithFunction.showModal]: {
     label: createMessage(OPEN_MODAL),
     fields: [FieldType.SHOW_MODAL_FIELD],
     defaultParams: `''`,
+    icon: "modal",
   },
   [AppsmithFunction.closeModal]: {
     label: createMessage(CLOSE_MODAL),
     fields: [FieldType.CLOSE_MODAL_FIELD],
     defaultParams: `''`,
+    icon: "modal",
   },
   [AppsmithFunction.storeValue]: {
     label: createMessage(STORE_VALUE),
     fields: [FieldType.KEY_TEXT_FIELD_STORE_VALUE, FieldType.VALUE_TEXT_FIELD],
     defaultParams: `"", ""`,
+    icon: "store-value",
   },
   [AppsmithFunction.removeValue]: {
     label: createMessage(REMOVE_VALUE),
     fields: [FieldType.KEY_TEXT_FIELD_REMOVE_VALUE],
     defaultParams: `""`,
+    icon: "remove-store",
   },
   [AppsmithFunction.clearStore]: {
     label: createMessage(CLEAR_STORE),
     fields: [],
     defaultParams: "",
+    icon: "clear-store",
   },
   [AppsmithFunction.download]: {
     label: createMessage(DOWNLOAD),
@@ -102,16 +112,19 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.DOWNLOAD_FILE_TYPE_FIELD,
     ],
     defaultParams: `"", "", ''`,
+    icon: "download-action",
   },
   [AppsmithFunction.copyToClipboard]: {
     label: createMessage(COPY_TO_CLIPBOARD),
     fields: [FieldType.COPY_TEXT_FIELD],
     defaultParams: `""`,
+    icon: "copy-to-clipboard",
   },
   [AppsmithFunction.resetWidget]: {
     label: createMessage(RESET_WIDGET),
     fields: [FieldType.WIDGET_NAME_FIELD, FieldType.RESET_CHILDREN_FIELD],
     defaultParams: `"",true`,
+    icon: "reset-widget",
   },
   [AppsmithFunction.setInterval]: {
     label: createMessage(SET_INTERVAL),
@@ -123,11 +136,13 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     defaultParams: `() => {
       // add code here
     }, 5000, ''`,
+    icon: "set-interval",
   },
   [AppsmithFunction.clearInterval]: {
     label: createMessage(CLEAR_INTERVAL),
     fields: [FieldType.CLEAR_INTERVAL_ID_FIELD],
     defaultParams: `""`,
+    icon: "clear-interval",
   },
   [AppsmithFunction.getGeolocation]: {
     label: createMessage(GET_GEO_LOCATION),
@@ -135,16 +150,19 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     defaultParams: `(location) => {
       // add code here
     }`,
+    icon: "get-geolocation",
   },
   [AppsmithFunction.watchGeolocation]: {
     label: createMessage(WATCH_GEO_LOCATION),
     fields: [],
     defaultParams: "",
+    icon: "watch-geolocation",
   },
   [AppsmithFunction.stopWatchGeolocation]: {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
     fields: [],
     defaultParams: "",
+    icon: "stop-watch-geolocation",
   },
   [AppsmithFunction.postWindowMessage]: {
     label: createMessage(POST_MESSAGE),
@@ -154,5 +172,6 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.TARGET_ORIGIN_FIELD,
     ],
     defaultParams: `"", "window", "*"`,
+    icon: "post-message",
   },
 };
