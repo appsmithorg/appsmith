@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
-import React, { memo, useEffect, useRef, useMemo } from "react";
+import React, { memo, useEffect, useMemo, useRef } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -25,6 +25,9 @@ import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
 import { quickScrollToWidget } from "utils/helpers";
+import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 type Props = {
   width: number;
@@ -55,9 +58,11 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
   const isSnipingMode = useSelector(snipingModeSelector);
+  const isMultiPane = useSelector(isMultiPaneActive);
+  const paneCount = useSelector(getPaneCount);
 
   //while dragging or resizing and
-  //the current selected WidgetId is not equal to previous widget Id,
+  //the current selected WidgetId is not equal to previous widget id,
   //then don't render PropertyPane
   const shouldNotRenderPane =
     isDraggingOrResizing &&
@@ -69,6 +74,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
   const selectedWidgets = useSelector(selectedWidgetsPresentInCanvas, equal);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
@@ -85,7 +91,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       //update url hash with the selectedWidget
       dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
       if (selectedWidgetIds.length === 1) {
-        quickScrollToWidget(selectedWidgetIds[0]);
+        quickScrollToWidget(selectedWidgetIds[0], canvasWidgets);
       }
     }
   }, [selectedWidgetIds]);
@@ -119,9 +125,14 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     shouldNotRenderPane,
     keepThemeWhileDragging,
   ]);
+  const showResizer = isAppSettingsPaneOpen
+    ? false
+    : isMultiPane
+    ? paneCount === PaneLayoutOptions.THREE_PANE
+    : true;
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       {/* PROPERTY PANE */}
       <div
         className={classNames({
@@ -131,8 +142,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         })}
         ref={sidebarRef}
       >
-        {/* RESIZOR */}
-        {!isAppSettingsPaneOpen && (
+        {/* RESIZER */}
+        {showResizer && (
           <div
             className={`absolute top-0 left-0 w-2 h-full -ml-1 group  cursor-ew-resize ${tailwindLayers.resizer}`}
             onMouseDown={onMouseDown}

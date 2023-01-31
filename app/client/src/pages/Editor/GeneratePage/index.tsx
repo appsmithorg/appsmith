@@ -3,7 +3,7 @@ import styled from "styled-components";
 import PageContent from "./components/PageContent";
 import { Colors } from "constants/Colors";
 import { Icon } from "@blueprintjs/core";
-import { getTypographyByKey, Text, TextType } from "design-system";
+import { getTypographyByKey, Text, TextType } from "design-system-old";
 
 const Container = styled.div`
   display: flex;

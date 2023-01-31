@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Caption, Space, Title } from "../components/StyledComponents";
-import { Dropdown } from "design-system";
+import { Dropdown } from "design-system-old";
 
 import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
@@ -44,10 +44,10 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import { Button, Case, Size, Text, TextType } from "design-system";
+import { Button, Case, Size, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
   display: flex;

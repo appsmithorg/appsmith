@@ -1,5 +1,5 @@
 import { AppsmithFunction, FieldType, ViewTypes } from "../constants";
-import { TreeDropdownOption } from "design-system";
+import { TreeDropdownOption } from "design-system-old";
 import {
   FieldProps,
   KeyValueViewProps,

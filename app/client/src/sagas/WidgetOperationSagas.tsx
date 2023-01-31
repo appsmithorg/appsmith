@@ -15,10 +15,10 @@ import {
   actionChannel,
   all,
   call,
-  take,
   fork,
   put,
   select,
+  take,
   takeEvery,
   takeLatest,
   takeLeading,
@@ -56,15 +56,15 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
-  getCurrentPageId,
-  getContainerWidgetSpacesSelector,
   getCanvasHeightOffset,
+  getContainerWidgetSpacesSelector,
+  getCurrentPageId,
 } from "selectors/editorSelectors";
-import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
@@ -74,47 +74,47 @@ import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   createMessage,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
+  ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
   WIDGET_COPY,
   WIDGET_CUT,
-  ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
 
 import {
+  changeIdsOfPastePositions,
   CopiedWidgetGroup,
+  createSelectedWidgetsAsCopiedWidgets,
+  createWidgetCopy,
   doesTriggerPathsContainPropertyPath,
+  filterOutSelectedWidgets,
+  getBoundariesFromSelectedWidgets,
+  getBoundaryWidgetsFromCopiedGroups,
+  getCanvasIdForContainer,
+  getContainerIdForCanvas,
+  getDefaultCanvas,
+  getMousePositions,
+  getNewPositionsForCopiedWidgets,
+  getNextWidgetName,
+  getOccupiedSpacesFromProps,
   getParentBottomRowAfterAddingWidget,
+  getParentWidgetIdForGrouping,
   getParentWidgetIdForPasting,
+  getPastePositionMapFromMousePointer,
+  getReflowedPositions,
+  getSelectedWidgetWhenPasting,
+  getSnappedGrid,
+  getValueFromTree,
+  getVerifiedSelectedWidgets,
+  getVerticallyAdjustedPositions,
   getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
   handleSpecificCasesWhilePasting,
-  getSelectedWidgetWhenPasting,
-  createSelectedWidgetsAsCopiedWidgets,
-  filterOutSelectedWidgets,
-  isSelectedWidgetsColliding,
-  getBoundaryWidgetsFromCopiedGroups,
-  createWidgetCopy,
-  getNextWidgetName,
-  getParentWidgetIdForGrouping,
-  purgeOrphanedDynamicPaths,
-  getReflowedPositions,
-  NewPastePositionVariables,
-  getContainerIdForCanvas,
-  getSnappedGrid,
-  getNewPositionsForCopiedWidgets,
-  getVerticallyAdjustedPositions,
-  getOccupiedSpacesFromProps,
-  changeIdsOfPastePositions,
-  getCanvasIdForContainer,
-  getMousePositions,
-  getPastePositionMapFromMousePointer,
-  getBoundariesFromSelectedWidgets,
-  WIDGET_PASTE_PADDING,
-  getDefaultCanvas,
   isDropTarget,
-  getValueFromTree,
-  getVerifiedSelectedWidgets,
+  isSelectedWidgetsColliding,
   mergeDynamicPropertyPaths,
+  NewPastePositionVariables,
+  purgeOrphanedDynamicPaths,
+  WIDGET_PASTE_PADDING,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -146,6 +146,7 @@ import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
 import { MetaState } from "reducers/entityReducers/metaReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -592,6 +593,7 @@ export function* getIsContainerLikeWidget(widget: FlattenedWidgetProps) {
   }
   return false;
 }
+
 export function* getPropertiesUpdatedWidget(
   updatesObj: UpdateWidgetPropertyPayload,
 ) {
@@ -1723,7 +1725,12 @@ function* pasteWidgetSaga(
     flashElementsById(newlyCreatedWidgetIds, 100);
   }
 
-  yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
+  yield put(
+    selectWidgetInitAction(
+      SelectionRequestType.Multiple,
+      newlyCreatedWidgetIds,
+    ),
+  );
 }
 
 function* cutWidgetSaga() {

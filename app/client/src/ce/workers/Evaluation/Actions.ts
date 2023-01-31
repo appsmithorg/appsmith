@@ -1,19 +1,21 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _, { set } from "lodash";
+import set from "lodash/set";
 import {
   ActionDescription,
   ActionTriggerFunctionNames,
-  ActionTriggerType,
 } from "@appsmith/entities/DataTree/actionTriggers";
-import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
-import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
-
+import { initStoreFns } from "workers/Evaluation/fns/storeFns";
+import {
+  ActionDescriptionWithExecutionType,
+  ActionDispatcherWithExecutionType,
+  PLATFORM_FUNCTIONS,
+} from "@appsmith/workers/Evaluation/PlatformFunctions";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -21,155 +23,16 @@ declare global {
    * */
 
   interface Window {
-    ALLOW_ASYNC?: boolean;
-    IS_ASYNC?: boolean;
+    ALLOW_SYNC?: boolean;
+    IS_SYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
   }
 }
 
-enum ExecutionType {
+export enum ExecutionType {
   PROMISE = "PROMISE",
   TRIGGER = "TRIGGER",
 }
-
-type ActionDescriptionWithExecutionType = ActionDescription & {
-  executionType: ExecutionType;
-};
-
-type ActionDispatcherWithExecutionType = (
-  ...args: any[]
-) => ActionDescriptionWithExecutionType;
-
-export const PLATFORM_FUNCTIONS: Record<
-  string,
-  ActionDispatcherWithExecutionType
-> = {
-  navigateTo: function(
-    pageNameOrUrl: string,
-    params: Record<string, string>,
-    target?: NavigationTargetType,
-  ) {
-    return {
-      type: ActionTriggerType.NAVIGATE_TO,
-      payload: { pageNameOrUrl, params, target },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  showAlert: function(
-    message: string,
-    style: "info" | "success" | "warning" | "error" | "default",
-  ) {
-    return {
-      type: ActionTriggerType.SHOW_ALERT,
-      payload: { message, style },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  showModal: function(modalName: string) {
-    return {
-      type: ActionTriggerType.SHOW_MODAL_BY_NAME,
-      payload: { modalName },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  closeModal: function(modalName: string) {
-    return {
-      type: ActionTriggerType.CLOSE_MODAL,
-      payload: { modalName },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  storeValue: function(key: string, value: string, persist = true) {
-    // momentarily store this value in local state to support loops
-    _.set(self, ["appsmith", "store", key], value);
-    return {
-      type: ActionTriggerType.STORE_VALUE,
-      payload: {
-        key,
-        value,
-        persist,
-        uniqueActionRequestId: uniqueId("store_value_id_"),
-      },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  removeValue: function(key: string) {
-    return {
-      type: ActionTriggerType.REMOVE_VALUE,
-      payload: { key },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  clearStore: function() {
-    return {
-      type: ActionTriggerType.CLEAR_STORE,
-      executionType: ExecutionType.PROMISE,
-      payload: null,
-    };
-  },
-  download: function(data: string, name: string, type: string) {
-    return {
-      type: ActionTriggerType.DOWNLOAD,
-      payload: { data, name, type },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  copyToClipboard: function(
-    data: string,
-    options?: { debug?: boolean; format?: string },
-  ) {
-    return {
-      type: ActionTriggerType.COPY_TO_CLIPBOARD,
-      payload: {
-        data,
-        options: { debug: options?.debug, format: options?.format },
-      },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  resetWidget: function(widgetName: string, resetChildren = true) {
-    return {
-      type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
-      payload: { widgetName, resetChildren },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  setInterval: function(callback: Function, interval: number, id?: string) {
-    return {
-      type: ActionTriggerType.SET_INTERVAL,
-      payload: {
-        callback: callback?.toString(),
-        interval,
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-  clearInterval: function(id: string) {
-    return {
-      type: ActionTriggerType.CLEAR_INTERVAL,
-      payload: {
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-  postWindowMessage: function(
-    message: unknown,
-    source: string,
-    targetOrigin: string,
-  ) {
-    return {
-      type: ActionTriggerType.POST_MESSAGE,
-      payload: {
-        message,
-        source,
-        targetOrigin,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-};
 
 const ENTITY_FUNCTIONS: Record<
   string,
@@ -197,7 +60,7 @@ const ENTITY_FUNCTIONS: Record<
 
         if (isNewSignature) {
           return {
-            type: ActionTriggerType.RUN_PLUGIN_ACTION,
+            type: "RUN_PLUGIN_ACTION",
             payload: {
               actionId: isAction(entity) ? entity.actionId : "",
               params: actionParams,
@@ -207,7 +70,7 @@ const ENTITY_FUNCTIONS: Record<
         }
         // Backwards compatibility
         return {
-          type: ActionTriggerType.RUN_PLUGIN_ACTION,
+          type: "RUN_PLUGIN_ACTION",
           payload: {
             actionId: isAction(entity) ? entity.actionId : "",
             onSuccess: onSuccessOrParams
@@ -225,7 +88,7 @@ const ENTITY_FUNCTIONS: Record<
     func: (entity) =>
       function() {
         return {
-          type: ActionTriggerType.CLEAR_PLUGIN_ACTION,
+          type: "CLEAR_PLUGIN_ACTION",
           payload: {
             actionId: isAction(entity) ? entity.actionId : "",
           },
@@ -247,7 +110,7 @@ const ENTITY_FUNCTIONS: Record<
         },
       ) {
         return {
-          type: ActionTriggerType.GET_CURRENT_LOCATION,
+          type: "GET_CURRENT_LOCATION",
           payload: {
             options,
             onError: errorCallback
@@ -278,7 +141,7 @@ const ENTITY_FUNCTIONS: Record<
         },
       ) {
         return {
-          type: ActionTriggerType.WATCH_CURRENT_LOCATION,
+          type: "WATCH_CURRENT_LOCATION",
           payload: {
             options,
             onSuccess: onSuccessCallback
@@ -298,7 +161,7 @@ const ENTITY_FUNCTIONS: Record<
     func: () =>
       function() {
         return {
-          type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION,
+          type: "STOP_WATCHING_CURRENT_LOCATION",
           payload: {},
           executionType: ExecutionType.PROMISE,
         };
@@ -363,8 +226,14 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    context[funcName] = pusher.bind({}, fn);
+    Object.defineProperty(context, funcName, {
+      value: pusher.bind({}, fn),
+      enumerable: false,
+      writable: true,
+      configurable: true,
+    });
   }
+  initStoreFns(context);
 };
 
 export const getAllAsyncFunctions = (dataTree: DataTree) => {
@@ -379,7 +248,7 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
     }
   }
 
-  for (const [name] of platformFunctionEntries) {
+  for (const name of Object.values(ActionTriggerFunctionNames)) {
     asyncFunctionNameMap[name] = true;
   }
 
@@ -408,8 +277,8 @@ export const pusher = function(
   ...args: any[]
 ) {
   const actionDescription = action(...args);
-  if (!self.ALLOW_ASYNC) {
-    self.IS_ASYNC = true;
+  if (self.ALLOW_SYNC) {
+    self.IS_SYNC = false;
     const actionName = ActionTriggerFunctionNames[actionDescription.type];
     throw new ActionCalledInSyncFieldError(actionName);
   }

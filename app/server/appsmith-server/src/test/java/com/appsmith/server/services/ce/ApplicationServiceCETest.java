@@ -15,6 +15,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
@@ -40,6 +41,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -73,9 +75,15 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -211,6 +219,9 @@ public class ApplicationServiceCETest {
     @Autowired
     SessionUserService sessionUserService;
 
+    @Autowired
+    private AssetRepository assetRepository;
+
     String workspaceId;
 
     static Plugin testPlugin = new Plugin();
@@ -334,6 +345,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getColor()).isNotEmpty();
                     assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
+                    assertThat(application.getCollapseInvisibleWidgets()).isEqualTo(TRUE);
 
                     List<PermissionGroup> permissionGroups = tuple2.getT3();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -2210,6 +2222,10 @@ public class ApplicationServiceCETest {
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+        Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
+        appNavigationSetting.setOrientation("top");
+        testApplication.setNavigationSetting(appNavigationSetting);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
@@ -2241,6 +2257,8 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
+                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
+                    assertThat(application.getPublishedNavigationSetting()).isEqualTo(application.getUnpublishedNavigationSetting());
                 })
                 .verifyComplete();
     }
@@ -2264,6 +2282,10 @@ public class ApplicationServiceCETest {
         String appName = "Publish Application With Archived Page";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+        Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
+        appNavigationSetting.setOrientation("top");
+        testApplication.setNavigationSetting(appNavigationSetting);
         Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -2364,6 +2386,11 @@ public class ApplicationServiceCETest {
     public void publishApplication_withGitConnectedApp_success() {
         GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        gitConnectedApp.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+
+        Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
+        appNavigationSetting.setOrientation("top");
+        gitConnectedApp.setNavigationSetting(appNavigationSetting);
 
         Mono<Application> applicationMono = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
                 .flatMap(updatedApp -> applicationPageService.publish(updatedApp.getId(), gitData.getBranchName(), true))
@@ -2394,6 +2421,8 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getDefaultResources()).isNotNull();
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
+                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
+                    assertThat(application.getPublishedNavigationSetting()).isEqualTo(application.getUnpublishedNavigationSetting());
                 })
                 .verifyComplete();
     }
@@ -3385,5 +3414,101 @@ public class ApplicationServiceCETest {
                     assertThat(t.getIsPublic()).isFalse();
                 })
                 .verifyComplete();
+    }
+
+    private FilePart createMockFilePart() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
+        return filepart;
+    }
+
+    private String createTestApplication(String applicationName){
+        Application testApplication = new Application();
+        testApplication.setName(applicationName);
+        Application application =  applicationPageService.createApplication(testApplication, workspaceId).block();
+        return application.getId();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUploadAndDeleteNavigationLogo_validImage() {
+        FilePart filepart = createMockFilePart();
+        String createdApplicationId = createTestApplication("ApplicationServiceTest Upload/Delete Nav Logo");
+
+        final Mono<Application> saveMono = applicationService.saveAppNavigationLogo(null, createdApplicationId, filepart).cache();
+
+        Mono<Tuple2<Application, Asset>> loadLogoImageMono = applicationService.findById(createdApplicationId)
+                .flatMap(fetchedApplication -> {
+                    Mono<Application> fetchedApplicationMono = Mono.just(fetchedApplication);
+                    if (StringUtils.isEmpty(fetchedApplication.getUnpublishedNavigationSetting().getLogoAssetId())) {
+                        return fetchedApplicationMono.zipWith(Mono.just(new Asset()));
+                    } else {
+                        return fetchedApplicationMono.zipWith(assetRepository.findById(fetchedApplication.getUnpublishedNavigationSetting().getLogoAssetId()));
+                    }
+                });
+
+
+        final Mono<Tuple2<Application, Asset>> saveAndGetMono = saveMono.then(loadLogoImageMono);
+        final Mono<Tuple2<Application, Asset>> deleteAndGetMono = saveMono.then(applicationService.deleteAppNavigationLogo(null, createdApplicationId)).then(loadLogoImageMono);
+
+        StepVerifier.create(saveAndGetMono)
+                .assertNext(tuple -> {
+                    final Application application1 = tuple.getT1();
+                    assertThat(application1.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
+
+                    final Asset asset = tuple.getT2();
+                    assertThat(asset).isNotNull();
+                })
+                .verifyComplete();
+
+        StepVerifier.create(deleteAndGetMono)
+                .assertNext(objects -> {
+                    assertThat(objects.getT1().getUnpublishedNavigationSetting().getLogoAssetId()).isNull();
+                    assertThat(objects.getT2().getId()).isNull();
+                })
+                // Should be empty since the profile photo has been deleted.
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUploadNavigationLogo_invalidImageFormat(){
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096)
+                .cache();
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_GIF);
+
+        String createdApplicationId = createTestApplication("ApplicationServiceTest Upload Invalid Nav Logo");
+
+        final Mono<Application> saveMono = applicationService.saveAppNavigationLogo(null, createdApplicationId, filepart).cache();
+        StepVerifier.create(saveMono)
+                .expectErrorMatches(error -> error instanceof AppsmithException)
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUploadNavigationLogo_invalidImageSize(){
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo_large.png"), new DefaultDataBufferFactory(), 4096)
+                .repeat(100)  // So the file size looks like it's much larger than what it actually is.
+                .cache();
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
+
+        String createdApplicationId = createTestApplication("ApplicationServiceTest Upload Invalid Nav Logo Size");
+
+        final Mono<Application> saveMono = applicationService.saveAppNavigationLogo(null, createdApplicationId, filepart).cache();
+        StepVerifier.create(saveMono)
+                .expectErrorMatches(error -> error instanceof AppsmithException)
+                .verify();
     }
 }

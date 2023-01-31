@@ -1,0 +1,153 @@
+name: On demand build Docker image and deploy preview
+
+on:
+  # This workflow is only triggered by the `/build-deploy-preview` command dispatch
+  repository_dispatch:
+    types: [ build-deploy-preview-command ]
+
+jobs:
+  notify-job-details:
+    runs-on: ubuntu-latest
+    steps:
+      # This step creates a comment on the PR with a link to this workflow run.
+      - name: Add a comment on the PR with link to workflow run
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Deploying Your Preview: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Workflow: `${{ github.workflow }}`.
+            PR: ${{ github.event.client_payload.pull_request.number }}.
+
+  server-build:
+    name: server-build
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
+  client-build:
+    name: client-build
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
+  rts-build:
+    name: rts-build
+    uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
+  push-image:
+    needs: [client-build, rts-build, server-build]
+    runs-on: ubuntu-latest
+
+    if: success()
+
+    steps:
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      # Check out merge commit
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+
+      # Timestamp will be used to create cache key
+      - id: timestamp
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+
+      # get Git-hash will be used to create cache key
+      - id: git_hash
+        run: echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: app/server/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: rts-dist
+          path: app/rts/dist
+
+      - name: Untar the rts folder
+        run: |
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
+
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          repository: ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-dp
+          tags: ce-${{ github.event.client_payload.pull_request.number }}
+    outputs:
+      imageHash: ce-${{ github.event.client_payload.pull_request.number }}
+
+  build-deploy-preview:
+    needs: [push-image]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "."
+
+    if: success()
+    steps:
+
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+          fetch-depth: 0
+
+      - name: Install relevant packages
+        run: |
+          which aws
+          sudo apt update -q && sudo apt install -y curl unzip less jq
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl && \
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
+          chmod 700 get_helm.sh; ./get_helm.sh
+
+      - name: Deploy Helm chart
+        env:
+          AWS_ROLE_ARN: ${{ secrets.APPSMITH_EKS_AWS_ROLE_ARN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.APPSMITH_CI_AWS_SECRET_ACCESS_KEY }}
+          IMAGE_HASH: ${{ needs.push-image.outputs.imageHash }}
+          AWS_RELEASE_CERT: ${{ secrets.APPSMITH_AWS_RELEASE_CERT_RELEASE }}
+          DOCKER_HUB_ORGANIZATION: ${{ secrets.DOCKER_HUB_ORGANIZATION }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          PULL_REQUEST_NUMBER: ${{ github.event.client_payload.pull_request.number }}
+        run: |
+          echo "environment variables set to deploy the image" $IMAGE_HASH
+          /bin/bash ./scripts/deploy_preview.sh
+
+  notify-url:
+    needs: [build-deploy-preview]
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      # This step creates a comment on the PR with a link to this workflow run.
+      - name: Add a comment on the PR with link to Deploy-Preview
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Deploy-Preview-URL: https://ce-${{ github.event.client_payload.pull_request.number }}.dp.appsmith.com
