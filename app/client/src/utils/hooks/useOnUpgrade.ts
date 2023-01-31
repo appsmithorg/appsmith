@@ -22,14 +22,12 @@ const useOnUpgrade = (props: Props) => {
   const tenantConfig = useSelector(getTenantConfig);
 
   const triggerIntercom = (message: string) => {
-    console.log(message, "ak");
     if (intercomAppID && window.Intercom) {
       window.Intercom("showNewMessage", message);
     }
   };
 
   const onUpgrade = () => {
-    console.log("ak inside", features.USAGE_AND_BILLING, props);
     AnalyticsUtil.logEvent(
       logEventName || "ADMIN_SETTINGS_UPGRADE",
       logEventData,
