@@ -175,7 +175,6 @@ export class JSEditor {
     }
 
     this.agHelper.AssertAutoSave();
-    // Ample wait due to open bug # 10284
     if (prettify) {
       this.agHelper.ActionContextMenuWithInPane("Prettify Code");
       this.agHelper.AssertAutoSave();
