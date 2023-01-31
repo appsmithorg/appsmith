@@ -40,12 +40,14 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
 
 export function* lintTreeActionHandler(message: any) {
   const { body } = message;
-  const { data } = body;
+  const {
+    data: { lintOrder, unevalTree },
+  } = body;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
-      pathsToLint: data.lintOrder,
-      unevalTree: data.unevalTree,
+      pathsToLint: lintOrder,
+      unevalTree: unevalTree,
     },
   });
 }

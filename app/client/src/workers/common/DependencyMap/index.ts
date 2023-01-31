@@ -727,6 +727,9 @@ export const updateDependencyMap = ({
       translatedDiffs,
     );
     dataTreeEvalRef.inverseDependencyMap = dataTreeEvalRef.getInverseDependencyTree();
+    dataTreeEvalRef.asyncJSFunctionsInSyncFields = dataTreeEvalRef.getAsyncFunctionsInDataFieldMap(
+      unEvalDataTree,
+    );
   }
 
   if (didUpdateValidationDependencyMap) {
@@ -741,6 +744,9 @@ export const updateDependencyMap = ({
         dependencyMap: dataTreeEvalRef.validationDependencyMap,
         sortedDependencies: dataTreeEvalRef.sortedValidationDependencies,
       },
+    );
+    dataTreeEvalRef.asyncJSFunctionsInSyncFields = dataTreeEvalRef.getAsyncFunctionsInDataFieldMap(
+      unEvalDataTree,
     );
   }
 
