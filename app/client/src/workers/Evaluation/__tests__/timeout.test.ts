@@ -106,7 +106,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
         logBlackList: {},
       },
     };
-    self.ALLOW_ASYNC = true;
+    self.ALLOW_SYNC = false;
     const evalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions: {},

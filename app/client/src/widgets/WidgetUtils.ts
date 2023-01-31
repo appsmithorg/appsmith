@@ -35,6 +35,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { isArray } from "lodash";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import { getLocale } from "utils/helpers";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 
 const punycode = require("punycode/");
 
@@ -752,6 +753,19 @@ export const isAutoHeightEnabledForWidget = (
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
   );
 };
+
+/**
+ * Check if a container is scrollable or has scrollbars
+ */
+export function checkContainerScrollable(
+  widget: ContainerWidgetProps<WidgetProps>,
+): boolean {
+  // if both scrolling and auto height is disabled, container is not scrollable
+  return !(
+    !isAutoHeightEnabledForWidget(widget) &&
+    widget.shouldScrollContents === false
+  );
+}
 
 /**
  * Gets the max possible height for the widget

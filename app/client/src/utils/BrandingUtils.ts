@@ -17,7 +17,7 @@ export const APPSMITH_BRAND_PRIMARY_COLOR = "#F86A2B";
 export const APPSMITH_BRAND_FAVICON_URL =
   "https://assets.appsmith.com/appsmith-favicon-orange.ico";
 export const APPSMITH_BRAND_LOGO_URL =
-  "https://assets.appsmith.com/appsmith-logo.svg";
+  "https://assets.appsmith.com/appsmith-logo-no-margin.png";
 
 /**
  * create brand colors from primary color
@@ -68,7 +68,7 @@ export function createBrandColorsFromPrimaryColor(
  *
  *  checks:
  *  1. file size max 2MB
- *  2. file type - jpg, svg or png
+ *  2. file type - jpg, or png
  *
  * @param e
  * @param callback
@@ -94,7 +94,7 @@ export const logoImageValidator = (
   }
 
   // case 3: image selected
-  const validTypes = ["image/jpeg", "image/png", "image/svg+xml"];
+  const validTypes = ["image/jpeg", "image/png"];
 
   if (!validTypes.includes(file.type)) {
     Toaster.show({
