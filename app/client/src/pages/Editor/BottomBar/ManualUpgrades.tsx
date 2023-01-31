@@ -9,8 +9,8 @@ import {
   IconSize,
   IconWrapper,
   Size,
-} from "design-system";
-import { TooltipComponent, Text, TextType } from "design-system";
+} from "design-system-old";
+import { TooltipComponent, Text, TextType } from "design-system-old";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
 import React, { ReactNode, useState } from "react";
@@ -27,6 +27,7 @@ import { useLocation } from "react-router";
 import DisclaimerIcon from "remixicon-react/ErrorWarningLineIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import classNames from "classnames";
+import { BottomBarCTAStyles } from "./styles";
 
 const StyledList = styled.ul`
   list-style: disc;
@@ -72,6 +73,12 @@ const BodyContainer = styled.div`
     height: 28px;
     width: 28px;
   }
+`;
+
+const StyledTrigger = styled.div`
+  ${BottomBarCTAStyles}
+  display: flex;
+  justify-content: center;
 `;
 
 function UpdatesModal({
@@ -256,13 +263,13 @@ function ManualUpgrades(props: {
           preventOverflow: { enabled: true },
         }}
       >
-        <div
+        <StyledTrigger
           onClick={() => {
             setShowModal(applicationVersion < latestVersion);
           }}
         >
           {props.children}
-        </div>
+        </StyledTrigger>
       </TooltipComponent>
       <UpdatesModal
         applicationVersion={applicationVersion}

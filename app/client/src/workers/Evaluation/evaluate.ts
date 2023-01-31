@@ -11,14 +11,11 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { JSFunctionProxy, JSProxy } from "./JSObject/JSProxy";
+import { JSFunctionProxy, JSProxy } from "workers/Evaluation/JSObject/JSProxy";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
-import {
-  PLATFORM_FUNCTIONS,
-  addDataTreeToContext,
-} from "@appsmith/workers/Evaluation/Actions";
+import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 
 export type EvalResult = {
   result: any;
@@ -82,7 +79,6 @@ function resetWorkerGlobalScope() {
       continue;
     if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
     if (libraryReservedIdentifiers[key]) continue;
-    if (PLATFORM_FUNCTIONS[key]) continue;
     try {
       // @ts-expect-error: Types are not available
       delete self[key];
@@ -255,11 +251,11 @@ export default function evaluateSync(
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
+
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
-    if (!skipLogsOperations) {
-      userLogs.resetLogs();
-    }
+    if (!skipLogsOperations) userLogs.resetLogs();
+
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
@@ -269,7 +265,7 @@ export default function evaluateSync(
       isTriggerBased: isJSCollection,
     });
 
-    evalContext.ALLOW_ASYNC = false;
+    evalContext.ALLOW_SYNC = true;
 
     const { script } = getUserScriptToEvaluate(
       userScript,
@@ -310,6 +306,7 @@ export default function evaluateSync(
       });
     } finally {
       if (!skipLogsOperations) logs = userLogs.flushLogs();
+      evalContext.ALLOW_SYNC = false;
       for (const entityName in evalContext) {
         if (evalContext.hasOwnProperty(entityName)) {
           // @ts-expect-error: Types are not available
@@ -333,13 +330,19 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
     let logs;
+
+    /**** JSObject function proxy method ****/
     const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
-    /**** Setting the eval context ****/
+
+    /**** console logs setup ****/
     userLogs.resetLogs();
     userLogs.setCurrentRequestInfo({
       eventType: context?.eventType,
       triggerMeta: context?.triggerMeta,
     });
+
+    /**** Setting the eval context ****/
+
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
@@ -348,8 +351,9 @@ export async function evaluateAsync(
       JSFunctionProxy,
       isTriggerBased: true,
     });
+
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
-    evalContext.ALLOW_ASYNC = true;
+    evalContext.ALLOW_SYNC = false;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -374,6 +378,7 @@ export async function evaluateAsync(
       logs = userLogs.flushLogs();
     } finally {
       setEvaluationEnd(true);
+
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.

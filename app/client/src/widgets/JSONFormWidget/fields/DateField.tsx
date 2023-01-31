@@ -202,6 +202,7 @@ function DateField({
         inputRef={inputRef}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
+        isRequired={schemaItem.isRequired}
         labelText=""
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}

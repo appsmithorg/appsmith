@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, FormGroup as StyledFormGroup } from "design-system";
+import { Button, FormGroup as StyledFormGroup } from "design-system-old";
 import FormTextField from "components/utils/ReduxFormTextField";
 import {
   WELCOME_FORM_ROLE_FIELD_NAME,

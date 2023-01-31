@@ -37,7 +37,7 @@ import gitSyncSagas from "sagas/GitSyncSagas";
 import appThemingSaga from "sagas/AppThemingSaga";
 import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
-import NavigationSagas from "sagas/NavigationSagas";
+import NavigationSagas from "@appsmith/sagas/NavigationSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import JSLibrarySaga from "sagas/JSLibrarySaga";

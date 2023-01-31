@@ -22,7 +22,7 @@ import {
   IconSize,
   Menu,
   MenuItem,
-} from "design-system";
+} from "design-system-old";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";

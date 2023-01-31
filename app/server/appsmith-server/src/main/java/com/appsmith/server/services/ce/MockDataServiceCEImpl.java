@@ -80,7 +80,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                     } else {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.CLOUD_SERVICES_ERROR,
-                                "Unable to connect to cloud-services with error status {}", response.statusCode()));
+                                "Unable to connect to cloud-services with error status {0}", response.statusCode()));
                     }
                 })
                 .map(ResponseDTO::getData)
@@ -237,17 +237,16 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         }
 
         return sessionUserService.getCurrentUser()
-                .map(user -> {
-                    analyticsService.sendEvent(
-                            AnalyticsEvents.CREATE.getEventName(),
-                            user.getUsername(),
-                            Map.of(
-                                    "MockDataSource", defaultIfNull(name, ""),
-                                    "orgId", defaultIfNull(workspaceId, "")
-                            )
-                    );
-                    return user;
-                });
+                .flatMap(user ->
+                        analyticsService.sendEvent(
+                                AnalyticsEvents.CREATE.getEventName(),
+                                user.getUsername(),
+                                Map.of(
+                                        "MockDataSource", defaultIfNull(name, ""),
+                                        "orgId", defaultIfNull(workspaceId, "")
+                                )
+                        ).thenReturn(user)
+                );
     }
 
 }

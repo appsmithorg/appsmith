@@ -51,6 +51,7 @@ import { fetchJSLibraries } from "actions/JSLibraryActions";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
+import { waitForSegmentInit } from "ce/sagas/userSagas";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -135,6 +136,8 @@ export default class AppEditorEngine extends AppEngine {
       throw new ActionsNotFoundError(
         `Unable to fetch actions for the application: ${applicationId}`,
       );
+
+    yield call(waitForSegmentInit, true);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 

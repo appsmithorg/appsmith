@@ -1,5 +1,5 @@
 import { Icon } from "@blueprintjs/core";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
 import React from "react";

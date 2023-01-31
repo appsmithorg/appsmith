@@ -6,7 +6,7 @@ import {
   TextType,
   NotificationBanner,
   NotificationVariant,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
   createMessage,

@@ -140,7 +140,9 @@ export function PageMenu(props: AppViewerHeaderProps) {
               workspaceId={workspaceID}
             />
           )}
-          <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
+          {isOpen && (
+            <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
+          )}
           {!hideWatermark && (
             <a
               className="flex hover:no-underline"

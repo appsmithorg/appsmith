@@ -33,7 +33,7 @@ import {
   RenderDropdownOptionType,
   Size,
   TooltipComponent as Tooltip,
-} from "design-system";
+} from "design-system-old";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -60,7 +60,7 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -469,7 +469,7 @@ function GeneratePageForm() {
       const datasourceId = queryParams.datasourceId;
       const generateNewPage = queryParams.new_page;
       if (datasourceId) {
-        if (generateNewPage) {
+        if (generateNewPage || numberOfEntities > 0) {
           currentMode.current = GENERATE_PAGE_MODE.NEW;
         } else {
           currentMode.current = GENERATE_PAGE_MODE.REPLACE_EMPTY;
@@ -482,7 +482,7 @@ function GeneratePageForm() {
         history.replace(redirectURL);
       }
     }
-  }, [querySearch, setDatasourceIdToBeSelected]);
+  }, [numberOfEntities, querySearch, setDatasourceIdToBeSelected]);
 
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");

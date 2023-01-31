@@ -5,7 +5,7 @@ import {
   DialogComponent as Dialog,
   Dropdown,
   Size,
-} from "design-system";
+} from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {

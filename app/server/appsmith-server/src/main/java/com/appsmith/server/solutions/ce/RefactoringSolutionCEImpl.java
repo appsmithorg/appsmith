@@ -505,11 +505,11 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         refactorBindingsMono = Flux.fromStream(StreamSupport.stream(bindingPathList.spliterator(), true))
                 .flatMap(bindingPath -> {
                     String key = bindingPath.get(FieldName.KEY).asText();
-                    // This is inside a list widget, and the path starts with template.<oldName>,
+                    // This is inside a list widget, and the path starts with template.<oldName>.,
                     // We need to update the binding path list entry itself as well
                     if (widgetDsl.has(FieldName.WIDGET_TYPE) &&
                             FieldName.LIST_WIDGET.equals(widgetDsl.get(FieldName.WIDGET_TYPE).asText()) &&
-                            key.startsWith("template." + oldName)) {
+                            key.startsWith("template." + oldName + ".")) {
                         key = key.replace(oldName, newName);
                         ((ObjectNode) bindingPath).set(FieldName.KEY, new TextNode(key));
                     }

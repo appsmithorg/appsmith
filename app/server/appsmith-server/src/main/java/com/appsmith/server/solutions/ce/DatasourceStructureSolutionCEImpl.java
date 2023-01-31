@@ -5,11 +5,13 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -26,6 +28,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 @RequiredArgsConstructor
@@ -84,13 +87,18 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
         return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
-                .flatMap(pluginExecutor -> datasourceContextService
-                        .retryOnce(
-                                datasource,
-                                resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
-                                        .getStructure(resourceContext.getConnection(), datasource.getDatasourceConfiguration())
-                        )
-                )
+                .flatMap(pluginExecutor -> datasourceService
+                        .getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, null)
+                        .flatMap(tuple3 -> {
+                            Datasource datasource2 = tuple3.getT1();
+                            DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
+                            Map<String, BaseDomain> environmentMap = tuple3.getT3();
+                            return datasourceContextService
+                                    .retryOnce(datasource2, datasourceContextIdentifier, environmentMap,
+                                               resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
+                                                       .getStructure(resourceContext.getConnection(),
+                                                                     datasource.getDatasourceConfiguration()));
+                        }))
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
                 .onErrorMap(
                         TimeoutException.class,

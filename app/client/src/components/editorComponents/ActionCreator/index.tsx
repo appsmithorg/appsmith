@@ -1,5 +1,5 @@
 import { createModalAction } from "actions/widgetActions";
-import { TreeDropdownOption } from "design-system";
+import { TreeDropdownOption } from "design-system-old";
 import TreeStructure from "components/utils/TreeStructure";
 import { PluginType } from "entities/Action";
 import { isString, keyBy } from "lodash";

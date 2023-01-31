@@ -468,13 +468,29 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      resetFilterTextOnClose: getBooleanPropertyValue(
+      resetFilterTextOnClose: getPropertyValue(
         columnProperties.resetFilterTextOnClose,
         rowIndex,
       ),
+      inputFormat: getPropertyValue(
+        columnProperties.inputFormat,
+        rowIndex,
+        true,
+      ),
+      outputFormat: getPropertyValue(
+        columnProperties.outputFormat,
+        rowIndex,
+        true,
+      ),
+      shortcuts: getBooleanPropertyValue(columnProperties.shortcuts, rowIndex),
       selectOptions: getArrayPropertyValue(
         columnProperties.selectOptions,
         rowIndex,
+      ),
+      timePrecision: getPropertyValue(
+        columnProperties.timePrecision,
+        rowIndex,
+        true,
       ),
     } as CellLayoutProperties;
   }
@@ -487,6 +503,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.SELECT,
   ColumnTypes.CHECKBOX,
   ColumnTypes.SWITCH,
+  ColumnTypes.DATE,
 ];
 
 export function isColumnTypeEditable(columnType: string) {
