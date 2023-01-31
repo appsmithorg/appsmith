@@ -5,7 +5,7 @@ import {
   NEW_MODAL_LABEL,
   DEFAULT_SELECTOR_VIEW_TEXT,
 } from "../constants";
-import { Button, TreeDropdownOption } from "design-system";
+import { Button, TreeDropdownOption } from "design-system-old";
 import { getFunctionName } from "@shared/ast";
 import {
   ButtonViewProps,

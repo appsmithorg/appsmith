@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { ActionTree, SelectedActionBlock } from "../../types";
 import { getActionInfo } from "./utils";
 import { ActionBlock } from "../ActionBlock";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import TreeStructure from "components/utils/TreeStructure";
 import { AppsmithFunction } from "../../constants";
 

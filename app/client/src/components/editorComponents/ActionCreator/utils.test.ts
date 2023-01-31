@@ -4,7 +4,7 @@ jest.mock("sagas/ActionExecution/NavigateActionSaga", () => ({
   NavigationTargetType: { SAME_WINDOW: "" },
 }));
 
-import { TreeDropdownOption } from "design-system";
+import { TreeDropdownOption } from "design-system-old";
 import {
   argsStringToArray,
   enumTypeSetter,

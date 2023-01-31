@@ -9,7 +9,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import { createModalAction } from "actions/widgetActions";
 import { AppState } from "ce/reducers";
 import { getEntityNameAndPropertyPath } from "ce/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE, TreeDropdownOption } from "design-system";
+import { ENTITY_TYPE, TreeDropdownOption, Icon } from "design-system-old";
 import { PluginType } from "entities/Action";
 import { JSAction, Variable } from "entities/JSCollection";
 import { isString, keyBy } from "lodash";
@@ -19,7 +19,6 @@ import {
   jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo } from "react";
-import { Icon } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";

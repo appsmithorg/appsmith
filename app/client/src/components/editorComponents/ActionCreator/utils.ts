@@ -14,7 +14,7 @@ import {
   replaceActionInQuery,
   setObjectAtPosition,
 } from "@shared/ast";
-import { TreeDropdownOption } from "design-system";
+import { TreeDropdownOption } from "design-system-old";
 import { ActionTree } from "./types";
 import { AppsmithFunction } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";

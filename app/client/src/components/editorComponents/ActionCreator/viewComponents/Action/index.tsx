@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Popover2 } from "@blueprintjs/popover2";
-import { Button, Category, Icon, TreeDropdownOption } from "design-system";
+import { Button, Category, Icon, TreeDropdownOption } from "design-system-old";
 import { SelectorDropdown } from "../SelectorDropdown";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import FieldGroup from "../../FieldGroup";

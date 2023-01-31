@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { TreeDropdown, TreeDropdownOption, TextInput } from "design-system";
+import { TreeDropdown, TreeDropdownOption, TextInput } from "design-system-old";
 import { debounce } from "lodash";
 import { ActionBlock } from "../ActionBlock";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";

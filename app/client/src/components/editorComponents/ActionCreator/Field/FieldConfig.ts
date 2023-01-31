@@ -23,7 +23,7 @@ import {
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
 import { ACTION_TRIGGER_REGEX } from "../regex";
-import { TreeDropdownOption } from "design-system";
+import { TreeDropdownOption } from "design-system-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import {
   getActionBlocks,
