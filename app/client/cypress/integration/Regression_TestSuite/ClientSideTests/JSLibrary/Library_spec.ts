@@ -7,6 +7,7 @@ const explorer = ObjectsRegistry.EntityExplorer;
 const installer = ObjectsRegistry.LibraryInstaller;
 const aggregateHelper = ObjectsRegistry.AggregateHelper;
 const homePage = ObjectsRegistry.HomePage;
+const deployMode = ObjectsRegistry.DeployMode;
 
 describe("Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
@@ -35,7 +36,13 @@ describe("Tests JS Libraries", () => {
     homePage.DuplicateApplication("Library_export");
     aggregateHelper.AssertContains("true");
   });
-  it("5. Tests library access and installation in public apps", () => {
+  it("5. Deploy app and check installation", () => {
+    deployMode.DeployApp();
+    aggregateHelper.AssertContains("true");
+    deployMode.NavigateBacktoEditor();
+    aggregateHelper.AssertContains("true");
+  });
+  it("6. Tests library access and installation in public apps", () => {
     let appURL = "";
     cy.get(HomePage.shareApp).click();
     //@ts-expect-error no type access
