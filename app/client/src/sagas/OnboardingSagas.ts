@@ -5,12 +5,12 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
+  call,
+  delay,
   put,
   select,
-  takeLatest,
-  delay,
-  call,
   take,
+  takeLatest,
 } from "redux-saga/effects";
 import {
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
@@ -82,6 +82,7 @@ import {
   createMessage,
   ONBOARDING_SKIPPED_FIRST_TIME_USER,
 } from "@appsmith/constants/messages";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -369,7 +370,9 @@ function* selectWidgetSaga(
   if (widget) {
     // Navigate to the widget as well, usefull especially when we are not on the canvas
     navigateToCanvas(pageId, widget.widgetId);
-    yield put(selectWidgetInitAction(widget.widgetId));
+    yield put(
+      selectWidgetInitAction(SelectionRequestType.One, [widget.widgetId]),
+    );
     // Delay to wait for the fields to render
     yield delay(1000);
     // If the propertyName exist then we focus the respective input field as well
