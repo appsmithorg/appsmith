@@ -124,18 +124,13 @@ const Label = styled.span<{ business?: boolean }>`
   font-size: 12px;
 `;
 
-export function Upgrade(message: string, method: string) {
+export function ActionButton({ method }: { method: AuthMethodType }) {
+  const history = useHistory();
   const { onUpgrade } = useOnUpgrade({
     logEventName: "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD",
-    logEventData: { method },
-    intercomMessage: message,
+    logEventData: { method: method.label },
+    intercomMessage: createMessage(UPGRADE_TO_EE, method.label),
   });
-
-  return onUpgrade();
-}
-
-export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
-  const history = useHistory();
 
   const onClickHandler = (method: AuthMethodType) => {
     if (!method.needsUpgrade || method.isConnected) {
@@ -154,10 +149,26 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
         }),
       );
     } else {
-      Upgrade(createMessage(UPGRADE_TO_EE, method.label), method.label);
+      onUpgrade();
     }
   };
 
+  return (
+    <StyledAuthButton
+      category={method.isConnected ? Category.primary : Category.secondary}
+      className={`t--settings-sub-category-${
+        method.needsUpgrade ? `upgrade-${method.category}` : method.category
+      }`}
+      data-cy="btn-auth-account"
+      onClick={() => onClickHandler(method)}
+      text={createMessage(
+        method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
+      )}
+    />
+  );
+}
+
+export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   return (
     <Wrapper>
       <SettingsFormWrapper>
@@ -210,25 +221,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     />
                   )}
                 </MethodDetailsWrapper>
-                <StyledAuthButton
-                  category={
-                    method.isConnected ? Category.primary : Category.secondary
-                  }
-                  className={`t--settings-sub-category-${
-                    method.needsUpgrade
-                      ? `upgrade-${method.category}`
-                      : method.category
-                  }`}
-                  data-cy="btn-auth-account"
-                  onClick={() => onClickHandler(method)}
-                  text={createMessage(
-                    method.isConnected
-                      ? EDIT
-                      : !!method.needsUpgrade
-                      ? UPGRADE
-                      : ENABLE,
-                  )}
-                />
+                <ActionButton method={method} />
               </MethodCard>
             );
           })}
