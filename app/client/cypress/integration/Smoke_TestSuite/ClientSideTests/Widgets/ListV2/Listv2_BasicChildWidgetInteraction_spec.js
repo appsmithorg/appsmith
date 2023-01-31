@@ -1,5 +1,6 @@
 const emptyListDSL = require("../../../../../fixtures/Listv2/emptyList.json");
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
+const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
@@ -56,17 +57,21 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Verify drop
     cy.get(publishLocators.selectwidget).should("exist");
 
+    cy.PublishtheApp();
+
     // open the select widget
     cy.get(publishLocators.selectwidget)
+      .eq(0)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
     // Select the Red option from dropdown list
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Red")
       .click({ force: true });
-    cy.wait(200);
+
     // Assert if the select widget has Red as the selected value
     cy.get(publishLocators.selectwidget).contains("Red");
+    cy.get(publishPage.backToEditor).click({ force: true });
   });
 
   it("3. Checkbox group widget", () => {
@@ -100,6 +105,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
       .contains("Blue")
       .siblings("input")
       .should("be.checked");
+    cy.get(publishPage.backToEditor).click({ force: true });
   });
 
   it("4. Switch widget", () => {
@@ -130,6 +136,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
       .find("input")
       .first()
       .should("not.be.checked");
+    cy.get(publishPage.backToEditor).click({ force: true });
   });
 
   it("5. Radio group widget", () => {
@@ -150,5 +157,6 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Check option 2 and then check it's value:
     cy.get(`${publishLocators.radioWidget} input`).check("N", { force: true });
     checkSelectedRadioValue(publishLocators.radioWidget, "N");
+    cy.get(publishPage.backToEditor).click({ force: true });
   });
 });
