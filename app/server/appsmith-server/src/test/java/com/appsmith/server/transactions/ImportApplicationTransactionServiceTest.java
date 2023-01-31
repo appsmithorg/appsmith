@@ -135,13 +135,14 @@ public class ImportApplicationTransactionServiceTest {
         Mockito.when(newActionService.save(Mockito.any()))
                 .thenThrow(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST));
 
-        Mono<Application> resultMono = workspaceService.create(newWorkspace)
-                .flatMap(workspace -> importExportApplicationService.importApplicationInWorkspace(workspace.getId(), applicationJson));
+        Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
+
+        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
         StepVerifier
                 .create(resultMono)
-                .expectErrorMatches(error -> error instanceof AppsmithException && error.getMessage().equals(AppsmithError.GENERIC_BAD_REQUEST.getMessage()))
+                .expectErrorMatches(error -> error instanceof AppsmithException && error.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
                 .verify();
 
         // After the import application failed in the middle of execution after the application and pages are saved to DB

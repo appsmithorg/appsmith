@@ -1209,7 +1209,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         return applicationPageService.deleteApplication(importedApplication.getId())
                                 .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE));
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
                 })
                 .as(transactionalOperator::transactional);
 
