@@ -1,5 +1,4 @@
-import { Collapse } from "@blueprintjs/core";
-import React, { useState, useMemo, PropsWithChildren } from "react";
+import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { get, keyBy } from "lodash";
 import {
@@ -11,9 +10,8 @@ import {
   SourceEntity,
 } from "entities/AppsmithConsole";
 import styled, { useTheme } from "styled-components";
-import EntityLink, { DebuggerLinkUI } from "./EntityLink";
-import ReactJson from "react-json-view";
-import { getLogIcon } from "./helpers";
+import EntityLink, { DebuggerLinkUI } from "../EntityLink";
+import { getLogIcon } from "../helpers";
 import {
   Classes,
   getTypographyByKey,
@@ -31,6 +29,7 @@ import {
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import { getPlugins } from "selectors/entitiesSelector";
 import { PluginType } from "entities/Action";
+import CollapseData from "./CollapseData";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -41,26 +40,32 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 6px 12px 6px 12px;
+
   &.${Severity.INFO} {
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.info.borderBottom};
   }
+
   &.${Severity.ERROR} {
     background-color: #fff8f8;
     border-bottom: 1px solid #ffecec;
   }
+
   &.${Severity.WARNING} {
     background-color: ${(props) =>
       props.theme.colors.debugger.warning.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.warning.borderBottom};
   }
+
   .bp3-popover-target {
     display: inline;
   }
+
   .${Classes.ICON} {
     display: inline-block;
   }
+
   .debugger-toggle {
     margin-right: -4px;
     ${(props) =>
@@ -78,13 +83,16 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
     }
+
     &.${Severity.ERROR} {
       color: ${(props) => props.theme.colors.debugger.error.time};
     }
+
     &.${Severity.WARNING} {
       color: ${(props) => props.theme.colors.debugger.warning.time};
     }
   }
+
   .debugger-error-type {
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
@@ -93,12 +101,14 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     cursor: default;
     color: ${(props) => props.theme.colors.debugger.error.type};
   }
+
   .debugger-description {
     display: flex;
     align-items: center;
     overflow-wrap: anywhere;
     word-break: break-word;
     margin-right: 4px;
+
     .debugger-label {
       ${getTypographyByKey("h6")}
       font-weight: 400;
@@ -116,8 +126,10 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       color: ${(props) => props.theme.colors.debugger.entity};
       ${getTypographyByKey("h6")}
       margin-left: 6px;
+
       & > span {
         cursor: pointer;
+
         &:hover {
           text-decoration: underline;
           text-decoration-color: ${(props) =>
@@ -126,6 +138,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       }
     }
   }
+
   .debugger-entity-link {
     ${getTypographyByKey("h6")}
     font-weight: 400;
@@ -136,48 +149,12 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-type StyledCollapseProps = PropsWithChildren<{
-  category: LOG_CATEGORY;
-}>;
-
-const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
-  padding-top: ${(props) =>
-    props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
-      ? " -20px"
-      : " 4px"};
-  padding-left: 78px;
-`;
-
-const MessageInfo = styled.div`
-  ${getTypographyByKey("h6")}
-  font-weight: 400;
-  letter-spacing: -0.195px;
-  color: ${Colors.GRAY_800};
-`;
-
-const MessageWrapper = styled.div`
-  cpadding-bottom: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const JsonWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[1]}px;
-  svg {
-    color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
-    height: 12px !important;
-    width: 12px !important;
-    vertical-align: baseline !important;
-  }
-`;
-
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
   color: ${Colors.CHARCOAL};
   display: flex;
   align-items: center;
-  cursor: default;
+
   svg {
     width: 12px;
     height: 12px;
@@ -194,7 +171,7 @@ const LineNumber = styled.div`
 `;
 
 const showToggleIcon = (e: Log) => {
-  return !!e.state || !!e.pluginErrorDetails;
+  return !!e.state;
 };
 
 export const getLogItemProps = (e: Log) => {
@@ -219,7 +196,7 @@ export const getLogItemProps = (e: Log) => {
   };
 };
 
-type LogItemProps = {
+export type LogItemProps = {
   collapsable?: boolean;
   icon: IconName;
   timestamp: string;
@@ -245,22 +222,6 @@ function ErrorLogItem(props: LogItemProps) {
   const theme = useTheme();
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-
-  const reactJsonProps = {
-    name: null,
-    enableClipboard: false,
-    displayObjectSize: false,
-    displayDataTypes: false,
-    style: {
-      fontFamily:
-        "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
-      fontSize: "11px",
-      fontWeight: "400",
-      letterSpacing: "-0.195px",
-      lineHeight: "13px",
-    },
-    collapsed: 1,
-  };
 
   const getIcon = () => {
     if (props.source) {
@@ -292,13 +253,7 @@ function ErrorLogItem(props: LogItemProps) {
   };
 
   return (
-    <Wrapper
-      className={props.severity}
-      collapsed={!isOpen}
-      onClick={() => {
-        if (collapsable) setIsOpen(!isOpen);
-      }}
-    >
+    <Wrapper className={props.severity} collapsed={!isOpen}>
       <InnerWrapper>
         <Icon
           clickable={collapsable}
@@ -383,32 +338,7 @@ function ErrorLogItem(props: LogItemProps) {
           )
         )}
       </InnerWrapper>
-      {collapsable && isOpen && (
-        <StyledCollapse
-          category={props.category}
-          isOpen={isOpen}
-          keepChildrenMounted
-        >
-          {props.pluginErrorDetails && (
-            <MessageWrapper>
-              <MessageInfo>
-                {props.pluginErrorDetails.appsmithErrorMessage}
-              </MessageInfo>
-              <MessageInfo>
-                {props.pluginErrorDetails.downstreamErrorMessage}
-              </MessageInfo>
-            </MessageWrapper>
-          )}
-          {props.state && (
-            <JsonWrapper
-              className="t--debugger-log-state"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ReactJson src={props.state} {...reactJsonProps} />
-            </JsonWrapper>
-          )}
-        </StyledCollapse>
-      )}
+      {collapsable && isOpen && <CollapseData isOpen={isOpen} {...props} />}
     </Wrapper>
   );
 }
