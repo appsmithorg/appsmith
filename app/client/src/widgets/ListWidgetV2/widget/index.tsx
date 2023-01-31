@@ -90,8 +90,6 @@ export type MetaWidgetCacheProps = {
   prevViewIndex?: number;
 };
 
-export type RowDataCache = Record<string, Record<string, unknown>>;
-
 type LevelDataMetaWidgetCacheProps = Omit<
   MetaWidgetCacheProps,
   "originalMetaWidgetId" | "originalMetaWidgetName"
@@ -199,6 +197,21 @@ class ListWidget extends BaseWidget<
     this.pageSize = this.getPageSize();
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
+    }
+
+    if (this.props.selectedItemKey || this.props.triggeredItemKey) {
+      /**
+       * Resetting selected Items and triggered items when the list widget is mounted
+       * because the MetaWidgetGenerator also clears all cached data when mounted or re-mounted
+       *
+       * Task: Persist the cache in List V2.1
+       * The current issue exist is two forms
+       * 1. When we move from canvas to the query page, the widgetCache is lost and we lose all cache
+       * once we navigate back to the canvas the List widget generates new sets of metaWidget with different
+       * widgetIds and name.
+       * 2. A nested List widget, when the parent widget switches pages, the inner List is unmounted.
+       */
+      this.resetCache();
     }
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
@@ -710,6 +723,17 @@ class ListWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("selectedItemView", "{{{}}}");
   };
 
+  resetTriggeredItemView = () => {
+    this.props.updateWidgetMetaProperty("triggeredItemView", "{{{}}}");
+  };
+
+  resetTriggeredItemKey = () => {
+    this.props.updateWidgetMetaProperty("triggeredItemKey", null);
+  };
+
+  resetTriggeredItem = () =>
+    this.props.updateWidgetMetaProperty("triggeredItem", undefined);
+
   // Updates TriggeredItem and TriggeredItemKey Meta Properties.
   handleTriggeredItemAndKey = (rowIndex: number) => {
     const { triggeredItem } = this.props;
@@ -732,6 +756,15 @@ class ListWidget extends BaseWidget<
 
   resetSelectedItemKey = () => {
     this.props.updateWidgetMetaProperty("selectedItemKey", null);
+  };
+
+  resetCache = () => {
+    this.resetSelectedItem();
+    this.resetSelectedItemKey();
+    this.resetSelectedItemView();
+    this.resetTriggeredItem();
+    this.resetTriggeredItemKey();
+    this.resetTriggeredItemView();
   };
 
   shouldPaginate = () => {
@@ -1024,7 +1057,6 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
-  rowDataCache: RowDataCache;
 }
 
 export default ListWidget;
