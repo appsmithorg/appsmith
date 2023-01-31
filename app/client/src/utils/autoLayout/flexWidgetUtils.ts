@@ -1,3 +1,11 @@
+import WidgetFactory from "utils/WidgetFactory";
+import { WidgetSizeConfig } from "widgets/constants";
+
+export interface MinSize {
+  minHeight: number | string;
+  minWidth: number | string;
+}
+
 export function getRightColumn(widget: any, isMobile: boolean): number {
   return isMobile && widget.mobileRightColumn !== undefined
     ? widget.mobileRightColumn
@@ -110,4 +118,60 @@ export function getWidgetHeight(widget: any, isMobile: boolean): number {
 export function getWidgetRows(widget: any, isMobile: boolean): number {
   const divisor = widget.parentRowSpace === 1 ? 10 : 1;
   return getBottomRow(widget, isMobile) / divisor - getTopRow(widget, isMobile);
+}
+
+/**
+ * Calculates the minimum size of a widget based on the widget type and the canvas width.
+ * @param widget | Widget props
+ * @param canvasWidth | number : main canvas width.
+ * @returns MinSize | undefined
+ */
+export function getMinSize(
+  widget: any,
+  canvasWidth: number,
+): MinSize | undefined {
+  // Get the widget size configuration.
+  const sizeConfig = getCurrentSizeConfig(widget, canvasWidth);
+  if (!sizeConfig) return;
+
+  // Get the minimum size for the widget at this breakpoint.
+  const { minHeight, minWidth } = sizeConfig.configuration(widget);
+
+  return { minHeight, minWidth };
+}
+
+export function getCurrentSizeConfig(
+  widget: any,
+  canvasWidth: number,
+): WidgetSizeConfig | undefined {
+  // Get the widget size configuration.
+  const sizeConfig = WidgetFactory.getWidgetAutoLayoutConfig(widget.type);
+  if (!sizeConfig || !sizeConfig?.widgetSize?.length) return;
+
+  // Find the most suitable breakpoint for the canvas width.
+  const sizes: WidgetSizeConfig[] = sizeConfig?.widgetSize;
+  let index = 0;
+  while (index < sizes?.length && canvasWidth > sizes[index].viewportMinWidth) {
+    index += 1;
+  }
+  return sizes[index - 1];
+}
+
+/**
+ * Return the minimum pixel width of a widget based on the widget type and the canvas width.
+ * minSize can be configured in columns (number) or pixels (string).
+ * Return an appropriate pixel width based on the minSize type.
+ */
+export function getMinPixelWidth(
+  widget: any,
+  canvasWidth: number,
+): number | undefined {
+  if (!widget) return;
+  const minSize = getMinSize(widget, canvasWidth);
+  if (!minSize) return;
+  const arr: string[] =
+    typeof minSize.minWidth === "string" ? minSize.minWidth.split("px") : [];
+  if (arr.length) return parseInt(arr[0]);
+  if (typeof minSize.minWidth === "number")
+    return minSize.minWidth * widget.parentColumnSpace;
 }

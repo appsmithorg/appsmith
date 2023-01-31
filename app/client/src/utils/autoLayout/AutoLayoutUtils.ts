@@ -16,6 +16,7 @@ import {
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { getMinPixelWidth } from "./flexWidgetUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
   const container = widgets[containerId];
@@ -165,6 +166,7 @@ export function alterLayoutForMobile(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   canvasWidth: number,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -177,31 +179,47 @@ export function alterLayoutForMobile(
 
   for (const child of children) {
     const widget = { ...widgets[child] };
+    const minWidth: number | undefined = getMinPixelWidth(
+      widget,
+      mainCanvasWidth,
+    );
+
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
       widget.mobileRightColumn = 64;
       widget.mobileLeftColumn = 0;
     } else if (
       widget.responsiveBehavior === ResponsiveBehavior.Hug &&
-      widget.minWidth
+      minWidth
     ) {
-      const { minWidth, rightColumn } = widget;
+      const { leftColumn, rightColumn } = widget;
       const columnSpace = (canvasWidth - FLEXBOX_PADDING * 2) / 64;
-      if (columnSpace * rightColumn < minWidth) {
+      if (columnSpace * (rightColumn - leftColumn) < minWidth) {
+        /**
+         * Set a proper width for the widget => left column = 0;
+         * Actual positioning of the widget will be updated by updateWidgetPositions function.
+         */
         widget.mobileLeftColumn = 0;
         widget.mobileRightColumn = Math.min(minWidth / columnSpace, 64);
       }
+    } else {
+      widget.mobileLeftColumn = widget.leftColumn;
+      widget.mobileRightColumn = widget.rightColumn;
     }
+
     widget.mobileTopRow = widget.topRow;
     widget.mobileBottomRow = widget.bottomRow;
     if (widget.autoLayout?.mobile?.rows) {
       widget.mobileBottomRow =
         widget.mobileTopRow + widget.autoLayout.mobile.rows;
     }
-    widgets = alterLayoutForMobile(
-      widgets,
-      child,
-      (canvasWidth * (widget.mobileRightColumn || 1)) / 64,
-    );
+
+    if (widget.mobileRightColumn !== undefined)
+      widgets = alterLayoutForMobile(
+        widgets,
+        child,
+        canvasWidth * (widget.mobileRightColumn / 64),
+        mainCanvasWidth,
+      );
     widgets[child] = widget;
     widgets = updateWidgetPositions(widgets, child, true);
   }
