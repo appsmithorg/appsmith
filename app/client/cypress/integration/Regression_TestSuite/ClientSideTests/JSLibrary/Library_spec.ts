@@ -1,6 +1,5 @@
 import HomePage from "../../../../locators/HomePage";
 import { WIDGET } from "../../../../locators/WidgetLocators";
-import { deployMode } from "../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const explorer = ObjectsRegistry.EntityExplorer;
