@@ -3,7 +3,8 @@ import template from "../../../../locators/TemplatesLocators.json";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper;
+let agHelper = ObjectsRegistry.AggregateHelper,
+  templates = ObjectsRegistry.Templates;
 
 describe("Fork a template to the current app", () => {
   afterEach(() => {
@@ -24,40 +25,8 @@ describe("Fork a template to the current app", () => {
     );
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
-    )
-      .scrollIntoView()
-      .click();
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    templates.ForkTemplateByName("Customer Support Dashboard");
     cy.wait(6000);
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetLocators.toastAction).length <= 0) {
-        if ($ele.find(template.templateViewForkButton).length > 0) {
-          cy.get(template.templateViewForkButton).click();
-        }
-      } else {
-        cy.wrap($ele)
-          .invoke("text")
-          .then((text) => {
-            if (text.includes("Unexpected state.")) {
-              cy.reload();
-              cy.get(template.startFromTemplateCard).click();
-              cy.wait(5000);
-              cy.get(template.templateDialogBox).should("be.visible");
-              cy.xpath(
-                "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
-              )
-                .scrollIntoView()
-                .click();
-            }
-          });
-      }
-    });
     cy.get(widgetLocators.toastAction).should(
       "contain",
       "template added successfully",
