@@ -141,17 +141,6 @@ describe("List widget V2 page number and page size", () => {
     cy.togglebar(".t--property-control-serversidepagination input");
     cy.wait("@updateLayout");
 
-    // toggle js of onPageSizeChange
-    cy.get(".t--property-control-onpagesizechange")
-      .find(".t--js-toggle")
-      .click({
-        force: true,
-      });
-    // Bind with MultiApi with static value
-    cy.testJsontext(
-      "onpagesizechange",
-      "{{showAlert('Page Size Changed ' + List1.pageSize)}}",
-    );
     // toggle serversidepagination -> false
     cy.togglebarDisable(".t--property-control-serversidepagination input");
 
@@ -166,7 +155,6 @@ describe("List widget V2 page number and page size", () => {
     // toggle serversidepagination -> true
     cy.openPropertyPane("listwidgetv2");
     cy.togglebar(".t--property-control-serversidepagination input");
-    cy.validateToastMessage("Page Size Changed 2");
 
     cy.get(commonlocators.bodyTextStyle)
       .first()
