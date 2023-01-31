@@ -6,7 +6,6 @@ import { EvalWorkerSyncRequest } from "../types";
 import userLogs from "../UserLog";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import initLocalStorage from "../fns/LocalStorage";
-import { resetJSLibraries } from "workers/common/JSLibrary";
 
 export default function() {
   ///// Remove all unsafe functions
