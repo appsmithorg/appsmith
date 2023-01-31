@@ -1171,19 +1171,8 @@ class MetaWidgetGenerator {
     ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
     }
-    /**
-     * (Operation) Moving to Next Page
-     * 2 Things would change at different times,
-     * page No would change immediately -> causes regeneration of meta widgets
-     * Data would later change -> The PrimaryKey check in hasRegenerationOptionsChanged isn't enough
-     * as the PrimaryKey could be an array of null values or undefined. Hence, showing as equal whereas there was a change in
-     * data.
-     */
 
-    if (
-      this.hasRegenerationOptionsChanged(nextOptions) ||
-      (!isEqual(nextOptions.data, this.data) && this.serverSidePagination)
-    ) {
+    if (this.hasRegenerationOptionsChanged(nextOptions)) {
       this.modificationsQueue.add(MODIFICATION_TYPE.REGENERATE_META_WIDGETS);
     }
 
@@ -1337,7 +1326,9 @@ class MetaWidgetGenerator {
       nextOptions.pageSize !== this.pageSize ||
       nextOptions.primaryKeys !== this.primaryKeys ||
       nextOptions.serverSidePagination !== this.serverSidePagination ||
-      nextOptions.templateBottomRow !== this.templateBottomRow
+      nextOptions.templateBottomRow !== this.templateBottomRow ||
+      // Comparing a slice of the data as deep equal on the whole data can be very expensive.
+      (!isEqual(nextOptions.data[0], this.data[0]) && this.serverSidePagination)
     );
   };
 

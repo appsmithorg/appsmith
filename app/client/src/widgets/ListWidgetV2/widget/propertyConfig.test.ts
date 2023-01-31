@@ -155,17 +155,26 @@ describe(".primaryColumnValidation", () => {
     });
   });
 
-  it(" primary key with a single null value in array", () => {
+  it(" primary key contain null value in array", () => {
     const props = ({
       listData: [
         {
           id: 1,
         },
+        {
+          id: 12,
+        },
+        {
+          id: 14,
+        },
+        {
+          id: 11,
+        },
       ],
       dynamicPropertyPathList: [{ key: "primaryKeys" }],
     } as unknown) as ListWidgetProps;
 
-    const input: unknown = [null];
+    const input: unknown = [1, null, undefined, 4];
 
     const output = primaryColumnValidation(input, props, _);
 
