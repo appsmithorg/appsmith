@@ -1,4 +1,5 @@
 import React from "react";
+import { Icon } from "design-system-old";
 import { ReactComponent as ClearInterval } from "assets/icons/action/clearInterval.svg";
 import { ReactComponent as ClearStore } from "assets/icons/action/clearStore.svg";
 import { ReactComponent as CopyToClipboard } from "assets/icons/action/copyToClipboard.svg";
@@ -100,6 +101,9 @@ function getIconForAction(
       }
 
       return () => <ApiMethodIcon height="12px" type={method} width="28px" />;
+
+    case AppsmithFunction.postWindowMessage:
+      return () => <Icon name="post-message" />;
   }
 
   return React.Fragment;
@@ -185,6 +189,11 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
 
     case AppsmithFunction.stopWatchGeolocation:
       return "";
+
+    case AppsmithFunction.postWindowMessage:
+      return (
+        FIELD_CONFIG[FieldType.MESSAGE_FIELD].getter(code) || "Add message"
+      );
   }
 
   return "";
