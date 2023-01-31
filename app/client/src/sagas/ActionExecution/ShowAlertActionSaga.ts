@@ -1,9 +1,6 @@
-import { Toaster, ToastTypeOptions, Variant } from "design-system";
+import { Toaster, ToastTypeOptions, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
-import {
-  ActionTriggerType,
-  ShowAlertActionDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
+import { ShowAlertActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import {
   ActionValidationError,
   TriggerFailureError,
@@ -15,7 +12,7 @@ export default function* showAlertSaga(
 ) {
   if (typeof payload.message !== "string") {
     throw new ActionValidationError(
-      ActionTriggerType.SHOW_ALERT,
+      "SHOW_ALERT",
       "message",
       Types.STRING,
       getType(payload.message),

@@ -4,6 +4,7 @@ import {
   getBasePropertyPath,
   showByColumnType,
   hideByColumnType,
+  getColumnPath,
 } from "../../propertyUtils";
 
 export default {
@@ -20,7 +21,8 @@ export default {
           columnType === ColumnTypes.NUMBER ||
           columnType === ColumnTypes.CHECKBOX ||
           columnType === ColumnTypes.SWITCH ||
-          columnType === ColumnTypes.SELECT
+          columnType === ColumnTypes.SELECT ||
+          columnType === ColumnTypes.DATE
         ) || !isEditable
       );
     }
@@ -132,6 +134,20 @@ export default {
       additionalAutoComplete: () => ({
         filterText: "",
       }),
+    },
+    {
+      propertyName: "onDateSelected",
+      label: "onDateSelected",
+      helpText: "Triggers an action when a date is selected in the calendar",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+      dependencies: ["primaryColumns"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const path = getColumnPath(propertyPath);
+        return hideByColumnType(props, path, [ColumnTypes.DATE], true);
+      },
     },
   ],
 };

@@ -19,7 +19,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
-  private isMac = Cypress.platform === "darwin";
+  public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
@@ -136,9 +136,23 @@ export class AggregateHelper {
     this.Sleep();
   }
 
+  public CheckForPageSaveError() {
+    // Wait for "saving" status to disappear
+    this.GetElement(this.locator._statusSaving).should("not.exist");
+    // Check for page save error
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this.locator._saveStatusError).length) {
+        this.RefreshPage();
+      }
+    });
+  }
+
   public AssertAutoSave() {
+    this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
-    cy.get(this.locator._saveStatusSuccess, { timeout: 30000 }).should("exist"); //adding timeout since waiting more time is not worth it!
+    cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
+      "not.exist",
+    ); //adding timeout since waiting more time is not worth it!
   }
 
   public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
@@ -551,6 +565,7 @@ export class AggregateHelper {
     return locator
       .eq(index)
       .focus()
+      .wait(100)
       .type(value, {
         parseSpecialCharSequences: parseSpecialCharSeq,
         //delay: 3,
@@ -926,6 +941,16 @@ export class AggregateHelper {
       .should("be.visible");
   }
 
+  public CheckForErrorToast(error: string) {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this.locator._toastMsg).length) {
+        if ($ele.find(this.locator._specificToast(error)).length) {
+          throw new Error("Error Toast from Application:" + error);
+        }
+      }
+    });
+  }
+
   public AssertElementExist(selector: ElementType, index = 0) {
     return this.GetElement(selector)
       .eq(index)
@@ -1014,6 +1039,22 @@ export class AggregateHelper {
       }
     });
     this.Sleep();
+  }
+
+  public AssertElementEnabledDisabled(
+    selector: ElementType,
+    index = 0,
+    disabled = true,
+  ) {
+    if (disabled) {
+      return this.GetElement(selector)
+        .eq(index)
+        .should("be.disabled");
+    } else {
+      return this.GetElement(selector)
+        .eq(index)
+        .should("not.be.disabled");
+    }
   }
 
   //Not used:
