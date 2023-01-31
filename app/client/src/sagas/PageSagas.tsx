@@ -8,26 +8,27 @@ import {
   UpdateCanvasPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
+  ClonePageActionPayload,
   clonePageSuccess,
+  CreatePageActionPayload,
   deletePageSuccess,
+  fetchAllPageEntityCompletion,
+  fetchPage,
   FetchPageListPayload,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
-  savePageSuccess,
-  setUrlData,
-  initCanvasLayout,
-  updateCurrentPage,
-  updateWidgetNameSuccess,
-  updateAndSaveLayout,
-  saveLayout,
-  setLastUpdatedTime,
-  ClonePageActionPayload,
-  CreatePageActionPayload,
   generateTemplateError,
   generateTemplateSuccess,
-  fetchAllPageEntityCompletion,
-  updatePageSuccess,
+  initCanvasLayout,
+  saveLayout,
+  savePageSuccess,
+  setLastUpdatedTime,
+  setUrlData,
+  updateAndSaveLayout,
+  updateCurrentPage,
   updatePageError,
+  updatePageSuccess,
+  updateWidgetNameSuccess,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -37,6 +38,7 @@ import PageApi, {
   FetchPageRequest,
   FetchPageResponse,
   FetchPublishedPageRequest,
+  GenerateTemplatePageRequest,
   PageLayout,
   SavePageRequest,
   SavePageResponse,
@@ -55,6 +57,7 @@ import {
   all,
   call,
   debounce,
+  delay,
   put,
   select,
   takeEvery,
@@ -62,20 +65,10 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import {
-  captureInvalidDynamicBindingPath,
-  isNameValid,
-  quickScrollToWidget,
-} from "utils/helpers";
+import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
-import {
-  getAllPageIds,
-  getEditorConfigs,
-  getExistingPageNames,
-  getWidgets,
-} from "./selectors";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getAllPageIds, getEditorConfigs, getWidgets } from "./selectors";
 import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -88,10 +81,10 @@ import {
 import {
   executePageLoadActions,
   fetchActionsForPage,
+  fetchActionsForPageError,
+  fetchActionsForPageSuccess,
   setActionsToExecuteOnPageLoad,
   setJSActionsToExecuteOnPageLoad,
-  fetchActionsForPageSuccess,
-  fetchActionsForPageError,
 } from "actions/pluginActionActions";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
@@ -101,39 +94,36 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import log from "loglevel";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
-import { GenerateTemplatePageRequest } from "api/PageApi";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
-import {
-  selectMultipleWidgetsAction,
-  selectWidgetInitAction,
-} from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
-  fetchJSCollectionsForPageSuccess,
   fetchJSCollectionsForPageError,
+  fetchJSCollectionsForPageSuccess,
 } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
-import { getSelectedWidgets } from "selectors/ui";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "selectors/entitiesSelector";
+import { setPreviewModeAction } from "actions/editorActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -163,6 +153,7 @@ export function* fetchPageListSaga(
       const workspaceId = response.data.workspaceId;
       const pages: Page[] = response.data.pages.map((page) => ({
         pageName: page.name,
+        description: page.description,
         pageId: page.id,
         isDefault: page.isDefault,
         isHidden: !!page.isHidden,
@@ -259,8 +250,6 @@ export function* handleFetchedPage({
     yield put(updateCurrentPage(pageId, pageSlug, pagePermissions));
     // dispatch fetch page success
     yield put(fetchPageSuccess());
-    // restore selected widgets while loading the page.
-    yield call(restoreSelectedWidgetContext);
 
     /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
      */
@@ -286,6 +275,7 @@ export function* handleFetchedPage({
     }
   }
 }
+
 const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
   pageResponse.data.lastUpdatedTime;
 
@@ -582,7 +572,12 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     const currentPageId: string = yield select(getCurrentPageId);
     const currentPage: Page = yield select(getPageById(currentPageId));
 
-    if (!hasManagePagePermission(currentPage?.userPermissions || [])) {
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
+
+    if (
+      !hasManagePagePermission(currentPage?.userPermissions || []) &&
+      appMode === APP_MODE.EDIT
+    ) {
       yield validateResponse({
         status: 403,
         resourceType: "Page",
@@ -590,7 +585,6 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       });
     }
 
-    const appMode: APP_MODE | undefined = yield select(getAppMode);
     if (appMode === APP_MODE.EDIT) {
       yield put(saveLayout(action.payload.isRetry));
     }
@@ -752,7 +746,7 @@ export function* clonePageSaga(
 
       yield put(fetchActionsForPage(response.data.id));
       yield put(fetchJSCollectionsForPage(response.data.id));
-      yield put(selectMultipleWidgetsAction([]));
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       // TODO: Update URL params here.
 
@@ -788,10 +782,10 @@ export function* updateWidgetNameSaga(
   try {
     const { widgetName } = yield select(getWidgetName, action.payload.id);
     const layoutId: string | undefined = yield select(getCurrentLayoutId);
-    const evalTree: DataTree = yield select(getDataTree);
     const pageId: string | undefined = yield select(getCurrentPageId);
-    const existingPageNames: Record<string, unknown> = yield select(
-      getExistingPageNames,
+    const getUsedNames: Record<string, true> = yield select(
+      getUsedActionNames,
+      "",
     );
 
     // TODO(abhinav): Why do we need to jump through these hoops just to
@@ -868,12 +862,7 @@ export function* updateWidgetNameSaga(
     } else {
       // check if name is not conflicting with any
       // existing entity/api/queries/reserved words
-      if (
-        isNameValid(action.payload.newName, {
-          ...evalTree,
-          ...existingPageNames,
-        })
-      ) {
+      if (isNameValid(action.payload.newName, getUsedNames)) {
         const request: UpdateWidgetNameRequest = {
           newName: action.payload.newName,
           oldName: widgetName,
@@ -961,7 +950,7 @@ export function* setDataUrl() {
   yield put(setUrlData(urlData));
 }
 
-function* fetchPageDSLSaga(pageId: string) {
+export function* fetchPageDSLSaga(pageId: string) {
   try {
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id: pageId,
@@ -1080,6 +1069,8 @@ export function* generateTemplatePageSaga(
         isFirstLoad: true,
       });
 
+      yield put(fetchPage(pageId));
+
       // trigger evaluation after completion of page success & fetch actions for page + fetch jsobject for page
 
       const triggersAfterPageFetch = [
@@ -1130,17 +1121,6 @@ export function* generateTemplatePageSaga(
   }
 }
 
-function* restoreSelectedWidgetContext() {
-  const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  if (!selectedWidgets.length) return;
-
-  if (selectedWidgets.length === 1) {
-    yield put(selectWidgetInitAction(selectedWidgets[0]));
-  }
-
-  quickScrollToWidget(selectedWidgets[0]);
-}
-
 function* deleteCanvasCardsStateSaga() {
   const currentPageId: string = yield select(getCurrentPageId);
   const state = JSON.parse(
@@ -1161,6 +1141,26 @@ function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
     LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE,
     JSON.stringify(stateObject),
   );
+}
+
+function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
+  const currentPageId: string = yield select(getCurrentPageId);
+  if (action.payload) {
+    // we animate out elements and then move to the canvas
+    yield put(setPreviewModeAction(action.payload));
+    history.push(
+      builderURL({
+        pageId: currentPageId,
+      }),
+    );
+  } else {
+    // when switching back to edit mode
+    // we go back to the previous route e.g query, api etc.
+    history.goBack();
+    // small delay to wait for the content to render and then animate
+    yield delay(10);
+    yield put(setPreviewModeAction(action.payload));
+  }
 }
 
 export default function* pageSagas() {
@@ -1192,5 +1192,6 @@ export default function* pageSagas() {
       ReduxActionTypes.DELETE_CANVAS_CARDS_STATE,
       deleteCanvasCardsStateSaga,
     ),
+    takeEvery(ReduxActionTypes.SET_PREVIEW_MODE_INIT, setPreviewModeInitSaga),
   ]);
 }

@@ -1,5 +1,5 @@
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Toaster } from "design-system";
+import { Toaster } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -299,7 +299,7 @@ export function* getUpdateDslAfterCreatingChild(
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     traverseTreeAndExecuteBlueprintChildOperations,
     parent,
-    addChildPayload.newWidgetId,
+    [addChildPayload.newWidgetId],
     widgets,
   );
 

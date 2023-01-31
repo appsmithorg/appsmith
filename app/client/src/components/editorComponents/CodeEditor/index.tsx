@@ -18,6 +18,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
+import "codemirror/addon/comment/comment";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -60,7 +61,7 @@ import {
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button, ScrollIndicator } from "design-system";
+import { Button, ScrollIndicator } from "design-system-old";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -76,10 +77,10 @@ import {
   isActionEntity,
   isWidgetEntity,
   removeEventFromHighlightedElement,
-  removeNewLineChars,
+  removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
@@ -114,12 +115,15 @@ import {
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
+import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 import {
   EntityNavigationData,
   getEntitiesForNavigation,
 } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -200,6 +204,7 @@ export type EditorProps = EditorStyleProps &
     // On focus and blur event handler
     onEditorBlur?: () => void;
     onEditorFocus?: () => void;
+    lineCommentString?: string;
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -222,6 +227,7 @@ class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker, entityMarker],
     hinting: [bindingHint, commandsHelper],
+    lineCommentString: "//",
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
@@ -231,6 +237,7 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -243,6 +250,7 @@ class CodeEditor extends Component<Props, State> {
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
+
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
@@ -258,7 +266,10 @@ class CodeEditor extends Component<Props, State> {
         addModeClass: true,
         matchBrackets: false,
         scrollbarStyle:
-          this.props.size !== EditorSize.COMPACT ? "native" : "null",
+          this.props.size === EditorSize.COMPACT ||
+          this.props.size === EditorSize.COMPACT_RETAIN_FORMATTING
+            ? "null"
+            : "native",
         placeholder: this.props.placeholder,
         lint: {
           getAnnotations: (_: string, callback: UpdateLintingCallback) => {
@@ -289,6 +300,11 @@ class CodeEditor extends Component<Props, State> {
       const moveCursorLeftKey = getMoveCursorLeftKey();
       options.extraKeys = {
         [moveCursorLeftKey]: "goLineStartSmart",
+        [getCodeCommentKeyMap()]: handleCodeComment(
+          // We've provided the default props value for lineCommentString
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.lineCommentString!,
+        ),
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
@@ -322,11 +338,7 @@ class CodeEditor extends Component<Props, State> {
 
       // Set value of the editor
       const inputValue = getInputValue(this.props.input.value) || "";
-      if (this.props.size === EditorSize.COMPACT) {
-        options.value = removeNewLineChars(inputValue);
-      } else {
-        options.value = inputValue;
-      }
+      options.value = removeNewLineCharsIfRequired(inputValue, this.props.size);
 
       // @ts-expect-error: Types are not available
       options.finishInit = function(
@@ -343,7 +355,7 @@ class CodeEditor extends Component<Props, State> {
         //
         editor.on("beforeChange", this.handleBeforeChange);
         editor.on("change", this.startChange);
-        editor.on("keyup", this.handleAutocompleteKeyup);
+        editor.on("keydown", this.handleAutocompleteKeydown);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
@@ -534,7 +546,7 @@ class CodeEditor extends Component<Props, State> {
 
     this.editor.off("beforeChange", this.handleBeforeChange);
     this.editor.off("change", this.startChange);
-    this.editor.off("keyup", this.handleAutocompleteKeyup);
+    this.editor.off("keydown", this.handleAutocompleteKeydown);
     this.editor.off("focus", this.handleEditorFocus);
     this.editor.off("cursorActivity", this.handleCursorMovement);
     this.editor.off("blur", this.handleEditorBlur);
@@ -612,25 +624,40 @@ class CodeEditor extends Component<Props, State> {
           NAVIGATE_TO_ATTRIBUTE,
         );
         if (!navigationAttribute) return;
-        const entityToNavigate = navigationAttribute.value;
+        const entityToNavigate = navigationAttribute.value.split(".");
 
-        // focus out of the input
-        document.body.focus();
+        if (
+          document.activeElement &&
+          document.activeElement instanceof HTMLElement
+        ) {
+          document.activeElement.blur();
+        }
+
         this.setState(
           {
             isFocused: false,
           },
           () => {
-            const navigationData = this.props.entitiesForNavigation[
-              entityToNavigate
-            ];
-            history.push(navigationData.url, {
-              invokedBy: NavigationMethod.CommandClick,
-            });
+            if (entityToNavigate[0] in this.props.entitiesForNavigation) {
+              let navigationData = this.props.entitiesForNavigation[
+                entityToNavigate[0]
+              ];
+              for (let i = 1; i < entityToNavigate.length; i += 1) {
+                if (entityToNavigate[i] in navigationData.children) {
+                  navigationData = navigationData.children[entityToNavigate[i]];
+                }
+              }
 
-            // TODO fix the widget navigation issue to remove this
-            if (navigationData.type === ENTITY_TYPE.WIDGET) {
-              this.props.selectWidget(navigationData.id);
+              if (navigationData.url) {
+                history.push(navigationData.url, {
+                  invokedBy: NavigationMethod.CommandClick,
+                });
+
+                // TODO fix the widget navigation issue to remove this
+                if (navigationData.type === ENTITY_TYPE.WIDGET) {
+                  this.props.selectWidget(navigationData.id);
+                }
+              }
             }
           },
         );
@@ -683,15 +710,19 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
-    const { ch, line, sticky } = cm.getCursor();
     // Check if it is a user focus
-    if (
-      ch === 0 &&
-      line === 0 &&
-      sticky === null &&
-      this.props.editorLastCursorPosition
-    ) {
-      cm.setCursor(this.props.editorLastCursorPosition);
+    const { sticky } = cm.getCursor();
+    const isUserFocus = sticky !== null;
+    if (this.props.editorLastCursorPosition) {
+      if (
+        !isUserFocus ||
+        this.props.editorLastCursorPosition.origin ===
+          CursorPositionOrigin.Navigation
+      ) {
+        cm.setCursor(this.props.editorLastCursorPosition, undefined, {
+          scroll: true,
+        });
+      }
     }
 
     if (!cm.state.completionActive) {
@@ -883,8 +914,16 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ hinterOpen });
   };
 
-  handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
+  handleAutocompleteKeydown = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
     const key = event.key;
+
+    // Since selection from AutoComplete list is also done using the Enter keydown event
+    // we need to return from here so that autocomplete selection works fine
+    if (key === "Enter") return;
+
+    // Check if the user is trying to comment out the line, in that case we should not show autocomplete
+    const isCtrlOrCmdPressed = event.metaKey || event.ctrlKey;
+
     if (isModifierKey(key)) return;
     const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
     if (isCloseKey(code) || isCloseKey(key)) {
@@ -896,20 +935,25 @@ class CodeEditor extends Component<Props, State> {
     const line = cm.getLine(cursor.line);
     let showAutocomplete = false;
     /* Check if the character before cursor is completable to show autocomplete which backspacing */
-    if (key === "/") {
+    if (key === "/" && !isCtrlOrCmdPressed) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
       const prevChar = line[cursor.ch - 1];
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
-      const prevChar = line[cursor.ch - 2];
+      const prevChar = line[cursor.ch - 1];
       showAutocomplete = prevChar === "{";
     } else if (key.length == 1) {
       showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
       /* Autocomplete should be triggered only for characters that make up valid variable names */
     }
-    showAutocomplete && this.handleAutocompleteVisibility(cm);
+
+    // Allow keydown event to enter the text to the editor before firing autocomplete
+    // otherwise it'll not work for the first character
+    setTimeout(() => {
+      showAutocomplete && this.handleAutocompleteVisibility(cm);
+    }, 10);
   };
 
   lintCode(editor: CodeMirror.Editor) {
@@ -1158,7 +1202,12 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     getEditorIdentifier(props),
   ),
-  entitiesForNavigation: getEntitiesForNavigation(state),
+  entitiesForNavigation: props.isJSObject
+    ? addThisReference(
+        getEntitiesForNavigation(state),
+        props.dataTreePath?.split(".")[0],
+      )
+    : getEntitiesForNavigation(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1168,9 +1217,22 @@ const mapDispatchToProps = (dispatch: any) => ({
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(setEditorFieldFocusAction(payload)),
   selectWidget: (widgetId: string) =>
-    dispatch(selectWidgetInitAction(widgetId, false)),
+    dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId])),
 });
 
 export default Sentry.withProfiler(
   connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
 );
+
+const addThisReference = (
+  navigationData: EntityNavigationData,
+  entityName?: string,
+) => {
+  if (entityName && entityName in navigationData) {
+    return {
+      ...navigationData,
+      this: navigationData[entityName],
+    };
+  }
+  return navigationData;
+};

@@ -49,6 +49,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 /***
  * BaseWidget
@@ -89,6 +90,7 @@ abstract class BaseWidget<
   static getDefaultPropertiesMap(): Record<string, any> {
     return {};
   }
+
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
@@ -221,11 +223,23 @@ abstract class BaseWidget<
     }
   };
 
+  selectWidgetRequest = (
+    selectionRequestType: SelectionRequestType,
+    payload?: string[],
+  ) => {
+    const { selectWidgetRequest } = this.context;
+    if (selectWidgetRequest) {
+      selectWidgetRequest(selectionRequestType, payload);
+    }
+  };
+
   /* eslint-disable @typescript-eslint/no-empty-function */
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   componentDidUpdate(prevProps: T) {}
 
   componentDidMount(): void {}
+
   /* eslint-enable @typescript-eslint/no-empty-function */
 
   getComponentDimensions = () => {
@@ -325,6 +339,7 @@ abstract class BaseWidget<
   makeDraggable(content: ReactNode) {
     return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
   }
+
   /**
    * wraps the widget in a draggable component.
    * Note: widget drag can be disabled by setting `dragDisabled` prop to true
@@ -343,6 +358,8 @@ abstract class BaseWidget<
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         focused={this.props.focused}
+        isDisabled={this.props.isDisabled}
+        isVisible={this.props.isVisible}
         leftColumn={this.props.leftColumn}
         noContainerOffset={this.props.noContainerOffset}
         parentColumnSpace={this.props.parentColumnSpace}
@@ -364,16 +381,30 @@ abstract class BaseWidget<
   }
 
   addAutoHeightOverlay(content: ReactNode, style?: CSSProperties) {
-    const onBatchUpdate = (height: number, propertiesToUpdate?: string[]) => {
-      if (propertiesToUpdate === undefined) {
-        propertiesToUpdate = ["minDynamicHeight", "maxDynamicHeight"];
-      }
+    // required when the limits have to be updated
+    // simultaneosuly when they move together
+    // to maintain the undo/redo stack
+    const onBatchUpdate = ({
+      maxHeight,
+      minHeight,
+    }: {
+      maxHeight?: number;
+      minHeight?: number;
+    }) => {
       const modifyObj: Record<string, unknown> = {};
-      propertiesToUpdate.forEach((propertyName) => {
-        modifyObj[propertyName] = Math.floor(
-          height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+
+      if (maxHeight !== undefined) {
+        modifyObj["maxDynamicHeight"] = Math.floor(
+          maxHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         );
-      });
+      }
+
+      if (minHeight !== undefined) {
+        modifyObj["minDynamicHeight"] = Math.floor(
+          minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      }
+
       this.batchUpdateWidgetProperty({
         modify: modifyObj,
         postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
@@ -381,11 +412,9 @@ abstract class BaseWidget<
       AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
     };
 
-    const onMaxHeightSet = (height: number) =>
-      onBatchUpdate(height, ["maxDynamicHeight"]);
+    const onMaxHeightSet = (maxHeight: number) => onBatchUpdate({ maxHeight });
 
-    const onMinHeightSet = (height: number) =>
-      onBatchUpdate(height, ["minDynamicHeight"]);
+    const onMinHeightSet = (minHeight: number) => onBatchUpdate({ minHeight });
 
     return (
       <>
@@ -402,6 +431,7 @@ abstract class BaseWidget<
       </>
     );
   }
+
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -589,6 +619,7 @@ export interface WidgetProps
     DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
+
   [key: string]: any;
 }
 

@@ -9,7 +9,7 @@ import {
   TextType,
   IconWrapper,
   IconSize,
-} from "design-system";
+} from "design-system-old";
 import { EntityClassNames } from "../Entity";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
@@ -19,7 +19,7 @@ import history from "utils/history";
 import { generateTemplateFormURL } from "RouteBuilder";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { ExplorerURLParams } from "../helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { showTemplatesModal } from "actions/templateActions";
 import { Colors } from "constants/Colors";
 import {

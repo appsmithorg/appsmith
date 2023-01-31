@@ -57,7 +57,7 @@ import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
@@ -536,7 +536,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     id: actionPayload.payload.id as any,
   };
 
-  if (!equal(initialValues, values)) {
+  // when datasource is not yet saved by user, datasource id is temporary
+  // for temporary datasource, we do not need to pass datasource id in test api call
+  if (!equal(initialValues, values) || datasource?.id === TEMP_DATASOURCE_ID) {
     delete payload.id;
   }
 

@@ -51,7 +51,7 @@ import {
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
-import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
@@ -66,7 +66,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   useFilteredActions,
   useFilteredFileOperations,

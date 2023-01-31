@@ -48,7 +48,7 @@ public class SnowflakePlugin extends BasePlugin {
     @Extension
     public static class SnowflakePluginExecutor implements PluginExecutor<Connection> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
@@ -98,6 +98,8 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
             properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
             properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
+            /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
+            properties.setProperty("jdbc_query_result_format", "json");
 
             return Mono
                     .fromCallable(() -> {

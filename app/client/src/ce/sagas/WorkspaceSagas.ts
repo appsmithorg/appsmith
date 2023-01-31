@@ -25,7 +25,7 @@ import WorkspaceApi, {
   SaveWorkspaceLogo,
 } from "@appsmith/api/WorkspaceApi";
 import { ApiResponse } from "api/ApiResponses";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Workspace } from "@appsmith/constants/workspaceConstants";

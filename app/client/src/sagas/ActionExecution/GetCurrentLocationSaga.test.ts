@@ -1,6 +1,6 @@
 import { call } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { executeAppAction } from "./ActionExecutionSagas";
+import { executeAppAction } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import {
   extractGeoLocation,
   getCurrentLocationSaga,

@@ -16,8 +16,11 @@ import {
 } from "@appsmith/constants/messages";
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { getExplorerStatus, saveExplorerStatus } from "../helpers";
-import { Icon } from "design-system";
+import {
+  getExplorerStatus,
+  saveExplorerStatus,
+} from "@appsmith/pages/Editor/Explorer/helpers";
+import { Icon } from "design-system-old";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";

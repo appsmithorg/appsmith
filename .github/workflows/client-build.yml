@@ -23,7 +23,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-4-cores
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -37,13 +37,13 @@ jobs:
 
     steps:
       # The checkout steps MUST happen first because the default directory is set according to the code base.
-      # Github Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # GitHub Action expects all future commands to be executed in the code directory. Hence, we need to check out
       # the code before doing anything else.
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
@@ -52,7 +52,7 @@ jobs:
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
 
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -66,15 +66,9 @@ jobs:
           "INSERT INTO public.run_meta (repo, gh_run_id, gh_run_attempt, is_active) 
           VALUES ('${{github.repository}}', '${{github.run_id}}', '${{github.run_attempt}}', FALSE)"
 
-      - name: Figure out the PR number
-        run: echo ${{ inputs.pr }}
-
-      - name: Print the Github event
-        run: echo ${{ github.event_name }}
-
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -85,34 +79,17 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      # Incase of prior failure run the job
+      # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
-
-      - name: Get yarn cache directory path
-        if: steps.run_result.outputs.run_result != 'success'
-        id: yarn-dep-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
-      - name: Cache npm dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        id: yarn-dep-cache
-        uses: actions/cache@v2
-        env:
-          cache-name: client-cache-yarn-dependencies
-        with:
-          path: |
-            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-dep-
+          cache: "yarn"
+          cache-dependency-path: "app/client/yarn.lock"
 
       # Install all the dependencies
       - name: Install dependencies
@@ -123,12 +100,12 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         id: vars
         run: |
-          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+          echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
           if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+              echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
           fi
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+              echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
@@ -136,7 +113,7 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
 
       # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
       - name: Run the jest tests
@@ -158,7 +135,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/build/
@@ -166,10 +143,11 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build
           path: app/client/build/
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

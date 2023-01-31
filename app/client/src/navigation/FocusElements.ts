@@ -5,9 +5,9 @@ import {
   getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
-  setApiPaneResponseSelectedTab,
   setApiPaneConfigSelectedTabIndex,
   setApiPaneResponsePaneHeight,
+  setApiPaneResponseSelectedTab,
   setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import { AppState } from "@appsmith/reducers";
@@ -18,8 +18,8 @@ import {
   getAllSubEntityCollapsibleStates,
   getCodeEditorHistory,
   getExplorerSwitchIndex,
-  getPropertyPanelState,
   getFocusableInputField,
+  getPropertyPanelState,
   getSelectedCanvasDebuggerTab,
   getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
@@ -28,16 +28,16 @@ import {
   setAllSubEntityCollapsibleStates,
   setCodeEditorHistory,
   setExplorerSwitchIndex,
+  setFocusableInputField,
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
-import { setFocusableInputField } from "actions/editorContextActions";
 import {
   getAllDatasourceCollapsibleState,
   getSelectedWidgets,
   isDatasourceInViewMode,
 } from "selectors/ui";
-import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { FocusEntity } from "navigation/FocusEntity";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -68,20 +68,23 @@ import {
   DEFAULT_PROPERTY_PANE_WIDTH,
 } from "constants/AppConstants";
 import {
+  getFocusablePropertyPaneField,
   getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
 import {
+  setAllPropertySectionState,
+  setFocusablePropertyPaneField,
   setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
-import { setAllPropertySectionState } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import {
   setAllDatasourceCollapsible,
   setDatasourceViewMode,
 } from "actions/datasourceActions";
 import { PluginPackageName } from "entities/Action";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -102,6 +105,7 @@ export enum FocusElement {
   JSPaneResponseTabs = "JSPaneResponseTabs",
   JSPaneResponseHeight = "JSPaneResponseHeight",
   PropertySections = "PropertySections",
+  PropertyField = "PropertyField",
   PropertyTabs = "PropertyTabs",
   PropertyPanelContext = "PropertyPanelContext",
   PropertyPaneWidth = "PropertyPaneWidth",
@@ -175,7 +179,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     {
       name: FocusElement.SelectedWidgets,
       selector: getSelectedWidgets,
-      setter: selectMultipleWidgetsInitAction,
+      setter: (widgetIds: string[]) =>
+        selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds),
       defaultValue: [],
     },
     {
@@ -262,9 +267,9 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: 0,
     },
     {
-      name: FocusElement.InputField,
-      selector: getFocusableInputField,
-      setter: setFocusableInputField,
+      name: FocusElement.PropertyField,
+      selector: getFocusablePropertyPaneField,
+      setter: setFocusablePropertyPaneField,
       defaultValue: "",
     },
   ],

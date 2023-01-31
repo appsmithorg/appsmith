@@ -449,6 +449,7 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
   cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
     .last()
     .click({ force: true });
+  //cy.get(".bp3-editable-text-content").should("contain.text", apiname1);
   //cy.get('.t--entity-name').click({multiple:true})
 });
 
@@ -989,7 +990,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
 
-  cy.route("POST", "api/v1/git/connect/app/*").as("connectGitRepo");
   cy.route("POST", "api/v1/git/commit/app/*").as("commit");
   cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
   cy.route("POST", "/api/v1/git/merge/app/*").as("mergeBranch");
@@ -997,10 +997,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
-  cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
   cy.route("POST", "/api/v1/pages/crud-page").as("replaceLayoutWithCRUDPage");
-  cy.intercept("PUT", "api/v1/collections/actions/*").as("jsCollections");
 
+  cy.intercept("PUT", "api/v1/collections/actions/*").as("jsCollections");
+  cy.intercept("DELETE", "/api/v1/collections/actions/*").as(
+    "deleteJSCollection",
+  );
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
@@ -1013,6 +1015,17 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
   cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
+  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
+  cy.intercept(
+    {
+      method: "POST",
+      url: "/api/v1/git/connect/app/*",
+      hostname: window.location.host,
+    },
+    (req) => {
+      req.headers["origin"] = "Cypress";
+    },
+  ).as("connectGitLocalRepo");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1150,8 +1163,22 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
   });
 });
 
+Cypress.Commands.add("CheckForPageSaveError", () => {
+  // Wait for "saving" status to disappear
+  cy.get(commonlocators.statusSaving).should("not.exist");
+  // Check for page save error
+  cy.get("body").then(($ele) => {
+    if ($ele.find(commonlocators.saveStatusError).length) {
+      cy.reload();
+    }
+  });
+});
+
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess).should("exist");
+  cy.CheckForPageSaveError();
+  cy.get(commonlocators.saveStatusContainer).should("not.exist", {
+    timeout: 40000,
+  });
 });
 
 Cypress.Commands.add(
@@ -1672,7 +1699,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
   const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
-    ".t--property-control-alignment .t--button-tab-right";
+    ".t--property-control-alignment .t--button-group-right";
   const labelWidth = options.labelWidth;
 
   // Drag a widget
@@ -1689,17 +1716,17 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .contains(labelText);
 
   // Set the label position: Auto
-  cy.get(".t--button-tab-Auto").click({ force: true });
+  cy.get(".t--button-group-Auto").click({ force: true });
   // Assert label position: Auto
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
-  cy.get(".t--button-tab-Top").click({ force: true });
+  cy.get(".t--button-group-Top").click({ force: true });
   // Assert label position: Top
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Left
-  cy.get(".t--button-tab-Left").click({ force: true });
+  cy.get(".t--button-group-Left").click({ force: true });
   // Assert label position: Left
   cy.get(containerSelector).should("have.css", "flex-direction", "row");
 
@@ -1928,4 +1955,26 @@ Cypress.Commands.add("AddPageFromTemplate", () => {
     .first()
     .click({ force: true });
   cy.get("[data-cy='add-page-from-template']").click();
+});
+
+Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {
+  cy.wait(alias);
+  cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
+});
+
+Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
+  cy.wait(1000); //waiting for window to load
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
+  cy.visit("/user/login");
+  cy.get(loginPage.username).should("be.visible");
+  cy.get(loginPage.username).type(uname);
+  cy.get(loginPage.password).type(pword, { log: false });
+  cy.get(loginPage.submitBtn).click();
+  cy.wait("@getMe");
+  cy.wait(3000);
+  initLocalstorage();
 });

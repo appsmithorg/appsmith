@@ -1,4 +1,4 @@
-import { createGlobalData, EvalResult } from "workers/Evaluation/evaluate";
+import { createEvaluationContext } from "workers/Evaluation/evaluate";
 const ctx: Worker = self as any;
 
 /*
@@ -8,77 +8,60 @@ const ctx: Worker = self as any;
  *
  * needs a REQUEST_ID to be passed in to know which request is going on right now
  */
-import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
-import {
-  ActionDescription,
-  ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { dataTreeEvaluator } from "workers/Evaluation/evaluation.worker";
+import { dataTreeEvaluator } from "./handlers/evalTree";
+import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
 export const promisifyAction = (
-  workerRequestId: string,
   actionDescription: ActionDescription,
   eventType?: EventType,
 ) => {
-  if (!self.ALLOW_ASYNC) {
-    /**
-     * To figure out if any function (JS action) is async, we do a dry run so that we can know if the function
-     * is using an async action. We set an IS_ASYNC flag to later indicate that a promise was called.
-     * @link isFunctionAsync
-     * */
-    self.IS_ASYNC = true;
-    throw new Error("Async function called in a sync field");
-  }
-  const workerRequestIdCopy = workerRequestId.concat("");
   return new Promise((resolve, reject) => {
     // We create a new sub request id for each request going on so that we can resolve the correct one later on
-    const subRequestId = _.uniqueId(`${workerRequestIdCopy}_`);
+    const messageId = _.uniqueId(`${actionDescription.type}_`);
     // send an execution request to the main thread
-    const responseData = {
+    const data = {
       trigger: actionDescription,
-      errors: [],
-      subRequestId,
       eventType,
     };
-    ctx.postMessage({
-      type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-      responseData,
-      requestId: workerRequestIdCopy,
-      promisified: true,
+    sendMessage.call(ctx, {
+      messageId,
+      messageType: MessageType.REQUEST,
+      body: {
+        method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
+        data,
+      },
     });
-    const processResponse = function(event: MessageEvent) {
-      const { data, eventType, method, requestId, success } = event.data;
+    const processResponse = function(event: MessageEvent<TMessage<any>>) {
+      const { messageType } = event.data;
+      if (messageType !== MessageType.RESPONSE) return;
+      const { body, messageId: resMessageId } = event.data;
+      const { data: messageData } = body;
+      const { data, eventType, success } = messageData;
       // This listener will get all the messages that come to the worker
       // we need to find the correct one pertaining to this promise
-      if (
-        method === EVAL_WORKER_ACTIONS.PROCESS_TRIGGER &&
-        requestId === workerRequestIdCopy &&
-        subRequestId === event.data.data.subRequestId
-      ) {
+      if (resMessageId === messageId && messageType === MessageType.RESPONSE) {
         // If we get a response for this same promise we will resolve or reject it
-
         // We could not find a data tree evaluator,
         // maybe the page changed, or we have a cyclical dependency
         if (!dataTreeEvaluator) {
           reject("No Data Tree Evaluator found");
         } else {
-          self.ALLOW_ASYNC = true;
+          self.ALLOW_SYNC = false;
           // Reset the global data with the correct request id for this promise
-          const globalData = createGlobalData({
+          const evalContext = createEvaluationContext({
             dataTree: dataTreeEvaluator.evalTree,
             resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
             isTriggerBased: true,
             context: {
-              requestId: workerRequestId,
               eventType,
             },
           });
-          for (const entity in globalData) {
-            // @ts-expect-error: Types are not available
-            self[entity] = globalData[entity];
-          }
+
+          Object.assign(self, evalContext);
 
           // Resolve or reject the promise
           if (success) {
@@ -93,32 +76,4 @@ export const promisifyAction = (
     };
     ctx.addEventListener("message", processResponse);
   });
-};
-// To indicate the main thread that the processing of the trigger is done
-// we send a finished message
-export const completePromise = (requestId: string, result: EvalResult) => {
-  ctx.postMessage({
-    type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-    responseData: {
-      finished: true,
-      result,
-    },
-    requestId,
-    promisified: true,
-  });
-};
-
-export const confirmationPromise = function(
-  requestId: string,
-  func: any,
-  name: string,
-  ...args: any[]
-) {
-  const payload: ActionDescription = {
-    type: ActionTriggerType.CONFIRMATION_MODAL,
-    payload: {
-      funName: name,
-    },
-  };
-  return promisifyAction(requestId, payload).then(() => func(...args));
 };

@@ -18,9 +18,8 @@ import {
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
-import { Colors } from "constants/Colors";
-import { Text, TextInput, TextType } from "design-system";
-import AdsSwitch from "design-system/build/Switch";
+import { Text, TextInput, TextType } from "design-system-old";
+import AdsSwitch from "design-system-old/build/Switch";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
@@ -37,21 +36,7 @@ import { getUrlPreview } from "../Utils";
 import { AppState } from "@appsmith/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
-
-const SwitchWrapper = styled.div`
-  &&&&&&&
-    .bp3-control.bp3-switch
-    input:checked:disabled
-    ~ .bp3-control-indicator {
-    background: ${Colors.GREY_200};
-  }
-
-  .bp3-control.bp3-switch
-    input:checked:disabled
-    ~ .bp3-control-indicator::before {
-    box-shadow: none;
-  }
-`;
+import SwitchWrapper from "../Components/SwitchWrapper";
 
 const UrlPreviewWrapper = styled.div`
   height: 54px;

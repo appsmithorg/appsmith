@@ -7,7 +7,7 @@ import {
   copyJSCollectionRequest,
   deleteJSCollection,
 } from "actions/jsActionActions";
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import noop from "lodash/noop";
 import { getJSEntityName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
@@ -24,7 +24,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
-import { TreeDropdownOption } from "design-system";
+import { TreeDropdownOption } from "design-system-old";
 
 type EntityContextMenuProps = {
   id: string;

@@ -35,8 +35,8 @@ import {
   TextType,
   TooltipComponent,
   Variant,
-} from "design-system";
-import styled from "constants/DefaultTheme";
+} from "design-system-old";
+import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
@@ -78,7 +78,7 @@ import {
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import { AppState } from "@appsmith/reducers";
-import { ExplorerURLParams } from "../Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
@@ -1069,6 +1069,7 @@ export function EditorJSONtoForm(props: Props) {
                               {createMessage(NO_DATASOURCE_FOR_QUERY)}
                             </p>
                             <EditorButton
+                              disabled={!canCreateDatasource}
                               filled
                               icon="plus"
                               intent="primary"

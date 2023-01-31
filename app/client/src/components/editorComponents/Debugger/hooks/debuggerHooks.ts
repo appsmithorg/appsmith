@@ -18,7 +18,7 @@ import {
   isAction,
   isJSAction,
   isWidget,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import history, { NavigationMethod } from "utils/history";
 import { jsCollectionIdURL } from "RouteBuilder";
 import store from "store";

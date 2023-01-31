@@ -6,17 +6,27 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
-import { isJSAction } from "workers/Evaluation/evaluationUtils";
-import { APP_MODE } from "../../../entities/App";
+import {
+  BatchedJSExecutionData,
+  BatchedJSExecutionErrors,
+  JSExecutionData,
+  JSExecutionError,
+} from "reducers/entityReducers/jsActionsReducer";
+import { select } from "redux-saga/effects";
+import { AppState } from "@appsmith/reducers";
+import { JSAction } from "entities/JSCollection";
+import { getJSFunctionFromName } from "selectors/entitiesSelector";
+import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { APP_MODE } from "entities/App";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
   NOTE: For other entity below logic is maintained in DataTreeFactory, for JSObject we handle it inside evaluations
- *
- * @param parsedBody
- * @param jsCollection
- * @param unEvalTree
- * @returns
+ * 
+ * @param parsedBody 
+ * @param jsCollection 
+ * @param unEvalTree 
+ * @returns 
  */
 export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
@@ -74,7 +84,6 @@ export const updateJSCollectionInUnEvalTree = (
           arguments: action.arguments,
           isAsync: false,
           confirmBeforeExecute: false,
-          body: action.body,
         };
 
         const data = get(
@@ -193,6 +202,7 @@ export const updateJSCollectionInUnEvalTree = (
 export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: DataTree,
   entity: DataTreeJSAction,
+  jsEntityName: string,
 ) => {
   const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
   const modifiedDataTree: DataTree = unEvalTree;
@@ -202,10 +212,10 @@ export const removeFunctionsAndVariableJSCollection = (
   });
   //removed variables
   const varList: Array<string> = entity.variables;
-  set(modifiedDataTree, `${entity.name}.variables`, []);
+  set(modifiedDataTree, `${jsEntityName}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
-    unset(modifiedDataTree[entity.name], varName);
+    unset(modifiedDataTree[jsEntityName], varName);
   }
   //remove functions
 
@@ -216,7 +226,7 @@ export const removeFunctionsAndVariableJSCollection = (
     const actionName = functionsList[i];
     delete reactivePaths[actionName];
     delete meta[actionName];
-    unset(modifiedDataTree[entity.name], actionName);
+    unset(modifiedDataTree[jsEntityName], actionName);
 
     oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
       (path: any) => path["key"] !== actionName,
@@ -245,4 +255,67 @@ export function isJSObjectFunction(
 export function getAppMode(dataTree: DataTree) {
   const appsmithObj = dataTree.appsmith as DataTreeAppsmith;
   return appsmithObj.mode as APP_MODE;
+}
+
+export function isPromise(value: any): value is Promise<unknown> {
+  return Boolean(value && typeof value.then === "function");
+}
+
+function updateJSExecutionError(
+  errors: BatchedJSExecutionErrors,
+  executionError: JSExecutionError,
+) {
+  const { collectionId } = executionError;
+  if (errors[collectionId]) {
+    errors[collectionId].push(executionError);
+  } else {
+    errors[collectionId] = [executionError];
+  }
+}
+
+function updateJSExecutionData(
+  sortedData: BatchedJSExecutionData,
+  executionData: JSExecutionData,
+) {
+  const { collectionId } = executionData;
+  if (sortedData[collectionId]) {
+    sortedData[collectionId].push(executionData);
+  } else {
+    sortedData[collectionId] = [executionData];
+  }
+}
+
+export function* sortJSExecutionDataByCollectionId(
+  data: Record<string, unknown>,
+  errors: Record<string, unknown>,
+) {
+  // Sorted data by collectionId
+  const sortedData: BatchedJSExecutionData = {};
+  // Sorted errors by collectionId
+  const sortedErrors: BatchedJSExecutionErrors = {};
+
+  for (const jsfuncFullName of Object.keys(data)) {
+    const jsAction: JSAction | undefined = yield select((state: AppState) =>
+      getJSFunctionFromName(state, jsfuncFullName),
+    );
+
+    if (!(jsAction && jsAction.collectionId)) continue;
+    const { collectionId, id: actionId } = jsAction;
+
+    if (errors[jsfuncFullName]) {
+      updateJSExecutionError(sortedErrors, {
+        collectionId,
+        isDirty: true,
+        actionId,
+      });
+    }
+
+    updateJSExecutionData(sortedData, {
+      collectionId,
+      actionId,
+      data: get(data, jsfuncFullName),
+    });
+  }
+
+  return { sortedData, sortedErrors };
 }

@@ -12,7 +12,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { Toaster } from "design-system";
+import { Toaster } from "design-system-old";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
@@ -24,6 +24,7 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { traverseTreeAndExecuteBlueprintChildOperations } from "sagas/WidgetBlueprintSagas";
 import {
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
@@ -242,6 +243,22 @@ function* moveAndUpdateWidgets(
       bottomRow: updatedCanvasBottomRow,
     };
   }
+
+  const widgetPayload = draggedBlocksToUpdate?.[0]?.updateWidgetParams?.payload;
+  //execute blueprint sagas when moving to a different canvas
+  if (widgetPayload && widgetPayload.newParentId !== widgetPayload.parentId) {
+    // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
+    // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
+    // while traversing, if we find any widget which has CHILD_OPERATION, we will call the fn in it
+    const modifiedWidgets: CanvasWidgetsReduxState = yield call(
+      traverseTreeAndExecuteBlueprintChildOperations,
+      updatedWidgets[canvasId],
+      movedWidgetIds,
+      updatedWidgets,
+    );
+    return modifiedWidgets;
+  }
+
   return updatedWidgets;
 }
 

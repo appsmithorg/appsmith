@@ -1106,6 +1106,7 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.get(`.t--entity-item:contains(${Pagename})`).within(() => {
     cy.get(".t--context-menu").click({ force: true });
   });
+  cy.wait(2000);
   cy.selectAction("Delete");
   cy.selectAction("Are you sure?");
   cy.wait("@deletePage");
