@@ -1,6 +1,7 @@
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import { PROPERTY_SELECTOR } from "../../../../locators/WidgetLocators";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -134,6 +135,14 @@ describe("1. CommandClickNavigation", function() {
   });
 
   it("7. Will navigate to specific JS Functions", () => {
+    // It was found that when having git connected,
+    // cmd clicking to JS function reloaded the app. Will assert that does not happen
+    cy.generateUUID().then((uid) => {
+      const repoName = uid;
+      _.gitSync.CreateNConnectToGit(repoName);
+      _.gitSync.CreateGitBranch(repoName);
+    });
+
     cy.SearchEntityandOpen("Text1");
     cy.updateCodeInput(".t--property-control-text", "{{ JSObject1.myFun1() }}");
 
@@ -143,8 +152,6 @@ describe("1. CommandClickNavigation", function() {
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 1, line: 3 });
 
-    // It was found that when having git connected,
-    // cmd clicking to JS function reloaded the app. Will assert that does not happen
     // Assert context switching works when going back to canvas
     ee.SelectEntityByName("Page1", "Pages");
 
