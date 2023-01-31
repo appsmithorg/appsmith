@@ -37,7 +37,7 @@ describe("Fixed Invisible widgets and auto height containers", () => {
   });
 
   it("3. Divider should move up by the height of the button widget in view mode", () => {
-    // This tests if the divider and checkbox widget move up by an appropriate amount in preview mode.
+    // This tests if the divider and checkbox widget move up by an appropriate amount in view mode.
     DeployMode.DeployApp();
     cy.get(CommonLocators._dividerWidget).should("have.css", "top", "16px");
     cy.get(CommonLocators._checkboxWidget).should("have.css", "top", "6px");
