@@ -5,7 +5,10 @@ import log from "loglevel";
 import { evalErrorHandler } from "../sagas/PostEvaluationSagas";
 import { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
-import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
+import {
+  BatchedJSExecutionData,
+  BatchedJSExecutionErrors,
+} from "reducers/entityReducers/jsActionsReducer";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import { MessageType, TMessage } from "utils/MessageUtil";
 import {
@@ -15,6 +18,7 @@ import {
 } from "../sagas/EvaluationsSaga";
 import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
+import { isEmpty } from "lodash";
 
 /*
  * Used to evaluate and execute dynamic trigger end to end
@@ -52,14 +56,31 @@ export function* processLogsHandler(message: any) {
 
 export function* processJSFunctionExecution(message: any) {
   const { body } = message;
-  const { data } = body;
-  const sortedData: BatchedJSExecutionData = yield sortJSExecutionDataByCollectionId(
-    data.JSData as Record<string, unknown>,
+  const {
+    data: { JSExecutionData, JSExecutionErrors },
+  } = body;
+  const {
+    sortedData,
+    sortedErrors,
+  }: {
+    sortedData: BatchedJSExecutionData;
+    sortedErrors: BatchedJSExecutionErrors;
+  } = yield sortJSExecutionDataByCollectionId(
+    JSExecutionData,
+    JSExecutionErrors,
   );
-  yield put({
-    type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
-    payload: sortedData,
-  });
+  if (!isEmpty(sortedData)) {
+    yield put({
+      type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+      payload: sortedData,
+    });
+  }
+  if (!isEmpty(sortedErrors)) {
+    yield put({
+      type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_ERRORS,
+      payload: sortedErrors,
+    });
+  }
 }
 
 export function* processTriggerHandler(message: any) {

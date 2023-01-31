@@ -1,19 +1,17 @@
 {
-  "mongo-authenticationAuthtype": "SCRAM-SHA-1",
-  "mongo-host": "localhost",
+	"mongo-authenticationAuthtype": "SCRAM-SHA-1",
+  "mongo-host": "host.docker.internal",
   "mongo-port": 28017,
   "mongo-databaseName": "mongo_samples",
   "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
 
-  "postgres-host": "localhost",
-  "postgres-host-fat": "host.docker.internal",
+  "postgres-host": "host.docker.internal",
   "postgres-port": 5432,
   "postgres-databaseName": "fakeapi",
   "postgres-username": "docker",
   "postgres-password": "docker",
 
-  "mysql-host": "localhost",
-  "mysql-host-fat": "host.docker.internal",
+	"mysql-host": "host.docker.internal",
   "mysql-port": 3306,
   "mysql-databaseName": "fakeapi",
   "mysql-username": "root",
@@ -36,7 +34,7 @@
   "redshift-databaseName": "fakeapi",
   "redshift-username": "root",
   "redshift-password": "Redshift$123",
-  "smtp-host":"localhost",
+  "smtp-host":"host.docker.internal",
   "smtp-port":"25",
   "smtp-username":"root",
   "smtp-password":"root",
@@ -51,5 +49,7 @@
   "mockDatabasePassword": "LimitedAccess123#",
   "readonly":"readonly",
   "authenticatedApiUrl": "https://fakeapi.com",
-  "graphqlApiUrl": "https://api.spacex.land/graphql"
+  "graphqlApiUrl": "https://api.spacex.land/graphql",
+   "GITHUB_API_BASE_TED" : "localhost",
+   "GITHUB_API_PORT_TED": "5001"
 }

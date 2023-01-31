@@ -4,7 +4,10 @@ import {
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
 import React from "react";
-import { MockPageDSL } from "test/testCommon";
+import {
+  dispatchTestKeyboardEventWithCode,
+  MockPageDSL,
+} from "test/testCommon";
 import Sidebar from "components/editorComponents/Sidebar";
 import { generateReactKey } from "utils/generators";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
@@ -17,6 +20,7 @@ import urlBuilder from "entities/URLRedirect/URLAssembly";
 import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
 import * as permissionUtils from "@appsmith/utils/permissionHelpers";
 import userEvent from "@testing-library/user-event";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
@@ -221,7 +225,14 @@ describe("Entity Explorer tests", () => {
         <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
       </MockPageDSL>,
     );
+
+    const checkboxWidget: any = component.queryByText(children[0].widgetName);
     const buttonWidget: any = component.queryByText(children[2].widgetName);
+
+    act(() => {
+      fireEvent.click(checkboxWidget);
+      jest.runAllTimers();
+    });
 
     act(() => {
       fireEvent.click(buttonWidget, {
@@ -258,9 +269,9 @@ describe("Entity Explorer tests", () => {
         type: "CONTAINER_WIDGET",
         children: canvasWidget,
         widgetId: containerId,
-        parentId: "0",
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
-      { type: "CHART_WIDGET" },
+      { type: "CHART_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
     ]);
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,

@@ -359,6 +359,7 @@ export async function evaluateAsync(
       });
     } finally {
       setEvaluationEnd(true);
+
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.

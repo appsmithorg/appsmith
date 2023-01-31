@@ -280,7 +280,8 @@ export function* evaluateAndExecuteDynamicTrigger(
       errors[0].errorMessage !==
       "UncaughtPromiseRejection: User cancelled action execution"
     ) {
-      throw new UncaughtPromiseError(errors[0].errorMessage);
+      const errorMessage = errors[0].errorMessage || errors[0].message;
+      throw new UncaughtPromiseError(errorMessage);
     }
   }
   return response;
@@ -329,17 +330,19 @@ export function* clearEvalCache() {
   return true;
 }
 
-export function* executeFunction(
+interface JSFunctionExecutionResponse {
+  errors: unknown[];
+  result: unknown;
+  logs?: LogObject[];
+}
+
+function* executeAsyncJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
 ) {
+  let response: JSFunctionExecutionResponse;
   const functionCall = `${collectionName}.${action.name}()`;
-  let response: {
-    errors: any[];
-    result: any;
-    logs?: LogObject[];
-  };
   const triggerMeta = {
     source: {
       id: collectionId,
@@ -362,8 +365,74 @@ export function* executeFunction(
     }
     response = { errors: [e], result: undefined };
   }
+  return response;
+}
+
+function* executeSyncJSFunction(
+  collectionName: string,
+  action: JSAction,
+  collectionId: string,
+) {
+  const functionCall = `${collectionName}.${action.name}()`;
+  const triggerMeta = {
+    source: {
+      id: collectionId,
+      name: `${collectionName}.${action.name}`,
+      type: ENTITY_TYPE.JSACTION,
+    },
+    triggerPropertyName: `${collectionName}.${action.name}`,
+  };
+  const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
+  const response: JSFunctionExecutionResponse = yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS,
+    {
+      functionCall,
+      triggerMeta,
+      eventType,
+    },
+  );
+  return response;
+}
+
+export function* executeJSFunction(
+  collectionName: string,
+  action: JSAction,
+  collectionId: string,
+) {
+  const { isAsync } = action.actionConfiguration;
+  let response: {
+    errors: unknown[];
+    result: unknown;
+    logs?: LogObject[];
+  };
+
+  try {
+    if (isAsync) {
+      response = yield call(
+        executeAsyncJSFunction,
+        collectionName,
+        action,
+        collectionId,
+      );
+    } else {
+      response = yield call(
+        executeSyncJSFunction,
+        collectionName,
+        action,
+        collectionId,
+      );
+    }
+  } catch (e) {
+    if (e instanceof UncaughtPromiseError) {
+      logActionExecutionError(e.message);
+    }
+    response = { errors: [e], result: undefined };
+  }
   const { errors, result } = response;
   const isDirty = !!errors.length;
+
+  // After every function execution, log execution errors if present
   yield call(
     handleJSFunctionExecutionErrorLog,
     collectionId,
