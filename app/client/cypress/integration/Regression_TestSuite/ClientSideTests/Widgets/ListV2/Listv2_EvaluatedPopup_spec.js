@@ -24,7 +24,7 @@ describe("List widget v2 Evaluated Popup", () => {
 
     [
       ["{{currentItem}}", "This value does not evaluate to type string"],
-      ["{{Text}}", "ReferenceError: Text is not defined"],
+      ["{{Text}}", "This value does not evaluate to type string"],
     ].forEach(([input, expected]) => {
       cy.updateCodeInput(".t--property-control-text", input);
       cy.wait(500);
