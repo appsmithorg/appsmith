@@ -10,6 +10,7 @@ import {
   actionToCode,
   codeToAction,
   getSelectedFieldFromValue,
+  isEmptyBlock,
 } from "../../utils";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
@@ -28,9 +29,6 @@ type Props = {
   value: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
-  onClick: () => void;
-  handleClose: () => void;
-  isOpen: boolean;
 };
 
 type CallbackBlocks = Record<
@@ -44,13 +42,12 @@ type CallbackBlocks = Record<
 export const Action: React.FC<Props> = ({
   action,
   additionalAutoComplete,
-  handleClose,
-  isOpen,
-  onClick,
   onValueChange,
   value,
 }) => {
   const firstRender = React.useRef(true);
+  const clickedInside = React.useRef(false);
+  const [isOpen, setOpen] = useState(isEmptyBlock(value));
   const [
     selectedCallbackBlock,
     setSelectedCallbackBlock,
@@ -104,9 +101,11 @@ export const Action: React.FC<Props> = ({
     onValueChange(`{{${actionToCode(actionTree)}}}`, false);
   }, [actionTree]);
 
-  const onCloseClick = () => {
-    handleClose();
+  const handleCloseClick = () => {
+    setOpen(false);
     setSelectedCallbackBlock(null);
+
+    // Remove all the none actions from the tree
     setActionTree((prev) => {
       const newActionTree = cloneDeep(prev);
       newActionTree.successCallbacks = newActionTree.successCallbacks.filter(
@@ -118,9 +117,40 @@ export const Action: React.FC<Props> = ({
 
       return newActionTree;
     });
+
+    // If none action is selected, we just remove the action so we don't show the corresponding block
+    if (actionTree.actionType === AppsmithFunction.none) {
+      onValueChange("{{}}", false);
+    }
+  };
+
+  const onCloseClick = () => {
+    // This is to prevent the popover from closing when the user clicks inside the Action blocks
+    // Check onClose prop on Popover2 in the render below
+    setTimeout(() => {
+      if (!clickedInside.current) {
+        handleCloseClick();
+      }
+      clickedInside.current = false;
+    }, 10);
+  };
+
+  const handleMainBlockClick = () => {
+    // If focus is inside the action block, we prevent closing the popover
+    if (selectedCallbackBlock) {
+      clickedInside.current = true;
+    }
+    setOpen(true);
+    setSelectedCallbackBlock(null);
+  };
+
+  const handleBlockSelection = (block: SelectedActionBlock) => {
+    clickedInside.current = true;
+    setSelectedCallbackBlock(block);
   };
 
   const addSuccessAction = useCallback(() => {
+    clickedInside.current = true;
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
       newActionTree.successCallbacks.push({
@@ -140,6 +170,7 @@ export const Action: React.FC<Props> = ({
   }, []);
 
   const addErrorAction = useCallback(() => {
+    clickedInside.current = true;
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
       newActionTree.errorCallbacks.push({
@@ -153,6 +184,7 @@ export const Action: React.FC<Props> = ({
         type: "failure",
         index: newActionTree.errorCallbacks.length - 1,
       });
+
       return newActionTree;
     });
   }, []);
@@ -211,6 +243,7 @@ export const Action: React.FC<Props> = ({
           key={action.actionType + index}
           modalDropdownList={modalDropdownList}
           onValueChange={(newValue) => {
+            clickedInside.current = true;
             setActionTree((prevActionTree) => {
               const newActionTree = cloneDeep(prevActionTree);
               const action = newActionTree.successCallbacks[index];
@@ -250,6 +283,7 @@ export const Action: React.FC<Props> = ({
           key={action.actionType + index}
           modalDropdownList={modalDropdownList}
           onValueChange={(newValue) => {
+            clickedInside.current = true;
             setActionTree((prevActionTree) => {
               const newActionTree = cloneDeep(prevActionTree);
               const action = newActionTree.errorCallbacks[index];
@@ -417,33 +451,29 @@ export const Action: React.FC<Props> = ({
         }
         isOpen={isOpen}
         minimal
-        // onClose={() => setOpen(false)}
-        // onClosed={() => setOpen(false)}
-        // onInteraction={() => setOpen(!isOpen)}
+        onClose={onCloseClick}
         popoverClassName="!translate-x-[-18px] translate-y-[35%] w-[280px]"
         position="left"
       >
-        <span />
-      </Popover2>
-      {/* <TooltipComponent boundary="viewport" content="Action"> */}
-      {/* {" "} */}
+        {/* <TooltipComponent boundary="viewport" content="Action"> */}
+        {/* {" "} */}
 
-      {actionTree.actionType === AppsmithFunction.none ? null : (
-        <div className="mt-1">
-          <ActionBlockTree
-            actionTree={actionTree}
-            handleAddFailureBlock={addErrorAction}
-            handleAddSuccessBlock={addSuccessAction}
-            handleBlockSelection={setSelectedCallbackBlock}
-            onClick={() => {
-              onClick();
-              setSelectedCallbackBlock(null);
-            }}
-            selected={isOpen}
-            selectedCallbackBlock={selectedCallbackBlock}
-          />
-        </div>
-      )}
+        {actionTree.actionType === AppsmithFunction.none ? (
+          <span />
+        ) : (
+          <div className="mt-1">
+            <ActionBlockTree
+              actionTree={actionTree}
+              handleAddFailureBlock={addErrorAction}
+              handleAddSuccessBlock={addSuccessAction}
+              handleBlockSelection={handleBlockSelection}
+              onClick={handleMainBlockClick}
+              selected={isOpen}
+              selectedCallbackBlock={selectedCallbackBlock}
+            />
+          </div>
+        )}
+      </Popover2>
       {/* </TooltipComponent> */}
     </>
   );

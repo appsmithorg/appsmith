@@ -57,7 +57,7 @@ import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 import { getActionBlocks } from "@shared/ast";
-import { isEmptyBlock } from "components/editorComponents/ActionCreator";
+import { isEmptyBlock } from "components/editorComponents/ActionCreator/utils";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;

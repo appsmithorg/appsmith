@@ -102,6 +102,7 @@ export const SelectorDropdown: React.FC<Props> = ({
           />
         )
       }
+      usePortal={false}
     />
   );
 };

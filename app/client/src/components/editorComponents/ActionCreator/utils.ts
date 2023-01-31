@@ -392,3 +392,7 @@ export function actionToCode(
 
   return code === "" || code.endsWith(";") ? code : code + ";";
 }
+
+export function isEmptyBlock(block: string) {
+  return [";", "undefined;"].includes(block);
+}
