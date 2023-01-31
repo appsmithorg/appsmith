@@ -1175,16 +1175,14 @@ class MetaWidgetGenerator {
      * (Operation) Moving to Next Page
      * 2 Things would change at different times,
      * page No would change immediately -> causes regeneration of meta widgets
-     * Data would later change -> this is only communicated by primaryKey since the data.length is still constant.
-     * But once primaryKey is undefined, This change in data isn't known.
-     * We would need regenerate the meta widgets only at these points.
+     * Data would later change -> The PrimaryKey check in hasRegenerationOptionsChanged isn't enough
+     * as the PrimaryKey could be an array of null values or undefined. Hence, showing as equal whereas there was a change in
+     * data.
      */
 
     if (
       this.hasRegenerationOptionsChanged(nextOptions) ||
-      (this.primaryKeys === undefined &&
-        nextOptions.primaryKeys === undefined &&
-        this.serverSidePagination)
+      (!isEqual(nextOptions.data, this.data) && this.serverSidePagination)
     ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.REGENERATE_META_WIDGETS);
     }

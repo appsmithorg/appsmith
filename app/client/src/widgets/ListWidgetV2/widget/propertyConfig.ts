@@ -38,6 +38,23 @@ export const primaryColumnValidation = (
       };
     }
 
+    // when PrimaryKey is {{ currentItem["img"] }} and img doesn't exist in the data.
+    if (inputValue.every((value) => _.isNil(value))) {
+      // We can't be certain if the primaryKey doesn't exist or the value of the PrimaryKey evaluation is null.
+      if (inputValue.length === 1) {
+        return {
+          isValid: false,
+          parsed: inputValue,
+          messages: ["Primary key cannot be null or undefined"],
+        };
+      }
+      return {
+        isValid: false,
+        parsed: inputValue, // undefined the chosen key doesn't exist.
+        messages: ["Chosen Primary key doesn't exist"],
+      };
+    }
+
     const areKeysUnique = _.uniq(inputValue).length === listData.length;
 
     if (!areKeysUnique) {
