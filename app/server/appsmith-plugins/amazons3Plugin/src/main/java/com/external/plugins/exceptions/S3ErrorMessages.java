@@ -75,6 +75,8 @@ public class S3ErrorMessages {
     public static final String LIST_OF_FILE_PARSING_ERROR_MSG = "Appsmith server failed to parse the list of files. Please provide the list of files in the " +
             "correct format e.g. [\"file1\", \"file2\"].";
 
+    public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your S3 query failed to execute. To know more please check the error details.";
+
     /*
      ************************************************************************************************************************************************
                                     Error messages related to validation of datasource.
