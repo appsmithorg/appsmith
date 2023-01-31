@@ -400,9 +400,7 @@ class ListWidget extends BaseWidget<
         (name) => `${name}.data`,
       )}${suffix}`;
 
-      // This doesn't trigger another evaluation
-      this.context?.syncUpdateWidgetMetaProperty?.(
-        this.props.widgetId,
+      this.props.updateWidgetMetaProperty(
         "currentItemsView",
         currentItemsViewBinding,
       );

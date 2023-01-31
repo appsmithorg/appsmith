@@ -30,7 +30,7 @@ describe("List v2 - Property autocomplete", () => {
 
   it("2. shows autocomplete for currentItem/currentIndex/currentView for level_2 list", () => {
     // Open the property pane of level 2 list widget's Text widget
-    cy.openPropertyPaneByWidgetName("Text3", "textwidget");
+    cy.openPropertyPaneByWidgetName("Text5", "textwidget");
 
     cy.testJsontext("text", "");
     cy.get(".t--property-control-text .CodeMirror textarea").type("{{curr", {
@@ -43,7 +43,7 @@ describe("List v2 - Property autocomplete", () => {
 
   it("3. shows autocomplete for level_1's currentItem/currentIndex/currentView for level_2 list", () => {
     // Open the property pane of level 2 list widget's Text widget
-    cy.openPropertyPaneByWidgetName("Text3", "textwidget");
+    cy.openPropertyPaneByWidgetName("Text5", "textwidget");
 
     cy.testJsontext("text", "");
     cy.get(".t--property-control-text .CodeMirror textarea").type(
@@ -57,7 +57,7 @@ describe("List v2 - Property autocomplete", () => {
 
   it("4. shows autocomplete for currentItem/currentIndex/currentView for level_3 list", () => {
     // Open the property pane of level 3 list widget's Text widget
-    cy.openPropertyPaneByWidgetName("Text6", "textwidget");
+    cy.openPropertyPaneByWidgetName("Text7", "textwidget");
 
     cy.testJsontext("text", "");
     cy.get(".t--property-control-text .CodeMirror textarea").type("{{curr", {
@@ -70,7 +70,7 @@ describe("List v2 - Property autocomplete", () => {
 
   it("5. shows autocomplete for level_1's currentItem/currentIndex/currentView for level_3 list", () => {
     // Open the property pane of level 3 list widget's Text widget
-    cy.openPropertyPaneByWidgetName("Text6", "textwidget");
+    cy.openPropertyPaneByWidgetName("Text7", "textwidget");
 
     cy.testJsontext("text", "");
     cy.get(".t--property-control-text .CodeMirror textarea").type(
@@ -84,7 +84,7 @@ describe("List v2 - Property autocomplete", () => {
 
   it("6. shows autocomplete for level_2's currentItem/currentIndex/currentView for level_3 list", () => {
     // Open the property pane of level 3 list widget's Text widget
-    cy.openPropertyPaneByWidgetName("Text6", "textwidget");
+    cy.openPropertyPaneByWidgetName("Text7", "textwidget");
 
     cy.testJsontext("text", "");
     cy.get(".t--property-control-text .CodeMirror textarea").type(
@@ -98,13 +98,13 @@ describe("List v2 - Property autocomplete", () => {
 
   it("7. should not show List's currentItemsView in currentView of level_1/level_2 properties", () => {
     // Open the property pane of level 3 list widget's Text widget
-    cy.openPropertyPaneByWidgetName("Text6", "textwidget");
+    cy.openPropertyPaneByWidgetName("Text7", "textwidget");
 
     // level_1 List currentItemsView should not exist
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentView.List5.", { force: true });
+    ).type("{{level_1.currentView.List2.", { force: true });
     cy.get(".CodeMirror-hints")
       .contains("currentItemsView")
       .should("not.exist");
@@ -113,7 +113,7 @@ describe("List v2 - Property autocomplete", () => {
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_2.currentView.List6.", { force: true });
+    ).type("{{level_2.currentView.List3.", { force: true });
     cy.get(".CodeMirror-hints")
       .contains("currentItemsView")
       .should("not.exist");
@@ -144,7 +144,7 @@ describe("List v2 - Property autocomplete", () => {
     ).type("{{level_1.currentView.", { force: true });
     checkAutosuggestion("Text1", "Object");
     checkAutosuggestion("Text2", "Object");
-    checkAutosuggestion("List5", "Object");
+    checkAutosuggestion("List2", "Object");
 
     // level_1.currentView.Text1
     cy.testJsontext("text", "");
@@ -162,13 +162,13 @@ describe("List v2 - Property autocomplete", () => {
     checkAutosuggestion("text", "String");
     checkAutosuggestion("isVisible", "Boolean");
 
-    // level_1.currentView.List5
+    // level_1.currentView.List2
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentView.List5.", { force: true });
+    ).type("{{level_1.currentView.List2.", { force: true });
     checkAutosuggestion("backgroundColor", "String");
-    checkAutosuggestion("gridGap", "Number");
+    checkAutosuggestion("itemSpacing", "Number");
     checkAutosuggestion("isVisible", "Boolean");
     checkAutosuggestion("listData", "Array");
     checkAutosuggestion("pageNo", "Number");
