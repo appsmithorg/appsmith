@@ -1,13 +1,11 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
-import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put, select } from "redux-saga/effects";
 import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
 import { getWidgets } from "sagas/selectors";
 import { getCanvasHeightOffset } from "selectors/editorSelectors";
-import { getAutoHeightLayoutTree } from "selectors/autoHeightSelectors";
 import { FlattenedWidgetProps } from "widgets/constants";
 import {
   getWidgetMaxAutoHeight,
@@ -17,6 +15,7 @@ import {
 import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { getLayoutTree } from "./layoutTree";
 
 export function* dynamicallyUpdateContainersSaga() {
   const start = performance.now();
@@ -32,9 +31,7 @@ export function* dynamicallyUpdateContainersSaga() {
     return isCanvasWidget;
   });
 
-  const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
-    getAutoHeightLayoutTree,
-  );
+  const { tree: dynamicHeightLayoutTree } = yield getLayoutTree(false);
 
   const updates: Record<string, number> = {};
   const shouldCollapse: boolean = yield call(shouldWidgetsCollapse);
@@ -178,7 +175,7 @@ export function* dynamicallyUpdateContainersSaga() {
     }
   }
 
-  log.debug("Dynamic Height: Container Updates", { updates });
+  log.debug("Auto Height: Container Updates", { updates });
 
   if (Object.keys(updates).length > 0) {
     // TODO(abhinav): Make sure there are no race conditions or scenarios where these updates are not considered.

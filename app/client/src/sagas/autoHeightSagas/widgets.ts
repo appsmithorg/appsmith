@@ -63,7 +63,7 @@ import { getLayoutTree } from "./layoutTree";
  */
 export function* updateWidgetAutoHeightSaga() {
   const updates = getAutoHeightUpdateQueue();
-  log.debug("Dynamic Height: updates to process", { updates });
+  log.debug("Auto Height: updates to process", { updates });
   const start = performance.now();
   let shouldRecomputeContainers = false;
 
@@ -612,7 +612,7 @@ export function* updateWidgetAutoHeightSaga() {
     }
   }
 
-  log.debug("Dynamic height: Widgets to update:", { widgetsToUpdate });
+  log.debug("Auto height: Widgets to update:", { widgetsToUpdate });
 
   if (Object.keys(widgetsToUpdate).length > 0) {
     // Push all updates to the CanvasWidgetsReducer.

@@ -27,6 +27,7 @@ import {
 } from "utils/widgetRenderUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
+import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -160,7 +161,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       if (
         widgetProps.topRow === widgetProps.bottomRow &&
         widgetProps.topRowBeforeCollapse !== undefined &&
-        widgetProps.bottomRowBeforeCollapse !== undefined
+        widgetProps.bottomRowBeforeCollapse !== undefined &&
+        !isAutoHeightEnabledForWidget(widgetProps)
       ) {
         const heightBeforeCollapse =
           (widgetProps.bottomRowBeforeCollapse -
