@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { getActionBlocks, getFunctionName } from "@shared/ast";
+import { getActionBlocks } from "@shared/ast";
 import { ActionCreatorProps } from "./types";
 import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
 import { Action } from "./viewComponents/Action";
@@ -33,7 +33,7 @@ const ActionCreator = React.forwardRef(
           <Action
             action={props.action}
             additionalAutoComplete={props.additionalAutoComplete}
-            key={index + getFunctionName(value, self.evaluationVersion)}
+            key={index}
             onValueChange={handleActionChange(index)}
             value={value}
           />

@@ -34,6 +34,7 @@ export function SelectorView(props: SelectorViewProps) {
           position={PopoverPosition.BOTTOM}
           selectedLabelModifier={props.selectedLabelModifier}
           selectedValue={props.get(props.value, false) as string}
+          usePortal={false}
         />
       </ControlWrapper>
     </FieldWrapper>
