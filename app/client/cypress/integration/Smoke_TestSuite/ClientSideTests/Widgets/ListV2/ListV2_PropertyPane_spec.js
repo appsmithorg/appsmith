@@ -70,11 +70,11 @@ describe("List widget V2 PropertyPane", () => {
     );
   });
 
-  it("3. Item Spacing Validation ", function() {
+  it("4. Item Spacing Validation ", function() {
     cy.openPropertyPane("listwidgetv2");
     cy.get(commonlocators.PropertyPaneSearchInput).type("item spacing");
-    cy.testJsontext("itemspacing\\(px\\)", "-9");
-    cy.evaluateErrorMessage("Minimum allowed value: -8");
+    cy.testJsontext("itemspacing\\(px\\)", "-1");
+    cy.evaluateErrorMessage("Minimum allowed value: 0");
 
     cy.testJsontext("itemspacing\\(px\\)", "10");
   });
