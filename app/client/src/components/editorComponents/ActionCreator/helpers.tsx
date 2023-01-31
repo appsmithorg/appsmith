@@ -22,10 +22,7 @@ import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
@@ -372,35 +369,26 @@ export function useModalDropdownList() {
 
 function getApiQueriesAndJsActionOptionsWithChildren(
   pageId: string,
-  applicationId: string,
   plugins: any,
   actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
   dispatch: any,
+  handleClose: () => void,
 ) {
   // this function gets a list of all the queries/apis and attaches it to actionList
-  getApiAndQueryOptions(
-    pageId,
-    applicationId,
-    plugins,
-    actions,
-    jsActions,
-    dispatch,
-  );
+  getApiAndQueryOptions(plugins, actions, dispatch, handleClose);
 
   // this function gets a list of all the JS objects and attaches it to actionList
-  getJSOptions(pageId, applicationId, plugins, actions, jsActions, dispatch);
+  getJSOptions(pageId, jsActions, dispatch);
 
   return actionList;
 }
 
 function getApiAndQueryOptions(
-  pageId: string,
-  applicationId: string,
   plugins: any,
   actions: ActionDataState,
-  jsActions: Array<JSCollectionData>,
   dispatch: any,
+  handleClose: () => void,
 ) {
   const createQueryObject: TreeDropdownOption = {
     label: "New Query",
@@ -409,6 +397,7 @@ function getApiAndQueryOptions(
     icon: "plus",
     className: "t--create-datasources-query-btn",
     onSelect: () => {
+      handleClose();
       dispatch(
         setGlobalSearchCategory(
           filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
@@ -474,9 +463,6 @@ function getApiAndQueryOptions(
 
 export function getJSOptions(
   pageId: string,
-  applicationId: string,
-  plugins: any,
-  actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
   dispatch: any,
 ) {
@@ -555,9 +541,8 @@ export function getJSOptions(
   }
 }
 
-export function useApisQueriesAndJsActionOptions() {
+export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const pageId = useSelector(getCurrentPageId) || "";
-  const applicationId = useSelector(getCurrentApplicationId) as string;
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -569,10 +554,10 @@ export function useApisQueriesAndJsActionOptions() {
   // this function gets all the Queries/API's/JS objects and attaches it to actionList
   return getApiQueriesAndJsActionOptionsWithChildren(
     pageId,
-    applicationId,
     pluginGroups,
     actions,
     jsActions,
     dispatch,
+    handleClose,
   );
 }

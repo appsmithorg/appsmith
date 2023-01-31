@@ -72,7 +72,9 @@ export const Action: React.FC<Props> = ({
     activeTabApiAndQueryCallback,
     setActiveTabApiAndQueryCallback,
   ] = useState<SwitchType>(apiAndQueryCallbackTabSwitches[0]);
-  const integrationOptions = useApisQueriesAndJsActionOptions();
+  const integrationOptions = useApisQueriesAndJsActionOptions(() =>
+    setOpen(false),
+  );
   const widgetOptionTree: TreeDropdownOption[] = useSelector(
     getWidgetOptionsTree,
   );
