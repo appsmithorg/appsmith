@@ -35,6 +35,7 @@ import { computeChangeInPositionBasedOnDelta } from "utils/autoHeight/reflow";
 import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
 import { getCanvasLevelMap } from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
+import WidgetFactory from "utils/WidgetFactory";
 
 /* TODO(abhinav)
   hasScroll is no longer needed, as the only way we will be computing for hasScroll, is when we get the updates
@@ -66,6 +67,7 @@ export function* updateWidgetAutoHeightSaga() {
   log.debug("Auto Height: updates to process", { updates });
   const start = performance.now();
   let shouldRecomputeContainers = false;
+  let shouldEval = false;
 
   const { tree: dynamicHeightLayoutTree } = yield getLayoutTree(false);
 
@@ -98,6 +100,10 @@ export function* updateWidgetAutoHeightSaga() {
         getWidgetMinAutoHeight(widget) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
       if (widget.type === "TABS_WIDGET") shouldRecomputeContainers = true;
+      const config = WidgetFactory.widgetConfigMap.get(widget.type);
+      if (config && config.needsHeightForContent) {
+        shouldEval = true;
+      }
 
       // In case of a widget going invisible in view mode
       if (updates[widgetId] === 0) {
@@ -618,7 +624,10 @@ export function* updateWidgetAutoHeightSaga() {
     // Push all updates to the CanvasWidgetsReducer.
     // Note that we're not calling `UPDATE_LAYOUT`
     // as we don't need to trigger an eval
-    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+    yield put(
+      updateMultipleWidgetPropertiesAction(widgetsToUpdate, shouldEval),
+    );
+
     resetAutoHeightUpdateQueue();
     yield put(
       generateAutoHeightLayoutTreeAction(shouldRecomputeContainers, false),

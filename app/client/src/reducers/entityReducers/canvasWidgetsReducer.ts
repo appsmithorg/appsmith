@@ -84,11 +84,14 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES]: (
     state: CanvasWidgetsReduxState,
-    action: ReduxAction<UpdateWidgetsPayload>,
+    action: ReduxAction<{
+      widgetsToUpdate: UpdateWidgetsPayload;
+      shouldEval: boolean;
+    }>,
   ) => {
     // For each widget whose properties we would like to update
     for (const [widgetId, propertyPathsToUpdate] of Object.entries(
-      action.payload,
+      action.payload.widgetsToUpdate,
     )) {
       // Iterate through each property to update in `widgetId`
       propertyPathsToUpdate.forEach(({ propertyPath, propertyValue }) => {

@@ -81,6 +81,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     iconSVG: config.iconSVG,
     isCanvas: config.isCanvas,
     canvasHeightOffset: config.canvasHeightOffset,
+    needsHeightForContent: config.needsHeightForContent,
   };
 
   const nonSerialisableWidgetConfigs: Record<string, unknown> = {};
