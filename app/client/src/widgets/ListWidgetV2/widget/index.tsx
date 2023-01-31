@@ -90,8 +90,6 @@ export type MetaWidgetCacheProps = {
   prevViewIndex?: number;
 };
 
-export type RowDataCache = Record<string, Record<string, unknown>>;
-
 type LevelDataMetaWidgetCacheProps = Omit<
   MetaWidgetCacheProps,
   "originalMetaWidgetId" | "originalMetaWidgetName"
@@ -203,12 +201,17 @@ class ListWidget extends BaseWidget<
 
     if (this.props.selectedItemKey || this.props.triggeredItemKey) {
       /**
-       * Clearing selected Items and triggered items when the list widget is mounted
+       * Resetting selected Items and triggered items when the list widget is mounted
        * because the MetaWidgetGenerator also clears all cached data when mounted or re-mounted
        *
        * Task: Persist the cache in List V2.1
+       * The current issue exist is two forms
+       * 1. When we move from canvas to the query page, the widgetCache is lost and we lose all cache
+       * once we navigate back to the canvas the List widget generates new sets of metaWidget with different
+       * widgetIds and name.
+       * 2. A nested List widget, when the parent widget switches pages, the inner List is unmounted.
        */
-      this.clearCache();
+      this.resetCache();
     }
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
@@ -757,13 +760,7 @@ class ListWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("selectedItemKey", null);
   };
 
-  /**
-   * Clearing selected Items and triggered items when the list widget is mounted
-   * because the MetaWidgetGenerator also clears all cached data when mounted or re-mounted
-   *
-   * Task: Persist the cache in List V2.1
-   */
-  clearCache = () => {
+  resetCache = () => {
     this.resetSelectedItem();
     this.resetSelectedItemKey();
     this.resetSelectedItemView();
@@ -1062,7 +1059,6 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
-  rowDataCache: RowDataCache;
 }
 
 export default ListWidget;

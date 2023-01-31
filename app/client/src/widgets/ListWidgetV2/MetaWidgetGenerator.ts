@@ -29,7 +29,6 @@ import {
   MetaWidgetCache,
   MetaWidgetCacheProps,
   MetaWidgets,
-  RowDataCache,
 } from "./widget";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -40,6 +39,8 @@ import {
 type TemplateWidgets = ListWidgetProps<
   WidgetProps
 >["flattenedChildCanvasWidgets"];
+
+type CachedKeyDataMap = Record<string, Record<string, unknown>>;
 
 type ReferenceCache = Record<
   string,
@@ -223,7 +224,7 @@ class MetaWidgetGenerator {
   private primaryKeys: GeneratorOptions["primaryKeys"];
   private primaryWidgetType: ConstructorProps["primaryWidgetType"];
   private renderMode: ConstructorProps["renderMode"];
-  private rowDataCache: RowDataCache;
+  private cachedKeyDataMap: CachedKeyDataMap;
   private scrollElement: GeneratorOptions["scrollElement"];
   private serverSidePagination: GeneratorOptions["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
@@ -261,7 +262,7 @@ class MetaWidgetGenerator {
     this.primaryWidgetType = props.primaryWidgetType;
     this.serverSidePagination = false;
     this.renderMode = props.renderMode;
-    this.rowDataCache = {};
+    this.cachedKeyDataMap = {};
     this.modificationsQueue = new Queue<MODIFICATION_TYPE>();
     this.scrollElement = null;
     this.setWidgetCache = props.setWidgetCache;
@@ -787,13 +788,16 @@ class MetaWidgetGenerator {
     key: string,
   ) => {
     const data = this.getData();
+    const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
+      metaWidget.widgetId,
+      key,
+    );
     const currentIndex = this.serverSidePagination
       ? this.getViewIndex(rowIndex)
       : rowIndex;
-    const dataBinding =
-      this.serverSidePagination && this.cachedRows.curr.has(key)
-        ? `{{${JSON.stringify(this.rowDataCache[key])}}}`
-        : `{{${this.widgetName}.listData[${currentIndex}]}}`;
+    const dataBinding = shouldAddDataCacheToBinding
+      ? `{{${JSON.stringify(this.cachedKeyDataMap[key])}}}`
+      : `{{${this.widgetName}.listData[${currentIndex}]}}`;
     const currentItem = dataBinding;
     const currentRowCache = this.getRowCacheGroupByTemplateWidgetName(key);
     const metaContainers = this.getMetaContainers();
@@ -946,6 +950,21 @@ class MetaWidgetGenerator {
     }
   };
 
+  /**
+   * Only include CacheItemDataMap in currentItem when
+   * 1. Server-side Pagination (No need to cache data in client side)
+   * 2. Its key is included in cachedRows
+   * 3. It's not a Template widget. (A duplicate row is generated for template widget using their
+   * original MetaWidgetId)
+   */
+  private shouldAddDataCacheToBinding = (widgetId: string, key: string) => {
+    return (
+      this.serverSidePagination &&
+      this.cachedRows.curr.has(key) &&
+      !Object.keys(this.currTemplateWidgets ?? {}).includes(widgetId)
+    );
+  };
+
   private addCurrentItemProperty = (
     metaWidget: MetaWidget,
     metaWidgetName: string,
@@ -953,10 +972,14 @@ class MetaWidgetGenerator {
   ) => {
     if (metaWidget.currentItem) return;
 
-    const dataBinding =
-      this.serverSidePagination && this.cachedRows.curr.has(key)
-        ? `{{${JSON.stringify(this.rowDataCache[key])}}}`
-        : `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
+    const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
+      metaWidget.widgetId,
+      key,
+    );
+
+    const dataBinding = shouldAddDataCacheToBinding
+      ? `{{${JSON.stringify(this.cachedKeyDataMap[key])}}}`
+      : `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
 
     metaWidget.currentItem = dataBinding;
     metaWidget.dynamicBindingPathList = [
@@ -1201,7 +1224,8 @@ class MetaWidgetGenerator {
    */
   private getRowIndexFromPrimaryKey = (key: string) => {
     const rowCache = this.getRowCache(key) ?? {};
-    const rowIndex = this.primaryKeys?.toString().includes(key)
+    const primaryKeys = this.convertPrimaryKeyToString();
+    const rowIndex = primaryKeys?.includes(key)
       ? rowCache[this.containerWidgetId]?.rowIndex
       : rowCache[this.containerWidgetId]?.prevRowIndex ??
         rowCache[this.containerWidgetId]?.rowIndex;
@@ -1715,11 +1739,11 @@ class MetaWidgetGenerator {
 
   /**
    * The Rows to be cached would be stored in this.cachedRows
-   * The Data in these rows would be cached in this.rowDataCache
+   * The Data in these rows would be cached in this.cachedKeyDataMap
    */
   handleCachedKeys = (keys: Set<string>) => {
     this.updateCurrCachedRows(keys);
-    this.updateRowDataCache(keys);
+    this.updateCachedKeyDataMap(keys);
   };
 
   /**
@@ -1732,20 +1756,20 @@ class MetaWidgetGenerator {
    *
    * else fall back to data cache.
    */
-  private updateRowDataCache = (keys: Set<string>) => {
-    const rowDataCache: RowDataCache = {};
+  private updateCachedKeyDataMap = (keys: Set<string>) => {
+    const cachedKeyDataMap: CachedKeyDataMap = {};
 
     keys.forEach((key) => {
       const data = this.getDataForCacheKey(key);
 
       if (data) {
-        rowDataCache[key] = data;
+        cachedKeyDataMap[key] = data;
       } else {
-        rowDataCache[key] = this.rowDataCache[key];
+        cachedKeyDataMap[key] = this.cachedKeyDataMap[key];
       }
     });
 
-    this.rowDataCache = { ...rowDataCache };
+    this.cachedKeyDataMap = { ...cachedKeyDataMap };
   };
 
   private unmountVirtualizer = () => {
