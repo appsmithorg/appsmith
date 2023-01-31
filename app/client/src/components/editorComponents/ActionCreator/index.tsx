@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { getActionBlocks } from "@shared/ast";
+import { getActionBlocks, getFunctionName } from "@shared/ast";
 import { ActionCreatorProps } from "./types";
 import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
 import { Action } from "./viewComponents/Action";
@@ -38,13 +38,16 @@ const ActionCreator = React.forwardRef(
       [actions, props.onValueChange],
     );
 
-    const handleBlockSelect = useCallback((index) => {
-      setSelectedBlock(index);
-      props.onValueChange(
-        `{{${actions.filter((a) => !isEmptyBlock(a)).join("")}}}`,
-        false,
-      );
-    }, []);
+    const handleBlockSelect = useCallback(
+      (index) => {
+        setSelectedBlock(index);
+        props.onValueChange(
+          `{{${actions.filter((a) => !isEmptyBlock(a)).join("")}}}`,
+          false,
+        );
+      },
+      [actions],
+    );
 
     const handleClose = useCallback(() => {
       setSelectedBlock(null);
@@ -62,7 +65,7 @@ const ActionCreator = React.forwardRef(
             additionalAutoComplete={props.additionalAutoComplete}
             handleClose={handleClose}
             isOpen={selectedBlock === index}
-            key={index}
+            key={index + getFunctionName(value)}
             onClick={() => handleBlockSelect(index)}
             onValueChange={handleActionChange(index)}
             value={value}
