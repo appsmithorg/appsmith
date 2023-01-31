@@ -383,7 +383,8 @@ class SelectComponent extends React.Component<
             popoverProps={{
               portalContainer:
                 document.getElementById("art-board") || undefined,
-              boundary: "window",
+              position: "auto",
+              boundary: "scrollParent",
               isOpen: this.state.isOpen,
               minimal: true,
               usePortal: true,
