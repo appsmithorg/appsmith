@@ -133,6 +133,6 @@ public class CommonConfig {
     }
     
     public String getRtsBaseDomain() {
-     return "http://127.0.0.1:" + rtsPort;
-}
+        return "http://127.0.0.1:" + rtsPort;
+    }
 }
