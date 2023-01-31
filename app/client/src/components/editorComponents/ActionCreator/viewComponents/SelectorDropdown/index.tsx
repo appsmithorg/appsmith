@@ -79,6 +79,7 @@ export const SelectorDropdown: React.FC<Props> = ({
       menuWidth={256}
       onMenuToggle={(isOpen) => {
         setOpen(isOpen);
+        setSearchText("");
       }}
       onSelect={onSelect}
       optionTree={filteredOptions}
