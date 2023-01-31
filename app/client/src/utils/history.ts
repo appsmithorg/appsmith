@@ -3,9 +3,6 @@ const createHistory = require("history").createBrowserHistory;
 import { History } from "history";
 
 const history: History<AppsmithLocationState> = createHistory();
-history.listen((pathname) => {
-  debugger;
-});
 export default history;
 
 export enum NavigationMethod {
