@@ -81,8 +81,8 @@ function validatePlainObject(
           messages &&
             messages.map((message) => {
               _messages.push({
-                name: "ValidationError",
-                text: `Value of key: ${entryName} is invalid: ${message}`,
+                name: message.name,
+                text: `Value of key: ${entryName} is invalid: ${message.text}`,
               });
             });
         }
@@ -244,8 +244,8 @@ function validateArray(
         _isValid = false;
         childValidationResult.messages?.forEach((message) =>
           _messages.push({
-            name: "ValidationError",
-            text: `Invalid entry at index: ${index}. ${message}`,
+            name: message.name,
+            text: `Invalid entry at index: ${index}. ${message.text}`,
           }),
         );
       }
