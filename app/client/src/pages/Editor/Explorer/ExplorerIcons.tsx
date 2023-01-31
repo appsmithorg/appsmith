@@ -208,11 +208,12 @@ export const SortFileIcon = (
 type EntityTextIconProps = {
   children: React.ReactNode;
   textColor?: string;
+  fontSize?: number;
 };
 
-const EntityTextIconWrapper = styled.div<{ color?: string }>`
+const EntityTextIconWrapper = styled.div<{ fontSize?: number; color?: string }>`
   color: ${({ color }) => (color ? color : Colors.SCORPION)};
-  font-size: 56%;
+  font-size: ${({ fontSize }) => fontSize + "%"};
   font-weight: 900;
   text-transform: uppercase;
   display: flex;
@@ -225,7 +226,7 @@ const EntityTextIconWrapper = styled.div<{ color?: string }>`
 
 function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
   return (
-    <EntityTextIconWrapper color={props.textColor}>
+    <EntityTextIconWrapper color={props.textColor} fontSize={props.fontSize}>
       {props.children}
     </EntityTextIconWrapper>
   );
@@ -241,8 +242,11 @@ const EntityIconWrapper = styled.div<{
   height: ${({ height }) => (height ? height : "18px")};
   width: ${({ width }) => (width ? width : "18px")};
   background: ${({ bgColor }) => bgColor ?? Colors.WHITE};
-  border: ${({ borderColor, noBorder }) =>
-    noBorder ? "none" : `1.5px solid ${borderColor ?? Colors.SCORPION}`};
+  border: ${({ borderColor, height, noBorder }) =>
+    noBorder
+      ? "none"
+      : `${parseInt(height ? height : "18px") * 0.0845}px solid ${borderColor ??
+          Colors.SCORPION}`};
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -251,8 +255,8 @@ const EntityIconWrapper = styled.div<{
 
   svg,
   img {
-    height: 12px !important;
-    width: 12px !important;
+    height: 80% !important;
+    width: 80% !important;
   }
 `;
 
@@ -284,11 +288,23 @@ export { EntityIcon };
 
 /** ======= Entity Icon components ends ====== */
 
-export function ApiMethodIcon(props: { type: keyof typeof HTTP_METHOD }) {
+export function ApiMethodIcon(
+  type: keyof typeof HTTP_METHOD,
+  height = "18px",
+  width = "36px",
+  fontSize = 56,
+) {
   return (
-    <EntityIcon borderColor={HTTP_METHODS_COLOR[props.type]} width={"36px"}>
-      <EntityIcon.textIcon textColor={HTTP_METHODS_COLOR[props.type]}>
-        {props.type}
+    <EntityIcon
+      borderColor={HTTP_METHODS_COLOR[type]}
+      height={height}
+      width={width}
+    >
+      <EntityIcon.textIcon
+        fontSize={fontSize}
+        textColor={HTTP_METHODS_COLOR[type]}
+      >
+        {type}
       </EntityIcon.textIcon>
     </EntityIcon>
   );
@@ -310,11 +326,13 @@ export function CurlIconV2() {
   );
 }
 
-export const JsFileIconV2 = (
-  <EntityIcon>
-    <EntityIcon.textIcon>JS</EntityIcon.textIcon>
-  </EntityIcon>
-);
+export function JsFileIconV2(height = 18, width = 18) {
+  return (
+    <EntityIcon height={height + "px"} width={width + "px"}>
+      <EntityIcon.textIcon fontSize={height * 3.2}>JS</EntityIcon.textIcon>
+    </EntityIcon>
+  );
+}
 
 export function GraphQLIconV2() {
   return (

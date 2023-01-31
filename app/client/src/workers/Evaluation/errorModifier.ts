@@ -31,11 +31,14 @@ class ErrorModifier {
       this.asyncFunctionsNameMap,
     )) {
       const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
-      if (errorMessage.match(functionNameWithWhiteSpace)) {
-        return UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
-          "{{actionName}}",
-          asyncFunctionFullPath + "()",
-        );
+      if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {
+        return {
+          name: "ValidationError",
+          text: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+            "{{actionName}}",
+            asyncFunctionFullPath + "()",
+          ),
+        };
       }
     }
 
@@ -72,5 +75,17 @@ export class ActionCalledInSyncFieldError extends Error {
 }
 
 export const getErrorMessage = (error: Error) => {
+  return error.name
+    ? {
+        name: error.name,
+        text: error.message,
+      }
+    : {
+        name: "ValidationError",
+        text: error.message,
+      };
+};
+
+export const getErrorMessageWithType = (error: Error) => {
   return error.name ? `${error.name}: ${error.message}` : error.message;
 };
