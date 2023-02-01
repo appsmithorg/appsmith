@@ -54,6 +54,6 @@ describe("Git Bugs", function() {
   });
 
   after(() => {
-    //_.gitSync.DeleteTestGithubRepo(testName);
+    _.gitSync.DeleteTestGithubRepo(testName);
   });
 });
