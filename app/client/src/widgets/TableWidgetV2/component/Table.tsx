@@ -347,7 +347,8 @@ export function Table(props: TableProps) {
     props.isVisibleSearch ||
     props.isVisibleFilters ||
     props.isVisibleDownload ||
-    props.isVisiblePagination;
+    props.isVisiblePagination ||
+    props.allowAddNewRow;
 
   const scrollContainerStyles = useMemo(() => {
     return {

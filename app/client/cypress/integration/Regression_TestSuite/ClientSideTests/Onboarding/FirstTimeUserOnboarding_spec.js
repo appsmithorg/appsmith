@@ -1,4 +1,5 @@
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
+import * as Utils from "../../../../support/Objects/ObjectsCore";
 const _ = require("lodash");
 
 describe("FirstTimeUserOnboarding", function() {
@@ -170,7 +171,7 @@ describe("FirstTimeUserOnboarding", function() {
   it("onboarding flow - should check directly opening widget pane", function() {
     cy.get(OnboardingLocator.introModalBuild).click();
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
-    cy.get(OnboardingLocator.widgetPaneTrigger).click();
+    Utils.canvasHelper.OpenWidgetPane();
     cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
