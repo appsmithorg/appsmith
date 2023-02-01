@@ -66,8 +66,6 @@ describe("PgAdmin Clone App", function() {
     );
     cy.WaitAutoSave();
     _.dataSources.RunQuery();
-
-    _.agHelper.GetNClick("#switcher--widgets");
     _.agHelper.GetNClick(appPage.viewButton, 0, true);
     // adding new table
     _.agHelper.GetNClick(appPage.addNewtable, 0, true);
