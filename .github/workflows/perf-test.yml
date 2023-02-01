@@ -171,6 +171,33 @@ jobs:
         run: |
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
+      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
+      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
+      - name: Build  docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
+        run: |
+          docker build -t cicontainer .
+
+      - name: Create folder
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
+        run: |
+          mkdir -p cicontainerlocal/stacks/configuration/
+          mkdir -p cicontainerlocal/oldstack
+
+      - name: Download S3 image
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        with:
+          command: cp
+          source: s3://ci-assets--appsmith/
+          destination: /home/runner/work/appsmith/appsmith/cicontainerlocal/oldstack
+          aws_access_key_id: ${{ secrets.S3_CI_ASSETS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.S3_CI_ASSETS_SECRET_ACCESS_KEY }}
+          aws_region: ap-south-1
+          flags: --recursive
 
       - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
@@ -178,7 +205,6 @@ jobs:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
-          mkdir -p cicontainerlocal/stacks/configuration/
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
           docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
