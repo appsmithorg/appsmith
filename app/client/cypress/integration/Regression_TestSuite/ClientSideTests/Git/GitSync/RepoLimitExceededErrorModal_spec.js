@@ -86,30 +86,30 @@ describe.skip("Repo Limit Exceeded Error Modal", function() {
     }
   });
 
-  // after(() => {
-  //   cy.request({
-  //     method: "DELETE",
-  //     url: "api/v1/applications/" + repoName1,
-  //     failOnStatusCode: false,
-  //   });
-  //   cy.request({
-  //     method: "DELETE",
-  //     url: "api/v1/applications/" + repoName2,
-  //     failOnStatusCode: false,
-  //   });
-  //   cy.request({
-  //     method: "DELETE",
-  //     url: "api/v1/applications/" + repoName3,
-  //     failOnStatusCode: false,
-  //   });
-  //   cy.request({
-  //     method: "DELETE",
-  //     url: "api/v1/applications/" + repoName4,
-  //     failOnStatusCode: false,
-  //   });
-  //   _.gitSync.DeleteTestGithubRepo(repoName1);
-  //   _.gitSync.DeleteTestGithubRepo(repoName2);
-  //   _.gitSync.DeleteTestGithubRepo(repoName3);
-  //   _.gitSync.DeleteTestGithubRepo(repoName4);
-  // });
+  after(() => {
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + repoName1,
+      failOnStatusCode: false,
+    });
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + repoName2,
+      failOnStatusCode: false,
+    });
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + repoName3,
+      failOnStatusCode: false,
+    });
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + repoName4,
+      failOnStatusCode: false,
+    });
+    _.gitSync.DeleteTestGithubRepo(repoName1);
+    _.gitSync.DeleteTestGithubRepo(repoName2);
+    _.gitSync.DeleteTestGithubRepo(repoName3);
+    _.gitSync.DeleteTestGithubRepo(repoName4);
+  });
 });

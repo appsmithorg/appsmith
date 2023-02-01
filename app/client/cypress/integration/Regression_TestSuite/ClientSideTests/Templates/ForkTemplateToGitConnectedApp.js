@@ -9,7 +9,7 @@ const homePage = require("../../../../locators/HomePage");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Fork a template to the current app", () => {
-  beforeEach(() => {
+  before(() => {
     cy.NavigateToHome();
     cy.generateUUID().then((id) => {
       appId = id;
