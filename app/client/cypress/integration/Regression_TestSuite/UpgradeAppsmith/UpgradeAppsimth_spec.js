@@ -9,7 +9,7 @@ describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
     const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
-    cy.wait(2000);
+    agHelper.Sleep(2000);
 
     // stop the old container
     cy.StopTheContainer(tedUrl, "appsmith");
@@ -72,7 +72,7 @@ describe("Upgrade appsmith version", () => {
     agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
     agHelper.GetNAssertElementText(
       ".tbody>div",
-      "1DevelopmentUpdateexpertise",
+      "1DevelopmentUpdateexpertise/",
       "have.text",
       1,
     );
@@ -95,5 +95,12 @@ describe("Upgrade appsmith version", () => {
     cy.log("Stop the container");
     cy.StopTheContainer(tedUrl, localStorage.getItem("ContainerName")); // stop the old container
     cy.wait(2000);
+  });
+
+  after(function() {
+    //restarting the old container
+    cy.execute(tedUrl, "docker restart appsmith");
+    //Waiting for the container to be up
+    agHelper.Sleep(60000);
   });
 });

@@ -1828,9 +1828,7 @@ Cypress.Commands.add(
   "StartCEContainer",
   (url, path, version, containerName) => {
     let comm =
-      "cd " +
-      path +
-      " && docker run -d --name " +
+      "docker run -d --name " +
       containerName +
       ' -p 80:80 -p 9001:9001 -v "' +
       path +
@@ -1845,10 +1843,9 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
-      //cy.log(res.body.stderr);
-      //cy.log("ContainerID", res.body.stdout);
-      //expect(res.status).equal(200);
-      return res.body.stdout;
+      cy.log(res.body.stderr);
+      cy.log("ContainerID", res.body.stdout);
+      expect(res.status).equal(200);
     });
   },
 );
@@ -1857,9 +1854,7 @@ Cypress.Commands.add(
   "StartEEContainer",
   (url, path, version, containerName) => {
     let comm =
-      "cd " +
-      path +
-      " && docker run -d --name " +
+      "docker run -d --name " +
       containerName +
       ' -p 80:80 -p 9001:9001 -v "' +
       path +
@@ -1917,10 +1912,8 @@ Cypress.Commands.add("GetAndVerifyLogs", (path, containerName) => {
       cmd: "docker logs " + containerName + " 2>&1 | grep 'APPLIED'",
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
     expect(res.status).equal(200);
-    // expect(res.body.stdout).not.equal("");
+    //expect(res.body.stdout).not.equal("");
   });
 });
 
@@ -1988,9 +1981,6 @@ Cypress.Commands.add("execute", (url, command) => {
       cmd: command,
     },
   }).then((res) => {
-    //cy.log(res.body.stderr);
-    //cy.log(res.body.stdout);
-    //expect(res.status).equal(200);
-    return res.body;
+    expect(res.status).equal(200);
   });
 });
