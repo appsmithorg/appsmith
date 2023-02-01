@@ -49,18 +49,23 @@ describe("Fork a template to the current app", () => {
     }).then(($ele) => {
       cy.wrap($ele).should("have.length", 0);
     });
+    cy.get("body").then(($ele) => {
+      if (
+        $ele.find(
+          _.locators._specificToast(
+            Cypress.env("MESSAGES").SERVER_API_TIMEOUT_ERROR(),
+          ),
+        ).length <= 0
+      ) {
+        if ($ele.find(template.templateViewForkButton).length > 0) {
+          cy.get(template.templateViewForkButton).click();
+        }
+      }
+    });
     cy.get(widgetLocators.toastAction, { timeout: 40000 }).should(
       "contain",
       "template added successfully",
     );
-    // cy.get("body").then(($ele) => {
-    //   if ($ele.find(widgetLocators.toastAction).length <= 0) {
-    //     if ($ele.find(template.templateViewForkButton).length > 0) {
-    //       cy.get(template.templateViewForkButton).click();
-    //     }
-    //   }
-    // });
-
     cy.commitAndPush();
   });
 
