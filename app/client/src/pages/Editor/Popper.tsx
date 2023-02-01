@@ -55,8 +55,28 @@ const PopperWrapper = styled.div<{ zIndex: number; borderRadius?: string }>`
   &&&:hover .drag-handle-block {
     display: flex;
   }
+
+  & .style-test {
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 43px;
+    height: 28px;
+    z-index: 3;
+    background-color: ${Colors.GRAY_50};
+    position: relative;
+    top: -15px;
+    pointer-events: auto;
+    display: none;
+
+    svg {
+      transform: rotate(90deg);
+    }
+  }
 `;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DragHandleBlock = styled.div`
   cursor: grab;
   display: flex;
@@ -124,8 +144,8 @@ export default (props: PopperProps) => {
 
   const PopperDragHandle = (props: PopperDragHandleProps) => {
     return (
-      <DragHandleBlock
-        className="drag-handle-block"
+      <div
+        className="drag-handle-block style-test"
         onMouseEnter={(e) => {
           e.stopPropagation();
           if (props?.dragFn) {
@@ -140,7 +160,7 @@ export default (props: PopperProps) => {
         }}
       >
         <DragHandleIcon />
-      </DragHandleBlock>
+      </div>
     );
   };
 
