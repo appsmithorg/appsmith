@@ -66,17 +66,13 @@ describe("Git import flow ", function() {
         force: true,
       });
       cy.wait(1000);
-      cy.generateUUID().then((uid) => {
-        repoName = uid;
-        _.gitSync.CreateNConnectToGit(repoName);
-        cy.get("@gitRepoName").then((repName) => {
-          repoName = repName;
-          _.gitSync.CreateGitBranch(repoName);
-        });
 
-        // cy.createTestGithubRepo(repoName);
-        // cy.connectToGitRepo(repoName);
+      _.gitSync.CreateNConnectToGit(repoName);
+      cy.get("@gitRepoName").then((repName) => {
+        repoName = repName;
+        _.gitSync.CreateGitBranch(repoName);
       });
+
       cy.wait(5000); // for git connection to settle!
     });
   });
@@ -262,6 +258,6 @@ describe("Git import flow ", function() {
   });
 
   after(() => {
-    //cy.deleteTestGithubRepo(repoName);
+    //cy.deleteTestGithubRepo(repoName); //commenting since few cases above are skipping, to fix that and uncomment deletion of repo.
   });
 });

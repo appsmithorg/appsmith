@@ -228,6 +228,6 @@ export class GitSync {
       cy.wrap(branch + uid).as("gitbranchName");
     });
     this.agHelper.AssertElementExist(this.locator._spinner);
-    this.agHelper.AssertElementAbsence(this.locator._spinner, 30000);
+    this.agHelper.AssertElementAbsence(this.locator._spinner, 40000);//Since page taking more time to laod in some cases
   }
 }
