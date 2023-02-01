@@ -16,6 +16,8 @@ type Props = {
   handleAddSuccessBlock?: () => void;
   handleAddFailureBlock?: () => void;
   handleBlockSelection?: (selectedBlock: SelectedActionBlock) => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 };
 
 type CallbackBlock = {
@@ -34,6 +36,8 @@ export const ActionBlockTree: React.FC<Props> = ({
   handleAddFailureBlock = () => {},
   handleBlockSelection = () => {},
   selectedCallbackBlock,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const [showCallbacks, setShowCallbacks] = useState(true);
   const { actionType, code, errorCallbacks, successCallbacks } = actionTree;
@@ -92,7 +96,11 @@ export const ActionBlockTree: React.FC<Props> = ({
   );
 
   return (
-    <div className="flex flex-col">
+    <div
+      className="flex flex-col"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <div
         className={clsx(
           "flex flex-col",

@@ -46,7 +46,7 @@ export const Action: React.FC<Props> = ({
   value,
 }) => {
   const firstRender = React.useRef(true);
-  const clickedInside = React.useRef(false);
+  const isActionInteraction = React.useRef(false);
   const [isOpen, setOpen] = useState(isEmptyBlock(value));
   const [
     selectedCallbackBlock,
@@ -126,33 +126,24 @@ export const Action: React.FC<Props> = ({
     }
   };
 
-  const onCloseClick = () => {
+  const onCloseByFocusOut = () => {
     // This is to prevent the popover from closing when the user clicks inside the Action blocks
     // Check onClose prop on Popover2 in the render below
-    setTimeout(() => {
-      if (!clickedInside.current) {
-        handleCloseClick();
-      }
-      clickedInside.current = false;
-    }, 10);
+    if (!isActionInteraction.current) {
+      handleCloseClick();
+    }
   };
 
   const handleMainBlockClick = () => {
-    // If focus is inside the action block, we prevent closing the popover
-    if (selectedCallbackBlock) {
-      clickedInside.current = true;
-    }
     setOpen(true);
     setSelectedCallbackBlock(null);
   };
 
   const handleBlockSelection = (block: SelectedActionBlock) => {
-    clickedInside.current = true;
     setSelectedCallbackBlock(block);
   };
 
   const addSuccessAction = useCallback(() => {
-    clickedInside.current = true;
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
       newActionTree.successCallbacks.push({
@@ -172,7 +163,6 @@ export const Action: React.FC<Props> = ({
   }, []);
 
   const addErrorAction = useCallback(() => {
-    clickedInside.current = true;
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
       newActionTree.errorCallbacks.push({
@@ -218,6 +208,14 @@ export const Action: React.FC<Props> = ({
     });
   }, []);
 
+  const handleMouseEnter = () => {
+    isActionInteraction.current = true;
+  };
+
+  const handleMouseLeave = () => {
+    isActionInteraction.current = false;
+  };
+
   const isCallbackBlockSelected = selectedCallbackBlock !== null;
 
   const shouldAddActionBeDisabled =
@@ -245,7 +243,6 @@ export const Action: React.FC<Props> = ({
           key={action.actionType + index}
           modalDropdownList={modalDropdownList}
           onValueChange={(newValue) => {
-            clickedInside.current = true;
             setActionTree((prevActionTree) => {
               const newActionTree = cloneDeep(prevActionTree);
               const action = newActionTree.successCallbacks[index];
@@ -285,7 +282,6 @@ export const Action: React.FC<Props> = ({
           key={action.actionType + index}
           modalDropdownList={modalDropdownList}
           onValueChange={(newValue) => {
-            clickedInside.current = true;
             setActionTree((prevActionTree) => {
               const newActionTree = cloneDeep(prevActionTree);
               const action = newActionTree.errorCallbacks[index];
@@ -343,12 +339,20 @@ export const Action: React.FC<Props> = ({
     );
   };
 
+  const boundaryParent =
+    (document.querySelector("#canvas-viewport") as HTMLElement) || undefined;
+
   return (
     <>
       <Popover2
+        boundary={boundaryParent}
         className="w-full"
         content={
-          <div className="flex flex-col w-full">
+          <div
+            className="flex flex-col w-full"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             <div className="flex mb-2 w-full justify-between bg-gray-100 px-2 py-1">
               <div className="text-sm font-medium text-gray">
                 Configure {isCallbackBlockSelected ? "action" : action}
@@ -356,7 +360,7 @@ export const Action: React.FC<Props> = ({
               <Icon
                 fillColor="var(--ads-color-gray-700)"
                 name="cross"
-                onClick={onCloseClick}
+                onClick={handleCloseClick}
                 size="extraSmall"
               />
             </div>
@@ -451,7 +455,7 @@ export const Action: React.FC<Props> = ({
         }
         isOpen={isOpen}
         minimal
-        onClose={onCloseClick}
+        onClose={onCloseByFocusOut}
         popoverClassName="!translate-x-[-18px] translate-y-[35%] w-[280px]"
         position="left"
       >
@@ -468,6 +472,8 @@ export const Action: React.FC<Props> = ({
               handleAddSuccessBlock={addSuccessAction}
               handleBlockSelection={handleBlockSelection}
               onClick={handleMainBlockClick}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
               selected={isOpen}
               selectedCallbackBlock={selectedCallbackBlock}
             />
