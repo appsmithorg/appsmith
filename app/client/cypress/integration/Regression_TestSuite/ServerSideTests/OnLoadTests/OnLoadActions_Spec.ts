@@ -15,7 +15,7 @@ describe("Layout OnLoad Actions tests", function() {
     agHelper.SaveLocalStorageCache();
   });
 
-  it.only("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
+  it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
     cy.fixture("onPageLoadActionsDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
