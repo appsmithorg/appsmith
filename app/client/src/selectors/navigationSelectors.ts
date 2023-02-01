@@ -127,6 +127,8 @@ const getJsObjectChildren = (
   let childNavData: Record<string, NavigationData> = {};
 
   let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    peekData[jsChild.name] = function() {};
     return {
       name: `${jsAction.config.name}.${jsChild.name}`,
       key: jsChild.name,
@@ -139,7 +141,7 @@ const getJsObjectChildren = (
       }),
       navigable: true,
       children: {},
-      peekable: false,
+      peekable: true,
     };
   });
 
@@ -156,7 +158,7 @@ const getJsObjectChildren = (
           collectionId: jsAction.config.id,
           functionName: jsChild.name,
         }),
-        navigable: false,
+        navigable: true,
         children: {},
         peekable: true,
       };
@@ -250,6 +252,18 @@ const getActionChildren = (
     if (key.indexOf("!") === -1) {
       if (key === "data" || key === "isLoading" || key === "responseMeta") {
         peekData[key] = dataTree[key];
+        childNavData[key] = {
+          id: `${action.config.name}.${key}`,
+          name: `${action.config.name}.${key}`,
+          type: ENTITY_TYPE.ACTION,
+          navigable: false,
+          url: undefined,
+          children: {},
+          peekable: true,
+        };
+      } else if (key === "run" || key === "clear") {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        peekData[key] = function() {};
         childNavData[key] = {
           id: `${action.config.name}.${key}`,
           name: `${action.config.name}.${key}`,

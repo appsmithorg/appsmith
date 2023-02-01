@@ -1288,27 +1288,43 @@ class CodeEditor extends Component<Props, State> {
                         : "object"
                       : this.state.peekOverlayProps.dataType}
                   </div>
-                  <div
-                    style={{
-                      height: "125px",
-                      overflowY: "auto",
-                    }}
-                  >
+                  <div>
                     {this.state.peekOverlayProps.dataType === "object" && (
-                      <JsonWrapper>
+                      <JsonWrapper
+                        style={{
+                          height: "125px",
+                          overflowY: "auto",
+                        }}
+                      >
                         <ReactJson
                           src={this.state.peekOverlayProps.data}
                           {...this.reactJsonProps}
                         />
                       </JsonWrapper>
                     )}
-                    {this.state.peekOverlayProps.dataType !== "object" && (
-                      <div>
-                        {(this.state.peekOverlayProps
-                          .data as any)?.toString() ??
-                          this.state.peekOverlayProps.dataType}
+                    {this.state.peekOverlayProps.dataType === "function" && (
+                      <div
+                        style={{
+                          padding: "4px 0px 4px 12px",
+                          fontSize: "10px",
+                        }}
+                      >
+                        Function
                       </div>
                     )}
+                    {this.state.peekOverlayProps.dataType !== "object" &&
+                      this.state.peekOverlayProps.dataType !== "function" && (
+                        <div
+                          style={{
+                            padding: "4px 0px 4px 12px",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {(this.state.peekOverlayProps
+                            .data as any)?.toString() ??
+                            this.state.peekOverlayProps.dataType}
+                        </div>
+                      )}
                   </div>
                 </div>
               </Portal>
