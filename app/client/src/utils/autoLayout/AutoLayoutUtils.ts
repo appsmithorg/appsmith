@@ -378,6 +378,7 @@ export function getLayerIndexOfWidget(
     );
   });
 }
+
 export function getFillWidgetLengthForLayer(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,

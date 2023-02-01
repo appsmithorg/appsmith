@@ -42,6 +42,7 @@ type DropTargetComponentProps = WidgetProps & {
   isWrapper?: boolean;
   useAutoLayout?: boolean;
   isMobile?: boolean;
+  columnSplitRatio?: number;
 };
 
 const StyledDropTarget = styled.div`
@@ -278,6 +279,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const dropTargetStyles = {
     height,
     boxShadow,
+    width: 100 * (props.columnSplitRatio || 1) + "%",
+    display: props.columnSplitRatio === 1 ? "block" : "inline-block",
   };
 
   const shouldOnboard =

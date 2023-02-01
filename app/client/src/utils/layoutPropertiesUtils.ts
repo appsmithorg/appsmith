@@ -320,7 +320,6 @@ export function getCanvasSplitConfig() {
       propertyName?: string,
       propertyValue?: any,
     ) => {
-      if (!propertyName || !propertyValue) return;
       const canvasSplit: boolean = propertyValue as boolean;
       return {
         type: ReduxActionTypes.SPLIT_CANVAS,
@@ -330,5 +329,6 @@ export function getCanvasSplitConfig() {
         },
       };
     },
+    dependencies: ["widgetId"],
   };
 }

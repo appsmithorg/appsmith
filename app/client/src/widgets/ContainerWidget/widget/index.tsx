@@ -19,7 +19,10 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import {
+  getCanvasSplitConfig,
+  getResponsiveLayoutConfig,
+} from "utils/layoutPropertiesUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -67,6 +70,7 @@ export class ContainerWidget extends BaseWidget<
         ],
       },
       ...getResponsiveLayoutConfig(this.getWidgetType()),
+      getCanvasSplitConfig(),
     ];
   }
 
@@ -207,6 +211,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning !== Positioning.Fixed
       : false;
+    childWidget.columnSplitRatio = this.props.canvasSplit ? 0.5 : 1;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -259,6 +264,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;
+  canvasSplit?: boolean;
 }
 
 export default ContainerWidget;

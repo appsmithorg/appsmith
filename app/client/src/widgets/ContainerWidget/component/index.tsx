@@ -50,15 +50,6 @@ const StyledContainerComponent = styled.div<
         : props.backgroundColor;
     }};
   }
-
-  .auto-temp-no-display {
-    position: absolute;
-    left: -9999px;
-  }
-
-  .no-display {
-    display: none;
-  }
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {

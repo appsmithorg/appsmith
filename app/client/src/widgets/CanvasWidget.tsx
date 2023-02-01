@@ -53,6 +53,7 @@ class CanvasWidget extends ContainerWidget {
       <DropTargetComponent
         {...canvasProps}
         {...this.getSnapSpaces()}
+        columnSplitRatio={this.props.columnSplitRatio}
         isMobile={this.props.isMobile}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
         useAutoLayout={this.props.useAutoLayout}
