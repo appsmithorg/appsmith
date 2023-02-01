@@ -50,6 +50,4 @@ public interface UserDataServiceCE {
     Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState);
 
     Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId);
-
-    Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId);
 }

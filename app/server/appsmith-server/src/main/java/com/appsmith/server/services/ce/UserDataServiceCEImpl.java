@@ -342,9 +342,4 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         );
     }
 
-    @Override
-    public Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
-        return repository.fetchMostRecentlyUsedWorkspaceId(userId);
-    }
-
 }
