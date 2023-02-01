@@ -10,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.ConfigService;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
@@ -24,14 +25,17 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private String tenantId = null;
 
+    private final ConfigService configService;
+
     public TenantServiceCEImpl(Scheduler scheduler,
                                Validator validator,
                                MongoConverter mongoConverter,
                                ReactiveMongoTemplate reactiveMongoTemplate,
                                TenantRepository repository,
-                               AnalyticsService analyticsService) {
-
+                               AnalyticsService analyticsService,
+                               ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        this.configService = configService;
     }
 
     @Override
@@ -72,11 +76,16 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     }
 
     /*
-     *  For now, returning an empty tenantConfiguration object in this class. Will enhance this function once we
-     *  start saving other pertinent environment variables in the tenant collection
+     * For now, returning just the instance-id, with an empty tenantConfiguration object in this class. Will enhance
+     * this function once we start saving other pertinent environment variables in the tenant collection.
      */
     @Override
     public Mono<Tenant> getTenantConfiguration() {
-        return Mono.just(new Tenant());
+        return configService.getInstanceId()
+                .map(instanceId -> {
+                    final Tenant tenant = new Tenant();
+                    tenant.setInstanceId(instanceId);
+                    return tenant;
+                });
     }
 }

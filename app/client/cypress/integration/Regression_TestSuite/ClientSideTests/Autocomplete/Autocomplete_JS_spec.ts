@@ -276,4 +276,60 @@ describe("Autocomplete tests", () => {
       agHelper.GetNAssertElementText(CommonLocators._hints, "geolocation");
     });
   });
+
+  it("9. Bug #17059 Autocomplete does not suggest same function name that belongs to a different object", () => {
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject1.");
+
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "myFun1.data",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "myFun1()",
+      "have.text",
+      4,
+    );
+
+    // Same check in JSObject1
+    EntityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject2.");
+
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "myFun1.data",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "myFun1()",
+      "have.text",
+      4,
+    );
+  });
 });
