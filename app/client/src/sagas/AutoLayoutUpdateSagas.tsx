@@ -17,6 +17,10 @@ import {
   wrapChildren,
 } from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
+import { addNewCanvas } from "utils/autoLayout/canvasSplitUtils";
+import { FlattenedWidgetProps } from "widgets/constants";
+import { getUpdateDslAfterCreatingChild } from "./WidgetAdditionSagas";
+import { Widget } from "utils/autoLayout/positionUtils";
 
 type LayoutUpdatePayload = {
   parentId: string;
@@ -130,6 +134,47 @@ export function* updateLayoutForMobileCheckpoint(
   }
 }
 
+export function* manageCanvasSplit(
+  actionPayload: ReduxAction<{
+    parentId: string;
+    isSplit: boolean;
+  }>,
+) {
+  try {
+    const start = performance.now();
+    const { isSplit, parentId } = actionPayload.payload;
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    let updatedWidgets = allWidgets;
+    if (isSplit) {
+      const payload:
+        | { existingCanvas: Widget; newCanvasPayload: any }
+        | undefined = addNewCanvas(allWidgets, parentId);
+      if (!payload) throw new Error("Unable to split canvas");
+      const updatedWidgetsAfterCreatingCanvas: {
+        [widgetId: string]: FlattenedWidgetProps;
+      } = yield call(getUpdateDslAfterCreatingChild, payload.newCanvasPayload);
+      updatedWidgets = {
+        ...updatedWidgetsAfterCreatingCanvas,
+        [payload.existingCanvas.widgetId]: payload.existingCanvas,
+      };
+    }
+    yield put(updateAndSaveLayout(updatedWidgets));
+    log.debug(
+      "updating layout for mobile viewport took",
+      performance.now() - start,
+      "ms",
+    );
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SPLIT_CANVAS,
+        error,
+      },
+    });
+  }
+}
+
 export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(ReduxActionTypes.ADD_CHILD_WRAPPERS, addChildWrappers),
@@ -139,5 +184,6 @@ export default function* layoutUpdateSagas() {
       ReduxActionTypes.RECALCULATE_COLUMNS,
       updateLayoutForMobileCheckpoint,
     ),
+    takeLatest(ReduxActionTypes.SPLIT_CANVAS, manageCanvasSplit),
   ]);
 }

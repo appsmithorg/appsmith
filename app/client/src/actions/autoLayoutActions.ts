@@ -24,3 +24,8 @@ export const updateLayoutForMobileBreakpointAction = (
     canvasWidth,
   },
 });
+
+export const splitCanvas = (flag: boolean) => ({
+  type: ReduxActionTypes.SPLIT_CANVAS,
+  payload: flag,
+});
