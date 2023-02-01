@@ -19,8 +19,17 @@ defaults:
 jobs:
   ci-test:
     runs-on: ubuntu-latest
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+    # then we don't check for the PR approved state
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
     defaults:
       run:
+        working-directory: app/client
         shell: bash
     strategy:
       fail-fast: false
@@ -47,6 +56,7 @@ jobs:
 
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
+        if: inputs.pr != 0
         uses: actions/checkout@v3
         with:
           ref: "refs/pull/${{ inputs.pr }}/merge"
@@ -117,18 +127,21 @@ jobs:
           java-version: '17'
 
       - name: Download the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
           name: build
           path: app/client/build
 
       - name: Download the server build artifact
+        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
           name: build
           path: app/server/dist/
 
       - name: Download the rts build artifact
+        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
           name: rts-dist
