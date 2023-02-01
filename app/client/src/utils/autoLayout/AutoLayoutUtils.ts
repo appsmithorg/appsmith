@@ -399,6 +399,6 @@ export function getFillWidgetLengthForLayer(
       hugLength += childWidget.rightColumn - childWidget.leftColumn;
     else fillCount += 1;
   }
-  fillLength = (fillLength - hugLength) / fillCount;
+  fillLength = (fillLength - hugLength) / (fillCount || 1);
   return fillLength;
 }
