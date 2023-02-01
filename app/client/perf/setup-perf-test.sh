@@ -5,7 +5,7 @@
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
 echo "Starting the setup the test framework"
-sudo echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
+sudo echo "127.0.0.1	localhost" | sudo tee -a /etc/hosts
 serve -s build -p 3000 &
 
 # Substitute all the env variables in nginx
@@ -14,21 +14,21 @@ cat ./docker/templates/nginx-app.conf.template | sed -e "s|__APPSMITH_CLIENT_PRO
 cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
-touch ./docker/dev.appsmith.com.pem ./docker/dev.appsmith.com-key.pem
-echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/dev.appsmith.com.pem
-echo "$APPSMITH_SSL_KEY" > ./docker/dev.appsmith.com-key.pem
+touch ./docker/localhost ./docker/localhost.pem
+echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/localhost.pem
+echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
 
 # echo "Download & Start TED server"
 # sudo docker pull nginx:latest
 # sudo docker pull appsmith/test-event-driver:latest
 
 # Setup UI environment from docker image for running UI tests and perf tests
-sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
-	-v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf \
-    -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf \
-    -v `pwd`/docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
-    -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
-    nginx:latest
+# sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
+# 	-v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf \
+#     -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf \
+#     -v `pwd`/docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
+#     -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
+#     nginx:latest
 # sudo mkdir -p git-server/keys
 # sudo mkdir -p git-server/repos
 
