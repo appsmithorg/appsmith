@@ -10,7 +10,7 @@ export const StyledPageWrapper = styled.div`
   align-items: center;
   justify-content: start;
   gap: 40px;
-  margin: 60px 0;
+  margin: 100px 0;
 `;
 
 export const StyledCardWrapper = styled.div`

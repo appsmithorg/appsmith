@@ -141,3 +141,7 @@ export const ACTIVATE = () => `Activate`;
 export const PASTE_LICENSE_KEY = () => `Paste your license key here`;
 export const LICENSE_EXPIRY_DATE = (date: string) => `Valid until: ${date}`;
 export const UPDATE = () => "UPDATE";
+
+export const LICENSE_ERROR_TITLE = () => `No Active Subscription`;
+export const LICENSE_ERROR_DESCRIPTION = () =>
+  `You currently do not have an Active Subscription. Please contact your instance administrator to activate the instance.`;

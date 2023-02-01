@@ -1,6 +1,7 @@
 export * from "ce/selectors/tenantSelectors";
 import { Status } from "@appsmith/pages/Billing/StatusBadge";
 import { AppState } from "@appsmith/reducers";
+import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export const isValidLicense = (state: AppState) => {
@@ -83,3 +84,6 @@ export const getLicenseStatus = (state: AppState) => {
     return Status.INACTIVE;
   }
 };
+
+export const isAdminUser = (state: AppState) =>
+  state.tenant?.userPermissions?.includes(EE_PERMISSION_TYPE.MANAGE_TENANTS);
