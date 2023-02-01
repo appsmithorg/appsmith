@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-const publishPage = require("../../locators/publishWidgetspage.json");
-const testdata = require("../../fixtures/testdata.json");
-import { ObjectsRegistry } from "../../support/Objects/Registry";
+const testdata = require("../../../fixtures/testdata.json");
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 const tedUrl = "http://localhost:5001/v1/parent/cmd";
+
 describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
     const uuid = () => Cypress._.random(0, 10000);
@@ -26,7 +26,7 @@ describe("Upgrade appsmith version", () => {
       cy.StartCEContainer(
         tedUrl,
         path + "/oldstack/tempStacks/oldstacks",
-        "cicontainerlocal",
+        "cicontainer",
         `appsmith-${name}`,
       );
       //Wait for the container to be up
