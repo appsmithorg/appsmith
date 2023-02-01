@@ -1,6 +1,5 @@
 import React from "react";
 import { NavigationSetting } from "constants/AppConstants";
-import classNames from "classnames";
 import { StyledApplicationName } from "./ApplicationName.styled";
 
 type ApplicationNameProps = {
@@ -15,11 +14,7 @@ const ApplicationName = (props: ApplicationNameProps) => {
 
   return (
     <StyledApplicationName
-      className={classNames({
-        "overflow-hidden text-base overflow-ellipsis whitespace-nowrap": true,
-        "w-7/12": !forSidebar,
-        "w-full": forSidebar,
-      })}
+      className="overflow-hidden text-base overflow-ellipsis whitespace-nowrap w-full"
       forSidebar={forSidebar}
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}

@@ -12,5 +12,5 @@ export const StyledApplicationName = styled.div<{
     getApplicationNameTextColor(primaryColor, navColorStyle)};
   font-size: ${({ forSidebar }) =>
     forSidebar ? THEMEING_TEXT_SIZES.sm : THEMEING_TEXT_SIZES.base};
-  max-width: 230px;
+  max-width: 224px;
 `;
