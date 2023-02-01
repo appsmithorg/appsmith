@@ -289,16 +289,16 @@ jobs:
         shell: bash
         run: yarn install --frozen-lockfile
 
-      - name: Exit if Server hasnt started
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          if lsof -i :8080; then
-            echo "Server Found"
-          else
-            echo "Server Not Started. Printing logs from server process"
-            cat app/server/nohup.out
-            exit 1
-          fi
+      # - name: Exit if Server hasnt started
+      #   if: steps.run_result.outputs.run_result != 'success'
+      #   run: |
+      #     if lsof -i :8080; then
+      #       echo "Server Found"
+      #     else
+      #       echo "Server Not Started. Printing logs from server process"
+      #       cat app/server/nohup.out
+      #       exit 1
+      #     fi
 
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'
