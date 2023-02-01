@@ -4,7 +4,7 @@ import { debounce } from "lodash";
 import { ActionBlock } from "../ActionBlock";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { FieldType } from "../../constants";
-import { flattenOptions } from "../../utils";
+import { flattenOptions, isEmptyBlock } from "../../utils";
 import { getActionInfo } from "../ActionBlockTree/utils";
 
 function filterChildren(
@@ -44,7 +44,7 @@ export const SelectorDropdown: React.FC<Props> = ({
   selectedOption,
   value,
 }) => {
-  const [isOpen, setOpen] = useState(false);
+  const [isOpen, setOpen] = useState(isEmptyBlock(value));
   const [searchText, setSearchText] = useState("");
   const [debouncedValue, setDebouncedValue] = useState("");
   const debouncedSetSearchText = useMemo(
@@ -74,6 +74,7 @@ export const SelectorDropdown: React.FC<Props> = ({
   return (
     <TreeDropdown
       className="right-8"
+      defaultOpen={isOpen}
       defaultText="Some default text here"
       menuHeight={300}
       menuWidth={256}
