@@ -219,7 +219,7 @@ describe("Tests setTimeout API", function() {
     );
     jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false);
     deployMode.DeployApp();
-    agHelper.Sleep(3000);
+    agHelper.Sleep(1000);//DeployApp already waiting 2000ms hence reducing it here to equate to 3000 timeout
     agHelper.AssertContains("Success!");
     agHelper.Sleep(1000);
     cy.wait("@postExecute").then((interception : any) => {
