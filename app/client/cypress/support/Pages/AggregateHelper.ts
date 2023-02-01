@@ -957,33 +957,6 @@ export class AggregateHelper {
       });
   }
 
-  public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
-    let val: any;
-    if (fieldName) {
-      cy.xpath(this.locator._existingFieldValueByName(fieldName))
-        .eq(0)
-        .click();
-      val = cy.get(fieldName).then(($field) => {
-        cy.wrap($field)
-          .find(".CodeMirror-code span")
-          .first()
-          .invoke("text");
-      });
-    } else {
-      cy.xpath(this.locator._codeMirrorCode).click();
-      val = cy
-        .xpath(
-          "//div[@class='CodeMirror-code']//span[contains(@class,'cm-m-javascript')]",
-        )
-        .then(($field) => {
-          cy.wrap($field).invoke("text");
-        });
-    }
-    this.Sleep(); //Increasing wait time to evaluate non-undefined values
-    if (currentValue) expect(val).to.eq(currentValue);
-    return val;
-  }
-
   public UploadFile(fixtureName: string, toClickUpload = true) {
     cy.get(this.locator._uploadFiles)
       .attachFile(fixtureName)
