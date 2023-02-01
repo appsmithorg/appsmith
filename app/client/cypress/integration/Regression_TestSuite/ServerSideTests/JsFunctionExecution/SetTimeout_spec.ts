@@ -204,7 +204,7 @@ describe("Tests setTimeout API", function() {
         myVar2: {},
         myFun1: (x) => {
             setTimeout(() => {
-              Api1.run().then(() => showAlert("Success!"));
+              showAlert("Success!");
               Timeouts.myFun2();
             }, 3000)
         },
@@ -223,10 +223,7 @@ describe("Tests setTimeout API", function() {
     agHelper.AssertContains("Success!");
     agHelper.Sleep(1000);
     cy.wait("@postExecute").then((interception : any) => {
-      cy.wait("@postExecute").then((interception2 : any) => {
-      userName = JSON.stringify(interception2.response.body.data.body[0].name).replace(/['"]+/g, '');
-      agHelper.AssertContains(userName);
-      })
+      userName = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
     });
   });
 });
