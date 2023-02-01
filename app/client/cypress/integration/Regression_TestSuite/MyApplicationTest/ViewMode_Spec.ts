@@ -6,6 +6,8 @@ describe("Validate basic test harness", () => {
   });
 
   it("1. Button with Input widget", () => {
+
+    //http://localhost/app/customer-communications-portal/send-messages-63d9ea88f3f18c63d02d964e
     cy.visit(
       "http://localhost/app/testharnesstest/page1-63d8dba3162a4179a205f476",
     ); //Public app
@@ -26,7 +28,7 @@ describe("Validate basic test harness", () => {
     });
   });
 
-  it.only("2. Test GSHeet in View mode", () => {
+  it.skip("2. Test GSHeet in View mode", () => {
     cy.origin("https://app.appsmith.com/", () => {
       cy.visit(
         "https://app.appsmith.com/app/storytellingdetails/displaystorytellingdetails-62384a584d9aea1b062ae5e3",
