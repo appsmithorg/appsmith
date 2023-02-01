@@ -4,8 +4,6 @@ import {
   DataTreeAppsmith,
   DataTreeJSAction,
   EvaluationSubstitutionType,
-  DataTreeEntityConfig,
-  UnEvalTree,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
@@ -17,7 +15,7 @@ import {
 } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
 import { AppState } from "@appsmith/reducers";
-import { JSAction, JSActionConfig } from "entities/JSCollection";
+import { JSAction } from "entities/JSCollection";
 import { getJSFunctionFromName } from "selectors/entitiesSelector";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
@@ -242,7 +240,7 @@ export function isJSObjectFunction(
 ) {
   const entityConfig: JSActionEntityConfig = configTree[jsObjectName];
   const entity = dataTree[jsObjectName];
-  if (isJSAction(entityConfig)) {
+  if (isJSAction(entity)) {
     return entityConfig.meta.hasOwnProperty(key);
   }
   return false;

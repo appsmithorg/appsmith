@@ -20,8 +20,6 @@ import {
   ConfigTree,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import { JSActionEntityConfig } from "entities/DataTree/types";
-
 import _, { find, get, isEmpty, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
@@ -33,7 +31,6 @@ import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { PrivateWidgets } from "entities/DataTree/types";
 import { EvalProps } from "workers/common/DataTreeEvaluator";
-import widget from "widgets/ModalWidget/widget";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options

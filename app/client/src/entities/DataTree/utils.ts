@@ -1,4 +1,4 @@
-import { DataTreeWidget, WidgetEntityConfig } from "./dataTreeFactory";
+import { WidgetEntityConfig } from "./dataTreeFactory";
 import {
   PropertyOverrideDependency,
   OverridingPropertyPaths,

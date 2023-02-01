@@ -1,7 +1,4 @@
-import {
-  ENTITY_TYPE,
-  UnEvalTreeJSAction,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";

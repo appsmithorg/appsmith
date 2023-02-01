@@ -8,10 +8,7 @@ import {
   isJSAction,
   isTrueObject,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import {
-  DataTreeEntity,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 

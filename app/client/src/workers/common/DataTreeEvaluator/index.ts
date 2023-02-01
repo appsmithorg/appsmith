@@ -22,8 +22,6 @@ import {
   DataTreeWidget,
   EvaluationSubstitutionType,
   ConfigTree,
-  UnEvalTree,
-  DataTreeEntityConfig,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { PrivateWidgets } from "entities/DataTree/types";
@@ -1080,9 +1078,7 @@ export default class DataTreeEvaluator {
     callbackData: Array<unknown>,
     context?: EvaluateContext,
   ) {
-    console.log("*** start 1", dataTree);
     const { jsSnippets } = getDynamicBindings(userScript);
-    console.log("*** start 2", jsSnippets);
 
     return evaluateAsync(
       jsSnippets[0] || userScript,

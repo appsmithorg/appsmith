@@ -2,7 +2,6 @@ import {
   ConfigTree,
   DataTree,
   DataTreeJSAction,
-  UnEvalTree,
 } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";

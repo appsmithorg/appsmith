@@ -96,11 +96,7 @@ import {
   getAllActionValidationConfig,
   getAllJSActionsData,
 } from "selectors/entitiesSelector";
-import {
-  DataTree,
-  UnEvalTree,
-  UnEvalTreeWidget,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, UnEvalTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -111,7 +107,6 @@ import {
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
 import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
-import { unEvalTree } from "workers/common/DataTreeEvaluator/mockData/mockUnEvalTree";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 
 export const evalWorker = new GracefulWorkerService(

@@ -7,9 +7,7 @@ import {
 import {
   ConfigTree,
   DataTree,
-  DataTreeEntityConfig,
   UnEvalTree,
-  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
@@ -52,10 +50,6 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
-import {
-  ActionEntityConfig,
-  JSActionEntityConfig,
-} from "entities/DataTree/types";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
