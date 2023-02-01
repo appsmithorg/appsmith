@@ -72,7 +72,7 @@ describe("Upgrade appsmith version", () => {
     agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
     agHelper.GetNAssertElementText(
       ".tbody>div",
-      "1DevelopmentUpdateexpertise/",
+      "1DevelopmentUpdateexpertise",
       "have.text",
       1,
     );
@@ -87,7 +87,7 @@ describe("Upgrade appsmith version", () => {
     agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
     agHelper.GetNAssertElementText(
       ".tbody>div",
-      "1Developmentexpertise",
+      "1Developmentexpertise/",
       "have.text",
       1,
     );
