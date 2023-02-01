@@ -23,12 +23,12 @@ const TriggerEmitter = new EventEmitter();
 const priorityBatchedActionHandler = function(
   task: (batchedData: unknown) => void,
 ) {
-  const batchedData: unknown[] = [];
+  let batchedData: unknown[] = [];
   return (data: unknown) => {
     if (batchedData.length === 0) {
       queueMicrotask(() => {
         task(batchedData);
-        batchedData.length = 0;
+        batchedData = [];
       });
     }
     batchedData.push(data);
@@ -45,14 +45,14 @@ const priorityBatchedActionHandler = function(
 const deferredBatchedActionHandler = function(
   deferredTask: (batchedData: unknown) => void,
 ) {
-  const batchedData: unknown[] = [];
+  let batchedData: unknown[] = [];
   let timerId: number | null = null;
   return (data: unknown) => {
     batchedData.push(data);
     if (timerId) _internalClearTimeout(timerId);
     timerId = _internalSetTimeout(() => {
       deferredTask(batchedData);
-      batchedData.length = 0;
+      batchedData = [];
     });
   };
 };

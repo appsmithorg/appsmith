@@ -38,7 +38,7 @@ describe("Tests localStorage implementation in worker", () => {
   });
 
   addPlatformFunctionsToEvalContext(evalContext);
-  initLocalStorage(evalContext as any);
+  initLocalStorage.call(evalContext);
   it("setItem()", () => {
     const key = "some";
     const value = "thing";
@@ -50,12 +50,19 @@ describe("Tests localStorage implementation in worker", () => {
       body: {
         data: [
           {
-            payload: {
-              key: "some",
-              value: "thing",
-              persist: true,
+            trigger: {
+              payload: {
+                key: "some",
+                value: "thing",
+                persist: true,
+              },
+              type: "STORE_VALUE",
             },
-            type: "STORE_VALUE",
+            eventType: undefined,
+            triggerMeta: {
+              source: {},
+              triggerPropertyName: undefined,
+            },
           },
         ],
         method: "PROCESS_STORE_UPDATES",
@@ -73,10 +80,17 @@ describe("Tests localStorage implementation in worker", () => {
       body: {
         data: [
           {
-            payload: {
-              key: "some",
+            trigger: {
+              payload: {
+                key: "some",
+              },
+              type: "REMOVE_VALUE",
             },
-            type: "REMOVE_VALUE",
+            eventType: undefined,
+            triggerMeta: {
+              source: {},
+              triggerPropertyName: undefined,
+            },
           },
         ],
         method: "PROCESS_STORE_UPDATES",
@@ -91,8 +105,15 @@ describe("Tests localStorage implementation in worker", () => {
       body: {
         data: [
           {
-            payload: null,
-            type: "CLEAR_STORE",
+            trigger: {
+              payload: null,
+              type: "CLEAR_STORE",
+            },
+            eventType: undefined,
+            triggerMeta: {
+              source: {},
+              triggerPropertyName: undefined,
+            },
           },
         ],
         method: "PROCESS_STORE_UPDATES",

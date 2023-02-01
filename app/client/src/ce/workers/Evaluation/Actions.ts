@@ -60,7 +60,7 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const fnDef of platformFns) {
-    addFn(context, fnDef.name, fnDef.fn);
+    addFn(context, fnDef.name, fnDef.fn.bind(context));
   }
   initIntervalFns(context);
 };

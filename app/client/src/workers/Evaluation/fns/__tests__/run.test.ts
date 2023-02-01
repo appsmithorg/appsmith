@@ -2,7 +2,7 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
-import { evalContext } from "./mockData";
+import { evalContext } from "../mock";
 
 jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {
@@ -34,7 +34,7 @@ describe("Tests for run function in callback styled", () => {
     requestMock.mockClear();
   });
 
-  it("Success callback should be called when the request is successful", async () => {
+  it("1. Success callback should be called when the request is successful", async () => {
     requestMock.mockReturnValue(
       Promise.resolve({
         data: "resolved",
@@ -64,7 +64,7 @@ describe("Tests for run function in callback styled", () => {
     expect(successCallback).toReturnWith("success");
     expect(errorCallback).not.toBeCalled();
   });
-  it("Error callback should be called when the request is unsuccessful", async () => {
+  it("2. Error callback should be called when the request is unsuccessful", async () => {
     requestMock.mockReturnValue(
       Promise.resolve({
         error: { message: "error" },
@@ -94,7 +94,7 @@ describe("Tests for run function in callback styled", () => {
     expect(errorCallback).toReturnWith("failed");
     expect(successCallback).toBeCalledTimes(0);
   });
-  it("Callback should have access to variables in outer scope", async () => {
+  it("3. Callback should have access to variables in outer scope", async () => {
     requestMock.mockReturnValue(
       Promise.resolve({
         data: "resolved",
@@ -109,7 +109,7 @@ describe("Tests for run function in callback styled", () => {
     expect(successCallback).toBeCalledWith("resolved");
     expect(successCallback).toReturnWith("innerScopeVar");
   });
-  it("Callback should have access to other platform functions and entities at all times", async () => {
+  it("4. Callback should have access to other platform functions and entities at all times", async () => {
     const showAlertMock = jest.fn();
     //@ts-expect-error no types
     self.showAlert = showAlertMock;
@@ -139,7 +139,7 @@ describe("Tests for run function in promise styled", () => {
     addPlatformFunctionsToEvalContext(evalContext);
   });
 
-  it("Should return a promise which resolves when the request is successful", async () => {
+  it("1. Should return a promise which resolves when the request is successful", async () => {
     requestMock.mockReturnValue(
       Promise.resolve({
         data: "resolved",
@@ -169,7 +169,7 @@ describe("Tests for run function in promise styled", () => {
     expect(successHandler).toBeCalledWith("resolved");
   });
 
-  it("Should return a promise which rejects when the request is unsuccessful", async () => {
+  it("2. Should return a promise which rejects when the request is unsuccessful", async () => {
     requestMock.mockReturnValue(
       Promise.resolve({
         error: { message: "error" },
@@ -177,9 +177,10 @@ describe("Tests for run function in promise styled", () => {
     );
     const successHandler = jest.fn();
     const errorHandler = jest.fn();
-    const invocation = evalContext.action1.run();
-    invocation.then(successHandler);
-    invocation.catch(errorHandler);
+    await evalContext.action1
+      .run()
+      .then(successHandler)
+      .catch(errorHandler);
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
@@ -197,7 +198,6 @@ describe("Tests for run function in promise styled", () => {
         },
       },
     });
-    await expect(invocation).rejects.toEqual({ message: "error" });
     expect(successHandler).not.toBeCalled();
     expect(errorHandler).toBeCalledWith({ message: "error" });
   });

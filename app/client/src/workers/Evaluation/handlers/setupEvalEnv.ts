@@ -19,7 +19,7 @@ export default function() {
   initFetch();
   setupDOM();
   addPlatformFunctionsToEvalContext(self);
-  initLocalStorage(self);
+  initLocalStorage.call(self);
   return true;
 }
 
