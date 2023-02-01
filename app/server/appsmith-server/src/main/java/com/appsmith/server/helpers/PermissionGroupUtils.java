@@ -3,8 +3,10 @@ package com.appsmith.server.helpers;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.repositories.ConfigRepository;
 import net.minidev.json.JSONObject;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -19,9 +21,11 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 public class PermissionGroupUtils {
     private Set<String> autoCreatedPermissionGroupIds = null;
     private final ConfigRepository configRepository;
+    private final ModelMapper modelMapper;
 
-    public PermissionGroupUtils(ConfigRepository configRepository) {
+    public PermissionGroupUtils(ConfigRepository configRepository, ModelMapper modelMapper) {
         this.configRepository = configRepository;
+        this.modelMapper = modelMapper;
     }
 
     private Flux<Config> getAllConfigsWithAutoCreatedPermissionGroups() {
@@ -52,6 +56,18 @@ public class PermissionGroupUtils {
         return getAutoCreatedPermissionGroupIds().map(autoCreatedPermissionGroupIdSet ->
                 autoCreatedPermissionGroupIdSet.contains(permissionGroup.getId())
                         || StringUtils.hasLength(permissionGroup.getDefaultWorkspaceId()));
+    }
+
+    public Flux<PermissionGroupInfoDTO> mapToPermissionGroupInfoDto(Flux<PermissionGroup> permissionGroupFlux) {
+        return permissionGroupFlux
+                .flatMap(permissionGroup -> Mono.zip(Mono.just(permissionGroup), isAutoCreated(permissionGroup)))
+                .map(tuple -> {
+                    PermissionGroup permissionGroup = tuple.getT1();
+                    boolean isAutoCreated = tuple.getT2();
+                    PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
+                    permissionGroupInfoDTO.setAutoCreated(isAutoCreated);
+                    return permissionGroupInfoDTO;
+                });
     }
 
 }

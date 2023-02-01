@@ -102,23 +102,13 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getAll() {
-        return repository.findAll(READ_PERMISSION_GROUPS)
-                .flatMap(permissionGroup -> Mono.zip(Mono.just(permissionGroup), permissionGroupUtils.isAutoCreated(permissionGroup)))
-                .map(tuple -> {
-                    PermissionGroup permissionGroup = tuple.getT1();
-                    boolean isAutoCreated = tuple.getT2();
-                    PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
-                    permissionGroupInfoDTO.setAutoCreated(isAutoCreated);
-                    return permissionGroupInfoDTO;
-                })
+        return permissionGroupUtils.mapToPermissionGroupInfoDto(repository.findAll(READ_PERMISSION_GROUPS))
                 .collectList();
-
     }
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getAllAssignableRoles() {
-        return repository.findAll(ASSIGN_PERMISSION_GROUPS)
-                .map(permissionGroup -> modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class))
+        return permissionGroupUtils.mapToPermissionGroupInfoDto(repository.findAll(ASSIGN_PERMISSION_GROUPS))
                 .collectList();
     }
 

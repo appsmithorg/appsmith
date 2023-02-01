@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.UserGroupRepository;
 import jakarta.validation.Validator;
 import org.modelmapper.ModelMapper;
@@ -62,6 +63,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     private final UserService userService;
 
     private final ModelMapper modelMapper;
+    private final PermissionGroupUtils permissionGroupUtils;
 
     public UserGroupServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -74,7 +76,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                                 PolicyGenerator policyGenerator,
                                 PermissionGroupService permissionGroupService,
                                 UserService userService,
-                                ModelMapper modelMapper) {
+                                ModelMapper modelMapper,
+                                PermissionGroupUtils permissionGroupUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
@@ -82,6 +85,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         this.permissionGroupService = permissionGroupService;
         this.userService = userService;
         this.modelMapper = modelMapper;
+        this.permissionGroupUtils = permissionGroupUtils;
     }
 
     @Override
@@ -194,12 +198,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     private Mono<List<PermissionGroupInfoDTO>> getRoleDTOsForTheGroup(String userGroupId) {
-        return permissionGroupService.findAllByAssignedToGroupIdsIn(Set.of(userGroupId))
-                .map(permissionGroup -> {
-                    PermissionGroupInfoDTO permissionGroupDTO = new PermissionGroupInfoDTO();
-                    modelMapper.map(permissionGroup, permissionGroupDTO);
-                    return permissionGroupDTO;
-                })
+        return permissionGroupUtils.mapToPermissionGroupInfoDto(permissionGroupService.findAllByAssignedToGroupIdsIn(Set.of(userGroupId)))
                 .collectList();
     }
 
@@ -257,12 +256,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             })
                             .thenReturn(TRUE);
 
-                    Mono<List<PermissionGroupInfoDTO>> rolesInfoMono = userGroupRolesFlux
-                            .map(permissionGroup -> {
-                                PermissionGroupInfoDTO permissionGroupDTO = new PermissionGroupInfoDTO();
-                                modelMapper.map(permissionGroup, permissionGroupDTO);
-                                return permissionGroupDTO;
-                            })
+                    Mono<List<PermissionGroupInfoDTO>> rolesInfoMono = permissionGroupUtils.mapToPermissionGroupInfoDto(userGroupRolesFlux)
                             .collectList()
                             // In case there are no roles associated with the group, then return an empty list.
                             .switchIfEmpty(Mono.just(new ArrayList<>()));
@@ -339,12 +333,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             })
                             .thenReturn(TRUE);
 
-                    Mono<List<PermissionGroupInfoDTO>> rolesInfoMono = userGroupRolesFlux
-                            .map(permissionGroup -> {
-                                PermissionGroupInfoDTO permissionGroupDTO = new PermissionGroupInfoDTO();
-                                modelMapper.map(permissionGroup, permissionGroupDTO);
-                                return permissionGroupDTO;
-                            })
+                    Mono<List<PermissionGroupInfoDTO>> rolesInfoMono = permissionGroupUtils.mapToPermissionGroupInfoDto(userGroupRolesFlux)
                             .collectList()
                             // In case there are no roles associated with the group, then return an empty list.
                             .switchIfEmpty(Mono.just(new ArrayList<>()));

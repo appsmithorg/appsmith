@@ -7,6 +7,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
@@ -142,9 +143,10 @@ public class UserAndAccessManagementServiceTest {
                     assertThat(user.getGroups().size()).isEqualTo(0);
                     assertThat(user.getRoles().size()).isEqualTo(2);
 
-                    boolean adminRole = user.getRoles().stream()
-                            .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
-                    assertThat(adminRole).isTrue();
+                    Optional<PermissionGroupInfoDTO> adminRole = user.getRoles().stream()
+                            .filter(role -> "Instance Administrator Role".equals(role.getName())).findFirst();
+                    assertThat(adminRole.isPresent()).isTrue();
+                    assertThat(adminRole.get().isAutoCreated()).isTrue();
 
                     boolean defaultUserRole = user.getRoles().stream()
                             .anyMatch(role -> DEFAULT_USER_PERMISSION_GROUP.equals(role.getName()));

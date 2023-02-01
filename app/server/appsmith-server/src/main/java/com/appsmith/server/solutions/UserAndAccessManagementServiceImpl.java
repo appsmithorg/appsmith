@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -69,6 +70,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private final AnalyticsService analyticsService;
     private final UserDataRepository userDataRepository;
     private final PermissionGroupPermission permissionGroupPermission;
+    private final PermissionGroupUtils permissionGroupUtils;
 
     public UserAndAccessManagementServiceImpl(SessionUserService sessionUserService,
                                               PermissionGroupService permissionGroupService,
@@ -82,7 +84,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                                               PermissionGroupRepository permissionGroupRepository,
                                               UserGroupRepository userGroupRepository,
                                               PermissionGroupPermission permissionGroupPermission,
-                                              UserDataRepository userDataRepository) {
+                                              UserDataRepository userDataRepository,
+                                              PermissionGroupUtils permissionGroupUtils) {
 
         super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService, userService, emailSender,
                 permissionGroupPermission);
@@ -96,6 +99,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.analyticsService = analyticsService;
         this.userDataRepository = userDataRepository;
         this.permissionGroupPermission = permissionGroupPermission;
+        this.permissionGroupUtils = permissionGroupUtils;
     }
 
 
@@ -134,8 +138,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
 
     private Mono<UserForManagementDTO> addGroupsAndRolesForUser(User user) {
         Flux<PermissionGroupInfoDTO> rolesAssignedToUserFlux =
-                permissionGroupService.findAllByAssignedToUsersIn(Set.of(user.getId()))
-                        .map(permissionGroup -> new PermissionGroupInfoDTO(permissionGroup.getId(), permissionGroup.getName()));
+                permissionGroupUtils.mapToPermissionGroupInfoDto(permissionGroupService.findAllByAssignedToUsersIn(Set.of(user.getId())));
         Flux<UserGroupCompactDTO> groupsForUser = userGroupService.findAllGroupsForUser(user.getId());
 
         return Mono.zip(
