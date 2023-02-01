@@ -2,7 +2,6 @@ import { ObjectsRegistry } from "../Objects/Registry";
 const GITHUB_API_BASE = "https://api.github.com";
 const GITEA_API_BASE = "http://35.154.225.218";
 import datasourceFormData from "../../fixtures/datasources.json";
-import _ from "cypress/types/lodash";
 
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -18,8 +17,9 @@ export class GitSync {
   private _gitConfigEmailInput = ".t--git-config-email-input";
   _branchButton = "[data-testid=t--branch-button-container]";
   private _branchSearchInput = ".t--branch-search-input";
-  private _bottomBarCommit= ".t--bottom-bar-commit span[name='plus']";
-  private _bottomBarPull = ".t--bottom-bar-pull span[name='down-arrow-2']"
+  private _bottomBarCommit = ".t--bottom-bar-commit span[name='plus']";
+  _bottomBarPull = ".t--bottom-bar-pull span[name='down-arrow-2']";
+  private _branchName = (branch: string) => "//div[contains(@class, 't--branch-button')]//*[text()='" + branch + "']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -31,7 +31,11 @@ export class GitSync {
     this.agHelper.AssertElementAbsence(this._gitSyncModal);
   }
 
-  CreateNConnectToGit(repoName: string = "Test", assertConnect = true, privateFlag = false) {
+  CreateNConnectToGit(
+    repoName: string = "Test",
+    assertConnect = true,
+    privateFlag = false,
+  ) {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       repoName += uid;
@@ -229,9 +233,10 @@ export class GitSync {
         0,
         true,
       );
+      this.agHelper.AssertElementExist(this.locator._runBtnSpinner);
+      this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 70000); //Since page taking more time to laod in some cases
+      this.agHelper.AssertElementVisible(this._branchName(branch + uid));
       cy.wrap(branch + uid).as("gitbranchName");
     });
-    this.agHelper.AssertElementExist(this.locator._spinner);
-    this.agHelper.AssertElementAbsence(this.locator._spinner, 40000);//Since page taking more time to laod in some cases
   }
 }

@@ -32,17 +32,25 @@ describe("Fork a template to the current app", () => {
     );
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
-    )
-      .scrollIntoView()
-      .click();
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(6000);
+    cy.xpath(
+      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+    )
+      .scrollIntoView()
+      .click();
+    cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
+      errorMsg: "Setting Templates did not finish even after 75 seconds",
+      timeout: 950000,
+      interval: 5000,
+    }).then(($ele) => {
+      cy.wrap($ele).should("have.length", 0);
+    });
+
+    cy.wait(10000);
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetLocators.toastAction).length <= 0) {
         if ($ele.find(template.templateViewForkButton).length > 0) {
@@ -56,6 +64,7 @@ describe("Fork a template to the current app", () => {
     );
     cy.commitAndPush();
   });
+
   it("2. Bug #17262 On forking template to a child branch of git connected app is throwing Page not found error ", function() {
     _.gitSync.CreateGitBranch(branchName, true);
     cy.get("@gitbranchName").then((branName) => {

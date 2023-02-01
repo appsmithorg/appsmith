@@ -5,6 +5,7 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
+import * as _ from "../support/Objects/ObjectsCore";
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -233,18 +234,20 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
+  _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
   cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
   cy.get(gitSyncLocators.commitButton).click();
   if (!assertFailure) {
     // check for commit success
-    cy.wait("@commit").should(
+    //adding timeout since commit is taking longer sometimes
+    cy.wait("@commit", { timeout: 35000 }).should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
     cy.wait(3000);
   } else {
-    cy.wait("@commit").then((interception) => {
+    cy.wait("@commit", { timeout: 35000 }).then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
     });
