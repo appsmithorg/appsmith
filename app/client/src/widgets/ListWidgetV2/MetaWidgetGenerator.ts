@@ -351,7 +351,7 @@ class MetaWidgetGenerator {
   };
 
   generate = () => {
-    const currentViewData = this.getSlicedByCurrentView(this.data);
+    const currentViewData = this.getCurrentViewData();
     const dataCount = currentViewData.length;
     const indices = Array.from(Array(dataCount).keys());
     const containerParentWidget = this?.currTemplateWidgets?.[
@@ -779,7 +779,9 @@ class MetaWidgetGenerator {
   };
 
   private generatePrimaryKeys = (options: GeneratorOptions) => {
-    const currentViewData = this.getSlicedByCurrentView(options.data);
+    const currentViewData = this.getSlicedByCurrentView(
+      options.data,
+    ) as GeneratorOptions["data"];
     const currentViewPrimaryKeys = this.getSlicedByCurrentView(
       options.primaryKeys || [],
     );
@@ -842,7 +844,7 @@ class MetaWidgetGenerator {
     rowIndex: number,
     key: string,
   ) => {
-    const currentViewData = this.getSlicedByCurrentView(this.data);
+    const currentViewData = this.getCurrentViewData();
     const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
       metaWidget.widgetId,
       key,
@@ -1447,6 +1449,8 @@ class MetaWidgetGenerator {
     return [...siblings];
   };
 
+  private getCurrentViewData = () => this.getSlicedByCurrentView(this.data);
+
   private getSlicedByCurrentView = (arr: unknown[]) => {
     if (this.serverSidePagination && typeof this.pageSize === "number") {
       const startIndex = 0;
@@ -1607,7 +1611,7 @@ class MetaWidgetGenerator {
   getMetaContainers = () => {
     const containers = { ids: [] as string[], names: [] as string[] };
     const startIndex = this.getStartIndex();
-    const currentViewData = this.getSlicedByCurrentView(this.data);
+    const currentViewData = this.getCurrentViewData();
     currentViewData.forEach((_datum, viewIndex) => {
       const rowIndex = startIndex + viewIndex;
       const key = this.getPrimaryKey(rowIndex);
