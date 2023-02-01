@@ -62,6 +62,9 @@ export const jsFunctionProxyHandler = (
     });
     return returnValue;
   },
+  set: function() {
+    return true;
+  },
 });
 
 export class JSProxy {

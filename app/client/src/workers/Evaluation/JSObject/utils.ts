@@ -212,7 +212,10 @@ export const updateUnEvalTreeWithLatestJSVariableValue = (
   for (let i = 0; i < varList.length; i++) {
     const variableName = varList[i];
     const fullPath = `${jsCollection.name}.${variableName}`;
-    const latestValue = jsObjectCollection.getCurrentVariableState(fullPath);
+    const newJSObject = jsObjectCollection.getCurrentVariableState(
+      jsCollection.name,
+    );
+    const latestValue = newJSObject[variableName];
     set(modifiedUnEvalTree, fullPath, latestValue);
   }
   return modifiedUnEvalTree;

@@ -62,14 +62,17 @@ export const getUpdatedLocalUnEvalTreeAfterDifferences = (
   differences: Diff<DataTree, DataTree>[],
   localUnEvalTree: DataTree,
 ) => {
-  if (!isEmpty(differences)) {
-    Object.keys(differences).forEach((jsEntityName) => {
-      const entity = localUnEvalTree[jsEntityName];
+  for (const diff of differences) {
+    const path = diff.path;
+    if (path?.length) {
+      const entityName = path[0];
+      const entity = localUnEvalTree[entityName];
       if (isJSAction(entity)) {
         updateUnEvalTreeWithLatestJSVariableValue(entity, localUnEvalTree);
       }
-    });
+    }
   }
+
   return localUnEvalTree;
 };
 
