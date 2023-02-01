@@ -56,6 +56,7 @@ import {
   isAutoHeightEnabledForWidget,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
+import { getMinPixelWidth } from "utils/autoLayout/flexWidgetUtils";
 
 /***
  * BaseWidget
@@ -459,6 +460,7 @@ abstract class BaseWidget<
 
   makeFlex(content: ReactNode) {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const minWidth = getMinPixelWidth(this.props, this.props.mainCanvasWidth);
     return (
       <FlexComponent
         componentHeight={componentHeight}
@@ -469,6 +471,7 @@ abstract class BaseWidget<
         }
         focused={this.props.focused}
         isMobile={this.props.isMobile}
+        minWidth={minWidth}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
@@ -625,6 +628,7 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
+  mainCanvasWidth: number;
 }
 
 export type WidgetRowCols = {

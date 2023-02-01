@@ -24,3 +24,10 @@ export const updateLayoutForMobileBreakpointAction = (
     canvasWidth,
   },
 });
+
+export const widgetViolatedMinDimentionsAction = (parentId: string) => ({
+  type: ReduxActionTypes.WIDGET_VIOLATED_MIN_DIMENSIONS,
+  payload: {
+    parentId,
+  },
+});
