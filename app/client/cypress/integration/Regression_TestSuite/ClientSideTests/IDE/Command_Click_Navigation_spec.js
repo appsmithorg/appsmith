@@ -146,6 +146,8 @@ describe("1. CommandClickNavigation", function() {
     cy.SearchEntityandOpen("Text1");
     cy.updateCodeInput(".t--property-control-text", "{{ JSObject1.myFun1() }}");
 
+    cy.wait(1000);
+
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
       ctrlKey: true,
     });
@@ -175,7 +177,7 @@ describe("1. CommandClickNavigation", function() {
       codeMirrorInput.focus();
     });
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 1 });
-
+    cy.wait(1000);
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
       ctrlKey: true,
     });
@@ -185,7 +187,7 @@ describe("1. CommandClickNavigation", function() {
     });
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
-
+    cy.wait(1000);
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject2.myFun1"]`).click({
       ctrlKey: true,
     });
