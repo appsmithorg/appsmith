@@ -31,8 +31,9 @@ describe("Tab widget test", function() {
     cy.get(Layoutpage.tabButton).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.tabVerify(1, "Day");
-    cy.xpath("//input[@value ='Day']//parent::div//parent::div//following-sibling::div//div[contains(@class,'t--delete-column-btn')]") 
-      .click({ force: true });
+    cy.xpath(Layoutpage.deleteTab.replace("tabName", "Day")).click({
+      force: true,
+    });
     cy.get(Layoutpage.tabWidget)
       .contains("Day")
       .should("not.exist");
@@ -71,8 +72,9 @@ describe("Tab widget test", function() {
   });
   it("5. Tab Widget Functionality To Check tab invisiblity", function() {
     cy.openPropertyPane("tabswidget");
-    cy.xpath("//input[@value ='Tab 1']//parent::div//parent::div//following-sibling::div//div[contains(@class,'t--edit-column-btn')]") 
-      .click({ force: true });
+    cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).click({
+      force: true,
+    });
     cy.get(Layoutpage.tabVisibility)
       .first()
       .click({ force: true });
@@ -87,8 +89,9 @@ describe("Tab widget test", function() {
   });
   it("6. Tab Widget Functionality To Check tab visibility", function() {
     cy.openPropertyPane("tabswidget");
-   cy.xpath("//input[@value ='Tab 1']//parent::div//parent::div//following-sibling::div//div[contains(@class,'t--edit-column-btn')]") 
-      .click({ force: true });
+    cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).click({
+      force: true,
+    });
     cy.get(Layoutpage.tabVisibility)
       .first()
       .click({ force: true });
