@@ -233,9 +233,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
-  cy.get(gitSyncLocators.commitCommentInput, { timeout: 35000 }).type(
-    "Initial Commit",
-  ); //Since Deploy page takes time to identify the changes in page
+  cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
   cy.get(gitSyncLocators.commitButton).click();
   if (!assertFailure) {
     // check for commit success

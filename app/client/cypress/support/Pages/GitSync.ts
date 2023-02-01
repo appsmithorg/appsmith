@@ -2,6 +2,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 const GITHUB_API_BASE = "https://api.github.com";
 const GITEA_API_BASE = "http://35.154.225.218";
 import datasourceFormData from "../../fixtures/datasources.json";
+import _ from "cypress/types/lodash";
 
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -17,6 +18,8 @@ export class GitSync {
   private _gitConfigEmailInput = ".t--git-config-email-input";
   _branchButton = "[data-testid=t--branch-button-container]";
   private _branchSearchInput = ".t--branch-search-input";
+  private _bottomBarCommit= ".t--bottom-bar-commit span[name='plus']";
+  private _bottomBarPull = ".t--bottom-bar-pull span[name='down-arrow-2']"
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -95,6 +98,7 @@ export class GitSync {
       }
       this.CloseGitSyncModal();
     });
+    this.agHelper.AssertElementVisible(this._bottomBarCommit);
   }
 
   private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {
