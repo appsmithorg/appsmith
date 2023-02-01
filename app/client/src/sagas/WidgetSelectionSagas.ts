@@ -135,7 +135,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     if (parentId && newSelection.length === 1) {
       yield call(setWidgetAncestry, parentId, allWidgets);
     }
-    if (!areArraysEqual(newSelection, selectedWidgets)) {
+    if (!areArraysEqual([...newSelection], [...selectedWidgets])) {
       yield call(appendSelectedWidgetToUrlSaga, newSelection, invokedBy);
     }
   } catch (error) {

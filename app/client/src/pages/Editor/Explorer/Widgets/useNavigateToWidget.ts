@@ -2,10 +2,8 @@ import { useCallback } from "react";
 import { WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import { flashElementsById } from "utils/helpers";
 import { useDispatch } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import store from "store";
 import { NavigationMethod } from "utils/history";
@@ -16,16 +14,13 @@ export const useNavigateToWidget = () => {
 
   const dispatch = useDispatch();
   const { selectWidget } = useWidgetSelection();
-  const multiSelectWidgets = (widgetId: string, pageId: string) => {
-    navigateToCanvas(pageId);
-    flashElementsById(widgetId);
+  const multiSelectWidgets = (widgetId: string) => {
     selectWidget(SelectionRequestType.PushPop, [widgetId]);
   };
 
   const selectSingleWidget = (
     widgetId: string,
     widgetType: WidgetType,
-    pageId: string,
     navigationMethod?: NavigationMethod,
   ) => {
     selectWidget(SelectionRequestType.One, [widgetId], navigationMethod);
@@ -49,9 +44,9 @@ export const useNavigateToWidget = () => {
       if (isShiftSelect) {
         selectWidget(SelectionRequestType.ShiftSelect, [widgetId]);
       } else if (isMultiSelect) {
-        multiSelectWidgets(widgetId, pageId);
+        multiSelectWidgets(widgetId);
       } else {
-        selectSingleWidget(widgetId, widgetType, pageId, navigationMethod);
+        selectSingleWidget(widgetId, widgetType, navigationMethod);
       }
     },
     [dispatch, params, selectWidget],

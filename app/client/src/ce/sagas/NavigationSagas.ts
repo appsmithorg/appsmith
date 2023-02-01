@@ -331,15 +331,15 @@ function shouldSetState(
     // If it is a command click navigation, we will set the state
     return true;
   }
-  const prevFocusEntity = identifyEntityFromPath(prevPath).entity;
-  const currFocusEntity = identifyEntityFromPath(currPath).entity;
+  const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
+  const currFocusEntityInfo = identifyEntityFromPath(currPath);
 
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
   return !(
-    prevFocusEntity === FocusEntity.PROPERTY_PANE &&
-    currFocusEntity === FocusEntity.CANVAS &&
-    prevPath === currPath
+    prevFocusEntityInfo.entity === FocusEntity.PROPERTY_PANE &&
+    currFocusEntityInfo.entity === FocusEntity.CANVAS &&
+    prevFocusEntityInfo.pageId === currFocusEntityInfo.pageId
   );
 }
 

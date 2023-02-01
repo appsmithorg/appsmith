@@ -59,8 +59,10 @@ export const matchBuilderPath = (
   match(BUILDER_PATH, options)(pathName) ||
   match(BUILDER_PATH_DEPRECATED, options)(pathName) ||
   match(BUILDER_CUSTOM_PATH, options)(pathName) ||
-  match(WIDGETS_EDITOR_BASE_PATH, options)(pathName) ||
-  match(WIDGETS_EDITOR_ID_PATH, options)(pathName);
+  match(BUILDER_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
+  match(BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
+  match(BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH, options)(pathName);
+
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
   match(VIEWER_PATH)(pathName) ||

@@ -305,10 +305,7 @@ export function* selectAllWidgetsInCanvasSaga() {
           duration: 3000,
         });
       }
-      return {
-        widgets: allSelectableChildren,
-        lastWidgetSelected: allSelectableChildren[0],
-      };
+      return allSelectableChildren;
     }
   } catch (error) {
     yield put({
