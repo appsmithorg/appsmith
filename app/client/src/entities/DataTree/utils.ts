@@ -1,4 +1,4 @@
-import { DataTreeWidget } from "./dataTreeFactory";
+import { DataTreeWidget, WidgetEntityConfig } from "./dataTreeFactory";
 import {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
@@ -59,12 +59,12 @@ export const setOverridingProperty = ({
   }
 };
 
-export const isMetaWidgetTemplate = (widget: DataTreeWidget) => {
+export const isMetaWidgetTemplate = (widget: WidgetEntityConfig) => {
   return !!widget.siblingMetaWidgets;
 };
 
 export const isWidgetDefaultPropertyPath = (
-  widget: DataTreeWidget,
+  widget: WidgetEntityConfig,
   propertyPath: string,
 ) => {
   for (const property of Object.keys(widget.propertyOverrideDependency)) {
