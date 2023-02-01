@@ -18,25 +18,25 @@ describe("Repo Limit Exceeded Error Modal", function() {
   it("1. Modal should be opened with proper components", function() {
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName1, false, true);
+    _.gitSync.CreateNConnectToGit(repoName1, true, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName1 = repName;
     });
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName2, false, true);
+    _.gitSync.CreateNConnectToGit(repoName2, true, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName2 = repName;
     });
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName3, false, true);
+    _.gitSync.CreateNConnectToGit(repoName3, true, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName3 = repName;
     });
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName4, true, true);
+    _.gitSync.CreateNConnectToGit(repoName4, false, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName4 = repName;
     });

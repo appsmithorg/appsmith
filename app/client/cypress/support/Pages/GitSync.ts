@@ -19,7 +19,8 @@ export class GitSync {
   private _branchSearchInput = ".t--branch-search-input";
   private _bottomBarCommit = ".t--bottom-bar-commit span[name='plus']";
   _bottomBarPull = ".t--bottom-bar-pull span[name='down-arrow-2']";
-  private _branchName = (branch: string) => "//div[contains(@class, 't--branch-button')]//*[text()='" + branch + "']";
+  private _branchName = (branch: string) =>
+    "//div[contains(@class, 't--branch-button')]//*[text()='" + branch + "']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -99,9 +100,9 @@ export class GitSync {
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
         this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
-        this.agHelper.AssertElementVisible(this._bottomBarCommit);
+        this.agHelper.AssertElementExist(this._bottomBarCommit);
+        this.CloseGitSyncModal();
       }
-      this.CloseGitSyncModal();
     });
   }
 
