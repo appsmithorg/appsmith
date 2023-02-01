@@ -9,7 +9,7 @@ export default async function(request: EvalWorkerASyncRequest) {
     eventType,
     globalContext,
     triggerMeta,
-    unEvalTree: __unEvalTree__,
+    unEvalTree,
   } = data;
   if (!dataTreeEvaluator) {
     return { triggers: [], errors: [] };
@@ -18,13 +18,13 @@ export default async function(request: EvalWorkerASyncRequest) {
     evalOrder,
     nonDynamicFieldValidationOrder,
   } = dataTreeEvaluator.setupUpdateTree(
-    __unEvalTree__.dataTree,
-    __unEvalTree__.configTree,
+    unEvalTree.unEvalTree,
+    unEvalTree.configTree,
   );
   dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,
-    __unEvalTree__.configTree,
+    unEvalTree.configTree,
   );
   const evalTree = dataTreeEvaluator.evalTree;
   const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;

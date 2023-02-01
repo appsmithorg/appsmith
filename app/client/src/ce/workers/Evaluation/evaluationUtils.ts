@@ -16,7 +16,11 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   DataTreeJSAction,
+  DataTreeEntityConfig,
+  ConfigTree,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
+import { JSActionEntityConfig } from "entities/DataTree/types";
 
 import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -533,32 +537,37 @@ export const trimDependantChangePaths = (
 export function getSafeToRenderDataTree(
   tree: DataTree,
   widgetTypeConfigMap: WidgetTypeConfigMap,
-  configTree: any,
+  configTree: ConfigTree,
 ) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = configTree[entityKey] as DataTreeWidget;
+    const entity = tree[entityKey];
+
     if (!isWidget(entity)) {
       return tree;
     }
+    const entityConfig = configTree[entityKey] as WidgetEntityConfig;
+
     const safeToRenderEntity = { ...entity };
     // Set user input values to their parsed values
-    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
-      const value = _.get(entity, property);
-      // Pass it through parse
-      const { parsed } = validateWidgetProperty(
-        validation,
-        value,
-        entity,
-        property,
-      );
-      _.set(safeToRenderEntity, property, parsed);
-    });
-    // Set derived values to undefined or else they would go as bindings
-    Object.keys(widgetTypeConfigMap[entity.type].derivedProperties).forEach(
-      (property) => {
-        _.set(safeToRenderEntity, property, undefined);
+    Object.entries(entityConfig.validationPaths).forEach(
+      ([property, validation]) => {
+        const value = _.get(entity, property);
+        // Pass it through parse
+        const { parsed } = validateWidgetProperty(
+          validation,
+          value,
+          entityConfig,
+          property,
+        );
+        _.set(safeToRenderEntity, property, parsed);
       },
     );
+    // Set derived values to undefined or else they would go as bindings
+    Object.keys(
+      widgetTypeConfigMap[entityConfig.type].derivedProperties,
+    ).forEach((property) => {
+      _.set(safeToRenderEntity, property, undefined);
+    });
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
 }
@@ -637,7 +646,7 @@ export const findDatatype = (value: unknown) => {
 export const isDynamicLeaf = (
   unEvalTree: DataTree,
   propertyPath: string,
-  configTree: any,
+  configTree: ConfigTree,
 ) => {
   const [entityName, ...propPathEls] = _.toPath(propertyPath);
   // Framework feature: Top level items are never leaves
@@ -645,13 +654,14 @@ export const isDynamicLeaf = (
   // Ignore if this was a delete op
   if (!(entityName in unEvalTree)) return false;
 
-  const entity = configTree[entityName];
+  const entityConfig = configTree[entityName];
+  const entity = unEvalTree[entityName];
   if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
-    relativePropertyPath in entity.reactivePaths ||
-    (isWidget(entity) && relativePropertyPath in entity.triggerPaths)
+    relativePropertyPath in entityConfig.reactivePaths ||
+    (isWidget(entity) && relativePropertyPath in entityConfig?.triggerPaths)
   );
 };
 
@@ -659,7 +669,7 @@ export const addWidgetPropertyDependencies = ({
   entity,
   entityName,
 }: {
-  entity: DataTreeWidget;
+  entity: WidgetEntityConfig;
   entityName: string;
 }) => {
   const dependencies: DependencyMap = {};
@@ -742,7 +752,7 @@ export const overrideWidgetProperties = (params: {
   propertyPath: string;
   value: unknown;
   currentTree: DataTree;
-  configTree: any;
+  configTree: ConfigTree;
   evalMetaUpdates: EvalMetaUpdates;
   fullPropertyPath: string;
 }) => {
@@ -758,7 +768,7 @@ export const overrideWidgetProperties = (params: {
   const clonedValue = klona(value);
   const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
 
-  const configEntity = configTree[entityName];
+  const configEntity = configTree[entityName] as WidgetEntityConfig;
   if (propertyPath in configEntity.overridingPropertyPaths) {
     const overridingPropertyPaths =
       configEntity.overridingPropertyPaths[propertyPath];
@@ -819,7 +829,7 @@ export function isValidEntity(
   return "ENTITY_TYPE" in entity;
 }
 export const isATriggerPath = (
-  entity: DataTreeEntity,
+  entity: DataTreeEntityConfig,
   propertyPath: string,
 ) => {
   return isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);

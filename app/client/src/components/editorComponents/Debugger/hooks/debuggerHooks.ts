@@ -11,7 +11,7 @@ import {
 import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { onApiEditor, onCanvas, onQueryEditor } from "../helpers";
 import { getLastSelectedWidget } from "selectors/ui";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
@@ -136,7 +136,9 @@ export const useEntityLink = () => {
   const navigateToEntity = useCallback(
     (name) => {
       const dataTree = getDataTree(store.getState());
+      const configTree = getConfigTree(store.getState());
       const entity = dataTree[name];
+      const entityConfig = configTree[name];
       if (!pageId) return;
       if (isWidget(entity)) {
         navigateToWidget(
@@ -146,17 +148,19 @@ export const useEntityLink = () => {
           NavigationMethod.Debugger,
         );
       } else if (isAction(entity)) {
-        const actionConfig = getActionConfig(entity.pluginType);
+        const actionConfig = getActionConfig(entityConfig.pluginType);
         let plugin;
-        if (entity?.pluginType === PluginType.SAAS) {
-          plugin = plugins.find((plugin) => plugin?.id === entity?.pluginId);
+        if (entityConfig?.pluginType === PluginType.SAAS) {
+          plugin = plugins.find(
+            (plugin) => plugin?.id === entityConfig?.pluginId,
+          );
         }
         const url =
           applicationId &&
           actionConfig?.getURL(
             pageId,
             entity.actionId,
-            entity.pluginType,
+            entityConfig.pluginType,
             plugin,
           );
 

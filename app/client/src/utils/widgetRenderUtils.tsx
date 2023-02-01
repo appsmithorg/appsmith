@@ -3,9 +3,11 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
+  ConfigTree,
   DataTree,
   DataTreeWidget,
   ENTITY_TYPE,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
@@ -16,6 +18,7 @@ import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitie
 export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   evaluatedWidget: DataTreeWidget,
+  evaluatedWidgetConfig: WidgetEntityConfig,
   specificChildProps?: string[],
 ) => {
   const widgetStaticProps = pick(
@@ -30,8 +33,9 @@ export const createCanvasWidget = (
 
   return {
     ...evaluatedStaticProps,
+    ...evaluatedWidgetConfig,
     ...widgetStaticProps,
-  } as DataTreeWidget;
+  } as any;
 };
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -76,6 +80,7 @@ export function buildChildWidgetTree(
   canvasWidgets: CanvasWidgetsReduxState,
   evaluatedDataTree: DataTree,
   loadingEntities: LoadingEntitiesState,
+  configTree: ConfigTree,
   widgetId: string,
   requiredWidgetProps?: string[],
 ) {
@@ -92,8 +97,16 @@ export function buildChildWidgetTree(
       const evaluatedWidget = evaluatedDataTree[
         childWidget.widgetName
       ] as DataTreeWidget;
+      const evaluatedWidgetConfig = configTree[
+        childWidget.widgetName
+      ] as WidgetEntityConfig;
       const widget = evaluatedWidget
-        ? createCanvasWidget(childWidget, evaluatedWidget, specificChildProps)
+        ? createCanvasWidget(
+            childWidget,
+            evaluatedWidget,
+            evaluatedWidgetConfig,
+            specificChildProps,
+          )
         : createLoadingWidget(childWidget);
 
       widget.isLoading = loadingEntities.has(childWidget.widgetName);
@@ -103,6 +116,7 @@ export function buildChildWidgetTree(
           canvasWidgets,
           evaluatedDataTree,
           loadingEntities,
+          configTree,
           childWidgetId,
           specificChildProps,
         );

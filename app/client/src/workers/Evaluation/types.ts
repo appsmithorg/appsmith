@@ -1,7 +1,12 @@
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { AppTheme } from "entities/AppTheming";
-import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+  unEvalAndConfigTree,
+} from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 import { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
@@ -23,7 +28,7 @@ export type EvalWorkerASyncRequest = WorkerRequest<
 export type EvalWorkerResponse = EvalTreeResponseData | boolean | unknown;
 
 export interface EvalTreeRequestData {
-  unevalTree: UnEvalTree;
+  unevalTree: unEvalAndConfigTree;
   widgetTypeConfigMap: WidgetTypeConfigMap;
   widgets: CanvasWidgetsReduxState;
   theme: AppTheme;
@@ -45,5 +50,5 @@ export interface EvalTreeResponseData {
   userLogs: UserLogObject[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
-  configTree: any;
+  configTree: ConfigTree;
 }

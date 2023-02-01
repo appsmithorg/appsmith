@@ -149,17 +149,21 @@ export function* evaluateTreeSaga(
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   } = yield select(getAllActionValidationConfig);
-  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
+  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
+    getUnevaluatedDataTree,
+  );
+  const unevalTree = unEvalAndConfigTree.unEvalTree;
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   const isEditMode = appMode === APP_MODE.EDIT;
-  log.debug({ unevalTree });
+  const toPrintConfigTree = unEvalAndConfigTree.configTree;
+  log.debug({ unevalTree, configTree: toPrintConfigTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const evalTreeRequestData: EvalTreeRequestData = {
-    unevalTree,
+    unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
     widgets,
     theme,
@@ -230,7 +234,13 @@ export function* evaluateTreeSaga(
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
-  yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
+  yield call(
+    evalErrorHandler as any,
+    errors,
+    updatedDataTree,
+    evaluationOrder,
+    configTree,
+  );
 
   if (appMode !== APP_MODE.PUBLISHED) {
     yield call(makeUpdateJSCollection, jsUpdates);
@@ -290,7 +300,10 @@ export function* evaluateAndExecuteDynamicTrigger(
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
-  const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const unEvalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
+    getUnevaluatedDataTree,
+  );
+  // const unEvalTree = unEvalAndConfigTree.unEvalTree;
   log.debug({ execute: dynamicTrigger });
   const response: unknown = yield call(
     evalWorker.request,
@@ -523,7 +536,10 @@ export function* validateProperty(
   value: any,
   props: WidgetProps,
 ) {
-  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
+  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
+    getUnevaluatedDataTree,
+  );
+  const unevalTree = unEvalAndConfigTree.unEvalTree;
   const entity = unevalTree[props.widgetName] as UnEvalTreeWidget;
   const validation = entity?.__config__.validationPaths[property];
   const response: unknown = yield call(

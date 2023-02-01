@@ -4,7 +4,13 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
-import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import {
+  ConfigTree,
+  DataTree,
+  DataTreeEntityConfig,
+  UnEvalTree,
+  WidgetEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -46,6 +52,10 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
+import {
+  ActionEntityConfig,
+  JSActionEntityConfig,
+} from "entities/DataTree/types";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -53,6 +63,7 @@ function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
   dataTree: DataTree,
   evaluationOrder: Array<string>,
+  configTree: ConfigTree,
 ) {
   const errorsToAdd = [];
   const errorsToDelete = [];
@@ -65,8 +76,13 @@ function logLatestEvalPropertyErrors(
       evaluatedPath,
     );
     const entity = dataTree[entityName];
+    const entityConfig = configTree[entityName] as any;
+
     if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
-      if (entity.logBlackList && propertyPath in entity.logBlackList) {
+      if (
+        entityConfig?.logBlackList &&
+        propertyPath in entityConfig?.logBlackList
+      ) {
         continue;
       }
       const allEvalErrors: EvaluationError[] = get(
@@ -187,8 +203,9 @@ export function* evalErrorHandler(
   errors: EvalError[],
   dataTree?: DataTree,
   evaluationOrder?: Array<string>,
+  configTree?: ConfigTree,
 ): any {
-  if (dataTree && evaluationOrder) {
+  if (dataTree && evaluationOrder && configTree) {
     const currentDebuggerErrors: Record<string, Log> = yield select(
       getDebuggerErrors,
     );
@@ -197,6 +214,7 @@ export function* evalErrorHandler(
       currentDebuggerErrors,
       dataTree,
       evaluationOrder,
+      configTree,
     );
   }
 

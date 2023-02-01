@@ -23,54 +23,9 @@ import {
   EvaluationSubstitutionType,
 } from "./types";
 
-export interface UnEvalTreeAction extends ActionEntityEvalTree {
-  __config__: ActionEntityConfig;
-}
-export interface DataTreeAction
-  extends ActionEntityEvalTree,
-    ActionEntityConfig {}
-
-export interface UnEvalTreeJSAction extends JSActionEvalTree {
-  __config__: JSActionEntityConfig;
-}
-
-export type DataTreeJSAction = JSActionEvalTree & JSActionEntityConfig;
-
-export interface WidgetEntityConfig
-  extends Partial<WidgetProps>,
-    Omit<WidgetConfigProps, "widgetName" | "rows" | "columns">,
-    WidgetConfig {
-  defaultMetaProps: Array<string>;
-  type: string;
-}
-
-export interface WidgetEvalTree extends WidgetProps {
-  meta: Record<string, unknown>;
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
-}
-
-export interface UnEvalTreeWidget extends WidgetEvalTree {
-  __config__: WidgetEntityConfig;
-}
-
-export interface DataTreeWidget extends WidgetEvalTree, WidgetConfig {}
-
-export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
-  ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
-  store: Record<string, unknown>;
-  theme: AppTheme["properties"];
-}
-export type DataTreeObjectEntity =
-  | DataTreeAction
-  | DataTreeJSAction
-  | DataTreeWidget
-  | DataTreeAppsmith;
-
-export type DataTreeEntity = DataTreeObjectEntity | Page[] | ActionDispatcher;
-
-export type DataTree = {
-  [entityName: string]: DataTreeEntity;
-};
+export type UnEvalTreeAction = ActionEntityEvalTree;
+export type UnEvalTreeJSAction = JSActionEvalTree;
+export type UnEvalTreeWidget = WidgetEvalTree;
 
 export type UnEvalTreeEntityObject =
   | UnEvalTreeAction
@@ -85,6 +40,41 @@ export type UnEvalTreeEntity =
 export type UnEvalTree = {
   [entityName: string]: UnEvalTreeEntity;
 };
+
+export type DataTreeAction = ActionEntityEvalTree;
+export type DataTreeJSAction = JSActionEvalTree;
+export type DataTreeWidget = WidgetEvalTree;
+
+export interface WidgetEvalTree extends WidgetProps {
+  meta: Record<string, unknown>;
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
+}
+
+export type DataTreeObjectEntity =
+  | DataTreeAction
+  | DataTreeJSAction
+  | DataTreeWidget
+  | DataTreeAppsmith;
+
+export type DataTreeEntity = DataTreeObjectEntity | Page[] | ActionDispatcher;
+
+export type DataTree = {
+  [entityName: string]: DataTreeEntity;
+};
+
+export interface WidgetEntityConfig
+  extends Partial<WidgetProps>,
+    Omit<WidgetConfigProps, "widgetName" | "rows" | "columns">,
+    WidgetConfig {
+  defaultMetaProps: Array<string>;
+  type: string;
+}
+
+export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
+  ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
+  store: Record<string, unknown>;
+  theme: AppTheme["properties"];
+}
 
 type DataTreeSeed = {
   actions: ActionDataState;
@@ -101,8 +91,16 @@ type DataTreeSeed = {
 export type DataTreeEntityConfig =
   | WidgetEntityConfig
   | ActionEntityConfig
-  | JSActionEntityConfig
-  | DataTreeAppsmith;
+  | JSActionEntityConfig;
+
+export type ConfigTree = {
+  [entityName: string]: DataTreeEntityConfig;
+};
+
+export type unEvalAndConfigTree = {
+  unEvalTree: UnEvalTree;
+  configTree: ConfigTree;
+};
 
 export class DataTreeFactory {
   static create({
@@ -115,9 +113,9 @@ export class DataTreeFactory {
     theme,
     widgets,
     widgetsMeta,
-  }: DataTreeSeed): UnEvalTree {
+  }: DataTreeSeed): unEvalAndConfigTree {
     const dataTree: any = {};
-    const configTree: any = {};
+    const configTree: ConfigTree = {};
     const start = performance.now();
     const startActions = performance.now();
 
@@ -176,7 +174,7 @@ export class DataTreeFactory {
     };
 
     log.debug("### Create unevalTree timing", out);
-    return { dataTree, configTree };
+    return { unEvalTree: dataTree, configTree };
   }
 }
 

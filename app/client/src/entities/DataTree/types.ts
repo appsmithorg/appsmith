@@ -84,6 +84,8 @@ export interface JSActionEntityConfig {
 export interface JSActionEvalTree {
   [propName: string]: any;
   body: string;
+  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
+  actionId: string;
 }
 
 // Widget entity Types

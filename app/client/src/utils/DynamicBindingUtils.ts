@@ -8,7 +8,10 @@ import {
   isJSAction,
   isTrueObject,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeEntity,
+  WidgetEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -190,10 +193,7 @@ export const getWidgetDynamicTriggerPathList = (
   return [];
 };
 
-export const isPathDynamicTrigger = (
-  widget: WidgetProps,
-  path: string,
-): boolean => {
+export const isPathDynamicTrigger = (widget: any, path: string): boolean => {
   if (
     widget &&
     widget.dynamicTriggerPathList &&

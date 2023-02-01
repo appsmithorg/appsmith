@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
-import * as Sentry from "@sentry/react";
+import { ConfigTree } from "entities/DataTree/dataTreeFactory";
 
 export type ConfigTreeState = any;
 
@@ -13,7 +13,7 @@ const configTreeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_CONFIG_TREE]: (
     state: ConfigTreeState,
     action: ReduxAction<{
-      configTree: any;
+      configTree: ConfigTree;
     }>,
   ) => action.payload.configTree,
   [ReduxActionTypes.FETCH_PAGE_INIT]: () => initialState,

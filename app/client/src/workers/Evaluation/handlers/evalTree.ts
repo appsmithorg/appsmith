@@ -1,5 +1,9 @@
 import { UserLogObject } from "entities/AppsmithConsole";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import { isEmpty } from "lodash";
@@ -41,7 +45,7 @@ export default function(request: EvalWorkerSyncRequest) {
   let userLogs: UserLogObject[] = [];
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
-  let configTree: any = {};
+  let configTree: ConfigTree = {};
 
   const {
     allActionValidationConfig,
@@ -54,8 +58,8 @@ export default function(request: EvalWorkerSyncRequest) {
     widgetTypeConfigMap,
   } = data as EvalTreeRequestData;
 
-  const unevalTree = __unevalTree__.dataTree;
-  configTree = __unevalTree__.configTree;
+  const unevalTree = __unevalTree__.unEvalTree;
+  configTree = __unevalTree__.configTree as ConfigTree;
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
@@ -84,11 +88,9 @@ export default function(request: EvalWorkerSyncRequest) {
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
-      // dataTree = dataTreeResponse.evalTree;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method

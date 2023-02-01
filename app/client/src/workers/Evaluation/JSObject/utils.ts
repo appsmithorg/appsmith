@@ -1,18 +1,22 @@
 import {
+  ConfigTree,
   DataTree,
   DataTreeAppsmith,
   DataTreeJSAction,
   EvaluationSubstitutionType,
+  DataTreeEntityConfig,
+  UnEvalTree,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
 import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
 import { AppState } from "@appsmith/reducers";
-import { JSAction } from "entities/JSCollection";
+import { JSAction, JSActionConfig } from "entities/JSCollection";
 import { getJSFunctionFromName } from "selectors/entitiesSelector";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
+import { JSActionEntityConfig } from "./types";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -27,19 +31,20 @@ export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
   jsCollection: DataTreeJSAction,
   unEvalTree: DataTree,
-  configTree: any,
+  configTree: ConfigTree,
   entityName: string,
 ) => {
   // jsCollection here means unEvalTree JSObject
   const modifiedUnEvalTree = unEvalTree;
   const functionsList: Array<string> = [];
-  const varList: Array<string> = configTree[entityName]?.variables;
-  Object.keys(configTree[entityName]?.meta).forEach((action) => {
+  const jsEntityConfig: JSActionEntityConfig = configTree[entityName];
+  const varList: Array<string> = jsEntityConfig?.variables;
+  Object.keys(jsEntityConfig?.meta).forEach((action) => {
     functionsList.push(action);
   });
 
   // const oldConfig = Object.getPrototypeOf(jsCollection) as DataTreeJSAction;
-  const oldConfig = configTree[entityName];
+  const oldConfig = jsEntityConfig;
 
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
@@ -185,13 +190,13 @@ export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: DataTree,
   entity: DataTreeJSAction,
   entityName: string,
-  configTree: any,
+  configTree: ConfigTree,
 ) => {
   // const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
-  const oldConfig = configTree[entityName];
+  const oldConfig: JSActionEntityConfig = configTree[entityName];
   const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
-  Object.keys(configTree[entityName].meta).forEach((action) => {
+  Object.keys(oldConfig.meta).forEach((action) => {
     functionsList.push(action);
   });
   //removed variables
@@ -228,11 +233,12 @@ export function isJSObjectFunction(
   dataTree: DataTree,
   jsObjectName: string,
   key: string,
-  configTree: any,
+  configTree: ConfigTree,
 ) {
-  const entity = configTree[jsObjectName];
-  if (isJSAction(entity)) {
-    return entity.meta.hasOwnProperty(key);
+  const entityConfig: JSActionEntityConfig = configTree[jsObjectName];
+  const entity = dataTree[jsObjectName];
+  if (isJSAction(entityConfig)) {
+    return entityConfig.meta.hasOwnProperty(key);
   }
   return false;
 }

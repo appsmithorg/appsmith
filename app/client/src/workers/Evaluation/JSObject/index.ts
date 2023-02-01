@@ -1,4 +1,9 @@
-import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import {
+  ConfigTree,
+  DataTree,
+  DataTreeJSAction,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -27,11 +32,11 @@ import { functionDeterminer } from "../functionDeterminer";
 export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   jsUpdates: Record<string, JSUpdate>,
   localUnEvalTree: DataTree,
-  configTree: any,
+  configTree: ConfigTree,
 ) => {
   if (!isEmpty(jsUpdates)) {
     Object.entries(jsUpdates).forEach(([entityName, jsEntity]) => {
-      const entity = localUnEvalTree[entityName];
+      const entity = localUnEvalTree[entityName] as DataTreeJSAction;
       const parsedBody = jsEntity.parsedBody;
       if (isJSAction(entity)) {
         if (!!parsedBody) {
@@ -79,7 +84,6 @@ export function saveResolvedFunctionsAndJSUpdates(
   jsUpdates: Record<string, JSUpdate>,
   unEvalDataTree: DataTree,
   entityName: string,
-  configTree: any,
 ) {
   const correctFormat = regex.test(entity.body);
   if (correctFormat) {
@@ -191,7 +195,6 @@ export function saveResolvedFunctionsAndJSUpdates(
 export function parseJSActions(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalDataTree: any,
-  configTree: any,
   differences?: DataTreeDiff[],
   oldUnEvalTree?: DataTree,
 ) {
@@ -233,7 +236,6 @@ export function parseJSActions(
           jsUpdates,
           unEvalDataTree,
           entityName,
-          configTree,
         );
       }
     });
@@ -249,7 +251,6 @@ export function parseJSActions(
         jsUpdates,
         unEvalDataTree,
         entityName,
-        configTree,
       );
     });
   }

@@ -35,7 +35,7 @@ import {
 import { Action, PluginType } from "entities/Action";
 import { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   getConfigTree,
   getDataTree,
@@ -235,7 +235,7 @@ function* logDependentEntityProperties(payload: Log[]) {
 
 function* onTriggerPropertyUpdates(payload: Log[]) {
   // const dataTree: DataTree = yield select(getDataTree);
-  const configTree: any = yield select(getConfigTree);
+  const configTree: ConfigTree = yield select(getConfigTree);
   const validLogs = payload.filter(
     (log) => log.source && log.source.propertyPath,
   );

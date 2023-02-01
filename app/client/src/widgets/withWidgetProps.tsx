@@ -26,6 +26,7 @@ import {
 } from "utils/widgetRenderUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
+import { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -50,6 +51,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
 
+    const evaluatedWidgetConfig = useSelector(
+      (state: AppState) =>
+        state.evaluations.configTree[canvasWidget?.widgetName],
+    ) as WidgetEntityConfig;
+
     const dispatch = useDispatch();
 
     const childWidgets = useSelector((state: AppState) => {
@@ -66,7 +72,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         }
 
         return evaluatedWidget
-          ? createCanvasWidget(canvasWidget, evaluatedWidget)
+          ? createCanvasWidget(
+              canvasWidget,
+              evaluatedWidget,
+              evaluatedWidgetConfig,
+            )
           : createLoadingWidget(canvasWidget);
       })();
 

@@ -1,6 +1,11 @@
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import {
+  ConfigTree,
+  DataTree,
+  DataTreeWidget,
+  WidgetEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { get, isUndefined, set } from "lodash";
 import {
   EvaluationError,
@@ -30,7 +35,7 @@ export function validateAndParseWidgetProperty({
   fullPropertyPath: string;
   widget: DataTreeWidget;
   currentTree: DataTree;
-  configTree: any;
+  configTree: ConfigTree;
   evalPropertyValue: unknown;
   unEvalPropertyValue: string;
   evalProps: EvalProps;
@@ -40,8 +45,8 @@ export function validateAndParseWidgetProperty({
     // TODO find a way to validate triggers
     return unEvalPropertyValue;
   }
-  const validation =
-    configTree[widget.widgetName].validationPaths[propertyPath];
+  const widgetConfig = configTree[widget.widgetName] as WidgetEntityConfig;
+  const validation = widgetConfig.validationPaths[propertyPath];
 
   const { isValid, messages, parsed, transformed } = validateWidgetProperty(
     validation,
@@ -121,17 +126,17 @@ export function validateActionProperty(
 export function getValidatedTree(
   tree: DataTree,
   option: { evalProps: EvalProps },
-  configTree: any,
+  configTree: ConfigTree,
 ) {
   const { evalProps } = option;
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const parsedEntity = configTree[entityKey];
     const entity = tree[entityKey];
-    if (!isWidget(parsedEntity)) {
+    if (!isWidget(entity)) {
       return tree;
     }
+    const entityConfig = configTree[entityKey] as WidgetEntityConfig;
 
-    Object.entries(parsedEntity.validationPaths).forEach(
+    Object.entries(entityConfig.validationPaths).forEach(
       ([property, validation]) => {
         const value = get(entity, property);
         // const value = get(parsedEntity, property);
@@ -141,7 +146,7 @@ export function getValidatedTree(
           messages,
           parsed,
           transformed,
-        } = validateWidgetProperty(validation, value, parsedEntity, property);
+        } = validateWidgetProperty(validation, value, entity, property);
         set(entity, property, parsed);
         const evaluatedValue = isValid
           ? parsed

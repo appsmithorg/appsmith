@@ -16,10 +16,12 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
+  ConfigTree,
   DataTree,
   DataTreeAction,
   DataTreeJSAction,
   DataTreeWidget,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
@@ -27,6 +29,10 @@ import {
 } from "constants/WidgetValidation";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import { libraryReservedIdentifiers } from "workers/common/JSLibrary";
+import {
+  ActionEntityConfig,
+  JSActionEntityConfig,
+} from "entities/DataTree/types";
 
 /** This function extracts validReferences and invalidReferences from a binding {{}}
  * @param script
@@ -143,10 +149,11 @@ export const extractInfoFromBindings = (
 export function listTriggerFieldDependencies(
   entity: DataTreeWidget,
   entityName: string,
+  entityConfig: WidgetEntityConfig,
 ): DependencyMap {
   const triggerFieldDependency: DependencyMap = {};
   if (isWidget(entity)) {
-    const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+    const dynamicTriggerPathlist = entityConfig.dynamicTriggerPathList;
     if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
       dynamicTriggerPathlist.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;
@@ -166,10 +173,11 @@ export function listTriggerFieldDependencies(
 export function listValidationDependencies(
   entity: DataTreeWidget,
   entityName: string,
+  entityConfig: WidgetEntityConfig,
 ): DependencyMap {
   const validationDependency: DependencyMap = {};
   if (isWidget(entity)) {
-    const { validationPaths } = entity;
+    const { validationPaths } = entityConfig;
 
     Object.entries(validationPaths).forEach(
       ([propertyPath, validationConfig]) => {
@@ -215,19 +223,21 @@ export function listEntityDependencies(
   entityName: string,
   allPaths: Record<string, true>,
   unEvalDataTree: DataTree,
+  configTree: ConfigTree,
 ): DependencyMap {
   let dependencies: DependencyMap = {};
 
   if (isWidget(entity)) {
     // Adding the dynamic triggers in the dependency list as they need linting whenever updated
     // we don't make it dependent on anything else
-    if (entity.dynamicTriggerPathList) {
-      Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
+    const widgetConfig = configTree[entityName] as WidgetEntityConfig;
+    if (widgetConfig.dynamicTriggerPathList) {
+      Object.values(widgetConfig.dynamicTriggerPathList).forEach(({ key }) => {
         dependencies[`${entityName}.${key}`] = [];
       });
     }
     const widgetDependencies = addWidgetPropertyDependencies({
-      entity,
+      entity: widgetConfig,
       entityName,
     });
 
@@ -238,7 +248,10 @@ export function listEntityDependencies(
   }
 
   if (isAction(entity) || isJSAction(entity)) {
-    Object.entries(entity.dependencyMap).forEach(
+    const actionConfig = configTree[entityName] as
+      | JSActionEntityConfig
+      | ActionEntityConfig;
+    Object.entries(actionConfig.dependencyMap).forEach(
       ([path, entityDependencies]) => {
         const actionDependentPaths: Array<string> = [];
         const mainPath = `${entityName}.${path}`;
@@ -259,8 +272,9 @@ export function listEntityDependencies(
   }
   if (isJSAction(entity)) {
     // making functions dependent on their function body entities
-    if (entity.reactivePaths) {
-      Object.keys(entity.reactivePaths).forEach((propertyPath) => {
+    const jsActionConfig = configTree[entityName];
+    if (jsActionConfig.reactivePaths) {
+      Object.keys(jsActionConfig.reactivePaths).forEach((propertyPath) => {
         const existingDeps =
           dependencies[`${entityName}.${propertyPath}`] || [];
         // const unevalPropValue = get(entity, propertyPath);
@@ -280,7 +294,10 @@ export function listEntityDependencies(
 
   if (isAction(entity) || isWidget(entity)) {
     // add the dynamic binding paths to the dependency map
-    const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
+    const entityConfig = configTree[entityName];
+    const dynamicBindingPathList = getEntityDynamicBindingPathList(
+      entityConfig,
+    );
     if (dynamicBindingPathList.length) {
       dynamicBindingPathList.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;
