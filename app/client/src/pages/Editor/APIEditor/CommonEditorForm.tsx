@@ -374,10 +374,6 @@ const FlexContainer = styled.div`
   align-items: center;
   width: calc(100% - 30px);
 
-  &.header {
-    margin-bottom: 8px;
-  }
-
   .key-value {
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.apiPane.text};
@@ -487,7 +483,7 @@ function ImportedKeyValue(props: { datas: any }) {
           </FormRowWithLabel>
         );
       })}
-      <Divider className="divider" />
+      <Divider />
     </>
   );
 }
