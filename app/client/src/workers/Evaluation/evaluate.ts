@@ -206,7 +206,8 @@ export const assignJSFunctionsToContext = (args: {
       }
     }
 
-    EVAL_CONTEXT[jsObjectName] = Object.assign({}, jsObject, jsObjectFunction);
+    // TODO: check this once again
+    Object.assign(EVAL_CONTEXT[jsObjectName], jsObjectFunction);
   }
 };
 

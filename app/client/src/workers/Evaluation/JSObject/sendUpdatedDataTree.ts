@@ -34,10 +34,6 @@ export function triggerEvalWithDataTreeDiff(
       differences,
     );
 
-    console.log("$$$-Inside-triggerEvalWithDataTreeDiff", {
-      setupUpdateTreeResponse,
-    });
-
     evalOrder = setupUpdateTreeResponse.evalOrder;
 
     unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;

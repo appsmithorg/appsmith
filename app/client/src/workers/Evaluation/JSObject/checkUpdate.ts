@@ -15,7 +15,7 @@ function checkForJsVariableUpdate() {
     modifiedVariablesList,
   ) as unknown) as Diff<DataTree, DataTree>[];
 
-  console.log("$$$-Inside-checkForJsVariableUpdate", { diffs });
+  //
   if (diffs.length > 0) {
     // trigger evaluation
     triggerEvalWithDataTreeDiff(diffs);
@@ -25,7 +25,6 @@ function checkForJsVariableUpdate() {
 
 export function addJSUpdateCheckTaskInQueue() {
   queueMicrotask(() => {
-    console.log("$$$-WORKER_FREE-START-checkForJsVariableUpdate");
     checkForJsVariableUpdate();
   });
 }
