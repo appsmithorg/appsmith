@@ -51,6 +51,7 @@ export const Layers = {
   productUpdates: Indices.Layer7,
   portals: Indices.Layer9,
   header: Indices.Layer9,
+  guidedTourOverlay: Indices.Layer10,
   snipeableZone: Indices.Layer10,
   max: Indices.LayerMax,
   sideStickyBar: Indices.Layer7,

@@ -1,10 +1,10 @@
-import React, { useEffect, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
-  getIsFetchingPage,
   getCurrentPageId,
   getCurrentPageName,
+  getIsFetchingPage,
 } from "selectors/editorSelectors";
 import PageTabs from "./PageTabs";
 import PerformanceTracker, {
@@ -31,6 +31,8 @@ import PropertyPaneContainer from "./PropertyPaneContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
+import WidgetTopBar from "./WidgetTopBar";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -43,6 +45,7 @@ function WidgetsEditor() {
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -68,9 +71,7 @@ function WidgetsEditor() {
       !guidedTourEnabled
     ) {
       const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash);
-      if (document.getElementById(widgetIdFromURLHash))
-        selectWidget(widgetIdFromURLHash);
+      quickScrollToWidget(widgetIdFromURLHash, canvasWidgets);
     }
   }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
@@ -123,6 +124,7 @@ function WidgetsEditor() {
           {guidedTourEnabled && <Guide />}
           <div className="relative flex flex-row w-full overflow-hidden">
             <div className="relative flex flex-col w-full overflow-hidden">
+              <WidgetTopBar />
               <CanvasTopSection />
               <div
                 className="relative flex flex-row w-full overflow-hidden"
