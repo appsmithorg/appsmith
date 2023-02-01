@@ -1,7 +1,5 @@
-import homePage from "../../../locators/HomePage";
 import * as _ from "../../../support/Objects/ObjectsCore";
 const dsl = require("../../../fixtures/PgAdmindsl.json");
-const datasource = require("../../../locators/dataSourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
@@ -91,33 +89,33 @@ describe("PgAdmin Clone App", function() {
     cy.WaitAutoSave();
     _.dataSources.RunQuery();
 
-    _.agHelper.GetNClick("#switcher--widgets")
-    _.agHelper.GetNClick(appPage.viewButton,0,true)
+    _.agHelper.GetNClick("#switcher--widgets");
+    _.agHelper.GetNClick(appPage.viewButton, 0, true);
     // adding new table
-    _.agHelper.GetNClick(appPage.addNewtable,0,true)
+    _.agHelper.GetNClick(appPage.addNewtable, 0, true);
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       cy.xpath(appPage.addTablename)
-      .clear()
-      .type(`table${uid}`);
+        .clear()
+        .type(`table${uid}`);
     });
     // adding column to the table
-    _.agHelper.GetNClick(appPage.addColumn,0,true)
-    _.agHelper.AssertElementVisible(appPage.columnNamefield)
-    _.agHelper.AssertElementVisible(appPage.datatypefield)
+    _.agHelper.GetNClick(appPage.addColumn, 0, true);
+    _.agHelper.AssertElementVisible(appPage.columnNamefield);
+    _.agHelper.AssertElementVisible(appPage.datatypefield);
     cy.xpath(appPage.addTablename).type("id");
     cy.get(appPage.dropdownChevronDown)
       .last()
       .click();
-    _.agHelper.GetNClick(appPage.selectDatatype)
+    _.agHelper.GetNClick(appPage.selectDatatype);
     // switching on the Not Null toggle
     cy.get(widgetsPage.switchWidgetInactive)
       .last()
       .click();
-    _.agHelper.GetNClick(appPage.submitButton,0,true)
-    _.agHelper.AssertElementVisible(appPage.addColumn)
-    _.agHelper.GetNClick(appPage.closeButton,0,true)
-    _.agHelper.GetNClick("#switcher--explorer",0,true)
+    _.agHelper.GetNClick(appPage.submitButton, 0, true);
+    _.agHelper.AssertElementVisible(appPage.addColumn);
+    _.agHelper.GetNClick(appPage.closeButton, 0, true);
+    _.agHelper.GetNClick("#switcher--explorer", 0, true);
     _.dataSources.NavigateToActiveTab();
 
     cy.contains(".t--datasource-name", datasourceName)
@@ -202,7 +200,9 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.submitButton).click({ force: true });
     cy.xpath(appPage.addColumn).should("be.visible");
     cy.wait(500);
-    cy.xpath(appPage.submitButton).first().click({ force: true });
+    cy.xpath(appPage.submitButton)
+      .first()
+      .click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
   });
 
