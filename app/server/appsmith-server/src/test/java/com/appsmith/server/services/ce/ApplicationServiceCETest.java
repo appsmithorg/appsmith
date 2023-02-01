@@ -2439,7 +2439,7 @@ public class ApplicationServiceCETest {
     @WithUserDetails(value = "api_user")
     public void publishApplication_withPageIconSet_success() {
         Application testApplication = new Application();
-        String appName = "ApplicationServiceTest Publish Application";
+        String appName = "ApplicationServiceTest Publish Application Page Icon";
         testApplication.setName(appName);
         testApplication =  applicationPageService.createApplication(testApplication, workspaceId).block();
 
