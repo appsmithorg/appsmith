@@ -25,7 +25,7 @@ describe("Fork a template to the current app", () => {
 
   it("1.Bug #17002 Forking a template into an existing app which is connected to git makes the application go into a bad state ", function() {
     cy.get(template.startFromTemplateCard).click();
-    cy.wait("@fetchTemplate").should(
+    cy.wait("@fetchTemplate", { timeout: 30000 }).should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -57,7 +57,7 @@ describe("Fork a template to the current app", () => {
         }
       }
     });
-    // cy.get(widgetLocators.toastAction).should(
+    // cy.get(widgetLocators.toastAction, { timeout: 40000 }).should(
     //   "contain",
     //   "template added successfully",
     // );
@@ -68,17 +68,14 @@ describe("Fork a template to the current app", () => {
     _.gitSync.CreateGitBranch(branchName, true);
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
-
       _.ee.AddNewPage();
       _.ee.AddNewPage("add-page-from-template");
-
-      cy.wait(5000);
       cy.get(template.templateDialogBox).should("be.visible");
       cy.xpath("//div[text()='Meeting Scheduler']").click();
-
+      cy.wait(5000); // for templates page to load fully
       cy.xpath(template.selectAllPages)
         .next()
-        .click();
+        .check();
       cy.wait(1000);
       cy.xpath("//span[text()='SEARCH']")
         .parent()
