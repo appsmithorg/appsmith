@@ -103,7 +103,7 @@ export class JSEditor {
   }`;
 
   // Pastes or types content into field
-  private handleJsContentFilling(toPaste: boolean, JSCode: string, el: any) {
+  private HandleJsContentFilling(toPaste: boolean, JSCode: string, el: any) {
     if (toPaste) {
       //input.invoke("val", value);
       this.agHelper.Paste(el, JSCode);
@@ -163,7 +163,7 @@ export class JSEditor {
         .focus()
         .type(`${downKeys}  `)
         .then((el: any) => {
-          this.handleJsContentFilling(paste, JSCode, el);
+          this.HandleJsContentFilling(paste, JSCode, el);
         });
     } else {
       cy.get(this.locator._codeMirrorTextArea)
@@ -171,7 +171,7 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .then((el: any) => {
-          this.handleJsContentFilling(paste, JSCode, el);
+          this.HandleJsContentFilling(paste, JSCode, el);
         });
     }
 

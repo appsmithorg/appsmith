@@ -1,4 +1,5 @@
-import { jsEditor, agHelper } from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 
 describe("Invalid JSObject export statement", function() {
   it("Shows error toast for invalid js object export statement", function() {
@@ -13,7 +14,7 @@ describe("Invalid JSObject export statement", function() {
 
     const INVALID_START_STATEMENT = "Start object with export default";
 
-    jsEditor.CreateJSObject(JSObjectWithInvalidExport, {
+    _.jsEditor.CreateJSObject(JSObjectWithInvalidExport, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -22,6 +23,6 @@ describe("Invalid JSObject export statement", function() {
     });
 
     // Assert toast message
-    agHelper.ValidateToastMessage(INVALID_START_STATEMENT);
+    _.agHelper.ValidateToastMessage(INVALID_START_STATEMENT);
   });
 });
