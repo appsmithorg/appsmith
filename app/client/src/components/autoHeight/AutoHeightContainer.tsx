@@ -1,5 +1,9 @@
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
-import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  WidgetHeightLimits,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 
@@ -83,7 +87,8 @@ export default function AutoHeightContainer({
 
   const shouldBeCentered =
     widgetHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT ===
-    minDynamicHeight;
+      minDynamicHeight &&
+    minDynamicHeight === WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
 
   if (isAutoHeightWithLimits) {
     const expectedHeightInRows = Math.ceil(

@@ -28,7 +28,7 @@ describe("Auto height default widget content alignment", () => {
     cy.get("[data-cy='t--centered-Text2-1k6r0gx5sd']").should(
       "have.css",
       "align-items",
-      "center",
+      "flex-start",
     );
   });
 });
