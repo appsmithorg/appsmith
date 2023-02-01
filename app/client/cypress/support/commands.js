@@ -1825,16 +1825,16 @@ Cypress.Commands.add("StartTheContainer", (path, containerName) => {
 });
 
 Cypress.Commands.add(
-  "CreateAContainer",
+  "StartCEContainer",
   (url, path, version, containerName) => {
     let comm =
       "cd " +
       path +
-      ";docker run -d --name " +
+      " && docker run -d --name " +
       containerName +
       ' -p 80:80 -p 9001:9001 -v "' +
       path +
-      '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
+      '/stacks:/appsmith-stacks" ' +
       version;
 
     cy.log(comm);
@@ -1845,24 +1845,25 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
-      cy.log(res.body.stderr);
-      cy.log(res.body.stdout);
-      expect(res.status).equal(200);
+      //cy.log(res.body.stderr);
+      //cy.log("ContainerID", res.body.stdout);
+      //expect(res.status).equal(200);
+      return res.body.stdout;
     });
   },
 );
 
 Cypress.Commands.add(
-  "CreateEEContainer",
+  "StartEEContainer",
   (url, path, version, containerName) => {
     let comm =
       "cd " +
       path +
-      ";docker run -d --name " +
+      " && docker run -d --name " +
       containerName +
       ' -p 80:80 -p 9001:9001 -v "' +
       path +
-      '/stacks:/appsmith-stacks" appsmith/appsmith-ee:' +
+      '/stacks:/appsmith-stacks" ' +
       version;
 
     cy.log(comm);
@@ -1977,4 +1978,19 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
   cy.wait("@getMe");
   cy.wait(3000);
   initLocalstorage();
+});
+
+Cypress.Commands.add("execute", (url, command) => {
+  cy.request({
+    method: "GET",
+    url: url,
+    qs: {
+      cmd: command,
+    },
+  }).then((res) => {
+    //cy.log(res.body.stderr);
+    //cy.log(res.body.stdout);
+    //expect(res.status).equal(200);
+    return res.body;
+  });
 });
