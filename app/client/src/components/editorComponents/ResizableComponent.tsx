@@ -1,14 +1,14 @@
-import React, { useContext, memo, useMemo } from "react";
+import React, { memo, useContext, useMemo } from "react";
 import {
   WidgetOperations,
-  WidgetRowCols,
   WidgetProps,
+  WidgetRowCols,
 } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import {
-  UIElementSize,
   computeFinalRowCols,
   computeRowCols,
+  UIElementSize,
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
@@ -18,23 +18,23 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import Resizable from "resizable/resizenreflow";
-import { omit, get } from "lodash";
+import { get, omit } from "lodash";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
-  VisibilityContainer,
+  BottomHandleStyles,
+  BottomLeftHandleStyles,
+  BottomRightHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
-  BottomHandleStyles,
   TopLeftHandleStyles,
   TopRightHandleStyles,
-  BottomLeftHandleStyles,
-  BottomRightHandleStyles,
+  VisibilityContainer,
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  snipingModeSelector,
   previewModeSelector,
+  snipingModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
@@ -42,13 +42,14 @@ import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { getParentToOpenSelector } from "selectors/widgetSelectors";
 import {
+  getParentToOpenSelector,
   isCurrentWidgetFocused,
   isCurrentWidgetLastSelected,
-  isWidgetSelected,
   isMultiSelectedWidget,
+  isWidgetSelected,
 } from "selectors/widgetSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -199,15 +200,17 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       !isLastSelected &&
       parentWidgetToSelect?.widgetId !== props.widgetId &&
-      selectWidget(props.widgetId);
+      selectWidget(SelectionRequestType.One, [props.widgetId]);
 
     if (parentWidgetToSelect) {
       selectWidget &&
         !isParentWidgetSelected &&
-        selectWidget(parentWidgetToSelect.widgetId);
+        selectWidget(SelectionRequestType.One, [parentWidgetToSelect.widgetId]);
       focusWidget(parentWidgetToSelect.widgetId);
     } else {
-      selectWidget && !isLastSelected && selectWidget(props.widgetId);
+      selectWidget &&
+        !isLastSelected &&
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
     }
     // Property pane closes after a resize/drag
     showPropertyPane && showPropertyPane();
@@ -223,7 +226,9 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const handleResizeStart = () => {
     setIsResizing && !isResizing && setIsResizing(true);
-    selectWidget && !isLastSelected && selectWidget(props.widgetId);
+    selectWidget &&
+      !isLastSelected &&
+      selectWidget(SelectionRequestType.One, [props.widgetId]);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
