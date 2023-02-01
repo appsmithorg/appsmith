@@ -49,19 +49,18 @@ describe("Fork a template to the current app", () => {
     }).then(($ele) => {
       cy.wrap($ele).should("have.length", 0);
     });
-
-    cy.wait(10000);
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetLocators.toastAction).length <= 0) {
-        if ($ele.find(template.templateViewForkButton).length > 0) {
-          cy.get(template.templateViewForkButton).click();
-        }
-      }
-    });
     cy.get(widgetLocators.toastAction, { timeout: 40000 }).should(
       "contain",
       "template added successfully",
     );
+    // cy.get("body").then(($ele) => {
+    //   if ($ele.find(widgetLocators.toastAction).length <= 0) {
+    //     if ($ele.find(template.templateViewForkButton).length > 0) {
+    //       cy.get(template.templateViewForkButton).click();
+    //     }
+    //   }
+    // });
+
     cy.commitAndPush();
   });
 
@@ -109,7 +108,8 @@ describe("Fork a template to the current app", () => {
         .click({ force: true });
       cy.wait(5000);
       cy.switchGitBranch(branchName);
-      cy.get(homePage.publishButton).click();
+      cy.get(homePage.publishButton).click({ force: true });
+      _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
       cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
       cy.get(gitSyncLocators.commitButton).click();
       cy.wait(10000);

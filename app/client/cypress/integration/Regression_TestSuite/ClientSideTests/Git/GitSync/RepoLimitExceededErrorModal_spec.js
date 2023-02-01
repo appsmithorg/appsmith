@@ -2,7 +2,7 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
-describe.skip("Repo Limit Exceeded Error Modal", function() {
+describe("Repo Limit Exceeded Error Modal", function() {
   before(() => {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);
