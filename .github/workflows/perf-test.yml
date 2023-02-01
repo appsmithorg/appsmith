@@ -143,6 +143,17 @@ jobs:
           name: build
           path: app/server/dist
 
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: rts-dist
+          path: app/rts/dist
+
+      - name: Un-tar the rts folder
+        run: |
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
       # Start server
       - name: start server
         if: steps.run_result.outputs.run_result != 'success'
