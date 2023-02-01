@@ -156,11 +156,16 @@ type AddDynamicPathsPropertiesOptions = {
   excludedPaths?: string[];
 };
 
+type ViewMetaWidget = {
+  metaWidgetId: string;
+  isClonedItem: boolean;
+  templateWidgetId: string;
+};
+
 type Siblings = Record<string, string[]>;
 
 enum MODIFICATION_TYPE {
   LEVEL_DATA_UPDATED = "LEVEL_DATA_UPDATED",
-  PAGE_NO_UPDATED = "PAGE_NO_UPDATED",
   REGENERATE_META_WIDGETS = "REGENERATE_META_WIDGETS",
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
   GENERATE_CACHE_WIDGETS = "GENERATE_CACHE_WIDGETS",
@@ -197,11 +202,11 @@ const hasLevel = (value: string) =>
 
 class MetaWidgetGenerator {
   private siblings: Siblings;
-  private cachedRows: CachedRows;
+  private cachedItemKeys: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
   private currTemplateWidgets: TemplateWidgets;
-  private currViewMetaWidgetIds: string[];
+  private currViewMetaWidgets: ViewMetaWidget[];
   private data: GeneratorOptions["data"];
   private getWidgetCache: ConstructorProps["getWidgetCache"];
   private getWidgetReferenceCache: ConstructorProps["getWidgetReferenceCache"];
@@ -220,8 +225,9 @@ class MetaWidgetGenerator {
   private prefixMetaWidgetId: string;
   private prevOptions?: GeneratorOptions;
   private prevTemplateWidgets: TemplateWidgets;
-  private prevViewMetaWidgetIds: string[];
-  private primaryKeys: GeneratorOptions["primaryKeys"];
+  private prevViewMetaWidgets: ViewMetaWidget[];
+  private prevPrimaryKeys: string[];
+  private primaryKeys: string[];
   private primaryWidgetType: ConstructorProps["primaryWidgetType"];
   private renderMode: ConstructorProps["renderMode"];
   private cachedKeyDataMap: CachedKeyDataMap;
@@ -237,13 +243,13 @@ class MetaWidgetGenerator {
 
   constructor(props: ConstructorProps) {
     this.siblings = {};
-    this.cachedRows = {
+    this.cachedItemKeys = {
       prev: new Set(),
       curr: new Set(),
     };
     this.containerParentId = "";
     this.containerWidgetId = "";
-    this.currViewMetaWidgetIds = [];
+    this.currViewMetaWidgets = [];
     this.data = [];
     this.getWidgetCache = props.getWidgetCache;
     this.getWidgetReferenceCache = props.getWidgetReferenceCache;
@@ -258,7 +264,9 @@ class MetaWidgetGenerator {
     this.pageSize = 0;
     this.prefixMetaWidgetId = props.prefixMetaWidgetId;
     this.prevTemplateWidgets = {};
-    this.prevViewMetaWidgetIds = [];
+    this.prevViewMetaWidgets = [];
+    this.prevPrimaryKeys = [];
+    this.primaryKeys = [];
     this.primaryWidgetType = props.primaryWidgetType;
     this.serverSidePagination = false;
     this.renderMode = props.renderMode;
@@ -279,6 +287,13 @@ class MetaWidgetGenerator {
   }
 
   withOptions = (options: GeneratorOptions) => {
+    /**
+     * Keeping this above updateModificationsQueue as
+     * prevPrimaryKeys and primaryKeys are used in updateModificationsQueue
+     */
+    this.prevPrimaryKeys = this.primaryKeys;
+    this.primaryKeys = this.generatePrimaryKeys(options);
+
     this.updateModificationsQueue(options);
 
     this.containerParentId = options.containerParentId;
@@ -290,7 +305,6 @@ class MetaWidgetGenerator {
     this.nestedViewIndex = options.nestedViewIndex;
     this.pageNo = options.pageNo;
     this.pageSize = options.pageSize;
-    this.primaryKeys = options.primaryKeys;
     this.scrollElement = options.scrollElement;
     this.serverSidePagination = options.serverSidePagination;
     this.templateBottomRow = options.templateBottomRow;
@@ -337,8 +351,8 @@ class MetaWidgetGenerator {
   };
 
   generate = () => {
-    const data = this.getData();
-    const dataCount = data.length;
+    const currentViewData = this.getSlicedByCurrentView(this.data);
+    const dataCount = currentViewData.length;
     const indices = Array.from(Array(dataCount).keys());
     const containerParentWidget = this?.currTemplateWidgets?.[
       this.containerParentId
@@ -350,7 +364,7 @@ class MetaWidgetGenerator {
       this.modificationsQueue.has(MODIFICATION_TYPE.REGENERATE_META_WIDGETS)
     ) {
       // Reset
-      this.currViewMetaWidgetIds = [];
+      this.currViewMetaWidgets = [];
       this.templateWidgetCandidates = new Set();
 
       this.generateWidgetCacheForContainerParent(containerParentWidget);
@@ -391,10 +405,10 @@ class MetaWidgetGenerator {
       const cachedTemplateMetaWidgets = this.getCachedTemplateMetaWidgets();
 
       metaWidgets = { ...metaWidgets, ...cachedTemplateMetaWidgets };
-      this.cachedRows.prev = new Set(this.cachedRows.curr);
+      this.cachedItemKeys.prev = new Set(this.cachedItemKeys.curr);
     }
 
-    this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
+    this.prevViewMetaWidgets = [...this.currViewMetaWidgets];
 
     this.flushModificationQueue();
 
@@ -408,15 +422,18 @@ class MetaWidgetGenerator {
   getCachedTemplateMetaWidgets = () => {
     let cachedTemplateMetaWidgets: MetaWidgets = {};
 
-    this.cachedRows.curr.forEach((key) => {
+    this.cachedItemKeys.curr.forEach((key) => {
       const rowIndex = this.getRowIndexFromPrimaryKey(key);
-      const isClonedRow = this.isClonedRow(rowIndex);
+      const isClonedItem = this.isClonedItem(rowIndex);
 
       /**
        * We only want to generate metaWidgets in the templateRow if getCachedTemplateMetaWidgets()
        * is called due to the addition of a new cacheRow.
        */
-      if (!isEqual(this.cachedRows.curr, this.cachedRows.prev) && isClonedRow)
+      if (
+        !isEqual(this.cachedItemKeys.curr, this.cachedItemKeys.prev) &&
+        isClonedItem
+      )
         return;
 
       const {
@@ -447,29 +464,43 @@ class MetaWidgetGenerator {
   private generateMetaWidgetId = () =>
     `${this.prefixMetaWidgetId}_${generateReactKey()}`;
 
-  private getMetaWidgetIdsInCachedRows = () => {
-    const cachedMetaWidgetIds: string[] = [];
-    const removedCachedMetaWidgetIds: string[] = [];
+  private getMetaWidgetIdsInCachedItems = () => {
+    const currCachedMetaWidgetIds: string[] = [];
+    const prevCachedMetaWidgetIds: string[] = [];
 
-    this.cachedRows.prev.forEach((key) => {
+    this.cachedItemKeys.prev.forEach((key) => {
       const metaCacheProps = this.getRowCache(key) ?? {};
       Object.values(metaCacheProps).forEach((cache) => {
-        removedCachedMetaWidgetIds.push(cache.metaWidgetId);
+        prevCachedMetaWidgetIds.push(cache.metaWidgetId);
       });
     });
 
-    if (!this.cachedRows.curr.size)
-      return { cachedMetaWidgetIds, removedCachedMetaWidgetIds };
+    if (!this.cachedItemKeys.curr.size)
+      return { currCachedMetaWidgetIds, prevCachedMetaWidgetIds };
 
-    this.cachedRows.curr.forEach((key) => {
+    this.cachedItemKeys.curr.forEach((key) => {
       const metaCacheProps = this.getRowCache(key) ?? {};
       Object.values(metaCacheProps).forEach((cache) => {
-        cachedMetaWidgetIds.push(cache.metaWidgetId);
+        currCachedMetaWidgetIds.push(cache.metaWidgetId);
       });
     });
 
-    return { cachedMetaWidgetIds, removedCachedMetaWidgetIds };
+    return { currCachedMetaWidgetIds, prevCachedMetaWidgetIds };
   };
+
+  private getViewMetaWidgetIds = (viewMetaWidgets: ViewMetaWidget[]) => {
+    return viewMetaWidgets.map(
+      ({ isClonedItem, metaWidgetId, templateWidgetId }) => {
+        return isClonedItem ? metaWidgetId : templateWidgetId;
+      },
+    );
+  };
+
+  private getPrevViewMetaWidgetIds = () =>
+    this.getViewMetaWidgetIds(this.prevViewMetaWidgets);
+
+  private getCurrViewMetaWidgetIds = () =>
+    this.getViewMetaWidgetIds(this.currViewMetaWidgets);
 
   /**
    * The removed widgets are
@@ -479,20 +510,22 @@ class MetaWidgetGenerator {
 
   private getRemovedMetaWidgetIds = () => {
     const {
-      cachedMetaWidgetIds,
-      removedCachedMetaWidgetIds,
-    } = this.getMetaWidgetIdsInCachedRows();
+      currCachedMetaWidgetIds,
+      prevCachedMetaWidgetIds,
+    } = this.getMetaWidgetIdsInCachedItems();
+    const currViewMetaWidgetIds = this.getCurrViewMetaWidgetIds();
+    const prevViewMetaWidgetIds = this.getPrevViewMetaWidgetIds();
 
     const removedWidgetsFromView = new Set(
-      difference(this.prevViewMetaWidgetIds, this.currViewMetaWidgetIds),
+      difference(prevViewMetaWidgetIds, currViewMetaWidgetIds),
     );
 
-    removedCachedMetaWidgetIds.forEach((widgetId) => {
-      if (!this.currViewMetaWidgetIds.includes(widgetId))
+    prevCachedMetaWidgetIds.forEach((widgetId) => {
+      if (!currViewMetaWidgetIds.includes(widgetId))
         removedWidgetsFromView.add(widgetId);
     });
 
-    cachedMetaWidgetIds.forEach((widgetId) => {
+    currCachedMetaWidgetIds.forEach((widgetId) => {
       removedWidgetsFromView.delete(widgetId);
     });
 
@@ -649,7 +682,7 @@ class MetaWidgetGenerator {
   private generateWidgetCacheData = (rowIndex: number, viewIndex: number) => {
     const key = this.getPrimaryKey(rowIndex);
     const rowCache = this.getRowCache(key) || {};
-    const isClonedRow = this.isClonedRow(rowIndex);
+    const isClonedItem = this.isClonedItem(rowIndex);
     const templateWidgets = Object.values(this.currTemplateWidgets || {}) || [];
     const updatedRowCache: MetaWidgetCache[string] = {};
 
@@ -670,12 +703,15 @@ class MetaWidgetGenerator {
         currentCache.entityDefinition ||
         this.getPropertiesOfWidget(metaWidgetName, type);
 
-      if (!isClonedRow) {
+      if (!isClonedItem) {
         this.templateWidgetCandidates.add(metaWidgetId);
-        this.currViewMetaWidgetIds.push(templateWidgetId);
-      } else {
-        this.currViewMetaWidgetIds.push(metaWidgetId);
       }
+
+      this.currViewMetaWidgets.push({
+        templateWidgetId,
+        metaWidgetId,
+        isClonedItem,
+      });
 
       this.metaIdToTemplateIdMap[metaWidgetId] = templateWidgetId;
 
@@ -742,6 +778,25 @@ class MetaWidgetGenerator {
     }
   };
 
+  private generatePrimaryKeys = (options: GeneratorOptions) => {
+    const currentViewData = this.getSlicedByCurrentView(options.data);
+    const currentViewPrimaryKeys = this.getSlicedByCurrentView(
+      options.primaryKeys || [],
+    );
+
+    return currentViewData.map((datum, index) => {
+      const key = currentViewPrimaryKeys[index];
+
+      if (typeof key === "number" || typeof key === "string") {
+        return key.toString();
+      }
+
+      const datumToHash = datum ?? index;
+
+      return hash(datumToHash, { algorithm: "md5" });
+    });
+  };
+
   private convertToPropertyUpdates = (siblings: Siblings) => {
     return Object.entries(siblings).map(([candidateWidgetId, siblings]) => ({
       path: `${candidateWidgetId}.siblingMetaWidgets`,
@@ -787,7 +842,7 @@ class MetaWidgetGenerator {
     rowIndex: number,
     key: string,
   ) => {
-    const data = this.getData();
+    const currentViewData = this.getSlicedByCurrentView(this.data);
     const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
       metaWidget.widgetId,
       key,
@@ -829,7 +884,7 @@ class MetaWidgetGenerator {
         currentItem,
         currentRowCache: rowCache,
         autocomplete: {
-          currentItem: data?.[0],
+          currentItem: currentViewData?.[0],
           // Uses any one of the row's container present on the List widget to
           // get the object of current row for autocomplete
           currentView: `{{${metaContainerName}.data}}`,
@@ -960,7 +1015,7 @@ class MetaWidgetGenerator {
   private shouldAddDataCacheToBinding = (widgetId: string, key: string) => {
     return (
       this.serverSidePagination &&
-      this.cachedRows.curr.has(key) &&
+      this.cachedItemKeys.curr.has(key) &&
       !Object.keys(this.currTemplateWidgets ?? {}).includes(widgetId)
     );
   };
@@ -1180,9 +1235,6 @@ class MetaWidgetGenerator {
       this.modificationsQueue.add(MODIFICATION_TYPE.LEVEL_DATA_UPDATED);
     }
 
-    if (this.pageNo !== nextOptions.pageNo) {
-      this.modificationsQueue.add(MODIFICATION_TYPE.PAGE_NO_UPDATED);
-    }
     if (this.shouldGenerateCacheWidgets(nextOptions)) {
       this.modificationsQueue.add(MODIFICATION_TYPE.GENERATE_CACHE_WIDGETS);
     }
@@ -1198,13 +1250,13 @@ class MetaWidgetGenerator {
   private shouldGenerateCacheWidgets = (nextOptions: GeneratorOptions) => {
     return (
       (!isEqual(this.currTemplateWidgets, nextOptions.currTemplateWidgets) ||
-        !isEqual(this.cachedRows.curr, this.cachedRows.prev)) &&
+        !isEqual(this.cachedItemKeys.curr, this.cachedItemKeys.prev)) &&
       this.renderMode !== RenderModes.PAGE
     );
   };
 
   /**
-   * rowIndex is used to get the state of the row(isClonedRow)
+   * rowIndex is used to get the state of the row(isClonedItem)
    * The rowIndex changes in live data so we need to
    * 1. if Key is in primaryKeys i.e the row is in currentView, we use rowIndex
    * 2. if key isn't in primaryKeys i.e it's a cachedRow and we're in a diff page, we use prevRowIndex
@@ -1239,7 +1291,7 @@ class MetaWidgetGenerator {
     }
   };
 
-  private isClonedRow = (rowIndex: number) => {
+  private isClonedItem = (rowIndex: number) => {
     const viewIndex = this.getViewIndex(rowIndex);
 
     return (
@@ -1263,13 +1315,14 @@ class MetaWidgetGenerator {
     templateWidgetId: string,
     key: string,
   ) => {
-    const { metaWidgetId, prevViewIndex, rowIndex, type, viewIndex } =
+    const { originalMetaWidgetId, prevViewIndex, type, viewIndex } =
       this.getRowTemplateCache(key, templateWidgetId) || {};
     const { added, removed, unchanged } = this.templateWidgetStatus;
     const templateWidgetsAddedOrRemoved = added.size > 0 || removed.size > 0;
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
-    const isMetaWidgetPresentInCurrentView =
-      metaWidgetId && this.prevViewMetaWidgetIds.includes(metaWidgetId);
+    const isMetaWidgetPresentInCurrentView = this.isMetaWidgetPresentInView(
+      originalMetaWidgetId,
+    );
     const hasTemplateWidgetChanged = !unchanged.has(templateWidgetId);
     const containerUpdateRequired = this.modificationsQueue.has(
       MODIFICATION_TYPE.UPDATE_CONTAINER,
@@ -1279,10 +1332,6 @@ class MetaWidgetGenerator {
     );
     const shouldMainContainerUpdate =
       templateWidgetsAddedOrRemoved || containerUpdateRequired;
-    const pageNoUpdated = this.modificationsQueue.has(
-      MODIFICATION_TYPE.PAGE_NO_UPDATED,
-    );
-    const isClonedRow = this.isClonedRow(rowIndex || 0);
 
     /**
      * true only when
@@ -1298,8 +1347,6 @@ class MetaWidgetGenerator {
      * if nested primary widget type (list widget) and levelData updated.
      * or
      * the position of the item shuffled
-     * or
-     * template row and pageNo updated (induces currentIndex change)
      */
     return (
       (isMainContainerWidget && shouldMainContainerUpdate) ||
@@ -1307,8 +1354,7 @@ class MetaWidgetGenerator {
       hasTemplateWidgetChanged ||
       (type === this.primaryWidgetType && templateWidgetsAddedOrRemoved) ||
       levelDataUpdated ||
-      viewIndex !== prevViewIndex ||
-      (!isClonedRow && pageNoUpdated)
+      viewIndex !== prevViewIndex
     );
   };
 
@@ -1319,17 +1365,18 @@ class MetaWidgetGenerator {
       nextOptions.widgetName !== this.widgetName ||
       nextOptions.levelData !== this.levelData ||
       nextOptions?.currTemplateWidgets !== nextOptions?.prevTemplateWidgets ||
-      nextOptions.data.length !== this.data.length ||
       nextOptions.infiniteScroll !== this.infiniteScroll ||
       nextOptions.itemSpacing !== this.itemSpacing ||
-      nextOptions.pageNo !== this.pageNo ||
-      nextOptions.pageSize !== this.pageSize ||
-      nextOptions.primaryKeys !== this.primaryKeys ||
       nextOptions.serverSidePagination !== this.serverSidePagination ||
       nextOptions.templateBottomRow !== this.templateBottomRow ||
-      // Comparing a slice of the data as deep equal on the whole data can be very expensive.
-      (!isEqual(nextOptions.data[0], this.data[0]) && this.serverSidePagination)
+      !isEqual(this.prevPrimaryKeys, this.primaryKeys)
     );
+  };
+
+  private isMetaWidgetPresentInView = (metaWidgetId?: string) => {
+    return this.prevViewMetaWidgets.some((prevMetaWidget) => {
+      return prevMetaWidget.metaWidgetId === metaWidgetId;
+    });
   };
 
   private canHoldSiblingData = (rowIndex: number) => {
@@ -1400,11 +1447,11 @@ class MetaWidgetGenerator {
     return [...siblings];
   };
 
-  private getData = () => {
+  private getSlicedByCurrentView = (arr: unknown[]) => {
     if (this.serverSidePagination && typeof this.pageSize === "number") {
       const startIndex = 0;
       const endIndex = this.pageSize;
-      return this.data.slice(startIndex, endIndex);
+      return arr.slice(startIndex, endIndex);
     }
 
     const startIndex = this.getStartIndex();
@@ -1413,7 +1460,7 @@ class MetaWidgetGenerator {
       if (this.virtualizer) {
         const virtualItems = this.virtualizer.getVirtualItems();
         const endIndex = virtualItems[virtualItems.length - 1]?.index ?? 0;
-        return this.data.slice(startIndex, endIndex + 1);
+        return arr.slice(startIndex, endIndex + 1);
       }
 
       return [];
@@ -1421,7 +1468,7 @@ class MetaWidgetGenerator {
 
     if (typeof this.pageNo === "number" && typeof this.pageSize === "number") {
       const endIndex = startIndex + this.pageSize;
-      return this.data.slice(startIndex, endIndex);
+      return arr.slice(startIndex, endIndex);
     }
 
     return [];
@@ -1560,7 +1607,8 @@ class MetaWidgetGenerator {
   getMetaContainers = () => {
     const containers = { ids: [] as string[], names: [] as string[] };
     const startIndex = this.getStartIndex();
-    this.getData().forEach((_datum, viewIndex) => {
+    const currentViewData = this.getSlicedByCurrentView(this.data);
+    currentViewData.forEach((_datum, viewIndex) => {
       const rowIndex = startIndex + viewIndex;
       const key = this.getPrimaryKey(rowIndex);
       const metaContainer = this.getRowTemplateCache(
@@ -1585,21 +1633,9 @@ class MetaWidgetGenerator {
     this.currTemplateWidgets?.[this.containerWidgetId] as FlattenedWidgetProps;
 
   getPrimaryKey = (rowIndex: number): string => {
-    let dataIndex = rowIndex;
+    const viewIndex = this.getViewIndex(rowIndex);
 
-    if (this.serverSidePagination) {
-      dataIndex = this.getViewIndex(rowIndex);
-    }
-
-    const key = this?.primaryKeys?.[dataIndex];
-    if (typeof key === "number" || typeof key === "string") {
-      return key.toString();
-    }
-
-    const data = this.getData()[dataIndex];
-    const dataToHash = data ?? rowIndex;
-
-    return hash(dataToHash, { algorithm: "md5" });
+    return this.primaryKeys[viewIndex];
   };
 
   getTemplateWidgetIdByMetaWidgetId = (metaWidgetId: string) => {
@@ -1700,7 +1736,7 @@ class MetaWidgetGenerator {
   };
 
   private updateCurrCachedRows = (keys: Set<string>) => {
-    this.cachedRows.curr = keys;
+    this.cachedItemKeys.curr = keys;
   };
 
   private convertPrimaryKeyToString = () => {

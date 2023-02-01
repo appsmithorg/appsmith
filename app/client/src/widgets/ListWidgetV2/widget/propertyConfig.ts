@@ -152,8 +152,8 @@ export const PropertyPaneContentConfig = [
     sectionName: "Data",
     children: [
       {
-        helpText: "Takes in an array of objects to display items in the list.",
         propertyName: "listData",
+        helpText: "Takes in an array of objects to display items in the list.",
         label: "Items",
         controlType: "INPUT_TEXT",
         placeholderText: '[{ "name": "John" }]',
@@ -217,8 +217,8 @@ export const PropertyPaneContentConfig = [
         isTriggerProperty: false,
       },
       {
-        helpText: "Triggers an action when a list page is changed",
         propertyName: "onPageChange",
+        helpText: "Triggers an action when a list page is changed",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
