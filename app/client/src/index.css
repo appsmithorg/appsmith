@@ -38,6 +38,13 @@ span.bp3-popover-target {
 
 span.bp3-popover-target > * {
   flex-grow: 1;
+  max-width: 100%;
+}
+
+.bp3-button-text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 0;
 }
 
 div.bp3-popover-arrow {
