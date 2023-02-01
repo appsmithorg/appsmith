@@ -1,5 +1,5 @@
 import React, { createRef, useEffect, useState } from "react";
-import { Tooltip } from "@blueprintjs/core";
+import { Tooltip, PopoverInteractionKind } from "@blueprintjs/core";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import { CellAlignment, VerticalAlignment } from "../Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
@@ -78,6 +78,7 @@ function useToolTip(
   return requiresTooltip && children ? (
     <Tooltip
       autoFocus={false}
+      boundary="viewport"
       content={
         <TooltipContentWrapper width={(tableWidth || MAX_WIDTH) - WIDTH_OFFSET}>
           {title}
@@ -85,6 +86,7 @@ function useToolTip(
       }
       defaultIsOpen
       hoverOpenDelay={TOOLTIP_OPEN_DELAY}
+      interactionKind={PopoverInteractionKind.HOVER}
       position="top"
     >
       {
