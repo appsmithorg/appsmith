@@ -284,7 +284,7 @@ jobs:
         with:
           working-directory: app/client
           #command: yarn currents run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/**/* 
-          command: yarn cy2 run --record --parallel --browser chrome --key ${{ secrets.SORRYCYPRESS }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/**/* 
+          command: yarn cy2 run --record --parallel --headless --browser chrome --key ${{ secrets.SORRYCYPRESS }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/**/* 
 
 
           
