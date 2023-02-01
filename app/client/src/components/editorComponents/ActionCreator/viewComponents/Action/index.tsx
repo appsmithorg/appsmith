@@ -9,6 +9,7 @@ import { ActionTree, SelectedActionBlock, SwitchType } from "../../types";
 import {
   actionToCode,
   codeToAction,
+  getCodeFromMoustache,
   getSelectedFieldFromValue,
   isEmptyBlock,
 } from "../../utils";
@@ -400,9 +401,7 @@ export const Action: React.FC<Props> = ({
                           AppsmithFunction.none) as any;
 
                         return {
-                          code:
-                            getDynamicBindings(finalValueToSet).jsSnippets[0] ||
-                            "",
+                          code: getCodeFromMoustache(finalValueToSet) || "",
                           actionType,
                           successCallbacks: [],
                           errorCallbacks: [],
@@ -433,7 +432,7 @@ export const Action: React.FC<Props> = ({
                             selectedField.value) as any;
 
                           return {
-                            code: getDynamicBindings(newValue).jsSnippets[0],
+                            code: getCodeFromMoustache(newValue),
                             actionType,
                             successCallbacks: [],
                             errorCallbacks: [],

@@ -396,3 +396,8 @@ export function actionToCode(
 export function isEmptyBlock(block: string) {
   return [";", "undefined;"].includes(block);
 }
+
+export function getCodeFromMoustache(value: string) {
+  const code = value.replace(/^{{|}}$/g, "");
+  return code;
+}
