@@ -5,7 +5,10 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
-import * as _ from "../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../support/Objects/Registry";
+
+let gitSync = ObjectsRegistry.GitSync,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -158,7 +161,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
-  _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+  agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
   cy.wait(1000);
@@ -235,7 +238,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
-  _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+  agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
   cy.get(gitSyncLocators.commitButton).click();
   if (!assertFailure) {

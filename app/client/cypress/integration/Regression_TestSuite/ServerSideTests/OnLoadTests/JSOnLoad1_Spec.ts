@@ -298,21 +298,21 @@ describe("JSObjects OnLoad Actions tests", function() {
       // agHelper.AssertElementVisible(
       //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
-      agHelper.AssertElementExist(jsEditor._jsFuncConfirmDialog);
+      agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       agHelper.ClickButton("Yes");
 
       agHelper.Sleep();
       //agHelper.AssertElementVisible(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
-      agHelper.AssertElementExist(jsEditor._jsFuncConfirmDialog);
+      agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       agHelper.ClickButton("Yes");
 
       //agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
-      agHelper.AssertElementExist(jsEditor._jsFuncConfirmDialog);
+      agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       agHelper.ClickButton("Yes");
 
       agHelper.Sleep(500);
       //agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
-      agHelper.AssertElementExist(jsEditor._jsFuncConfirmDialog);
+      agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       agHelper.ClickButton("Yes");
 
       agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
@@ -333,16 +333,16 @@ describe("JSObjects OnLoad Actions tests", function() {
 
   it("8. Tc #1912 - API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.AssertElementExist(jsEditor._jsFuncConfirmDialog);
+    agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     agHelper.ClickButton("No");
     agHelper.AssertContains("was cancelled"); //agHelper.AssertContains("Quotes was cancelled");
 
     agHelper.WaitUntilAllToastsDisappear();
-    agHelper.AssertElementExist(jsEditor._jsFuncConfirmDialog);
+    agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     agHelper.ClickButton("No"); //Ask Favour abt below
     //agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
 
-    agHelper.AssertElementExist(jsEditor._jsFuncConfirmDialog);
+    agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     agHelper.ClickButton("No");
     agHelper.AssertContains("was cancelled");
     ee.ExpandCollapseEntity("Queries/JS");
