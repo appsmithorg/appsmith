@@ -206,7 +206,7 @@ describe("Git sync Bug #10773", function() {
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
-      cy.wait(3000);
+      cy.wait(2000);
 
       cy.window()
         .its("store")
@@ -215,6 +215,7 @@ describe("Git sync Bug #10773", function() {
           const commitInputDisabled =
             state.ui.gitSync.gitStatus?.isClean ||
             state.ui.gitSync.isCommitting;
+          cy.log("commitInputDisabled is " + commitInputDisabled);
           if (!commitInputDisabled) {
             cy.commitAndPush();
           }

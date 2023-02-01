@@ -22,28 +22,24 @@ describe.skip("Repo Limit Exceeded Error Modal", function() {
     cy.get("@gitRepoName").then((repName) => {
       repoName1 = repName;
     });
-    _.agHelper.Sleep(5000); //for git to reflect
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
     _.gitSync.CreateNConnectToGit(repoName2, false, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName2 = repName;
     });
-    _.agHelper.Sleep(5000); //for git to reflect
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
     _.gitSync.CreateNConnectToGit(repoName3, false, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName3 = repName;
     });
-    _.agHelper.Sleep(5000); //for git to reflect
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
     _.gitSync.CreateNConnectToGit(repoName4, true, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName4 = repName;
     });
-    _.agHelper.Sleep(5000); //for git to reflect
 
     // cy.createAppAndConnectGit(repoName1, false);
     // cy.createAppAndConnectGit(repoName2, false);
