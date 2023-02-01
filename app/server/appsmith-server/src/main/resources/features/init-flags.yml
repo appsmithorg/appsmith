@@ -71,15 +71,6 @@ ff4j:
           - name: emailDomains
             value: appsmith.com,moolya.com
 
-    - uid: CUSTOM_JS_LIBRARY
-      enable: true
-      description: Ability to use custom JS libraries
-      flipstrategy:
-        class: org.ff4j.strategy.PonderationStrategy
-        param:
-          - name: weight
-            value: 1
-
     - uid: MULTIPLE_PANES
       enable: true
       description: Have multiple panes in the Appsmith IDE
