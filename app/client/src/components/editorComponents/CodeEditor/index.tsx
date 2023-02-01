@@ -851,7 +851,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   getEntityInformation = (): FieldEntityInformation => {
-    const { configTree, dataTreePath, dynamicData, expected } = this.props;
+    const { configTree, dataTreePath, expected } = this.props;
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };

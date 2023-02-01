@@ -1,9 +1,5 @@
 import { UserLogObject } from "entities/AppsmithConsole";
-import {
-  ConfigTree,
-  DataTree,
-  UnEvalTree,
-} from "entities/DataTree/dataTreeFactory";
+import { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import { isEmpty } from "lodash";
