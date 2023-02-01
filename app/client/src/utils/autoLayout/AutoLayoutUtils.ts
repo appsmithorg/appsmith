@@ -10,6 +10,7 @@ import {
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   FLEXBOX_PADDING,
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -376,4 +377,28 @@ export function getLayerIndexOfWidget(
       -1
     );
   });
+}
+export function getFillWidgetLengthForLayer(
+  allWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+): number | undefined {
+  const widget = allWidgets[widgetId];
+  if (!widget || !widget.parentId) return;
+  const parent = allWidgets[widget.parentId];
+  if (!parent) return;
+  const flexLayers = parent.flexLayers;
+  const layerIndex = getLayerIndexOfWidget(flexLayers, widgetId);
+  if (layerIndex === -1) return;
+  const layer = flexLayers[layerIndex];
+  let fillLength = GridDefaults.DEFAULT_GRID_COLUMNS;
+  let hugLength = 0,
+    fillCount = 0;
+  for (const child of layer.children) {
+    const childWidget = allWidgets[child.id];
+    if (childWidget.responsiveBehavior !== ResponsiveBehavior.Fill)
+      hugLength += childWidget.rightColumn - childWidget.leftColumn;
+    else fillCount += 1;
+  }
+  fillLength = (fillLength - hugLength) / fillCount;
+  return fillLength;
 }
