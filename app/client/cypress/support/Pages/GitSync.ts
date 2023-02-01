@@ -237,6 +237,9 @@ export class GitSync {
       this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 70000); //Since page taking more time to laod in some cases
       this.agHelper.AssertElementVisible(this._branchName(branch + uid));
       cy.wrap(branch + uid).as("gitbranchName");
+      this.agHelper.AssertElementExist(this.locator._runBtnSpinner);
+      this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 70000); //Since page taking more time to laod in some cases
+      this.agHelper.AssertElementVisible(this._branchName(branch + uid));
     });
   }
 }
