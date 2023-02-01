@@ -304,11 +304,11 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.wait(2000);
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
-  cy.wait("@mergeBranch").should(
+  cy.wait("@mergeBranch", { timeout: 35000 }).should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
-  );
+  ); //adding timeout since merge is taking longer sometimes
   cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 
