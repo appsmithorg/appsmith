@@ -152,33 +152,31 @@ jobs:
       - name: Un-tar the rts folder
         working-directory: "."
         run: |
-          pwd
-          ls
           tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
           echo "Cleaning up the tar files"
           rm app/rts/dist/rts-dist.tar
       # Start server
-      - name: start server
-        if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/server
-        env:
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
-          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
-          APPSMITH_ENCRYPTION_PASSWORD: "password"
-          APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_IS_SELF_HOSTED: false
-          APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
-          APPSMITH_CLOUD_SERVICES_USERNAME: ""
-          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
-          APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
-          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
-        run: |
-          ls -l
-          ls -l scripts/
-          ls -l dist/
-          # Run the server in the background and redirect logs to a log file
-          ./scripts/start-dev-server.sh &> server-logs.log &
+      # - name: start server
+      #   if: steps.run_result.outputs.run_result != 'success'
+      #   working-directory: app/server
+      #   env:
+      #     APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+      #     APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+      #     APPSMITH_ENCRYPTION_PASSWORD: "password"
+      #     APPSMITH_ENCRYPTION_SALT: "salt"
+      #     APPSMITH_IS_SELF_HOSTED: false
+      #     APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
+      #     APPSMITH_CLOUD_SERVICES_USERNAME: ""
+      #     APPSMITH_CLOUD_SERVICES_PASSWORD: ""
+      #     APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+      #     APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+      #     APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+      #   run: |
+      #     ls -l
+      #     ls -l scripts/
+      #     ls -l dist/
+      #     # Run the server in the background and redirect logs to a log file
+      #     ./scripts/start-dev-server.sh &> server-logs.log &
 
       - name: Installing Yarn serve
         if: steps.run_result.outputs.run_result != 'success'
@@ -267,14 +265,14 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
         run: |
-          chmod a+x ./perf/setup-perf-test.sh
-          ./perf/setup-perf-test.sh
+          chmod a+x ./perf/setup-test-ci.sh
+          ./perf/setup-test-ci.sh
 
       - name: Get the performance-infra branch/ref
         id: perf_infra_ref
         run: |
           ref=${{ github.event.client_payload.slash_command.args.named.ref }}
-          if [[ -z "$ref" ]]; then ref="main"; fi
+          if [[ -z "$ref" ]]; then ref="rhito/move-logs-and-fix-misc-tests"; fi
           echo ref=$ref >> $GITHUB_OUTPUT
 
       - name: Checkout Performance Infra code

@@ -38,6 +38,7 @@ echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
 
 # echo "Waiting for test event driver to start"
 # sleep 50
+sleep 10
 
 echo "Checking if the containers have started"
 sudo docker ps -a
@@ -51,7 +52,7 @@ if sudo docker ps -a | grep -q Exited; then
 fi
 
 echo "Checking if the server has started"
-status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://localhost/api/v1/users)
 
 retry_count=1
 
@@ -59,7 +60,7 @@ while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
 	echo "Hit 502.Server not started retrying..."
 	retry_count=$((1 + $retry_count))
 	sleep 30
-	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://locvalhost/api/v1/users)
 done
 
 echo "Checking if client and server have started"
