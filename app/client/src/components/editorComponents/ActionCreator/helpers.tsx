@@ -47,6 +47,7 @@ import {
   SelectorField,
   SwitchType,
 } from "./types";
+import { getCodeFromMoustache } from "./utils";
 
 const actionList: {
   label: string;
@@ -151,7 +152,7 @@ function getActionEntityFields(
 ) {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
-  const requiredValue = getDynamicBindings(value).jsSnippets[0];
+  const requiredValue = getCodeFromMoustache(value);
   const successFunction = getFuncExpressionAtPosition(
     requiredValue,
     0,

@@ -397,6 +397,7 @@ export function isEmptyBlock(block: string) {
   return [";", "undefined;"].includes(block);
 }
 
+/** {{Hello {{Input.text}}}} -> Hello {{Input.text}} */
 export function getCodeFromMoustache(value: string) {
   const code = value.replace(/^{{|}}$/g, "");
   return code;

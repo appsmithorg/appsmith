@@ -22,15 +22,9 @@ import {
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
-import { ACTION_TRIGGER_REGEX } from "../regex";
 import { TreeDropdownOption } from "design-system-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
-import {
-  getActionBlocks,
-  getFuncExpressionAtPosition,
-  getFunctionName,
-} from "@shared/ast";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { getFunctionName } from "@shared/ast";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {

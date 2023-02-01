@@ -22,7 +22,6 @@ import {
 } from "../../helpers";
 import { TabView } from "../TabView";
 import { cloneDeep } from "lodash";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ActionBlockTree } from "../ActionBlockTree";
 
 type Props = {
@@ -250,7 +249,7 @@ export const Action: React.FC<Props> = ({
             setActionTree((prevActionTree) => {
               const newActionTree = cloneDeep(prevActionTree);
               const action = newActionTree.successCallbacks[index];
-              action.code = getDynamicBindings(newValue).jsSnippets[0];
+              action.code = getCodeFromMoustache(newValue);
               const selectedField = getSelectedFieldFromValue(
                 newValue,
                 integrationOptions,
@@ -290,7 +289,7 @@ export const Action: React.FC<Props> = ({
             setActionTree((prevActionTree) => {
               const newActionTree = cloneDeep(prevActionTree);
               const action = newActionTree.errorCallbacks[index];
-              action.code = getDynamicBindings(newValue).jsSnippets[0];
+              action.code = getCodeFromMoustache(newValue);
               const selectedField = getSelectedFieldFromValue(
                 newValue,
                 integrationOptions,

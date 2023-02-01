@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { FieldGroupProps, SwitchType } from "../types";
 import { Field } from "../Field";
-import { isValueValidURL } from "../utils";
+import { getCodeFromMoustache, isValueValidURL } from "../utils";
 import { getFieldFromValue } from "../helpers";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { useSelector } from "react-redux";
 import { getDataTreeForActionCreator } from "sagas/selectors";
 
@@ -52,14 +51,13 @@ function FieldGroup(props: FieldGroupProps) {
   ] = useState<SwitchType>(apiAndQueryCallbackTabSwitches[0]);
 
   const fields = getFieldFromValue(
-    getDynamicBindings(props.value).jsSnippets[0],
+    getCodeFromMoustache(props.value),
     activeTabApiAndQueryCallback,
     activeTabNavigateTo,
     undefined,
     dataTree,
     isChainedAction,
   );
-  console.log("Ac**", fields);
 
   if (fields.length === 0) return null;
 

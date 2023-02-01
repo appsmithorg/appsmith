@@ -1,14 +1,14 @@
 import React, { useCallback, useMemo } from "react";
 import { getActionBlocks } from "@shared/ast";
 import { ActionCreatorProps } from "./types";
-import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
 import { Action } from "./viewComponents/Action";
+import { getCodeFromMoustache } from "./utils";
 
 const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
     const actions: string[] = useMemo(() => {
       const blocks = getActionBlocks(
-        getDynamicBindings(props.value).jsSnippets[0],
+        getCodeFromMoustache(props.value),
         window.evaluationVersion,
       );
 
@@ -19,7 +19,7 @@ const ActionCreator = React.forwardRef(
       (index: number) => (value: string, isUpdatedViaKeyboard: boolean) => {
         props.onValueChange(
           `{{${actions.slice(0, index).join("") +
-            getDynamicBindings(value).jsSnippets[0] +
+            getCodeFromMoustache(value) +
             actions.slice(index + 1).join("")}}}`,
           isUpdatedViaKeyboard,
         );
