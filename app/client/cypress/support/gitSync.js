@@ -299,7 +299,14 @@ Cypress.Commands.add("merge", (destinationBranch) => {
     "response.body.responseMeta.status",
     200,
   ); */
+
+  agHelper.AssertElementEnabledDisabled(
+    gitSyncLocators.mergeBranchDropdownDestination,
+    0,
+    false,
+  );
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
+
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
     .click();
