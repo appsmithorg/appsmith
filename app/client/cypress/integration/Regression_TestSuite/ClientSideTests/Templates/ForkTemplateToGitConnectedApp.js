@@ -71,8 +71,8 @@ describe("Fork a template to the current app", () => {
       _.ee.AddNewPage();
       _.ee.AddNewPage("add-page-from-template");
       cy.get(template.templateDialogBox).should("be.visible");
-      cy.xpath("//div[text()='Meeting Scheduler']").click();
-      cy.wait(5000); // for templates page to load fully
+      cy.xpath("//div[text()='Slack Bot']").click();
+      cy.wait(10000); // for templates page to load fully
       // cy.xpath(template.selectAllPages)
       //   .next()
       //   .click();
@@ -83,8 +83,7 @@ describe("Fork a template to the current app", () => {
       //   .click();
       // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
       cy.get(template.templateViewForkButton).click();
-
-      cy.wait(3000);
+      cy.wait(5000);
       cy.get(widgetLocators.toastAction, { timeout: 40000 }).should(
         "contain",
         "template added successfully",
