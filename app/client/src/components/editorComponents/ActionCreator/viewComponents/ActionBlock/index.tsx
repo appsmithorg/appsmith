@@ -53,8 +53,10 @@ export const ActionBlock: React.FC<ActionBlockProps> = ({
         <ActionIcon />
         <div className="text-xs text-gray-600">{actionTypeLabel}</div>
       </div>
-      <div className="flex text-sm text-gray-700 relative w-full overflow-hidden">
-        {action}
+      <div className="flex text-sm text-gray-700 relative w-full ">
+        <span className="w-full text-left overflow-hidden text-ellipsis whitespace-nowrap block">
+          {action}
+        </span>
         {actionsCount > 0 ? (
           <span className="flex items-center justify-center absolute bottom-1 right-1 rounded-full text-xs min-h-5 min-w-5 max-h-5 max-w-5 bg-gray-100 text-gray-800 p-2">
             +{actionsCount}
