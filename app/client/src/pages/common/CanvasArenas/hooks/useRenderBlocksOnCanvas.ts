@@ -172,7 +172,10 @@ export const useRenderBlocksOnCanvas = (
             : parentOffsetTop && scrollParent.scrollTop > parentOffsetTop
             ? scrollParent.scrollTop - parentOffsetTop
             : 0;
-        canvasCtx.roundRect(posX, posY - val, width, height, 4);
+        // roundRect is not currently supported in firefox.
+        if (canvasCtx.roundRect)
+          canvasCtx.roundRect(posX, posY - val, width, height, 4);
+        else canvasCtx.rect(posX, posY - val, width, height);
         canvasCtx.fill();
         canvasCtx.stroke();
         canvasCtx.save();

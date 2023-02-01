@@ -14,7 +14,6 @@ import {
 } from "actions/controlActions";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
-import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -154,6 +153,8 @@ import {
   purgeOrphanedDynamicPaths,
   WIDGET_PASTE_PADDING,
 } from "./WidgetOperationUtils";
+import { SelectionRequestType } from "./WidgetSelectUtils";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 
 export function* updateAllChildCanvasHeights(
@@ -617,6 +618,7 @@ export function* getIsContainerLikeWidget(widget: FlattenedWidgetProps) {
   }
   return false;
 }
+
 export function* getPropertiesUpdatedWidget(
   updatesObj: UpdateWidgetPropertyPayload,
 ) {
@@ -1783,7 +1785,12 @@ function* pasteWidgetSaga(
     flashElementsById(newlyCreatedWidgetIds, 100);
   }
 
-  yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
+  yield put(
+    selectWidgetInitAction(
+      SelectionRequestType.Multiple,
+      newlyCreatedWidgetIds,
+    ),
+  );
 }
 
 function* cutWidgetSaga() {

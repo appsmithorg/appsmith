@@ -22,11 +22,13 @@ const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
-const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
+import { ObjectsRegistry } from "../support/Objects/Registry";
+
+const { CanvasHelper } = ObjectsRegistry;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -399,7 +401,7 @@ Cypress.Commands.add("SelectAction", (action) => {
 });
 
 Cypress.Commands.add("ClearSearch", () => {
-  cy.get(commonlocators.entityExplorersearch).clear({ force: true });
+  cy.get(commonlocators.searchEntityInExplorer).clear({ force: true });
 });
 
 Cypress.Commands.add(
@@ -740,6 +742,7 @@ Cypress.Commands.add("deleteDataSource", () => {
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
+  CanvasHelper.OpenWidgetPane();
   cy.wait(500);
   cy.get(selector)
     .trigger("dragstart", { force: true })
@@ -755,6 +758,7 @@ Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
     const selector = `.t--widget-card-draggable-${widgetType}`;
+    CanvasHelper.OpenWidgetPane();
     cy.wait(800);
     cy.get(selector)
       .scrollIntoView()
@@ -990,7 +994,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
 
-  cy.route("POST", "api/v1/git/connect/app/*").as("connectGitRepo");
   cy.route("POST", "api/v1/git/commit/app/*").as("commit");
   cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
   cy.route("POST", "/api/v1/git/merge/app/*").as("mergeBranch");
@@ -1016,6 +1019,17 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
   cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
+  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
+  cy.intercept(
+    {
+      method: "POST",
+      url: "/api/v1/git/connect/app/*",
+      hostname: window.location.host,
+    },
+    (req) => {
+      req.headers["origin"] = "Cypress";
+    },
+  ).as("connectGitLocalRepo");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {

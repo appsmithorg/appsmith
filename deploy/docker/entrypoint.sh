@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -o xtrace
 
 stacks_path=/appsmith-stacks
 
@@ -153,8 +154,15 @@ init_replica_set() {
     echo "Waiting 10s for MongoDB to start"
     sleep 10
     echo "Creating MongoDB user"
-    bash "/opt/appsmith/templates/mongo-init.js.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" > "/appsmith-stacks/configuration/mongo-init.js"
-    mongosh "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
+    mongosh "127.0.0.1/appsmith" --eval "db.createUser({
+        user: '$APPSMITH_MONGODB_USER',
+        pwd: '$APPSMITH_MONGODB_PASSWORD',
+        roles: [{
+            role: 'root',
+            db: 'admin'
+        }, 'readWrite']
+      }
+    )"
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile /mongodb-key --bind_ip localhost
@@ -182,10 +190,10 @@ init_replica_set() {
 }
 
 use-mongodb-key() {
-	# This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
-	# What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
-	# So the key file should be somewhere inside the container, and not in a volume.
-	cp -v "$1" /mongodb-key
+  # This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
+  # What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
+  # So the key file should be somewhere inside the container, and not in a volume.
+  cp -v "$1" /mongodb-key
   chmod 600 /mongodb-key
 }
 

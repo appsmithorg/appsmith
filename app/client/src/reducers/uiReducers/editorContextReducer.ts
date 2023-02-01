@@ -37,7 +37,6 @@ export type CodeEditorHistory = Record<string, CodeEditorContext>;
 export type EditorContextState = {
   entityCollapsibleFields: Record<string, boolean>;
   subEntityCollapsibleFields: Record<string, boolean>;
-  explorerSwitchIndex: number;
   focusedInputField?: string;
   codeEditorHistory: Record<string, CodeEditorContext>;
   propertySectionState: Record<string, boolean>;
@@ -54,7 +53,6 @@ const initialState: EditorContextState = {
   propertyPanelState: {},
   entityCollapsibleFields: {},
   subEntityCollapsibleFields: {},
-  explorerSwitchIndex: 0,
 };
 
 const entitySections = [
@@ -198,11 +196,5 @@ export const editorContextReducer = createImmerReducer(initialState, {
     action: { payload: { [key: string]: boolean } },
   ) => {
     state.subEntityCollapsibleFields = action.payload;
-  },
-  [ReduxActionTypes.SET_EXPLORER_SWITCH_INDEX]: (
-    state: EditorContextState,
-    action: { payload: number },
-  ) => {
-    state.explorerSwitchIndex = action.payload;
   },
 });

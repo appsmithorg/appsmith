@@ -32,6 +32,7 @@ import PerformanceTracker, {
 import WidgetFactory from "utils/WidgetFactory";
 import { canDrag } from "../DraggableComponent";
 import SettingsControl, { Activities } from "./SettingsControl";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -49,6 +50,7 @@ const ControlGroup = styled.div`
   justify-content: flex-start;
   align-items: center;
   height: 100%;
+
   & > span {
     height: 100%;
   }
@@ -121,7 +123,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      selectWidget && selectWidget(props.widgetId);
+      selectWidget && selectWidget(SelectionRequestType.One, [props.widgetId]);
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,
@@ -203,7 +205,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       if (!isFocused) return;
 
       if (!isSelected) {
-        selectWidget(props.widgetId);
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
       const widgetHeight =
         props.widgetProps.bottomRow - props.widgetProps.topRow;

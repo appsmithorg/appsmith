@@ -23,16 +23,19 @@ export const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
   & > div {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
   }
+
   &:hover {
     background: ${Colors.Gallery};
     cursor: grab;
   }
+
   & i {
     font-family: ${(props) => props.theme.fonts.text};
     font-size: ${(props) => props.theme.fontSizes[7]}px;
@@ -59,6 +62,7 @@ export const IconLabel = styled.h5`
   flex-shrink: 1;
   font-size: ${(props) => props.theme.fontSizes[1]}px;
   line-height: ${(props) => props.theme.lineHeights[2]}px;
+
   &::selection {
     background: none;
   }
@@ -75,7 +79,6 @@ function WidgetCard(props: CardProps) {
     }
     e.preventDefault();
     e.stopPropagation();
-    deselectAll();
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: props.details.type,
       widgetName: props.details.displayName,
@@ -86,6 +89,7 @@ function WidgetCard(props: CardProps) {
         rows: rows,
         widgetId: generateReactKey(),
       });
+    deselectAll();
   };
 
   const type = `${props.details.type
