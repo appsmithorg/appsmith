@@ -21,6 +21,7 @@ describe("API Panel Test Functionality", function() {
     apiPage.EnterHeader(testdata.headerKey, testdata.headerValue);
     cy.readFile("cypress/fixtures/putjson.txt").then((json) => {
       apiPage.SelectPaneTab("Body");
+      apiPage.SelectSubTab("JSON");
       dataSources.EnterQuery(json);
       agHelper.AssertAutoSave();
       apiPage.RunAPI();
@@ -45,6 +46,7 @@ describe("API Panel Test Functionality", function() {
     apiPage.EnterHeader(testdata.headerKey, testdata.headerValue);
     cy.readFile("cypress/fixtures/postjson.txt").then((json) => {
       apiPage.SelectPaneTab("Body");
+      apiPage.SelectSubTab("JSON");
       dataSources.EnterQuery(json);
       agHelper.AssertAutoSave();
       apiPage.RunAPI();
@@ -69,6 +71,7 @@ describe("API Panel Test Functionality", function() {
     apiPage.EnterHeader(testdata.headerKey, testdata.headerValue);
     cy.readFile("cypress/fixtures/patchjson.txt").then((json) => {
       apiPage.SelectPaneTab("Body");
+      apiPage.SelectSubTab("JSON");
       dataSources.EnterQuery(json);
       agHelper.AssertAutoSave();
       apiPage.RunAPI();
