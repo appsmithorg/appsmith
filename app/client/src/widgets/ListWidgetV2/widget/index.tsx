@@ -439,15 +439,16 @@ class ListWidget extends BaseWidget<
   getContainerRowHeight = () => {
     const { itemSpacing = 0, listData, parentRowSpace } = this.props;
     const templateBottomRow = this.getTemplateBottomRow();
-
+    const containerVerticalPadding = WIDGET_PADDING * 2;
     const itemsCount = (listData || []).length;
-
     const templateHeight = templateBottomRow * parentRowSpace;
 
-    const averageitemSpacing = itemsCount
-      ? itemSpacing * ((itemsCount - 1) / itemsCount)
+    const averageItemSpacing = itemsCount
+      ? (itemSpacing - containerVerticalPadding) *
+        ((itemsCount - 1) / itemsCount)
       : 0;
-    return templateHeight + averageitemSpacing;
+
+    return templateHeight + averageItemSpacing;
   };
 
   getPageSize = () => {
@@ -541,8 +542,7 @@ class ListWidget extends BaseWidget<
     metaMainCanvas.minHeight = componentHeight;
     metaMainCanvas.rightColumn = componentWidth;
     metaMainCanvas.noPad = true;
-    metaMainCanvas.bottomRow =
-      this.mainMetaCanvasWidgetBottomRow() - WIDGET_PADDING * 2;
+    metaMainCanvas.bottomRow = this.mainMetaCanvasWidgetBottomRow();
 
     return metaMainCanvas as MetaWidget;
   };
@@ -952,6 +952,17 @@ class ListWidget extends BaseWidget<
     );
   };
 
+  shouldRenderEmptyListComponent = (
+    templateHeight: number,
+    componentHeight: number,
+  ) => {
+    return (
+      isNaN(templateHeight) ||
+      templateHeight > componentHeight - 45 ||
+      this.pageSize === 0
+    );
+  };
+
   getPageView() {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const {
@@ -986,7 +997,7 @@ class ListWidget extends BaseWidget<
       );
     }
 
-    if (isNaN(templateHeight) || templateHeight > componentHeight - 45) {
+    if (this.shouldRenderEmptyListComponent(templateHeight, componentHeight)) {
       return (
         <ListComponentEmpty>
           Please make sure the list widget height is greater than the template
