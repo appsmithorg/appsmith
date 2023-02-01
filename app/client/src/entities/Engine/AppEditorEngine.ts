@@ -49,8 +49,6 @@ import AppEngine, {
 } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import FeatureFlags from "entities/FeatureFlags";
 import { waitForSegmentInit } from "ce/sagas/userSagas";
 
 export default class AppEditorEngine extends AppEngine {
@@ -119,11 +117,8 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_PAGE_ERROR,
     ];
 
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    if (featureFlags.CUSTOM_JS_LIBRARY) {
-      initActionsCalls.push(fetchJSLibraries(applicationId));
-      successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
-    }
+    initActionsCalls.push(fetchJSLibraries(applicationId));
+    successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
 
     const allActionCalls: boolean = yield call(
       failFastApiCalls,
