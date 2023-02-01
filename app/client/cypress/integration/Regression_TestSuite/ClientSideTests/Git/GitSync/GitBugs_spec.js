@@ -112,6 +112,7 @@ describe("Git sync Bug #10773", function() {
     );
     // deploy the app and validate data binding
     cy.get(homePage.publishButton).click();
+    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.wait(8000);
@@ -166,7 +167,6 @@ describe("Git sync Bug #10773", function() {
       201,
     );
     _.gitSync.DeleteTestGithubRepo(repoName);
-    //cy.deleteTestGithubRepo(repoName);
   });
 
   it("4. Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
@@ -203,7 +203,7 @@ describe("Git sync Bug #10773", function() {
       201,
     );
     // connect app to git and deploy
-    _.gitSync.CreateNConnectToGit(repoName);
+    _.gitSync.CreateNConnectToGit();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
       cy.wait(2000);
