@@ -224,6 +224,7 @@ describe("Tests setTimeout API", function() {
     agHelper.Sleep(1000);
     cy.wait("@postExecute").then((interception : any) => {
       userName = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
+      agHelper.AssertContains(userName);
     });
   });
 });
