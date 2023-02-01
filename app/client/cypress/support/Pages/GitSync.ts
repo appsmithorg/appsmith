@@ -99,10 +99,10 @@ export class GitSync {
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
         this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
+        this.agHelper.AssertElementVisible(this._bottomBarCommit);
       }
       this.CloseGitSyncModal();
     });
-    this.agHelper.AssertElementVisible(this._bottomBarCommit);
   }
 
   private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {
