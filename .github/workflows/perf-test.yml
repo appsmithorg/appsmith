@@ -178,6 +178,7 @@ jobs:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
+          mkdir -p cicontainerlocal/stacks/configuration/
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
           docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
