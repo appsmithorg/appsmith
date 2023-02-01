@@ -81,7 +81,7 @@ export class JSEditor {
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
-  _dialogInDeployView = "//div[@class='bp3-dialog-body']//*[contains(text(), '" +Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +"')]";
+  //_dialogInDeployView = "//div[@class='bp3-dialog-body']//*[contains(text(), '" +Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +"')]";
   _funcDropdown = ".t--formActionButtons div[role='listbox']";
   _funcDropdownOptions = ".ads-dropdown-options-wrapper div > span div";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
