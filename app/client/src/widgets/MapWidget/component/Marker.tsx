@@ -71,14 +71,14 @@ const Marker: React.FC<MarkerProps> = (options) => {
     if (!marker) return;
 
     marker.setIcon(icon);
-  }, [color]);
+  }, [marker, color]);
 
   // track position
   useEffect(() => {
     if (!marker) return;
 
     marker.setPosition(position);
-  }, [position]);
+  }, [marker, position]);
 
   // track on onclick
   useEffect(() => {
