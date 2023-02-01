@@ -17,6 +17,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
@@ -31,6 +32,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
@@ -50,6 +52,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -131,10 +134,12 @@ import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -188,6 +193,9 @@ public class ApplicationServiceCETest {
 
     @Autowired
     ActionCollectionService actionCollectionService;
+
+    @Autowired
+    CustomJSLibService customJSLibService;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -2704,6 +2712,12 @@ public class ApplicationServiceCETest {
         testApplication.setName(appName);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
+                    CustomJSLib jsLib = new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version",
+                            "defs");
+                    return customJSLibService.addJSLibToApplication(application.getId(), jsLib, null, false)
+                            .then(applicationService.getById(application.getId()));
+                })
+                .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
                     page.setApplicationId(application.getId());
@@ -2742,6 +2756,11 @@ public class ApplicationServiceCETest {
                         }
                     }
                     assertThat(isFound).isTrue();
+
+                    assertEquals(1, viewApplication.getPublishedCustomJSLibs().size());
+                    CustomJSLib jsLib = new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version",
+                            "defs");
+                    assertEquals(getDTOFromCustomJSLib(jsLib), viewApplication.getPublishedCustomJSLibs().toArray()[0]);
                 })
                 .verifyComplete();
     }
