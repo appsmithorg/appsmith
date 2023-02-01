@@ -1,4 +1,4 @@
-import React, { Component, useCallback } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import CodeMirror, {
@@ -127,6 +127,7 @@ import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import { Portal } from "@blueprintjs/core";
 import ReactJson from "react-json-view";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import styled from "styled-components";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -226,6 +227,7 @@ type State = {
         position: DOMRect;
         textWidth: number;
         data: unknown;
+        dataType: string;
       }
     | undefined;
 };
@@ -250,12 +252,15 @@ class CodeEditor extends Component<Props, State> {
   reactJsonProps = {
     name: null,
     enableClipboard: false,
-    displayObjectSize: false,
     displayDataTypes: false,
+    displayArrayKey: false,
+    quotesOnKeys: false,
     style: {
-      fontSize: "13px",
+      fontSize: "10px",
     },
     collapsed: 1,
+    indentWidth: 2,
+    collapseStringsAfterLength: 20,
   };
   private editorWrapperRef = React.createRef<HTMLDivElement>();
 
@@ -532,14 +537,13 @@ class CodeEditor extends Component<Props, State> {
       tokenElementPosition: DOMRect,
       dataToShow: unknown,
     ) => {
-      console.log("text hover", peekableAttribute);
-      console.log("text hover", tokenElementPosition);
       this.setState({
         peekOverlayProps: {
           name: peekableAttribute ?? "",
           position: tokenElementPosition,
           textWidth: tokenElementPosition.width,
           data: dataToShow,
+          dataType: typeof dataToShow,
         },
       });
     },
@@ -568,12 +572,6 @@ class CodeEditor extends Component<Props, State> {
               ? "peekData." +
                 paths.slice(1).reduce((prev, cur) => prev + cur, "")
               : "peekData";
-          console.log(
-            "entitiesForNav",
-            this.props.entitiesForNavigation[paths[0]],
-            propertyAccessor,
-            _.get(this.props.entitiesForNavigation[paths[0]], propertyAccessor),
-          );
           this.debouncedPeek(
             peekableAttribute,
             tokenElementPosition,
@@ -582,7 +580,6 @@ class CodeEditor extends Component<Props, State> {
         }
       }
     } else {
-      console.log("text hover - close");
       this.debouncedPeek.cancel();
       this.debouncedPeekHide();
     }
@@ -1173,6 +1170,28 @@ class CodeEditor extends Component<Props, State> {
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!dataTreePath));
 
+    const JsonWrapper = styled.div`
+      .icon-container {
+        width: 10px !important;
+        height: 8px !important;
+        svg {
+          color: var(--appsmith-color-black-600) !important;
+        }
+      }
+      // .object-key-val:not(:has(.pushed-content.object-container)) .object-size {
+      //   display: none !important;
+      // }
+
+      // .object-key-val:has(.pushed-content.object-container
+      //     > .object-content
+      //     > .variable-row
+      //     > span
+      //     > .object-key)
+      //   .object-size {
+      //   display: none !important;
+      // }
+    `;
+
     return (
       <DynamicAutocompleteInputWrapper
         className="t--code-editor-wrapper"
@@ -1237,11 +1256,11 @@ class CodeEditor extends Component<Props, State> {
             {this.state.peekOverlayProps && (
               <Portal>
                 <div
-                  className="absolute"
                   onMouseEnter={() => this.debouncedPeekHide.cancel()}
                   onMouseLeave={() => this.debouncedPeekHide()}
                   style={{
-                    height: "127px",
+                    position: "absolute",
+                    height: "152px", // +2 px to accomodate scroll bar
                     width: "300px",
                     backgroundColor: "white",
                     border: "1px solid #888888",
@@ -1250,18 +1269,46 @@ class CodeEditor extends Component<Props, State> {
                       this.state.peekOverlayProps.position.width -
                       300 +
                       "px",
-                    top: this.state.peekOverlayProps.position.top - 127 + "px",
+                    top: this.state.peekOverlayProps.position.top - 150 + "px",
                     zIndex: 2,
                   }}
                 >
-                  <div className="overflow-y-auto h-full">
-                    {this.state.peekOverlayProps.data && (
-                      <ReactJson
-                        src={this.state.peekOverlayProps.data}
-                        {...this.reactJsonProps}
-                      />
+                  <div
+                    className="first-letter:uppercase"
+                    style={{
+                      height: "25px",
+                      color: "var(--appsmith-color-black-700)",
+                      padding: "4px 0px 4px 12px",
+                      fontSize: "10px",
+                    }}
+                  >
+                    {this.state.peekOverlayProps.dataType === "object"
+                      ? Array.isArray(this.state.peekOverlayProps.data)
+                        ? "array"
+                        : "object"
+                      : this.state.peekOverlayProps.dataType}
+                  </div>
+                  <div
+                    style={{
+                      height: "125px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {this.state.peekOverlayProps.dataType === "object" && (
+                      <JsonWrapper>
+                        <ReactJson
+                          src={this.state.peekOverlayProps.data}
+                          {...this.reactJsonProps}
+                        />
+                      </JsonWrapper>
                     )}
-                    {!this.state.peekOverlayProps.data && <div>undefined</div>}
+                    {this.state.peekOverlayProps.dataType !== "object" && (
+                      <div>
+                        {(this.state.peekOverlayProps
+                          .data as any)?.toString() ??
+                          this.state.peekOverlayProps.dataType}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Portal>

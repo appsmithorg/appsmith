@@ -1,6 +1,7 @@
 import {
   DataTree,
   DataTreeAction,
+  DataTreeJSAction,
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
@@ -14,11 +15,14 @@ import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
-import { keyBy } from "lodash";
+import { isFunction, keyBy } from "lodash";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import {
+  entityDefinitions,
+  EntityDefinitionsOptions,
+} from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 
 export type NavigationData = {
@@ -30,6 +34,7 @@ export type NavigationData = {
   children: Record<string, NavigationData>;
   peekable: boolean;
   peekData?: unknown;
+  key?: string;
 };
 export type EntityNavigationData = Record<string, NavigationData>;
 
@@ -48,18 +53,7 @@ export const getEntitiesForNavigation = createSelector(
         (plugin) => plugin.id === action.config.pluginId,
       );
       const config = getActionConfig(action.config.pluginType);
-      const definitions = entityDefinitions.ACTION(
-        dataTree[action.config.name] as DataTreeAction,
-        {},
-      );
-      // console.log(
-      //   "entitiesForNav",
-      //   config,
-      //   action.config,
-      //   dataTree[action.config.name],
-      //   definitions,
-      // );
-      const { childNavData, peekData } = getActionPeekData(
+      const { childNavData, peekData } = getActionChildren(
         action,
         entityDefinitions.ACTION(
           dataTree[action.config.name] as DataTreeAction,
@@ -86,52 +80,97 @@ export const getEntitiesForNavigation = createSelector(
     });
 
     jsActions.forEach((jsAction) => {
+      const { childNavData, peekData } = getJsObjectChildren(
+        jsAction,
+        pageId,
+        dataTree[jsAction.config.name] as DataTreeJSAction,
+      );
       navigationData[jsAction.config.name] = {
         name: jsAction.config.name,
         id: jsAction.config.id,
         type: ENTITY_TYPE.JSACTION,
         url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
         navigable: true,
-        children: getJsObjectChildren(jsAction, pageId),
-        peekable: false,
+        children: childNavData,
+        peekable: true,
+        peekData,
       };
     });
 
     Object.values(widgets).forEach((widget) => {
+      const { childNavData, peekData } = getWidgetChildren(
+        widget,
+        dataTree,
+        pageId,
+      );
       navigationData[widget.widgetName] = {
         name: widget.widgetName,
         id: widget.widgetId,
         type: ENTITY_TYPE.WIDGET,
         url: builderURL({ pageId, hash: widget.widgetId }),
         navigable: true,
-        children: getWidgetChildren(widget, dataTree, pageId),
-        peekable: false,
+        children: childNavData,
+        peekable: true,
+        peekData,
       };
     });
     return navigationData;
   },
 );
 
-const getJsObjectChildren = (jsAction: JSCollectionData, pageId: string) => {
-  const children = [
-    ...jsAction.config.actions,
-    ...jsAction.config.variables,
-  ].map((jsChild) => ({
-    name: `${jsAction.config.name}.${jsChild.name}`,
-    key: jsChild.name,
-    id: `${jsAction.config.name}.${jsChild.name}`,
-    type: ENTITY_TYPE.JSACTION,
-    url: jsCollectionIdURL({
-      pageId,
-      collectionId: jsAction.config.id,
-      functionName: jsChild.name,
-    }),
-    navigable: true,
-    children: {},
-    peekable: false,
-  }));
+const getJsObjectChildren = (
+  jsAction: JSCollectionData,
+  pageId: string,
+  dataTree: DataTreeJSAction,
+) => {
+  const peekData: Record<string, unknown> = {};
+  let childNavData: Record<string, NavigationData> = {};
 
-  return keyBy(children, (data) => data.key);
+  let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {
+    return {
+      name: `${jsAction.config.name}.${jsChild.name}`,
+      key: jsChild.name,
+      id: `${jsAction.config.name}.${jsChild.name}`,
+      type: ENTITY_TYPE.JSACTION,
+      url: jsCollectionIdURL({
+        pageId,
+        collectionId: jsAction.config.id,
+        functionName: jsChild.name,
+      }),
+      navigable: true,
+      children: {},
+      peekable: false,
+    };
+  });
+
+  const variableChildren: NavigationData[] = jsAction.config.variables.map(
+    (jsChild) => {
+      peekData[jsChild.name] = dataTree[jsChild.name];
+      return {
+        name: `${jsAction.config.name}.${jsChild.name}`,
+        key: jsChild.name,
+        id: `${jsAction.config.name}.${jsChild.name}`,
+        type: ENTITY_TYPE.JSACTION,
+        url: jsCollectionIdURL({
+          pageId,
+          collectionId: jsAction.config.id,
+          functionName: jsChild.name,
+        }),
+        navigable: false,
+        children: {},
+        peekable: true,
+      };
+    },
+  );
+
+  children = children.concat(variableChildren);
+
+  childNavData = keyBy(children, (data) => data.key) as Record<
+    string,
+    NavigationData
+  >;
+
+  return { childNavData, peekData };
 };
 
 const getWidgetChildren = (
@@ -139,11 +178,13 @@ const getWidgetChildren = (
   dataTree: DataTree,
   pageId: string,
 ) => {
+  const peekData: Record<string, unknown> = {};
+  const childNavData: Record<string, NavigationData> = {};
+  const dataTreeWidget: DataTreeWidget = dataTree[
+    widget.widgetName
+  ] as DataTreeWidget;
   if (widget.type === "FORM_WIDGET") {
     const children: EntityNavigationData = {};
-    const dataTreeWidget: DataTreeWidget = dataTree[
-      widget.widgetName
-    ] as DataTreeWidget;
     const formChildren: EntityNavigationData = {};
     if (dataTreeWidget) {
       Object.keys(dataTreeWidget.data || {}).forEach((widgetName) => {
@@ -169,12 +210,36 @@ const getWidgetChildren = (
       peekable: false,
     };
 
-    return children;
+    return { childNavData: children, peekData };
   }
-  return {};
+  const type: Exclude<
+    EntityDefinitionsOptions,
+    "CANVAS_WIDGET" | "ICON_WIDGET" | "SKELETON_WIDGET" | "TABS_MIGRATOR_WIDGET"
+  > = dataTreeWidget.type as any;
+  let config: any = entityDefinitions[type];
+  if (config) {
+    if (isFunction(config)) config = config(dataTreeWidget);
+    const widgetProps = Object.keys(config).filter(
+      (k) => k.indexOf("!") === -1,
+    );
+    widgetProps.forEach((prop) => {
+      const data = dataTreeWidget[prop];
+      peekData[prop] = data;
+      childNavData[prop] = {
+        name: `${widget.widgetName}.${prop}`,
+        id: `${widget.widgetName}.${prop}`,
+        type: ENTITY_TYPE.WIDGET,
+        navigable: false,
+        children: {},
+        url: undefined,
+        peekable: true,
+      };
+    });
+  }
+  return { childNavData, peekData };
 };
 
-const getActionPeekData = (
+const getActionChildren = (
   action: ActionData,
   definitions: Record<string, unknown>,
   dataTree: DataTreeAction,
