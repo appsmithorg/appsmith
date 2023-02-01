@@ -38,7 +38,7 @@ describe("<AutoHeightContainer />", () => {
         </AutoHeightContainer>,
       )
       .toJSON();
-    expect(tree).toHaveStyleRule("height", "auto !important");
+    expect(tree).toHaveStyleRule("height", "100%");
   });
 
   describe("when isAutoHeightWithLimits is false.", () => {
@@ -86,7 +86,7 @@ describe("<AutoHeightContainer />", () => {
         child.parentElement?.classList.contains("auto-height-container"),
       ).toBe(true);
       expect(
-        child.parentElement?.parentElement?.classList.contains(
+        child.parentElement?.parentElement?.parentElement?.classList.contains(
           "auto-height-scroll-container",
         ),
       ).toBe(true);
