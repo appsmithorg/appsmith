@@ -13,7 +13,6 @@ export default function() {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
-  self.window = self;
   userLogs.overrideConsoleAPI();
   initTimeoutFns();
   initFetch();
