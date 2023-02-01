@@ -11,10 +11,6 @@ describe("PgAdmin Clone App", function() {
     cy.addDsl(dsl);
   });
 
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
-
   it("1. Add dsl and authenticate datasource", function() {
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -37,13 +33,9 @@ describe("PgAdmin Clone App", function() {
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.query).click({ force: true });
     // writing query to get the schema
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT schema_name FROM information_schema.schemata;", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
+    _.dataSources.EnterQuery(
+      "SELECT schema_name FROM information_schema.schemata;",
+    );
     cy.WaitAutoSave();
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
@@ -55,16 +47,9 @@ describe("PgAdmin Clone App", function() {
     cy.get(queryLocators.queryNameField).type("get_tables");
     cy.get(queryLocators.templateMenu).click();
     // writing query to get all the tables
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type(
-        'select * from pg_catalog.pg_tables where schemaname = {{schema_select.selectedOptionValue || "public"}} ;',
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
-      );
+    _.dataSources.EnterQuery(
+      `select * from pg_catalog.pg_tables where schemaname = {{schema_select.selectedOptionValue || "public"}} ;`,
+    );
     cy.WaitAutoSave();
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
@@ -76,16 +61,9 @@ describe("PgAdmin Clone App", function() {
     cy.get(queryLocators.queryNameField).type("get_columns");
     cy.get(queryLocators.templateMenu).click();
     // creating query to get the columns of the table
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type(
-        "SELECT column_name, data_type, table_name, ordinal_position, is_nullable FROM information_schema.COLUMNS",
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
-      );
+    _.dataSources.EnterQuery(
+      `SELECT column_name, data_type, table_name, ordinal_position, is_nullable FROM information_schema.COLUMNS`,
+    );
     cy.WaitAutoSave();
     _.dataSources.RunQuery();
 
@@ -128,16 +106,10 @@ describe("PgAdmin Clone App", function() {
       .click({ force: true });
     cy.get(queryLocators.templateMenu).click();
     // writing query to create new table
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type(
-        'CREATE TABLE {{schema_select.selectedOptionValue}}.{{nt_name.text.replaceAll(" ","_")}}({{appsmith.store.nt_col.map((c)=>c.name.replaceAll(" ","_") + " " + c.dtype + (c.nnull ? " NOT NULL " :  "") + (c.pkey ? " PRIMARY KEY " : "")).join(" , ")}})',
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
-      );
+
+    _.dataSources.EnterQuery(
+      `CREATE TABLE {{schema_select.selectedOptionValue}}.{{nt_name.text.replaceAll(" ","_")}}({{appsmith.store.nt_col.map((c)=>c.name.replaceAll(" ","_") + " " + c.dtype + (c.nnull ? " NOT NULL " :  "") + (c.pkey ? " PRIMARY KEY " : "")).join(" , ")}})`,
+    );
     cy.WaitAutoSave();
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
@@ -153,16 +125,9 @@ describe("PgAdmin Clone App", function() {
       .last()
       .click({ force: true });
     // creating query to delete the table
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type(
-        "DROP TABLE {{schema_select.selectedOptionValue}}.{{List1.selectedItem.tablename}};",
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
-      );
+    _.dataSources.EnterQuery(
+      `DROP TABLE {{schema_select.selectedOptionValue}}.{{List1.selectedItem.tablename}};`,
+    );
     cy.WaitAutoSave();
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
