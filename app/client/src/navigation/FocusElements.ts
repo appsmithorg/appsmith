@@ -10,7 +10,6 @@ import {
   setAllEntityCollapsibleStates,
   setAllSubEntityCollapsibleStates,
   setCodeEditorHistory,
-  setExplorerSwitchIndex,
   setFocusableInputField,
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
@@ -26,7 +25,6 @@ import {
   getAllPropertySectionState,
   getAllSubEntityCollapsibleStates,
   getCodeEditorHistory,
-  getExplorerSwitchIndex,
   getFocusableInputField,
   getPropertyPanelState,
   getSelectedCanvasDebuggerTab,
@@ -60,6 +58,7 @@ import {
   setQueryPaneResponsePaneHeight,
   setQueryPaneResponseSelectedTab,
 } from "actions/queryPaneActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   DEFAULT_ENTITY_EXPLORER_WIDTH,
   DEFAULT_PROPERTY_PANE_WIDTH,
@@ -67,6 +66,7 @@ import {
 import { PluginPackageName } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getExplorerWidth } from "selectors/explorerSelector";
 import {
   getJSPaneConfigSelectedTabIndex,
@@ -83,8 +83,6 @@ import {
   getQueryPaneResponsePaneHeight,
   getQueryPaneResponseSelectedTab,
 } from "selectors/queryPaneSelectors";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -149,12 +147,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getAllSubEntityCollapsibleStates,
       setter: setAllSubEntityCollapsibleStates,
       defaultValue: {},
-    },
-    {
-      name: FocusElement.ExplorerSwitchIndex,
-      selector: getExplorerSwitchIndex,
-      setter: setExplorerSwitchIndex,
-      defaultValue: 0,
     },
     {
       name: FocusElement.PropertyPanelContext,
