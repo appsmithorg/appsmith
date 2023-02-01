@@ -38,7 +38,7 @@ describe("Fork a template to the current app", () => {
       200,
     );
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Meeting Scheduler']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
     )
       .scrollIntoView()
       .click();
@@ -49,7 +49,7 @@ describe("Fork a template to the current app", () => {
     }).then(($ele) => {
       cy.wrap($ele).should("have.length", 0);
     });
-    cy.wait(6000);
+    cy.wait(10000);
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetLocators.toastAction).length <= 0) {
         if ($ele.find(template.templateViewForkButton).length > 0) {
@@ -74,7 +74,7 @@ describe("Fork a template to the current app", () => {
 
       cy.wait(5000);
       cy.get(template.templateDialogBox).should("be.visible");
-      cy.xpath("//div[text()='Customer Support Dashboard']").click();
+      cy.xpath("//div[text()='Meeting Scheduler']").click();
 
       cy.xpath(template.selectAllPages)
         .next()
