@@ -702,7 +702,9 @@ export const migrateColumnFreezeAttributes = (currentDSL: DSLWidget) => {
       // Assign default sticky value to each column
       if (primaryColumns) {
         for (const column in primaryColumns) {
-          primaryColumns[column].sticky = StickyType.NONE;
+          if (!primaryColumns[column].hasOwnProperty("sticky")) {
+            primaryColumns[column].sticky = StickyType.NONE;
+          }
         }
       }
 

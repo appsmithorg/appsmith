@@ -304,7 +304,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     // check Menu Item 3 is disable
     cy.get(".bp3-menu-item")
       .eq(2)
-      .should("have.css", "background-color", "rgb(250, 250, 250)");
+      .should("have.css", "background-color", "rgba(0, 0, 0, 0)");
     cy.get(".bp3-menu-item")
       .eq(2)
       .should("have.class", "bp3-disabled");

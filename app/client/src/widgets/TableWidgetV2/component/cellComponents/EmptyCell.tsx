@@ -130,19 +130,17 @@ export const renderEmptyRows = (
             return (
               <EmptyCell
                 className={
-                  column.isHidden
+                  column && column.isHidden
                     ? "td hidden-cell"
-                    : `td ${
+                    : `td${column?.sticky &&
                         colIndex !== 0 &&
                         columns[colIndex - 1].sticky === StickyType.RIGHT &&
-                        columns[colIndex - 1].isHidden
-                          ? "sticky-right-modifier"
-                          : ""
-                      }`
+                        columns[colIndex - 1].isHidden &&
+                        " sticky-right-modifier"}`
                 }
                 {...stickyAttributes}
                 key={colIndex}
-                sticky={column.sticky}
+                sticky={column?.sticky ?? StickyType.NONE}
                 style={{ ...distanceFromEdge }}
                 width={column.width}
               />
