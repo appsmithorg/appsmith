@@ -39,7 +39,7 @@ export class GitSync {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       repoName += uid;
-      this.CreateTestGiteaRepo(repoName);
+      this.CreateTestGiteaRepo(repoName, privateFlag);
       //this.CreateLocalGithubRepo(repoName);
       this.AuthorizeKeyToGitea(repoName, assertConnect);
       // cy.get("@remoteUrl").then((remoteUrl: any) => {
