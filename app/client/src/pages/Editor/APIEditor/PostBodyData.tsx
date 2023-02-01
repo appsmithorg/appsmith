@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import { formValueSelector } from "redux-form";
 import {
-  CONTENT_TYPE_HEADER_KEY,
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
 } from "constants/ApiEditorConstants/CommonApiConstants";
@@ -19,22 +18,11 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  Classes,
-  MultiSwitch,
-  Icon,
-  IconSize,
-  TooltipComponent,
-} from "design-system-old";
+import { Classes, MultiSwitch } from "design-system-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  createMessage,
-  API_PANE_NO_BODY,
-  API_PANE_INVALID_CONTENT_TYPE,
-} from "@appsmith/constants/messages";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
@@ -61,21 +49,12 @@ const NoBodyMessage = styled.div`
   }
 `;
 
-const WarningWrapper = styled.div`
-  position: absolute;
-  top: 48px;
-  left: 530px;
-  display: flex;
-  justify-content: center;
-`;
-
 interface PostDataProps {
   displayFormat: any;
   dataTreePath: string;
   theme?: EditorTheme;
   updateBodyContentType: (contentType: string, apiId: string) => void;
   apiId: string;
-  isContentTypeValid: boolean;
 }
 
 type Props = PostDataProps;
@@ -91,7 +70,6 @@ function PostBodyData(props: Props) {
     apiId,
     dataTreePath,
     displayFormat,
-    isContentTypeValid,
     theme,
     updateBodyContentType,
   } = props;
@@ -174,21 +152,6 @@ function PostBodyData(props: Props) {
           };
         })}
       />
-      {!isContentTypeValid && (
-        <WarningWrapper>
-          <TooltipComponent
-            content={createMessage(API_PANE_INVALID_CONTENT_TYPE)}
-            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position="bottom-left"
-          >
-            <Icon
-              fillColor="#ffb400"
-              name="warning-line"
-              size={IconSize.XXXL}
-            />
-          </TooltipComponent>
-        </WarningWrapper>
-      )}
     </PostBodyContainer>
   );
 }
@@ -202,7 +165,6 @@ const mapDispatchToProps = (dispatch: any) => ({
 
 export default connect((state: AppState) => {
   const apiId = selector(state, "id");
-  const headers = selector(state, "actionConfiguration.headers") || [];
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
   // Defaults to NONE when extraformData is empty
   const displayFormat = extraFormData["displayFormat"] || {
@@ -210,25 +172,8 @@ export default connect((state: AppState) => {
     value: POST_BODY_FORMAT_OPTIONS.NONE,
   };
 
-  let isContentTypeValid = true;
-  headers.map((header: { key: string; value: string }) => {
-    if (header?.key && header?.key === CONTENT_TYPE_HEADER_KEY) {
-      if (
-        header?.value &&
-        header?.value !== displayFormat?.value &&
-        displayFormat?.value !== POST_BODY_FORMAT_OPTIONS.NONE &&
-        displayFormat?.value !== POST_BODY_FORMAT_OPTIONS.RAW
-      ) {
-        isContentTypeValid = false;
-      } else {
-        isContentTypeValid = true;
-      }
-    }
-  });
-
   return {
     displayFormat,
     apiId,
-    isContentTypeValid,
   };
 }, mapDispatchToProps)(PostBodyData);
