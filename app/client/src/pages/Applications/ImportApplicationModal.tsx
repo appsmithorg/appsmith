@@ -26,7 +26,7 @@ import {
   SetProgress,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";

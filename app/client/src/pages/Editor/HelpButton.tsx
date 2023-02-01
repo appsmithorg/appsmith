@@ -3,7 +3,7 @@ import styled, { createGlobalStyle, useTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-import { Icon, IconSize, TooltipComponent } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system-old";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";

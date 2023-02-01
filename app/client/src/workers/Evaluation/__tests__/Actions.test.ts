@@ -4,7 +4,6 @@ import {
   createEvaluationContext,
   EvalContext,
 } from "workers/Evaluation/evaluate";
-import uniqueId from "lodash/uniqueId";
 import { MessageType } from "utils/MessageUtil";
 import {
   addDataTreeToContext,
@@ -16,7 +15,7 @@ jest.mock("lodash/uniqueId");
 describe("Add functions", () => {
   const workerEventMock = jest.fn();
   self.postMessage = workerEventMock;
-  self.ALLOW_ASYNC = true;
+  self.ALLOW_SYNC = false;
   const dataTree: DataTree = {
     action1: {
       actionId: "123",

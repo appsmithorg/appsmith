@@ -56,10 +56,10 @@ import {
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { APP_MODE } from "entities/App";
 import { Workspace, Workspaces } from "@appsmith/constants/workspaceConstants";
-import { AppIconName } from "design-system";
+import { AppIconName } from "design-system-old";
 import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
@@ -218,7 +218,6 @@ export function* fetchAppAndPagesSaga(
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
-
     const response: FetchApplicationResponse = yield call(
       PageApi.fetchAppAndPages,
       params,
@@ -267,7 +266,6 @@ export function* fetchAppAndPagesSaga(
         });
         localStorage.setItem("GIT_DISCARD_CHANGES", "");
       }
-
       yield put({
         type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
         payload: response.data.application?.evaluationVersion,

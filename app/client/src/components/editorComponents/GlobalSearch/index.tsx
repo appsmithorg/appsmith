@@ -66,7 +66,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   useFilteredActions,
   useFilteredFileOperations,

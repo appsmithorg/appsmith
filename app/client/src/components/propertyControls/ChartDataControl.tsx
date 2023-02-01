@@ -11,7 +11,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Size, Category } from "design-system";
+import { Size, Category } from "design-system-old";
 import { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";

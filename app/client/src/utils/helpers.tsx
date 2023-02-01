@@ -1,5 +1,8 @@
 import React from "react";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
 import welcomeConfetti from "assets/lottie/welcome-confetti.json";
@@ -28,6 +31,11 @@ import {
 } from "constants/routes";
 import history from "./history";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { checkContainerScrollable } from "widgets/WidgetUtils";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -215,20 +223,27 @@ export const flashElementsById = (
 /**
  * Scrolls to the widget of WidgetId without any animantion.
  * @param widgetId
- * @returns
+ * @param canvasWidgets
  */
-export const quickScrollToWidget = (widgetId?: string) => {
-  if (!widgetId) return;
+export const quickScrollToWidget = (
+  widgetId: string,
+  canvasWidgets: CanvasWidgetsReduxState,
+) => {
+  if (!widgetId || widgetId === "") return;
 
   setTimeout(() => {
     const el = document.getElementById(widgetId);
     const canvas = document.getElementById("canvas-viewport");
 
     if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
-      el.scrollIntoView({
-        block: "nearest",
-        behavior: "smooth",
-      });
+      const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);
+      if (scrollElement) {
+        scrollElement.scrollIntoView({
+          block: "center",
+          inline: "nearest",
+          behavior: "smooth",
+        });
+      }
     }
   }, 200);
 };
@@ -251,6 +266,26 @@ function isElementVisibleInContainer(
       (elementRect.right < containerRect.right &&
         elementRect.right > containerRect.left))
   );
+}
+
+function getWidgetElementToScroll(
+  widgetId: string,
+  canvasWidgets: CanvasWidgetsReduxState,
+) {
+  const widget = canvasWidgets[widgetId];
+  const parentId = widget.parentId || "";
+  const containerId = getContainerIdForCanvas(parentId);
+  if (containerId === MAIN_CONTAINER_WIDGET_ID) {
+    return document.getElementById(widgetId);
+  }
+  const containerWidget = canvasWidgets[containerId] as ContainerWidgetProps<
+    WidgetProps
+  >;
+  if (checkContainerScrollable(containerWidget)) {
+    return document.getElementById(widgetId);
+  } else {
+    return document.getElementById(containerId);
+  }
 }
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
@@ -807,6 +842,7 @@ export function shouldBeDefined<T>(
 
   return result;
 }
+
 /*
  * Check if a value is null / undefined / empty string
  *
@@ -827,51 +863,117 @@ export const isURLDeprecated = (url: string) => {
   });
 };
 
+export const matchPath_BuilderSlug = (path: string) =>
+  matchPath<{ applicationSlug: string; pageSlug: string; pageId: string }>(
+    path,
+    {
+      path: trimQueryString(BUILDER_PATH),
+      strict: false,
+      exact: false,
+    },
+  );
+
+export const matchPath_ViewerSlug = (path: string) =>
+  matchPath<{ applicationSlug: string; pageSlug: string; pageId: string }>(
+    path,
+    {
+      path: trimQueryString(VIEWER_PATH),
+      strict: false,
+      exact: false,
+    },
+  );
+
+export const matchPath_BuilderCustomSlug = (path: string) =>
+  matchPath<{ customSlug: string }>(path, {
+    path: trimQueryString(BUILDER_CUSTOM_PATH),
+  });
+
+export const matchPath_ViewerCustomSlug = (path: string) =>
+  matchPath<{ customSlug: string }>(path, {
+    path: trimQueryString(VIEWER_CUSTOM_PATH),
+  });
+
 export const getUpdatedRoute = (
   path: string,
   params: Record<string, string>,
 ) => {
+  const updatedPath = path;
+
+  const matchBuilderSlugPath = matchPath_BuilderSlug(path);
+  const matchBuilderCustomPath = matchPath_BuilderCustomSlug(path);
+  const matchViewerSlugPath = matchPath_ViewerSlug(path);
+  const matchViewerCustomPath = matchPath_ViewerCustomSlug(path);
+
+  /*
+   * Note: When making changes to the order of these conditions
+   * Be sure to check if it is sync with the order of paths AppRouter.ts
+   * Context: https://github.com/appsmithorg/appsmith/pull/19833
+   */
+  if (matchBuilderSlugPath?.params) {
+    return getUpdateRouteForSlugPath(
+      path,
+      matchBuilderSlugPath.params.applicationSlug,
+      matchBuilderSlugPath.params.pageSlug,
+      params,
+    );
+  } else if (matchBuilderCustomPath?.params) {
+    return getUpdatedRouteForCustomSlugPath(
+      path,
+      matchBuilderCustomPath.params.customSlug,
+      params,
+    );
+  } else if (matchViewerSlugPath) {
+    return getUpdateRouteForSlugPath(
+      path,
+      matchViewerSlugPath.params.applicationSlug,
+      matchViewerSlugPath.params.pageSlug,
+      params,
+    );
+  } else if (matchViewerCustomPath) {
+    return getUpdatedRouteForCustomSlugPath(
+      path,
+      matchViewerCustomPath.params.customSlug,
+      params,
+    );
+  }
+  return updatedPath;
+};
+
+const getUpdatedRouteForCustomSlugPath = (
+  path: string,
+  customSlug: string,
+  params: Record<string, string>,
+) => {
   let updatedPath = path;
-  const match = matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
-    path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
-    strict: false,
-    exact: false,
-  });
-  if (match?.params) {
-    const { applicationSlug, pageSlug } = match?.params;
-    if (params.customSlug) {
-      updatedPath = updatedPath.replace(
-        `${applicationSlug}/${pageSlug}`,
-        `${params.customSlug}-`,
-      );
-      return updatedPath;
-    }
-    if (params.applicationSlug)
-      updatedPath = updatedPath.replace(
-        applicationSlug,
-        params.applicationSlug,
-      );
-    if (params.pageSlug)
-      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+  if (params.customSlug) {
+    updatedPath = updatedPath.replace(`${customSlug}`, `${params.customSlug}-`);
+  } else if (params.applicationSlug && params.pageSlug) {
+    updatedPath = updatedPath.replace(
+      `${customSlug}`,
+      `${params.applicationSlug}/${params.pageSlug}-`,
+    );
+  }
+  return updatedPath;
+};
+
+const getUpdateRouteForSlugPath = (
+  path: string,
+  applicationSlug: string,
+  pageSlug: string,
+  params: Record<string, string>,
+) => {
+  let updatedPath = path;
+  if (params.customSlug) {
+    updatedPath = updatedPath.replace(
+      `${applicationSlug}/${pageSlug}`,
+      `${params.customSlug}-`,
+    );
     return updatedPath;
   }
-  const matchCustomPath = matchPath<{ customSlug: string }>(path, {
-    path: [BUILDER_CUSTOM_PATH, VIEWER_CUSTOM_PATH],
-  });
-  if (matchCustomPath?.params) {
-    const { customSlug } = matchCustomPath.params;
-    if (params.customSlug) {
-      updatedPath = updatedPath.replace(
-        `${customSlug}`,
-        `${params.customSlug}-`,
-      );
-    } else if (params.applicationSlug && params.pageSlug) {
-      updatedPath = updatedPath.replace(
-        `${customSlug}`,
-        `${params.applicationSlug}/${params.pageSlug}-`,
-      );
-    }
-  }
+  if (params.applicationSlug)
+    updatedPath = updatedPath.replace(applicationSlug, params.applicationSlug);
+  if (params.pageSlug)
+    updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
   return updatedPath;
 };
 
