@@ -952,6 +952,17 @@ class ListWidget extends BaseWidget<
     );
   };
 
+  shouldRenderEmptyListComponent = (
+    templateHeight: number,
+    componentHeight: number,
+  ) => {
+    return (
+      isNaN(templateHeight) ||
+      templateHeight > componentHeight - 45 ||
+      this.pageSize === 0
+    );
+  };
+
   getPageView() {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const {
@@ -986,7 +997,7 @@ class ListWidget extends BaseWidget<
       );
     }
 
-    if (isNaN(templateHeight) || templateHeight > componentHeight - 45) {
+    if (this.shouldRenderEmptyListComponent(templateHeight, componentHeight)) {
       return (
         <ListComponentEmpty>
           Please make sure the list widget height is greater than the template
