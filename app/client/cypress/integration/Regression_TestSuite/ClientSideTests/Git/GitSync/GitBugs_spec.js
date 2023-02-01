@@ -206,9 +206,6 @@ describe("Git sync Bug #10773", function() {
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
-
-      // cy.createTestGithubRepo(repoName);
-      // cy.connectToGitRepo(repoName);
       cy.wait(3000);
 
       cy.window()

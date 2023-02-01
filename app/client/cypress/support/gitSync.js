@@ -233,7 +233,9 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
-  cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+  cy.get(gitSyncLocators.commitCommentInput, { timeout: 35000 }).type(
+    "Initial Commit",
+  ); //Since Deploy page takes time to identify the changes in page
   cy.get(gitSyncLocators.commitButton).click();
   if (!assertFailure) {
     // check for commit success
@@ -304,11 +306,11 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.wait(2000);
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
-  cy.wait("@mergeBranch").should(
+  cy.wait("@mergeBranch", { timeout: 35000 }).should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
-  );
+  ); //adding timeout since merge is taking longer sometimes
   cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 
