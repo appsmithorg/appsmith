@@ -69,7 +69,12 @@ public class RedisPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null
                     , null, null));
 
-            Jedis jedis = jedisPool.getResource();
+            Jedis jedis;
+            try {
+                 jedis = jedisPool.getResource();
+            } catch (Exception e) {
+                return Mono.error(new AppsmithPluginException(RedisPluginError.QUERY_EXECUTION_FAILED, RedisErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage()));
+            }
             return Mono.fromCallable(() -> {
                         if (StringUtils.isNullOrEmpty(query)) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
