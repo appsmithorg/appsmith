@@ -55,13 +55,13 @@ public class UserUtilsCE {
     public Mono<Boolean> isSuperUser(User user) {
         return configRepository.findByNameAsUser(INSTANCE_CONFIG, user, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
-                .switchIfEmpty(Mono.just(Boolean.FALSE));
+                .defaultIfEmpty(false);
     }
 
     public Mono<Boolean> isCurrentUserSuperUser() {
         return configRepository.findByName(INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
-                .switchIfEmpty(Mono.just(Boolean.FALSE));
+                .defaultIfEmpty(false);
     }
 
     public Mono<Boolean> makeSuperUser(List<User> users) {

@@ -51,4 +51,5 @@ public interface UserDataServiceCE {
 
     Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId);
 
+    Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId);
 }
