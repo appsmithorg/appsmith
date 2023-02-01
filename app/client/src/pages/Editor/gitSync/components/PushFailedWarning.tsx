@@ -4,7 +4,7 @@ import {
   NotificationVariant,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 

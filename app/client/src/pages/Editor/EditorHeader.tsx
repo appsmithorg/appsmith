@@ -53,7 +53,7 @@ import {
   IconSize,
   TooltipComponent,
   Size,
-} from "design-system";
+} from "design-system-old";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -261,6 +261,8 @@ export function ShareButtonComponent() {
     />
   );
 }
+
+const theme = getTheme(ThemeMode.LIGHT);
 
 export function EditorHeader(props: EditorHeaderProps) {
   const {
@@ -555,8 +557,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     </ThemeProvider>
   );
 }
-
-const theme = getTheme(ThemeMode.LIGHT);
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,

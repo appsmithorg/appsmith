@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Icon, InputGroup } from "@blueprintjs/core";
 import { debounce } from "lodash";
-import { AnyStyledComponent } from "styled-components";
 
 import CustomizedDropdown from "pages/common/CustomizedDropdown";
 import { Directions } from "utils/helpers";
@@ -24,9 +23,7 @@ import { RenderOptionWrapper } from "./TableStyledWrappers";
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
-const StyledRemoveIcon = styled(
-  ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
-)`
+const StyledRemoveIcon = styled(ControlIcons.CLOSE_CIRCLE_CONTROL)`
   padding: 0;
   position: relative;
   cursor: pointer;

@@ -18,6 +18,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -110,8 +111,10 @@ public class Application extends BaseDomain {
 
     EmbedSetting embedSetting;
 
+    @JsonIgnore
     NavigationSetting unpublishedNavigationSetting;
 
+    @JsonIgnore
     NavigationSetting publishedNavigationSetting;
 
     @JsonIgnore
@@ -119,6 +122,8 @@ public class Application extends BaseDomain {
 
     @JsonIgnore
     AppPositioning unpublishedAppPositioning;
+
+    Boolean collapseInvisibleWidgets;
 
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
@@ -186,7 +191,10 @@ public class Application extends BaseDomain {
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
         this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
         this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
+        this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
+        this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
+        this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
@@ -215,6 +223,7 @@ public class Application extends BaseDomain {
         this.setIsManualUpdate(false);
         this.sanitiseToExportBaseObject();
         this.setDefaultPermissionGroup(null);
+        this.setPublishedCustomJSLibs(new HashSet<>());
     }
 
     public List<ApplicationPage> getPages() {
@@ -270,6 +279,17 @@ public class Application extends BaseDomain {
         private Boolean showNavigationBar;
     }
 
+    public NavigationSetting getNavigationSetting() {
+        return Boolean.TRUE.equals(viewMode) ? publishedNavigationSetting : unpublishedNavigationSetting;
+    }
+
+    public void setNavigationSetting(NavigationSetting navigationSetting) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedNavigationSetting = navigationSetting;
+        } else {
+            unpublishedNavigationSetting = navigationSetting;
+        }
+    }
 
     /**
      * NavigationSetting stores the navigation configuration for the app

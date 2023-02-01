@@ -25,6 +25,7 @@ import { Variable } from "entities/JSCollection";
 export const dataTreeTypeDefCreator = (
   dataTree: DataTree,
   isJSEditorEnabled: boolean,
+  jsData: Record<string, unknown> = {},
 ): { def: Def; entityInfo: Map<string, DataTreeDefEntityInformation> } => {
   // When there is a complex data type, we store it in extra def and refer to it in the def
   const extraDefsToDefine: Def = {};
@@ -67,15 +68,15 @@ export const dataTreeTypeDefCreator = (
       const metaObj = entity.meta;
       const jsPropertiesDef: Def = {};
 
-      for (const key in metaObj) {
-        // const jsFunctionObj = metaObj[key];
-        // const { arguments: args } = jsFunctionObj;
-        // const argsTypeString = getFunctionsArgsType(args);
-        // As we don't show args we avoid to get args def of function
-        // we will also need to check performance implications here
-
-        const argsTypeString = getFunctionsArgsType([]);
-        jsPropertiesDef[key] = argsTypeString;
+      for (const funcName in metaObj) {
+        const funcTypeDef = generateJSFunctionTypeDef(
+          jsData,
+          `${entity.name}.${funcName}`,
+          extraDefsToDefine,
+        );
+        jsPropertiesDef[funcName] = funcTypeDef;
+        // To also show funcName.data in autocompletion hint, we explictly add it here
+        jsPropertiesDef[`${funcName}.data`] = funcTypeDef.data;
       }
 
       for (let i = 0; i < entity?.variables?.length; i++) {
@@ -197,3 +198,14 @@ export const getFunctionsArgsType = (args: Variable[]): string => {
   );
   return argsTypeString ? `fn(${argsTypeString})` : `fn()`;
 };
+
+export function generateJSFunctionTypeDef(
+  jsData: Record<string, unknown> = {},
+  fullFunctionName: string,
+  extraDefs: ExtraDef,
+) {
+  return {
+    "!type": getFunctionsArgsType([]),
+    data: generateTypeDef(jsData[fullFunctionName], extraDefs),
+  };
+}

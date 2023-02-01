@@ -51,4 +51,5 @@ export interface EvalTreeResponseData {
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
   configTree: ConfigTree;
+  staleMetaIds: string[];
 }

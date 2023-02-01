@@ -22,7 +22,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { JSActionEntityConfig } from "entities/DataTree/types";
 
-import _, { get, set } from "lodash";
+import _, { find, get, isEmpty, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -755,6 +755,7 @@ export const overrideWidgetProperties = (params: {
   configTree: ConfigTree;
   evalMetaUpdates: EvalMetaUpdates;
   fullPropertyPath: string;
+  isNewWidget: boolean;
 }) => {
   const {
     configTree,
@@ -762,6 +763,7 @@ export const overrideWidgetProperties = (params: {
     entity,
     evalMetaUpdates,
     fullPropertyPath,
+    isNewWidget,
     propertyPath,
     value,
   } = params;
@@ -773,8 +775,16 @@ export const overrideWidgetProperties = (params: {
     const overridingPropertyPaths =
       configEntity.overridingPropertyPaths[propertyPath];
 
-    overridingPropertyPaths.forEach((overriddenPropertyPath: any) => {
+    const pathsNotToOverride = widgetPathsNotToOverride(
+      isNewWidget,
+      entity,
+      propertyPath,
+      configEntity,
+    );
+
+    overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
+      if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
       _.set(
         currentTree,
         [entity.widgetName, ...overriddenPropertyPathArray],
@@ -833,4 +843,46 @@ export const isATriggerPath = (
   propertyPath: string,
 ) => {
   return isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
+};
+
+// Checks if entity newly got added to the unevalTree
+export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
+  return !!find(updates, {
+    event: DataTreeDiffEvent.NEW,
+    payload: { propertyPath: entityName },
+  });
+};
+
+export const widgetPathsNotToOverride = (
+  isNewWidget: boolean,
+  entity: DataTreeWidget,
+  propertyPath: string,
+  entityConfig: WidgetEntityConfig,
+) => {
+  let pathsNotToOverride: string[] = [];
+  const overriddenPropertyPaths =
+    entityConfig.overridingPropertyPaths[propertyPath];
+
+  // To tell whether a widget has pre-existing meta values (although newly added), we stringify its meta object to get rid of undefined values
+  // An empty parsedMetaObj implies that the widget has no pre-existing meta values.
+  // MetaWidgets can have pre-existing meta values
+  const parsedMetaObj = JSON.parse(JSON.stringify(entity.meta));
+
+  if (isNewWidget && !isEmpty(parsedMetaObj)) {
+    const overriddenMetaPaths = overriddenPropertyPaths.filter(
+      (path) => path.split(".")[0] === "meta",
+    );
+    // If widget is newly added but has pre-existing meta values, this meta values take precedence and should not be overridden
+    pathsNotToOverride = [...overriddenMetaPaths];
+    // paths which these meta values override should also not get overridden
+    overriddenMetaPaths.forEach((path) => {
+      if (entityConfig.overridingPropertyPaths.hasOwnProperty(path)) {
+        pathsNotToOverride = [
+          ...pathsNotToOverride,
+          ...entityConfig.overridingPropertyPaths[path],
+        ];
+      }
+    });
+  }
+  return pathsNotToOverride;
 };

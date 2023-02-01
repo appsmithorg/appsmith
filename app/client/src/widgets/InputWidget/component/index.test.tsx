@@ -1,6 +1,7 @@
 import store from "store";
 import React from "react";
-import { ThemeProvider, theme } from "constants/DefaultTheme";
+import { ThemeProvider } from "styled-components";
+import { theme } from "constants/DefaultTheme";
 import InputComponent from "./";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom";

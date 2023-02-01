@@ -1,4 +1,9 @@
-import React, { useRef, RefObject, useCallback } from "react";
+import React, {
+  useRef,
+  RefObject,
+  useCallback,
+  PropsWithChildren,
+} from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
@@ -40,7 +45,7 @@ import {
   Text,
   TextType,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -241,7 +246,7 @@ export const EMPTY_RESPONSE: ActionResponse = {
   dataTypes: [],
 };
 
-const StatusCodeText = styled(BaseText)<{ code: string }>`
+const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
   cursor: pointer;

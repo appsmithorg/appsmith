@@ -17,6 +17,7 @@ export default async function(request: EvalWorkerASyncRequest) {
   const {
     evalOrder,
     nonDynamicFieldValidationOrder,
+    unEvalUpdates,
   } = dataTreeEvaluator.setupUpdateTree(
     unEvalTree.unEvalTree,
     unEvalTree.configTree,
@@ -25,6 +26,7 @@ export default async function(request: EvalWorkerASyncRequest) {
     evalOrder,
     nonDynamicFieldValidationOrder,
     unEvalTree.configTree,
+    unEvalUpdates,
   );
   const evalTree = dataTreeEvaluator.evalTree;
   const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;

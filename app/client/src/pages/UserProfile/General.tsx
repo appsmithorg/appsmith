@@ -8,7 +8,7 @@ import {
   TextType,
   Toaster,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { Classes } from "@blueprintjs/core";
 import { getCurrentUser } from "selectors/usersSelectors";

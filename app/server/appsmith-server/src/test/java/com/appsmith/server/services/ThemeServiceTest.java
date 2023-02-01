@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.PermissionGroup;
@@ -192,8 +193,26 @@ public class ThemeServiceTest {
         );
 
         StepVerifier.create(applicationThemesMono)
-                .expectError(AppsmithException.class)
+                .expectErrorMessage(
+                        AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, savedApplication.getId())
+                )
                 .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void getApplicationTheme_WhenNoThemeFoundWithId_DefaultThemeReturned() {
+        Application savedApplication = createApplication();
+        savedApplication.setPublishedModeThemeId("invalid-theme-id");
+        Mono<Theme> publishedThemeMono = applicationRepository.save(savedApplication).then(
+                themeService.getApplicationTheme(savedApplication.getId(), ApplicationMode.PUBLISHED, null)
+        );
+
+        StepVerifier.create(publishedThemeMono)
+                .assertNext(theme -> {
+                    assertThat(theme.getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+                })
+                .verifyComplete();
     }
 
     @WithUserDetails("api_user")

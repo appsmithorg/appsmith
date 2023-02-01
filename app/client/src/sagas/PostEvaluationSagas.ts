@@ -31,7 +31,7 @@ import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -360,6 +360,7 @@ export function* updateTernDefinitions(
   dataTree: DataTree,
   updates: DataTreeDiff[],
   isCreateFirstTree: boolean,
+  jsData: Record<string, unknown> = {},
 ) {
   const shouldUpdate: boolean =
     isCreateFirstTree ||
@@ -383,6 +384,7 @@ export function* updateTernDefinitions(
   const { def, entityInfo } = dataTreeTypeDefCreator(
     treeWithoutPrivateWidgets,
     !!featureFlags.JS_EDITOR,
+    jsData,
   );
   CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
   const end = performance.now();

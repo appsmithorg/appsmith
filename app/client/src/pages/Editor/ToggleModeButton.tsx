@@ -7,7 +7,7 @@ import {
   IconPositions,
   Size,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 
 import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
