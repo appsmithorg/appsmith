@@ -195,19 +195,12 @@ describe("Add functions", () => {
       {},
     );
     expect(mockStoreUpdates).toBeCalledWith({
-      trigger: {
-        payload: {
-          key: "some",
-          persist: false,
-          value: "thing",
-        },
-        type: "STORE_VALUE",
+      payload: {
+        key: "some",
+        persist: false,
+        value: "thing",
       },
-      eventType: undefined,
-      triggerMeta: {
-        source: {},
-        triggerPropertyName: undefined,
-      },
+      type: "STORE_VALUE",
     });
     TriggerEmitter.removeListener(
       BatchKey.process_store_updates,
@@ -222,19 +215,15 @@ describe("Add functions", () => {
     TriggerEmitter.on(BatchKey.process_store_updates, mockStoreUpdates);
     expect(evalContext.removeValue(key)).resolves.toStrictEqual({});
     expect(mockStoreUpdates).toBeCalledWith({
-      trigger: {
-        payload: {
-          key,
-        },
-        type: "REMOVE_VALUE",
+      payload: {
+        key,
       },
-      eventType: undefined,
-      triggerMeta: {
-        source: {},
-        triggerPropertyName: undefined,
-      },
+      type: "REMOVE_VALUE",
     });
-    TriggerEmitter.on(BatchKey.process_store_updates, mockStoreUpdates);
+    TriggerEmitter.removeListener(
+      BatchKey.process_store_updates,
+      mockStoreUpdates,
+    );
   });
 
   it("clearStore works", async () => {
@@ -242,17 +231,13 @@ describe("Add functions", () => {
     TriggerEmitter.on(BatchKey.process_store_updates, mockStoreUpdates);
     expect(evalContext.clearStore()).resolves.toStrictEqual({});
     expect(mockStoreUpdates).toBeCalledWith({
-      trigger: {
-        payload: null,
-        type: "CLEAR_STORE",
-      },
-      eventType: undefined,
-      triggerMeta: {
-        source: {},
-        triggerPropertyName: undefined,
-      },
+      payload: null,
+      type: "CLEAR_STORE",
     });
-    TriggerEmitter.on(BatchKey.process_store_updates, mockStoreUpdates);
+    TriggerEmitter.removeListener(
+      BatchKey.process_store_updates,
+      mockStoreUpdates,
+    );
   });
 
   it("download works", () => {
