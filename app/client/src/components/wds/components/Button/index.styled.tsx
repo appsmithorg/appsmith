@@ -4,6 +4,8 @@ import {
   lightenColor,
   getComplementaryGrayscaleColor,
   calulateHoverColor,
+  darkenColor,
+  parseColor,
 } from "components/wds/utils/color";
 import { ButtonProps } from "./Button";
 
@@ -18,15 +20,15 @@ const variantStyles = css`
     switch (variant) {
       case "filled":
         return css`
-          background-color: var(--wds-v2-color-bg-brand);
+          background-color: var(--wds-v2-color-bg-accent);
           color: var(--wds-v2-color-text-onbrand);
 
           &:enabled:hover {
-            background-color: var(--wds-v2-color-bg-brand-hover);
+            background-color: var(--wds-v2-color-bg-accent-hover);
           }
 
           &:enabled:active {
-            transform: translateY(1px);
+            background-color: var(--wds-v2-color-bg-accent-active);
           }
         `;
       case "outline":
@@ -36,8 +38,12 @@ const variantStyles = css`
           color: var(--wds-v2-color-text-brand);
           border-color: var(--wds-v2-color-border-brand);
 
-          &:hover {
-            background-color: var(--wds-v2-color-bg-brand-light-hover);
+          &:enabled:hover {
+            background-color: var(--wds-v2-color-bg-accent-light-hover);
+          }
+
+          &:enabled:active {
+            background-color: var(--wds-v2-color-bg-accent-light-active);
           }
 
           &:hover:disabled {
@@ -49,20 +55,23 @@ const variantStyles = css`
           color: var(--wds-v2-color-text-brand);
           box-shadow: none;
 
-          &:hover {
-            color: var(--wds-v2-color-text-brand-hover);
+          &:enabled:hover {
             text-decoration: underline;
           }
         `;
       case "light":
         return css`
-          background: var(--wds-v2-color-bg-brand-light);
+          background: var(--wds-v2-color-bg-accent-light);
           border-color: transparent;
           color: var(--wds-v2-color-text-brand);
           border-width: 0;
 
           &:enabled:hover {
-            background: var(--wds-v2-color-bg-brand-light-hover);
+            background: var(--wds-v2-color-bg-accent-light-hover);
+          }
+
+          &:enabled:active {
+            background: var(--wds-v2-color-bg-accent-light-active);
           }
         `;
       case "subtle":
@@ -72,7 +81,11 @@ const variantStyles = css`
           border-width: 0;
 
           &:enabled:hover {
-            background: var(--wds-v2-color-bg-brand-light-hover);
+            background: var(--wds-v2-color-bg-accent-light-hover);
+          }
+
+          &:enabled:active {
+            background: var(--wds-v2-color-bg-accent-light-active);
           }
         `;
     }
@@ -84,21 +97,26 @@ const variantStyles = css`
  *
  */
 export const variantTokens = css`
-  ${({ accentColor }: Pick<ButtonProps, "accentColor" | "variant">) => {
-    if (!accentColor) return "";
+  ${({ accentColor: color }: Pick<ButtonProps, "accentColor" | "variant">) => {
+    if (!color) return "";
 
-    const accentHoverColor = calulateHoverColor(accentColor);
-    const lightAccentColor = lightenColor(accentColor);
+    const accentColor = parseColor(color).toString({ format: "hex" });
+    const accentHoverColor = calulateHoverColor(color);
+    const lightAccentColor = lightenColor(color);
+    const accentActiveColor = darkenColor(accentHoverColor);
     const lightAccentHoverColor = calulateHoverColor(lightAccentColor);
     const complementaryAccentColor = getComplementaryGrayscaleColor(
       accentColor,
     );
+    const lightAcctentActiveColor = darkenColor(lightAccentHoverColor, 0.03);
 
     return css`
-      --wds-v2-color-bg-brand: ${accentColor};
-      --wds-v2-color-bg-brand-hover: ${accentHoverColor};
-      --wds-v2-color-bg-brand-light: ${lightAccentColor};
-      --wds-v2-color-bg-brand-light-hover: ${lightAccentHoverColor};
+      --wds-v2-color-bg-accent: ${accentColor};
+      --wds-v2-color-bg-accent-hover: ${accentHoverColor};
+      --wds-v2-color-bg-accent-light: ${lightAccentColor};
+      --wds-v2-color-bg-accent-active: ${accentActiveColor};
+      --wds-v2-color-bg-accent-light-active: ${lightAcctentActiveColor};
+      --wds-v2-color-bg-accent-light-hover: ${lightAccentHoverColor};
 
       --wds-v2-color-text-brand: ${accentColor};
       --wds-v2-color-text-onbrand: ${complementaryAccentColor};
@@ -165,10 +183,6 @@ export const StyledButton = styled.button<StyledButtonProps>`
   &:focus:not(:focus-visible) {
     outline: none;
     box-shadow: none;
-  }
-
-  &:active {
-    transform: translateY(1px);
   }
 
   &:hover {

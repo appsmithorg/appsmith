@@ -3,6 +3,8 @@ import {
   lightenColor,
   getComplementaryGrayscaleColor,
   calulateHoverColor,
+  darkenColor,
+  parseColor,
 } from "components/wds/utils/color";
 
 /**
@@ -10,7 +12,7 @@ import {
  */
 export const createTokens = css`
   ${({
-    accentColor,
+    accentColor: color,
     borderRadius,
     boxShadow,
   }: {
@@ -18,18 +20,23 @@ export const createTokens = css`
     borderRadius: CSSProperties["borderRadius"];
     boxShadow: CSSProperties["boxShadow"];
   }) => {
-    const accentHoverColor = calulateHoverColor(accentColor);
-    const lightAccentColor = lightenColor(accentColor);
+    const accentColor = parseColor(color).toString({ format: "hex" });
+    const accentHoverColor = calulateHoverColor(color);
+    const lightAccentColor = lightenColor(color);
+    const accentActiveColor = darkenColor(accentHoverColor);
     const lightAccentHoverColor = calulateHoverColor(lightAccentColor);
     const complementaryAccentColor = getComplementaryGrayscaleColor(
       accentColor,
     );
+    const lightAcctentActiveColor = darkenColor(lightAccentHoverColor, 0.03);
 
     return css`
-      --wds-v2-color-bg-brand: ${accentColor};
-      --wds-v2-color-bg-brand-hover: ${accentHoverColor};
-      --wds-v2-color-bg-brand-light: ${lightAccentColor};
-      --wds-v2-color-bg-brand-light-hover: ${lightAccentHoverColor};
+      --wds-v2-color-bg-accent: ${accentColor};
+      --wds-v2-color-bg-accent-hover: ${accentHoverColor};
+      --wds-v2-color-bg-accent-light: ${lightAccentColor};
+      --wds-v2-color-bg-accent-active: ${accentActiveColor};
+      --wds-v2-color-bg-accent-light-active: ${lightAcctentActiveColor};
+      --wds-v2-color-bg-accent-light-hover: ${lightAccentHoverColor};
 
       --wds-v2-color-text-brand: ${accentColor};
       --wds-v2-color-text-onbrand: ${complementaryAccentColor};

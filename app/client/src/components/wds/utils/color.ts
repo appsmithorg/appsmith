@@ -1,7 +1,8 @@
 import Color from "colorjs.io";
 
 /**
- * checks if color is dark or light
+ * returns black or white based on the constrast of the color compare to white
+ * using APCA algorithm
  *
  * @param color
  * @returns
@@ -10,10 +11,10 @@ export const getComplementaryGrayscaleColor = (hex = "#000") => {
   const bg = parseColor(hex);
   const text = new Color("#fff");
 
-  const constrast = bg.contrast(text, "APCA");
+  const contrast = bg.contrast(text, "APCA");
 
-  // if constrast is less than -25 then the text color should be white
-  if (constrast < -35) return "#fff";
+  // if contrast is less than -35 then the text color should be white
+  if (contrast < -35) return "#fff";
 
   return "#000";
 };
@@ -29,6 +30,21 @@ export const lightenColor = (hex = "#000", lightness = 0.9) => {
   const color = parseColor(hex);
 
   color.set("oklch.l", () => lightness);
+
+  return color.toString({ format: "hex" });
+};
+
+/**
+ * darkens color by a given amount
+ *
+ * @param hex
+ * @param lightness
+ * @returns
+ */
+export const darkenColor = (hex = "#000", lightness = 0.03) => {
+  const color = parseColor(hex);
+
+  color.set("oklch.l", (l) => l - lightness);
 
   return color.toString({ format: "hex" });
 };
@@ -61,7 +77,7 @@ export const calulateHoverColor = (hex = "#000") => {
  * @param hex
  * @returns
  */
-export const parseColor = (hex: string) => {
+export const parseColor = (hex = "#000") => {
   try {
     return new Color(hex);
   } catch (error) {
