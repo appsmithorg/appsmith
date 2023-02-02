@@ -36,7 +36,6 @@ describe("PgAdmin Clone App", function() {
     _.dataSources.EnterQuery(
       "SELECT schema_name FROM information_schema.schemata;",
     );
-    cy.WaitAutoSave();
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
@@ -50,7 +49,6 @@ describe("PgAdmin Clone App", function() {
     _.dataSources.EnterQuery(
       `select * from pg_catalog.pg_tables where schemaname = {{schema_select.selectedOptionValue || "public"}} ;`,
     );
-    cy.WaitAutoSave();
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
@@ -64,8 +62,8 @@ describe("PgAdmin Clone App", function() {
     _.dataSources.EnterQuery(
       `SELECT column_name, data_type, table_name, ordinal_position, is_nullable FROM information_schema.COLUMNS`,
     );
-    cy.WaitAutoSave();
     _.dataSources.RunQuery();
+    _.ee.SelectEntityByName("Page1", "Pages");
     _.agHelper.GetNClick(appPage.viewButton, 0, true);
     // adding new table
     _.agHelper.GetNClick(appPage.addNewtable, 0, true);
@@ -108,7 +106,6 @@ describe("PgAdmin Clone App", function() {
     _.dataSources.EnterQuery(
       `CREATE TABLE {{schema_select.selectedOptionValue}}.{{nt_name.text.replaceAll(" ","_")}}({{appsmith.store.nt_col.map((c)=>c.name.replaceAll(" ","_") + " " + c.dtype + (c.nnull ? " NOT NULL " :  "") + (c.pkey ? " PRIMARY KEY " : "")).join(" , ")}})`,
     );
-    cy.WaitAutoSave();
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
@@ -126,7 +123,6 @@ describe("PgAdmin Clone App", function() {
     _.dataSources.EnterQuery(
       `DROP TABLE {{schema_select.selectedOptionValue}}.{{List1.selectedItem.tablename}};`,
     );
-    cy.WaitAutoSave();
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
