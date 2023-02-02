@@ -43,11 +43,11 @@ import {
   TextType,
   TooltipComponent,
   Variant,
-  MenuDivider,
 } from "design-system-old";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
+  API_PANE_AUTO_GENERATED_HEADER,
   API_PANE_DUPLICATE_HEADER,
   createMessage,
   WIDGET_BIND_HELP,
@@ -314,6 +314,7 @@ const Flex = styled.div<{
   color: #4b4848;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
   &.possible-overflow-key {
     overflow: hidden;
@@ -376,7 +377,7 @@ const FlexContainer = styled.div`
 
   .key-value {
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.apiPane.text};
+      color: #4b4848;
       padding: ${(props) => props.theme.spaces[2]}px 0px
         ${(props) => props.theme.spaces[2]}px
         ${(props) => props.theme.spaces[5]}px;
@@ -394,12 +395,6 @@ const FlexContainer = styled.div`
     border: 1px solid #e0dede;
     margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
   }
-`;
-
-const Divider = styled(MenuDivider)`
-  margin-bottom: 10px;
-  margin-left: 0px;
-  border-top: 1px solid #f0f0f0;
 `;
 
 const KeyValueStackContainer = styled.div`
@@ -425,7 +420,15 @@ const FormRowWithLabel = styled(FormRow)`
   }
 `;
 
-function ImportedKeyValue(props: { datas: any; keyValueName: string }) {
+const CenteredIcon = styled(Icon)`
+  align-self: center;
+  margin-right: 5px;
+`;
+
+function ImportedKeyValue(props: {
+  datas: { key: string; value: string; isInvalid?: boolean }[];
+  keyValueName: string;
+}) {
   return (
     <>
       {props.datas.map((data: any, index: number) => {
@@ -468,6 +471,19 @@ function ImportedKeyValue(props: { datas: any; keyValueName: string }) {
                     {data.key}
                   </Text>
                 </TooltipComponent>
+                {"isInvalid" in data && !data?.isInvalid && (
+                  <TooltipComponent
+                    content={createMessage(API_PANE_AUTO_GENERATED_HEADER)}
+                    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                    position="bottom-left"
+                  >
+                    <CenteredIcon
+                      className={`t--auto-generated-${data.key}-info`}
+                      name="question-line"
+                      size={IconSize.LARGE}
+                    />
+                  </TooltipComponent>
+                )}
               </Flex>
               <Flex
                 className="key-value disabled possible-overflow"
@@ -491,7 +507,6 @@ function ImportedKeyValue(props: { datas: any; keyValueName: string }) {
           </FormRowWithLabel>
         );
       })}
-      <Divider />
     </>
   );
 }
