@@ -1221,6 +1221,7 @@ class CodeEditor extends Component<Props, State> {
       div:has(.rjv-function-container) {
         cursor: default !important;
       }
+
       // .object-key-val:not(:has(.pushed-content.object-container)) .object-size {
       //   display: none !important;
       // }
@@ -1352,7 +1353,7 @@ class CodeEditor extends Component<Props, State> {
                           fontSize: "10px",
                         }}
                       >
-                        {"() {...}"}
+                        {(this.state.peekOverlayProps.data as any).toString()}
                       </div>
                     )}
                     {this.state.peekOverlayProps.dataType !== "object" &&

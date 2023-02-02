@@ -144,7 +144,7 @@ const getJsObjectChildren = (
 
   let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    peekData[jsChild.name] = function() {};
+    peekData[jsChild.name] = function() {}; // can use new Function to parse string
     return {
       name: `${jsAction.config.name}.${jsChild.name}`,
       key: jsChild.name,
@@ -279,7 +279,7 @@ const getActionChildren = (
         };
       } else if (key === "run" || key === "clear") {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        peekData[key] = function() {};
+        peekData[key] = function() {}; // tern inference required here
         childNavData[key] = {
           id: `${action.config.name}.${key}`,
           name: `${action.config.name}.${key}`,
