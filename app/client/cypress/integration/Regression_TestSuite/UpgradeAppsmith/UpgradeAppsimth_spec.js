@@ -101,6 +101,6 @@ describe("Upgrade appsmith version", () => {
     //restarting the old container
     cy.StartContainer(tedUrl, "appsmith");
     //Waiting for the container to be up
-    agHelper.Sleep(60000);
+    agHelper.Sleep(30000);
   });
 });
