@@ -52,7 +52,20 @@ describe("Table Widget text wrapping functionality", function() {
     );
   });
 
-  it("3. should check that other cells in the row is not wrapped when one of the cell is wrapped", () => {
+  it("3. should check that a tooltip is shown when hovered on a very long content and tooltip should hide on mouseout.", () => {
+    const cellContentSelector = `.td[data-colindex=3][data-rowindex=5] .t--table-cell-tooltip-target`;
+    cy.get(cellContentSelector).trigger("mouseenter");
+
+    cy.get(".bp3-tooltip").should("exist");
+    cy.wait(2000);
+    // tooltip should still be visible - can catch any flickers if still there.
+    cy.get(".bp3-tooltip").should("exist");
+
+    cy.get(cellContentSelector).trigger("mouseout");
+    cy.get(".bp3-tooltip").should("not.exist");
+  });
+
+  it("4. should check that other cells in the row is not wrapped when one of the cell is wrapped", () => {
     cy.getTableCellHeight(2, 0).then((height) => {
       expect(height).to.equal("28px");
     });
@@ -74,7 +87,7 @@ describe("Table Widget text wrapping functionality", function() {
     });
   });
 
-  it("4. should check that cell wrapping option is only available for plain text, number and URL", () => {
+  it("5. should check that cell wrapping option is only available for plain text, number and URL", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("email");
     [
@@ -127,7 +140,7 @@ describe("Table Widget text wrapping functionality", function() {
     });
   });
 
-  it("5. should check that plain text, number and URL column is getting wrapped when cell wrapping is enabled", () => {
+  it("6. should check that plain text, number and URL column is getting wrapped when cell wrapping is enabled", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("id");
 
@@ -156,7 +169,7 @@ describe("Table Widget text wrapping functionality", function() {
     });
   });
 
-  it("6. should check that pageSize does not change when cell wrapping is enabled", () => {
+  it("7. should check that pageSize does not change when cell wrapping is enabled", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("image");
     let pageSizeBeforeWrapping;
