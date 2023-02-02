@@ -155,7 +155,7 @@ jobs:
           tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
           echo "Cleaning up the tar files"
           rm app/rts/dist/rts-dist.tar
-      Start server
+      # Start server
       - name: start server
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/server
