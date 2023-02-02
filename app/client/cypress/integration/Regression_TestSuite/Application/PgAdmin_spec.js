@@ -92,7 +92,6 @@ describe("PgAdmin Clone App", function() {
     _.agHelper.GetNClick(appPage.submitButton, 0, true);
     _.agHelper.AssertElementVisible(appPage.addColumn);
     _.agHelper.GetNClick(appPage.closeButton, 0, true);
-    _.agHelper.GetNClick("#switcher--explorer", 0, true);
     _.dataSources.NavigateToActiveTab();
 
     cy.contains(".t--datasource-name", datasourceName)
