@@ -101,7 +101,7 @@ export class GitSync {
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
         this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
-        this.agHelper.AssertElementExist(this._bottomBarCommit);
+        this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
       }
     });
