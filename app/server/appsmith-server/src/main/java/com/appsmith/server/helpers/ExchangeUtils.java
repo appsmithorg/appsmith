@@ -21,6 +21,7 @@ public class ExchangeUtils {
                         contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst(HEADER_ANONYMOUS_USER_ID),
                         FieldName.ANONYMOUS_USER
                 ))
+                .onErrorResume(error -> Mono.empty())
                 .defaultIfEmpty(FieldName.ANONYMOUS_USER);
     }
 
