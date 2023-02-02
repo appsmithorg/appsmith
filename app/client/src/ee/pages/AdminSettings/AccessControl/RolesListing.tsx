@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { HighlightText, MenuItemProps } from "design-system-old";
+import { HighlightText, Icon, MenuItemProps } from "design-system-old";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import {
   AclWrapper,
-  AppsmithIcon,
+  DefaultRolesToggle,
   EmptyDataState,
   EmptySearchResult,
+  MoreInfoPill,
 } from "./components";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
@@ -24,11 +25,12 @@ import {
   getRoleById,
 } from "@appsmith/actions/aclActions";
 import {
-  ADD_ROLE,
   createMessage,
+  ADD_ROLE,
   ACL_DELETE,
   ACL_EDIT,
   SEARCH_ROLES_PLACEHOLDER,
+  DEFAULT_ROLES_PILL,
 } from "@appsmith/constants/messages";
 import {
   getAclIsLoading,
@@ -49,6 +51,20 @@ const CellContainer = styled.div`
   cursor: pointer;
 `;
 
+const CrossedEditIcon = styled(Icon)`
+  position: relative;
+  &:before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 4px;
+    top: -4px;
+    border-bottom: 1.5px solid var(--ads-color-black-600);
+    transform: rotate(45deg);
+  }
+`;
+
 export function RolesListing() {
   const params = useParams() as any;
   const history = useHistory();
@@ -61,6 +77,13 @@ export function RolesListing() {
   const [data, setData] = useState<RoleProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedRole, setSelectedRole] = useState<RoleProps | null>(null);
+
+  const [isToggleActive, setIsToggleActive] = useState(false);
+
+  const filteredRoles = useMemo(
+    () => (isToggleActive ? roles : roles?.filter((role) => !role.autoCreated)),
+    [isToggleActive, roles],
+  );
 
   const selectedRoleId = params?.selected;
 
@@ -75,9 +98,9 @@ export function RolesListing() {
     if (searchValue) {
       onSearch(searchValue);
     } else {
-      setData(roles);
+      setData(filteredRoles);
     }
-  }, [roles]);
+  }, [filteredRoles]);
 
   useEffect(() => {
     setSelectedRole(selectedRoleProps);
@@ -103,22 +126,35 @@ export function RolesListing() {
       Header: `Roles (${data.length})`,
       accessor: "name",
       Cell: function RoleCell(cellProps: any) {
+        const data = cellProps.cell.row.original;
         return (
           <Link
             data-testid="t--roles-cell"
             to={adminSettingsCategoryUrl({
               category: SettingCategories.ROLES_LISTING,
-              selected: cellProps.cell.row.original.id,
+              selected: data.id,
             })}
           >
             <CellContainer>
-              <HighlightText
-                highlight={searchValue}
-                text={cellProps.cell.row.original.name}
-              />
-              {cellProps.cell.row.original.autoCreated && (
-                <AppsmithIcon data-testid="t--appsmith-badge">A</AppsmithIcon>
+              <HighlightText highlight={searchValue} text={data.name} />
+              {data.autoCreated && (
+                <MoreInfoPill data-testid="t--appsmith-badge">
+                  {createMessage(DEFAULT_ROLES_PILL)}
+                </MoreInfoPill>
               )}
+              <MoreInfoPill data-testid="t--appsmith-permission-icon">
+                {isPermitted(
+                  data?.userPermissions,
+                  PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
+                ) ? (
+                  <Icon data-testid="t--edit-icon" name="edit-underline" />
+                ) : (
+                  <CrossedEditIcon
+                    data-testid="t--crossed-edit-icon"
+                    name="edit-underline"
+                  />
+                )}
+              </MoreInfoPill>
             </CellContainer>
           </Link>
         );
@@ -177,12 +213,14 @@ export function RolesListing() {
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       const results =
-        roles &&
-        roles.filter((role) => role.name?.toLocaleUpperCase().includes(search));
+        filteredRoles &&
+        filteredRoles.filter((role) =>
+          role.name?.toLocaleUpperCase().includes(search),
+        );
       setData(results);
     } else {
       setSearchValue("");
-      setData(roles);
+      setData(filteredRoles);
     }
   }, 300);
 
@@ -197,7 +235,10 @@ export function RolesListing() {
   };
 
   return (
-    <AclWrapper data-testid="t--roles-listing-wrapper">
+    <AclWrapper
+      className="roles-listing-wrapper"
+      data-testid="t--roles-listing-wrapper"
+    >
       {selectedRoleId && selectedRole ? (
         <RoleAddEdit
           isLoading={isLoading}
@@ -214,6 +255,10 @@ export function RolesListing() {
             pageMenuItems={pageMenuItems}
             searchPlaceholder={createMessage(SEARCH_ROLES_PLACEHOLDER)}
             searchValue={searchValue}
+          />
+          <DefaultRolesToggle
+            isToggleActive={isToggleActive}
+            setIsToggleActive={setIsToggleActive}
           />
           <Listing
             columns={columns}

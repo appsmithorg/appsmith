@@ -17,6 +17,14 @@ export const groupsReducers = {
     ...state,
     groups: action.payload,
     isLoading: false,
+    ...(state.selectedGroup
+      ? {
+          selectedGroup: {
+            ...state.selectedGroup,
+            isNew: false,
+          },
+        }
+      : {}),
   }),
   [ReduxActionTypes.FETCH_ACL_GROUP_BY_ID]: (state: any) => ({
     ...state,

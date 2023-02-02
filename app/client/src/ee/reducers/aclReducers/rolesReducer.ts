@@ -17,6 +17,14 @@ export const rolesReducers = {
     ...state,
     roles: action.payload,
     isLoading: false,
+    ...(state.selectedRole
+      ? {
+          selectedRole: {
+            ...state.selectedRole,
+            isNew: false,
+          },
+        }
+      : {}),
   }),
   [ReduxActionTypes.FETCH_ACL_ROLE_BY_ID]: (state: any) => ({
     ...state,

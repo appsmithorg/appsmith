@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Category, SearchInput } from "design-system-old";
+import { Button, Category, SearchInput, Toggle } from "design-system-old";
 import styled, { createGlobalStyle } from "styled-components";
 import { Spinner } from "@blueprintjs/core";
 import {
@@ -8,6 +8,8 @@ import {
   BOTTOM_BAR_SAVE_BTN,
   BOTTOM_BAR_SAVE_MESSAGE,
   NO_SEARCH_DATA_TEXT,
+  DEFAULT_ROLES_PILL,
+  DEFAULT_ROLES_TOGGLE_TEXT,
 } from "@appsmith/constants/messages";
 import NoDataFound from "assets/images/empy-state.png";
 
@@ -21,6 +23,7 @@ export const AclWrapper = styled.div`
   margin: 32px 0 0 0;
   padding: 0 30px 0 24px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
+  position: relative;
 
   .scrollable-wrapper {
     height: 100%;
@@ -36,6 +39,15 @@ export const AclWrapper = styled.div`
           margin: auto;
         }
       }
+    }
+  }
+
+  &.roles-listing-wrapper {
+    .toggle-wrapper {
+      position: absolute;
+      right: 36px;
+      top: 68px;
+      z-index: 2;
     }
   }
 `;
@@ -87,14 +99,17 @@ export const ContentWrapper = styled.div`
   margin: 24px 0 0;
 `;
 
-export const AppsmithIcon = styled.div`
-  margin: 0px 8px;
-  color: var(--appsmith-color-black-0);
-  background: var(--appsmith-color-orange-500);
-  padding: 1.5px 4px;
+export const MoreInfoPill = styled.div`
+  margin: 0px 0px 0px 8px;
+  color: var(--ads-color-black-600);
+  background: var(--ads-color-black-200);
+  padding: 2px 4px;
   font-size: 12px;
   line-height: 14px;
   font-weight: 600;
+  border-radius: 2px;
+  height: 16px;
+  line-height: 1;
 `;
 
 export const StyledSearchInput = styled(SearchInput)`
@@ -218,6 +233,21 @@ const NoResultsText = styled.div`
   }
 `;
 
+const ToggleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 52px;
+`;
+
+const ToggleText = styled.div`
+  display: flex;
+  align-items: center;
+
+  span {
+    margin: 0 8px 0 4px;
+  }
+`;
+
 export const Loader = ({ loaderText }: { loaderText?: string }) => {
   return (
     <LoaderContainer>
@@ -237,5 +267,27 @@ export const EmptySearchResult = () => {
       <img alt="No data" src={NoDataFound} />
       <div>{createMessage(NO_SEARCH_DATA_TEXT)}</div>
     </NoResultsText>
+  );
+};
+
+export const DefaultRolesToggle = ({
+  isToggleActive,
+  setIsToggleActive,
+}: {
+  isToggleActive: boolean;
+  setIsToggleActive: (val: boolean) => void;
+}) => {
+  return (
+    <ToggleWrapper className="toggle-wrapper" data-testid="t--toggle-wrapper">
+      <ToggleText>
+        <MoreInfoPill>{createMessage(DEFAULT_ROLES_PILL)}</MoreInfoPill>
+        <span>{createMessage(DEFAULT_ROLES_TOGGLE_TEXT)}</span>
+      </ToggleText>
+      <Toggle
+        cypressSelector="default-roles-toggle"
+        onToggle={() => setIsToggleActive(!isToggleActive)}
+        value={isToggleActive}
+      />
+    </ToggleWrapper>
   );
 };

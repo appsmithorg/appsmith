@@ -7,6 +7,7 @@ import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockUserPermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import userEvent from "@testing-library/user-event";
+import { BaseGroupRoleProps } from "./types";
 
 let container: any = null;
 
@@ -24,6 +25,12 @@ const props = {
 function renderComponent() {
   return render(<UserEdit {...props} />);
 }
+
+const toggleDefaultRoles = async () => {
+  const toggleWrapper = screen.getByTestId("t--toggle-wrapper");
+  const toggleInput = toggleWrapper.getElementsByTagName("input")[0];
+  await fireEvent.click(toggleInput);
+};
 
 describe("<UserEdit />", () => {
   jest
@@ -43,6 +50,57 @@ describe("<UserEdit />", () => {
     const userInfo = screen.queryAllByTestId("t--user-edit-userInfo");
     expect(userInfo[0]).toHaveTextContent(selectedUser.username);
     expect(userInfo[0]).toHaveTextContent(selectedUser.name);
+  });
+  it("should display active and all roles properly with icons for default roles", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    tabs[1].click();
+    const activeRolesData = allUsers[0].roles;
+    const allRolesData = allUsers[0].allRoles;
+    const customRolesData = allUsers[0].allRoles.filter(
+      (r: BaseGroupRoleProps) => !r.autoCreated,
+    );
+
+    // when default roles toggle is off
+    const activeRoles = screen.queryAllByTestId("t--active-group-row");
+    let allRoles = screen.queryAllByTestId("t--all-group-row");
+
+    expect(activeRolesData.length).toEqual(activeRoles.length);
+    expect(customRolesData.length).toEqual(allRoles.length);
+
+    // when default roles toggle is on
+    toggleDefaultRoles();
+    allRoles = screen.queryAllByTestId("t--all-group-row");
+    expect(allRolesData.length).toEqual(allRoles.length);
+
+    activeRolesData.map((role: BaseGroupRoleProps, index: number) => {
+      if (role.autoCreated) {
+        expect(
+          activeRoles[index].querySelectorAll(
+            "[data-testid='t--default-role']",
+          ),
+        ).toHaveLength(1);
+      } else {
+        expect(
+          activeRoles[index].querySelectorAll(
+            "[data-testid='t--default-role']",
+          ),
+        ).toHaveLength(0);
+      }
+    });
+
+    allRolesData.map((role: BaseGroupRoleProps, index: number) => {
+      if (role.autoCreated) {
+        expect(
+          allRoles[index].querySelectorAll("[data-testid='t--default-role']"),
+        ).toHaveLength(1);
+      } else {
+        expect(
+          allRoles[index].querySelectorAll("[data-testid='t--default-role']"),
+        ).toHaveLength(0);
+      }
+    });
   });
   it("should show delete option on click of more action icon", () => {
     const { getAllByTestId } = renderComponent();
@@ -229,5 +287,29 @@ describe("<UserEdit />", () => {
       const errorMessage = document.getElementsByClassName("cs-text");
       expect(errorMessage).toHaveLength(1);
     });
+  });
+  it("should show lock icon and disable click for active roles which do not have unassign permission", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    tabs[1].click();
+    const activeRolesData = allUsers[0].roles;
+    const roleWithNoUnassignPermission = activeRolesData.findIndex(
+      (role: BaseGroupRoleProps) =>
+        !role.userPermissions?.includes("unassign:permissionGroups"),
+    );
+    const activeRoles = screen.queryAllByTestId("t--active-group-row");
+    expect(
+      activeRoles[roleWithNoUnassignPermission].querySelectorAll(
+        "[data-testid='t--lock-icon']",
+      ),
+    ).toHaveLength(1);
+    expect(activeRoles[roleWithNoUnassignPermission]).not.toHaveClass(
+      "removed",
+    );
+    fireEvent.click(activeRoles[roleWithNoUnassignPermission]);
+    expect(activeRoles[roleWithNoUnassignPermission]).not.toHaveClass(
+      "removed",
+    );
   });
 });

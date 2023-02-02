@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
-import { GroupEditProps } from "./types";
+import { BaseGroupRoleProps, GroupEditProps } from "./types";
 import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockGroupPermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
@@ -42,6 +42,12 @@ const props: GroupEditProps = {
 function renderComponent() {
   return render(<GroupAddEdit {...props} />);
 }
+
+const toggleDefaultRoles = async () => {
+  const toggleWrapper = screen.getByTestId("t--toggle-wrapper");
+  const toggleInput = toggleWrapper.getElementsByTagName("input")[0];
+  await fireEvent.click(toggleInput);
+};
 
 describe("<GroupAddEdit />", () => {
   jest
@@ -116,6 +122,57 @@ describe("<GroupAddEdit />", () => {
       expect(tabCount.map((tab) => tab.textContent)).toEqual(
         mockedSearchResults,
       );
+    });
+  });
+  it("should display active and all roles properly with icons for default roles", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    tabs[1].click();
+    const activeRolesData = userGroupTableData[0].roles;
+    const allRolesData = userGroupTableData[0].allRoles;
+    const customRolesData = userGroupTableData[0].allRoles.filter(
+      (r: BaseGroupRoleProps) => !r.autoCreated,
+    );
+
+    // when default roles toggle is off
+    const activeRoles = screen.queryAllByTestId("t--active-group-row");
+    let allRoles = screen.queryAllByTestId("t--all-group-row");
+
+    expect(activeRolesData.length).toEqual(activeRoles.length);
+    expect(customRolesData.length).toEqual(allRoles.length);
+
+    // when default roles toggle is on
+    toggleDefaultRoles();
+    allRoles = screen.queryAllByTestId("t--all-group-row");
+    expect(allRolesData.length).toEqual(allRoles.length);
+
+    activeRolesData.map((role: BaseGroupRoleProps, index: number) => {
+      if (role.autoCreated) {
+        expect(
+          activeRoles[index].querySelectorAll(
+            "[data-testid='t--default-role']",
+          ),
+        ).toHaveLength(1);
+      } else {
+        expect(
+          activeRoles[index].querySelectorAll(
+            "[data-testid='t--default-role']",
+          ),
+        ).toHaveLength(0);
+      }
+    });
+
+    allRolesData.map((role: BaseGroupRoleProps, index: number) => {
+      if (role.autoCreated) {
+        expect(
+          allRoles[index].querySelectorAll("[data-testid='t--default-role']"),
+        ).toHaveLength(1);
+      } else {
+        expect(
+          allRoles[index].querySelectorAll("[data-testid='t--default-role']"),
+        ).toHaveLength(0);
+      }
     });
   });
   it("should search and filter roles on search", async () => {
@@ -388,5 +445,29 @@ describe("<GroupAddEdit />", () => {
       const errorMessage = await document.getElementsByClassName("cs-text");
       expect(errorMessage).toHaveLength(1);
     });
+  });
+  it("should show lock icon and disable click for active roles which do not have unassign permission", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    tabs[1].click();
+    const activeRolesData = userGroupTableData[0].roles;
+    const roleWithNoUnassignPermission = activeRolesData.findIndex(
+      (role: BaseGroupRoleProps) =>
+        !role.userPermissions?.includes("unassign:permissionGroups"),
+    );
+    const activeRoles = screen.queryAllByTestId("t--active-group-row");
+    expect(
+      activeRoles[roleWithNoUnassignPermission].querySelectorAll(
+        "[data-testid='t--lock-icon']",
+      ),
+    ).toHaveLength(1);
+    expect(activeRoles[roleWithNoUnassignPermission]).not.toHaveClass(
+      "removed",
+    );
+    fireEvent.click(activeRoles[roleWithNoUnassignPermission]);
+    expect(activeRoles[roleWithNoUnassignPermission]).not.toHaveClass(
+      "removed",
+    );
   });
 });

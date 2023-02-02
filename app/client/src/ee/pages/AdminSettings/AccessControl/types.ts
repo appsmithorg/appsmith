@@ -44,16 +44,21 @@ export type RoleTreeProps = {
   setShowSaveModal: (val: boolean) => void;
 };
 
+export type BaseGroupRoleProps = BaseAclProps & {
+  autoCreated?: boolean;
+  userPermissions?: string[];
+};
+
 export type ActiveAllGroupsProps = {
-  activeGroups: Array<BaseAclProps>;
-  allGroups?: Array<BaseAclProps>;
+  activeGroups: Array<BaseGroupRoleProps>;
+  allGroups?: Array<BaseGroupRoleProps>;
   activeOnly?: boolean;
   title?: string;
   searchValue?: string;
-  addedAllGroups?: Array<any>;
-  removedActiveGroups: Array<any>;
-  onAddGroup?: (group: BaseAclProps) => void;
-  onRemoveGroup: (group: BaseAclProps) => void;
+  addedAllGroups?: Array<BaseGroupRoleProps>;
+  removedActiveGroups: Array<BaseGroupRoleProps>;
+  onAddGroup?: (group: BaseGroupRoleProps) => void;
+  onRemoveGroup: (group: BaseGroupRoleProps) => void;
   entityName: string;
 };
 
@@ -64,8 +69,8 @@ export type UsersInGroup = {
 
 export type GroupProps = BaseAclProps & {
   users: UsersInGroup[];
-  roles: BaseAclProps[];
-  allRoles: BaseAclProps[];
+  roles: BaseGroupRoleProps[];
+  allRoles: BaseGroupRoleProps[];
   userPermissions?: string[];
   isNew?: boolean;
   description?: string;
@@ -78,8 +83,8 @@ export type GroupEditProps = {
 };
 
 export type Permissions = {
-  roles: BaseAclProps[];
-  allRoles: BaseAclProps[];
+  roles: BaseGroupRoleProps[];
+  allRoles: BaseGroupRoleProps[];
 };
 
 export type ListingProps = {
@@ -110,20 +115,20 @@ export type PageHeaderProps = {
 };
 
 export type GroupsForUser = {
-  groups: BaseAclProps[];
-  allGroups: BaseAclProps[];
+  groups: BaseGroupRoleProps[];
+  allGroups: BaseGroupRoleProps[];
 };
 
 export type PermissionsForUser = {
-  roles: BaseAclProps[];
-  allRoles: BaseAclProps[];
+  roles: BaseGroupRoleProps[];
+  allRoles: BaseGroupRoleProps[];
 };
 
 export type UserProps = BaseAclProps & {
-  groups: BaseAclProps[];
-  roles: BaseAclProps[];
-  allGroups: BaseAclProps[];
-  allRoles: BaseAclProps[];
+  groups: BaseGroupRoleProps[];
+  roles: BaseGroupRoleProps[];
+  allGroups: BaseGroupRoleProps[];
+  allRoles: BaseGroupRoleProps[];
   username: string;
   userPermissions?: string[];
 };

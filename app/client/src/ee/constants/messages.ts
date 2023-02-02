@@ -40,6 +40,10 @@ export const NO_ACTIVE_ENTITIES_MESSAGE = (
 ${entity}s below to add them.`;
 export const EMPTY_ENTITIES_MESSAGE = (entity: string) =>
   `There are no ${entity}s created.`;
+export const NO_PERMISSION_TO_UNASSIGN = () =>
+  `You do not have permission to unassign this role.`;
+export const DEFAULT_ROLES_PILL = () => `D`;
+export const DEFAULT_ROLES_TOGGLE_TEXT = () => `Default Roles`;
 export const BOTTOM_BAR_SAVE_MESSAGE = () => `These changes will affect the users ability to interact with various
 aspects of the application. Are you sure?`;
 export const BOTTOM_BAR_SAVE_BTN = () => `Save Changes`;
