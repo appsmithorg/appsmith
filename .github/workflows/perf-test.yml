@@ -261,7 +261,7 @@ jobs:
         id: perf_infra_ref
         run: |
           ref=${{ github.event.client_payload.slash_command.args.named.ref }}
-          if [[ -z "$ref" ]]; then ref="rhito/move-logs-and-fix-misc-tests"; fi
+          if [[ -z "$ref" ]]; then ref="rhito/fix-appsmith-baseURL"; fi
           echo ref=$ref >> $GITHUB_OUTPUT
 
       - name: Checkout Performance Infra code
