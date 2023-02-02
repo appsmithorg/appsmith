@@ -263,6 +263,6 @@ describe("Git import flow ", function() {
   });
 
   after(() => {
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    //_.gitSync.DeleteTestGithubRepo(repoName);
   });
 });
