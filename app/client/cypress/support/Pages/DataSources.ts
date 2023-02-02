@@ -621,12 +621,12 @@ export class DataSources {
     this.agHelper.AssertAutoSave();
   }
 
-  public EnterQuery(query: string) {
+  public EnterQuery(query: string, sleep= 500) {
     cy.get(this.locator._codeEditorTarget).then(($field: any) => {
       this.agHelper.UpdateCodeInput($field, query);
     });
     this.agHelper.AssertAutoSave();
-    this.agHelper.Sleep(500); //waiting a bit before proceeding!
+    this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
     this.agHelper.ValidateNetworkStatus("@saveAction", 200);
   }
 
