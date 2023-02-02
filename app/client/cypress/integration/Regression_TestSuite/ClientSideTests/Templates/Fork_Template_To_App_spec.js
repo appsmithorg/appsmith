@@ -1,27 +1,38 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 const publish = require("../../../../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let agHelper = ObjectsRegistry.AggregateHelper;
+let appId, newWorkspaceName;
 
 describe("Fork a template to the current app", () => {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
+    // Closes template dialog if it is already open - useful for retry
+    cy.get("body").then(($ele) => {
+      if ($ele.find(template.templateDialogBox).length) {
+        cy.get(template.closeButton).click();
+      }
+    });
+    cy.CheckAndUnfoldEntityItem("Pages");
+    cy.get(`.t--entity-name:contains(Page1)`)
+      .trigger("mouseover")
+      .click({ force: true });
   });
 
   it("1. Fork a template to the current app", () => {
     cy.wait(5000);
     cy.get(template.startFromTemplateCard).click();
-    cy.wait("@fetchTemplate").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    // Commented out below code as fetch template call is not going through when template dialog is closed
+    // cy.wait("@fetchTemplate").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
@@ -29,6 +40,7 @@ describe("Fork a template to the current app", () => {
     )
       .scrollIntoView()
       .click();
+    _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -40,22 +52,6 @@ describe("Fork a template to the current app", () => {
         if ($ele.find(template.templateViewForkButton).length > 0) {
           cy.get(template.templateViewForkButton).click();
         }
-      } else {
-        cy.wrap($ele)
-          .invoke("text")
-          .then((text) => {
-            if (text.includes("Unexpected state.")) {
-              cy.reload();
-              cy.get(template.startFromTemplateCard).click();
-              cy.wait(5000);
-              cy.get(template.templateDialogBox).should("be.visible");
-              cy.xpath(
-                "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
-              )
-                .scrollIntoView()
-                .click();
-            }
-          });
       }
     });
     cy.get(widgetLocators.toastAction).should(
@@ -80,14 +76,16 @@ describe("Fork a template to the current app", () => {
       .click({ force: true });
     cy.wait(1000);
     cy.get(template.startFromTemplateCard).click();
-    cy.wait("@fetchTemplate").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    // Commented out below code as fetch template call is not going through when template dialog is closed
+    // cy.wait("@fetchTemplate").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath("//div[text()='Customer Support Dashboard']").click();
+    _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
