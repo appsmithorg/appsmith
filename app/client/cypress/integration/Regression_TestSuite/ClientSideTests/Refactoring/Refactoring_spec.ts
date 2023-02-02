@@ -11,7 +11,7 @@ const jsCode = `//TextWidget, InputWidget, QueryRefactor and RefactorAPI are use
   return 10;`;
 const query =
   "SELECT * FROM paintings ORDER BY id LIMIT {{JSObject1.myFun1()}};";
-const apiURL = "https://mock-api.appsmith.com/users";
+const apiURL = _.agHelper.mockApiUrl;
 const refactorInput = {
   api: { oldName: "RefactorAPI", newName: "RefactorAPIRenamed" },
   query: { oldName: "QueryRefactor", newName: "QueryRefactorRenamed" },
