@@ -52,6 +52,15 @@ const StyledContainerComponent = styled.div<
   }
 `;
 
+const StyledRowComponent = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 100%;
+  width: 100%;
+`;
+
 function ContainerComponentWrapper(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
@@ -81,7 +90,7 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
       ref={containerRef}
       tabIndex={props.shouldScrollContents ? undefined : 0}
     >
-      {props.children}
+      <StyledRowComponent>{props.children}</StyledRowComponent>
     </StyledContainerComponent>
   );
 }
