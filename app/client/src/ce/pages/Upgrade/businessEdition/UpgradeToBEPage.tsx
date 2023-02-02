@@ -60,6 +60,7 @@ export const FlexContainer = styled.div`
   width: 100%;
   padding: 48px 200px;
   justify-content: space-between;
+  min-width: 900px;
 `;
 
 export const LeftWrapper = styled.div`
@@ -69,14 +70,13 @@ export const LeftWrapper = styled.div`
   img {
     width: 800px;
     height: 800px;
-    object-fit: scale-down;
   }
 `;
 
 export const UpgradeToBEPage = () => {
   const { onUpgrade } = useOnUpgrade({
-    logEventName: "ADMIN_SETTINGS_UPGRADE_HOOK",
-    logEventData: { source: "Upgrade to BE" },
+    logEventName: "BILLING_UPGRADE_ADMIN_SETTINGS",
+    logEventData: { source: "Upgrade" },
   });
 
   return (
@@ -85,7 +85,6 @@ export const UpgradeToBEPage = () => {
         <FlexContainer>
           <LeftWrapper>
             <img alt="text-content" src={BETextImage} />
-            {/* <BETextContent /> */}
           </LeftWrapper>
           <ImageContainer>
             <img alt="Upgrade to Business Edition" src={BEBannerImage} />
