@@ -1,11 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Popover2 } from "@blueprintjs/popover2";
-import { Button, Category, Icon, TreeDropdownOption } from "design-system-old";
-import { SelectorDropdown } from "../SelectorDropdown";
-import { FIELD_CONFIG } from "../../Field/FieldConfig";
+import { Icon, TreeDropdownOption } from "design-system-old";
 import FieldGroup from "../../FieldGroup";
-import { AppsmithFunction, FieldType } from "../../constants";
-import { ActionTree, SelectedActionBlock, SwitchType } from "../../types";
+import { AppsmithFunction } from "../../constants";
+import { ActionTree, SelectedActionBlock } from "../../types";
 import {
   actionToCode,
   codeToAction,
@@ -20,7 +18,6 @@ import {
   useApisQueriesAndJsActionOptions,
   useModalDropdownList,
 } from "../../helpers";
-import { TabView } from "../TabView";
 import { cloneDeep } from "lodash";
 import { ActionBlockTree } from "../ActionBlockTree";
 
@@ -31,13 +28,7 @@ type Props = {
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
-type CallbackBlocks = Record<
-  SelectedActionBlock["type"],
-  {
-    fields: React.ReactElement;
-    block: React.ReactElement;
-  }[]
->;
+type CallbackBlocks = Record<SelectedActionBlock["type"], React.ReactElement[]>;
 
 export const Action: React.FC<Props> = ({
   action,
@@ -53,25 +44,6 @@ export const Action: React.FC<Props> = ({
     setSelectedCallbackBlock,
   ] = useState<SelectedActionBlock | null>(null);
 
-  const apiAndQueryCallbackTabSwitches: SwitchType[] = [
-    {
-      id: "onSuccess",
-      text: "onSuccess",
-      action: () =>
-        setActiveTabApiAndQueryCallback(apiAndQueryCallbackTabSwitches[0]),
-    },
-    {
-      id: "onFailure",
-      text: "onFailure",
-      action: () =>
-        setActiveTabApiAndQueryCallback(apiAndQueryCallbackTabSwitches[1]),
-    },
-  ];
-
-  const [
-    activeTabApiAndQueryCallback,
-    setActiveTabApiAndQueryCallback,
-  ] = useState<SwitchType>(apiAndQueryCallbackTabSwitches[0]);
   const integrationOptions = useApisQueriesAndJsActionOptions(() =>
     setOpen(false),
   );
@@ -83,16 +55,6 @@ export const Action: React.FC<Props> = ({
   const [actionTree, setActionTree] = useState<ActionTree>(
     codeToAction(value, integrationOptions),
   );
-
-  const selectedOption = getSelectedFieldFromValue(value, integrationOptions);
-
-  const showSuccessAndFailureTabs = useMemo(() => {
-    const { actionType } = actionTree;
-
-    return [AppsmithFunction.runAPI, AppsmithFunction.integration].includes(
-      actionType as any,
-    );
-  }, [actionTree.actionType]);
 
   useEffect(() => {
     if (firstRender.current) {
@@ -220,13 +182,6 @@ export const Action: React.FC<Props> = ({
 
   const isCallbackBlockSelected = selectedCallbackBlock !== null;
 
-  const shouldAddActionBeDisabled =
-    activeTabApiAndQueryCallback.id === "onSuccess"
-      ? actionTree.successCallbacks[actionTree.successCallbacks.length - 1]
-          ?.actionType === AppsmithFunction.none
-      : actionTree.errorCallbacks[actionTree.errorCallbacks.length - 1]
-          ?.actionType === AppsmithFunction.none;
-
   const { errorCallbacks, successCallbacks } = actionTree;
 
   const callbackBlocks: CallbackBlocks = {
@@ -236,110 +191,63 @@ export const Action: React.FC<Props> = ({
 
   callbackBlocks.success = successCallbacks.map((action, index) => {
     const valueWithMoustache = `{{${action.code}}}`;
-    return {
-      fields: (
-        <FieldGroup
-          additionalAutoComplete={additionalAutoComplete}
-          integrationOptions={integrationOptions}
-          isChainedAction
-          key={action.actionType + index}
-          modalDropdownList={modalDropdownList}
-          onValueChange={(newValue) => {
-            setActionTree((prevActionTree) => {
-              const newActionTree = cloneDeep(prevActionTree);
-              const action = newActionTree.successCallbacks[index];
-              action.code = getCodeFromMoustache(newValue);
-              const selectedField = getSelectedFieldFromValue(
-                newValue,
-                integrationOptions,
-              );
-              action.actionType = (selectedField.type ||
-                selectedField.value) as any;
-              return newActionTree;
-            });
-          }}
-          pageDropdownOptions={pageDropdownOptions}
-          value={valueWithMoustache}
-          widgetOptionTree={widgetOptionTree}
-        />
-      ),
-      block: (
-        <ActionBlockTree
-          actionTree={action}
-          key={action.code + index}
-          onClick={() => setSelectedCallbackBlock({ type: "success", index })}
-        />
-      ),
-    };
+    return (
+      <FieldGroup
+        additionalAutoComplete={additionalAutoComplete}
+        integrationOptions={integrationOptions}
+        isChainedAction
+        key={action.actionType + index}
+        modalDropdownList={modalDropdownList}
+        onValueChange={(newValue) => {
+          setActionTree((prevActionTree) => {
+            const newActionTree = cloneDeep(prevActionTree);
+            const action = newActionTree.successCallbacks[index];
+            action.code = getCodeFromMoustache(newValue);
+            const selectedField = getSelectedFieldFromValue(
+              newValue,
+              integrationOptions,
+            );
+            action.actionType = (selectedField.type ||
+              selectedField.value) as any;
+            return newActionTree;
+          });
+        }}
+        pageDropdownOptions={pageDropdownOptions}
+        value={valueWithMoustache}
+        widgetOptionTree={widgetOptionTree}
+      />
+    );
   });
 
   callbackBlocks.failure = errorCallbacks.map((action, index) => {
     const valueWithMoustache = `{{${action.code}}}`;
-    return {
-      fields: (
-        <FieldGroup
-          additionalAutoComplete={additionalAutoComplete}
-          integrationOptions={integrationOptions}
-          isChainedAction
-          key={action.actionType + index}
-          modalDropdownList={modalDropdownList}
-          onValueChange={(newValue) => {
-            setActionTree((prevActionTree) => {
-              const newActionTree = cloneDeep(prevActionTree);
-              const action = newActionTree.errorCallbacks[index];
-              action.code = getCodeFromMoustache(newValue);
-              const selectedField = getSelectedFieldFromValue(
-                newValue,
-                integrationOptions,
-              );
-              action.actionType = (selectedField.type ||
-                selectedField.value) as any;
-              return newActionTree;
-            });
-          }}
-          pageDropdownOptions={pageDropdownOptions}
-          value={valueWithMoustache}
-          widgetOptionTree={widgetOptionTree}
-        />
-      ),
-      block: (
-        <ActionBlockTree
-          actionTree={action}
-          key={action.code + index}
-          onClick={() => setSelectedCallbackBlock({ type: "failure", index })}
-        />
-      ),
-    };
-  });
-
-  const chainActionView = () => {
     return (
-      <div className="flex flex-col gap-2">
-        {showSuccessAndFailureTabs && (
-          <div className="flex flex-col gap-2">
-            {activeTabApiAndQueryCallback.id === "onSuccess" &&
-              callbackBlocks.success.map(({ block }) => block)}
-            {activeTabApiAndQueryCallback.id === "onFailure" &&
-              callbackBlocks.failure.map(({ block }) => block)}
-          </div>
-        )}
-        {showSuccessAndFailureTabs ? (
-          <div className="flex flex-row">
-            <Button
-              category={Category.secondary}
-              disabled={shouldAddActionBeDisabled}
-              onClick={
-                activeTabApiAndQueryCallback.id === "onSuccess"
-                  ? addSuccessAction
-                  : addErrorAction
-              }
-              text="Add Action"
-            />
-          </div>
-        ) : null}
-      </div>
+      <FieldGroup
+        additionalAutoComplete={additionalAutoComplete}
+        integrationOptions={integrationOptions}
+        isChainedAction
+        key={action.actionType + index}
+        modalDropdownList={modalDropdownList}
+        onValueChange={(newValue) => {
+          setActionTree((prevActionTree) => {
+            const newActionTree = cloneDeep(prevActionTree);
+            const action = newActionTree.errorCallbacks[index];
+            action.code = getCodeFromMoustache(newValue);
+            const selectedField = getSelectedFieldFromValue(
+              newValue,
+              integrationOptions,
+            );
+            action.actionType = (selectedField.type ||
+              selectedField.value) as any;
+            return newActionTree;
+          });
+        }}
+        pageDropdownOptions={pageDropdownOptions}
+        value={valueWithMoustache}
+        widgetOptionTree={widgetOptionTree}
+      />
     );
-  };
+  });
 
   const boundaryParent =
     (document.querySelector("#canvas-viewport") as HTMLElement) || undefined;
@@ -388,69 +296,33 @@ export const Action: React.FC<Props> = ({
               {isCallbackBlockSelected ? (
                 callbackBlocks[selectedCallbackBlock.type][
                   selectedCallbackBlock.index
-                ].fields
+                ]
               ) : (
-                <>
-                  <SelectorDropdown
-                    onSelect={(option: TreeDropdownOption) => {
-                      const fieldConfig =
-                        FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
-                      const finalValueToSet = fieldConfig.setter(option, "");
-                      setActionTree(() => {
-                        const selectedField = getSelectedFieldFromValue(
-                          finalValueToSet,
-                          integrationOptions,
-                        );
-                        const actionType = (selectedField.type ||
-                          selectedField.value ||
-                          AppsmithFunction.none) as any;
+                <FieldGroup
+                  additionalAutoComplete={additionalAutoComplete}
+                  integrationOptions={integrationOptions}
+                  modalDropdownList={modalDropdownList}
+                  onValueChange={(newValue) => {
+                    setActionTree(() => {
+                      const selectedField = getSelectedFieldFromValue(
+                        newValue,
+                        integrationOptions,
+                      );
+                      const actionType = (selectedField.type ||
+                        selectedField.value) as any;
 
-                        return {
-                          code: getCodeFromMoustache(finalValueToSet) || "",
-                          actionType,
-                          successCallbacks: [],
-                          errorCallbacks: [],
-                        };
-                      });
-                    }}
-                    options={integrationOptions}
-                    selectedOption={selectedOption}
-                    value={value}
-                  />
-                  {showSuccessAndFailureTabs ? (
-                    <TabView
-                      activeObj={activeTabApiAndQueryCallback}
-                      switches={apiAndQueryCallbackTabSwitches}
-                    />
-                  ) : (
-                    <FieldGroup
-                      additionalAutoComplete={additionalAutoComplete}
-                      integrationOptions={integrationOptions}
-                      modalDropdownList={modalDropdownList}
-                      onValueChange={(newValue) => {
-                        setActionTree(() => {
-                          const selectedField = getSelectedFieldFromValue(
-                            newValue,
-                            integrationOptions,
-                          );
-                          const actionType = (selectedField.type ||
-                            selectedField.value) as any;
-
-                          return {
-                            code: getCodeFromMoustache(newValue),
-                            actionType,
-                            successCallbacks: [],
-                            errorCallbacks: [],
-                          };
-                        });
-                      }}
-                      pageDropdownOptions={pageDropdownOptions}
-                      value={`{{${value}}}`}
-                      widgetOptionTree={widgetOptionTree}
-                    />
-                  )}
-                  {chainActionView()}
-                </>
+                      return {
+                        code: getCodeFromMoustache(newValue),
+                        actionType,
+                        successCallbacks: [],
+                        errorCallbacks: [],
+                      };
+                    });
+                  }}
+                  pageDropdownOptions={pageDropdownOptions}
+                  value={`{{${value}}}`}
+                  widgetOptionTree={widgetOptionTree}
+                />
               )}
             </div>
           </div>

@@ -4,8 +4,13 @@ import { debounce } from "lodash";
 import { ActionBlock } from "../ActionBlock";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { FieldType } from "../../constants";
-import { flattenOptions, isEmptyBlock } from "../../utils";
+import {
+  flattenOptions,
+  getSelectedFieldFromValue,
+  isEmptyBlock,
+} from "../../utils";
 import { getActionInfo } from "../ActionBlockTree/utils";
+import { SelectorViewProps } from "../../types";
 
 function filterChildren(
   options: TreeDropdownOption[],
@@ -27,21 +32,9 @@ function sortOnChildrenLength(options: TreeDropdownOption[]) {
   });
 }
 
-type Props = {
-  value: string;
-  selectedOption: TreeDropdownOption;
-  options: TreeDropdownOption[];
-  onSelect: (
-    option: TreeDropdownOption,
-    defaultVal: any,
-    isUpdatedViaKeyboard: boolean | undefined,
-  ) => void;
-};
-
-export const SelectorDropdown: React.FC<Props> = ({
-  onSelect,
+export const ActionSelectorView: React.FC<SelectorViewProps> = ({
   options,
-  selectedOption,
+  set,
   value,
 }) => {
   const [isOpen, setOpen] = useState(isEmptyBlock(value));
@@ -51,6 +44,8 @@ export const SelectorDropdown: React.FC<Props> = ({
     () => debounce(setDebouncedValue, 300),
     [],
   );
+
+  const selectedOption = getSelectedFieldFromValue(value, options);
 
   const fieldConfig = FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
 
@@ -82,7 +77,7 @@ export const SelectorDropdown: React.FC<Props> = ({
         setOpen(isOpen);
         setSearchText("");
       }}
-      onSelect={onSelect}
+      onSelect={set}
       optionTree={filteredOptions}
       popoverClassName="absolute top-[12px]"
       position="left"

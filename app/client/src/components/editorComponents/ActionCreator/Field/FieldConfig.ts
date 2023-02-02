@@ -70,7 +70,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         return `{{${value}}}`;
       return `{{${value}()}}`;
     },
-    view: ViewTypes.SELECTOR_VIEW,
+    view: ViewTypes.ACTION_SELECTOR_VIEW,
   },
   [FieldType.ALERT_TEXT_FIELD]: {
     label: () => "Message",

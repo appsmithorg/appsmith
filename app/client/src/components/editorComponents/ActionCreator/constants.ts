@@ -74,6 +74,7 @@ export const ViewTypes = {
   BOOL_VIEW: "BOOL_VIEW",
   TAB_VIEW: "TAB_VIEW",
   NO_VIEW: "NO_VIEW",
+  ACTION_SELECTOR_VIEW: "ACTION_SELECTOR_VIEW",
 };
 
 export const NAVIGATE_TO_TAB_OPTIONS = {

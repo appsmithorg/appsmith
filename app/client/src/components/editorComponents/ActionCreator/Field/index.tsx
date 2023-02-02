@@ -24,10 +24,14 @@ import { KeyValueView } from "../viewComponents/KeyValueView";
 import { TextView } from "../viewComponents/TextView";
 import { TabView } from "../viewComponents/TabView";
 import { FIELD_CONFIG } from "./FieldConfig";
+import { ActionSelectorView } from "../viewComponents/ActionSelectorView";
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (
     <SelectorView {...props} />
+  ),
+  [ViewTypes.ACTION_SELECTOR_VIEW]: (props: SelectorViewProps) => (
+    <ActionSelectorView {...props} />
   ),
   [ViewTypes.KEY_VALUE_VIEW]: (props: KeyValueViewProps) => (
     <KeyValueView {...props} />

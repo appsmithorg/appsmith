@@ -394,7 +394,7 @@ export function actionToCode(
 }
 
 export function isEmptyBlock(block: string) {
-  return [";", "undefined;"].includes(block);
+  return [";", "undefined;", ""].includes(getCodeFromMoustache(block));
 }
 
 /** {{Hello {{Input.text}}}} -> Hello {{Input.text}} */

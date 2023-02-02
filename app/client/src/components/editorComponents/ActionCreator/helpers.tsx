@@ -71,7 +71,7 @@ export function getFieldFromValue(
   const fields: SelectorField[] = [];
 
   // No value case - no action has been selected, show the action selector field
-  if (!value && isChainedAction) {
+  if (!value) {
     return [
       {
         field: FieldType.ACTION_SELECTOR_FIELD,
@@ -166,12 +166,12 @@ function getActionEntityFields(
     self.evaluationVersion,
   );
   const errorValue = getFunction(errorFunction, self.evaluationVersion);
+  fields.push({
+    field: FieldType.ACTION_SELECTOR_FIELD,
+    getParentValue,
+    value,
+  });
   if (isChainedAction) {
-    fields.push({
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      getParentValue,
-      value,
-    });
     fields.push({
       field: FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD,
       getParentValue,
@@ -245,14 +245,12 @@ function getJsFunctionExecutionFields(
   const path = propertyPath && propertyPath.replace("();", "");
   const argsProps =
     path && entity.meta && entity.meta[path] && entity.meta[path].arguments;
-  if (isChainedAction) {
-    fields.push({
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      getParentValue,
-      value,
-      args: argsProps ? argsProps : [],
-    });
-  }
+  fields.push({
+    field: FieldType.ACTION_SELECTOR_FIELD,
+    getParentValue,
+    value,
+    args: argsProps ? argsProps : [],
+  });
 
   if (argsProps && argsProps.length > 0) {
     for (const index of argsProps) {
@@ -280,13 +278,11 @@ function getFieldsForSelectedAction(
    * if an action is present, push actions selector field
    * then push all fields specific to the action selected
    */
-  if (isChainedAction) {
-    fields.push({
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      getParentValue,
-      value,
-    });
-  }
+  fields.push({
+    field: FieldType.ACTION_SELECTOR_FIELD,
+    getParentValue,
+    value,
+  });
 
   /**
    *  We need to find out if there are more than one function in the value
