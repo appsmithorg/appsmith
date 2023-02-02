@@ -16,7 +16,6 @@ import utilSagas from "../src/sagas/UtilSagas";
 import saaSPaneSagas from "../src/sagas/SaaSPaneSagas";
 import actionExecutionChangeListeners from "../src/sagas/WidgetLoadingSaga";
 import globalSearchSagas from "../src/sagas/GlobalSearchSagas";
-import recentEntitiesSagas from "../src/sagas/RecentEntitiesSagas";
 import websocketSagas from "../src/sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "../src/sagas/DebuggerSagas";
 import { watchActionSagas } from "sagas/ActionSagas";
@@ -56,7 +55,6 @@ export const sagasToRunForTests = [
   utilSagas,
   saaSPaneSagas,
   globalSearchSagas,
-  recentEntitiesSagas,
   websocketSagas,
   debuggerSagas,
   watchJSActionSagas,

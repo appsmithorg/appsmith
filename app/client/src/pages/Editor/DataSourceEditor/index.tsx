@@ -44,7 +44,7 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
   SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";

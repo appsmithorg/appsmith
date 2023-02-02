@@ -301,7 +301,7 @@ export class DataSources {
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
-    cy.get(this._newDatasourceContainer).scrollTo("bottom");
+    cy.get(this._newDatasourceContainer).scrollTo("bottom", {ensureScrollable: false});
     cy.get(this._newDatabases).should("be.visible");
   }
 
@@ -487,7 +487,6 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.ee.NavigateToSwitcher("explorer");
     this.ee.ExpandCollapseEntity("Datasources", false);
     //this.ee.SelectEntityByName(datasourceName, "Datasources");
     //this.ee.ExpandCollapseEntity(datasourceName, false);

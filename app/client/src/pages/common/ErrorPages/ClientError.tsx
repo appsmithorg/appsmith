@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Button, Size } from "design-system";
+import { Button, Size } from "design-system-old";
 import { flushErrors } from "actions/errorActions";
 
 import Page from "./Page";

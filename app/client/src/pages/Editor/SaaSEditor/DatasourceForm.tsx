@@ -2,7 +2,7 @@ import React from "react";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
-import { Category } from "design-system";
+import { Category } from "design-system-old";
 import { Datasource } from "entities/Datasource";
 import {
   getFormValues,

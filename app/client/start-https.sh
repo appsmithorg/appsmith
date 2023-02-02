@@ -259,6 +259,9 @@ $(if [[ $use_https == 1 ]]; then echo "
         proxy_set_header X-Forwarded-Host \$host;
         proxy_set_header Accept-Encoding '';
 
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+        add_header Content-Security-Policy \"frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}\";
+
         sub_filter_once off;
         location / {
             proxy_pass $frontend;
