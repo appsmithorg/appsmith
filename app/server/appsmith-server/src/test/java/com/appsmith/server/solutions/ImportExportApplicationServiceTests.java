@@ -3614,4 +3614,33 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplication_WithPageIcon_ValidPageIcon() {
+        String randomId = UUID.randomUUID().toString();
+        Application application = new Application();
+        application.setName("exportPageIconApplicationTest");
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setName("page_" + randomId);
+        pageDTO.setIcon("flight");
+        pageDTO.setApplicationId(createdApplication.getId());
+
+        PageDTO applicationPageDTO = applicationPageService.createPage(pageDTO).block();
+
+        Mono<ApplicationJson> resultMono =
+                importExportApplicationService.exportApplicationById(applicationPageDTO.getApplicationId(), "");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    List<NewPage> pages = applicationJson.getPageList();
+                    assertThat(pages.size()).isEqualTo(2);
+                    assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
+                    assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
+                })
+                .verifyComplete();
+    }
+
 }

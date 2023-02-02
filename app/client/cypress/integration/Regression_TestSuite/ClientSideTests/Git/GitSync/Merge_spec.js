@@ -22,10 +22,7 @@ describe("Git sync modal: merge tab", function() {
 
   it("1. Verify the functionality of the default dropdown under merge tab", function() {
     cy.get(commonLocators.canvas).click({ force: true });
-    //cy.createGitBranch(childBranchKey);
-
     _.gitSync.CreateGitBranch(childBranchKey);
-
     cy.get(gitSyncLocators.bottomBarMergeButton).click();
     cy.get(gitSyncLocators.gitSyncModal).should("exist");
     cy.get("[data-cy=t--tab-MERGE]").should("exist");
@@ -39,7 +36,9 @@ describe("Git sync modal: merge tab", function() {
     cy.get(commonLocators.dropdownmenu)
       .contains(mainBranch)
       .click();
-    cy.wait("@mergeStatus").should(
+    _.agHelper.AssertElementAbsence(_.gitSync._checkMergeability, 30000);
+
+    cy.wait("@mergeStatus", { timeout: 35000 }).should(
       "have.nested.property",
       "response.body.data.isMergeAble",
       true,
@@ -51,6 +50,5 @@ describe("Git sync modal: merge tab", function() {
 
   after(() => {
     _.gitSync.DeleteTestGithubRepo(repoName);
-    //cy.deleteTestGithubRepo(repoName);
   });
 });
