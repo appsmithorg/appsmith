@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { TreeDropdown, TreeDropdownOption, TextInput } from "design-system-old";
 import { debounce } from "lodash";
-import { ActionBlock } from "../ActionBlock";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { FieldType } from "../../constants";
 import {
@@ -51,7 +50,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   const actionType = (selectedOption.type || selectedOption.value) as any;
 
-  const { action, actionTypeLabel, Icon } = getActionInfo(value, actionType);
+  const { action } = getActionInfo(value, actionType);
 
   useEffect(() => {
     debouncedSetSearchText(searchText);
@@ -70,7 +69,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
     <TreeDropdown
       className="right-8"
       defaultOpen={isOpen}
-      defaultText="Some default text here"
+      defaultText={action}
       menuHeight={300}
       menuWidth={256}
       onMenuToggle={(isOpen) => {
@@ -90,14 +89,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
             onChange={(val: string) => setSearchText(val)}
             value={searchText}
           />
-        ) : (
-          <ActionBlock
-            action={action}
-            actionTypeLabel={actionTypeLabel}
-            icon={Icon}
-            onClick={() => null}
-          />
-        )
+        ) : null
       }
       usePortal={false}
     />
