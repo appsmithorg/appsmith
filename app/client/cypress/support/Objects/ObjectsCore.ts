@@ -17,4 +17,4 @@ export const apiPage = ObjectsRegistry.ApiPage;
 export const dataSources = ObjectsRegistry.DataSources;
 export const inviteModal = ObjectsRegistry.InviteModal;
 export const table = ObjectsRegistry.TableV2;
-
+export const canvasHelper = ObjectsRegistry.CanvasHelper;
