@@ -78,7 +78,7 @@ export type TWatchGeoLocationDescription = ReturnType<
 
 export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
   const metaData = ExecutionMetaData.getExecutionMetaData();
-  const [onSuccessCallback, onErrorCallback, options] = args;
+  const [onSuccessCallback, onErrorCallback] = args;
   const listenerId = uniqueId("geoLocationListener_");
   TriggerEmitter.emit(BatchKey.process_batched_triggers, {
     trigger: watchGeoLocationFnDescriptor.apply({ listenerId }, args),
