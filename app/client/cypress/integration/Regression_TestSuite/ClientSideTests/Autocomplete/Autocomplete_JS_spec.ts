@@ -332,4 +332,33 @@ describe("Autocomplete tests", () => {
       4,
     );
   });
+
+  it("9. Bug #10115 Autocomplete needs to show async await keywords instead of showing 'no suggestions'", () => {
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "aw");
+
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "await",
+      "have.text",
+      0,
+    );
+
+    agHelper.RemoveCharsNType(CommonLocators._codeMirrorTextArea, 2, "as");
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "async",
+      "have.text",
+      0,
+    );
+  });
 });
