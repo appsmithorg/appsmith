@@ -1,8 +1,13 @@
-import React, { HTMLAttributes, useMemo } from "react";
+import React, { HTMLAttributes, useMemo, forwardRef } from "react";
 
 import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
 
+/**
+ * ----------------------------------------------------------------------------
+ * TYPES
+ *-----------------------------------------------------------------------------
+ */
 export type ButtonProps = {
   accentColor?: string;
   variant?: "filled" | "outline" | "link" | "subtle" | "white" | "light";
@@ -17,7 +22,12 @@ export type ButtonProps = {
   trailingIcon?: React.ReactNode;
 } & HTMLAttributes<HTMLButtonElement>;
 
-function Button(props: ButtonProps) {
+/**
+ * ----------------------------------------------------------------------------
+ * COMPONENT
+ *-----------------------------------------------------------------------------
+ */
+const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const {
     children,
     isDisabled,
@@ -48,11 +58,12 @@ function Button(props: ButtonProps) {
       data-disabled={isDisabled || undefined}
       data-loading={isLoading || undefined}
       disabled={isDisabled || undefined}
+      ref={ref}
       variant={variant}
     >
       {content}
     </StyledButton>
   );
-}
+});
 
 export { Button };

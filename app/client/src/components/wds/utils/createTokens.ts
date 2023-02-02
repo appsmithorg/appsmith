@@ -3,7 +3,7 @@ import {
   lightenColor,
   getComplementaryGrayscaleColor,
   calulateHoverColor,
-} from "widgets/WidgetUtils";
+} from "components/wds/utils/color";
 
 /**
  * This function is used to create tokens for widgets

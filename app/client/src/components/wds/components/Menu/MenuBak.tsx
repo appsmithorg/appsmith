@@ -22,8 +22,6 @@ import {
   FloatingTree,
   FloatingFocusManager,
 } from "@floating-ui/react";
-import { Box } from "../Box";
-import { createPolymorphicComponent } from "@mantine/utils";
 
 interface MenuItemProps {
   label: string;
@@ -48,8 +46,8 @@ interface MenuProps {
 }
 export const MenuComponent = React.forwardRef<
   HTMLButtonElement,
-  MenuProps & React.HTMLProps<HTMLButtonElement> & { component?: any }
->(({ children, component = "button", label, ...props }, forwardedRef) => {
+  MenuProps & React.HTMLProps<HTMLButtonElement>
+>(({ children, label, ...props }, forwardedRef) => {
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [allowHover, setAllowHover] = React.useState(false);
@@ -170,8 +168,7 @@ export const MenuComponent = React.forwardRef<
 
   return (
     <FloatingNode id={nodeId}>
-      <Box
-        component={component}
+      <button
         ref={referenceRef}
         {...getReferenceProps({
           ...props,
@@ -193,7 +190,7 @@ export const MenuComponent = React.forwardRef<
             ➔
           </span>
         )}
-      </Box>
+      </button>
       <FloatingPortal>
         {open && (
           <FloatingFocusManager
@@ -261,9 +258,9 @@ export const MenuComponent = React.forwardRef<
   );
 });
 
-export const _Menu = React.forwardRef<
+export const Menu = React.forwardRef<
   HTMLButtonElement,
-  MenuProps & React.HTMLProps<HTMLButtonElement> & Record<string, any>
+  MenuProps & React.HTMLProps<HTMLButtonElement>
 >((props, ref) => {
   const parentId = useFloatingParentNodeId();
 
@@ -277,5 +274,3 @@ export const _Menu = React.forwardRef<
 
   return <MenuComponent {...props} ref={ref} />;
 });
-
-export const Menu = createPolymorphicComponent<"button", MenuProps>(_Menu);

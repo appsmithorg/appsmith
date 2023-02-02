@@ -1,11 +1,10 @@
 import styled, { css } from "styled-components";
 
 import {
-  darkenColor,
   lightenColor,
   getComplementaryGrayscaleColor,
   calulateHoverColor,
-} from "widgets/WidgetUtils";
+} from "components/wds/utils/color";
 import { ButtonProps } from "./Button";
 
 /**
