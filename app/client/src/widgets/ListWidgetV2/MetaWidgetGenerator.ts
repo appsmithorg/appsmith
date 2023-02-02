@@ -287,15 +287,6 @@ class MetaWidgetGenerator {
   }
 
   withOptions = (options: GeneratorOptions) => {
-    /**
-     * Keeping this above updateModificationsQueue as
-     * prevPrimaryKeys and primaryKeys are used in updateModificationsQueue
-     */
-    this.prevPrimaryKeys = this.primaryKeys;
-    this.primaryKeys = this.generatePrimaryKeys(options);
-
-    this.updateModificationsQueue(options);
-
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
@@ -319,6 +310,12 @@ class MetaWidgetGenerator {
       options.containerParentId,
     );
 
+    this.prevPrimaryKeys = this.primaryKeys;
+    this.primaryKeys = this.generatePrimaryKeys(options);
+
+    this.updateModificationsQueue(this.prevOptions);
+
+    // Maybe don't deep-clone for perf?
     const prevOptions = klona(this.prevOptions);
     this.prevOptions = options;
 
@@ -1221,23 +1218,23 @@ class MetaWidgetGenerator {
     });
   };
 
-  private updateModificationsQueue = (nextOptions: GeneratorOptions) => {
+  private updateModificationsQueue = (prevOptions?: GeneratorOptions) => {
     if (
-      this.itemSpacing !== nextOptions.itemSpacing ||
-      this.infiniteScroll != nextOptions.infiniteScroll
+      this.itemSpacing !== prevOptions?.itemSpacing ||
+      this.infiniteScroll != prevOptions?.infiniteScroll
     ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
     }
 
-    if (this.hasRegenerationOptionsChanged(nextOptions)) {
+    if (this.hasRegenerationOptionsChanged(prevOptions)) {
       this.modificationsQueue.add(MODIFICATION_TYPE.REGENERATE_META_WIDGETS);
     }
 
-    if (this.levelData !== nextOptions.levelData) {
+    if (this.levelData !== prevOptions?.levelData) {
       this.modificationsQueue.add(MODIFICATION_TYPE.LEVEL_DATA_UPDATED);
     }
 
-    if (this.shouldGenerateCacheWidgets(nextOptions)) {
+    if (this.shouldGenerateCacheWidgets()) {
       this.modificationsQueue.add(MODIFICATION_TYPE.GENERATE_CACHE_WIDGETS);
     }
   };
@@ -1249,9 +1246,9 @@ class MetaWidgetGenerator {
    * its only generated for the template row, the usual filtering of metaWidgetIds is used to cache rows)
    *
    */
-  private shouldGenerateCacheWidgets = (nextOptions: GeneratorOptions) => {
+  private shouldGenerateCacheWidgets = () => {
     return (
-      (!isEqual(this.currTemplateWidgets, nextOptions.currTemplateWidgets) ||
+      (!isEqual(this.currTemplateWidgets, this.prevTemplateWidgets) ||
         !isEqual(this.cachedItemKeys.curr, this.cachedItemKeys.prev)) &&
       this.renderMode !== RenderModes.PAGE
     );
@@ -1360,17 +1357,17 @@ class MetaWidgetGenerator {
     );
   };
 
-  private hasRegenerationOptionsChanged = (nextOptions: GeneratorOptions) => {
+  private hasRegenerationOptionsChanged = (prevOptions?: GeneratorOptions) => {
     return (
-      nextOptions.containerParentId !== this.containerParentId ||
-      nextOptions.containerWidgetId !== this.containerWidgetId ||
-      nextOptions.widgetName !== this.widgetName ||
-      nextOptions.levelData !== this.levelData ||
-      nextOptions?.currTemplateWidgets !== nextOptions?.prevTemplateWidgets ||
-      nextOptions.infiniteScroll !== this.infiniteScroll ||
-      nextOptions.itemSpacing !== this.itemSpacing ||
-      nextOptions.serverSidePagination !== this.serverSidePagination ||
-      nextOptions.templateBottomRow !== this.templateBottomRow ||
+      prevOptions?.containerParentId !== this.containerParentId ||
+      prevOptions?.containerWidgetId !== this.containerWidgetId ||
+      prevOptions?.widgetName !== this.widgetName ||
+      prevOptions?.levelData !== this.levelData ||
+      prevOptions?.infiniteScroll !== this.infiniteScroll ||
+      prevOptions?.itemSpacing !== this.itemSpacing ||
+      prevOptions?.serverSidePagination !== this.serverSidePagination ||
+      prevOptions?.templateBottomRow !== this.templateBottomRow ||
+      !isEqual(this.currTemplateWidgets, this.prevTemplateWidgets) ||
       !isEqual(this.prevPrimaryKeys, this.primaryKeys)
     );
   };
