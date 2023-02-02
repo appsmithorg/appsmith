@@ -155,28 +155,28 @@ jobs:
           tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
           echo "Cleaning up the tar files"
           rm app/rts/dist/rts-dist.tar
-      # Start server
-      # - name: start server
-      #   if: steps.run_result.outputs.run_result != 'success'
-      #   working-directory: app/server
-      #   env:
-      #     APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
-      #     APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
-      #     APPSMITH_ENCRYPTION_PASSWORD: "password"
-      #     APPSMITH_ENCRYPTION_SALT: "salt"
-      #     APPSMITH_IS_SELF_HOSTED: false
-      #     APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
-      #     APPSMITH_CLOUD_SERVICES_USERNAME: ""
-      #     APPSMITH_CLOUD_SERVICES_PASSWORD: ""
-      #     APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
-      #     APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
-      #     APPSMITH_ENVFILE_PATH: /tmp/dummy.env
-      #   run: |
-      #     ls -l
-      #     ls -l scripts/
-      #     ls -l dist/
-      #     # Run the server in the background and redirect logs to a log file
-      #     ./scripts/start-dev-server.sh &> server-logs.log &
+      Start server
+      - name: start server
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: app/server
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
+          APPSMITH_CLOUD_SERVICES_USERNAME: ""
+          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
+          APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+        run: |
+          ls -l
+          ls -l scripts/
+          ls -l dist/
+          # Run the server in the background and redirect logs to a log file
+          ./scripts/start-dev-server.sh &> server-logs.log &
 
       - name: Installing Yarn serve
         if: steps.run_result.outputs.run_result != 'success'
