@@ -120,6 +120,7 @@ const Map = (props: MapProps) => {
         ref={mapRef}
       />
       <Markers
+        key={`markers-${markers?.length}`}
         map={map}
         markers={markers}
         selectMarker={selectMarker}
