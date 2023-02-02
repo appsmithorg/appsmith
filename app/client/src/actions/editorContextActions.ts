@@ -160,10 +160,3 @@ export const setAllSubEntityCollapsibleStates = (payload: {
     payload,
   };
 };
-
-export const setExplorerSwitchIndex = (payload: number) => {
-  return {
-    type: ReduxActionTypes.SET_EXPLORER_SWITCH_INDEX,
-    payload,
-  };
-};
