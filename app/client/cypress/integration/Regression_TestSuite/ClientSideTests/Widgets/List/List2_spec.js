@@ -1,6 +1,7 @@
 const dsl = require("../../../../../fixtures/EmptyListWidget.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("List Widget Functionality", function() {
   before(() => {
@@ -8,7 +9,7 @@ describe("List Widget Functionality", function() {
   });
 
   it("should validate that restricted widgets cannot be added to List", () => {
-    cy.get(explorer.widgetSwitchId).click();
+    _.canvasHelper.OpenWidgetPane();
 
     const allowed = [
       "audiowidget",

@@ -3678,4 +3678,58 @@ public class ImportExportApplicationServiceV2Tests {
             assertThat(fields.getBearerTokenAuth().getBearerToken()).isEqualTo("token_" + randomUUID);
         }).verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplicationTest_WithNavigationSettings() {
+
+        Application application = new Application();
+        application.setName("exportNavigationSettingsApplicationTest");
+        Application.NavigationSetting navSetting = new Application.NavigationSetting();
+        navSetting.setOrientation("top");
+        application.setUnpublishedNavigationSetting(navSetting);
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        Mono<ApplicationJson> resultMono =
+                importExportApplicationService.exportApplicationById(createdApplication.getId(), "");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    Application exportedApplication = applicationJson.getExportedApplication();
+                    assertThat(exportedApplication).isNotNull();
+                    assertThat(exportedApplication.getUnpublishedNavigationSetting()).isNotNull();
+                    assertThat(exportedApplication.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplication_WithPageIcon_ValidPageIcon() {
+        String randomId = UUID.randomUUID().toString();
+        Application application = new Application();
+        application.setName("exportPageIconApplicationTest");
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setName("page_" + randomId);
+        pageDTO.setIcon("flight");
+        pageDTO.setApplicationId(createdApplication.getId());
+
+        PageDTO applicationPageDTO = applicationPageService.createPage(pageDTO).block();
+
+        Mono<ApplicationJson> resultMono =
+                importExportApplicationService.exportApplicationById(applicationPageDTO.getApplicationId(), "");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    List<NewPage> pages = applicationJson.getPageList();
+                    assertThat(pages.size()).isEqualTo(2);
+                    assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
+                    assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
+                })
+                .verifyComplete();
+    }
 }
