@@ -5,7 +5,7 @@
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
 echo "Starting the setup the test framework"
-sudo echo "127.0.0.1	localhost" | sudo tee -a /etc/hosts
+sudo echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
 serve -s build -p 3000 &
 
 # Substitute all the env variables in nginx
