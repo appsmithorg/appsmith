@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -215,28 +217,40 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .map(this::mapPermissionGroupListToUserAndPermissionGroupDTOList)
                 .cache();
 
-        // Create a map of User.userId to User
-        Mono<Map<String, User>> userMapMono = userAndPermissionGroupDTOsMono
+        // get a list of user ids who are member of this workspace
+        Mono<Set<String>> userIdsMono = userAndPermissionGroupDTOsMono
                 .flatMapMany(Flux::fromIterable)
                 .map(WorkspaceMemberInfoDTO::getUserId)
                 .collect(Collectors.toSet())
-                .flatMapMany(userIds -> userRepository.findAllById(userIds))
-                .collectMap(User::getId)
                 .cache();
 
+        // Create a map of User.id to User
+        Mono<Map<String, User>> userMapMono = userIdsMono
+                .flatMapMany(userRepository::findAllById)
+                .collectMap(User::getId);
+
+        // Create a map of UserData.userUd to UserData
+        Mono<Map<String, UserData>> userDataMapMono = userIdsMono
+                // get the profile photos of the list of users
+                .flatMapMany(userIdsSet -> userDataRepository.findPhotoAssetsByUserIds(userIdsSet.stream().toList()))
+                .collectMap(UserData::getUserId);
+
         // Update name and username in the list of UserAndGroupDTO
-        userAndPermissionGroupDTOsMono = userAndPermissionGroupDTOsMono
-                .zipWith(userMapMono)
-                .map(tuple -> {
-                    List<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOList = tuple.getT1();
-                    Map<String, User> userMap = tuple.getT2();
-                    workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
-                        User user = userMap.get(userAndPermissionGroupDTO.getUserId());
-                        userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
-                        userAndPermissionGroupDTO.setUsername(user.getUsername());
-                    });
-                    return workspaceMemberInfoDTOList;
-                });
+        userAndPermissionGroupDTOsMono = Mono.zip(userAndPermissionGroupDTOsMono, userMapMono, userDataMapMono).map(tuple -> {
+            List<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOList = tuple.getT1();
+            Map<String, User> userMap = tuple.getT2();
+            Map<String, UserData> userDataMap = tuple.getT3();
+            workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
+                User user = userMap.get(userAndPermissionGroupDTO.getUserId());
+                UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
+                userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
+                userAndPermissionGroupDTO.setUsername(user.getUsername());
+                if(userData != null) {
+                    userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
+                }
+            });
+            return workspaceMemberInfoDTOList;
+        });
 
         // Sort the members by permission group
         //TODO get users sorted from DB and fill in three buckets - admin, developer and viewer
@@ -258,10 +272,10 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .cache();
 
         Mono<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspacesMono = permissionGroupFlux
-                .collectMultimap(permissionGroup -> permissionGroup.getDefaultWorkspaceId(), permissionGroup -> permissionGroup)
+                .collectMultimap(PermissionGroup::getDefaultWorkspaceId)
                 .cache();
 
-        Mono<Map<String, User>> userMapMono = permissionGroupFlux
+        Mono<Set<String>> userIdsMono = permissionGroupFlux
                 .flatMapIterable(permissionGroup -> {
                     Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
                     if (assignedToUserIds == null || assignedToUserIds.isEmpty()) {
@@ -270,9 +284,16 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return assignedToUserIds;
                 })
                 .collect(Collectors.toSet())
-                .flatMapMany(userIds -> userRepository.findAllById(userIds))
-                .collectMap(User::getId)
                 .cache();
+
+        Mono<Map<String, User>> userMapMono = userIdsMono
+                .flatMapMany(userRepository::findAllById)
+                .collectMap(User::getId);
+
+        // Create a map of UserData.userUd to UserData
+        Mono<Map<String, UserData>> userDataMapMono = userIdsMono
+                .flatMapMany(userDataRepository::findPhotoAssetsByUserIds)
+                .collectMap(UserData::getUserId);
 
         Flux<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspaceFlux = permissionGroupsByWorkspacesMono
                 .repeat();
@@ -285,22 +306,30 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     Map<String, Collection<PermissionGroup>> collectionMap = tuple.getT2();
                     List<PermissionGroup> permissionGroups = collectionMap.get(workspaceId).stream().collect(Collectors.toList());
 
-                    Mono<List<WorkspaceMemberInfoDTO>> userAndPermissionGroupDTOsMono = Mono.just(mapPermissionGroupListToUserAndPermissionGroupDTOList(permissionGroups))
-                            .zipWith(userMapMono)
+                    Mono<List<WorkspaceMemberInfoDTO>> userAndPermissionGroupDTOsMono = Mono.zip(
+                                    Mono.just(mapPermissionGroupListToUserAndPermissionGroupDTOList(permissionGroups)),
+                                    userMapMono,
+                                    userDataMapMono
+                            )
                             .map(tuple1 -> {
                                 List<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOList = tuple1.getT1();
                                 Map<String, User> userMap = tuple1.getT2();
+                                Map<String, UserData> userDataMap = tuple1.getT3();
                                 workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
                                     User user = userMap.get(userAndPermissionGroupDTO.getUserId());
+                                    UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                                     userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                                     userAndPermissionGroupDTO.setUsername(user.getUsername());
+                                    if(userData != null) {
+                                        userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
+                                    }
                                 });
                                 return workspaceMemberInfoDTOList;
                             });
 
                     return Mono.zip(Mono.just(workspaceId), userAndPermissionGroupDTOsMono);
                 })
-                .collectMap(tuple -> tuple.getT1(), tuple -> tuple.getT2());
+                .collectMap(Tuple2::getT1, Tuple2::getT2);
 
         return workspaceMembersMono;
     }

@@ -10,7 +10,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   propPane = ObjectsRegistry.PropertyPane,
   apiPage = ObjectsRegistry.ApiPage,
-  locator = ObjectsRegistry.CommonLocators;
+  locator = ObjectsRegistry.CommonLocators,
+  canvasHelper = ObjectsRegistry.CanvasHelper;
 
 const widgetsToTest = {
   [WIDGET.INPUT_V2]: {
@@ -79,7 +80,7 @@ const widgetsToTest = {
 };
 
 function configureApi() {
-  apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users", "FirstAPI");
+  apiPage.CreateAndFillApi(agHelper.mockApiUrl, "FirstAPI");
   apiPage.EnterHeader("value", "{{this.params.value}}");
 }
 
@@ -94,12 +95,14 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       ee.DragDropWidgetNVerify(WIDGET.BUTTON, 600, 200);
       //ee.SelectEntityByName(WIDGET.BUTTONNAME("1"));
       // Set onClick action, storing value
+      canvasHelper.CloseWidgetPane();
       propPane.EnterJSContext(
         PROPERTY_SELECTOR.onClickFieldName,
         `{{storeValue('textPayloadOnSubmit',${testConfig.widgetPrefixName}1.text); FirstAPI.run({ value: ${testConfig.widgetPrefixName}1.text })}}`,
       );
 
       ee.DragDropWidgetNVerify(WIDGET.TEXT, 500, 300);
+      canvasHelper.CloseWidgetPane();
       //ee.SelectEntityByName(WIDGET.TEXTNAME("1"));
       // Display the bound store value
       propPane.UpdatePropertyFieldValue(
