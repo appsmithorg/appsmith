@@ -35,7 +35,6 @@ describe("PgAdmin Clone App", function() {
     // writing query to get the schema
     _.dataSources.EnterQuery(
       "SELECT schema_name FROM information_schema.schemata;",
-      2000,
     );
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
@@ -63,7 +62,6 @@ describe("PgAdmin Clone App", function() {
     // creating query to get the columns of the table
     _.dataSources.EnterQuery(
       `SELECT column_name, data_type, table_name, ordinal_position, is_nullable FROM information_schema.COLUMNS`,
-      2000,
     );
     _.dataSources.RunQuery();
     _.ee.SelectEntityByName("Page1", "Pages");
@@ -108,7 +106,6 @@ describe("PgAdmin Clone App", function() {
 
     _.dataSources.EnterQuery(
       `CREATE TABLE {{schema_select.selectedOptionValue}}.{{nt_name.text.replaceAll(" ","_")}}({{appsmith.store.nt_col.map((c)=>c.name.replaceAll(" ","_") + " " + c.dtype + (c.nnull ? " NOT NULL " :  "") + (c.pkey ? " PRIMARY KEY " : "")).join(" , ")}})`,
-      2000,
     );
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page
@@ -126,7 +123,6 @@ describe("PgAdmin Clone App", function() {
     // creating query to delete the table
     _.dataSources.EnterQuery(
       `DROP TABLE {{schema_select.selectedOptionValue}}.{{List1.selectedItem.tablename}};`,
-      2000,
     );
     _.dataSources.RunQuery();
     // clicking on chevron icon to go back to the _.dataSources page

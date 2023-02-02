@@ -627,7 +627,7 @@ export class DataSources {
     });
     this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
-    this.agHelper.ValidateNetworkStatus("@saveAction", 200);
+    cy.wait("@saveAction");
   }
 
   public RunQueryNVerifyResponseViews(
