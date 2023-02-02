@@ -20,7 +20,7 @@ const nonFlexLayerWidgets = ["MODAL_WIDGET"];
  * @returns dsl in an AutoLayout dsl format
  */
 export default function convertDSLtoAuto(dsl: DSLWidget) {
-  if (!dsl || !dsl.children || dsl.children.length < 1) return dsl;
+  if (!dsl || !dsl.children) return dsl;
 
   if (dsl.type === "CANVAS_WIDGET") {
     return { ...getAutoCanvasWidget(dsl) };
