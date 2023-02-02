@@ -198,18 +198,7 @@ jobs:
         working-directory: "."
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
-          mkdir -p cicontainerlocal/oldstack
 
-      - name: Download S3 image
-        uses: keithweaver/aws-s3-github-action@v1.0.0
-        with:
-          command: cp
-          source: s3://ci-assets--appsmith/
-          destination: /home/runner/work/appsmith/appsmith/cicontainerlocal/oldstack
-          aws_access_key_id: ${{ secrets.S3_CI_ASSETS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.S3_CI_ASSETS_SECRET_ACCESS_KEY }}
-          aws_region: ap-south-1
-          flags: --recursive
 
       - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
@@ -231,12 +220,12 @@ jobs:
             cicontainer
 
       # Start rts
-      - name: Start RTS Server
-        if: steps.run_result.outputs.run_result != 'success'
-        working-directory: ./app/rts
-        run: |
-          cp .env.example .env        
-          ./start-server.sh &
+      # - name: Start RTS Server
+      #   if: steps.run_result.outputs.run_result != 'success'
+      #   working-directory: ./app/rts
+      #   run: |
+      #     cp .env.example .env        
+      #     ./start-server.sh &
           
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
