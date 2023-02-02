@@ -24,6 +24,7 @@ const StyledContainerComponent = styled.div<
   ${(props) => (props.shouldScrollContents ? scrollCSS : ``)}
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
 
+  background: ${(props) => props.backgroundColor};
   &:hover {
     background-color: ${(props) => {
       return props.onClickCapture && props.backgroundColor
@@ -108,6 +109,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       widgetId={props.widgetId}
     >
       <ContainerComponentWrapper
+        backgroundColor={props.backgroundColor}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={props.shouldScrollContents}
