@@ -20,6 +20,7 @@ import {
 } from "../../helpers";
 import { cloneDeep } from "lodash";
 import { ActionBlockTree } from "../ActionBlockTree";
+import { Colors } from "constants/Colors";
 
 type Props = {
   action: string;
@@ -263,23 +264,26 @@ export const Action: React.FC<Props> = ({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="flex mb-2 w-full justify-between bg-gray-100 px-2 py-1">
+            <div
+              className="flex mb-2 w-full justify-between px-2 py-1"
+              style={{ backgroundColor: Colors.ATHENS_GRAY_DARKER }}
+            >
               <div className="text-sm font-medium text-gray">
-                Configure {isCallbackBlockSelected ? "action" : action}
+                {isCallbackBlockSelected ? "Configure action" : `${action}...`}
               </div>
               <Icon
-                fillColor="var(--ads-color-gray-700)"
+                fillColor="var(--ads-color-black-700)"
                 name="cross"
                 onClick={handleCloseClick}
                 size="extraSmall"
               />
             </div>
 
-            <div className="flex w-full justify-between px-4 mb-[2px]">
+            <div className="flex w-full justify-between px-4 mb-[4px]">
               <div className="text-xs text-gray-600">Action</div>
               <Icon
-                fillColor="var(--ads-color-black-700)"
-                hoverFillColor="var(--ads-color-black-800)"
+                fillColor="var(--ads-color-black-500)"
+                hoverFillColor="var(--ads-color-black-700)"
                 name="delete"
                 onClick={() => {
                   if (isCallbackBlockSelected) {
