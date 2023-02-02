@@ -13,7 +13,6 @@ describe("Lint error reporting", () => {
   before(() => {
     ee.DragDropWidgetNVerify("tablewidgetv2", 300, 500);
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("explorer");
   });
 
   it("1. Doesn't show lint warnings in debugger but shows on Hover only", () => {

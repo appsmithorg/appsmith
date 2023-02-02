@@ -29,7 +29,7 @@ describe("Tests localStorage implementation in worker", () => {
   };
   const workerEventMock = jest.fn();
   self.postMessage = workerEventMock;
-  self.ALLOW_ASYNC = true;
+  self.ALLOW_SYNC = false;
   const evalContext = createEvaluationContext({
     dataTree,
     resolvedFunctions: {},

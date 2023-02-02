@@ -47,6 +47,9 @@ export const getWidgetConfigs = (state: AppState) =>
   state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
+export const selectForceOpenWidgetPanel = (state: AppState) =>
+  state.ui.onBoarding.forceOpenWidgetPanel;
+
 export const getProviderCategories = (state: AppState) =>
   state.ui.providers.providerCategories;
 
@@ -268,6 +271,26 @@ export const getWidgetCards = createSelector(
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
     return sortedCards;
+  },
+);
+
+export const getCommonWidgets = createSelector(
+  getWidgetCards,
+  (widgetCards) => {
+    const commonWidgetTypes = [
+      "TEXT_WIDGET",
+      "TABLE_WIDGET_V2",
+      "BUTTON_WIDGET",
+      "INPUT_WIDGET_V2",
+      "CONTAINER_WIDGET",
+    ];
+
+    return widgetCards
+      .filter((widget) => commonWidgetTypes.includes(widget.type))
+      .sort(
+        (a, b) =>
+          commonWidgetTypes.indexOf(a.type) - commonWidgetTypes.indexOf(b.type),
+      );
   },
 );
 

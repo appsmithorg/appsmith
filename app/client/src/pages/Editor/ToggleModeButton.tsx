@@ -29,10 +29,6 @@ const StyledButton = styled(Button)<{ active: boolean }>`
   `}
   padding: 0 ${(props) => props.theme.spaces[2]}px;
   color: ${Colors.GREY_900};
-  height: calc(
-    ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.borders[0].thickness}px
-  );
 
   svg {
     height: 18px;
@@ -76,7 +72,7 @@ function ToggleModeButton() {
         icon={"play-circle-line"}
         iconPosition={IconPositions.left}
         onClick={onClickPreviewModeButton}
-        size={Size.medium}
+        size={Size.large}
         tag={"button"}
         text={createMessage(EDITOR_HEADER.previewTooltip.text).toUpperCase()}
       />

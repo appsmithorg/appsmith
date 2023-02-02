@@ -985,7 +985,7 @@ export function ApplicationsSection(props: any) {
   );
 }
 
-export type ApplicationProps = {
+export interface ApplicationProps {
   applicationList: ApplicationPayload[];
   searchApplications: (keyword: string) => void;
   isCreatingApplication: creatingApplicationMap;
@@ -1003,19 +1003,24 @@ export type ApplicationProps = {
     showHeaderSeparator: boolean,
   ) => void;
   resetEditor: () => void;
-};
+}
 
-class Applications extends Component<
-  ApplicationProps,
-  { selectedWorkspaceId: string; showOnboardingForm: boolean }
-> {
-  constructor(props: ApplicationProps) {
+export interface ApplicationState {
+  selectedWorkspaceId: string;
+  showOnboardingForm: boolean;
+}
+
+export class Applications<
+  Props extends ApplicationProps,
+  State extends ApplicationState
+> extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       selectedWorkspaceId: "",
       showOnboardingForm: false,
-    };
+    } as State;
   }
 
   componentDidMount() {
