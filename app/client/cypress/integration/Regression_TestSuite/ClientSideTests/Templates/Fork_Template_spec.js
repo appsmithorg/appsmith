@@ -29,6 +29,7 @@ describe("Fork a template to an workspace", () => {
     cy.get(templateLocators.templateCard)
       .first()
       .click();
+    AggregateHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.get(templateLocators.templateViewForkButton).click();
     cy.location().should((location) => {
       expect(location.search).to.eq("?showForkTemplateModal=true");

@@ -34,13 +34,22 @@ export default function AutoHeightContainer({
 }: PropsWithChildren<AutoHeightContainerProps>) {
   const [expectedHeight, setExpectedHeight] = useState(0);
 
+  const unmountingTimeout = useRef<ReturnType<typeof setTimeout>>();
   const ref = useRef<HTMLDivElement>(null);
 
   const observer = React.useRef(
     new ResizeObserver((entries) => {
       const height = entries[0].contentRect.height;
-      setExpectedHeight(height);
-      onHeightUpdate(height);
+      if (height) {
+        setExpectedHeight(height);
+        onHeightUpdate(height);
+      } else {
+        //setting timeout if height is 0
+        unmountingTimeout.current = setTimeout(() => {
+          setExpectedHeight(height);
+          onHeightUpdate(height);
+        }, 0);
+      }
     }),
   );
 
@@ -50,9 +59,9 @@ export default function AutoHeightContainer({
     }
 
     return () => {
-      if (ref.current) {
-        observer.current.unobserve(ref.current);
-      }
+      // clearing out timeout if the component is unMounting
+      unmountingTimeout.current && clearTimeout(unmountingTimeout.current);
+      observer.current.disconnect();
     };
   }, []);
 

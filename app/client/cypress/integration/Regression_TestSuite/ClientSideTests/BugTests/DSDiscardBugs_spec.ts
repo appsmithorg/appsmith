@@ -93,4 +93,16 @@ describe("datasource unsaved changes popup shows even without changes", function
       dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
+
+  it("4. Bug 19801: Create new Auth DS, refresh the page without saving, we should not see discard popup", () => {
+    dataSources.NavigateToDSCreateNew();
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      // using CreatePlugIn function instead of CreateDatasource,
+      // because I do not need to fill the datasource form and use the same default data
+      dataSources.CreatePlugIn("Authenticated API");
+      agHelper.RefreshPage();
+      agHelper.AssertElementAbsence(dataSources._datasourceModalSave);
+    });
+  });
 });
