@@ -103,6 +103,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={props.borderWidth}
       boxShadow={props.boxShadow}
+      className="style-container"
       containerStyle={props.containerStyle}
       widgetId={props.widgetId}
     >
