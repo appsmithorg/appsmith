@@ -2,18 +2,19 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
+let dataSet;
 
 describe("Test Create Api and Bind to Button widget", function() {
-  before(() => {
+  before("Test_Add users api and execute api", () => {
     cy.addDsl(dsl);
+    cy.fixture("example").then(function(data) {
+      dataSet = data;
+      cy.createAndFillApi(dataSet.userApi, "/random");
+      cy.RunAPI();
+    });
   });
 
-  it("Test_Add users api and execute api", function() {
-    cy.createAndFillApi(this.data.userApi, "/random");
-    cy.RunAPI();
-  });
-
-  it("Call the api without error handling", () => {
+  it("1. Call the api without error handling", () => {
     cy.SearchEntityandOpen("Button1");
     cy.get(widgetsPage.toggleOnClick)
       .invoke("attr", "class")
@@ -48,7 +49,7 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("Call the api with error handling", () => {
+  it("2. Call the api with error handling", () => {
     cy.SearchEntityandOpen("Button1");
 
     cy.get(".t--property-control-onclick").then(($el) => {
