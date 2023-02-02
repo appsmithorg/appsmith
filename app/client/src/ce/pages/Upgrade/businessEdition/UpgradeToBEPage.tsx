@@ -8,6 +8,7 @@ import {
 } from "@appsmith/constants/messages";
 import { FooterComponent } from "../Footer";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
+import { Colors } from "constants/Colors";
 
 export const UpgradeToBEPageWrapper = styled.div`
   display: flex;
@@ -41,7 +42,11 @@ export const FooterContainer = styled.div`
 export const Overlay = styled.div`
   width: 100%;
   height: 100%;
-  background: linear-gradient(70deg, #faf5ed 40%, transparent 60%);
+  background: linear-gradient(
+    70deg,
+    ${Colors.APPSMITH_BEIGE} 40%,
+    transparent 60%
+  );
   z-index: 1;
 `;
 
