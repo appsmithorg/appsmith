@@ -147,6 +147,14 @@
                                     <groupId>io.jsonwebtoken</groupId>
                                     <artifactId>jjwt-jackson</artifactId>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.zaxxer</groupId>
+                                    <artifactId>HikariCP</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>net.snowflake</groupId>
+                                    <artifactId>snowflake-jdbc</artifactId>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
