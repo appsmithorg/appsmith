@@ -552,6 +552,7 @@ class CodeEditor extends Component<Props, State> {
 
   debouncedPeekHide = debounce(() => this.peekHide(), 200);
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   peekHide = () =>
     this.setState({
       peekOverlayProps: undefined,
@@ -1202,6 +1203,23 @@ class CodeEditor extends Component<Props, State> {
             padding-bottom: 0 !important;
           }
         }
+      }
+
+      .rjv-function-container {
+        pointer-events: none;
+        font-weight: normal !important;
+        .function-collapsed {
+          font-weight: normal !important;
+          span:nth-child(1) {
+            display: none;
+          }
+          span:nth-child(2) {
+            color: #393939 !important;
+          }
+        }
+      }
+      div:has(.rjv-function-container) {
+        cursor: default !important;
       }
       // .object-key-val:not(:has(.pushed-content.object-container)) .object-size {
       //   display: none !important;
