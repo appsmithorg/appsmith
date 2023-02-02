@@ -19,6 +19,8 @@ import {
   WELCOME_FORM_NEWLETTER_LABEL,
   WELCOME_FORM_SUBMIT_LABEL,
 } from "@appsmith/constants/messages";
+import { useSelector } from "react-redux";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export const StyledButton = styled(Button)`
   width: 201px;
@@ -33,6 +35,8 @@ const NewsletterContainer = styled.div`
 `;
 
 export default memo(function NewsletterForm() {
+  const features = useSelector(selectFeatureFlags);
+
   return (
     <NewsletterContainer>
       <FormHeaderWrapper className="relative flex-col items-start">
@@ -61,7 +65,10 @@ export default memo(function NewsletterForm() {
             className="t--welcome-form-create-button"
             size={Size.medium}
             tag="button"
-            text={createMessage(WELCOME_FORM_SUBMIT_LABEL)}
+            text={createMessage(
+              WELCOME_FORM_SUBMIT_LABEL,
+              features.USAGE_AND_BILLING,
+            )}
             type="submit"
           />
         </ButtonWrapper>
