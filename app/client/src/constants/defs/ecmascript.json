@@ -262,6 +262,16 @@
     "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/NaN",
     "!doc": "A value representing Not-A-Number."
   },
+  "async": {
+    "!type": "?",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function",
+    "!doc": "The async and await keywords enable asynchronous, promise-based behavior to be written in a cleaner style, avoiding the need to explicitly configure promise chains."
+  },
+  "await": {
+    "!type": "?",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await",
+    "!doc": "The await operator is used to wait for a Promise and get its fulfillment value."
+  },
   "Object": {
     "!type": "fn()",
     "getPrototypeOf": {
