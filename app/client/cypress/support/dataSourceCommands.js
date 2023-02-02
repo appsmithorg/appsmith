@@ -103,6 +103,23 @@ Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
   //   .click();
 });
 
+Cypress.Commands.add("updateDatasource", () => {
+  cy.get(".t--save-datasource").click({ force: true });
+  cy.wait("@updateDatasource")
+    .then((xhr) => {
+      cy.log(JSON.stringify(xhr.response.body));
+    })
+    .should("have.nested.property", "response.body.responseMeta.status", 200);
+});
+
+Cypress.Commands.add("testUpdateDatasource", (expectedRes = true) => {
+  cy.testDatasource(expectedRes);
+  cy.updateDatasource();
+  // cy.get(datasourceEditor.datasourceCard)
+  //   .last()
+  //   .click();
+});
+
 Cypress.Commands.add(
   "fillMongoDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
@@ -145,16 +162,16 @@ Cypress.Commands.add(
       ? datasourceFormData["postgres-databaseName"] + "  "
       : datasourceFormData["postgres-databaseName"];
 
-    cy.get(datasourceEditor.host).type(hostAddress);
-    cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
+    cy.get(datasourceEditor.host).clear().type(hostAddress);
+    cy.get(datasourceEditor.port).clear().type(datasourceFormData["postgres-port"]);
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
     dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
-    cy.get(datasourceEditor.username).type(
+    cy.get(datasourceEditor.username).clear().type(
       datasourceFormData["postgres-username"],
     );
-    cy.get(datasourceEditor.password).type(
+    cy.get(datasourceEditor.password).clear().type(
       datasourceFormData["postgres-password"],
     );
   },
@@ -163,11 +180,16 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   "fillPostgresDatasourceEnvironmentDetails", () => {
-    cy.get(".cs-text:contains('Please select an option')").click({force:true});
+    cy.get(".cs-text:contains('Select a new field')").click({force:true});
     cy.get("[data-cy='t--dropdown-option-Username']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
     cy.get("[data-cy='t--dropdown-option-Password']").click({force:true});
     cy.get('span[name="expand-more"]').last().click({force: true});
     cy.get("[data-cy='t--dropdown-option-Database Name']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-SSL Mode']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Connection Mode']").click({force:true});
     cy.xpath("//input[contains(@name,'host')]").type(datasourceFormData["postgres-host"]);
     cy.xpath("//input[contains(@name,'port')]").type(datasourceFormData["postgres-port"]);
     cy.get("[data-cy='database_name.active_env_value']").clear();
@@ -254,16 +276,16 @@ Cypress.Commands.add(
       ? datasourceFormData["mysql-databaseName"] + "  "
       : datasourceFormData["mysql-databaseName"];
 
-    cy.get(datasourceEditor.host).type(hostAddress);
-    cy.get(datasourceEditor.port).type(datasourceFormData["mysql-port"]);
+    cy.get(datasourceEditor.host).clear().type(hostAddress);
+    cy.get(datasourceEditor.port).clear().type(datasourceFormData["mysql-port"]);
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
     dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
-    cy.get(datasourceEditor.username).type(
+    cy.get(datasourceEditor.username).clear().type(
       datasourceFormData["mysql-username"],
     );
-    cy.get(datasourceEditor.password).type(
+    cy.get(datasourceEditor.password).clear().type(
       datasourceFormData["mysql-password"],
     );
   },
@@ -659,4 +681,64 @@ Cypress.Commands.add(
       datasourceFormData["mysql-password"],
     );
   },
+);
+
+
+Cypress.Commands.add(
+  "fillMySQLDatasourceEnvironmentDetails", () => {
+    cy.get(".cs-text:contains('Select a new field')").click({force:true});
+    cy.get("[data-cy='t--dropdown-option-Username']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Password']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Database Name']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-SSL Mode']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Connection Mode']").click({force:true});
+    cy.xpath("//input[contains(@name,'host')]").type(datasourceFormData["mysql-host"]);
+    cy.xpath("//input[contains(@name,'port')]").type(datasourceFormData["mysql-port"]);
+    cy.get("[data-cy='database_name.active_env_value']").clear();
+    cy.get("[data-cy='database_name.active_env_value']").type(
+      datasourceFormData["mysql-databaseName"].concat("production"),
+    );
+    cy.get("[data-cy='username.active_env_value']").clear();
+    cy.get("[data-cy='username.active_env_value']").type(
+      datasourceFormData["mysql-username"],
+    );
+    cy.get("[data-cy='password.active_env_value']").type(
+      datasourceFormData["mysql-password"],
+    );
+    cy.get("a:contains('Bind Values')").click({force: true});
+    cy.wait("@updateEnvironments").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  }
+);
+
+//To use this method if you have already added Production variable
+Cypress.Commands.add(
+  "fillMySQLDatasourceEnvironmentDetailsStaging", () => {
+    cy.xpath("//input[contains(@name,'host')]").type(datasourceFormData["mysql-host"]);
+    cy.xpath("//input[contains(@name,'port')]").type(datasourceFormData["mysql-port"]);
+    cy.get("[data-cy='username.active_env_value']").clear();
+    cy.get("[data-cy='username.active_env_value']").type(
+      datasourceFormData["mysql-username"],
+    );
+    cy.get("[data-cy='password.active_env_value']").type(
+      datasourceFormData["mysql-password"],
+    );
+    cy.get("[data-cy='database_name.active_env_value']").clear();
+    cy.get("[data-cy='database_name.active_env_value']").type(
+      datasourceFormData["mysql-databaseName"].concat("staging"),
+    );
+    cy.get("a:contains('Bind Values')").click({force: true});
+    cy.wait("@updateEnvironments").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  }
 );
