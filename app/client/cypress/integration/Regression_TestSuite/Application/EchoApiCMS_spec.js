@@ -7,9 +7,6 @@ describe("Content Management System App", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
 
   it("1.Create Get echo Api call", function() {
     cy.NavigateToAPI_Panel();
@@ -124,6 +121,7 @@ describe("Content Management System App", function() {
     cy.ResponseCheck("Dan.Wyman@hotmail.com");
     cy.ResponseCheck("Recusan");
   });
+
   /*it("6. Connect app to git, verify data binding in edit and deploy mode", ()=>{
     cy.get(`.t--entity-name:contains("Page1")`)
     .should("be.visible")

@@ -7,18 +7,15 @@ const appPage = require("../../../locators/PgAdminlocators.json");
 describe("PgAdmin Clone App", function() {
   let datasourceName;
 
-  before(() => {
+  before("Add DSL & Create DS, ", () => {
     cy.addDsl(dsl);
-  });
-
-  it("1. Add dsl and authenticate datasource", function() {
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
     });
   });
 
-  it("2. Create queries", function() {
+  it("1. Create queries", function() {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     // clicking on new query to write a query
@@ -130,7 +127,7 @@ describe("PgAdmin Clone App", function() {
     cy.get(appPage.dropdownChevronLeft).click();
   });
 
-  it("3. Add new table", function() {
+  it("2. Add new table , View and Delete table", function() {
     // clicking on chevron to go back to the application page
     cy.get(appPage.dropdownChevronLeft).click();
     // adding new table
@@ -165,9 +162,6 @@ describe("PgAdmin Clone App", function() {
       .first()
       .click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
-  });
-
-  it("4.View and Delete table", function() {
     cy.xpath(appPage.addNewtable).should("be.visible");
     // viewing the table's columns by clicking on view button
     cy.xpath(appPage.viewButton)

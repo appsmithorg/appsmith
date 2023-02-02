@@ -12,9 +12,6 @@ describe("Shopping cart App", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
 
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function() {
     cy.NavigateToDatasourceEditor();
