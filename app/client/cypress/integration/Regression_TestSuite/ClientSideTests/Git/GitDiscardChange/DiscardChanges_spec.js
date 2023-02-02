@@ -243,4 +243,9 @@ describe("Git discard changes:", function() {
     cy.wait(5000);
     cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
   });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });
