@@ -4,6 +4,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 const explorerHelper = ObjectsRegistry.EntityExplorer;
 const propertyPaneHelper = ObjectsRegistry.PropertyPane;
 const aggregateHelper = ObjectsRegistry.AggregateHelper;
+const canvasHelper = ObjectsRegistry.CanvasHelper;
 
 describe("Tests fetch calls", () => {
   it("1. Ensures that cookies are not passed with fetch calls", function() {
@@ -73,7 +74,7 @@ describe("Tests fetch calls", () => {
   });
 
   it("3. Tests if fetch works with store value", function() {
-    explorerHelper.NavigateToSwitcher("widgets");
+    canvasHelper.OpenWidgetPane();
     explorerHelper.DragDropWidgetNVerify("buttonwidget", 500, 200);
     explorerHelper.SelectEntityByName("Button1");
     propertyPaneHelper.TypeTextIntoField("Label", "getUserID");
