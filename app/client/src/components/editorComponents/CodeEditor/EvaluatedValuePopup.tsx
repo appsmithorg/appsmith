@@ -149,7 +149,7 @@ const TypeText = styled.pre<{
   margin: 5px 0;
   -ms-overflow-style: none;
   white-space: pre-wrap;
-  // ${(props) => props?.addBorder && "border: 1px solid #b3b3b3;"}
+  ${(props) => props?.addBorder && "border: 1px solid #b3b3b3;"}
 `;
 
 const ErrorText = styled.p`
@@ -181,7 +181,6 @@ const StyledTitle = styled.p`
   cursor: pointer;
 `;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const StyledTitleName = styled.p`
   margin: 8px 0;
   font-size: 12px;
@@ -504,11 +503,11 @@ function PopoverContent(props: PopoverContentProps) {
       onMouseLeave={onMouseLeave}
     >
       {props?.entity && props.entity?.entityName && (
-        <p>
+        <StyledTitleName>
           {props?.evaluatedPopUpLabel
             ? props?.evaluatedPopUpLabel
             : props?.entity?.entityName}
-        </p>
+        </StyledTitleName>
       )}
       {hasError && error && (
         <ErrorText>
@@ -531,7 +530,7 @@ function PopoverContent(props: PopoverContentProps) {
           </StyledTitle>
           <Collapse isOpen={openExpectedDataType}>
             <TypeText
-              // addBorder
+              addBorder
               colorTheme={props.theme}
               padded
               ref={typeTextRef}
