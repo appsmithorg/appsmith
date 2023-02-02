@@ -20,7 +20,6 @@ import {
 } from "../../helpers";
 import { cloneDeep } from "lodash";
 import { ActionBlockTree } from "../ActionBlockTree";
-import { Colors } from "constants/Colors";
 
 type Props = {
   action: string;
@@ -264,10 +263,7 @@ export const Action: React.FC<Props> = ({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <div
-              className="flex mb-2 w-full justify-between px-2 py-1"
-              style={{ backgroundColor: Colors.ATHENS_GRAY_DARKER }}
-            >
+            <div className="flex mb-2 w-full justify-between px-2 py-1 bg-gray-50">
               <div className="text-sm font-medium text-gray">
                 {isCallbackBlockSelected ? "Configure action" : `${action}...`}
               </div>
