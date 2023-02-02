@@ -14,9 +14,9 @@ cat ./docker/templates/nginx-app.conf.template | sed -e "s|__APPSMITH_CLIENT_PRO
 cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
-touch ./docker/localhost ./docker/localhost.pem
-echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/localhost.pem
-echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
+touch ./docker/dev.appsmith.com.pem ./docker/dev.appsmith.com-key.pem
+echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/dev.appsmith.com-key.pem
+echo "$APPSMITH_SSL_KEY" > ./docker/dev.appsmith.com-key.pem
 
 # echo "Download & Start TED server"
 # sudo docker pull nginx:latest
@@ -52,7 +52,7 @@ if sudo docker ps -a | grep -q Exited; then
 fi
 
 echo "Checking if the server has started"
-status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://localhost/api/v1/users)
+status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
 
 retry_count=1
 
@@ -60,7 +60,7 @@ while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
 	echo "Hit 502.Server not started retrying..."
 	retry_count=$((1 + $retry_count))
 	sleep 30
-	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://locvalhost/api/v1/users)
+	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
 done
 
 echo "Checking if client and server have started"
