@@ -78,7 +78,9 @@ describe("PgAdmin Clone App", function() {
     _.agHelper.GetNClick(appPage.addColumn, 0, true);
     _.agHelper.AssertElementVisible(appPage.columnNamefield);
     _.agHelper.AssertElementVisible(appPage.datatypefield);
-    cy.xpath(appPage.addTablename).type("id");
+    cy.xpath(appPage.addTablename)
+      .click()
+      .type("id");
     cy.get(appPage.dropdownChevronDown)
       .last()
       .click();
