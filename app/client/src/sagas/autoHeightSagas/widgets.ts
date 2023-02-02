@@ -406,11 +406,9 @@ export function* updateWidgetAutoHeightSaga() {
                   {
                     bottomRow: minHeightInRows,
                     height:
-                      (minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-                      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                      minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
                     minHeight:
-                      (minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-                      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                      minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
                   },
                 );
               }
