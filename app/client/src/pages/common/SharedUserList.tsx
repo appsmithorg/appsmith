@@ -22,6 +22,7 @@ const UserImageContainer = styled.div<{ isMobile?: boolean }>`
     border: 1px solid ${(props) => props.theme.colors.homepageBackground};
     display: inline-flex;
   }
+
   div.bp3-popover-arrow {
     display: inline-block;
     transform: translate(3px, 0px);
@@ -40,9 +41,11 @@ const ProfileImageListPopover = styled.ul`
   padding: 5px;
   max-height: 40vh;
   overflow-y: auto;
+
   &::-webkit-scrollbar-thumb {
     background-color: transparent;
   }
+
   &::-webkit-scrollbar {
     width: 0px;
   }
@@ -92,7 +95,9 @@ export default function SharedUserList(props: any) {
         >
           <ProfileImage
             className="workspace-share-user-icons"
-            source={`/api/${UserApi.photoURL}/${el.username}`}
+            source={
+              el.photoId ? `/api/${UserApi.photoURL}/${el.username}` : undefined
+            }
             userName={el.name ? el.name : el.username}
           />
           <ProfileImagePopover>
@@ -118,7 +123,11 @@ export default function SharedUserList(props: any) {
               <ProfileImageListItem key={el.username}>
                 <ProfileImage
                   className="workspace-share-user-icons"
-                  source={`/api/${UserApi.photoURL}/${el.username}`}
+                  source={
+                    el.photoId
+                      ? `/api/${UserApi.photoURL}/${el.username}`
+                      : undefined
+                  }
                   userName={el.name ? el.name : el.username}
                 />
                 <ProfileImageListName>{el.username}</ProfileImageListName>
