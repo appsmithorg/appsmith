@@ -4,8 +4,9 @@ import React from "react";
 import { useDispatch } from "react-redux";
 
 import { PopoverPosition } from "@blueprintjs/core";
+import { Button, Category, Size, TooltipComponent } from "design-system-old";
+
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-import { Button, Category, Size, TooltipComponent } from "design-system";
 import { AppPositionTypeControl } from "../AppPositionTypeControl";
 
 export function CanvasPropertyPane() {

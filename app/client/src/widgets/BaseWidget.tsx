@@ -56,6 +56,7 @@ import {
   isAutoHeightEnabledForWidget,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
+import { getMinPixelWidth } from "utils/autoLayout/flexWidgetUtils";
 
 /***
  * BaseWidget
@@ -248,6 +249,7 @@ abstract class BaseWidget<
       this.props.mobileTopRow,
       this.props.mobileBottomRow,
       this.props.isMobile,
+      this.props.isFlexChild,
     );
   };
 
@@ -263,26 +265,30 @@ abstract class BaseWidget<
     mobileTopRow?: number,
     mobileBottomRow?: number,
     isMobile?: boolean,
+    isFlexChild?: boolean,
   ): {
     componentWidth: number;
     componentHeight: number;
   } {
-    const right =
-      isMobile && mobileRightColumn !== undefined && parentColumnSpace !== 1
-        ? mobileRightColumn
-        : rightColumn;
-    const left =
-      isMobile && mobileLeftColumn !== undefined && parentColumnSpace !== 1
-        ? mobileLeftColumn
-        : leftColumn;
-    const top =
-      isMobile && mobileTopRow !== undefined && parentRowSpace !== 1
-        ? mobileTopRow
-        : topRow;
-    const bottom =
-      isMobile && mobileBottomRow !== undefined && parentRowSpace !== 1
-        ? mobileBottomRow
-        : bottomRow;
+    let left = leftColumn;
+    let right = rightColumn;
+    let top = topRow;
+    let bottom = bottomRow;
+    if (isFlexChild && isMobile) {
+      if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
+        left = mobileLeftColumn;
+      }
+      if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
+        right = mobileRightColumn;
+      }
+      if (mobileTopRow !== undefined && parentRowSpace !== 1) {
+        top = mobileTopRow;
+      }
+      if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
+        bottom = mobileBottomRow;
+      }
+    }
+
     return {
       componentWidth: (right - left) * parentColumnSpace,
       componentHeight: (bottom - top) * parentRowSpace,
@@ -454,6 +460,7 @@ abstract class BaseWidget<
 
   makeFlex(content: ReactNode) {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const minWidth = getMinPixelWidth(this.props, this.props.mainCanvasWidth);
     return (
       <FlexComponent
         componentHeight={componentHeight}
@@ -464,6 +471,7 @@ abstract class BaseWidget<
         }
         focused={this.props.focused}
         isMobile={this.props.isMobile}
+        minWidth={minWidth}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
@@ -620,6 +628,7 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
+  mainCanvasWidth: number;
 }
 
 export type WidgetRowCols = {

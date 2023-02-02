@@ -1,7 +1,7 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
   PerformanceTransactionName,

@@ -10,7 +10,6 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   getLeftColumn,
@@ -26,6 +25,28 @@ import {
   getWrappedAlignmentInfo,
   Widget,
 } from "./positionUtils";
+
+export interface DropZone {
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+}
+
+export interface HighlightInfo {
+  isNewLayer: boolean; // determines if a new layer / child has been added directly to the container.
+  index: number; // index of the child in props.children.
+  layerIndex?: number; // index of layer in props.flexLayers.
+  rowIndex: number; // index of highlight within a horizontal layer.
+  alignment: FlexLayerAlignment; // alignment of the child in the layer.
+  posX: number; // x position of the highlight.
+  posY: number; // y position of the highlight.
+  width: number; // width of the highlight.
+  height: number; // height of the highlight.
+  isVertical: boolean; // determines if the highlight is vertical or horizontal.
+  canvasId: string; // widgetId of the canvas to which the highlight belongs.
+  dropZone: DropZone; // size of the drop zone of this highlight.
+}
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState
@@ -44,88 +65,87 @@ export function deriveHighlightsFromLayers(
   isMobile = false,
 ): HighlightInfo[] {
   const widgets = { ...allWidgets };
-  try {
-    const canvas = widgets[canvasId];
-    if (!canvas) return [];
+  const canvas = widgets[canvasId];
+  if (!canvas) return [];
 
-    const { canvasWidth, columnSpace } = getCanvasDimensions(
-      canvas,
+  const { canvasWidth, columnSpace } = getCanvasDimensions(
+    canvas,
+    widgets,
+    mainCanvasWidth,
+    isMobile,
+  );
+  const layers: FlexLayer[] = canvas.flexLayers || [];
+  let highlights: HighlightInfo[] = [];
+  let childCount = 0;
+  let layerIndex = 0;
+
+  let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
+  for (const layer of layers) {
+    /**
+     * If the layer is empty, after discounting the dragged widgets,
+     * then don't process it for vertical highlights.
+     */
+    const isEmpty: boolean =
+      layer?.children?.filter(
+        (child: LayerChild) => draggedWidgets.indexOf(child.id) === -1,
+      ).length === 0;
+    const childrenRows = getTotalRowsOfAllChildren(
       widgets,
-      mainCanvasWidth,
+      layer.children?.map((child) => child.id) || [],
       isMobile,
     );
-    const layers: FlexLayer[] = canvas.flexLayers || [];
-    const highlights: HighlightInfo[] = [];
-    let childCount = 0;
-    let layerIndex = 0;
-    // TODO: remove offsetTop and use child positions after widget positioning on grid is solved.
-    let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
-    for (const layer of layers) {
+
+    const payload: VerticalHighlightsPayload = generateVerticalHighlights({
+      widgets,
+      layer,
+      childCount,
+      layerIndex,
+      offsetTop,
+      canvasWidth,
+      canvasId,
+      columnSpace,
+      draggedWidgets,
+      isMobile,
+    });
+
+    if (!isEmpty) {
       /**
-       * If the layer is empty, after discounting the dragged widgets,
-       * then don't process it for vertical highlights.
+       * Add a layer of horizontal highlights before each flex layer
+       * to account for new vertical drop positions.
        */
-      const isEmpty: boolean =
-        layer?.children?.filter(
-          (child: LayerChild) => draggedWidgets.indexOf(child.id) === -1,
-        ).length === 0;
-      const childrenRows = getTotalRowsOfAllChildren(
-        widgets,
-        layer.children?.map((child) => child.id) || [],
-        isMobile,
+      highlights.push(
+        ...generateHorizontalHighlights(
+          childCount,
+          layerIndex,
+          offsetTop,
+          canvasWidth,
+          canvasId,
+          hasFillWidget,
+          childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          getPreviousOffsetTop(highlights),
+        ),
       );
 
-      const payload: VerticalHighlightsPayload = generateVerticalHighlights({
-        widgets,
-        layer,
-        childCount,
-        layerIndex,
-        offsetTop,
-        canvasWidth,
-        canvasId,
-        columnSpace,
-        draggedWidgets,
-        isMobile,
-      });
-
-      if (!isEmpty) {
-        /**
-         * Add a layer of horizontal highlights before each flex layer
-         * to account for new vertical drop positions.
-         */
-        highlights.push(
-          ...generateHorizontalHighlights(
-            childCount,
-            layerIndex,
-            offsetTop,
-            canvasWidth,
-            canvasId,
-            hasFillWidget,
-          ),
-        );
-
-        highlights.push(...payload.highlights);
-        layerIndex += 1;
-      }
-      offsetTop += childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT || 0;
-      childCount += payload.childCount;
-    }
-    // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
-    highlights.push(
-      ...generateHorizontalHighlights(
-        childCount,
-        layerIndex,
-        offsetTop,
-        canvasWidth,
-        canvasId,
-        hasFillWidget,
-      ),
-    );
-    return highlights;
-  } catch (e) {
-    // console.error(e);
-    return [];
+      highlights.push(...payload.highlights);
+      layerIndex += 1;
+    } else highlights = updateHorizontalDropZone(highlights);
+    offsetTop += childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT || 0;
+    childCount += payload.childCount;
   }
+  // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
+  highlights.push(
+    ...generateHorizontalHighlights(
+      childCount,
+      layerIndex,
+      offsetTop,
+      canvasWidth,
+      canvasId,
+      hasFillWidget,
+      -1,
+      getPreviousOffsetTop(highlights),
+    ),
+  );
+  return highlights;
 }
 export interface VerticalHighlightsPayload {
   childCount: number;
@@ -214,7 +234,7 @@ export function generateVerticalHighlights(data: {
     ? getWrappedAlignmentInfo(alignmentInfo)
     : [alignmentInfo];
 
-  const highlights: HighlightInfo[] = [];
+  let highlights: HighlightInfo[] = [];
   for (const each of wrappingInfo) {
     if (!each.length) continue;
     /**
@@ -268,6 +288,7 @@ export function generateVerticalHighlights(data: {
       index += 1;
     }
   }
+  highlights = updateVerticalHighlightDropZone(highlights, canvasWidth);
   return { highlights, childCount: count };
 }
 
@@ -324,6 +345,7 @@ export function generateHighlightsForAlignment(data: {
         : maxHeight,
       isVertical: true,
       canvasId,
+      dropZone: {},
     });
     count += 1;
   }
@@ -361,6 +383,7 @@ export function generateHighlightsForAlignment(data: {
           : maxHeight,
       isVertical: true,
       canvasId,
+      dropZone: {},
     });
   }
   return res;
@@ -385,7 +408,7 @@ function getPositionForInitialHighlight(
   startPosition: number | undefined,
 ): number {
   const endPosition =
-    64 * columnSpace - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 4 : 0);
+    64 * columnSpace - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 6 : -2);
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
@@ -418,9 +441,15 @@ function generateHorizontalHighlights(
   containerWidth: number,
   canvasId: string,
   hasFillWidget: boolean,
+  rowHeight: number,
+  previousOffset: number,
 ): HighlightInfo[] {
   const width = containerWidth / 3;
   const arr: HighlightInfo[] = [];
+  const dropZone: DropZone = {
+    top: previousOffset === -1 ? offsetTop : (offsetTop - previousOffset) * 0.5,
+    bottom: rowHeight === -1 ? 10000 : rowHeight * 0.5,
+  };
   [
     FlexLayerAlignment.Start,
     FlexLayerAlignment.Center,
@@ -434,9 +463,9 @@ function generateHorizontalHighlights(
       alignment,
       posX: hasFillWidget
         ? alignment === FlexLayerAlignment.Start
-          ? 0
+          ? FLEXBOX_PADDING
           : containerWidth
-        : width * index,
+        : width * index + FLEXBOX_PADDING,
       posY: offsetTop,
       width: hasFillWidget
         ? alignment === FlexLayerAlignment.Start
@@ -446,6 +475,7 @@ function generateHorizontalHighlights(
       height: DEFAULT_HIGHLIGHT_SIZE,
       isVertical: false,
       canvasId,
+      dropZone,
     });
   });
   return arr;
@@ -510,4 +540,85 @@ function getPadding(canvas: Widget): number {
   // Account for container border.
   padding += canvas.type === "CONTAINER_WIDGET" ? 2 : 0;
   return padding;
+}
+
+/**
+ * Calculate drop zones for vertical highlights.
+ * Drop zone of vertical highlights span 35% of the distance between two consecutive highlights.
+ * @param highlights | HighlightInfo[] : array of highlights to be updated.
+ * @param canvasWidth | number : width of the canvas.
+ * @returns HighlightInfo[] : updated highlights.
+ */
+function updateVerticalHighlightDropZone(
+  highlights: HighlightInfo[],
+  canvasWidth: number,
+): HighlightInfo[] {
+  const dropArea = localStorage.getItem("verticalHighlightDropArea");
+  const zoneSize = dropArea !== null ? parseFloat(dropArea) : 0.35;
+  for (const [index, highlight] of highlights.entries()) {
+    const nextHighlight: HighlightInfo | undefined = highlights[index + 1];
+    const previousHighlight: HighlightInfo | undefined = highlights[index - 1];
+    const leftZone = previousHighlight
+      ? (highlight.posX - previousHighlight.posX) * zoneSize
+      : highlight.posX + DEFAULT_HIGHLIGHT_SIZE;
+    const rightZone = nextHighlight
+      ? (nextHighlight.posX - highlight.posX) * zoneSize
+      : canvasWidth - highlight.posX;
+    highlights[index] = {
+      ...highlight,
+      dropZone: {
+        left: leftZone,
+        right: rightZone,
+      },
+    };
+  }
+  return highlights;
+}
+
+/**
+ * Update drop zones for horizontal highlights of the last row.
+ * Normally, bottom drop zone of a horizontal highlights spans 50% of the row height.
+ * However, if the next row of horizontal highlights is omitted on account of the dragged widgets,
+ * then update the previous row's bottom drop zone to span 100% of the row height.
+ * @param highlights | HighlightInfo[] : array of highlights to be updated.
+ * @returns HighlightInfo[] : updated highlights.
+ */
+function updateHorizontalDropZone(
+  highlights: HighlightInfo[],
+): HighlightInfo[] {
+  let index = highlights.length - 1;
+  while (index >= 0 && highlights[index].isVertical) {
+    index -= 1;
+  }
+  if (index < 0) return highlights;
+  const dropZone = {
+    top: highlights[index].dropZone.top,
+    bottom: (highlights[index]?.dropZone?.bottom || 5) * 2,
+  };
+  const updatedHighlights: HighlightInfo[] = [
+    ...highlights.slice(0, index - 2),
+    {
+      ...highlights[index - 2],
+      dropZone,
+    },
+    {
+      ...highlights[index - 1],
+      dropZone,
+    },
+    {
+      ...highlights[index],
+      dropZone,
+    },
+    ...highlights.slice(index + 1),
+  ];
+  return updatedHighlights;
+}
+
+function getPreviousOffsetTop(highlights: HighlightInfo[]): number {
+  if (!highlights.length) return -1;
+  let index = highlights.length - 1;
+  while (highlights[index].isVertical) {
+    index--;
+  }
+  return highlights[index].posY + highlights[index].height;
 }

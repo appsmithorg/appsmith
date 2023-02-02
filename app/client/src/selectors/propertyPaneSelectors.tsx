@@ -2,18 +2,21 @@ import { AppState } from "@appsmith/reducers";
 import { find, get, pick, set } from "lodash";
 import { createSelector } from "reselect";
 
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
   DataTree,
   DataTreeEntity,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   PropertyPaneReduxState,
   SelectedPropertyPanel,
 } from "reducers/uiReducers/propertyPaneReducer";
 import { getWidgets } from "sagas/selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
+import { Positioning } from "utils/autoLayout/constants";
 import {
   EVALUATION_PATH,
   isPathDynamicProperty,
@@ -23,10 +26,6 @@ import { generateClassName } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { getCurrentAppPositioningType } from "./editorSelectors";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Positioning } from "utils/autoLayout/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;

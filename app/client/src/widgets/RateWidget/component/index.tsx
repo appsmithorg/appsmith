@@ -6,7 +6,7 @@ import Rating from "react-rating";
 import _ from "lodash";
 
 import { RateSize, RATE_SIZES } from "../constants";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import { ComponentProps } from "widgets/BaseComponent";
 
 /*

@@ -19,7 +19,7 @@ import {
   TextType,
   TooltipComponent as Tooltip,
   RenderDropdownOptionType,
-} from "design-system";
+} from "design-system-old";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {

@@ -34,13 +34,14 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
                                   TenantService tenantService,
+                                  AssetService assetService,
                                   UserRepository userRepository,
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService, tenantService, userRepository,
-                datasourcePermission, applicationPermission);
+                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
+                userRepository, datasourcePermission, applicationPermission);
 
     }
 }

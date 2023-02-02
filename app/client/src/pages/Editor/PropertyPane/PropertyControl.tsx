@@ -26,7 +26,7 @@ import {
   PropertyHookUpdates,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
-import { JSToggleButton, TooltipComponent } from "design-system";
+import { JSToggleButton, TooltipComponent } from "design-system-old";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
