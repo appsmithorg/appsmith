@@ -4,6 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
+  CanvasHelper: canvasHelper,
   DebuggerHelper: debuggerHelper,
   EntityExplorer: ee,
   JSEditor: jsEditor,
@@ -193,7 +194,6 @@ describe("Debugger logs", function() {
   });
 
   it("12. Console log in sync function", function() {
-    ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
         myFun1: () => {
@@ -217,7 +217,6 @@ describe("Debugger logs", function() {
   });
 
   it("13. Console log in async function", function() {
-    ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
         myFun1: async () => {
@@ -256,7 +255,6 @@ describe("Debugger logs", function() {
   });
 
   it("14. Console log after API succedes", function() {
-    ee.NavigateToSwitcher("explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "Api1");
     const returnText = "success";
     jsEditor.CreateJSObject(
@@ -292,6 +290,7 @@ describe("Debugger logs", function() {
       debuggerHelper.DoesConsoleLogExist(`${logString} Started`);
       debuggerHelper.DoesConsoleLogExist(`${logString} Success`);
       ee.DragDropWidgetNVerify("textwidget", 200, 600);
+      canvasHelper.CloseWidgetPane();
       propPane.UpdatePropertyFieldValue("Text", `{{${jsObjName}.myFun1.data}}`);
       agHelper.GetNAssertElementText(
         commonlocators.textWidgetContainer,
@@ -303,7 +302,6 @@ describe("Debugger logs", function() {
   });
 
   it("15. Console log after API execution fails", function() {
-    ee.NavigateToSwitcher("explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods + "xyz", "Api2");
     jsEditor.CreateJSObject(
       `export default {
@@ -389,7 +387,6 @@ describe("Debugger logs", function() {
   });
 
   it("18. Console log should not mutate the passed object", function() {
-    ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
         myFun1: () => {
