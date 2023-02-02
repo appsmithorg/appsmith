@@ -50,19 +50,12 @@ describe("Tests localStorage implementation in worker", () => {
       body: {
         data: [
           {
-            trigger: {
-              payload: {
-                key: "some",
-                value: "thing",
-                persist: true,
-              },
-              type: "STORE_VALUE",
+            payload: {
+              key: "some",
+              value: "thing",
+              persist: true,
             },
-            eventType: undefined,
-            triggerMeta: {
-              source: {},
-              triggerPropertyName: undefined,
-            },
+            type: "STORE_VALUE",
           },
         ],
         method: "PROCESS_STORE_UPDATES",
@@ -80,17 +73,10 @@ describe("Tests localStorage implementation in worker", () => {
       body: {
         data: [
           {
-            trigger: {
-              payload: {
-                key: "some",
-              },
-              type: "REMOVE_VALUE",
+            payload: {
+              key: "some",
             },
-            eventType: undefined,
-            triggerMeta: {
-              source: {},
-              triggerPropertyName: undefined,
-            },
+            type: "REMOVE_VALUE",
           },
         ],
         method: "PROCESS_STORE_UPDATES",
@@ -105,15 +91,8 @@ describe("Tests localStorage implementation in worker", () => {
       body: {
         data: [
           {
-            trigger: {
-              payload: null,
-              type: "CLEAR_STORE",
-            },
-            eventType: undefined,
-            triggerMeta: {
-              source: {},
-              triggerPropertyName: undefined,
-            },
+            payload: null,
+            type: "CLEAR_STORE",
           },
         ],
         method: "PROCESS_STORE_UPDATES",
