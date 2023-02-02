@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import BEBannerImage from "assets/images/upgrade/be-cta/be-box-image.png";
-import { ReactComponent as BETextContent } from "assets/svg/be-upgrade/upgrade-to-be-text.svg";
+import BETextImage from "assets/svg/be-upgrade/upgrade-to-be-text.svg";
 import {
   createMessage,
   MOVE_TO_BUSINESS_EDITION,
@@ -22,10 +22,12 @@ export const UpgradeToBEPageWrapper = styled.div`
 
 export const ImageContainer = styled.div`
   display: flex;
-  min-width: 500px;
+  min-width: 50%;
   img {
-    width: 500px;
-    height: 500px;
+    width: 400px;
+    height: 400px;
+    position: relative;
+    right: 200px;
   }
 `;
 
@@ -57,13 +59,18 @@ export const FlexContainer = styled.div`
   height: calc(100% - 96px);
   width: 100%;
   padding: 48px 200px;
-  overflow: auto;
+  justify-content: space-between;
 `;
 
 export const LeftWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  min-width: 80%;
+  img {
+    width: 800px;
+    height: 800px;
+    object-fit: scale-down;
+  }
 `;
 
 export const UpgradeToBEPage = () => {
@@ -77,7 +84,8 @@ export const UpgradeToBEPage = () => {
       <Overlay>
         <FlexContainer>
           <LeftWrapper>
-            <BETextContent />
+            <img alt="text-content" src={BETextImage} />
+            {/* <BETextContent /> */}
           </LeftWrapper>
           <ImageContainer>
             <img alt="Upgrade to Business Edition" src={BEBannerImage} />
