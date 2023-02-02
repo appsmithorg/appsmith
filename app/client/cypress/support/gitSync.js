@@ -292,6 +292,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("merge", (destinationBranch) => {
+  agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
   cy.wait(6000); // wait for git status call to finish
   /*cy.wait("@gitStatus").should(
@@ -310,7 +311,8 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
     .click();
-  cy.wait("@mergeStatus").should(
+  agHelper.AssertElementAbsence(gitSync._checkMergeability, 30000);
+  cy.wait("@mergeStatus", { timeout: 35000 }).should(
     "have.nested.property",
     "response.body.data.isMergeAble",
     true,

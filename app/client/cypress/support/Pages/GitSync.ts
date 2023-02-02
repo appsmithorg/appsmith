@@ -21,6 +21,7 @@ export class GitSync {
   _bottomBarPull = ".t--bottom-bar-pull span[name='down-arrow-2']";
   private _branchName = (branch: string) =>
     "//div[contains(@class, 't--branch-button')]//*[text()='" + branch + "']";
+  _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
