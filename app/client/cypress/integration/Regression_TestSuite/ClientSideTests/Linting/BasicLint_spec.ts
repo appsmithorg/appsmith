@@ -52,7 +52,6 @@ const createMySQLDatasourceQuery = () => {
 describe("Linting", () => {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("explorer");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = ($dsName as unknown) as string;
@@ -78,7 +77,7 @@ describe("Linting", () => {
 
     // create Api1
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
-
+    agHelper.BlurFocusedElement();
     clickButtonAndAssertLintError(false);
 
     // Delete Api and assert that lint error shows
@@ -89,6 +88,7 @@ describe("Linting", () => {
 
     // Re-create Api1
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    agHelper.BlurFocusedElement();
 
     clickButtonAndAssertLintError(false);
   });
