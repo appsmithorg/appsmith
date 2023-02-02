@@ -3,13 +3,13 @@ import {
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
-import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { getWidgetHeight } from "./flexWidgetUtils";
 import {
   deriveHighlightsFromLayers,
   generateHighlightsForAlignment,
   generateVerticalHighlights,
   getCanvasWidth,
+  HighlightInfo,
   VerticalHighlightsPayload,
 } from "./highlightUtils";
 import { data } from "./testData";

@@ -9,10 +9,16 @@ const CORNER_RESIZE_HANDLE_WIDTH = 10;
 export const VisibilityContainer = styled.div<{
   visible: boolean;
   padding: number;
+  reduceOpacity: boolean;
 }>`
   ${(props) => (!props.visible ? invisible : "")}
   height: 100%;
   width: 100%;
+  ${({ reduceOpacity }) =>
+    reduceOpacity &&
+    css`
+      opacity: 0.25;
+    `}
 `;
 
 const VerticalResizeIndicators = css<{

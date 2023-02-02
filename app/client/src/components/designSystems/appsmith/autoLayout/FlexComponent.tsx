@@ -1,4 +1,10 @@
-import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
+import React, {
+  CSSProperties,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+} from "react";
 import styled from "styled-components";
 
 import {
@@ -6,7 +12,7 @@ import {
   widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import {
@@ -17,6 +23,8 @@ import {
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
+import { widgetViolatedMinDimentionsAction } from "actions/autoLayoutActions";
+import { debounce } from "lodash";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -41,6 +49,7 @@ const FlexWidget = styled.div`
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
+  const dispatch = useDispatch();
 
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(
@@ -67,6 +76,23 @@ export function FlexComponent(props: AutoLayoutProps) {
   } ${widgetTypeClassname(props.widgetType)}`;
 
   const isResizing = useSelector(getIsResizing);
+
+  const widgetReachedMinWidth = useCallback(
+    debounce((parentId) => {
+      dispatch(widgetViolatedMinDimentionsAction(parentId));
+    }, 50),
+    [],
+  );
+
+  useEffect(() => {
+    if (
+      props.minWidth &&
+      props.componentWidth < props.minWidth &&
+      props.parentId
+    ) {
+      widgetReachedMinWidth(props.parentId);
+    }
+  }, [props.componentWidth]);
 
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {

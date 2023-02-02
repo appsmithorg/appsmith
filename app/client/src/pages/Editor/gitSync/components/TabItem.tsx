@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Theme } from "constants/DefaultTheme";
-import { getTypographyByKey, TabProp } from "design-system";
+import { getTypographyByKey, TabProp } from "design-system-old";
 import { Colors } from "constants/Colors";
 
 type WrapperProps = {

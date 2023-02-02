@@ -29,8 +29,8 @@ import {
   WidgetOperationParams,
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
-import { HighlightInfo } from "./useAutoLayoutHighlights";
 import { XYCord } from "./useRenderBlocksOnCanvas";
+import { HighlightInfo } from "utils/autoLayout/highlightUtils";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -274,7 +274,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
       payload: {
         dropPayload,
         newWidget: widgetPayload,
-        parentId: widgetId,
+        parentId: newWidget.detachFromLayout
+          ? MAIN_CONTAINER_WIDGET_ID
+          : widgetId,
         direction,
       },
     });
@@ -510,6 +512,5 @@ export const useBlocksToBeDraggedOnCanvas = ({
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,
     )[0],
-    occupiedSpaces,
   };
 };

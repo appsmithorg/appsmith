@@ -2,7 +2,7 @@ import React from "react";
 import Pagination from "rc-pagination";
 import styled, { css } from "styled-components";
 
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 
 const locale = {
   // Options.jsx
@@ -436,7 +436,7 @@ export function ServerSideListPagination(props: any) {
         title="Previous Page"
       >
         <button
-          area-label="prev page"
+          aria-label="prev page"
           className="rc-pagination-item-link"
           onClick={() => {
             if (props.pageNo > 1) props.prevPageClick();
@@ -457,7 +457,7 @@ export function ServerSideListPagination(props: any) {
         title="Next Page"
       >
         <button
-          area-label="next page"
+          aria-label="next page"
           className="rc-pagination-item-link"
           onClick={() => {
             props.nextPageClick();

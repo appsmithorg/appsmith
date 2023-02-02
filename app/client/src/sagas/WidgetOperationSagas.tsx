@@ -71,7 +71,8 @@ import {
   WIDGET_COPY,
   WIDGET_CUT,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system";
+import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { Toaster, Variant } from "design-system-old";
 import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
@@ -84,8 +85,10 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
+import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { MetaState } from "reducers/entityReducers/metaReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { reflow } from "reflow";
 import {
@@ -96,14 +99,21 @@ import {
 } from "reflow/reflowTypes";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { builderURL } from "RouteBuilder";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { flashElementsById } from "utils/helpers";
 import history from "utils/history";
 import {
   collisionCheckPostReflow,
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
+import {
+  addChildToPastedFlexLayers,
+  isStack,
+  pasteWidgetInFlexLayers,
+} from "../utils/autoLayout/AutoLayoutUtils";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
@@ -145,16 +155,6 @@ import {
   WIDGET_PASTE_PADDING,
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import { getAllPaths } from "ce/workers/Evaluation/evaluationUtils";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
-import { getSlidingArenaName } from "constants/componentClassNameConstants";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
-import {
-  addChildToPastedFlexLayers,
-  isStack,
-  pasteWidgetInFlexLayers,
-} from "../utils/autoLayout/AutoLayoutUtils";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,

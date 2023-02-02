@@ -10,7 +10,6 @@ import {
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
-import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
@@ -24,6 +23,7 @@ import {
   updateRelationships,
 } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { HighlightInfo } from "utils/autoLayout/highlightUtils";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{

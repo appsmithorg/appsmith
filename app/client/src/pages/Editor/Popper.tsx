@@ -152,7 +152,7 @@ export default (props: PopperProps) => {
       );
       if (props.targetNode) {
         const config = { attributes: true };
-        const callback = (mutationList: any, observer: any) => {
+        const callback = (mutationList: any) => {
           for (const mutation of mutationList) {
             if (["attributes", "childList"].includes(mutation.type)) {
               _popper.scheduleUpdate();
