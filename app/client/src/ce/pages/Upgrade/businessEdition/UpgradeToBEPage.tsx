@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import UpgradeToBusinessEdition from "assets/images/upgrade/be-cta/upgrade-to-be.png";
+import BEBannerImage from "assets/images/upgrade/be-cta/be-box-image.png";
+import { ReactComponent as BETextContent } from "assets/svg/be-upgrade/upgrade-to-be-text.svg";
 import {
   createMessage,
   MOVE_TO_BUSINESS_EDITION,
@@ -13,25 +14,51 @@ export const UpgradeToBEPageWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   height: 100%;
+  background: linear-gradient(90deg, #fff 20px, transparent 1%) center,
+    linear-gradient(#fff 20px, transparent 1%) center, #d2ddec;
+  background-size: 22px 22px;
 `;
 
 export const ImageContainer = styled.div`
   display: flex;
-  height: calc(100% - 86px);
-  width: 100%;
+  min-width: 500px;
   img {
-    object-fit: fill;
-    width: 100%;
-    height: 100%;
+    width: 500px;
+    height: 500px;
   }
 `;
 
 export const FooterContainer = styled.div`
   display: flex;
   .upgrade-page-footer-container {
+    width: calc(100% - 256px);
     margin-left: 256px;
     height: 90px;
+    z-index: 2;
   }
+`;
+
+export const Overlay = styled.div`
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(70deg, #faf5ed 40%, transparent 60%);
+  z-index: 1;
+`;
+
+export const FlexContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: calc(100% - 96px);
+  width: 100%;
+  padding: 48px 200px;
+  overflow: auto;
+`;
+
+export const LeftWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `;
 
 export const UpgradeToBEPage = () => {
@@ -42,13 +69,16 @@ export const UpgradeToBEPage = () => {
 
   return (
     <UpgradeToBEPageWrapper>
-      <ImageContainer>
-        <img
-          alt="Upgrade to Business Edition"
-          key="upgrade-to-business-edition"
-          src={UpgradeToBusinessEdition}
-        />
-      </ImageContainer>
+      <Overlay>
+        <FlexContainer>
+          <LeftWrapper>
+            <BETextContent />
+          </LeftWrapper>
+          <ImageContainer>
+            <img alt="Upgrade to Business Edition" src={BEBannerImage} />
+          </ImageContainer>
+        </FlexContainer>
+      </Overlay>
       <FooterContainer>
         <FooterComponent
           message={createMessage(MOVE_TO_BUSINESS_EDITION, "?")}
