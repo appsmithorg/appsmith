@@ -12,7 +12,7 @@ describe("Upgrade appsmith version", () => {
     agHelper.Sleep(2000);
 
     // stop the old container
-    cy.StopTheContainer(tedUrl, "appsmith");
+    cy.StopContainer(tedUrl, "appsmith");
     agHelper.Sleep(2000);
 
     cy.GetPath(tedUrl, "appsmith").then((path) => {
@@ -87,19 +87,19 @@ describe("Upgrade appsmith version", () => {
     agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
     agHelper.GetNAssertElementText(
       ".tbody>div",
-      "1Developmentexpertise/",
+      "1Developmentexpertise",
       "have.text",
       1,
     );
 
-    cy.log("Stop the container");
-    cy.StopTheContainer(tedUrl, localStorage.getItem("ContainerName")); // stop the old container
-    cy.wait(2000);
+    // stop the container
+    cy.StopContainer(tedUrl, localStorage.getItem("ContainerName"));
+    agHelper.Sleep(2000);
   });
 
   after(function() {
     //restarting the old container
-    cy.execute(tedUrl, "docker restart appsmith");
+    cy.StartContainer(tedUrl, "appsmith");
     //Waiting for the container to be up
     agHelper.Sleep(60000);
   });

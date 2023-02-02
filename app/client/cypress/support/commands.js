@@ -1788,7 +1788,7 @@ Cypress.Commands.add("restoreLocalStorageCache", () => {
   });
 });
 
-Cypress.Commands.add("StopTheContainer", (path, containerName) => {
+Cypress.Commands.add("StopContainer", (path, containerName) => {
   cy.request({
     method: "GET",
     url: path,
@@ -1796,8 +1796,7 @@ Cypress.Commands.add("StopTheContainer", (path, containerName) => {
       cmd: "docker stop " + containerName,
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
+    cy.log(res.body.stdout, res.body.stderr);
     expect(res.status).equal(200);
   });
 });
@@ -1814,7 +1813,7 @@ Cypress.Commands.add("StopAllContainer", (path) => {
   });
 });
 
-Cypress.Commands.add("StartTheContainer", (path, containerName) => {
+Cypress.Commands.add("StartContainer", (path, containerName) => {
   cy.request({
     method: "GET",
     url: path,
@@ -1822,8 +1821,7 @@ Cypress.Commands.add("StartTheContainer", (path, containerName) => {
       cmd: "docker start " + containerName,
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
+    cy.log(res.body.stdout, res.body.stderr);
     expect(res.status).equal(200);
   });
 });
@@ -1847,8 +1845,8 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
-      cy.log(res.body.stderr);
       cy.log("ContainerID", res.body.stdout);
+      cy.log(res.body.stderr);
       expect(res.status).equal(200);
     });
   },
@@ -1873,8 +1871,7 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
-      cy.log(res.body.stderr);
-      cy.log(res.body.stdout);
+      cy.log(res.body.stdout, res.body.stderr);
       expect(res.status).equal(200);
     });
   },
@@ -1985,6 +1982,7 @@ Cypress.Commands.add("execute", (url, command) => {
       cmd: command,
     },
   }).then((res) => {
+    cy.log(res.body.stdout, res.body.error);
     expect(res.status).equal(200);
   });
 });
