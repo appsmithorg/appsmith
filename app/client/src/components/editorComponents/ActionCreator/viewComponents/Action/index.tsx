@@ -129,9 +129,11 @@ export const Action: React.FC<Props> = ({
   const onCloseByFocusOut = () => {
     // This is to prevent the popover from closing when the user clicks inside the Action blocks
     // Check onClose prop on Popover2 in the render below
-    if (!isActionInteraction.current) {
-      handleCloseClick();
-    }
+    setTimeout(() => {
+      if (!isActionInteraction.current) {
+        handleCloseClick();
+      }
+    }, 10);
   };
 
   const handleMainBlockClick = () => {
