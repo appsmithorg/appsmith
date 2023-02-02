@@ -8,7 +8,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,
   apiPage = ObjectsRegistry.ApiPage,
-  appSettings = ObjectsRegistry.AppSettings;
+  appSettings = ObjectsRegistry.AppSettings,
+  canvasHelper = ObjectsRegistry.CanvasHelper;
 
 describe("UUID Datatype tests", function() {
   before(() => {
@@ -22,7 +23,7 @@ describe("UUID Datatype tests", function() {
     cy.fixture("Datatypes/UUIDDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    ee.NavigateToSwitcher("widgets");
+    canvasHelper.OpenWidgetPane();
     appSettings.OpenPaneAndChangeTheme("Earth");
   });
 
