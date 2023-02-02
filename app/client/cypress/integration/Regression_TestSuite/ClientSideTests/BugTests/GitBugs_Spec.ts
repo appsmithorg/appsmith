@@ -25,6 +25,7 @@ describe("Git Bugs", function() {
     _.agHelper.AssertElementVisible(_.gitSync._branchButton);
     cy.get("@gitRepoName").then((repoName) => {
       testName = repoName;
+      cy.log("testName is :"+ testName)
     });
   });
 
@@ -54,6 +55,6 @@ describe("Git Bugs", function() {
   });
 
   after(() => {
-    //_.gitSync.DeleteTestGithubRepo(testName);
+    _.gitSync.DeleteTestGithubRepo(testName);
   });
 });
