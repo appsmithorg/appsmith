@@ -211,7 +211,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning !== Positioning.Fixed
       : false;
-    childWidget.columnSplitRatio = this.props.canvasSplit ? 0.5 : 1;
+    childWidget.columnSplitRatio = this.props.canvasSplitRatio;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -265,6 +265,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   noPad?: boolean;
   positioning?: Positioning;
   canvasSplit?: boolean;
+  canvasSplitRatio?: number;
 }
 
 export default ContainerWidget;

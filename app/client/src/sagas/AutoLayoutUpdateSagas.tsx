@@ -17,7 +17,7 @@ import {
   wrapChildren,
 } from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
-import { addNewCanvas } from "utils/autoLayout/canvasSplitUtils";
+import { addNewCanvas, deleteCanvas } from "utils/autoLayout/canvasSplitUtils";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { getUpdateDslAfterCreatingChild } from "./WidgetAdditionSagas";
 import { Widget } from "utils/autoLayout/positionUtils";
@@ -157,6 +157,9 @@ export function* manageCanvasSplit(
         ...updatedWidgetsAfterCreatingCanvas,
         [payload.existingCanvas.widgetId]: payload.existingCanvas,
       };
+    } else {
+      const isMobile: boolean = yield select(getIsMobile);
+      updatedWidgets = deleteCanvas(updatedWidgets, parentId, isMobile);
     }
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug(

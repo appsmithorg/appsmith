@@ -96,7 +96,9 @@ function* getChildWidgetProps(
   }
   if (type === "CANVAS_WIDGET") {
     columns =
-      (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
+      (parent.rightColumn - parent.leftColumn) *
+      parent.parentColumnSpace *
+      (props?.canvasSplitRatio ? props.canvasSplitRatio : 1);
     parentColumnSpace = 1;
     rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
     parentRowSpace = 1;

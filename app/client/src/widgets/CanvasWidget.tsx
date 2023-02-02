@@ -22,6 +22,7 @@ import ContainerWidget, {
 } from "widgets/ContainerWidget/widget";
 import { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
+import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -46,6 +47,15 @@ class CanvasWidget extends ContainerWidget {
       minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
     };
   }
+
+  getSnapSpaces = () => {
+    return {
+      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      snapColumnSpace:
+        getWidgetWidth(this.props, this.props.isMobile || false) /
+        GridDefaults.DEFAULT_GRID_COLUMNS,
+    };
+  };
 
   renderAsDropTarget() {
     const canvasProps = this.getCanvasProps();
