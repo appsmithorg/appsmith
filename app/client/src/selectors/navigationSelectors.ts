@@ -123,6 +123,22 @@ const getJsObjectChildren = (
   pageId: string,
   dataTree: DataTreeJSAction,
 ) => {
+  // const properties = getPropsForJSActionEntity(jsAction);
+  // console.log("peek data", properties);
+  // if (properties) {
+  //   entityProperties = Object.keys(properties).map(
+  //     (actionProperty: string) => {
+  //       const value = properties[actionProperty];
+  //       return {
+  //         propertyName: actionProperty,
+  //         entityName: jsCollection.config.name,
+  //         value: value,
+  //         entityType,
+  //       };
+  //     },
+  //   );
+  // }
+
   const peekData: Record<string, unknown> = {};
   let childNavData: Record<string, NavigationData> = {};
 

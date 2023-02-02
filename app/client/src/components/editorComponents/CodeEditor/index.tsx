@@ -1306,7 +1306,7 @@ class CodeEditor extends Component<Props, State> {
                     height: "152px", // +2 px to accomodate scroll bar
                     width: "300px",
                     backgroundColor: "white",
-                    border: "1px solid #888888",
+                    boxShadow: "0px 0px 10px #0000001A",
                     left:
                       this.state.peekOverlayProps.position.left +
                       this.state.peekOverlayProps.position.width -
@@ -1352,7 +1352,7 @@ class CodeEditor extends Component<Props, State> {
                           fontSize: "10px",
                         }}
                       >
-                        Function
+                        {"() {...}"}
                       </div>
                     )}
                     {this.state.peekOverlayProps.dataType !== "object" &&
