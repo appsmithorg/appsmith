@@ -1471,7 +1471,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     if (executeActionDto.getTotalReadableByteCount() <= Constraint.MAX_ANALYTICS_SIZE_BYTES) {
                         // Only send params info if total size is less than 5 MB
-                        eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams);
+                        // Comma-separated format of execution params is expected in the Audit log
+                        eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams.stream().collect(Collectors.joining(",", "[", "]")));
                     } else {
                         eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, REDACTED_DATA);
                     }
