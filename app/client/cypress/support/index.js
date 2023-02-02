@@ -53,6 +53,8 @@ before(function() {
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
   });
+  //Clear Cookies
+  cy.clearCookies();
   cy.visit("/setup/welcome");
   cy.wait("@getMe");
   cy.wait(2000);
@@ -126,7 +128,6 @@ after(function() {
   cy.DeleteAppByApi();
   //-- LogOut Application---//
   cy.LogOut();
-  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
 
   //Commenting until Upgrade Appsmith cases are fixed
   // const testUrl = "http://localhost:5001/v1/parent/cmd";
