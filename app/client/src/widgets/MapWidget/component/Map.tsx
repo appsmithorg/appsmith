@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import Clusterer from "./Clusterer";
 import SearchBox from "./SearchBox";
 import { MapComponentProps } from ".";
 import PickMyLocation from "./PickMyLocation";
+import Markers from "./Markers";
 
 const Wrapper = styled.div`
   position: relative;
@@ -119,7 +119,7 @@ const Map = (props: MapProps) => {
         id="map"
         ref={mapRef}
       />
-      <Clusterer
+      <Markers
         map={map}
         markers={markers}
         selectMarker={selectMarker}
