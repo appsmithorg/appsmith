@@ -165,7 +165,7 @@ jobs:
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
-          APPSMITH_CLOUD_SERVICES_BASE_URL: http://host.docker.internal:5001
+          APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
