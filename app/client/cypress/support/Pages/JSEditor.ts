@@ -188,7 +188,7 @@ export class JSEditor {
     if (toRun) {
       //clicking 1 times & waits for 2 second for result to be populated!
       Cypress._.times(1, () => {
-        this.agHelper.GetNClick(this._runButton);
+        this.agHelper.GetNClick(this._runButton, 0, true);
         this.agHelper.Sleep(2000);
       });
       cy.get(this.locator._empty).should("not.exist");
