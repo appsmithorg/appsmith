@@ -406,7 +406,7 @@ public class AuditLogServiceImpl implements AuditLogService {
             auditLogMono = setResourceProperties((NewPage) resource, auditLog, auditLogResource, properties);
         }
         else if (resource instanceof NewAction) {
-            auditLogMono = setResourceProperties((NewAction) resource, auditLog, auditLogResource, properties, event);
+            auditLogMono = setResourceProperties((NewAction) resource, auditLog, auditLogResource, properties, event, eventData);
         }
         else if (resource instanceof UserGroup) {
             auditLogMono = setResourceProperties((UserGroup) resource, auditLog, auditLogResource, properties);
@@ -552,9 +552,12 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param newAction NewAction
      * @param auditLog AuditLog
      * @param auditLogResource AuditLogResource
+     * @param properties Analytics Properties
+     * @param event AnalyticsEvent
+     * @param eventData Event Data
      * @return Mono of AuditLog
      */
-    private Mono<AuditLog> setResourceProperties(NewAction newAction, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties, AnalyticsEvents event) {
+    private Mono<AuditLog> setResourceProperties(NewAction newAction, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties, AnalyticsEvents event, Map<String, Object> eventData) {
         auditLogResource.setId(newAction.getId());
         auditLogResource.setName(newAction.getUnpublishedAction().getName());
 
@@ -569,8 +572,9 @@ public class AuditLogServiceImpl implements AuditLogService {
             if (properties.containsKey(FieldName.TIME_ELAPSED)) {
                 auditLogResource.setResponseTime((Long) properties.get(FieldName.TIME_ELAPSED));
             }
-            if (properties.containsKey(FieldName.ACTION_EXECUTION_REQUEST_PARAMS)) {
-                auditLogResource.setExecutionParams((String) properties.get(FieldName.ACTION_EXECUTION_REQUEST_PARAMS));
+            if (eventData.containsKey(FieldName.ACTION_EXECUTION_REQUEST_PARAMS)) {
+                List<String> executionParams = (List<String>) eventData.get(FieldName.ACTION_EXECUTION_REQUEST_PARAMS);
+                auditLogResource.setExecutionParams((String) executionParams.stream().collect(Collectors.joining(",", "[", "]")));
             }
         }
         auditLog.setResource(auditLogResource);
