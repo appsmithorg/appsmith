@@ -3,7 +3,7 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { isPromise } from "workers/Evaluation/JSObject/utils";
 import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObject/postJSFunctionExecution";
-import TriggerEmitter from "../fns/utils/TriggerEmitter";
+// import TriggerEmitter from "../fns/utils/TriggerEmitter";
 
 declare global {
   interface Window {
@@ -18,42 +18,42 @@ export interface JSExecutionData {
   funcName: string;
 }
 
-export function saveExecutionData(name: string, data: unknown) {
-  try {
-    data = structuredClone(data);
-  } catch (e) {
-    data = null;
-  }
-  TriggerEmitter.emit("process_js_function_execution", {
-    name,
-    data,
-  });
-}
+// export function saveExecutionData(name: string, data: unknown) {
+//   try {
+//     data = structuredClone(data);
+//   } catch (e) {
+//     data = null;
+//   }
+//   TriggerEmitter.emit("process_js_function_execution", {
+//     name,
+//     data,
+//   });
+// }
 
-export function functionFactory<P extends ReadonlyArray<unknown>>(
-  fn: (...args: P) => unknown,
-  name: string,
-  postProcessors: Array<(name: string, res: unknown) => void>,
-) {
-  return (...args: P) => {
-    try {
-      const result = fn(...args);
-      if (isPromise(result)) {
-        result.then((res) => {
-          postProcessors.forEach((p) => p(name, res));
-        });
-      } else {
-        postProcessors.forEach((p) => p(name, result));
-      }
-      return result;
-    } catch (e) {
-      postProcessors.forEach((postProcessor) => {
-        postProcessor(name, undefined);
-      });
-      throw e;
-    }
-  };
-}
+// export function functionFactory<P extends ReadonlyArray<unknown>>(
+//   fn: (...args: P) => unknown,
+//   name: string,
+//   postProcessors: Array<(name: string, res: unknown) => void>,
+// ) {
+//   return (...args: P) => {
+//     try {
+//       const result = fn(...args);
+//       if (isPromise(result)) {
+//         result.then((res) => {
+//           postProcessors.forEach((p) => p(name, res));
+//         });
+//       } else {
+//         postProcessors.forEach((p) => p(name, result));
+//       }
+//       return result;
+//     } catch (e) {
+//       postProcessors.forEach((postProcessor) => {
+//         postProcessor(name, undefined);
+//       });
+//       throw e;
+//     }
+//   };
+// }
 
 export type JSFunctionProxy = (
   JSFunction: (...args: unknown[]) => unknown,
