@@ -17,7 +17,6 @@ import {
   getAllPropertySectionState,
   getAllSubEntityCollapsibleStates,
   getCodeEditorHistory,
-  getExplorerSwitchIndex,
   getFocusableInputField,
   getPropertyPanelState,
   getSelectedCanvasDebuggerTab,
@@ -27,7 +26,6 @@ import {
   setAllEntityCollapsibleStates,
   setAllSubEntityCollapsibleStates,
   setCodeEditorHistory,
-  setExplorerSwitchIndex,
   setFocusableInputField,
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
@@ -149,12 +147,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getAllSubEntityCollapsibleStates,
       setter: setAllSubEntityCollapsibleStates,
       defaultValue: {},
-    },
-    {
-      name: FocusElement.ExplorerSwitchIndex,
-      selector: getExplorerSwitchIndex,
-      setter: setExplorerSwitchIndex,
-      defaultValue: 0,
     },
     {
       name: FocusElement.PropertyPanelContext,
