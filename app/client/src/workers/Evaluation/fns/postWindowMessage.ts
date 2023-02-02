@@ -1,5 +1,5 @@
-import { BatchKey } from "./utils/TriggerEmitter";
-import { batchedFn } from "./utils/batchedFn";
+import ExecutionMetaData from "./utils/ExecutionMetaData";
+import TriggerEmitter, { BatchKey } from "./utils/TriggerEmitter";
 
 function postWindowMessageFnDescriptor(
   message: unknown,
@@ -23,8 +23,9 @@ export type TPostWindowMessageDescription = ReturnType<
 >;
 
 export default function postWindowMessage(...args: TPostWindowMessageArgs) {
-  return batchedFn(
-    postWindowMessageFnDescriptor,
-    BatchKey.process_batched_triggers,
-  )(...args);
+  const metaData = ExecutionMetaData.getExecutionMetaData();
+  TriggerEmitter.emit(BatchKey.process_batched_triggers, {
+    trigger: postWindowMessageFnDescriptor(...args),
+    ...metaData,
+  });
 }

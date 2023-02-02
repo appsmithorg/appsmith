@@ -1,6 +1,5 @@
 import set from "lodash/set";
-import { batchedFn } from "./utils/batchedFn";
-import { BatchKey } from "./utils/TriggerEmitter";
+import TriggerEmitter, { BatchKey } from "./utils/TriggerEmitter";
 
 function storeFnDescriptor(key: string, value: string, persist = true) {
   return {
@@ -23,8 +22,10 @@ export async function storeValue(
   persist = true,
 ) {
   set(this, ["appsmith", "store", key], value);
-  const executor = batchedFn(storeFnDescriptor, BatchKey.process_store_updates);
-  executor(key, value, persist);
+  TriggerEmitter.emit(
+    BatchKey.process_batched_fn_execution,
+    storeFnDescriptor(key, value, persist),
+  );
   return {};
 }
 
@@ -44,11 +45,10 @@ export type TRemoveValueDescription = ReturnType<
 
 export async function removeValue(this: any, key: string) {
   delete this.appsmith.store[key];
-  const executor = batchedFn(
-    removeValueFnDescriptor,
-    BatchKey.process_store_updates,
+  TriggerEmitter.emit(
+    BatchKey.process_batched_fn_execution,
+    removeValueFnDescriptor(key),
   );
-  executor(key);
   return {};
 }
 
@@ -64,10 +64,6 @@ export type TClearStoreDescription = ReturnType<typeof clearStoreFnDescriptor>;
 
 export async function clearStore(this: any) {
   this.appsmith.store = {};
-  const executor = batchedFn(
-    clearStoreFnDescriptor,
-    BatchKey.process_store_updates,
-  );
-  executor();
+  TriggerEmitter.emit(BatchKey.process_store_updates, clearStoreFnDescriptor());
   return {};
 }

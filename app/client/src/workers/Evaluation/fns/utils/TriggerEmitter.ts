@@ -9,6 +9,7 @@ export enum BatchKey {
   process_logs = "process_logs",
   process_store_updates = "process_store_updates",
   process_batched_triggers = "process_batched_triggers",
+  process_batched_fn_execution = "process_batched_fn_execution",
 }
 
 const TriggerEmitter = new EventEmitter();
@@ -21,7 +22,7 @@ const TriggerEmitter = new EventEmitter();
  * @returns
  */
 const priorityBatchedActionHandler = function(
-  task: (batchedData: unknown) => void,
+  task: (batchedData: unknown[]) => void,
 ) {
   let batchedData: unknown[] = [];
   return (data: unknown) => {
@@ -75,13 +76,29 @@ const storeUpdatesHandler = priorityBatchedActionHandler((batchedData) =>
 
 TriggerEmitter.on(BatchKey.process_store_updates, storeUpdatesHandler);
 
-const defaultTriggerHandler = priorityBatchedActionHandler((batchedData) =>
+const defaultTriggerHandler = priorityBatchedActionHandler((batchedData) => {
   WorkerMessenger.ping({
     method: MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS,
     data: batchedData,
-  }),
-);
+  });
+});
 
 TriggerEmitter.on(BatchKey.process_batched_triggers, defaultTriggerHandler);
+
+const fnExecutionHandler = priorityBatchedActionHandler((data) => {
+  const batchedData = data.reduce((acc: any, d: any) => {
+    const { collectionId, data, fnName } = d;
+    acc[collectionId] = acc[collectionId] || {};
+    acc[collectionId][fnName] = acc[collectionId][fnName] || [];
+    acc[collectionId][fnName].push(data);
+  }, {});
+
+  WorkerMessenger.ping({
+    method: MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION,
+    data: batchedData,
+  });
+});
+
+TriggerEmitter.on(BatchKey.process_batched_fn_execution, fnExecutionHandler);
 
 export default TriggerEmitter;

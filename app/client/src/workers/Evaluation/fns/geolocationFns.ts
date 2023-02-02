@@ -1,8 +1,8 @@
 import { uniqueId } from "lodash";
 import { TDefaultMessage } from "utils/MessageUtil";
-import { batchedFn } from "./utils/batchedFn";
+import ExecutionMetaData from "./utils/ExecutionMetaData";
 import { promisify } from "./utils/Promisify";
-import { BatchKey } from "./utils/TriggerEmitter";
+import TriggerEmitter, { BatchKey } from "./utils/TriggerEmitter";
 
 export let geoLocationListener: ((e: MessageEvent<any>) => void) | null = null;
 
@@ -77,13 +77,13 @@ export type TWatchGeoLocationDescription = ReturnType<
 >;
 
 export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
+  const metaData = ExecutionMetaData.getExecutionMetaData();
   const [onSuccessCallback, onErrorCallback, options] = args;
   const listenerId = uniqueId("geoLocationListener_");
-  const executor = batchedFn(
-    watchGeoLocationFnDescriptor.bind({ listenerId }),
-    BatchKey.process_batched_triggers,
-  );
-  executor(onSuccessCallback, onErrorCallback, options);
+  TriggerEmitter.emit(BatchKey.process_batched_triggers, {
+    trigger: watchGeoLocationFnDescriptor.apply({ listenerId }, args),
+    ...metaData,
+  });
   const messageHandler = (event: MessageEvent<TDefaultMessage<any>>) => {
     const message = event.data;
     if (message.messageId !== listenerId) return;
