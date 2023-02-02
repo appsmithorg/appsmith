@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
 import { useLocation, useRouteMatch } from "react-router";
 import ApiEditor from "./APIEditor";
@@ -17,7 +17,6 @@ import {
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
-  matchBuilderPath,
   PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
@@ -28,10 +27,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
-import { builderURL } from "RouteBuilder";
-import history from "utils/history";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
 import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
 import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
@@ -55,37 +51,46 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 function EditorsRouter() {
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
-  const [isVisible, setIsVisible] = React.useState(
-    () => !matchBuilderPath(pathname),
-  );
-  const pageId = useSelector(getCurrentPageId);
+  // const [isVisible, setIsVisible] = React.useState(
+  //   () => !matchBuilderPath(pathname),
+  // );
+  // const pageId = useSelector(getCurrentPageId);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
 
-  useEffect(() => {
-    const isOnBuilder = matchBuilderPath(pathname);
-    setIsVisible(!isOnBuilder);
-  }, [pathname]);
+  // useEffect(() => {
+  //   const isOnBuilder = matchBuilderPath(pathname);
+  //   setIsVisible(!isOnBuilder);
+  // }, [pathname]);
 
-  const handleClose = useCallback(
-    (e: React.MouseEvent) => {
+  // const handleClose = useCallback(
+  //   (e: React.MouseEvent) => {
+  //     PerformanceTracker.startTracking(
+  //       PerformanceTransactionName.CLOSE_SIDE_PANE,
+  //       { path: pathname },
+  //     );
+  //     e.stopPropagation();
+  //     setIsVisible(false);
+  //     history.replace(builderURL({ pageId }));
+  //   },
+  //   [pathname, pageId],
+  // );
+
+  useEffect(() => {
+    return () => {
       PerformanceTracker.startTracking(
         PerformanceTransactionName.CLOSE_SIDE_PANE,
         { path: pathname },
       );
-      e.stopPropagation();
-      setIsVisible(false);
-      history.replace(builderURL({ pageId }));
-    },
-    [pathname, pageId],
-  );
+    };
+  });
 
   const showPropertyPane = isMultiPane
     ? paneCount === PaneLayoutOptions.TWO_PANE
     : false;
 
   return (
-    <Wrapper isVisible={isVisible} onClick={handleClose}>
+    <Wrapper isVisible>
       <Switch key={path}>
         {showPropertyPane && (
           <SentryRoute
