@@ -10,17 +10,9 @@ on:
         required: false
         type: number
 
-# Change the working directory for all the jobs in this workflow
-defaults:
-  run:
-    working-directory: app/client
-    shell: bash
-
 jobs:
   ci-test:
     runs-on: ubuntu-latest
-    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
-    # then we don't check for the PR approved state
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
@@ -29,7 +21,6 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository)
     defaults:
       run:
-        working-directory: app/client
         shell: bash
     strategy:
       fail-fast: false
@@ -59,7 +50,15 @@ jobs:
         if: inputs.pr != 0
         uses: actions/checkout@v3
         with:
+          fetch-depth: 0
           ref: "refs/pull/${{ inputs.pr }}/merge"
+          
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        if: inputs.pr == 0
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       # Timestamp will be used to create cache key
       - id: timestamp

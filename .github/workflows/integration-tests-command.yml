@@ -61,7 +61,7 @@ jobs:
     # Only run if the build step is successful
     if: success()
     name: ci-test
-    uses: ./.github/workflows/upgrade-appsmith-tests.yml
+    uses: ./.github/workflows/ci-test.yml
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
