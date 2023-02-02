@@ -27,9 +27,13 @@ describe("Entity explorer context menu should hide on scrolling", function() {
       dataSources.CreateQuery(mockDBNameMovies);
     });
     cy.get('@usersDB').then((dbName : any)=> {
+      agHelper.Sleep()
+      ee.ActionContextMenuByEntityName(dbName, "Refresh");
       ee.ExpandCollapseEntity(dbName);
     })
     cy.get('@moviesDB').then((dbName: any)=> {
+      agHelper.Sleep()
+      ee.ActionContextMenuByEntityName(dbName, "Refresh");
       ee.ExpandCollapseEntity(dbName);
     })
     ee.ExpandCollapseEntity("public.users");
