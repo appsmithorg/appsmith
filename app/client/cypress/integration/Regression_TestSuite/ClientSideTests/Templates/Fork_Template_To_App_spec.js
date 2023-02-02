@@ -3,8 +3,6 @@ import template from "../../../../locators/TemplatesLocators.json";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let templates = ObjectsRegistry.Templates;
-
 describe("Fork a template to the current app", () => {
   it("1. Fork a template to the current app", () => {
     cy.wait(5000);
@@ -17,7 +15,12 @@ describe("Fork a template to the current app", () => {
     // );
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
-    templates.ForkTemplateByName("Customer Support Dashboard");
+    cy.xpath(
+      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+    )
+      .scrollIntoView()
+      .click();
+    // templates.ForkTemplateByName("Customer Support Dashboard");
     cy.wait(6000);
     cy.get(widgetLocators.toastAction).should(
       "contain",
