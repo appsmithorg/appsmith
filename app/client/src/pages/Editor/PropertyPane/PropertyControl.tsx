@@ -60,6 +60,7 @@ import {
   getCodeFromMoustache,
   isEmptyBlock,
 } from "components/editorComponents/ActionCreator/utils";
+import clsx from "clsx";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -682,7 +683,11 @@ const PropertyControl = memo((props: Props) => {
             )}
             {config.controlType === "ACTION_SELECTOR" ? (
               <button
-                className="ml-auto hover:bg-black"
+                className={clsx(
+                  "ml-auto h-5 w-5 flex items-center justify-center",
+                  !isDynamic && "hover:bg-black",
+                )}
+                disabled={isDynamic}
                 onClick={() => {
                   const valueWithoutMustache = getCodeFromMoustache(
                     propertyValue,
@@ -708,9 +713,9 @@ const PropertyControl = memo((props: Props) => {
               >
                 <Icon
                   fillColor="#182026"
-                  hoverFillColor="white"
+                  hoverFillColor={!isDynamic ? "white" : undefined}
                   name="plus"
-                  size="extraExtraLarge"
+                  size="extraLarge"
                 />
               </button>
             ) : null}
