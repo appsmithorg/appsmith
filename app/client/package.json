@@ -50,7 +50,7 @@
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system-old": "npm:@appsmithorg/design-system-old@1.0.48",
+    "design-system-old": "npm:@appsmithorg/design-system-old@1.0.49-alpha.15",
     "downloadjs": "^1.4.7",
     "draft-js": "^0.11.7",
     "exceljs-lightweight": "^1.14.0",
