@@ -390,7 +390,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   blockRoutes() {
     this.setState({
       unblock: this.props?.history?.block((tx: any) => {
-        if (this.props.isFormDirty) {
+        const nextPath = tx.pathname + tx.search;
+        const prevPath =
+          this.props.history.location.pathname +
+          this.props.history.location.search;
+        // On reload, it goes from same path to same path, we do not need to show popup in that case
+        if (nextPath !== prevPath && this.props.isFormDirty) {
           this.setState(
             {
               // need to pass in query params as well as state, when user navigates away from ds form page

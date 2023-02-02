@@ -88,6 +88,14 @@ const entityRefactor = [
     isJSObject: true,
     evalVersion: 2,
   },
+  {
+    script:
+      '(function(){\n        try{\n        ApiNever.run(); \n                showAlert("Sucessful Trigger");\n   }catch(error){\nshowAlert("Unsucessful Trigger");\n   }\n})()',
+    oldName: "ApiNever",
+    newName: "ApiForever",
+    isJSObject: false,
+    evalVersion: 2,
+  },
 ];
 
 afterAll((done) => {
@@ -184,6 +192,11 @@ describe("AST tests", () => {
           script:
             'export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t// ApiNever.text\n\t\treturn "ApiNever.text" + ApiForever.text\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t\t// ApiNever.text\n\t\treturn "ApiNever.text" + ApiForever.text\n\t}\n}',
           refactorCount: 2,
+        },
+        {
+          script:
+            '(function(){\n        try{\n        ApiForever.run(); \n                showAlert("Sucessful Trigger");\n   }catch(error){\nshowAlert("Unsucessful Trigger");\n   }\n})()',
+          refactorCount: 1,
         },
       ];
 
