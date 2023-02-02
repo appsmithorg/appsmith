@@ -126,6 +126,7 @@ after(function() {
   cy.DeleteAppByApi();
   //-- LogOut Application---//
   cy.LogOut();
+  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
 
   //Commenting until Upgrade Appsmith cases are fixed
   // const testUrl = "http://localhost:5001/v1/parent/cmd";
