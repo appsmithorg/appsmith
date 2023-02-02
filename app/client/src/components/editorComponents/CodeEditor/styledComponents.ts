@@ -215,14 +215,13 @@ export const EditorWrapper = styled.div<{
       -webkit-font-smoothing: auto;
     }
 
-    /* var names, js utility func names, func names */
-    .cm-s-duotone-light span.cm-property,
-    .cm-s-duotone-light .cm-string.cm-property {
-      color: #e15c15; /* our new accessible brand color */
+    .cm-s-duotone-light.CodeMirror span.cm-property {
+      /* color: #e15c15; /* our new accessible brand color */
+      color: #009292;
     }
 
     /* eg: export, default, async keywords */
-    span.cm-keyword {
+    .cm-s-duotone-light.CodeMirror span.cm-keyword {
       color: #304eaa;
     }
 
@@ -232,17 +231,62 @@ export const EditorWrapper = styled.div<{
     }
 
     /* Text selection */
-    .cm-s-duotone-light div.CodeMirror-selected {
-      background: #d8e8fd !important;
+    .cm-s-duotone-light.CodeMirror div.CodeMirror-selected {
+      background: #d8e8fd;
     }
 
-    .cm-s-duotone-light span.cm-string {
+    .cm-s-duotone-light span.cm-string,
+    .token.string {
       color: #1659df;
     }
 
     /* +, =>, -, etc. operators */
-    .cm-s-duotone-light span.cm-operator {
+    .cm-s-duotone-light.CodeMirror span.cm-operator {
+      /*color: #3676F2;*/
+      color: blueviolet;
+    }
+
+    /* function arguments */
+    .cm-s-duotone-light .cm-def {
       color: #364252; /* This is gray-7 from our new shades of gray */
+    }
+
+    /* variable declarations */
+    .cm-s-duotone-light .cm-keyword + span + .cm-def {
+      color: #364252;
+    }
+
+    /* object properties */
+    .cm-s-duotone-light .cm-variable + span + .cm-property,
+    .cm-s-duotone-light .cm-property + span + .cm-property {
+      color: #364562;
+    }
+
+    .cm-s-duotone-light.CodeMirror span.cm-number {
+      color: #555;
+    }
+
+    .cm-s-duotone-light span.cm-variable-2,
+    .cm-s-duotone-light span.cm-variable-3 {
+      color: #364252;
+    }
+
+    .cm-s-duotone-light span.cm-positive,
+    .cm-s-duotone-light span.cm-string-2,
+    .cm-s-duotone-light span.cm-type,
+    .cm-s-duotone-light span.cm-url {
+      color: #364252;
+    }
+
+    .binding-brackets,
+    .CodeMirror-matchingbracket,
+    .binding-highlight {
+      font-weight: 400;
+    }
+
+    /* alternate this color with .cm-property and take a call */
+    .cm-s-duotone-light.CodeMirror .cm-property.navigable-entity-highlight {
+      color: #e15c15;
     }
 
     .cm-s-duotone-light span.cm-comment {
@@ -251,16 +295,6 @@ export const EditorWrapper = styled.div<{
 
     .CodeMirror-activeline-background {
       background-color: #ececec;
-    }
-
-    .cm-s-duotone-light span.cm-positive,
-    .cm-s-duotone-light span.cm-string-2,
-    .cm-s-duotone-light span.cm-type,
-    .cm-s-duotone-light span.cm-url,
-    .cm-s-duotone-light span.cm-variable-2,
-    .cm-s-duotone-light span.cm-variable-3 {
-      color: #333;
-    }
     ${(props) =>
       props.disabled &&
       `
