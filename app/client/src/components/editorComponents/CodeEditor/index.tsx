@@ -260,7 +260,7 @@ class CodeEditor extends Component<Props, State> {
     },
     collapsed: 1,
     indentWidth: 2,
-    collapseStringsAfterLength: 20,
+    collapseStringsAfterLength: 30,
   };
   private editorWrapperRef = React.createRef<HTMLDivElement>();
 
@@ -550,11 +550,12 @@ class CodeEditor extends Component<Props, State> {
     200,
   );
 
-  debouncedPeekHide = debounce(() => {
+  debouncedPeekHide = debounce(() => this.peekHide(), 200);
+
+  peekHide = () =>
     this.setState({
       peekOverlayProps: undefined,
     });
-  }, 200);
 
   handleMouseOver = (event: MouseEvent) => {
     if (
@@ -748,6 +749,7 @@ class CodeEditor extends Component<Props, State> {
                 if (navigationData.type === ENTITY_TYPE.WIDGET) {
                   this.props.selectWidget(navigationData.id);
                 }
+                this.peekHide();
               }
             }
           },
@@ -1171,11 +1173,34 @@ class CodeEditor extends Component<Props, State> {
         ("dataTreePath" in this.props && !!dataTreePath));
 
     const JsonWrapper = styled.div`
+      .node-ellipsis,
+      .function-collapsed span:nth-child(2),
+      .string-value span {
+        font-size: 10px !important;
+      }
       .icon-container {
         width: 10px !important;
         height: 8px !important;
         svg {
           color: var(--appsmith-color-black-600) !important;
+        }
+      }
+      .pushed-content.object-container {
+        .object-content {
+          .variable-row {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            .variable-value div {
+              text-transform: lowercase;
+              font-size: 10px !important;
+              padding-top: 0 !important;
+              padding-bottom: 0 !important;
+            }
+          }
+          .object-key-val {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+          }
         }
       }
       // .object-key-val:not(:has(.pushed-content.object-container)) .object-size {
