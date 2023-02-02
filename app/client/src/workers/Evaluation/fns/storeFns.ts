@@ -23,7 +23,7 @@ export async function storeValue(
 ) {
   set(this, ["appsmith", "store", key], value);
   TriggerEmitter.emit(
-    BatchKey.process_batched_fn_execution,
+    BatchKey.process_store_updates,
     storeFnDescriptor(key, value, persist),
   );
   return {};
@@ -46,7 +46,7 @@ export type TRemoveValueDescription = ReturnType<
 export async function removeValue(this: any, key: string) {
   delete this.appsmith.store[key];
   TriggerEmitter.emit(
-    BatchKey.process_batched_fn_execution,
+    BatchKey.process_store_updates,
     removeValueFnDescriptor(key),
   );
   return {};
