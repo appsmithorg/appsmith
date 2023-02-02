@@ -248,8 +248,9 @@ abstract class BaseWidget<
   componentDidMount(): void {}
 
   /*
-   * Appsmith widget life cycle method that gets called
-   * when the deferred widget component renders.
+   * With lazy rendering, skeleton loaders are rendered for below fold widgets.
+   * This Appsmith widget life cycle method that gets called when the actual widget
+   * component renders instead of the skeleton loader.
    */
   deferredComponentDidRender(): void {}
 
