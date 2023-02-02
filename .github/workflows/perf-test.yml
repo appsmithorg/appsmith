@@ -220,12 +220,12 @@ jobs:
             cicontainer
 
       # Start rts
-      # - name: Start RTS Server
-      #   if: steps.run_result.outputs.run_result != 'success'
-      #   working-directory: ./app/rts
-      #   run: |
-      #     cp .env.example .env        
-      #     ./start-server.sh &
+      - name: Start RTS Server
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: ./app/rts
+        run: |
+          cp .env.example .env        
+          ./start-server.sh &
           
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
