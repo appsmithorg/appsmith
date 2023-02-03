@@ -156,6 +156,10 @@ export function* manageCanvasSplit(
       updatedWidgets = {
         ...updatedWidgetsAfterCreatingCanvas,
         [payload.existingCanvas.widgetId]: payload.existingCanvas,
+        [parentId]: {
+          ...updatedWidgetsAfterCreatingCanvas[parentId],
+          canvasSplitRatio: 0.5,
+        },
       };
     } else {
       const isMobile: boolean = yield select(getIsMobile);

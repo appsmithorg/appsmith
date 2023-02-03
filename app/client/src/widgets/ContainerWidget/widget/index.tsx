@@ -191,12 +191,19 @@ export class ContainerWidget extends BaseWidget<
     };
   };
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+  renderChildWidget(
+    childWidgetData: WidgetProps,
+    index: number,
+  ): React.ReactNode {
     const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
-    childWidget.rightColumn = componentWidth;
+    childWidget.rightColumn =
+      componentWidth *
+      (this.props.canvasSplitRatio
+        ? this.props.canvasSplitRatio * (index + 1)
+        : 1);
     childWidget.bottomRow = this.props.shouldScrollContents
       ? childWidget.bottomRow
       : componentHeight;

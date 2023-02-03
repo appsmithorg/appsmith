@@ -267,7 +267,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const dropTargetStyles = {
     height,
     boxShadow,
-    width: 100 * (props.columnSplitRatio || 1) + "%",
     display: props.columnSplitRatio === 1 ? "block" : "inline-block",
   };
 

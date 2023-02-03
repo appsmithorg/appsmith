@@ -117,6 +117,7 @@ export function deleteCanvas(
     [parentId]: {
       ...parent,
       children: [remainingCanvasId],
+      canvasSplitRatio: 1,
     },
   };
 
