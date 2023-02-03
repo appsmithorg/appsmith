@@ -28,9 +28,8 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 
-import { ObjectsRegistry } from "../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper;
+// import { ObjectsRegistry } from "../support/Objects/Registry";
+// let agHelper = ObjectsRegistry.AggregateHelper;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -1183,12 +1182,11 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  // cy.CheckForPageSaveError();
-  // cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-  //   timeout: 30000,
-  // });
-  //cy.wait("@sucessSave").its("status").should('equal', 200);
-  agHelper.ValidateNetworkStatus("@sucessSave", 200);
+  cy.CheckForPageSaveError();
+  cy.get(commonlocators.saveStatusContainer).should("not.exist", {
+    timeout: 30000,
+  });
+  //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
 Cypress.Commands.add(

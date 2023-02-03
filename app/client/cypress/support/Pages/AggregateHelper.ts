@@ -148,13 +148,13 @@ export class AggregateHelper {
   }
 
   public AssertAutoSave() {
-    //this.CheckForPageSaveError();
+    this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
-    // cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
-    //   "not.exist",
-    // ); //adding timeout since waiting more time is not worth it!
+    cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
+      "not.exist",
+    ); //adding timeout since waiting more time is not worth it!
 
-    this.ValidateNetworkStatus("@sucessSave", 200);
+    //this.ValidateNetworkStatus("@sucessSave", 200);
   }
 
   public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
