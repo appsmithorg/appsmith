@@ -8,16 +8,45 @@ import {
   isWidgetSelected,
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
+import styled from "styled-components";
 import { stopEventPropagation } from "utils/AppsmithUtils";
+import { scrollCSS } from "widgets/WidgetUtils";
 import { useWidgetSelection } from "./useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { Colors } from "constants/Colors";
+
+const ContentWrapper = styled.div<{
+  backgroundColor?: string;
+  borderRadius?: string;
+}>`
+  width: 100%;
+  height: 100%;
+  background: ${({ backgroundColor }) => `${backgroundColor || Colors.WHITE}`};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  ${scrollCSS}
+`;
+
+const ScrollWrapper = styled.div<{
+  backgroundColor?: string;
+  borderRadius?: string;
+}>`
+  width: 100%;
+  height: 100%;
+  background: ${({ backgroundColor }) => `${backgroundColor || Colors.WHITE}`};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  overflow: hidden;
+`;
 
 export function ClickContentToOpenPropPane({
+  backgroundColor,
+  borderRadius,
   children,
   widgetId,
 }: {
   widgetId: string;
   children?: ReactNode;
+  backgroundColor?: string;
+  borderRadius?: string;
 }) {
   const { focusWidget } = useWidgetSelection();
 
@@ -42,20 +71,20 @@ export function ClickContentToOpenPropPane({
     e.stopPropagation();
   };
 
-  const styles = {
-    width: "100%",
-    height: "100%",
-  };
-
   return (
-    <div
-      onClick={stopEventPropagation}
-      onMouseDownCapture={clickToSelectWidget}
-      onMouseOver={handleMouseOver}
-      style={styles}
+    <ScrollWrapper
+      backgroundColor={backgroundColor}
+      borderRadius={borderRadius}
     >
-      {children}
-    </div>
+      <ContentWrapper
+        className="scroll-parent"
+        onClick={stopEventPropagation}
+        onMouseDownCapture={clickToSelectWidget}
+        onMouseOver={handleMouseOver}
+      >
+        {children}
+      </ContentWrapper>
+    </ScrollWrapper>
   );
 }
 

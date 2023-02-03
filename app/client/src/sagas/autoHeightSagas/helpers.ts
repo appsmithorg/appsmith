@@ -11,12 +11,10 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
-import {
-  getCanvasHeightOffset,
-  previewModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(previewModeSelector);
@@ -173,6 +171,10 @@ export function* getMinHeightBasedOnChildren(
       if (!(shouldCollapse && bottomRow === topRow))
         minHeightInRows = Math.max(minHeightInRows, bottomRow);
     }
+  }
+
+  if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
+    return minHeightInRows + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET;
   }
 
   return minHeightInRows;
