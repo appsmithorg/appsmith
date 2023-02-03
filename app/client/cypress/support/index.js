@@ -127,8 +127,8 @@ after(function() {
   //-- LogOut Application---//
   cy.LogOut();
 
-  const tedUrl = "http://localhost:5001/v1/parent/cmd";
-  cy.log("Start the appsmith container");
-  // start the old container
-  cy.StartContainer(tedUrl, "appsmith");
+  // Commenting until Upgrade Appsmith cases are fixed
+  // const tedUrl = "http://localhost:5001/v1/parent/cmd";
+  // cy.log("Start the appsmith container");
+  // cy.StartContainer(tedUrl, "appsmith"); // start the old container
 });

@@ -101,12 +101,12 @@ describe("Upgrade appsmith version", () => {
     agHelper.Sleep(2000);
   });
 
-  // after(() => {
-  //   cy.clearCookies();
-  //   cy.clearLocalStorage();
-  //   //restarting the old container
-  //   cy.StartContainer(tedUrl, "appsmith");
-  //   //Waiting for the container to be up
-  //   agHelper.Sleep(45000);
-  // });
+  after(() => {
+    cy.clearCookies();
+    cy.clearLocalStorage();
+    //restarting the old container
+    cy.StartContainer(tedUrl, "appsmith");
+    //Waiting for the container to be up
+    agHelper.Sleep(45000);
+  });
 });
