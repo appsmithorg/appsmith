@@ -44,7 +44,7 @@ describe("Tab widget test", function() {
     cy.hoverAndClickParticularIndex(3);
     cy.get(apiwidget.delete).click({ force: true });
 
-    cy.get(commonlocators.searchEntityInExplorer)
+    cy.get(commonlocators.entityExplorersearch)
       .clear({ force: true })
       .type("Tab2", { force: true });
     cy.get(
