@@ -9,7 +9,7 @@ export function withLazyRender(Widget: typeof BaseWidget) {
   return function WrappedComponent(props: WidgetProps) {
     const features = useSelector(selectFeatureFlags);
     const [deferRender, setDeferRender] = useState(
-      features.LAZY_CANVAS_RENDERING,
+      !!features.LAZY_CANVAS_RENDERING,
     );
     const wrapperRef = useRef<HTMLDivElement>(null);
     let idleCallbackId: number;
