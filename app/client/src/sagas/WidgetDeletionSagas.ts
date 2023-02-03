@@ -25,25 +25,26 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
-import {
-  inGuidedTour,
-  isExploringSelector,
-} from "selectors/onboardingSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { showUndoRedoToast } from "utils/replayHelpers";
-import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
-  resizeCanvasToLowestWidget,
+  resizePublishedMainCanvasToLowestWidget,
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
 } from "./WidgetOperationUtils";
-import { SelectionRequestType } from "./WidgetSelectUtils";
+import { showUndoRedoToast } from "utils/replayHelpers";
+import WidgetFactory from "utils/WidgetFactory";
+import {
+  inGuidedTour,
+  isExploringSelector,
+} from "selectors/onboardingSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -187,24 +188,6 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       otherWidgetsToDelete.map((widgets) => widgets.widgetId),
     );
 
-    //Main canvas's minheight keeps varying, hence retrieving updated value
-    let mainCanvasMinHeight;
-    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
-      const mainCanvasProps: MainCanvasReduxState = yield select(
-        getMainCanvasProps,
-      );
-      mainCanvasMinHeight = mainCanvasProps?.height;
-    }
-
-    if (parentId && finalWidgets[parentId]) {
-      finalWidgets[parentId].bottomRow = resizeCanvasToLowestWidget(
-        finalWidgets,
-        parentId,
-        finalWidgets[parentId].bottomRow,
-        mainCanvasMinHeight,
-      );
-    }
-
     return {
       finalWidgets,
       otherWidgetsToDelete,
@@ -334,24 +317,24 @@ function* deleteAllSelectedWidgetsSaga(
       }
     }
     //Main canvas's minheight keeps varying, hence retrieving updated value
-    let mainCanvasMinHeight;
-    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
-      const mainCanvasProps: MainCanvasReduxState = yield select(
-        getMainCanvasProps,
-      );
-      mainCanvasMinHeight = mainCanvasProps?.height;
-    }
+    // let mainCanvasMinHeight;
+    // if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+    //   const mainCanvasProps: MainCanvasReduxState = yield select(
+    //     getMainCanvasProps,
+    //   );
+    //   mainCanvasMinHeight = mainCanvasProps?.height;
+    // }
 
-    if (parentId && widgetsAfterUpdatingFlexLayers[parentId]) {
-      widgetsAfterUpdatingFlexLayers[
-        parentId
-      ].bottomRow = resizeCanvasToLowestWidget(
-        widgetsAfterUpdatingFlexLayers,
-        parentId,
-        finalWidgets[parentId].bottomRow,
-        mainCanvasMinHeight,
-      );
-    }
+    // if (parentId && widgetsAfterUpdatingFlexLayers[parentId]) {
+    //   widgetsAfterUpdatingFlexLayers[
+    //     parentId
+    //   ].bottomRow = resizePublishedMainCanvasToLowestWidget(
+    //     widgetsAfterUpdatingFlexLayers,
+    //     parentId,
+    //     finalWidgets[parentId].bottomRow,
+    //     mainCanvasMinHeight,
+    //   );
+    // }
 
     yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
     yield put(generateAutoHeightLayoutTreeAction(true, true));

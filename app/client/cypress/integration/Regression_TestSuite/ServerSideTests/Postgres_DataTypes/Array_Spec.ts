@@ -7,8 +7,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,
-  appSettings = ObjectsRegistry.AppSettings,
-  canvasHelper = ObjectsRegistry.CanvasHelper;
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Array Datatype tests", function() {
   before(() => {
@@ -22,7 +21,7 @@ describe("Array Datatype tests", function() {
     cy.fixture("Datatypes/ArrayDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    canvasHelper.OpenWidgetPane();
+    ee.NavigateToSwitcher("widgets");
     appSettings.OpenPaneAndChangeThemeColors(-31, -27);
   });
 
