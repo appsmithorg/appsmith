@@ -3,6 +3,7 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 const formControls = require("../../../locators/FormControl.json");
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 let repoName;
 describe("Shopping cart App", function() {
@@ -193,19 +194,22 @@ describe("Shopping cart App", function() {
       .should("have.text", "3");
   });
 
-  /*it("Connect the appplication to git and validate data in deploy mode and edit mode", function() {
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName);
+  it("3. Connect the appplication to git and validate data in deploy mode and edit mode", function() {
+    _.gitSync.CreateNConnectToGit(repoName);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
     cy.latestDeployPreview();
-    cy.wait(2000)
-    cy.get(".selected-row").children().eq(0)
-    .should("have.text", "A man called ove");
-    cy.get(commonlocators.backToEditor).click();
-    cy.get(".selected-row").children().eq(0)
-    .should("have.text", "A man called ove");
+    cy.wait(2000);
+    cy.get(".selected-row")
+      .children()
+      .eq(0)
+      .should("have.text", "A man called ove");
+    _.deployMode.NavigateBacktoEditor();
+    cy.get(".selected-row")
+      .children()
+      .eq(0)
+      .should("have.text", "A man called ove");
     cy.wait(1000);
-  }) */
+  });
 });

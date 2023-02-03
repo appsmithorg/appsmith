@@ -143,6 +143,7 @@ public class FieldNameCE {
     public static final String APP_MODE = "appMode";
     public static final String PAGE_ORDER = "order";
     public static final String ACTION_EXECUTION_REQUEST_PARAMS = "actionExecutionRequestParams";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS_SIZE = "totalReadableBytesCount";
     public static final String ACTION_EXECUTION_REQUEST_PARAMS_COUNT = "actionExecutionRequestParamsCount";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
@@ -153,7 +154,7 @@ public class FieldNameCE {
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
-    public static final String ENVIRONMENT_NAME ="environmentName";
+    public static final String ENVIRONMENT_NAME = "environmentName";
 
     public static final String IS_FORCE_INSTALL = "forceInstall";
     public static final String IS_FORCE_REMOVE = "forceRemove";
