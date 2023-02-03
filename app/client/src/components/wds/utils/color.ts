@@ -60,10 +60,10 @@ export const calulateHoverColor = (hex = "#000") => {
 
   switch (true) {
     case color.get("oklch.l") > 0.35:
-      color.set("oklch.l", (l) => l - 0.03);
+      color.set("oklch.l", (l) => l + 0.03);
       break;
     case color.get("oklch.l") < 0.35:
-      color.set("oklch.l", (l) => l + 0.03);
+      color.set("oklch.l", (l) => l - 0.03);
       break;
   }
 
