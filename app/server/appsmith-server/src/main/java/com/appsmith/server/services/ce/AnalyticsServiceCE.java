@@ -14,6 +14,8 @@ public interface AnalyticsServiceCE {
 
     Mono<User> identifyUser(User user, UserData userData);
 
+    Mono<User> identifyUser(User user, UserData userData, String recentlyUsedWorkspaceId);
+
     void identifyInstance(String instanceId, String role, String useCase);
 
     Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties);
