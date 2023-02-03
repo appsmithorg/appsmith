@@ -53,14 +53,7 @@ export const getEntitiesForNavigation = createSelector(
         (plugin) => plugin.id === action.config.pluginId,
       );
       const config = getActionConfig(action.config.pluginType);
-      const { childNavData, peekData } = getActionChildren(
-        action,
-        entityDefinitions.ACTION(
-          dataTree[action.config.name] as DataTreeAction,
-          {},
-        ),
-        dataTree[action.config.name] as DataTreeAction,
-      );
+      const result = getActionChildren(action, dataTree);
       if (!config) return;
       navigationData[action.config.name] = {
         name: action.config.name,
@@ -73,45 +66,37 @@ export const getEntitiesForNavigation = createSelector(
           plugin,
         ),
         navigable: true,
-        children: childNavData,
+        children: result?.childNavData || {},
         peekable: true, // hide tooltip when set to false
-        peekData,
+        peekData: result?.peekData,
       };
     });
 
     jsActions.forEach((jsAction) => {
-      const { childNavData, peekData } = getJsObjectChildren(
-        jsAction,
-        pageId,
-        dataTree[jsAction.config.name] as DataTreeJSAction,
-      );
+      const result = getJsObjectChildren(jsAction, pageId, dataTree);
       navigationData[jsAction.config.name] = {
         name: jsAction.config.name,
         id: jsAction.config.id,
         type: ENTITY_TYPE.JSACTION,
         url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
         navigable: true,
-        children: childNavData,
+        children: result?.childNavData || {},
         peekable: true,
-        peekData,
+        peekData: result?.peekData,
       };
     });
 
     Object.values(widgets).forEach((widget) => {
-      const { childNavData, peekData } = getWidgetChildren(
-        widget,
-        dataTree,
-        pageId,
-      );
+      const result = getWidgetChildren(widget, dataTree, pageId);
       navigationData[widget.widgetName] = {
         name: widget.widgetName,
         id: widget.widgetId,
         type: ENTITY_TYPE.WIDGET,
         url: builderURL({ pageId, hash: widget.widgetId }),
         navigable: true,
-        children: childNavData,
+        children: result?.childNavData || {},
         peekable: true,
-        peekData,
+        peekData: result?.peekData,
       };
     });
     return navigationData;
@@ -121,7 +106,7 @@ export const getEntitiesForNavigation = createSelector(
 const getJsObjectChildren = (
   jsAction: JSCollectionData,
   pageId: string,
-  dataTree: DataTreeJSAction,
+  dataTree: DataTree,
 ) => {
   // const properties = getPropsForJSActionEntity(jsAction);
   // console.log("peek data", properties);
@@ -142,28 +127,12 @@ const getJsObjectChildren = (
   const peekData: Record<string, unknown> = {};
   let childNavData: Record<string, NavigationData> = {};
 
-  let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    peekData[jsChild.name] = function() {}; // can use new Function to parse string
-    return {
-      name: `${jsAction.config.name}.${jsChild.name}`,
-      key: jsChild.name,
-      id: `${jsAction.config.name}.${jsChild.name}`,
-      type: ENTITY_TYPE.JSACTION,
-      url: jsCollectionIdURL({
-        pageId,
-        collectionId: jsAction.config.id,
-        functionName: jsChild.name,
-      }),
-      navigable: true,
-      children: {},
-      peekable: true,
-    };
-  });
+  const dataTreeAction = dataTree[jsAction.config.name] as DataTreeJSAction;
 
-  const variableChildren: NavigationData[] = jsAction.config.variables.map(
-    (jsChild) => {
-      peekData[jsChild.name] = dataTree[jsChild.name];
+  if (dataTreeAction) {
+    let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      peekData[jsChild.name] = function() {}; // can use new Function to parse string
       return {
         name: `${jsAction.config.name}.${jsChild.name}`,
         key: jsChild.name,
@@ -178,17 +147,38 @@ const getJsObjectChildren = (
         children: {},
         peekable: true,
       };
-    },
-  );
+    });
 
-  children = children.concat(variableChildren);
+    const variableChildren: NavigationData[] = jsAction.config.variables.map(
+      (jsChild) => {
+        if (dataTreeAction)
+          peekData[jsChild.name] = dataTreeAction[jsChild.name];
+        return {
+          name: `${jsAction.config.name}.${jsChild.name}`,
+          key: jsChild.name,
+          id: `${jsAction.config.name}.${jsChild.name}`,
+          type: ENTITY_TYPE.JSACTION,
+          url: jsCollectionIdURL({
+            pageId,
+            collectionId: jsAction.config.id,
+            functionName: jsChild.name,
+          }),
+          navigable: true,
+          children: {},
+          peekable: true,
+        };
+      },
+    );
 
-  childNavData = keyBy(children, (data) => data.key) as Record<
-    string,
-    NavigationData
-  >;
+    children = children.concat(variableChildren);
 
-  return { childNavData, peekData };
+    childNavData = keyBy(children, (data) => data.key) as Record<
+      string,
+      NavigationData
+    >;
+
+    return { childNavData, peekData };
+  }
 };
 
 const getWidgetChildren = (
@@ -230,68 +220,73 @@ const getWidgetChildren = (
 
     return { childNavData: children, peekData };
   }
-  const type: Exclude<
-    EntityDefinitionsOptions,
-    "CANVAS_WIDGET" | "ICON_WIDGET" | "SKELETON_WIDGET" | "TABS_MIGRATOR_WIDGET"
-  > = dataTreeWidget.type as any;
-  let config: any = entityDefinitions[type];
-  if (config) {
-    if (isFunction(config)) config = config(dataTreeWidget);
-    const widgetProps = Object.keys(config).filter(
-      (k) => k.indexOf("!") === -1,
-    );
-    widgetProps.forEach((prop) => {
-      const data = dataTreeWidget[prop];
-      peekData[prop] = data;
-      childNavData[prop] = {
-        name: `${widget.widgetName}.${prop}`,
-        id: `${widget.widgetName}.${prop}`,
-        type: ENTITY_TYPE.WIDGET,
-        navigable: false,
-        children: {},
-        url: undefined,
-        peekable: true,
-      };
-    });
+  if (dataTreeWidget) {
+    const type: Exclude<
+      EntityDefinitionsOptions,
+      | "CANVAS_WIDGET"
+      | "ICON_WIDGET"
+      | "SKELETON_WIDGET"
+      | "TABS_MIGRATOR_WIDGET"
+    > = dataTreeWidget.type as any;
+    let config: any = entityDefinitions[type];
+    if (config) {
+      if (isFunction(config)) config = config(dataTreeWidget);
+      const widgetProps = Object.keys(config).filter(
+        (k) => k.indexOf("!") === -1,
+      );
+      widgetProps.forEach((prop) => {
+        const data = dataTreeWidget[prop];
+        peekData[prop] = data;
+        childNavData[prop] = {
+          name: `${widget.widgetName}.${prop}`,
+          id: `${widget.widgetName}.${prop}`,
+          type: ENTITY_TYPE.WIDGET,
+          navigable: false,
+          children: {},
+          url: undefined,
+          peekable: true,
+        };
+      });
+    }
+    return { childNavData, peekData };
   }
-  return { childNavData, peekData };
 };
 
-const getActionChildren = (
-  action: ActionData,
-  definitions: Record<string, unknown>,
-  dataTree: DataTreeAction,
-) => {
-  const peekData: Record<string, unknown> = {};
-  const childNavData: Record<string, NavigationData> = {};
-  Object.keys(definitions).forEach((key) => {
-    if (key.indexOf("!") === -1) {
-      if (key === "data" || key === "isLoading" || key === "responseMeta") {
-        peekData[key] = dataTree[key];
-        childNavData[key] = {
-          id: `${action.config.name}.${key}`,
-          name: `${action.config.name}.${key}`,
-          type: ENTITY_TYPE.ACTION,
-          navigable: false,
-          url: undefined,
-          children: {},
-          peekable: true,
-        };
-      } else if (key === "run" || key === "clear") {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        peekData[key] = function() {}; // tern inference required here
-        childNavData[key] = {
-          id: `${action.config.name}.${key}`,
-          name: `${action.config.name}.${key}`,
-          type: ENTITY_TYPE.ACTION,
-          navigable: false,
-          url: undefined,
-          children: {},
-          peekable: true,
-        };
+const getActionChildren = (action: ActionData, dataTree: DataTree) => {
+  const dataTreeAction = dataTree[action.config.name] as DataTreeAction;
+  if (dataTreeAction) {
+    const definitions = entityDefinitions.ACTION(dataTreeAction, {});
+    const peekData: Record<string, unknown> = {};
+    const childNavData: Record<string, NavigationData> = {};
+    Object.keys(definitions).forEach((key) => {
+      if (key.indexOf("!") === -1) {
+        if (key === "data" || key === "isLoading" || key === "responseMeta") {
+          peekData[key] = dataTreeAction[key];
+          childNavData[key] = {
+            id: `${action.config.name}.${key}`,
+            name: `${action.config.name}.${key}`,
+            type: ENTITY_TYPE.ACTION,
+            navigable: false,
+            url: undefined,
+            children: {},
+            peekable: true,
+          };
+        } else if (key === "run" || key === "clear") {
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          peekData[key] = function() {}; // tern inference required here
+          childNavData[key] = {
+            id: `${action.config.name}.${key}`,
+            name: `${action.config.name}.${key}`,
+            type: ENTITY_TYPE.ACTION,
+            navigable: false,
+            url: undefined,
+            children: {},
+            peekable: true,
+          };
+        }
       }
-    }
-  });
+    });
 
-  return { peekData, childNavData };
+    return { peekData, childNavData };
+  }
 };
