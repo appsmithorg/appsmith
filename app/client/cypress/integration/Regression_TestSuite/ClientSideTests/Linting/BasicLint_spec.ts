@@ -143,7 +143,7 @@ describe("Linting", () => {
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
     ee.SelectEntityByName("Button1", "Widgets");
-
+    agHelper.Sleep(3000)
     clickButtonAndAssertLintError(true);
 
     // Re-create JSObject, lint error should be gone
