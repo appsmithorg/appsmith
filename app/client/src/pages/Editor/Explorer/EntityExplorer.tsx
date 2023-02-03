@@ -32,6 +32,11 @@ import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import {
+  getExplorerActive,
+  getExplorerPinned,
+} from "selectors/explorerSelector";
+import { setExplorerActiveAction } from "actions/explorerActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -90,13 +95,18 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
   );
   const noResults = false;
   const pageId = useSelector(getCurrentPageId);
+  const pinned = useSelector(getExplorerPinned);
+  const active = useSelector(getExplorerActive);
   const showWidgetsSidebar = useCallback(() => {
     history.push(builderURL({ pageId }));
+    if (!pinned && active) {
+      dispatch(setExplorerActiveAction(false));
+    }
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
-  }, [isFirstTimeUserOnboardingEnabled, pageId]);
+  }, [isFirstTimeUserOnboardingEnabled, pageId, pinned, active]);
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
 

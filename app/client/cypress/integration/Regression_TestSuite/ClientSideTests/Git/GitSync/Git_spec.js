@@ -1,6 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const explorerLocators = require("../../../../../locators/explorerlocators.json");
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -59,7 +58,7 @@ describe.skip("Git sync:", function() {
       cy.log("tempBranch is " + tempBranch);
 
       //cy.createGitBranch(tempBranch);
-      cy.get(explorerLocators.widgetSwitchId).click();
+      _.canvasHelper.OpenWidgetPane();
       cy.wait(2000); // wait for transition
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
       // cy.createGitBranch(tempBranch0);
@@ -106,7 +105,7 @@ describe.skip("Git sync:", function() {
 
   it("2. Detect conflicts when merging head to base branch", function() {
     cy.switchGitBranch(mainBranch);
-    cy.get(explorerLocators.widgetSwitchId).click();
+    _.canvasHelper.OpenWidgetPane();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     _.gitSync.CreateGitBranch(tempBranch1, false);
@@ -141,7 +140,7 @@ describe.skip("Git sync:", function() {
   it("3. Supports merging head to base branch", function() {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
-    cy.get(explorerLocators.explorerSwitchId).click({ force: true });
+    _.canvasHelper.OpenWidgetPane();
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("NewPage");
     cy.commitAndPush();
@@ -155,7 +154,7 @@ describe.skip("Git sync:", function() {
 
   it("4. Enables pulling remote changes from bottom bar", function() {
     _.gitSync.CreateGitBranch(tempBranch3, false);
-    cy.get(explorerLocators.widgetSwitchId).click();
+    _.canvasHelper.OpenWidgetPane();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.wait("@updateLayout");
