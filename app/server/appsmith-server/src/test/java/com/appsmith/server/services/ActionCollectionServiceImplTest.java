@@ -9,7 +9,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.external.models.ActionDTO;

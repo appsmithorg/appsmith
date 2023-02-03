@@ -1,7 +1,7 @@
 package com.appsmith.external.dtos;
 
 import com.appsmith.external.constants.DataType;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.AllArgsConstructor;

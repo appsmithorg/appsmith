@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;

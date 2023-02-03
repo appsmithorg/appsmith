@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @Getter

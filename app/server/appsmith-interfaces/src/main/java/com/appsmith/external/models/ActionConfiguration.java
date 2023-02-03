@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.converters.HttpMethodConverter;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

@@ -2,7 +2,7 @@ package com.appsmith.server.dtos;
 
 import lombok.Data;
 
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.validation.constraints.Email;

@@ -3,7 +3,7 @@ package com.appsmith.server.domains;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.appsmith.external.models.ActionDTO;
 import lombok.Getter;

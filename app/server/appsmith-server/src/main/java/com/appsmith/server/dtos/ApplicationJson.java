@@ -4,7 +4,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;

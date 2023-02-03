@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @Getter

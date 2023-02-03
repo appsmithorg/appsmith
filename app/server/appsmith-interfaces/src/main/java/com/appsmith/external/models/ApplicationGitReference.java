@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 import java.util.Set;
 
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 /**

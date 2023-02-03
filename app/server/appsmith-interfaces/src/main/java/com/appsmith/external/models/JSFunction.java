@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @Getter

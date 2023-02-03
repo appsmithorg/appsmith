@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.Set;
 
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 /**

@@ -1,6 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationTemplate;

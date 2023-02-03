@@ -1,4 +1,4 @@
-package com.appsmith.external.models;
+package com.appsmith.external.views;
 
 /**
  * This interface is used to define the different views that can be used with the JsonView annotation.

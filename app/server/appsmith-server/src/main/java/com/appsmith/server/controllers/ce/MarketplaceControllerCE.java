@@ -2,7 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.Provider;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ProviderPaginatedDTO;
 import com.appsmith.server.dtos.ResponseDTO;

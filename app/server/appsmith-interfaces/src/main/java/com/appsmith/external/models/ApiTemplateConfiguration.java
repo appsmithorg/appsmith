@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;

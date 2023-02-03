@@ -1,7 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ConfigNames;
 import com.fasterxml.jackson.annotation.JsonView;
 

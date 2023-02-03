@@ -1,7 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.constants.CommentOnboardingState;
 import com.fasterxml.jackson.annotation.JsonView;

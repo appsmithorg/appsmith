@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.ExceptionHelper;
 import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;

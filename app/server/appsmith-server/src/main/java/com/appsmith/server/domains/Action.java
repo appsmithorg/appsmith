@@ -7,7 +7,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 

@@ -2,7 +2,7 @@ package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.Provider;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.Action;
 import com.fasterxml.jackson.annotation.JsonView;
 

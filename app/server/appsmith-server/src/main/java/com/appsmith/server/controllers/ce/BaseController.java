@@ -1,7 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CrudService;

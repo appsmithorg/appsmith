@@ -1,7 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.AuthenticationResponse;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 

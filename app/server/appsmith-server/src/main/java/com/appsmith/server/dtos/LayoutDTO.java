@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minidev.json.JSONObject;
 import com.appsmith.external.exceptions.ErrorDTO;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 
 import org.springframework.data.annotation.Transient;
 

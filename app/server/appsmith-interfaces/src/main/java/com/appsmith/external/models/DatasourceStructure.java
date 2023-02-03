@@ -2,6 +2,7 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.google.gson.InstanceCreator;
 import lombok.AllArgsConstructor;

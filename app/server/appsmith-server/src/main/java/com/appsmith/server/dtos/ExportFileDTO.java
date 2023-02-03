@@ -3,7 +3,7 @@ package com.appsmith.server.dtos;
 import lombok.Data;
 import org.springframework.http.HttpHeaders;
 
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 

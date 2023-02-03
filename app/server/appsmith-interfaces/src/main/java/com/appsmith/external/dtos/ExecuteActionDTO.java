@@ -2,7 +2,7 @@ package com.appsmith.external.dtos;
 
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
-import com.appsmith.external.models.Views;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
@@ -30,23 +30,22 @@ public class ExecuteActionDTO {
     @JsonView(Views.Public.class)
     Boolean viewMode = false;
 
-    /*
-     * Sample value of paramProperties
-     * "paramProperties": {
-     * "k1": "string",
-     * "k2": "object",
-     * "k3": "number",
-     * "k4": {
-     * "array": [
-     * "string",
-     * "number",
-     * "string",
-     * "boolean"
-     * ]
-     * },
-     * "k5": "boolean"
-     * }
-     */
+    /* Sample value of paramProperties
+        "paramProperties": {
+          "k1": "string",
+          "k2": "object",
+          "k3": "number",
+          "k4": {
+            "array": [
+              "string",
+              "number",
+              "string",
+              "boolean"
+            ]
+          },
+          "k5": "boolean"
+        }
+    */
     @JsonView(Views.Public.class)
     Map<String, Object> paramProperties;
 
