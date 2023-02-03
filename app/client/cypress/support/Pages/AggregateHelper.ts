@@ -969,8 +969,8 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementExist(selector: ElementType, index = 0) {
-    return this.GetElement(selector)
+  public AssertElementExist(selector: ElementType, index = 0, timeout = 20000) {
+    return this.GetElement(selector, timeout)
       .eq(index)
       .should("exist");
   }
