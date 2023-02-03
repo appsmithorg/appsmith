@@ -9,7 +9,7 @@ import {
   Case,
   FontWeight,
   TextType,
-} from "design-system";
+} from "design-system-old";
 
 const LinkText = styled.div<{ color?: string }>`
   cursor: pointer;

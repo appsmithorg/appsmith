@@ -14,7 +14,7 @@ import { LayersContext } from "constants/Layers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import ReleaseComponent, { Release } from "./ReleaseComponent";
-import { DialogComponent as Dialog, ScrollIndicator } from "design-system";
+import { DialogComponent as Dialog, ScrollIndicator } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const StyledDialog = styled(Dialog)`

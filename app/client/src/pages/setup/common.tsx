@@ -1,5 +1,5 @@
 import React from "react";
-import { Dropdown, FormGroup as StyledFormGroup } from "design-system";
+import { Dropdown, FormGroup as StyledFormGroup } from "design-system-old";
 import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import styled from "styled-components";

@@ -20,7 +20,7 @@ export function initStoreFns(ctx: typeof globalThis) {
         persist,
       },
     };
-    set(self, ["appsmith", "store", key], value);
+    set(ctx, ["appsmith", "store", key], value);
     triggerCollector.collect(requestPayload);
     return Promise.resolve({});
   }
@@ -33,14 +33,14 @@ export function initStoreFns(ctx: typeof globalThis) {
       },
     };
     //@ts-expect-error no types for store
-    delete self.appsmith.store[key];
+    delete ctx.appsmith.store[key];
     triggerCollector.collect(requestPayload);
     return Promise.resolve({});
   }
 
   function clearStore() {
     //@ts-expect-error no types for store
-    self.appsmith.store = {};
+    ctx.appsmith.store = {};
     triggerCollector.collect({
       type: "CLEAR_STORE",
       payload: null,

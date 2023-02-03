@@ -6,6 +6,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
+  selectForceOpenWidgetPanel,
 } from "selectors/editorSelectors";
 import {
   ADD_WIDGET_BUTTON,
@@ -20,7 +21,7 @@ import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
@@ -36,6 +37,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const guidedTour = useSelector(inGuidedTour);
+  const isWidgetPaneOpen = useSelector(selectForceOpenWidgetPanel);
   let isWidgetsOpen = getExplorerStatus(applicationId, "widgets");
   if (isWidgetsOpen === null || isWidgetsOpen === undefined) {
     isWidgetsOpen = widgets?.children?.length === 0 || guidedTour;
@@ -62,7 +64,9 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   return (
     <Entity
-      addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
+      addButtonHelptext={
+        !isWidgetPaneOpen ? createMessage(ADD_WIDGET_TOOLTIP) : undefined
+      }
       canEditEntityName={canManagePages}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
       disabled={!widgets && !!props.searchKeyword}

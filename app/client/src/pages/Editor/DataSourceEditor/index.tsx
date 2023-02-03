@@ -44,7 +44,7 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
   SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
@@ -390,17 +390,24 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   blockRoutes() {
     this.setState({
       unblock: this.props?.history?.block((tx: any) => {
-        this.setState(
-          {
-            // need to pass in query params as well as state, when user navigates away from ds form page
-            navigation: () =>
-              this.props.history.push(tx.pathname + tx.search, tx.state),
-            showDialog: true,
-            routesBlocked: true,
-          },
-          this.routesBlockFormChangeCallback.bind(this),
-        );
-        return false;
+        const nextPath = tx.pathname + tx.search;
+        const prevPath =
+          this.props.history.location.pathname +
+          this.props.history.location.search;
+        // On reload, it goes from same path to same path, we do not need to show popup in that case
+        if (nextPath !== prevPath) {
+          this.setState(
+            {
+              // need to pass in query params as well as state, when user navigates away from ds form page
+              navigation: () =>
+                this.props.history.push(tx.pathname + tx.search, tx.state),
+              showDialog: true,
+              routesBlocked: true,
+            },
+            this.routesBlockFormChangeCallback.bind(this),
+          );
+          return false;
+        }
       }),
     });
   }
