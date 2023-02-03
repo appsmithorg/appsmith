@@ -1,10 +1,15 @@
-import React, { ReactNode, useState, useEffect, useRef } from "react";
-import styled, { StyledComponent } from "styled-components";
+import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
+import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { Colors } from "constants/Colors";
 import {
   GridDefaults,
   WidgetHeightLimits,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { animated, Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
@@ -20,6 +25,7 @@ import {
   getCurrentAppPositioningType,
 } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
+import styled, { StyledComponent } from "styled-components";
 import {
   getFillWidgetLengthForLayer,
   getLayerIndexOfWidget,
@@ -34,12 +40,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
-import { useDispatch, useSelector } from "react-redux";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
-import { animated, Spring } from "react-spring";
-import { Colors } from "constants/Colors";
-import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 const resizeBorderPadding = 1;
 const resizeBorder = 1;
 const resizeBoxShadow = 1;
@@ -321,7 +321,10 @@ export function ReflowResizable(props: ResizableProps) {
       let correctedMovementMap: ReflowedSpaceMap = {};
       for (const child of layer.children) {
         const childWidget = allWidgets[child.id];
-        if (childWidget.responsiveBehavior === ResponsiveBehavior.Fill) {
+        if (
+          childWidget &&
+          childWidget.responsiveBehavior === ResponsiveBehavior.Fill
+        ) {
           correctedMovementMap = {
             ...correctedMovementMap,
             [child.id]: {
@@ -661,7 +664,9 @@ export function ReflowResizable(props: ResizableProps) {
         maxHeight:
           (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
+        transform: `translate3d(${newDimensions.x -
+          bufferForBoundary / 2}px,${newDimensions.y -
+          bufferForBoundary / 2}px,0)`,
       }}
     >
       {(_props) => (
