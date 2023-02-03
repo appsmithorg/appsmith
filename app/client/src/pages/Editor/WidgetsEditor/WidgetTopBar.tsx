@@ -1,19 +1,17 @@
 import { Colors } from "constants/Colors";
 import classNames from "classnames";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCommonWidgets,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { generateReactKey } from "utils/generators";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { WidgetCardProps } from "widgets/BaseWidget";
 import WidgetPaneTrigger from "./WidgetPaneCTA";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { TooltipComponent } from "design-system-old";
+import { addSuggestedWidget } from "actions/widgetActions";
+import { debounce } from "lodash";
 
 const Wrapper = styled.div`
   height: ${(props) => props.theme.widgetTopBar};
@@ -30,8 +28,8 @@ const WidgetWrapper = styled.div`
   height: ${(props) => props.theme.widgetTopBar};
   :hover {
     background-color: ${Colors.GRAY_100};
-    cursor: grab;
   }
+  cursor: pointer;
   :active {
     background-color: ${Colors.GREY_200};
   }
@@ -48,22 +46,24 @@ const WIDGET_ICON_SIZE: Record<string, number> = {
 
 function WidgetTopBar() {
   const widgets = useSelector(getCommonWidgets);
-  const { setDraggingNewWidget } = useWidgetDragResize();
-  const { deselectAll } = useWidgetSelection();
+  const dispatch = useDispatch();
   const isPreviewMode = useSelector(previewModeSelector);
   const guidedTour = useSelector(inGuidedTour);
   const showPopularWidgets = !guidedTour;
 
-  const onDragStart = (e: any, widget: WidgetCardProps) => {
-    e.preventDefault();
-    e.stopPropagation();
-    deselectAll();
-    setDraggingNewWidget &&
-      setDraggingNewWidget(true, {
-        ...widget,
-        widgetId: generateReactKey(),
-      });
-  };
+  const debouncedAddWidget = useCallback(
+    debounce(
+      (widget) => {
+        dispatch(addSuggestedWidget(widget));
+      },
+      1000,
+      {
+        leading: true,
+        trailing: false,
+      },
+    ),
+    [],
+  );
 
   return (
     <Wrapper
@@ -80,8 +80,9 @@ function WidgetTopBar() {
               <TooltipComponent content={widget.displayName} key={widget.type}>
                 <WidgetWrapper
                   data-cy={`popular-widget-${widget.type}`}
-                  draggable
-                  onDragStart={(e) => onDragStart(e, widget)}
+                  onClick={() => {
+                    debouncedAddWidget(widget);
+                  }}
                 >
                   <img
                     className={`w-${WIDGET_ICON_SIZE[widget.type]} h-${

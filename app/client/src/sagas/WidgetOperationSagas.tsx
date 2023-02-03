@@ -15,6 +15,7 @@ import {
   actionChannel,
   all,
   call,
+  delay,
   fork,
   put,
   select,
@@ -1769,6 +1770,10 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     const pageId: string = yield select(getCurrentPageId);
 
     navigateToCanvas(pageId);
+    yield delay(0);
+    yield put(
+      selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
+    );
   } catch (error) {
     log.error(error);
   }
