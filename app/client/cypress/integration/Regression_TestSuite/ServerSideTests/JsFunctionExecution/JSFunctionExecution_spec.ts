@@ -182,7 +182,6 @@ describe("JS Function Execution", function() {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
-        toWriteAfterToastsDisappear: true,
       });
 
       // Assert presence of toast message
@@ -514,7 +513,7 @@ return "yes";`;
 
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
-    agHelper.WaitUntilAllToastsDisappear();//for 'Resource not found'
+    agHelper.WaitUntilAllToastsDisappear(); //for 'Resource not found'
     agHelper.RefreshPage();
     jsEditor.RunJSObj();
     //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing

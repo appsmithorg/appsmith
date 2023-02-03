@@ -106,4 +106,4 @@ ff4j:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
           - name: emails
-            value: usage@appsmith.com
+            value: usage@appsmith.com,usage1@appsmith.com
