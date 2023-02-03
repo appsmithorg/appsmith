@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface DatasourceTriggerSolutionCE {
 
-    Mono<TriggerResultDTO> trigger(String datasourceId, TriggerRequestDTO triggerRequestDTO);
+    Mono<TriggerResultDTO> trigger(String datasourceId, TriggerRequestDTO triggerRequestDTO, String environmentName);
 
 }
