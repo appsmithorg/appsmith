@@ -465,11 +465,15 @@ function generateHorizontalHighlights(
         ? alignment === FlexLayerAlignment.Start
           ? FLEXBOX_PADDING
           : containerWidth
-        : width * index + FLEXBOX_PADDING,
+        : width * index +
+          (canvasId === MAIN_CONTAINER_WIDGET_ID
+            ? FLEXBOX_PADDING
+            : FLEXBOX_PADDING / 2),
       posY: offsetTop,
       width: hasFillWidget
         ? alignment === FlexLayerAlignment.Start
-          ? containerWidth
+          ? containerWidth -
+            (canvasId === MAIN_CONTAINER_WIDGET_ID ? 0 : FLEXBOX_PADDING)
           : 0
         : width,
       height: DEFAULT_HIGHLIGHT_SIZE,
