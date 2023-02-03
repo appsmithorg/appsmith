@@ -1,6 +1,20 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 const publish = require("../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
+beforeEach(() => {
+  // Closes template dialog if it is already open - useful for retry
+  cy.get("body").then(($ele) => {
+    if ($ele.find(template.templateDialogBox).length) {
+      cy.get(template.closeButton).click();
+    }
+  });
+  cy.CheckAndUnfoldEntityItem("Pages");
+  cy.get(`.t--entity-name:contains(Page1)`)
+    .trigger("mouseover")
+    .click({ force: true });
+});
 
 describe("Fork a template to the current app from new page popover", () => {
   it("1. Fork template from page section", () => {
@@ -21,6 +35,9 @@ describe("Fork a template to the current app from new page popover", () => {
       200,
     );
     cy.wait(6000);
+    _.agHelper.CheckForErrorToast(
+      "Internal server error while processing request",
+    );
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetLocators.toastAction).length <= 0) {
         if ($ele.find(template.templateViewForkButton).length > 0) {

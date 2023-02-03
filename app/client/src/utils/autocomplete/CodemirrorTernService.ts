@@ -107,6 +107,16 @@ export type DataTreeDefEntityInformation = {
   subType: string;
 };
 
+/** Tern hard coded some keywords which return `isKeyword` true.
+ * There is however no provision to add more keywords to the list. Therefore,
+ * we maintain a set of keywords that we add and show the keyword icon and type for.
+ */
+export function isCustomKeywordType(name: string): boolean {
+  const customKeywordsList = ["async", "await"];
+
+  return customKeywordsList.includes(name);
+}
+
 export function getDataType(type: string): AutocompleteDataType {
   if (type === "?") return AutocompleteDataType.UNKNOWN;
   else if (type === "number") return AutocompleteDataType.NUMBER;
@@ -240,6 +250,12 @@ class CodeMirrorTernService {
 
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
+      const isCustomKeyword = isCustomKeywordType(completion.name);
+
+      if (isCustomKeyword) {
+        completion.isKeyword = true;
+      }
+
       let className = typeToIcon(completion.type, completion.isKeyword);
       const dataType = getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
@@ -256,6 +272,7 @@ class CodeMirrorTernService {
         type: dataType,
         isHeader: false,
       };
+
       if (completion.isKeyword) {
         codeMirrorCompletion.render = (
           element: HTMLElement,

@@ -2,7 +2,6 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWidgetdsl.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
   cy.addDsl(dsl);
@@ -62,7 +61,6 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    _.agHelper.GetNClick(_.ee._bindingsClose);
     cy.get(".t--entity-name")
       .contains("FormTest")
       .trigger("mouseover");
