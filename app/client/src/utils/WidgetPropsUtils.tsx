@@ -277,7 +277,6 @@ export const widgetOperationParams = (
 
 export const getCanvasSnapRows = (
   bottomRow: number,
-  canExtend: boolean,
   mobileBottomRow?: number,
   isMobile?: boolean,
   isAutoLayoutActive?: boolean,
@@ -288,12 +287,6 @@ export const getCanvasSnapRows = (
       : bottomRow;
   const totalRows = Math.floor(bottom / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
 
-  // Canvas Widgets do not need to accommodate for widget and container padding.
-  // Only when they're extensible
-  if (canExtend) {
-    return totalRows;
-  }
-  // When Canvas widgets are not extensible
   return totalRows - 1;
 };
 

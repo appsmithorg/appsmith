@@ -13,9 +13,6 @@
 		"html": true,
 		"json": false
 	},
-	"ignoreTestFiles": [
-		"**/Regression_TestSuite/Application/PgAdmin_spec*.js"
-	],
 	"chromeWebSecurity": false,
 	"viewportHeight": 1100,
 	"viewportWidth": 1400,

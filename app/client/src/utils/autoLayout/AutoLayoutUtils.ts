@@ -1,10 +1,4 @@
 import {
-  defaultAutoLayoutWidgets,
-  FlexLayerAlignment,
-  Positioning,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
-import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
@@ -15,6 +9,12 @@ import {
 } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import {
+  defaultAutoLayoutWidgets,
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
@@ -380,17 +380,9 @@ export function getLayerIndexOfWidget(
 }
 
 export function getFillWidgetLengthForLayer(
-  allWidgets: CanvasWidgetsReduxState,
-  widgetId: string,
+  layer: any,
+  allWidgets: any,
 ): number | undefined {
-  const widget = allWidgets[widgetId];
-  if (!widget || !widget.parentId) return;
-  const parent = allWidgets[widget.parentId];
-  if (!parent) return;
-  const flexLayers = parent.flexLayers;
-  const layerIndex = getLayerIndexOfWidget(flexLayers, widgetId);
-  if (layerIndex === -1) return;
-  const layer = flexLayers[layerIndex];
   let fillLength = GridDefaults.DEFAULT_GRID_COLUMNS;
   let hugLength = 0,
     fillCount = 0;

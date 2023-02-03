@@ -146,7 +146,7 @@ describe("Tests setTimeout API", function() {
   });
 
   it("6. Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
-    apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");//https://mock-api.appsmith.com/users?page=2&pageSize=10
+    apiPage.CreateAndFillApi(agHelper.mockApiUrl);
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -154,7 +154,7 @@ describe("Tests setTimeout API", function() {
         myFun1: (x) => {
             Api1.run((res) => {
               setTimeout(() => {
-                showAlert(res.users[0].name);
+                showAlert(res[0].name);
               }, 3000);
             }, (error) => {
               console.log(error);
@@ -163,7 +163,7 @@ describe("Tests setTimeout API", function() {
         myFun2: (x) => {
           Api1.run().then((res) => {
             setTimeout(() => {
-              showAlert(res.users[0].name);
+              showAlert(res[0].name);
             }, 3000);
           });
         }
@@ -182,7 +182,7 @@ describe("Tests setTimeout API", function() {
     agHelper.Sleep(3000);
 
     cy.wait("@postExecute").then((interception : any) => { //Js function to match any name returned from API
-      userName = JSON.stringify(interception.response.body.data.body.users[0].name).replace(/['"]+/g, '');//removing double quotes
+      userName = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');//removing double quotes
       agHelper.AssertContains(userName);
     });
 
@@ -191,20 +191,20 @@ describe("Tests setTimeout API", function() {
     jsEditor.RunJSObj();
     agHelper.Sleep(3000);
     cy.wait("@postExecute").then((interception : any) => {
-      userName = JSON.stringify(interception.response.body.data.body.users[0].name).replace(/['"]+/g, '');
+      userName = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
       agHelper.AssertContains(userName);
     });
   });
 
   it("7. Verifies whether setTimeout executes on page load", () => {
-    //apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    //apiPage.CreateAndFillApi(agHelper.mockApiUrl);
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
         myVar2: {},
         myFun1: (x) => {
             setTimeout(() => {
-              Api1.run().then(() => showAlert("Success!"));
+              showAlert("Success!");
               Timeouts.myFun2();
             }, 3000)
         },
@@ -219,11 +219,11 @@ describe("Tests setTimeout API", function() {
     );
     jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false);
     deployMode.DeployApp();
-    agHelper.Sleep(3000);
+    agHelper.Sleep(1000);//DeployApp already waiting 2000ms hence reducing it here to equate to 3000 timeout
     agHelper.AssertContains("Success!");
-    agHelper.Sleep(3000);
+    agHelper.Sleep(1000);
     cy.wait("@postExecute").then((interception : any) => {
-      userName = JSON.stringify(interception.response.body.data.body.users[0].name).replace(/['"]+/g, '');
+      userName = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
       agHelper.AssertContains(userName);
     });
   });

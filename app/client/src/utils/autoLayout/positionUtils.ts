@@ -1,14 +1,14 @@
-import {
-  FlexLayerAlignment,
-  Positioning,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   getBottomRow,
