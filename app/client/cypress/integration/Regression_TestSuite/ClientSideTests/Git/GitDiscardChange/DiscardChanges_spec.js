@@ -95,6 +95,9 @@ describe("Git discard changes:", function() {
       _.gitSync.CreateNConnectToGit(repoName);
       _.gitSync.CreateGitBranch(repoName);
     });
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
+    });
   });
 
   it("2. Add new datasource query, discard changes, verify query is deleted", () => {
