@@ -21,6 +21,7 @@ import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUt
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "ce/configs";
 import * as Sentry from "@sentry/react";
+import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -73,7 +74,10 @@ export const apiSuccessResponseInterceptor = (
       return makeExecuteActionResponse(response);
     }
   }
-  if (!response.data.responseMeta) {
+  if (
+    response.headers[CONTENT_TYPE_HEADER_KEY] === "application/json" &&
+    !response.data.responseMeta
+  ) {
     Sentry.captureException(new Error("Api responded without response meta"), {
       contexts: { response: response.data },
     });
