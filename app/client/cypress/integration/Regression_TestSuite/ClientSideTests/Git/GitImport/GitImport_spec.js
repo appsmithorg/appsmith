@@ -1,15 +1,16 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
+const explorer = require("../../../../../locators/explorerlocators.json");
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../../locators/Pages.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 const jsObject = "JSObject1";
 let newBranch = "feat/temp";
 const mainBranch = "master";
 let repoName, newWorkspaceName;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git import flow ", function() {
   before(() => {
@@ -248,7 +249,7 @@ describe("Git import flow ", function() {
   });
 
   it.skip("6. Add widget to master, merge then checkout to child branch and verify data", () => {
-    _.canvasHelper.OpenWidgetPane();
+    cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);

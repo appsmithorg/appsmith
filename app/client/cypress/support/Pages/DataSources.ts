@@ -29,7 +29,7 @@ export class DataSources {
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
-  private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
+  _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
@@ -301,7 +301,9 @@ export class DataSources {
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
-    cy.get(this._newDatasourceContainer).scrollTo("bottom", {ensureScrollable: false});
+    cy.get(this._newDatasourceContainer).scrollTo("bottom", {
+      ensureScrollable: false,
+    });
     cy.get(this._newDatabases).should("be.visible");
   }
 
@@ -487,6 +489,7 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
+    this.ee.NavigateToSwitcher("explorer");
     this.ee.ExpandCollapseEntity("Datasources", false);
     //this.ee.SelectEntityByName(datasourceName, "Datasources");
     //this.ee.ExpandCollapseEntity(datasourceName, false);

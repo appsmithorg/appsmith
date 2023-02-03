@@ -12,7 +12,7 @@ describe("Test curl import flow", function() {
       .should("be.visible")
       .click({ force: true });
     cy.get(ApiEditor.curlImage).click({ force: true });
-    cy.get("textarea").type("curl -X GET "+agHelper.mockApiUrl);
+    cy.get("textarea").type("curl -X GET " + agHelper.mockApiUrl);
     cy.importCurl();
     cy.get("@curlImport").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
