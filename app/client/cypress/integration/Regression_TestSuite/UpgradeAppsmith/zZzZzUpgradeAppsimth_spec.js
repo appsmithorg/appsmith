@@ -6,12 +6,7 @@ let agHelper = ObjectsRegistry.AggregateHelper;
 const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
 describe("Upgrade appsmith version", () => {
-  before(function() {
-    //-- Deleting the application by Api---//
-    cy.DeleteAppByApi();
-    //-- LogOut Application---//
-    cy.LogOut();
-
+  before(() => {
     // stop the old container
     cy.StopContainer(tedUrl, "appsmith");
     agHelper.Sleep(2000);
@@ -104,7 +99,7 @@ describe("Upgrade appsmith version", () => {
     agHelper.Sleep(2000);
   });
 
-  after(function() {
+  after(() => {
     //restarting the old container
     cy.StartContainer(tedUrl, "appsmith");
     //Waiting for the container to be up
