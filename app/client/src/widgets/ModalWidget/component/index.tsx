@@ -25,7 +25,6 @@ import { getCanvasClassName } from "utils/generators";
 import { AppState } from "@appsmith/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Colors } from "constants/Colors";
 import { closeTableFilterPane } from "actions/widgetActions";
 
 const Container = styled.div<{
@@ -39,8 +38,6 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
-  backgroundColor: string;
-  borderRadius: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -78,9 +75,6 @@ const Container = styled.div<{
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
-        background: ${({ backgroundColor }) =>
-          `${backgroundColor || Colors.WHITE}`};
-        border-radius: ${({ borderRadius }) => borderRadius};
       }
     }
   }
@@ -90,7 +84,6 @@ const Content = styled.div<{
   scroll: boolean;
   ref: RefObject<HTMLDivElement>;
 }>`
-  overflow-y: ${(props) => (props.scroll ? "visible" : "hidden")};
   overflow-x: hidden;
   width: 100%;
   height: 100%;
@@ -131,8 +124,6 @@ export type ModalComponentProps = {
   minSize?: number;
   widgetId: string;
   widgetName: string;
-  backgroundColor: string;
-  borderRadius: string;
   isDynamicHeightEnabled: boolean;
 };
 
@@ -272,8 +263,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         usePortal={false}
       >
         <Container
-          backgroundColor={props.backgroundColor}
-          borderRadius={props.borderRadius}
           bottom={props.bottom}
           height={props.height}
           isEditMode={props.isEditMode}
