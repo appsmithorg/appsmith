@@ -65,7 +65,6 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       agHelper.RenameWithInPane("Query_" + i);
       const userCreateQuery = `select table_name from information_schema.tables where table_schema='public' and table_type='BASE TABLE';`;
       dataSources.EnterQuery(userCreateQuery);
-      agHelper.BlurFocusedElement();
     }
   });
 

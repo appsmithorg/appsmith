@@ -112,7 +112,7 @@ describe("Entity explorer tests related to query and datasource", function() {
 
     //cy.deleteQuery();
     cy.deleteQueryUsingContext();
-    cy.ClearSearch();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
     cy.wait(500);
     cy.NavigateToQueryEditor();
     cy.get(pages.integrationActiveTab)

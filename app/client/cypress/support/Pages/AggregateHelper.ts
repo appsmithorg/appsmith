@@ -59,15 +59,6 @@ export class AggregateHelper {
     LOCAL_STORAGE_MEMORY = {};
   }
 
-  public DoesElementExist(selector: string) {
-    return cy.get("body").then((body) => {
-      if (body.find(selector).length > 0) {
-        return cy.wrap(true);
-      }
-      return cy.wrap(false);
-    });
-  }
-
   public TypeTab(shiftKey = false, ctrlKey = false) {
     cy.focused().trigger("keydown", {
       keyCode: 9,
@@ -779,10 +770,6 @@ export class AggregateHelper {
     cy.get(propFieldName).then(($field: any) => {
       this.CheckCodeInputValue($field, value);
     });
-  }
-
-  public BlurFocusedElement() {
-    cy.focused().blur();
   }
 
   public BlurInput(propFieldName: string) {
