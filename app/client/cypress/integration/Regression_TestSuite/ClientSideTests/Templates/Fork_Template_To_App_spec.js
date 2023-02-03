@@ -40,7 +40,7 @@ describe("Fork a template to the current app", () => {
     )
       .scrollIntoView()
       .click();
-    _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR"); 
+    _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",

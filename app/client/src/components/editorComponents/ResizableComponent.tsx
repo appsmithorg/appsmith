@@ -291,6 +291,11 @@ export const ResizableComponent = memo(function ResizableComponent(
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
 
+  const fixedHeight =
+    isAutoHeightEnabledForWidget(props, true) ||
+    !isAutoHeightEnabledForWidget(props) ||
+    !props.isCanvas;
+
   return (
     <Resizable
       allowResize={!isMultiSelected}
@@ -298,17 +303,19 @@ export const ResizableComponent = memo(function ResizableComponent(
       componentWidth={dimensions.width}
       enableHorizontalResize={isEnabled}
       enableVerticalResize={isVerticalResizeEnabled}
+      fixedHeight={fixedHeight}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
+      maxDynamicHeight={props.maxDynamicHeight}
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}
       parentId={props.parentId}
       snapGrid={snapGrid}
       updateBottomRow={updateBottomRow}
-      widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.
+      widgetId={props.widgetId}
       zWidgetId={props.widgetId}
       zWidgetType={props.type}
     >
