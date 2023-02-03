@@ -12,6 +12,10 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { TooltipComponent } from "design-system-old";
 import { addSuggestedWidget } from "actions/widgetActions";
 import { debounce } from "lodash";
+import { WidgetCardProps } from "widgets/BaseWidget";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { generateReactKey } from "utils/generators";
 
 const Wrapper = styled.div`
   height: ${(props) => props.theme.widgetTopBar};
@@ -47,6 +51,8 @@ const WIDGET_ICON_SIZE: Record<string, number> = {
 function WidgetTopBar() {
   const widgets = useSelector(getCommonWidgets);
   const dispatch = useDispatch();
+  const { setDraggingNewWidget } = useWidgetDragResize();
+  const { deselectAll } = useWidgetSelection();
   const isPreviewMode = useSelector(previewModeSelector);
   const guidedTour = useSelector(inGuidedTour);
   const showPopularWidgets = !guidedTour;
@@ -65,6 +71,17 @@ function WidgetTopBar() {
     [],
   );
 
+  const onDragStart = (e: any, widget: WidgetCardProps) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deselectAll();
+    setDraggingNewWidget &&
+      setDraggingNewWidget(true, {
+        ...widget,
+        widgetId: generateReactKey(),
+      });
+  };
+
   return (
     <Wrapper
       className={classNames({
@@ -80,9 +97,11 @@ function WidgetTopBar() {
               <TooltipComponent content={widget.displayName} key={widget.type}>
                 <WidgetWrapper
                   data-cy={`popular-widget-${widget.type}`}
+                  draggable
                   onClick={() => {
                     debouncedAddWidget(widget);
                   }}
+                  onDragStart={(e) => onDragStart(e, widget)}
                 >
                   <img
                     className={`w-${WIDGET_ICON_SIZE[widget.type]} h-${
