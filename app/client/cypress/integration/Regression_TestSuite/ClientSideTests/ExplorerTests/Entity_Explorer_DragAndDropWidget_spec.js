@@ -39,7 +39,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
      */
     cy.moveToContentTab();
     cy.get(formWidgetsPage.formD)
-      .scrollTo("bottom")
+      .scrollTo("bottom", { ensureScrollable: false })
       .should("be.visible");
     _.canvasHelper.OpenWidgetPane();
     cy.PublishtheApp();
