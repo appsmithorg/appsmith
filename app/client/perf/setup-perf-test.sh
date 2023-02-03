@@ -10,7 +10,7 @@ serve -s build -p 3000 &
 
 # Substitute all the env variables in nginx
 vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
-cat ./docker/templates/nginx-app.conf.template | sed -e "s|__APPSMITH_CLIENT_PROXY_PASS__|http://localhost:3000|g" | sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|http://localhost:8080|g" | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf
+cat ./docker/templates/nginx-app.conf.template | sed -e "s|__APPSMITH_CLIENT_PROXY_PASS__|http://localhost:3000|g" | sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|http://0.0.0.0|g" | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf
 cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
@@ -18,26 +18,7 @@ touch ./docker/localhost ./docker/localhost.pem
 echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/localhost.pem
 echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
 
-# echo "Download & Start TED server"
-# sudo docker pull nginx:latest
-# sudo docker pull appsmith/test-event-driver:latest
 
-# Setup UI environment from docker image for running UI tests and perf tests
-# sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
-# 	-v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf \
-#     -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf \
-#     -v `pwd`/docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
-#     -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
-#     nginx:latest
-# sudo mkdir -p git-server/keys
-# sudo mkdir -p git-server/repos
-
-# sudo docker run --name TED -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
-#   -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-#   -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
-
-# echo "Waiting for test event driver to start"
-# sleep 50
 sleep 10
 
 echo "Checking if the containers have started"
@@ -52,7 +33,7 @@ if sudo docker ps -a | grep -q Exited; then
 fi
 
 echo "Checking if the server has started"
-status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://localhost/api/v1/users)
+status_code=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost/api/v1/users)
 
 retry_count=1
 
@@ -60,12 +41,14 @@ while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
 	echo "Hit 502.Server not started retrying..."
 	retry_count=$((1 + $retry_count))
 	sleep 30
-	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://locvalhost/api/v1/users)
+	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost/api/v1/users)
 done
 
 echo "Checking if client and server have started"
 ps -ef |grep java 2>&1
 ps -ef |grep  serve 2>&1
+
+echo "status code: $status_code"
 
 if [ "$status_code" -eq "502" ]; then
   echo "Unable to connect to server"
