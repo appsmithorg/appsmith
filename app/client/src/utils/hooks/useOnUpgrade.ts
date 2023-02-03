@@ -34,7 +34,7 @@ const useOnUpgrade = (props: Props) => {
     );
     if (features.USAGE_AND_BILLING) {
       window.open(
-        `https://www.appsmith.com/pricing?source=CE&instance=${tenantConfig?.instanceId}`,
+        `https://www.appsmith.com/api/preview?secret=8JPsJRnSkt6Va8FzxUPFhZezxZuHRnSU&slug=pricing-preview?source=CE&instance=${tenantConfig?.instanceId}`,
         "_blank",
       );
     } else {
