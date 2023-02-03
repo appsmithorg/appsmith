@@ -49,11 +49,13 @@ const Markers: React.FC<MarkersProps> = (props) => {
             selectMarker(marker.lat, marker.long, marker.title);
           }}
           onDragEnd={(e) => {
-            updateMarker(
-              Number(e.latLng?.lat()),
-              Number(e.latLng?.lng()),
-              index,
-            );
+            if (e.latLng && e.latLng.lat() && e.latLng.lng()) {
+              updateMarker(
+                Number(e.latLng?.lat()),
+                Number(e.latLng?.lng()),
+                index,
+              );
+            }
           }}
           position={{
             lat: marker.lat,
