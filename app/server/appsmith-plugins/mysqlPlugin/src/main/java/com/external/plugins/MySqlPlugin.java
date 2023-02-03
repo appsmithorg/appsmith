@@ -405,10 +405,8 @@ public class MySqlPlugin extends BasePlugin {
                     .flatMap(p -> p.create())
                     .flatMap(conn -> Mono.from(conn.close()))
                     .then(Mono.just(new DatasourceTestResult()))
-                    .onErrorResume(error -> {
-                        return Mono.error(new AppsmithPluginException(error.getCause(),AppsmithPluginError.PLUGIN_ERROR,mySqlErrorUtils.getReadableError(error)));
-//                        return Mono.error(error.getCause());
-                    });
+                    .onErrorResume(error -> Mono.error(new AppsmithPluginException(error.getCause(),
+                            AppsmithPluginError.PLUGIN_ERROR,mySqlErrorUtils.getReadableError(error))));
         }
 
         @Override
