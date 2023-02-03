@@ -36,6 +36,13 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
+const resizeBorderPadding = 1;
+const resizeBorder = 1;
+const resizeBoxShadow = 1;
+const resizeOutline = 1;
+
+export const RESIZE_BORDER_BUFFER =
+  resizeBorderPadding + resizeBorder + resizeBoxShadow + resizeOutline;
 
 const ResizeWrapper = styled(animated.div)<{
   $prevents: boolean;
@@ -51,16 +58,17 @@ const ResizeWrapper = styled(animated.div)<{
   ${(props) => {
     if (props.showBoundaries) {
       return `
-      box-shadow: 0px 0px 0px 1px ${
+      box-shadow: 0px 0px 0px ${resizeBoxShadow}px ${
         props.isHovered ? Colors.WATUSI : "#f86a2b"
       };
       border-radius: 0px 4px 4px 4px;
-      border: 1px solid ${Colors.GREY_1};
-      outline: 1px solid ${Colors.GREY_1} !important;
+      border: ${resizeBorder}px solid ${Colors.GREY_1};
+      padding: ${resizeBorderPadding}px;
+      outline: ${resizeOutline}px solid ${Colors.GREY_1} !important;
       outline-offset: 1px;`;
     } else {
       return `
-        border: 1px solid transparent;
+        border: 0px solid transparent;
       `;
     }
   }}}
@@ -602,17 +610,15 @@ export function ReflowResizable(props: ResizableProps) {
       />
     );
   });
-  const bufferForBoundary = 3;
+  const bufferForBoundary = props.showResizeBoundary ? RESIZE_BORDER_BUFFER : 0;
   const widgetWidth =
     (reflowedPosition?.width === undefined
       ? newDimensions.width
-      : reflowedPosition.width - 2 * WIDGET_PADDING) +
-    2 * bufferForBoundary;
+      : reflowedPosition.width - 2 * WIDGET_PADDING) + bufferForBoundary;
   const widgetHeight =
     (reflowedPosition?.height === undefined
       ? newDimensions.height
-      : reflowedPosition.height - 2 * WIDGET_PADDING) +
-    2 * bufferForBoundary;
+      : reflowedPosition.height - 2 * WIDGET_PADDING) + bufferForBoundary;
   return (
     <Spring
       config={{
@@ -629,7 +635,8 @@ export function ReflowResizable(props: ResizableProps) {
         width: widgetWidth,
         height: widgetHeight,
         transform: `translate3d(${newDimensions.x -
-          bufferForBoundary}px,${newDimensions.y - bufferForBoundary}px,0)`,
+          bufferForBoundary / 2}px,${newDimensions.y -
+          bufferForBoundary / 2}px,0)`,
       }}
     >
       {(_props) => (

@@ -5,6 +5,7 @@ import { Layers } from "constants/Layers";
 import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { RESIZE_BORDER_BUFFER } from "resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
@@ -144,6 +145,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidgets.includes(props.widgetId);
   const shouldShowWidgetName = () => {
     return (
+      !isResizingOrDragging &&
       !isPreviewMode &&
       !isMultiSelectedWidget &&
       (isSnipingMode
@@ -238,7 +240,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
     }
   };
-  const popperOffset: any = [-5, 4];
+  // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
+  const popperOffset: any = [-RESIZE_BORDER_BUFFER, RESIZE_BORDER_BUFFER - 1];
   const widgetWidth =
     (props.widgetProps.rightColumn - props.widgetProps.leftColumn) *
     props.widgetProps.parentColumnSpace;
@@ -246,27 +249,34 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     <Popover2
       autoFocus={false}
       content={
-        <PositionStyle
-          className={isSnipingMode ? "t--settings-sniping-control" : ""}
-          data-testid="t--settings-controls-positioned-wrapper"
-          draggable={allowDrag}
-          id={"widget_name_" + props.widgetId}
-          isSnipingMode={isSnipingMode}
-          onDragStart={onDragStart}
-        >
-          <ControlGroup>
-            <SettingsControl
-              activity={currentActivity}
-              errorCount={shouldHideErrors ? 0 : props.errorCount}
-              name={props.widgetName}
-              toggleSettings={togglePropertyEditor}
-              widgetWidth={widgetWidth}
-            />
-          </ControlGroup>
-        </PositionStyle>
+        // adding this here as well to instantly remove popper content. popper seems to be adding a transition state before hiding itself.
+        // I could not find a way to turn it off.
+        showWidgetName ? (
+          <PositionStyle
+            className={isSnipingMode ? "t--settings-sniping-control" : ""}
+            data-testid="t--settings-controls-positioned-wrapper"
+            draggable={allowDrag}
+            id={"widget_name_" + props.widgetId}
+            isSnipingMode={isSnipingMode}
+            onDragStart={onDragStart}
+          >
+            <ControlGroup>
+              <SettingsControl
+                activity={currentActivity}
+                errorCount={shouldHideErrors ? 0 : props.errorCount}
+                name={props.widgetName}
+                toggleSettings={togglePropertyEditor}
+                widgetWidth={widgetWidth}
+              />
+            </ControlGroup>
+          </PositionStyle>
+        ) : (
+          <div />
+        )
       }
       enforceFocus={false}
-      isOpen={showWidgetName && !isResizingOrDragging}
+      hoverCloseDelay={0}
+      isOpen={showWidgetName}
       minimal
       modifiers={{
         offset: {
