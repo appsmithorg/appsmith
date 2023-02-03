@@ -7,13 +7,12 @@ import {
 } from "@appsmith/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
-import { StyledToastContainer } from "design-system-old";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { StyledToastContainer } from "design-system-old";
 import { MemoryRouter } from "react-router-dom";
-import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import * as utilities from "selectors/editorSelectors";
-import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import * as sagaSelectors from "sagas/selectors";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as utilities from "selectors/editorSelectors";
 import store, { runSagaMiddleware } from "store";
 import {
   buildChildren,
@@ -33,6 +32,7 @@ import {
 import { MockCanvas } from "test/testMockedWidgets";
 import { act, fireEvent, render, waitFor } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import MainContainer from "../MainContainer";
 import GlobalHotKeys from "./GlobalHotKeys";
 

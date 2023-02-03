@@ -150,7 +150,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   );
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
-
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();

@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { invisible, theme } from "constants/DefaultTheme";
+import { invisible } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import styled, { css } from "styled-components";
 
@@ -28,15 +28,16 @@ const VerticalResizeIndicators = css<{
   &::after {
     position: absolute;
     content: "";
-    width: 6px;
+    width: 7px;
     height: 16px;
     border-radius: 50%/16%;
-    background: white;
+    background: ${Colors.GREY_1};
     top: calc(50% - 8px);
     left: calc(50% - 2.5px);
     border: ${(props) => {
       return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
     }};
+    outline: 1px solid ${Colors.GREY_1};
   }
   &:hover::after {
     background: #f86a2b;
@@ -51,14 +52,15 @@ const HorizontalResizeIndicators = css<{
     position: absolute;
     content: "";
     width: 16px;
-    height: 6px;
+    height: 7px;
     border-radius: 16%/50%;
     border: ${(props) => {
       return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
     }};
-    background: white;
+    background: ${Colors.GREY_1};
     top: calc(50% - 2.5px);
     left: calc(50% - 8px);
+    outline: 1px solid ${Colors.GREY_1};
   }
   &:hover::after {
     background: #f86a2b;
@@ -76,15 +78,7 @@ export const EdgeHandleStyles = css<{
   height: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   &::before {
     position: absolute;
-    background: ${(props) => {
-      if (props.showLightBorder) return theme.colors.widgetLightBorder;
-
-      if (props.isHovered) {
-        return Colors.WATUSI;
-      }
-
-      return "#F86A2B";
-    }};
+    background: "transparent";
     content: "";
   }
 `;
@@ -133,23 +127,23 @@ export const HorizontalHandleStyles = css<{
 
 export const LeftHandleStyles = styled.div`
   ${VerticalHandleStyles}
-  left: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING}px;
+  left: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1}px;
 `;
 
 export const RightHandleStyles = styled.div`
   ${VerticalHandleStyles};
-  right: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1}px;
+  right: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3}px;
   height: calc(100% + ${2 * WIDGET_PADDING}px);
 `;
 
 export const TopHandleStyles = styled.div`
   ${HorizontalHandleStyles};
-  top: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING}px;
+  top: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1}px;
 `;
 
 export const BottomHandleStyles = styled.div`
   ${HorizontalHandleStyles};
-  bottom: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING}px;
+  bottom: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3}px;
 `;
 
 export const CornerHandleStyles = css`

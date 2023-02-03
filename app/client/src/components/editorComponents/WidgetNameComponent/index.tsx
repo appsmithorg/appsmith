@@ -1,15 +1,13 @@
 import { AppState } from "@appsmith/reducers";
+import { Popover2 } from "@blueprintjs/popover2";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { Layers } from "constants/Layers";
-import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
-import Popper from "pages/Editor/Popper";
-import { Data } from "popper.js";
+import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
-  getCurrentAppPositioningType,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -32,11 +30,12 @@ import PerformanceTracker, {
 import WidgetFactory from "utils/WidgetFactory";
 import { canDrag } from "../DraggableComponent";
 import SettingsControl, { Activities } from "./SettingsControl";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
-const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
+const PositionStyle = styled.div<{
+  isSnipingMode: boolean;
+}>`
   height: ${(props) => props.theme.spaces[10]}px;
   ${(props) => (props.isSnipingMode ? "left: -7px" : "left: 0px")};
   display: flex;
@@ -66,6 +65,7 @@ type WidgetNameComponentProps = {
   errorCount: number;
   isFlexChild: boolean;
   widgetProps: any;
+  children: any;
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
@@ -238,49 +238,60 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
     }
   };
-  const currentAppPositioningType = useSelector(getCurrentAppPositioningType);
-  const isAutoLayout = currentAppPositioningType === AppPositioningTypes.AUTO;
-  const popperOffset = {
-    left: isAutoLayout ? WIDGET_PADDING : 0,
-    top: isAutoLayout ? WIDGET_PADDING : 0,
-  };
-  return showWidgetName ? (
-    <Popper
-      isOpen={!isResizingOrDragging}
+  const popperOffset: any = [-5, 4];
+  const widgetWidth =
+    (props.widgetProps.rightColumn - props.widgetProps.leftColumn) *
+    props.widgetProps.parentColumnSpace;
+  return (
+    <Popover2
+      autoFocus={false}
+      content={
+        <PositionStyle
+          className={isSnipingMode ? "t--settings-sniping-control" : ""}
+          data-testid="t--settings-controls-positioned-wrapper"
+          draggable={allowDrag}
+          id={"widget_name_" + props.widgetId}
+          isSnipingMode={isSnipingMode}
+          onDragStart={onDragStart}
+        >
+          <ControlGroup>
+            <SettingsControl
+              activity={currentActivity}
+              errorCount={shouldHideErrors ? 0 : props.errorCount}
+              name={props.widgetName}
+              toggleSettings={togglePropertyEditor}
+              widgetWidth={widgetWidth}
+            />
+          </ControlGroup>
+        </PositionStyle>
+      }
+      enforceFocus={false}
+      isOpen={showWidgetName && !isResizingOrDragging}
+      minimal
       modifiers={{
         offset: {
           enabled: true,
-          fn: (data: Data) => {
-            const left = data.offsets.popper.left - popperOffset.left;
-            const top = data.offsets.popper.top - popperOffset.top;
-            data.styles.transform = `translate3d(${left}px,${top}px , 0px)`;
-            return data;
+          options: {
+            offset: popperOffset,
+          },
+        },
+        flip: {
+          enabled: false,
+        },
+        computeStyles: {
+          options: {
+            roundOffsets: false,
           },
         },
       }}
       placement="top-start"
-      targetNode={targetNode}
-      zIndex={Layers.widgetName - 1}
+      popoverClassName="widget-name-popper"
+      portalContainer={document.getElementById("widgets-editor") || undefined}
+      usePortal
     >
-      <PositionStyle
-        className={isSnipingMode ? "t--settings-sniping-control" : ""}
-        data-testid="t--settings-controls-positioned-wrapper"
-        draggable={allowDrag}
-        isSnipingMode={isSnipingMode}
-        onDragStart={onDragStart}
-        topRow={3}
-      >
-        <ControlGroup>
-          <SettingsControl
-            activity={currentActivity}
-            errorCount={shouldHideErrors ? 0 : props.errorCount}
-            name={props.widgetName}
-            toggleSettings={togglePropertyEditor}
-          />
-        </ControlGroup>
-      </PositionStyle>
-    </Popper>
-  ) : null;
+      {props.children}
+    </Popover2>
+  );
 }
 
 export default WidgetNameComponent;

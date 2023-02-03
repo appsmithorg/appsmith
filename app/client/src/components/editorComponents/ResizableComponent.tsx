@@ -330,6 +330,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
     !props.isFlexChild;
   const isHovered = isFocused && !isSelected;
+  const showResizeBoundary = isHovered || isSelected;
   return (
     <Resizable
       allowResize={allowResize}
@@ -350,6 +351,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       paddingOffset={props.paddingOffset}
       parentId={props.parentId}
       responsiveBehavior={props.responsiveBehavior}
+      showResizeBoundary={showResizeBoundary}
       snapGrid={snapGrid}
       updateBottomRow={updateBottomRow}
       widgetId={props.widgetId}
