@@ -399,9 +399,9 @@ class MetaWidgetGenerator {
     const removedMetaWidgetIds = this.getRemovedMetaWidgetIds();
 
     if (this.modificationsQueue.has(MODIFICATION_TYPE.GENERATE_CACHE_WIDGETS)) {
-      const cachedTemplateMetaWidgets = this.getCachedTemplateMetaWidgets();
+      const cachedMetaWidgets = this.getCachedMetaWidgets();
 
-      metaWidgets = { ...metaWidgets, ...cachedTemplateMetaWidgets };
+      metaWidgets = { ...metaWidgets, ...cachedMetaWidgets };
       this.cachedItemKeys.prev = new Set(this.cachedItemKeys.curr);
     }
 
@@ -416,22 +416,11 @@ class MetaWidgetGenerator {
     };
   };
 
-  getCachedTemplateMetaWidgets = () => {
-    let cachedTemplateMetaWidgets: MetaWidgets = {};
+  getCachedMetaWidgets = () => {
+    let cachedMetaWidgets: MetaWidgets = {};
 
     this.cachedItemKeys.curr.forEach((key) => {
       const rowIndex = this.getRowIndexFromPrimaryKey(key);
-      const isClonedItem = this.isClonedItem(rowIndex);
-
-      /**
-       * We only want to generate metaWidgets in the templateRow if getCachedTemplateMetaWidgets()
-       * is called due to the addition of a new cacheRow.
-       */
-      if (
-        !isEqual(this.cachedItemKeys.curr, this.cachedItemKeys.prev) &&
-        isClonedItem
-      )
-        return;
 
       const {
         childMetaWidgets,
@@ -446,16 +435,16 @@ class MetaWidgetGenerator {
         },
       });
 
-      cachedTemplateMetaWidgets = {
-        ...cachedTemplateMetaWidgets,
+      cachedMetaWidgets = {
+        ...cachedMetaWidgets,
         ...childMetaWidgets,
       };
       if (metaWidget) {
-        cachedTemplateMetaWidgets[metaWidget.widgetId] = metaWidget;
+        cachedMetaWidgets[metaWidget.widgetId] = metaWidget;
       }
     });
 
-    return cachedTemplateMetaWidgets;
+    return cachedMetaWidgets;
   };
 
   private generateMetaWidgetId = () =>
@@ -594,7 +583,7 @@ class MetaWidgetGenerator {
     }
 
     if (templateWidget.type === this.primaryWidgetType) {
-      this.addLevelData(metaWidget, rowIndex, key);
+      this.addLevelData(metaWidget, rowIndex, metaCacheProps, key);
       metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
       metaWidget.nestedViewIndex = viewIndex;
     }
@@ -839,11 +828,13 @@ class MetaWidgetGenerator {
   private addLevelData = (
     metaWidget: MetaWidget,
     rowIndex: number,
+    metaCacheProps: MetaWidgetCacheProps,
     key: string,
   ) => {
+    const { metaWidgetId } = metaCacheProps;
     const currentViewData = this.getCurrentViewData();
     const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
-      metaWidget.widgetId,
+      metaWidgetId,
       key,
     );
     const currentIndex = this.serverSidePagination
@@ -925,7 +916,11 @@ class MetaWidgetGenerator {
     key: string,
     options: AddDynamicPathsPropertiesOptions = {},
   ) => {
-    const { metaWidgetName, templateWidgetName } = metaWidgetCacheProps;
+    const {
+      metaWidgetId,
+      metaWidgetName,
+      templateWidgetName,
+    } = metaWidgetCacheProps;
     const { excludedPaths = [] } = options;
     const dynamicPaths = [
       ...(metaWidget.dynamicBindingPathList || []),
@@ -950,7 +945,12 @@ class MetaWidgetGenerator {
       const js = combineDynamicBindings(jsSnippets, stringSegments);
 
       if (hasCurrentItem(propertyValue)) {
-        this.addCurrentItemProperty(metaWidget, metaWidgetName, key);
+        this.addCurrentItemProperty(
+          metaWidget,
+          metaWidgetName,
+          metaWidgetId,
+          key,
+        );
         pathTypes.add(DynamicPathType.CURRENT_ITEM);
       }
 
@@ -1022,12 +1022,13 @@ class MetaWidgetGenerator {
   private addCurrentItemProperty = (
     metaWidget: MetaWidget,
     metaWidgetName: string,
+    metaWidgetId: string,
     key: string,
   ) => {
     if (metaWidget.currentItem) return;
 
     const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
-      metaWidget.widgetId,
+      metaWidgetId,
       key,
     );
 
@@ -1242,15 +1243,14 @@ class MetaWidgetGenerator {
   /**
    * Only generate cache widget when template widget property changes
    * or new template widgets are added
-   * or new cached row is added (further conditions are done in getCachedTemplateMetaWidgets to ensure
-   * its only generated for the template row, the usual filtering of metaWidgetIds is used to cache rows)
+   * or new cached row is added.
    *
    */
   private shouldGenerateCacheWidgets = () => {
     return (
-      (!isEqual(this.currTemplateWidgets, this.prevTemplateWidgets) ||
-        !isEqual(this.cachedItemKeys.curr, this.cachedItemKeys.prev)) &&
-      this.renderMode !== RenderModes.PAGE
+      (!isEqual(this.currTemplateWidgets, this.prevTemplateWidgets) &&
+        this.renderMode !== RenderModes.PAGE) ||
+      !isEqual(this.cachedItemKeys.curr, this.cachedItemKeys.prev)
     );
   };
 

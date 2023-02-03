@@ -146,6 +146,8 @@ describe("List widget V2 Serverside Pagination", () => {
       force: true,
     });
 
+    cy.wait(2000);
+
     cy.get(
       `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
     ).then(($el) => {
