@@ -221,7 +221,10 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
 export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
   overflow: auto;
   width: ${(props) => props.theme.homePage.sidebar}px;
-  height: 100%;
+  height: ${(props) =>
+    props.isBannerVisible
+      ? `calc(100% - ${props.theme.homePage.header * 2}px)`
+      : "100%"};
   display: flex;
   padding-left: 16px;
   padding-top: 16px;
