@@ -17,10 +17,12 @@ const ActionCreator = React.forwardRef(
 
     const handleActionChange = useCallback(
       (index: number) => (value: string, isUpdatedViaKeyboard: boolean) => {
+        const newValue =
+          actions.slice(0, index).join("") +
+          getCodeFromMoustache(value) +
+          actions.slice(index + 1).join("");
         props.onValueChange(
-          `{{${actions.slice(0, index).join("") +
-            getCodeFromMoustache(value) +
-            actions.slice(index + 1).join("")}}}`,
+          newValue ? `{{${newValue}}}` : "",
           isUpdatedViaKeyboard,
         );
       },

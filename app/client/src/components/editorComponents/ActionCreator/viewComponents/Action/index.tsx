@@ -164,6 +164,7 @@ export const Action: React.FC<Props> = ({
   }, [selectedCallbackBlock]);
 
   const deleteMainAction = useCallback(() => {
+    setOpen(false);
     setActionTree({
       code: "",
       actionType: AppsmithFunction.none,
