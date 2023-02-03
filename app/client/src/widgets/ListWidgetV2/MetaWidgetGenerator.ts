@@ -313,12 +313,12 @@ class MetaWidgetGenerator {
     this.prevPrimaryKeys = this.primaryKeys;
     this.primaryKeys = this.generatePrimaryKeys(options);
 
+    this.updateModificationsQueue(this.prevOptions);
+
     // Update CacheKeyDataMap when Data changes but PrimaryKey doesn't Change for a Key in CurrentView
     if (this.shouldUpdateCachedKeyDataMap()) {
       this.updateCachedKeyDataMap(this.cachedItemKeys.curr);
     }
-
-    this.updateModificationsQueue(this.prevOptions);
 
     // Maybe don't deep-clone for perf?
     const prevOptions = klona(this.prevOptions);
@@ -1254,7 +1254,8 @@ class MetaWidgetGenerator {
     return (
       (!isEqual(this.currTemplateWidgets, this.prevTemplateWidgets) &&
         this.renderMode !== RenderModes.PAGE) ||
-      !isEqual(this.cachedItemKeys.curr, this.cachedItemKeys.prev)
+      !isEqual(this.cachedItemKeys.curr, this.cachedItemKeys.prev) ||
+      this.shouldUpdateCachedKeyDataMap()
     );
   };
 
