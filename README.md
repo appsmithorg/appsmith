@@ -48,7 +48,7 @@ Build your UI with our drag and drop UI builder. Use 45+ pre-built, customizable
 </a>
 </p>
 
-### 2. Connect to your data
+### 2. Connect to your data 
 
 Connect to your data with our connectors: databases (PostgresQL, MongoDB, Amazon S3, and many more), SaaS providers (like Google Sheets, Airtable, Twilio) or any GraphQL/REST API. [Docs](https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme)
 
