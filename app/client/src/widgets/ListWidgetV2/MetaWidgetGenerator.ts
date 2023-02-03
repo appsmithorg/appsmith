@@ -583,7 +583,7 @@ class MetaWidgetGenerator {
     }
 
     if (templateWidget.type === this.primaryWidgetType) {
-      this.addLevelData(metaWidget, rowIndex, metaCacheProps, key);
+      this.addLevelData(metaWidget, rowIndex, metaCacheProps.metaWidgetId, key);
       metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
       metaWidget.nestedViewIndex = viewIndex;
     }
@@ -828,10 +828,9 @@ class MetaWidgetGenerator {
   private addLevelData = (
     metaWidget: MetaWidget,
     rowIndex: number,
-    metaCacheProps: MetaWidgetCacheProps,
+    metaWidgetId: string,
     key: string,
   ) => {
-    const { metaWidgetId } = metaCacheProps;
     const currentViewData = this.getCurrentViewData();
     const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
       metaWidgetId,
