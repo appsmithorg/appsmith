@@ -434,8 +434,7 @@ describe("Debugger logs", function() {
       shouldCreateNewJSObj: true,
     });
 
-    agHelper.WaitUntilAllToastsDisappear();
-    ee.NavigateToSwitcher("widgets");
+    ee.SelectEntityByName("Page1", "Pages");
     agHelper.GetNClick(".t--debugger");
     agHelper.GetNClick(locator._errorTab);
 
