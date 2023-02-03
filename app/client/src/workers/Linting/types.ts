@@ -1,6 +1,7 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import { WorkerRequest } from "@appsmith/workers/common/types";
+import { TJSObjectState, TJSStateDiff } from "workers/common/DataTreeEvaluator";
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
@@ -8,12 +9,14 @@ export enum LINT_WORKER_ACTIONS {
 }
 
 export interface LintTreeResponse {
-  errors: LintErrors;
+  errors: LintErrorsStore;
 }
 
 export interface LintTreeRequest {
   pathsToLint: string[];
   unevalTree: DataTree;
+  jsStateDiff: TJSStateDiff;
+  jsState: TJSObjectState;
 }
 
 export type LintWorkerRequest = WorkerRequest<
@@ -24,4 +27,6 @@ export type LintWorkerRequest = WorkerRequest<
 export type LintTreeSagaRequestData = {
   pathsToLint: string[];
   unevalTree: DataTree;
+  jsStateDiff: TJSStateDiff;
+  jsState: TJSObjectState;
 };

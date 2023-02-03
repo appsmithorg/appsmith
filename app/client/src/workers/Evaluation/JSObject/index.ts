@@ -2,8 +2,10 @@ import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
-import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
+import DataTreeEvaluator, {
+  TJSStateDiff,
+} from "workers/common/DataTreeEvaluator";
 import evaluateSync from "workers/Evaluation/evaluate";
 import {
   DataTreeDiff,
@@ -16,6 +18,8 @@ import {
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
+import { diff } from "deep-diff";
+import { klona } from "klona";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -77,16 +81,24 @@ export function saveResolvedFunctionsAndJSUpdates(
   entityName: string,
 ) {
   const correctFormat = regex.test(entity.body);
+  const newJSState = klona(dataTreeEvalRef.JSObjectState);
+  const {
+    currentJSCollectionState,
+    JSObjectState,
+    logs,
+    resolvedFunctions,
+  } = dataTreeEvalRef;
+
   if (correctFormat) {
-    const body = entity.body.replace(/export default/g, "");
     try {
-      delete dataTreeEvalRef.resolvedFunctions[`${entityName}`];
-      delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
+      delete resolvedFunctions[`${entityName}`];
+      delete currentJSCollectionState[`${entityName}`];
       const parseStartTime = performance.now();
-      const parsedObject = parseJSObjectWithAST(body);
+      const parsedObject = parseJSObject(entity.body);
       const parseEndTime = performance.now();
       const JSObjectASTParseTime = parseEndTime - parseStartTime;
-      dataTreeEvalRef.logs.push({
+
+      logs.push({
         JSObjectName: entityName,
         JSObjectASTParseTime,
       });
@@ -94,7 +106,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       const variables: any = [];
       if (!!parsedObject) {
         parsedObject.forEach((parsedElement) => {
-          if (isTypeOfFunction(parsedElement.type)) {
+          if (isJSFunctionProperty(parsedElement)) {
             try {
               const { result } = evaluateSync(
                 parsedElement.value,
@@ -119,12 +131,12 @@ export function saveResolvedFunctionsAndJSUpdates(
 
                 const functionString = parsedElement.value;
                 set(
-                  dataTreeEvalRef.resolvedFunctions,
+                  resolvedFunctions,
                   `${entityName}.${parsedElement.key}`,
                   result,
                 );
                 set(
-                  dataTreeEvalRef.currentJSCollectionState,
+                  currentJSCollectionState,
                   `${entityName}.${parsedElement.key}`,
                   functionString,
                 );
@@ -145,12 +157,14 @@ export function saveResolvedFunctionsAndJSUpdates(
               value: parsedElement.value,
             });
             set(
-              dataTreeEvalRef.currentJSCollectionState,
+              currentJSCollectionState,
               `${entityName}.${parsedElement.key}`,
               parsedElement.value,
             );
           }
+          set(newJSState, `${entityName}.${parsedElement.key}`, parsedElement);
         });
+
         const parsedBody = {
           body: entity.body,
           actions: actions,
@@ -180,7 +194,10 @@ export function saveResolvedFunctionsAndJSUpdates(
     };
     dataTreeEvalRef.errors.push(errors);
   }
-  return jsUpdates;
+  const jsStateDiff = diff(JSObjectState, newJSState) as TJSStateDiff;
+  dataTreeEvalRef.JSObjectState = newJSState;
+
+  return { jsUpdates, jsStateDiff };
 }
 
 export function parseJSActions(
@@ -190,6 +207,7 @@ export function parseJSActions(
   oldUnEvalTree?: DataTree,
 ) {
   let jsUpdates: Record<string, JSUpdate> = {};
+  let jsStateDiff: TJSStateDiff = [];
   if (!!differences && !!oldUnEvalTree) {
     differences.forEach((diff) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -221,13 +239,18 @@ export function parseJSActions(
         (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
         (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
       ) {
-        jsUpdates = saveResolvedFunctionsAndJSUpdates(
+        const {
+          jsStateDiff: stateDiff,
+          jsUpdates: updates,
+        } = saveResolvedFunctionsAndJSUpdates(
           dataTreeEvalRef,
           entity,
           jsUpdates,
           unEvalDataTree,
           entityName,
         );
+        jsUpdates = updates;
+        jsStateDiff = stateDiff;
       }
     });
   } else {
@@ -236,13 +259,18 @@ export function parseJSActions(
       if (!isJSAction(entity)) {
         return;
       }
-      jsUpdates = saveResolvedFunctionsAndJSUpdates(
+      const {
+        jsStateDiff: stateDiff,
+        jsUpdates: updates,
+      } = saveResolvedFunctionsAndJSUpdates(
         dataTreeEvalRef,
         entity,
         jsUpdates,
         unEvalDataTree,
         entityName,
       );
+      jsUpdates = updates;
+      jsStateDiff = stateDiff;
     });
   }
 
@@ -269,7 +297,7 @@ export function parseJSActions(
 
   functionDeterminer.close();
 
-  return { jsUpdates };
+  return { jsUpdates, jsStateDiff };
 }
 
 export function getJSEntities(dataTree: DataTree) {

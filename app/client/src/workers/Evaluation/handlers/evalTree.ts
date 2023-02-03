@@ -9,7 +9,9 @@ import {
   EvalErrorTypes,
 } from "utils/DynamicBindingUtils";
 import { JSUpdate } from "utils/JSPaneUtils";
-import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import DataTreeEvaluator, {
+  TJSStateDiff,
+} from "workers/common/DataTreeEvaluator";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { initiateLinting } from "workers/Linting/utils";
 import {
@@ -45,6 +47,7 @@ export default function(request: EvalWorkerSyncRequest) {
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
+  let jsStateDiff: TJSStateDiff = [];
 
   const {
     allActionValidationConfig,
@@ -74,6 +77,7 @@ export default function(request: EvalWorkerSyncRequest) {
       evalOrder = setupFirstTreeResponse.evalOrder;
       lintOrder = setupFirstTreeResponse.lintOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
+      jsStateDiff = setupFirstTreeResponse.jsStateDiff;
 
       initiateLinting(
         lintOrder,
@@ -81,6 +85,8 @@ export default function(request: EvalWorkerSyncRequest) {
           sanitizeDataTree: false,
         }),
         requiresLinting,
+        jsStateDiff,
+        dataTreeEvaluator.JSObjectState,
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -114,6 +120,7 @@ export default function(request: EvalWorkerSyncRequest) {
       evalOrder = setupFirstTreeResponse.evalOrder;
       lintOrder = setupFirstTreeResponse.lintOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
+      jsStateDiff = setupFirstTreeResponse.jsStateDiff;
 
       initiateLinting(
         lintOrder,
@@ -121,6 +128,8 @@ export default function(request: EvalWorkerSyncRequest) {
           sanitizeDataTree: false,
         }),
         requiresLinting,
+        jsStateDiff,
+        dataTreeEvaluator.JSObjectState,
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -145,6 +154,7 @@ export default function(request: EvalWorkerSyncRequest) {
       lintOrder = setupUpdateTreeResponse.lintOrder;
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
+      jsStateDiff = setupUpdateTreeResponse.jsStateDiff;
 
       initiateLinting(
         lintOrder,
@@ -152,6 +162,8 @@ export default function(request: EvalWorkerSyncRequest) {
           sanitizeDataTree: false,
         }),
         requiresLinting,
+        jsStateDiff,
+        dataTreeEvaluator.JSObjectState,
       );
 
       nonDynamicFieldValidationOrder =

@@ -104,11 +104,15 @@ import {
   isMetaWidgetTemplate,
   isWidgetDefaultPropertyPath,
 } from "entities/DataTree/utils";
+import { TParsedJSProperty } from "@shared/ast";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
   [entityName: string]: DataTreeEvaluationProps;
 };
+export type TJSStateDiff = Diff<TJSObjectState, TJSObjectState>[] | undefined;
+
+export type TJSObjectState = Record<string, Record<string, TParsedJSProperty>>;
 
 export default class DataTreeEvaluator {
   /**
@@ -130,6 +134,7 @@ export default class DataTreeEvaluator {
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
+  JSObjectState: TJSObjectState = {};
   logs: unknown[] = [];
   userLogs: UserLogObject[] = [];
   allActionValidationConfig?: {
@@ -192,6 +197,7 @@ export default class DataTreeEvaluator {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
     lintOrder: string[];
+    jsStateDiff: TJSStateDiff;
   } {
     const totalFirstTreeSetupStartTime = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
@@ -200,12 +206,16 @@ export default class DataTreeEvaluator {
     const firstCloneEndTime = performance.now();
 
     let jsUpdates: Record<string, JSUpdate> = {};
+    let jsStateDiff: // eslint-disable-next-line @typescript-eslint/ban-types
+    | Diff<Record<string, Record<string, TParsedJSProperty>>, {}>[]
+      | undefined = [];
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
     const parsedCollections = parseJSActions(this, localUnEvalTree);
     jsUpdates = parsedCollections.jsUpdates;
+    jsStateDiff = parsedCollections.jsStateDiff;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
@@ -285,6 +295,7 @@ export default class DataTreeEvaluator {
 
     return {
       jsUpdates,
+      jsStateDiff,
       evalOrder: this.sortedDependencies,
       lintOrder: this.sortedDependencies,
     };
@@ -363,11 +374,13 @@ export default class DataTreeEvaluator {
     lintOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
+    jsStateDiff: TJSStateDiff;
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
+    let jsStateDiff: TJSStateDiff = [];
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
     this.updateLocalUnEvalTree(localUnEvalTree);
@@ -392,6 +405,7 @@ export default class DataTreeEvaluator {
     );
 
     jsUpdates = parsedCollections.jsUpdates;
+    jsStateDiff = parsedCollections.jsStateDiff;
     //update local data tree if js body has updated (remove/update/add js functions or variables)
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
@@ -409,6 +423,7 @@ export default class DataTreeEvaluator {
         lintOrder: [],
         jsUpdates: {},
         nonDynamicFieldValidationOrder: [],
+        jsStateDiff: [],
       };
     }
     //find all differences which can lead to updating of dependency map
@@ -523,6 +538,7 @@ export default class DataTreeEvaluator {
       nonDynamicFieldValidationOrder: Array.from(
         nonDynamicFieldValidationOrderSet,
       ),
+      jsStateDiff,
     };
   }
 

@@ -65,8 +65,18 @@ function eventRequestHandler({
     case LINT_WORKER_ACTIONS.LINT_TREE: {
       const lintTreeResponse: LintTreeResponse = { errors: {} };
       try {
-        const { pathsToLint, unevalTree } = requestData as LintTreeRequest;
-        const lintErrors = getlintErrorsFromTree(pathsToLint, unevalTree);
+        const {
+          jsState,
+          jsStateDiff,
+          pathsToLint,
+          unevalTree,
+        } = requestData as LintTreeRequest;
+        const lintErrors = getlintErrorsFromTree(
+          pathsToLint,
+          unevalTree,
+          jsState,
+          jsStateDiff,
+        );
         lintTreeResponse.errors = lintErrors;
       } catch (e) {}
       return lintTreeResponse;
