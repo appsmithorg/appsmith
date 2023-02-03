@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
+import Clusterer from "./Clusterer";
 import SearchBox from "./SearchBox";
 import { MapComponentProps } from ".";
 import PickMyLocation from "./PickMyLocation";
@@ -11,10 +12,10 @@ const Wrapper = styled.div`
 `;
 
 const StyledMap = styled.div<Pick<MapProps, "borderRadius" | "boxShadow">>`
-  height: 100%;
   width: 100%;
-  border-radius: ${(props) => props.borderRadius};
+  height: 100%;
   box-shadow: ${(props) => props.boxShadow};
+  border-radius: ${(props) => props.borderRadius};
 `;
 
 type MapProps = {
@@ -34,10 +35,12 @@ type MapProps = {
   | "boxShadow"
   | "clickedMarkerCentered"
   | "enableDrag"
+  | "allowClustering"
 >;
 
 const Map = (props: MapProps) => {
   const {
+    allowClustering,
     borderRadius,
     boxShadow,
     center,
@@ -111,6 +114,8 @@ const Map = (props: MapProps) => {
     }
   }, [map, onClickOnMap]);
 
+  const MarkerOrCluster = allowClustering ? Clusterer : Markers;
+
   return (
     <Wrapper onMouseLeave={enableDrag}>
       <StyledMap
@@ -119,8 +124,10 @@ const Map = (props: MapProps) => {
         id="map"
         ref={mapRef}
       />
-      <Markers
-        key={`markers-${markers?.length}`}
+      <MarkerOrCluster
+        key={`markers-${allowClustering ? "cluster" : "markers"}-${
+          markers?.length
+        }`}
         map={map}
         markers={markers}
         selectMarker={selectMarker}
