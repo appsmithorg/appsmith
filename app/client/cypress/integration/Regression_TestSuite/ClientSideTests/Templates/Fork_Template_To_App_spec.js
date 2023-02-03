@@ -36,7 +36,7 @@ describe("Fork a template to the current app", () => {
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Applicant Tracker-test']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
     )
       .scrollIntoView()
       .click();
@@ -61,7 +61,7 @@ describe("Fork a template to the current app", () => {
     // [Bug]: Getting 'Resource not found' error on deploying template #17477
     cy.PublishtheApp();
     cy.get(".t--page-switch-tab")
-      .contains("Dashboard")
+      .contains("1 Track Applications")
       .click({ force: true });
     cy.wait(4000);
     cy.get(publish.backToEditor).click();
@@ -84,7 +84,7 @@ describe("Fork a template to the current app", () => {
     // );
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.xpath("//div[text()='Customer Support Dashboard']").click();
+    cy.xpath("//div[text()='Applicant Tracker-test']").click();
     _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
@@ -95,7 +95,7 @@ describe("Fork a template to the current app", () => {
       .next()
       .click();
     cy.wait(1000);
-    cy.xpath("//span[text()='SEARCH']")
+    cy.xpath("//span[text()='2 APPLICATION UPLOAD']")
       .parent()
       .next()
       .click();
