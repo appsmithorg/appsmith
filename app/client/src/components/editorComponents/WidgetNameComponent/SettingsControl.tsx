@@ -21,7 +21,7 @@ const StyledTooltip = styled(Tooltip)<{
   }
 `;
 const WidgetNameBoundary = 1;
-
+const BORDER_RADIUS = 4;
 const SettingsWrapper = styled.div<{ widgetWidth: number }>`
   justify-self: flex-end;
   height: 100%;
@@ -30,7 +30,7 @@ const SettingsWrapper = styled.div<{ widgetWidth: number }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: ${(props) => props.widgetWidth + 1}px;
+  max-width: ${(props) => props.widgetWidth - BORDER_RADIUS / 2}px;
   & {
     pre {
       margin: 0 5px 0 0;
@@ -39,8 +39,8 @@ const SettingsWrapper = styled.div<{ widgetWidth: number }>`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  border-top-left-radius: ${BORDER_RADIUS}px;
+  border-top-right-radius: ${BORDER_RADIUS}px;
   border: ${WidgetNameBoundary}px solid ${Colors.GREY_1};
   border-bottom: none;
 `;

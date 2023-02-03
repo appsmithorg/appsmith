@@ -330,7 +330,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
     !props.isFlexChild;
   const isHovered = isFocused && !isSelected;
-  const showResizeBoundary = isHovered || isSelected;
+  const showResizeBoundary = !isPreviewMode && (isHovered || isSelected);
   return (
     <Resizable
       allowResize={allowResize}

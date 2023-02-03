@@ -44,35 +44,39 @@ import Canvas from "../Canvas";
 const AutoLayoutCanvasResizer = styled.div`
   position: sticky;
   cursor: col-resize;
-  width: 4px;
+  width: 2px;
   height: 100%;
   display: flex;
   background: #d9d9d9;
   align-items: center;
   justify-content: flex-start;
   z-index: 2;
+  transition: width 300ms ease;
+  transition: background 300ms ease;
   .canvas-resizer-icon {
     border-left: 4px solid;
     border-color: #d7d7d7;
-    margin-left: 4px;
+    transition: border 300ms ease;
+    margin-left: 2px;
     & > svg {
       fill: #d7d7d7;
+      transition: fill 300ms ease;
     }
   }
-  &:hover {
+  &:hover,
+  &:active {
+    width: 3px;
+    transition: width 300ms ease;
     background: #ff9b4e;
-    transition: background 250ms ease;
+    transition: background 300ms ease;
     .canvas-resizer-icon {
       border-color: #ff9b4e;
-      transition: border 250ms ease;
+      transition: border 300ms ease;
       & > svg {
         fill: #ff9b4e;
-        transition: fill 250ms ease;
+        transition: fill 300ms ease;
       }
     }
-  }
-  &::after {
-    height: 100%;
   }
 `;
 const Container = styled.section<{
@@ -207,16 +211,17 @@ function CanvasContainer() {
           // e.stopPropagation();
         };
 
-        const mouseUpHandler = function() {
+        const mouseUpHandler = function(e: any) {
           // Remove the handlers of `mousemove` and `mouseup`
+          mouseMoveHandler(e);
           document.removeEventListener("mousemove", events[0] as any);
           document.removeEventListener("mouseup", mouseUpHandler);
           events = [];
         };
         const rightResizer: any = ele.querySelectorAll(".resizer-right")[0];
         const rightMove = (e: any) => mouseDownHandler(e);
-
         rightResizer.addEventListener("mousedown", rightMove);
+
         return () => {
           rightResizer.removeEventListener("mousedown", rightMove);
         };

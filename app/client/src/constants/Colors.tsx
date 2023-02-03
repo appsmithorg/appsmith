@@ -75,7 +75,7 @@ export const Colors = {
   SOLID_MERCURY: "#E5E5E5",
   TROUT_DARK: "#535B62",
   ALABASTER: "#F9F8F8",
-  WATUSI: "#FFA67E",
+  WATUSI: "#FF9B4E",
   GRAY: "#858282",
   GRAY2: "#939090",
   DOVE_GRAY2: "#716e6e",
