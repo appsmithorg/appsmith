@@ -17,6 +17,11 @@ export class GitSync {
   private _gitConfigEmailInput = ".t--git-config-email-input";
   _branchButton = "[data-testid=t--branch-button-container]";
   private _branchSearchInput = ".t--branch-search-input";
+  private _bottomBarCommit = ".t--bottom-bar-commit span[name='plus']";
+  _bottomBarPull = ".t--bottom-bar-pull span[name='down-arrow-2']";
+  private _branchName = (branch: string) =>
+    "//div[contains(@class, 't--branch-button')]//*[text()='" + branch + "']";
+  _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -28,11 +33,15 @@ export class GitSync {
     this.agHelper.AssertElementAbsence(this._gitSyncModal);
   }
 
-  CreateNConnectToGit(repoName: string = "Test", assertConnect = true, privateFlag = false) {
+  CreateNConnectToGit(
+    repoName: string = "Test",
+    assertConnect = true,
+    privateFlag = false,
+  ) {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       repoName += uid;
-      this.CreateTestGiteaRepo(repoName);
+      this.CreateTestGiteaRepo(repoName, privateFlag);
       //this.CreateLocalGithubRepo(repoName);
       this.AuthorizeKeyToGitea(repoName, assertConnect);
       // cy.get("@remoteUrl").then((remoteUrl: any) => {
@@ -92,8 +101,9 @@ export class GitSync {
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
         this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
+        this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
+        this.CloseGitSyncModal();
       }
-      this.CloseGitSyncModal();
     });
   }
 
@@ -215,6 +225,7 @@ export class GitSync {
 
   CreateGitBranch(branch: string = "Test", toUseNewGuid = false) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
+    this.agHelper.AssertElementExist(this._bottomBarCommit);
     this.agHelper.GetNClick(this._branchButton);
     this.agHelper.Sleep(2000); //branch pop up to open
     cy.get("@guid").then((uid) => {
@@ -225,9 +236,10 @@ export class GitSync {
         0,
         true,
       );
+      this.agHelper.AssertElementExist(this.locator._runBtnSpinner);
+      this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 70000); //Since page taking more time to laod in some cases
+      this.agHelper.AssertElementVisible(this._branchName(branch + uid));
       cy.wrap(branch + uid).as("gitbranchName");
     });
-    this.agHelper.AssertElementExist(this.locator._spinner);
-    this.agHelper.AssertElementAbsence(this.locator._spinner, 30000);
   }
 }
