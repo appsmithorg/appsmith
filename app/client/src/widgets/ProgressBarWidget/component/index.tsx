@@ -8,7 +8,6 @@ import { isNaN } from "lodash";
 const ProgressBarWrapper = styled.div`
   display: flex;
   align-items: center;
-  height: 100%;
 `;
 
 const ProgressBar = styled.div<{

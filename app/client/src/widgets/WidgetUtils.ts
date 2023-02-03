@@ -23,7 +23,7 @@ import {
   ButtonBorderRadiusTypes,
 } from "components/constants";
 import tinycolor from "tinycolor2";
-import { createGlobalStyle, css } from "styled-components";
+import { createGlobalStyle } from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Classes as DTClasses } from "@blueprintjs/datetime";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
@@ -863,21 +863,3 @@ export function shouldUpdateWidgetHeightAutomatically(
   // If we reach this point, we don't have to change height
   return false;
 }
-// This is to be applied to only those widgets which will scroll for example, container widget, etc.
-// But this won't apply to CANVAS_WIDGET.
-export const scrollCSS = css`
-  position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overflow-y: overlay;
-
-  scrollbar-color: #cccccc transparent;
-  scroolbar-width: thin;
-
-  &::-webkit-scrollbar-thumb {
-    background: #cccccc !important;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent !important;
-  }
-`;

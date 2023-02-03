@@ -7,7 +7,7 @@ const pages = require("../../../../../locators/Pages.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
 const jsObject = "JSObject1";
-let newBranch = "feat/temp";
+const newBranch = "feat/temp";
 const mainBranch = "master";
 let repoName, newWorkspaceName;
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -66,13 +66,17 @@ describe("Git import flow ", function() {
         force: true,
       });
       cy.wait(1000);
+      cy.generateUUID().then((uid) => {
+        repoName = uid;
+        _.gitSync.CreateNConnectToGit(repoName);
+        cy.get("@gitRepoName").then((repName) => {
+          repoName = repName;
+          _.gitSync.CreateGitBranch(repoName);
+        });
 
-      _.gitSync.CreateNConnectToGit();
-      cy.get("@gitRepoName").then((repName) => {
-        repoName = repName;
-        _.gitSync.CreateGitBranch(repoName);
+        // cy.createTestGithubRepo(repoName);
+        // cy.connectToGitRepo(repoName);
       });
-
       cy.wait(5000); // for git connection to settle!
     });
   });
@@ -146,16 +150,9 @@ describe("Git import flow ", function() {
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
 
-  // skipping below 3 cases due to open bug #18776
+  // skipping this due to open bug #18776
   it.skip("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
-    //cy.createGitBranch(newBranch);
-    _.gitSync.CreateGitBranch(newBranch, true);
-
-    cy.get("@gitbranchName").then((branName) => {
-      newBranch = branName;
-      cy.log("newBranch is " + newBranch);
-    });
-
+    cy.createGitBranch(newBranch);
     cy.get(".tbody")
       .first()
       .should("contain.text", "Test user 7");
@@ -192,7 +189,6 @@ describe("Git import flow ", function() {
     // deploy the app and validate data binding
     cy.wait(2000);
     cy.get(homePage.publishButton).click();
-    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
@@ -225,6 +221,7 @@ describe("Git import flow ", function() {
     cy.wait(2000);
   });
 
+  // skipping this due to open bug #18776
   it.skip("5. Switch to master and verify data in edit and view mode", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
@@ -248,6 +245,7 @@ describe("Git import flow ", function() {
     cy.wait(2000);
   });
 
+  // skipping this due to open bug #18776
   it.skip("6. Add widget to master, merge then checkout to child branch and verify data", () => {
     cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
@@ -264,6 +262,6 @@ describe("Git import flow ", function() {
   });
 
   after(() => {
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    //cy.deleteTestGithubRepo(repoName);
   });
 });

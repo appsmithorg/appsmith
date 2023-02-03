@@ -4,23 +4,8 @@ import { render } from "@testing-library/react";
 import AutoHeightContainer from "./AutoHeightContainer";
 import "jest-styled-components";
 import renderer from "react-test-renderer";
-import { RenderModes } from "constants/WidgetConstants";
 
 const onHeightUpdate = jest.fn();
-const DUMMY_WIDGET = {
-  bottomRow: 0,
-  isLoading: false,
-  leftColumn: 0,
-  parentColumnSpace: 0,
-  parentRowSpace: 0,
-  renderMode: RenderModes.CANVAS,
-  rightColumn: 0,
-  topRow: 0,
-  type: "SKELETON_WIDGET",
-  version: 2,
-  widgetId: "",
-  widgetName: "",
-};
 
 describe("<AutoHeightContainer />", () => {
   it("should wrap the children in a div whose height is auto.", async () => {
@@ -32,13 +17,12 @@ describe("<AutoHeightContainer />", () => {
           minDynamicHeight={0}
           onHeightUpdate={onHeightUpdate}
           widgetHeightInPixels={200}
-          widgetProps={DUMMY_WIDGET}
         >
           <div data-testid="test" />
         </AutoHeightContainer>,
       )
       .toJSON();
-    expect(tree).toHaveStyleRule("height", "100%");
+    expect(tree).toHaveStyleRule("height", "auto !important");
   });
 
   describe("when isAutoHeightWithLimits is false.", () => {
@@ -50,7 +34,6 @@ describe("<AutoHeightContainer />", () => {
           minDynamicHeight={0}
           onHeightUpdate={onHeightUpdate}
           widgetHeightInPixels={200}
-          widgetProps={DUMMY_WIDGET}
         >
           <div data-testid="test" />
         </AutoHeightContainer>
@@ -73,7 +56,6 @@ describe("<AutoHeightContainer />", () => {
           minDynamicHeight={0}
           onHeightUpdate={onHeightUpdate}
           widgetHeightInPixels={200}
-          widgetProps={DUMMY_WIDGET}
         >
           <div data-testid="test" />
         </AutoHeightContainer>
@@ -86,7 +68,7 @@ describe("<AutoHeightContainer />", () => {
         child.parentElement?.classList.contains("auto-height-container"),
       ).toBe(true);
       expect(
-        child.parentElement?.parentElement?.parentElement?.classList.contains(
+        child.parentElement?.parentElement?.classList.contains(
           "auto-height-scroll-container",
         ),
       ).toBe(true);

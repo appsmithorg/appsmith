@@ -16,9 +16,8 @@ public class WorkspaceMemberInfoDTO extends WorkspaceMemberInfoCE_DTO {
                                   String name,
                                   String permissionGroupName,
                                   String permissionGroupId,
-                                  String userGroupId, 
-                                  String photoId) {
-        super(userId, username, name, permissionGroupName, permissionGroupId, photoId);
+                                  String userGroupId) {
+        super(userId, username, name, permissionGroupName, permissionGroupId);
         this.userGroupId = userGroupId;
     }
 }

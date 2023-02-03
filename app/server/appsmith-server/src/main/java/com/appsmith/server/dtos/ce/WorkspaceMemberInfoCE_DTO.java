@@ -11,5 +11,4 @@ public class WorkspaceMemberInfoCE_DTO {
     String name;
     String permissionGroupName;
     String permissionGroupId;
-    String photoId;
 }

@@ -7,6 +7,7 @@ import {
 const GRID_POINT_SIZE = 1;
 const WrappedDragLayer = styled.div<{
   columnWidth: number;
+  rowHeight: number;
   noPad: boolean;
 }>`
   position: absolute;
@@ -31,10 +32,11 @@ const WrappedDragLayer = styled.div<{
   );
   background-size: ${(props) =>
       props.columnWidth - GRID_POINT_SIZE / GridDefaults.DEFAULT_GRID_COLUMNS}px
-    ${GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px;
+    ${(props) => props.rowHeight}px;
 `;
 
 type DragLayerProps = {
+  parentRowHeight: number;
   parentColumnWidth: number;
   noPad: boolean;
 };
@@ -42,9 +44,9 @@ type DragLayerProps = {
 function DragLayerComponent(props: DragLayerProps) {
   return (
     <WrappedDragLayer
-      className="drag-layer"
       columnWidth={props.parentColumnWidth}
       noPad={props.noPad}
+      rowHeight={props.parentRowHeight}
     />
   );
 }

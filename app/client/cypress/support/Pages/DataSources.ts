@@ -29,7 +29,7 @@ export class DataSources {
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
-  _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
+  private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
@@ -41,7 +41,7 @@ export class DataSources {
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
-  _createQuery = ".t--create-query";
+  private _createQuery = ".t--create-query";
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
   _dropdownTitle = (ddTitle: string) =>
@@ -301,9 +301,7 @@ export class DataSources {
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
-    cy.get(this._newDatasourceContainer).scrollTo("bottom", {
-      ensureScrollable: false,
-    });
+    cy.get(this._newDatasourceContainer).scrollTo("bottom", {ensureScrollable: false});
     cy.get(this._newDatabases).should("be.visible");
   }
 
@@ -624,13 +622,12 @@ export class DataSources {
     this.agHelper.AssertAutoSave();
   }
 
-  public EnterQuery(query: string, sleep= 500) {
+  public EnterQuery(query: string) {
     cy.get(this.locator._codeEditorTarget).then(($field: any) => {
       this.agHelper.UpdateCodeInput($field, query);
     });
     this.agHelper.AssertAutoSave();
-    this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
-    cy.wait("@saveAction");
+    this.agHelper.Sleep(500); //waiting a bit before proceeding!
   }
 
   public RunQueryNVerifyResponseViews(
@@ -782,13 +779,13 @@ export class DataSources {
   }
 
   //Update with new password in the datasource conf page
-  public UpdatePassword(newPassword: string) {
+  public updatePassword(newPassword: string) {
     this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._password).type(newPassword);
   }
 
   //Fetch schema from server and validate UI for the updates
-  public VerifySchema(
+  public verifySchema(
     dataSourceName: string,
     schema: string,
     isUpdate = false,

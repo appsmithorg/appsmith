@@ -79,7 +79,7 @@ const widgetsToTest = {
 };
 
 function configureApi() {
-  apiPage.CreateAndFillApi(agHelper.mockApiUrl, "FirstAPI");
+  apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users", "FirstAPI");
   apiPage.EnterHeader("value", "{{this.params.value}}");
 }
 

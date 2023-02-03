@@ -8,12 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -23,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-public class CustomUserDataRepositoryTest {
+public class CustomUserDataRepositoryImplTest {
 
     @Autowired
     private UserDataRepository userDataRepository;
@@ -144,42 +142,5 @@ public class CustomUserDataRepositoryTest {
             assertThat(recentlyUsedWorkspaceIds.size()).isEqualTo(2);
             assertThat(recentlyUsedWorkspaceIds).contains("abc", "hij");
         }).verifyComplete();
-    }
-
-    @Test
-    public void findPhotoAssetsByUserIds_WhenPhotoAssetIdExist_ReturnsPhotoAssetId() {
-        String randomId = UUID.randomUUID().toString();
-        String firstId = "first_" + randomId,
-                secondId = "second_" + randomId,
-                photoId = "photo_" + randomId;
-
-        UserData userDataOne = new UserData();
-        userDataOne.setUserId(firstId);
-        userDataOne.setProfilePhotoAssetId(photoId);
-        userDataOne.setRecentlyUsedAppIds(List.of("abc"));
-
-        UserData userDataTwo = new UserData();
-        userDataTwo.setUserId(secondId);
-        userDataTwo.setRecentlyUsedAppIds(List.of("abc"));
-
-        Flux<UserData> userDataFlux = userDataRepository.saveAll(List.of(userDataOne, userDataTwo))
-                .map(UserData::getUserId)
-                .collectList()
-                .flatMapMany(userDataRepository::findPhotoAssetsByUserIds);
-
-        StepVerifier.create(userDataFlux.collectMap(UserData::getUserId))
-                .assertNext(userDataMap -> {
-                    assertThat(userDataMap.size()).isEqualTo(2);
-
-                    UserData firstUserData = userDataMap.get(firstId);
-                    assertThat(firstUserData.getProfilePhotoAssetId()).isEqualTo(photoId);
-                    assertThat(firstUserData.getRecentlyUsedAppIds()).isNull();
-
-                    UserData secondUserData = userDataMap.get(secondId);
-                    assertThat(secondUserData.getProfilePhotoAssetId()).isNull();
-                    assertThat(secondUserData.getRecentlyUsedAppIds()).isNull();
-                })
-                .verifyComplete();
-
     }
 }

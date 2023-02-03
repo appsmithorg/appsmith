@@ -9,7 +9,6 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -165,7 +164,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList()))
                 .map(workspaceMemberInfoDTOS -> {
-                    workspaceMemberInfoDTOS.sort(AppsmithComparators.getWorkspaceMemberComparator());
+                    workspaceMemberInfoDTOS.sort(this.getWorkspaceMemberComparator());
                     return workspaceMemberInfoDTOS;
                 });
     }

@@ -16,8 +16,6 @@ import org.springframework.context.annotation.PropertySource;
 @Getter
 public class ProjectProperties {
 
-    public static final String EDITION = "CE";
-
     @Value("${version:UNKNOWN}")
     private String version;
 

@@ -131,12 +131,14 @@ export function PositionedContainer(props: PositionedContainerProps) {
       isDropTarget && effectedByReflow ? { pointerEvents: "none" } : {};
     const reflowedPositionStyles: CSSProperties = hasReflowedPosition
       ? {
-          transform: `translate3d(${reflowX}px,${reflowY}px,0)`,
+          transform: `translate(${reflowX}px,${reflowY}px)`,
+          transition: `transform 100ms linear`,
           boxShadow: `0 0 0 1px rgba(104,113,239,0.5)`,
         }
       : {};
     const reflowDimensionsStyles = hasReflowedDimensions
       ? {
+          transition: `width 0.1s, height 0.1s`,
           boxShadow: `0 0 0 1px rgba(104,113,239,0.5)`,
         }
       : {};
@@ -145,7 +147,6 @@ export function PositionedContainer(props: PositionedContainerProps) {
       position: "absolute",
       left: x,
       top: y,
-      transition: `transform 100ms ease, width 100ms ease, height 100ms ease`,
       height:
         reflowHeight || style.componentHeight + (style.heightUnit || "px"),
       width: reflowWidth || style.componentWidth + (style.widthUnit || "px"),
@@ -185,5 +186,4 @@ export function PositionedContainer(props: PositionedContainerProps) {
 }
 
 PositionedContainer.padding = WIDGET_PADDING;
-
 export default PositionedContainer;

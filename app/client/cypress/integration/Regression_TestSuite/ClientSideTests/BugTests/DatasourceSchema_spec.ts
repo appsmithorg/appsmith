@@ -17,24 +17,20 @@ describe("Datasource form related tests", function() {
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.RenameWithInPane(dataSourceName, false);
       dataSources.FillPostgresDSForm(false, "docker", "wrongPassword");
-      dataSources.VerifySchema(dataSourceName, "Failed to initialize pool");
+      dataSources.verifySchema(dataSourceName, "Failed to initialize pool");
       agHelper.GetNClick(dataSources._editButton);
-      dataSources.UpdatePassword("docker");
-      dataSources.VerifySchema(dataSourceName, "public.", true);
-      agHelper.GetNClick(dataSources._createQuery)
+      dataSources.updatePassword("docker");
+      dataSources.verifySchema(dataSourceName, "public.", true);
     });
   });
 
   it("2. Verify if schema was fetched once #18448", () => {
-    agHelper.RefreshPage()
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dataSourceName,false);
+    agHelper.RefreshPage();
     cy.intercept("GET", dataSources._getStructureReq).as("getDSStructure");
     ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dataSourceName);
     agHelper.Sleep(1500);
-    agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
-    dataSources.DeleteQuery("Query1");
+    cy.verifyCallCount(`@getDatasourceStructure`, 1);
     dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
   });
 });

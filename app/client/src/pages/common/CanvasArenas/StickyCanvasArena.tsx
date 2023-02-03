@@ -123,9 +123,7 @@ export const StickyCanvasArena = forwardRef(
     };
     const observeSlider = () => {
       interSectionObserver.current.disconnect();
-      if (slidingArenaRef && slidingArenaRef.current) {
-        interSectionObserver.current.observe(slidingArenaRef.current);
-      }
+      interSectionObserver.current.observe(slidingArenaRef.current);
     };
 
     useEffect(() => {
@@ -150,9 +148,7 @@ export const StickyCanvasArena = forwardRef(
       return () => {
         parentCanvas?.removeEventListener("scroll", observeSlider);
         parentCanvas?.removeEventListener("mouseover", observeSlider);
-        if (slidingArenaRef && slidingArenaRef.current) {
-          resizeObserver.current.unobserve(slidingArenaRef.current);
-        }
+        resizeObserver.current.unobserve(slidingArenaRef.current);
       };
     }, []);
 

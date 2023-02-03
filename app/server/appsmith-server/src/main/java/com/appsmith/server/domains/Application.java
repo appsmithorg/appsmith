@@ -305,6 +305,7 @@ public class Application extends BaseDomain {
         private String logoAssetId;
         private String logoConfiguration;
         private Boolean showSignIn;
+        private Boolean showShareApp;
     }
 
     public AppPositioning getAppPositioning() {

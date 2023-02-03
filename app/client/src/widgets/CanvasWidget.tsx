@@ -27,22 +27,13 @@ class CanvasWidget extends ContainerWidget {
       containerStyle: "none",
       detachFromLayout: true,
       minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
-      shouldScrollContents: false,
     };
   }
 
   renderAsDropTarget() {
     const canvasProps = this.getCanvasProps();
-    const { snapColumnSpace } = this.getSnapSpaces();
     return (
-      <DropTargetComponent
-        bottomRow={this.props.bottomRow}
-        minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
-        noPad={this.props.noPad}
-        parentId={this.props.parentId}
-        snapColumnSpace={snapColumnSpace}
-        widgetId={this.props.widgetId}
-      >
+      <DropTargetComponent {...canvasProps} {...this.getSnapSpaces()}>
         {this.renderAsContainerComponent(canvasProps)}
       </DropTargetComponent>
     );
@@ -65,7 +56,7 @@ class CanvasWidget extends ContainerWidget {
 
   getPageView() {
     let height = 0;
-    const snapRows = getCanvasSnapRows(this.props.bottomRow);
+    const snapRows = getCanvasSnapRows(this.props.bottomRow, false);
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {
       width: "100%",

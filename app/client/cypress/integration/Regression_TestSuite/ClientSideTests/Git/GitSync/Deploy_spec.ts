@@ -2,18 +2,18 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-let repoName;
+let repoName: string;
 describe("Git sync modal: deploy tab", function() {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();
     //_.homePage.CreateNewWorkspace("DeployGitTest");
-    cy.wait("@createWorkspace").then((interception) => {
+    cy.wait("@createWorkspace").then((interception: any) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
-    _.gitSync.CreateNConnectToGit("Test");
-    cy.get("@gitRepoName").then((repName) => {
+    _.gitSync.CreateNConnectToGit("Test", false);
+    cy.get("@gitRepoName").then((repName: any) => {
       repoName = repName;
     });
   });

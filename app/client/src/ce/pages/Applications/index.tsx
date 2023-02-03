@@ -221,10 +221,7 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
 export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
   overflow: auto;
   width: ${(props) => props.theme.homePage.sidebar}px;
-  height: ${(props) =>
-    props.isBannerVisible
-      ? `calc(100% - ${props.theme.homePage.header * 2}px)`
-      : "100%"};
+  height: 100%;
   display: flex;
   padding-left: 16px;
   padding-top: 16px;
@@ -988,7 +985,7 @@ export function ApplicationsSection(props: any) {
   );
 }
 
-export interface ApplicationProps {
+export type ApplicationProps = {
   applicationList: ApplicationPayload[];
   searchApplications: (keyword: string) => void;
   isCreatingApplication: creatingApplicationMap;
@@ -1006,24 +1003,19 @@ export interface ApplicationProps {
     showHeaderSeparator: boolean,
   ) => void;
   resetEditor: () => void;
-}
+};
 
-export interface ApplicationState {
-  selectedWorkspaceId: string;
-  showOnboardingForm: boolean;
-}
-
-export class Applications<
-  Props extends ApplicationProps,
-  State extends ApplicationState
-> extends Component<Props, State> {
-  constructor(props: Props) {
+class Applications extends Component<
+  ApplicationProps,
+  { selectedWorkspaceId: string; showOnboardingForm: boolean }
+> {
+  constructor(props: ApplicationProps) {
     super(props);
 
     this.state = {
       selectedWorkspaceId: "",
       showOnboardingForm: false,
-    } as State;
+    };
   }
 
   componentDidMount() {

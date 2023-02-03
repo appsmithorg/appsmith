@@ -3,17 +3,17 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.ExchangeUtils;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
+import com.google.gson.Gson;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
@@ -39,25 +39,22 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     private final UserUtils userUtils;
 
-    private final ProjectProperties projectProperties;
-
-    private final UserDataRepository userDataRepository;
+    private final Gson gson;
 
     @Autowired
     public AnalyticsServiceCEImpl(@Autowired(required = false) Analytics analytics,
                                   SessionUserService sessionUserService,
                                   CommonConfig commonConfig,
                                   ConfigService configService,
+                                  PolicyUtils policyUtils,
                                   UserUtils userUtils,
-                                  ProjectProperties projectProperties,
-                                  UserDataRepository userDataRepository) {
+                                  Gson gson) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
         this.configService = configService;
         this.userUtils = userUtils;
-        this.projectProperties = projectProperties;
-        this.userDataRepository = userDataRepository;
+        this.gson = gson;
     }
 
     public boolean isActive() {
@@ -68,34 +65,18 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         return value == null ? "" : DigestUtils.sha256Hex(value);
     }
 
-    @Override
     public Mono<User> identifyUser(User user, UserData userData) {
-        return identifyUser(user, userData, null);
-    }
-
-    @Override
-    public Mono<User> identifyUser(User user, UserData userData, String recentlyUsedWorkspaceId) {
         if (!isActive()) {
             return Mono.just(user);
         }
 
         Mono<Boolean> isSuperUserMono = userUtils.isSuperUser(user);
 
-        final Mono<String> recentlyUsedWorkspaceIdMono = StringUtils.isEmpty(recentlyUsedWorkspaceId)
-                ? userDataRepository.fetchMostRecentlyUsedWorkspaceId(user.getId()).defaultIfEmpty("")
-                : Mono.just(recentlyUsedWorkspaceId);
-
-        return Mono.zip(
-                Mono.just(user),
-                isSuperUserMono,
-                configService.getInstanceId()
-                        .defaultIfEmpty("unknown-instance-id"),
-                recentlyUsedWorkspaceIdMono
-        )
+        return Mono.just(user)
+                .zipWith(isSuperUserMono)
                 .map(tuple -> {
-                    final User savedUser = tuple.getT1();
-                    final boolean isSuperUser = tuple.getT2();
-                    final String instanceId = tuple.getT3();
+                    User savedUser = tuple.getT1();
+                    final Boolean isSuperUser = tuple.getT2();
 
                     String username = savedUser.getUsername();
                     String name = savedUser.getName();
@@ -111,9 +92,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                             .traits(Map.of(
                                     "name", ObjectUtils.defaultIfNull(name, ""),
                                     "email", ObjectUtils.defaultIfNull(email, ""),
-                                    "isSuperUser", isSuperUser,
-                                    "instanceId", instanceId,
-                                    "mostRecentlyUsedWorkspaceId", tuple.getT4(),
+                                    "isSuperUser", isSuperUser != null && isSuperUser,
                                     "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
                                     "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
                             ))
@@ -195,7 +174,6 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userIdToSend);
                     analyticsProperties.put("originService", "appsmith-server");
                     analyticsProperties.put("instanceId", instanceId);
-                    analyticsProperties.put("version", projectProperties.getVersion());
                     messageBuilder = messageBuilder.properties(analyticsProperties);
                     analytics.enqueue(messageBuilder);
                     return instanceId;
@@ -248,7 +226,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         return Mono.just(object);
                     }
 
-                    final String username = (object instanceof User objectAsUser ? objectAsUser : user).getUsername();
+                    final String username = (object instanceof User ? (User) object : user).getUsername();
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", id);

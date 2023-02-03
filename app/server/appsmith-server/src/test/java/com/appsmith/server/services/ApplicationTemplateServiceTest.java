@@ -160,7 +160,6 @@ public class ApplicationTemplateServiceTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", "1234567890");
         jsonObject.put("name", "My Page");
-        jsonObject.put("icon", "flight");
         jsonObject.put("isDefault", true);
         JSONArray pages = new JSONArray();
         pages.put(jsonObject);
@@ -192,7 +191,6 @@ public class ApplicationTemplateServiceTest {
                     PageNameIdDTO pageNameIdDTO = applicationTemplate.getPages().get(0);
                     assertThat(pageNameIdDTO.getId()).isEqualTo("1234567890");
                     assertThat(pageNameIdDTO.getName()).isEqualTo("My Page");
-                    assertThat(pageNameIdDTO.getIcon()).isEqualTo("flight");
                     assertThat(pageNameIdDTO.getIsDefault()).isTrue();
                 })
                 .verifyComplete();

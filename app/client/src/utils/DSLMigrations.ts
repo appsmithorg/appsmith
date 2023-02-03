@@ -867,7 +867,10 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 19) {
     currentDSL.snapColumns = GridDefaults.DEFAULT_GRID_COLUMNS;
-    currentDSL.snapRows = getCanvasSnapRows(currentDSL.bottomRow);
+    currentDSL.snapRows = getCanvasSnapRows(
+      currentDSL.bottomRow,
+      currentDSL.detachFromLayout || false,
+    );
     if (!newPage) {
       currentDSL = migrateToNewLayout(currentDSL);
     }

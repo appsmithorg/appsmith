@@ -25,14 +25,12 @@ export const getUniqueKeysFromSourceData = (
 
   // get all keys
   sourceData?.forEach((item) => {
-    if (item) {
-      if (isArray(item) && item?.length) {
-        item.forEach((subItem) => {
-          allKeys.push(...Object.keys(subItem));
-        });
-      } else {
-        allKeys.push(...Object.keys(item));
-      }
+    if (isArray(item) && item?.length) {
+      item.forEach((subItem) => {
+        allKeys.push(...Object.keys(subItem));
+      });
+    } else {
+      allKeys.push(...Object.keys(item));
     }
   });
 

@@ -1,7 +1,6 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
@@ -38,7 +37,7 @@ describe("File picker widget v2", () => {
       ".t--property-control-text",
       `{{FilePicker1.files[0].name}}`,
     );
-    cy.createAndFillApi(agHelper.mockApiUrl, "");
+    cy.createAndFillApi("https://mock-api.appsmith.com/users", "");
     cy.updateCodeInput(
       "[class*='t--actionConfiguration']",
       "{{FilePicker1.files}}",

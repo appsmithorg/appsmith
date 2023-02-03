@@ -128,7 +128,6 @@ const flowAnimation = css`
 const ProgressContainer = styled.div`
   display: flex;
   align-items: center;
-  height: 100%;
 `;
 
 // Determinate Linear progress

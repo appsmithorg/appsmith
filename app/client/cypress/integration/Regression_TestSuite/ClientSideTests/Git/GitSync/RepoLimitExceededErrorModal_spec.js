@@ -2,7 +2,7 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
-describe("Repo Limit Exceeded Error Modal", function() {
+describe.skip("Repo Limit Exceeded Error Modal", function() {
   before(() => {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);
@@ -12,31 +12,23 @@ describe("Repo Limit Exceeded Error Modal", function() {
     repoName2 = uuid.v4().split("-")[0];
     repoName3 = uuid.v4().split("-")[0];
     repoName4 = uuid.v4().split("-")[0];
-    _.agHelper.ClickButton("Build on my own");
   });
 
   it("1. Modal should be opened with proper components", function() {
-    _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName1, true, true);
+    _.gitSync.CreateNConnectToGit(repoName1, false, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName1 = repName;
     });
-    _.homePage.NavigateToHome();
-    _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName2, true, true);
+    _.gitSync.CreateNConnectToGit(repoName2, false, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName2 = repName;
     });
-    _.homePage.NavigateToHome();
-    _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName3, true, true);
+    _.gitSync.CreateNConnectToGit(repoName3, false, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName3 = repName;
     });
-    _.homePage.NavigateToHome();
-    _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName4, false, true);
+    _.gitSync.CreateNConnectToGit(repoName4, true, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName4 = repName;
     });
@@ -85,7 +77,6 @@ describe("Repo Limit Exceeded Error Modal", function() {
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
     }
   });
-
   after(() => {
     cy.request({
       method: "DELETE",

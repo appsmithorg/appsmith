@@ -5,21 +5,18 @@ import {
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { unset, set, get, find } from "lodash";
+import { unset, set, get } from "lodash";
 import {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
-  JSCollectionData,
   JSExecutionData,
   JSExecutionError,
 } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
+import { AppState } from "@appsmith/reducers";
 import { JSAction } from "entities/JSCollection";
-import { getJSCollectionsForCurrentPage } from "selectors/entitiesSelector";
-import {
-  getEntityNameAndPropertyPath,
-  isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getJSFunctionFromName } from "selectors/entitiesSelector";
+import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
 
 /**
@@ -288,28 +285,6 @@ function updateJSExecutionData(
   }
 }
 
-function getJSActionFromJSCollections(
-  jsCollections: JSCollectionData[],
-  jsfuncFullName: string,
-) {
-  const {
-    entityName: collectionName,
-    propertyPath: functionName,
-  } = getEntityNameAndPropertyPath(jsfuncFullName);
-
-  const jsCollection = find(
-    jsCollections,
-    (collection) => collection.config.name === collectionName,
-  );
-  if (!jsCollection) return;
-
-  const jsAction: JSAction | undefined = find(
-    jsCollection.config.actions,
-    (action) => action.name === functionName,
-  );
-  return jsAction;
-}
-
 export function* sortJSExecutionDataByCollectionId(
   data: Record<string, unknown>,
   errors: Record<string, unknown>,
@@ -319,15 +294,11 @@ export function* sortJSExecutionDataByCollectionId(
   // Sorted errors by collectionId
   const sortedErrors: BatchedJSExecutionErrors = {};
 
-  const JSCollectionsForCurrentPage: JSCollectionData[] = yield select(
-    getJSCollectionsForCurrentPage,
-  );
-
   for (const jsfuncFullName of Object.keys(data)) {
-    const jsAction = getJSActionFromJSCollections(
-      JSCollectionsForCurrentPage,
-      jsfuncFullName,
+    const jsAction: JSAction | undefined = yield select((state: AppState) =>
+      getJSFunctionFromName(state, jsfuncFullName),
     );
+
     if (!(jsAction && jsAction.collectionId)) continue;
     const { collectionId, id: actionId } = jsAction;
 
