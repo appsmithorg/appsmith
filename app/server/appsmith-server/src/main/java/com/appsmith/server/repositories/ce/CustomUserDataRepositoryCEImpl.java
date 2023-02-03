@@ -9,6 +9,7 @@ import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -64,6 +65,19 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                 fieldName(QUserData.userData.userId)
         );
         return queryAll(List.of(criteria), Optional.of(fieldsToInclude), Optional.empty(), Optional.empty());
+    }
+
+    @Override
+    public Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
+        final Query query = query(where(fieldName(QUserData.userData.userId)).is(userId));
+
+        query.fields().include(fieldName(QUserData.userData.recentlyUsedWorkspaceIds));
+
+        return mongoOperations.findOne(query, UserData.class)
+                .map(userData -> {
+                    final List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();
+                    return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds) ? "" : recentlyUsedWorkspaceIds.get(0);
+                });
     }
 
 }

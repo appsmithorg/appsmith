@@ -1,11 +1,10 @@
-import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
-import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { Colors } from "constants/Colors";
-import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { animated, Spring } from "react-spring";
+import React, { ReactNode, useState, useEffect, useRef } from "react";
+import styled, { StyledComponent } from "styled-components";
+import {
+  GridDefaults,
+  WidgetHeightLimits,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import { useDrag } from "react-use-gesture";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
@@ -21,7 +20,6 @@ import {
   getCurrentAppPositioningType,
 } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import styled, { StyledComponent } from "styled-components";
 import {
   getFillWidgetLengthForLayer,
   getLayerIndexOfWidget,
@@ -36,6 +34,12 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
+import { useDispatch, useSelector } from "react-redux";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
+import { animated, Spring } from "react-spring";
+import { Colors } from "constants/Colors";
+import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 const resizeBorderPadding = 1;
 const resizeBorder = 1;
 const resizeBoxShadow = 1;
@@ -196,6 +200,8 @@ type ResizableProps = {
     canResizeVertically: boolean;
     resizedPositions?: OccupiedSpace;
   };
+  fixedHeight: boolean;
+  maxDynamicHeight?: number;
   originalPositions: OccupiedSpace;
   onStart: (affectsWidth?: boolean) => void;
   onStop: (
@@ -628,15 +634,34 @@ export function ReflowResizable(props: ResizableProps) {
       }}
       from={{
         width: props.componentWidth,
-        height: props.componentHeight,
+        height: props.fixedHeight
+          ? Math.min(
+              (props.maxDynamicHeight ||
+                WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
+                GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              props.componentHeight,
+            )
+          : "auto",
+        maxHeight:
+          (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
         width: widgetWidth,
-        height: widgetHeight,
-        transform: `translate3d(${newDimensions.x -
-          bufferForBoundary / 2}px,${newDimensions.y -
-          bufferForBoundary / 2}px,0)`,
+        height: props.fixedHeight
+          ? Math.min(
+              (props.maxDynamicHeight ||
+                WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
+                GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              widgetHeight,
+            )
+          : "auto",
+
+        maxHeight:
+          (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
       }}
     >
       {(_props) => (

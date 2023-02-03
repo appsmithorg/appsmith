@@ -25,15 +25,15 @@ import {
 } from "constants/WidgetConstants";
 import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
+import { SchemaItem } from "./JSONFormWidget/constants";
+import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import { getLocale } from "utils/helpers";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
-import { rgbaMigrationConstantV56 } from "./constants";
 import { ContainerWidgetProps } from "./ContainerWidget/widget";
-import { SchemaItem } from "./JSONFormWidget/constants";
 
 const punycode = require("punycode/");
 
@@ -864,3 +864,21 @@ export function shouldUpdateWidgetHeightAutomatically(
   // If we reach this point, we don't have to change height
   return false;
 }
+// This is to be applied to only those widgets which will scroll for example, container widget, etc.
+// But this won't apply to CANVAS_WIDGET.
+export const scrollCSS = css`
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: overlay;
+
+  scrollbar-color: #cccccc transparent;
+  scroolbar-width: thin;
+
+  &::-webkit-scrollbar-thumb {
+    background: #cccccc !important;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+`;

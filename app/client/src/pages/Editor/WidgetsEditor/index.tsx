@@ -33,7 +33,6 @@ import CanvasContainer from "./CanvasContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import PageTabs from "./PageTabs";
 import PropertyPaneContainer from "./PropertyPaneContainer";
-import WidgetTopBar from "./WidgetTopBar";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -124,7 +123,6 @@ function WidgetsEditor() {
           {guidedTourEnabled && <Guide />}
           <div className="relative flex flex-row w-full overflow-hidden">
             <div className="relative flex flex-col w-full overflow-hidden">
-              <WidgetTopBar />
               <CanvasTopSection />
               <div
                 className="relative flex flex-row w-full overflow-hidden justify-center"
