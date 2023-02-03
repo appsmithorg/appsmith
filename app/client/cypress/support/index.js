@@ -53,8 +53,6 @@ before(function() {
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
   });
-  //Clear Cookies
-  cy.clearCookies();
   cy.visit("/setup/welcome");
   cy.wait("@getMe");
   cy.wait(2000);

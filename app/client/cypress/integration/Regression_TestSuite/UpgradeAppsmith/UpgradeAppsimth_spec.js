@@ -6,13 +6,20 @@ let agHelper = ObjectsRegistry.AggregateHelper;
 const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
 describe("Upgrade appsmith version", () => {
-  it("Upgrade Appsmith version and verify the Applications", () => {
-    const uuid = () => Cypress._.random(0, 10000);
-    const name = uuid();
-    agHelper.Sleep(2000);
+  before(function() {
+    //-- Deleting the application by Api---//
+    cy.DeleteAppByApi();
+    //-- LogOut Application---//
+    cy.LogOut();
 
     // stop the old container
     cy.StopContainer(tedUrl, "appsmith");
+    agHelper.Sleep(2000);
+  });
+
+  it("Upgrade Appsmith version and verify the Applications", () => {
+    const uuid = () => Cypress._.random(0, 10000);
+    const name = uuid();
     agHelper.Sleep(2000);
 
     cy.GetPath(tedUrl, "appsmith").then((path) => {
@@ -101,6 +108,6 @@ describe("Upgrade appsmith version", () => {
     //restarting the old container
     cy.StartContainer(tedUrl, "appsmith");
     //Waiting for the container to be up
-    agHelper.Sleep(30000);
+    agHelper.Sleep(45000);
   });
 });
