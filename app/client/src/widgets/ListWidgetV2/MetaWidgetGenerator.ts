@@ -583,12 +583,20 @@ class MetaWidgetGenerator {
       this.addDynamicPathsProperties(metaWidget, metaCacheProps, key);
     }
 
+    metaWidget.currentIndex = this.serverSidePagination ? viewIndex : rowIndex;
+    metaWidget.widgetId = metaWidgetId;
+    metaWidget.widgetName = metaWidgetName;
+    metaWidget.children = children;
+    metaWidget.parentId = parentId;
+    metaWidget.referencedWidgetId = templateWidgetId;
+    metaWidget.metaWidgetId = originalMetaWidgetId;
+
     if (isMainContainerWidget) {
       this.disableResizeHandles(metaWidget);
     }
 
     if (templateWidget.type === this.primaryWidgetType) {
-      this.addLevelData(metaWidget, rowIndex, metaCacheProps.metaWidgetId, key);
+      this.addLevelData(metaWidget, rowIndex, key);
       metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
       metaWidget.nestedViewIndex = viewIndex;
     }
@@ -598,14 +606,6 @@ class MetaWidgetGenerator {
       metaWidget.suppressAutoComplete = true;
       metaWidget.suppressDebuggerError = true;
     }
-
-    metaWidget.currentIndex = this.serverSidePagination ? viewIndex : rowIndex;
-    metaWidget.widgetId = metaWidgetId;
-    metaWidget.widgetName = metaWidgetName;
-    metaWidget.children = children;
-    metaWidget.parentId = parentId;
-    metaWidget.referencedWidgetId = templateWidgetId;
-    metaWidget.metaWidgetId = originalMetaWidgetId;
 
     if (this.canHoldSiblingData(rowIndex)) {
       metaWidget.siblingMetaWidgets = this.getSiblings(templateWidgetId);
@@ -833,12 +833,12 @@ class MetaWidgetGenerator {
   private addLevelData = (
     metaWidget: MetaWidget,
     rowIndex: number,
-    metaWidgetId: string,
     key: string,
   ) => {
+    const { metaWidgetId, widgetId } = metaWidget;
     const currentViewData = this.getCurrentViewData();
     const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
-      metaWidgetId,
+      metaWidgetId ?? widgetId,
       key,
     );
     const currentIndex = this.serverSidePagination
