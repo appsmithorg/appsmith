@@ -7,6 +7,10 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { uniq, get, set } from "lodash";
 import { Diff, diff } from "deep-diff";
+import {
+  getCanvasBottomRow,
+  getCanvasWidgetHeightsToUpdate,
+} from "utils/WidgetSizeUtils";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values 
@@ -54,7 +58,14 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
-    return action.payload.widgets;
+    const { widgets } = action.payload;
+    for (const [widgetId, widgetProps] of Object.entries(widgets)) {
+      if (widgetProps.type === "CANVAS_WIDGET") {
+        const bottomRow = getCanvasBottomRow(widgetId, widgets);
+        widgets[widgetId].bottomRow = bottomRow;
+      }
+    }
+    return widgets;
   },
   [ReduxActionTypes.UPDATE_LAYOUT]: (
     state: CanvasWidgetsReduxState,
@@ -81,6 +92,15 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
         delete state[widgetId];
       }
     }
+
+    const canvasWidgetHeightsToUpdate: Record<
+      string,
+      number
+    > = getCanvasWidgetHeightsToUpdate(listOfUpdatedWidgets, state);
+
+    for (const widgetId in canvasWidgetHeightsToUpdate) {
+      state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
+    }
   },
   [ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES]: (
     state: CanvasWidgetsReduxState,
@@ -100,6 +120,14 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
           // Set the new values
           set(state, path, propertyValue);
       });
+    }
+
+    const canvasWidgetHeightsToUpdate: Record<
+      string,
+      number
+    > = getCanvasWidgetHeightsToUpdate(Object.keys(action.payload), state);
+    for (const widgetId in canvasWidgetHeightsToUpdate) {
+      state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
     }
   },
 });
