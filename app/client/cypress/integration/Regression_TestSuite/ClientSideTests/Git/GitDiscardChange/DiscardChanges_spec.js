@@ -89,6 +89,7 @@ describe("Git discard changes:", function() {
       .last()
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
+    cy.get("#switcher--explorer").click({ force: true });
     // connect app to git
     cy.generateUUID().then((uid) => {
       repoName = uid;

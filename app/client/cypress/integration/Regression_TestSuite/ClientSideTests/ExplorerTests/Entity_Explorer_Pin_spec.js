@@ -4,9 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators,
-  canvasHelper = ObjectsRegistry.CanvasHelper,
-  appSettings = ObjectsRegistry.AppSettings;
+  locator = ObjectsRegistry.CommonLocators;
 
 describe("Entity explorer tests related to pinning and unpinning", function() {
   before(() => {
@@ -29,14 +27,12 @@ describe("Entity explorer tests related to pinning and unpinning", function() {
   });
 
   it("Widgets visibility in widget pane", function() {
-    canvasHelper.OpenWidgetPane();
+    ee.NavigateToSwitcher("widgets");
     agHelper.ScrollTo(locator._widgetPane, "bottom");
     agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
     ee.PinUnpinEntityExplorer(true);
-    appSettings.OpenAppSettings();
-    canvasHelper.OpenWidgetPane();
-    agHelper.ScrollTo(locator._widgetPane, "bottom");
     agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
     ee.PinUnpinEntityExplorer(false);
+    ee.NavigateToSwitcher("explorer");
   });
 });
