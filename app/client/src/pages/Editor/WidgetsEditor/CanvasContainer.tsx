@@ -54,7 +54,7 @@ const AutoLayoutCanvasResizer = styled.div`
   transition: width 300ms ease;
   transition: background 300ms ease;
   .canvas-resizer-icon {
-    border-left: 4px solid;
+    border-left: 2px solid;
     border-color: #d7d7d7;
     transition: border 300ms ease;
     margin-left: 2px;
