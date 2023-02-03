@@ -114,7 +114,7 @@ const Map = (props: MapProps) => {
     }
   }, [map, onClickOnMap]);
 
-  const MarkerOrCluster = allowClustering ? Clusterer : Markers;
+  const MarkersOrCluster = allowClustering ? Clusterer : Markers;
 
   return (
     <Wrapper onMouseLeave={enableDrag}>
@@ -124,7 +124,7 @@ const Map = (props: MapProps) => {
         id="map"
         ref={mapRef}
       />
-      <MarkerOrCluster
+      <MarkersOrCluster
         key={`markers-${allowClustering ? "cluster" : "markers"}-${
           markers?.length
         }`}
