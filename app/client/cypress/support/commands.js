@@ -1818,7 +1818,7 @@ Cypress.Commands.add("StartContainer", (path, containerName) => {
     method: "GET",
     url: path,
     qs: {
-      cmd: "docker start " + containerName,
+      cmd: "docker restart " + containerName,
     },
   }).then((res) => {
     cy.log(res.body.stdout, res.body.stderr);

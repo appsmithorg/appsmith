@@ -7,6 +7,8 @@ const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
 describe("Upgrade appsmith version", () => {
   before(() => {
+    cy.clearCookies();
+    cy.clearLocalStorage();
     // stop the old container
     cy.StopContainer(tedUrl, "appsmith");
     agHelper.Sleep(2000);
@@ -99,10 +101,12 @@ describe("Upgrade appsmith version", () => {
     agHelper.Sleep(2000);
   });
 
-  after(() => {
-    //restarting the old container
-    cy.StartContainer(tedUrl, "appsmith");
-    //Waiting for the container to be up
-    agHelper.Sleep(45000);
-  });
+  // after(() => {
+  //   cy.clearCookies();
+  //   cy.clearLocalStorage();
+  //   //restarting the old container
+  //   cy.StartContainer(tedUrl, "appsmith");
+  //   //Waiting for the container to be up
+  //   agHelper.Sleep(45000);
+  // });
 });
