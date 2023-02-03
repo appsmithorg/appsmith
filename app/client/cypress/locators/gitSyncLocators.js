@@ -19,7 +19,7 @@ export default {
   bottomBarCommitButton: ".t--bottom-bar-commit",
   bottomBarMergeButton: ".t--bottom-bar-merge",
   bottomBarPullButton: ".t--bottom-bar-pull",
-  mergeBranchDropdownDestination: ".t--merge-branch-dropdown-destination",
+  mergeBranchDropdownDestination: ".merge-dropdown",
   mergeCTA: "[data-testid=t--git-merge-button]",
   loaderQuickGitAction: ".t--loader-quick-git-action",
   copySshKey: ".t--copy-ssh-key",

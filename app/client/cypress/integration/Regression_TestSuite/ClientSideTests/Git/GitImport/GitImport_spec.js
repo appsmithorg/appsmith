@@ -73,7 +73,7 @@ describe("Git import flow ", function() {
         _.gitSync.CreateGitBranch(repoName);
       });
 
-      cy.wait(5000); // for git connection to settle!
+      _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
     });
   });
 
@@ -120,7 +120,6 @@ describe("Git import flow ", function() {
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
       force: true,
     });
-    cy.wait(4000); //for git connection to settle
     /* cy.get(homePage.toastMessage).should(
       "contain",
      "Application imported successfully",
@@ -128,6 +127,13 @@ describe("Git import flow ", function() {
     cy.wait("@gitStatus").then((interception) => {
       cy.log(interception.response.body.data);
       cy.wait(1000);
+    });
+    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+
+    cy.get("body").then(($ele) => {
+      if ($ele.find(gitSyncLocators.gitPullCount).length) {
+        cy.commitAndPush();
+      }
     });
   });
 
@@ -249,7 +255,8 @@ describe("Git import flow ", function() {
   });
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
-    _.canvasHelper.OpenWidgetPane();
+    //_.canvasHelper.OpenWidgetPane();
+    _.ee.NavigateToSwitcher("widgets");
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);
