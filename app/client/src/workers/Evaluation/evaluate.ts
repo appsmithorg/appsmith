@@ -10,7 +10,7 @@ import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { JSFunctionProxy, JSProxy } from "workers/Evaluation/JSObject/JSProxy";
+import { functionFactory } from "workers/Evaluation/JSObject/JSProxy";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
@@ -126,7 +126,6 @@ export interface createEvaluationContextArgs {
   evalArguments?: Array<unknown>;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
-  JSFunctionProxy?: JSFunctionProxy;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -140,7 +139,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
-    JSFunctionProxy,
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
@@ -162,7 +160,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, JSFunctionProxy);
+  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, isTriggerBased);
 
   return EVAL_CONTEXT;
 };
@@ -170,7 +168,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
 export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
-  JSFunctionProxy?: JSFunctionProxy,
+  isTriggerBased: boolean,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
@@ -185,8 +183,8 @@ export const assignJSFunctionsToContext = (
       // Task: https://github.com/appsmithorg/appsmith/issues/13289
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
       const data = jsObject[fnName]?.data;
-      jsObjectFunction[fnName] = JSFunctionProxy
-        ? JSFunctionProxy(fn, jsObjectName + "." + fnName)
+      jsObjectFunction[fnName] = isTriggerBased
+        ? functionFactory(fn, jsObjectName + "." + fnName)
         : fn;
       if (!!data) {
         jsObjectFunction[fnName]["data"] = data;
@@ -322,16 +320,12 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
 
-    /**** JSObject function proxy method ****/
-    const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
-
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
       context,
       evalArguments,
-      JSFunctionProxy,
       isTriggerBased: true,
     });
 
@@ -358,10 +352,6 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
     } finally {
-      setEvaluationEnd(true);
-      // Adding this extra try catch because there are cases when logs have child objects
-      // like functions or promises that cause issue in complete promise action, thus
-      // leading the app into a bad state.
       return {
         result,
         errors,

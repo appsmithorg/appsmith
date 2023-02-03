@@ -1,3 +1,4 @@
+import { WorkerErrorTypes } from "ce/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 
@@ -41,5 +42,33 @@ export class WorkerMessenger {
       messageType: MessageType.DEFAULT,
       body: payload,
     });
+  }
+
+  static respond(messageId: string, data: unknown, timeTaken: number) {
+    try {
+      sendMessage.call(self, {
+        messageId,
+        messageType: MessageType.RESPONSE,
+        body: { data, timeTaken },
+      });
+    } catch (e) {
+      console.error(e);
+      sendMessage.call(self, {
+        messageId,
+        messageType: MessageType.RESPONSE,
+        body: {
+          timeTaken: timeTaken.toFixed(2),
+          data: {
+            errors: [
+              {
+                type: WorkerErrorTypes.CLONE_ERROR,
+                message: (e as Error)?.message,
+                context: JSON.stringify(data),
+              },
+            ],
+          },
+        },
+      });
+    }
   }
 }

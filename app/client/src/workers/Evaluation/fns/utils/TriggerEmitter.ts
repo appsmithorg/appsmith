@@ -85,13 +85,23 @@ const defaultTriggerHandler = priorityBatchedActionHandler((batchedData) => {
 
 TriggerEmitter.on(BatchKey.process_batched_triggers, defaultTriggerHandler);
 
-const fnExecutionHandler = priorityBatchedActionHandler((data) => {
-  const batchedData = data.reduce((acc: any, d: any) => {
-    const { collectionId, data, fnName } = d;
-    acc[collectionId] = acc[collectionId] || {};
-    acc[collectionId][fnName] = acc[collectionId][fnName] || [];
-    acc[collectionId][fnName].push(data);
-  }, {});
+const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
+  const batchedData = data.reduce<{
+    JSExecutionData: Record<string, any>;
+    JSExecutionErrors: Record<string, any>;
+  }>(
+    (acc, d: any) => {
+      const { data, error, name } = d;
+      if (error) {
+        acc.JSExecutionErrors[name] = error;
+        return acc;
+      } else if (data) {
+        acc.JSExecutionData[name] = data;
+      }
+      return acc;
+    },
+    { JSExecutionData: {}, JSExecutionErrors: {} },
+  );
 
   WorkerMessenger.ping({
     method: MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION,
@@ -99,6 +109,9 @@ const fnExecutionHandler = priorityBatchedActionHandler((data) => {
   });
 });
 
-TriggerEmitter.on(BatchKey.process_batched_fn_execution, fnExecutionHandler);
+TriggerEmitter.on(
+  BatchKey.process_batched_fn_execution,
+  fnExecutionDataHandler,
+);
 
 export default TriggerEmitter;

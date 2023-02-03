@@ -6,16 +6,6 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
-import {
-  BatchedJSExecutionData,
-  BatchedJSExecutionErrors,
-  JSExecutionData,
-  JSExecutionError,
-} from "reducers/entityReducers/jsActionsReducer";
-import { select } from "redux-saga/effects";
-import { AppState } from "@appsmith/reducers";
-import { JSAction } from "entities/JSCollection";
-import { getJSFunctionFromName } from "selectors/entitiesSelector";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
 
@@ -259,63 +249,4 @@ export function getAppMode(dataTree: DataTree) {
 
 export function isPromise(value: any): value is Promise<unknown> {
   return Boolean(value && typeof value.then === "function");
-}
-
-function updateJSExecutionError(
-  errors: BatchedJSExecutionErrors,
-  executionError: JSExecutionError,
-) {
-  const { collectionId } = executionError;
-  if (errors[collectionId]) {
-    errors[collectionId].push(executionError);
-  } else {
-    errors[collectionId] = [executionError];
-  }
-}
-
-function updateJSExecutionData(
-  sortedData: BatchedJSExecutionData,
-  executionData: JSExecutionData,
-) {
-  const { collectionId } = executionData;
-  if (sortedData[collectionId]) {
-    sortedData[collectionId].push(executionData);
-  } else {
-    sortedData[collectionId] = [executionData];
-  }
-}
-
-export function* sortJSExecutionDataByCollectionId(
-  data: Record<string, unknown>,
-  errors: Record<string, unknown>,
-) {
-  // Sorted data by collectionId
-  const sortedData: BatchedJSExecutionData = {};
-  // Sorted errors by collectionId
-  const sortedErrors: BatchedJSExecutionErrors = {};
-
-  for (const jsfuncFullName of Object.keys(data)) {
-    const jsAction: JSAction | undefined = yield select((state: AppState) =>
-      getJSFunctionFromName(state, jsfuncFullName),
-    );
-
-    if (!(jsAction && jsAction.collectionId)) continue;
-    const { collectionId, id: actionId } = jsAction;
-
-    if (errors[jsfuncFullName]) {
-      updateJSExecutionError(sortedErrors, {
-        collectionId,
-        isDirty: true,
-        actionId,
-      });
-    }
-
-    updateJSExecutionData(sortedData, {
-      collectionId,
-      actionId,
-      data: get(data, jsfuncFullName),
-    });
-  }
-
-  return { sortedData, sortedErrors };
 }

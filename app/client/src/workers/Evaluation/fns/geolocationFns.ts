@@ -87,6 +87,10 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
   const messageHandler = (event: MessageEvent<TDefaultMessage<any>>) => {
     const message = event.data;
     if (message.messageId !== listenerId) return;
+    ExecutionMetaData.setExecutionMetaData(
+      metaData.triggerMeta,
+      metaData.eventType,
+    );
     const { body } = message;
     // setup eval context
     if (body.data) {
