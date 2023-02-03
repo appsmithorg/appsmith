@@ -130,8 +130,8 @@ describe("Git import flow ", function() {
     });
     _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
 
-    cy.get("body").then(($ele) => {
-      if ($ele.find(gitSyncLocators.gitPullCount).length) {
+    cy.get("body").then(($body) => {
+      if ($body.find(gitSyncLocators.gitPullCount).length > 0) {
         cy.commitAndPush();
       }
     });
