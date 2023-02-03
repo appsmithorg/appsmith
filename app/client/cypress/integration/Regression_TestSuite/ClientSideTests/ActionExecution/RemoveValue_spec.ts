@@ -11,7 +11,6 @@ const {
 describe("removeValue Action test", () => {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    ee.NavigateToSwitcher("explorer");
   });
 
   it("1. Feature 11639 : Remove store value", function() {

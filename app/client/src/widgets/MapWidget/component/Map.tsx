@@ -8,6 +8,7 @@ import PickMyLocation from "./PickMyLocation";
 
 const Wrapper = styled.div`
   position: relative;
+  height: 100%;
 `;
 
 const StyledMap = styled.div<Pick<MapProps, "borderRadius" | "boxShadow">>`
