@@ -1,7 +1,7 @@
+/* eslint-disable no-console */
 import { WorkerErrorTypes } from "ce/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
-
 type TPromiseResponse =
   | {
       data: any;
