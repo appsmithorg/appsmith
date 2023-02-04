@@ -83,11 +83,11 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     return checkTenantLicense(tenant);
                 })
                 .flatMap(tenant -> {
-                    // Add license only in case of a valid license key
-                    if (tenant.getTenantConfiguration().getLicense().getActive()) {
-                        return save(tenant);
+                    // Update/save license only in case of a valid license key
+                    if (!Boolean.TRUE.equals(tenant.getTenantConfiguration().getLicense().getActive())) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.KEY));
                     }
-                    return Mono.just(tenant);
+                    return this.save(tenant);
                 })
                 .map(this::getClientPertinentTenant);
     }

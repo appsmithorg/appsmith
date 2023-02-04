@@ -28,6 +28,7 @@ import reactor.test.StepVerifier;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -129,7 +130,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void setTenantLicenseKey_Invalid_LicenseKey() {
-        String licenseKey = "SOME-INVALID-LICENSE-KEY";
+        String licenseKey = UUID.randomUUID().toString();
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(false);
         license.setKey(licenseKey);
@@ -140,11 +141,9 @@ public class TenantServiceTest {
 
         Mono<Tenant> addLicenseKeyMono = tenantService.setTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
-                .assertNext(tenant -> {
-                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    assertThat(tenantConfiguration.getLicense()).isEqualTo(license);
-                })
-                .verifyComplete();
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                    throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.KEY)))
+                .verify();
     }
 
     @Test
