@@ -8,7 +8,7 @@ import {
   Button,
   Size,
   IconSize,
-} from "design-system";
+} from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import { FormGroup, SettingComponentProps } from "./Common";
 import {
@@ -16,7 +16,7 @@ import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
-import { FieldError } from "design-system";
+import { FieldError } from "design-system-old";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";

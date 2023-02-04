@@ -3,13 +3,17 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BearerTokenAuth;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -3509,4 +3513,134 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
 
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplication_WithBearerTokenAndExportWithConfig_exportedWithDecryptedFields() {
+        String randomUUID = UUID.randomUUID().toString();
+
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("workspace-" + randomUUID);
+        // User apiUser = userService.findByEmail("api_user").block();
+        Mono<Workspace> workspaceMono = workspaceService.create(testWorkspace).cache();
+
+        Mono<Application> applicationMono = workspaceMono.flatMap(workspace -> {
+            Application testApplication = new Application();
+            testApplication.setName("application-" + randomUUID);
+            testApplication.setExportWithConfiguration(true);
+            testApplication.setWorkspaceId(workspace.getId());
+            return applicationPageService.createApplication(testApplication);
+        }).flatMap(application -> {
+            ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
+            accessDTO.setPublicAccess(true);
+            return applicationService.changeViewAccess(application.getId(), accessDTO).thenReturn(application);
+        });
+
+        Mono<Datasource> datasourceMono = workspaceMono.zipWith(pluginRepository.findByPackageName("restapi-plugin"))
+                .flatMap(objects -> {
+                    Workspace workspace = objects.getT1();
+                    Plugin plugin = objects.getT2();
+
+                    Datasource datasource = new Datasource();
+                    datasource.setPluginId(plugin.getId());
+                    datasource.setName("RestAPIWithBearerToken");
+                    datasource.setWorkspaceId(workspace.getId());
+                    datasource.setIsConfigured(true);
+
+                    BearerTokenAuth bearerTokenAuth = new BearerTokenAuth();
+                    bearerTokenAuth.setBearerToken("token_" + randomUUID);
+
+                    SSLDetails sslDetails = new SSLDetails();
+                    sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
+                    Connection connection = new Connection();
+                    connection.setSsl(sslDetails);
+
+                    DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+                    datasourceConfiguration.setAuthentication(bearerTokenAuth);
+                    datasourceConfiguration.setConnection(connection);
+                    datasourceConfiguration.setConnection(new Connection());
+                    datasourceConfiguration.setUrl("https://mock-api.appsmith.com");
+
+                    datasource.setDatasourceConfiguration(datasourceConfiguration);
+                    return datasourceService.create(datasource);
+                });
+
+        Mono<ApplicationJson> exportAppMono = Mono.zip(applicationMono, datasourceMono).flatMap(objects -> {
+            ApplicationPage applicationPage = objects.getT1().getPages().get(0);
+            ActionDTO action = new ActionDTO();
+            action.setName("validAction");
+            action.setPageId(applicationPage.getId());
+            action.setPluginId(objects.getT2().getPluginId());
+            action.setDatasource(objects.getT2());
+
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setHttpMethod(HttpMethod.GET);
+            actionConfiguration.setPath("/test/path");
+            action.setActionConfiguration(actionConfiguration);
+
+            return layoutActionService.createSingleAction(action, Boolean.FALSE)
+                    .then(importExportApplicationService.exportApplicationById(objects.getT1().getId(), ""));
+        });
+
+        StepVerifier.create(exportAppMono).assertNext(applicationJson -> {
+            assertThat(applicationJson.getDecryptedFields()).isNotEmpty();
+            DecryptedSensitiveFields fields = applicationJson.getDecryptedFields().get("RestAPIWithBearerToken");
+            assertThat(fields.getBearerTokenAuth().getBearerToken()).isEqualTo("token_" + randomUUID);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplicationTest_WithNavigationSettings() {
+
+        Application application = new Application();
+        application.setName("exportNavigationSettingsApplicationTest");
+        Application.NavigationSetting navSetting = new Application.NavigationSetting();
+        navSetting.setOrientation("top");
+        application.setUnpublishedNavigationSetting(navSetting);
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        Mono<ApplicationJson> resultMono =
+                importExportApplicationService.exportApplicationById(createdApplication.getId(), "");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    Application exportedApplication = applicationJson.getExportedApplication();
+                    assertThat(exportedApplication).isNotNull();
+                    assertThat(exportedApplication.getUnpublishedNavigationSetting()).isNotNull();
+                    assertThat(exportedApplication.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplication_WithPageIcon_ValidPageIcon() {
+        String randomId = UUID.randomUUID().toString();
+        Application application = new Application();
+        application.setName("exportPageIconApplicationTest");
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setName("page_" + randomId);
+        pageDTO.setIcon("flight");
+        pageDTO.setApplicationId(createdApplication.getId());
+
+        PageDTO applicationPageDTO = applicationPageService.createPage(pageDTO).block();
+
+        Mono<ApplicationJson> resultMono =
+                importExportApplicationService.exportApplicationById(applicationPageDTO.getApplicationId(), "");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    List<NewPage> pages = applicationJson.getPageList();
+                    assertThat(pages.size()).isEqualTo(2);
+                    assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
+                    assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
+                })
+                .verifyComplete();
+    }
+
 }

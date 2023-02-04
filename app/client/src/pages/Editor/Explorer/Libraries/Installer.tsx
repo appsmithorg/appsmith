@@ -20,7 +20,7 @@ import {
   TextType,
   Toaster,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import {
   createMessage,
   customJSLibraryMessages,

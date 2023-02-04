@@ -2,7 +2,7 @@ import React from "react";
 
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { Icon, TextType, Text } from "design-system";
+import { Icon, TextType, Text } from "design-system-old";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { createMessage, EDITOR_HEADER } from "ce/constants/messages";

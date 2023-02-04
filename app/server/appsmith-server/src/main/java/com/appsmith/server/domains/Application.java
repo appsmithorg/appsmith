@@ -18,6 +18,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,6 +123,8 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppPositioning unpublishedAppPositioning;
 
+    Boolean collapseInvisibleWidgets;
+
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
      * As this property is modified by the framework when there is any change in domain,
@@ -191,6 +194,7 @@ public class Application extends BaseDomain {
         this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
         this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
+        this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
@@ -219,6 +223,7 @@ public class Application extends BaseDomain {
         this.setIsManualUpdate(false);
         this.sanitiseToExportBaseObject();
         this.setDefaultPermissionGroup(null);
+        this.setPublishedCustomJSLibs(new HashSet<>());
     }
 
     public List<ApplicationPage> getPages() {
@@ -300,7 +305,6 @@ public class Application extends BaseDomain {
         private String logoAssetId;
         private String logoConfiguration;
         private Boolean showSignIn;
-        private Boolean showShareApp;
     }
 
     public AppPositioning getAppPositioning() {

@@ -29,8 +29,6 @@
     "dropHere": "#div-dragarena-0",
     "addDBQueryEntity": ".datasources .t--entity-add-btn",
     "editEntity": ".t--entity-name input",
-    "explorerSwitchId": "#switcher--explorer",
-    "widgetSwitchId": "#switcher--widgets",
     "activeTab": "span:contains('Active')",
     "createNew": ".t--entity-add-btn.group.files",
     "blankAPI": "span:contains('New Blank API')",

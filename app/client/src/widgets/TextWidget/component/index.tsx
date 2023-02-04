@@ -9,7 +9,7 @@ import {
   FontStyleTypes,
   TextSize,
 } from "constants/WidgetConstants";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import { get } from "lodash";
 import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";

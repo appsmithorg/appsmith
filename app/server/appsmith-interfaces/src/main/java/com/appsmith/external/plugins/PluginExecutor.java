@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_PLUGIN_EXECUTION;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 
 public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
@@ -180,7 +181,7 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
                                                                         ObservationRegistry observationRegistry) {
         return this.executeParameterized(connection, executeActionDTO, datasourceConfiguration, actionConfiguration)
                 .tag("plugin", this.getClass().getName())
-                .name("action_execution.parameterized_execution")
+                .name(ACTION_EXECUTION_PLUGIN_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
 

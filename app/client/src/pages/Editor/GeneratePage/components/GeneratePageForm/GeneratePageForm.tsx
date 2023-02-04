@@ -33,7 +33,7 @@ import {
   RenderDropdownOptionType,
   Size,
   TooltipComponent as Tooltip,
-} from "design-system";
+} from "design-system-old";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -60,7 +60,7 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
