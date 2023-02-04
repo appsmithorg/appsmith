@@ -166,7 +166,8 @@ public class NewActionServiceCEImplTest {
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,
-                actionPermission, observationRegistry);
+                actionPermission,
+                observationRegistry);
     }
 
     @BeforeEach
