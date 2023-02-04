@@ -38,7 +38,7 @@ describe("Fork a template to the current app", () => {
       200,
     );
     cy.xpath(
-      "//div[text()='Meeting Scheduler']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Slack Bot']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
     )
       .scrollIntoView()
       .click();
@@ -71,16 +71,16 @@ describe("Fork a template to the current app", () => {
       _.ee.AddNewPage();
       _.ee.AddNewPage("add-page-from-template");
       cy.get(template.templateDialogBox).should("be.visible");
-      cy.xpath("//div[text()='Slack Bot']").click();
+      cy.xpath("//div[text()='Marketing Dashboard']").click();
       cy.wait(10000); // for templates page to load fully
-      // cy.xpath(template.selectAllPages)
-      //   .next()
-      //   .click();
-      // cy.wait(1000);
-      // cy.xpath("//span[text()='SEARCH']")
-      //   .parent()
-      //   .next()
-      //   .click();
+      cy.xpath(template.selectAllPages)
+        .next()
+        .click();
+      cy.wait(1000);
+      cy.xpath("//span[text()='SEND MESSAGES']")
+        .parent()
+        .next()
+        .click();
       // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
       cy.get(template.templateViewForkButton).click();
       cy.wait(5000);
