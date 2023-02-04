@@ -51,6 +51,8 @@ describe("Tests for run function in callback styled", () => {
           payload: {
             actionId: "123",
             params: {},
+            onSuccess: successCallback.toString(),
+            onError: errorCallback.toString(),
           },
         },
         eventType: "ON_PAGE_LOAD",
@@ -81,6 +83,8 @@ describe("Tests for run function in callback styled", () => {
           payload: {
             actionId: "123",
             params: {},
+            onSuccess: successCallback.toString(),
+            onError: errorCallback.toString(),
           },
         },
         eventType: "ON_PAGE_LOAD",
