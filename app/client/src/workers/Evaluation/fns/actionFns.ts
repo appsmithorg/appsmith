@@ -16,6 +16,11 @@ function runFnDescriptor(
     payload: {
       actionId: this.actionId,
       params: actionParams,
+      onSuccess:
+        typeof onSuccessOrParams === "function"
+          ? onSuccessOrParams.toString()
+          : undefined,
+      onError: typeof onError === "function" ? onError.toString() : undefined,
     },
   };
 }

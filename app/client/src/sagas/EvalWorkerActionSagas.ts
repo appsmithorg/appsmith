@@ -1,4 +1,4 @@
-import { all, call, put, select, spawn, take } from "redux-saga/effects";
+import { all, call, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
@@ -17,10 +17,8 @@ import {
 } from "../sagas/EvaluationsSaga";
 import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
-import { get, isEmpty } from "lodash";
-import { JSAction } from "entities/JSCollection";
-import { getJSFunctionFromName } from "selectors/entitiesSelector";
-import { AppState } from "ce/reducers";
+import isEmpty from "lodash/isEmpty";
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -45,39 +43,6 @@ export function* processLogsHandler(message: any) {
   const { body } = message;
   const { data } = body;
   yield call(storeLogs, data);
-}
-
-function* sortJSExecutionDataByCollectionId(
-  data: Record<string, unknown>,
-  errors: Record<string, unknown>,
-) {
-  // Sorted data by collectionId
-  const sortedData: BatchedJSExecutionData = {};
-  // Sorted errors by collectionId
-  const sortedErrors: BatchedJSExecutionErrors = {};
-
-  for (const jsfuncFullName of Object.keys(data)) {
-    const jsAction: JSAction | undefined = yield select((state: AppState) =>
-      getJSFunctionFromName(state, jsfuncFullName),
-    );
-    if (!jsAction?.collectionId) continue;
-    const { collectionId, id: actionId } = jsAction;
-    sortedData[collectionId] = sortedData[collectionId] || [];
-    sortedData[collectionId].push({
-      collectionId,
-      actionId,
-      data: get(data, jsfuncFullName),
-    });
-    if (errors[jsfuncFullName]) {
-      sortedErrors[collectionId] = sortedErrors[collectionId] || [];
-      sortedErrors[collectionId].push({
-        collectionId,
-        actionId,
-        isDirty: true,
-      });
-    }
-  }
-  return { sortedData, sortedErrors };
 }
 
 export function* processJSFunctionExecution(message: any) {

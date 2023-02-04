@@ -5,8 +5,21 @@ import {
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { unset, set, get } from "lodash";
-import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { unset, set, get, find } from "lodash";
+import {
+  BatchedJSExecutionData,
+  BatchedJSExecutionErrors,
+  JSCollectionData,
+  JSExecutionData,
+  JSExecutionError,
+} from "reducers/entityReducers/jsActionsReducer";
+import { select } from "redux-saga/effects";
+import { JSAction } from "entities/JSCollection";
+import { getJSCollectionsForCurrentPage } from "selectors/entitiesSelector";
+import {
+  getEntityNameAndPropertyPath,
+  isJSAction,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
 
 /**
@@ -249,4 +262,89 @@ export function getAppMode(dataTree: DataTree) {
 
 export function isPromise(value: any): value is Promise<unknown> {
   return Boolean(value && typeof value.then === "function");
+}
+
+function updateJSExecutionError(
+  errors: BatchedJSExecutionErrors,
+  executionError: JSExecutionError,
+) {
+  const { collectionId } = executionError;
+  if (errors[collectionId]) {
+    errors[collectionId].push(executionError);
+  } else {
+    errors[collectionId] = [executionError];
+  }
+}
+
+function updateJSExecutionData(
+  sortedData: BatchedJSExecutionData,
+  executionData: JSExecutionData,
+) {
+  const { collectionId } = executionData;
+  if (sortedData[collectionId]) {
+    sortedData[collectionId].push(executionData);
+  } else {
+    sortedData[collectionId] = [executionData];
+  }
+}
+
+function getJSActionFromJSCollections(
+  jsCollections: JSCollectionData[],
+  jsfuncFullName: string,
+) {
+  const {
+    entityName: collectionName,
+    propertyPath: functionName,
+  } = getEntityNameAndPropertyPath(jsfuncFullName);
+
+  const jsCollection = find(
+    jsCollections,
+    (collection) => collection.config.name === collectionName,
+  );
+  if (!jsCollection) return;
+
+  const jsAction: JSAction | undefined = find(
+    jsCollection.config.actions,
+    (action) => action.name === functionName,
+  );
+  return jsAction;
+}
+
+export function* sortJSExecutionDataByCollectionId(
+  data: Record<string, unknown>,
+  errors: Record<string, unknown>,
+) {
+  // Sorted data by collectionId
+  const sortedData: BatchedJSExecutionData = {};
+  // Sorted errors by collectionId
+  const sortedErrors: BatchedJSExecutionErrors = {};
+
+  const JSCollectionsForCurrentPage: JSCollectionData[] = yield select(
+    getJSCollectionsForCurrentPage,
+  );
+
+  for (const jsfuncFullName of Object.keys(data)) {
+    const jsAction = getJSActionFromJSCollections(
+      JSCollectionsForCurrentPage,
+      jsfuncFullName,
+    );
+    if (!(jsAction && jsAction.collectionId)) continue;
+    const { collectionId, id: actionId } = jsAction;
+
+    if (errors[jsfuncFullName]) {
+      updateJSExecutionError(sortedErrors, {
+        collectionId,
+        isDirty: true,
+        actionId,
+      });
+    }
+
+    updateJSExecutionData(sortedData, {
+      collectionId,
+      actionId,
+      data: get(data, jsfuncFullName),
+    });
+  }
+
+  return { sortedData, sortedErrors };
 }

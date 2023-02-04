@@ -325,7 +325,7 @@ export default function* executePluginActionTriggerSaga(
   eventType: EventType,
 ) {
   const { payload: pluginPayload } = pluginAction;
-  const { actionId, params } = pluginPayload;
+  const { actionId, onError, params } = pluginPayload;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
       "RUN_PLUGIN_ACTION",
@@ -406,10 +406,17 @@ export default function* executePluginActionTriggerSaga(
         },
       },
     ]);
-    throw new PluginTriggerFailureError(
-      createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
-      [payload.body, params],
-    );
+    if (onError) {
+      throw new PluginTriggerFailureError(
+        createMessage(ERROR_ACTION_EXECUTE_FAIL, action.name),
+        [payload.body, params],
+      );
+    } else {
+      throw new PluginTriggerFailureError(
+        createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
+        [payload.body, params],
+      );
+    }
   } else {
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
