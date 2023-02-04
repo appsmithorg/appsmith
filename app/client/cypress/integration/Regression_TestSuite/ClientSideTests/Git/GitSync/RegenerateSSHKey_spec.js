@@ -2,7 +2,16 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git regenerate SSH key flow", function() {
-  let repoName;
+  let repoName, newWorkspaceName;
+
+  before(() => {
+    cy.NavigateToHome();
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+    });
+  });
 
   it("1. Verify SSH key regeneration flow ", () => {
     _.gitSync.CreateNConnectToGit(repoName);
