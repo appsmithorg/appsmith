@@ -2,8 +2,7 @@ const commonlocators = require("../../../../../../locators/commonlocators.json")
 const widgetsPage = require("../../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
 
-let dataSources = ObjectsRegistry.DataSources,
-  canvasHelper = ObjectsRegistry.CanvasHelper;
+let dataSources = ObjectsRegistry.DataSources;
 
 describe("Table widget - Select column type functionality", () => {
   before(() => {
@@ -233,7 +232,7 @@ describe("Table widget - Select column type functionality", () => {
     cy.wait("@saveAction");
     cy.get(".t--run-query").click();
     cy.wait("@postExecute");
-    canvasHelper.OpenWidgetPane();
+    cy.get("#switcher--widgets").click();
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
     cy.get(".t--property-control-serversidefiltering .bp3-switch span").click();

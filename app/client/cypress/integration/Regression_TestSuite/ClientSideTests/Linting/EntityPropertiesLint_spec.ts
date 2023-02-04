@@ -10,13 +10,13 @@ const jsEditor = ObjectsRegistry.JSEditor,
 describe("Linting of entity properties", () => {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
+    ee.NavigateToSwitcher("explorer");
   });
 
   it("1. Shows correct lint error when wrong Api property is binded", () => {
     const invalidProperty = "unknownProperty";
     // create Api1
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
-    agHelper.BlurFocusedElement();
     // Edit Button onclick property
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
