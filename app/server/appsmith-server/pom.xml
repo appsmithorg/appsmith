@@ -206,11 +206,12 @@
             <groupId>io.zipkin.reporter2</groupId>
             <artifactId>zipkin-reporter-brave</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.github.loki4j</groupId>
-            <artifactId>loki-logback-appender</artifactId>
-            <version>1.3.2</version>
-        </dependency>
+        <!--        Commented oout Loki dependency for now, since we haven't fixed associating logs to traces-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.github.loki4j</groupId>-->
+        <!--            <artifactId>loki-logback-appender</artifactId>-->
+        <!--            <version>1.3.2</version>-->
+        <!--        </dependency>-->
         <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
