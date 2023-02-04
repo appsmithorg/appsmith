@@ -15,17 +15,17 @@ services:
             - "9411:9411" # zipkin
             - "3200:3200"
 
-    loki:
-        image: grafana/loki
-        extra_hosts: ['host.docker.internal:host-gateway']
-        command: [ "-config.file=/etc/loki/local-config.yaml" ]
-        ports:
-            - "3100:3100"                                   # loki needs to be exposed so it receives logs
-        environment:
-            - JAEGER_AGENT_HOST=tempo
-            - JAEGER_ENDPOINT=http://tempo:14268/api/traces # send traces to Tempo
-            - JAEGER_SAMPLER_TYPE=const
-            - JAEGER_SAMPLER_PARAM=1
+    # loki:
+    #     image: grafana/loki
+    #     extra_hosts: ['host.docker.internal:host-gateway']
+    #     command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    #     ports:
+    #         - "3100:3100"                                   # loki needs to be exposed so it receives logs
+    #     environment:
+    #         - JAEGER_AGENT_HOST=tempo
+    #         - JAEGER_ENDPOINT=http://tempo:14268/api/traces # send traces to Tempo
+    #         - JAEGER_SAMPLER_TYPE=const
+    #         - JAEGER_SAMPLER_PARAM=1
 
     prometheus:
         image: prom/prometheus
