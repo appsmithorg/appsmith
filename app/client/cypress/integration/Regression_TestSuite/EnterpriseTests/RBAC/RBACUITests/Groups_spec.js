@@ -16,7 +16,11 @@ describe("Groups tab Tests", function() {
       Cypress.env("TESTUSERNAME2"),
     );
     cy.get(RBAC.rolesTabinGroup).click();
-    cy.get(RBAC.rolesinGroups)
+    cy.get(RBAC.removePermissionGroup).should("not.exist");
+    cy.get("[data-testid='t--toggle-wrapper']")
+      .find(".slider")
+      .click();
+    cy.get(RBAC.addPermissionGroup)
       .first()
       .click();
     cy.get(RBAC.saveButton).click();
@@ -25,6 +29,7 @@ describe("Groups tab Tests", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.get(RBAC.removePermissionGroup).should("exist");
     cy.get(RBAC.searchBar).type(groups);
   });
 });
