@@ -46,7 +46,7 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
         Function<TimeoutException, Throwable> healthTimeout = error -> new AppsmithException(
                 AppsmithError.HEALTHCHECK_TIMEOUT, "Mongo");
         MongoReactiveHealthIndicator mongoReactiveHealthIndicator = new MongoReactiveHealthIndicator(reactiveMongoTemplate);
-        return mongoReactiveHealthIndicator.health().timeout(Duration.ofSeconds(3)).onErrorMap(TimeoutException.class, healthTimeout);
+        return mongoReactiveHealthIndicator.health().timeout(Duration.ofSeconds(1)).onErrorMap(TimeoutException.class, healthTimeout);
     }
 
     private boolean isUp(Health health) {
