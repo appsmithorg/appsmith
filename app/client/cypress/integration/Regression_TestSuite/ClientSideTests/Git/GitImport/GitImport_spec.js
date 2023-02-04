@@ -130,6 +130,8 @@ describe("Git import flow ", function() {
     });
     _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
 
+    cy.wait(3000); //for uncommited changes to appear if any!
+
     cy.get("body").then(($body) => {
       if ($body.find(gitSyncLocators.gitPullCount).length > 0) {
         cy.commitAndPush();
