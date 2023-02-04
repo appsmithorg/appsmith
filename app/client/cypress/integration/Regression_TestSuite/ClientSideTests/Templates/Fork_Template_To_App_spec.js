@@ -24,7 +24,7 @@ describe("Fork a template to the current app", () => {
       .click({ force: true });
   });
 
-  it("1. Fork a template to the current app", () => {
+  it("1. Fork a template to the current app + Bug 17477", () => {
     cy.wait(5000);
     cy.get(template.startFromTemplateCard).click();
     // Commented out below code as fetch template call is not going through when template dialog is closed
@@ -106,7 +106,7 @@ describe("Fork a template to the current app", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(widgetLocators.toastAction, { timeout: 20000 }).should(
+    cy.get(widgetLocators.toastAction, { timeout: 40000 }).should(
       "contain",
       "template added successfully",
     );
