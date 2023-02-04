@@ -23,11 +23,11 @@ const variantStyles = css`
           background-color: var(--wds-v2-color-bg-accent);
           color: var(--wds-v2-color-text-onbrand);
 
-          &:enabled:hover {
+          &:not([data-disabled]):hover {
             background-color: var(--wds-v2-color-bg-accent-hover);
           }
 
-          &:enabled:active {
+          &:not([data-disabled]):active {
             background-color: var(--wds-v2-color-bg-accent-active);
           }
         `;
@@ -38,11 +38,11 @@ const variantStyles = css`
           color: var(--wds-v2-color-text-brand);
           border-color: var(--wds-v2-color-border-brand);
 
-          &:enabled:hover {
+          &:not([data-disabled]):hover {
             background-color: var(--wds-v2-color-bg-accent-light-hover);
           }
 
-          &:enabled:active {
+          &:not([data-disabled]):active {
             background-color: var(--wds-v2-color-bg-accent-light-active);
           }
 
@@ -55,7 +55,7 @@ const variantStyles = css`
           color: var(--wds-v2-color-text-brand);
           box-shadow: none;
 
-          &:enabled:hover {
+          &:not([data-disabled]):hover {
             text-decoration: underline;
           }
         `;
@@ -66,11 +66,11 @@ const variantStyles = css`
           color: var(--wds-v2-color-text-brand);
           border-width: 0;
 
-          &:enabled:hover {
+          &:not([data-disabled]):hover {
             background: var(--wds-v2-color-bg-accent-light-hover);
           }
 
-          &:enabled:active {
+          &:not([data-disabled]):active {
             background: var(--wds-v2-color-bg-accent-light-active);
           }
         `;
@@ -80,11 +80,11 @@ const variantStyles = css`
           color: var(--wds-v2-color-text-brand);
           border-width: 0;
 
-          &:enabled:hover {
+          &:not([data-disabled]):hover {
             background: var(--wds-v2-color-bg-accent-light-hover);
           }
 
-          &:enabled:active {
+          &:not([data-disabled]):active {
             background: var(--wds-v2-color-bg-accent-light-active);
           }
         `;
@@ -126,12 +126,7 @@ export const variantTokens = css`
   }}
 `;
 
-type StyledButtonProps = Pick<
-  ButtonProps,
-  "variant" | "borderRadius" | "boxShadow"
->;
-
-export const StyledButton = styled.button<StyledButtonProps>`
+export const StyledButton = styled.button<ButtonProps>`
   display: flex;
   overflow: hidden;
   text-align: center;
@@ -168,10 +163,6 @@ export const StyledButton = styled.button<StyledButtonProps>`
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
   }
 
   /* // we don't use :focus-visible because not all browsers (safari) have it yet */

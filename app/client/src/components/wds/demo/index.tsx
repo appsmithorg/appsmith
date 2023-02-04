@@ -7,11 +7,7 @@ import {
 } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import ButtonShowcase from "./Button";
-import { Popover, PopoverTrigger, PopoverContent } from "../components/Popover";
 import { createTokens } from "../utils/createTokens";
-import { Menu, MenuItem } from "../components/Menu";
-import { MenuSub } from "../components/Menu/MenuSub";
-import { Button } from "../components/Button";
 
 type StyledWrapperProps = {
   borderRadius: CSSProperties["borderRadius"];
@@ -28,7 +24,6 @@ function Showcase() {
   const [boxShadow, setBoxShadow] = useState<string>("none");
   const [primaryColor, setPrimaryColor] = useState<string>("#553DE9");
   const [loading, setLoading] = useState<boolean>(true);
-  const [selected, setSelected] = useState<number | undefined>();
 
   return (
     <StyledWrapper

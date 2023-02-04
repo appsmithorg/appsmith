@@ -20,6 +20,7 @@ export type ButtonProps = {
   className?: string;
   leadingIcon?: React.ReactNode;
   trailingIcon?: React.ReactNode;
+  as?: keyof JSX.IntrinsicElements;
 } & HTMLAttributes<HTMLButtonElement>;
 
 /**
@@ -64,6 +65,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
       {content}
     </StyledButton>
   );
-});
+}) as typeof StyledButton;
 
 export { Button };
