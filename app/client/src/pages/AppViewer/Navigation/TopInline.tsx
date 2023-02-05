@@ -11,6 +11,7 @@ import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { Container } from "./TopInline.styled";
+import MoreDropdownButton from "./components/MoreDropdownButton";
 
 // TODO - @Dhruvik - ImprovedAppNav
 // Replace with NavigationProps if nothing changes
@@ -52,19 +53,31 @@ export function TopInline(props: TopInlineProps) {
 
   return appPages.length > 1 ? (
     <Container className="flex gap-x-2 items-center">
-      {appPages.map((page) => {
-        return (
-          <MenuItemContainer
-            isTabActive={pathname.indexOf(page.pageId) > -1}
-            key={page.pageId}
-          >
-            <MenuItem
+      {appPages.map((page, index) => {
+        const shouldShowDropdown = index === 4;
+
+        if (shouldShowDropdown) {
+          return (
+            <MoreDropdownButton
+              key="more-button"
               navigationSetting={currentApplicationDetails?.navigationSetting}
-              page={page}
-              query={query}
+              pages={appPages}
             />
-          </MenuItemContainer>
-        );
+          );
+        } else {
+          return (
+            <MenuItemContainer
+              isTabActive={pathname.indexOf(page.pageId) > -1}
+              key={page.pageId}
+            >
+              <MenuItem
+                navigationSetting={currentApplicationDetails?.navigationSetting}
+                page={page}
+                query={query}
+              />
+            </MenuItemContainer>
+          );
+        }
       })}
     </Container>
   ) : (
