@@ -1,6 +1,7 @@
 export * from "ce/pages/Applications";
 import * as CE_Applications from "ce/pages/Applications";
-import React, { Component } from "react";
+import { Applications as CE_AppClass } from "ce/pages/Applications";
+import React from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import MediaQuery from "react-responsive";
@@ -28,45 +29,33 @@ import {
   getApplicationSearchKeyword,
 } from "selectors/applicationSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
 
-export type EE_ApplicationProps = CE_Applications.ApplicationProps & {
+export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
   showBanner: boolean;
   showWarningBanner: boolean;
-};
+}
+
+export type EE_ApplicationState = CE_Applications.ApplicationState;
 
 const UpgradeBannerWrapper = styled.div`
   margin: 20px 10px;
 `;
 
-class Applications extends Component<
+export class Applications extends CE_AppClass<
   EE_ApplicationProps,
-  {
-    selectedWorkspaceId: string;
-    showOnboardingForm: boolean;
-  }
+  EE_ApplicationState
 > {
   constructor(props: EE_ApplicationProps) {
     super(props);
-
-    this.state = {
-      selectedWorkspaceId: "",
-      showOnboardingForm: false,
-    };
   }
 
   componentDidMount() {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
-    PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.getAllApplication();
-    this.props.setHeaderMetaData(true, true);
+    super.componentDidMount();
   }
 
   componentWillUnmount() {
-    this.props.setHeaderMetaData(false, false);
+    super.componentWillUnmount();
   }
 
   public render() {
