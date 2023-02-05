@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import MenuItemContainer from "./components/MenuItemContainer";
 import MenuItem from "./components/MenuItem";
@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { Container } from "./TopInline.styled";
 import MoreDropdownButton from "./components/MoreDropdownButton";
+import { useWindowSizeHooks } from "utils/hooks/dragResizeHooks";
 
 // TODO - @Dhruvik - ImprovedAppNav
 // Replace with NavigationProps if nothing changes
@@ -35,6 +36,10 @@ export function TopInline(props: TopInlineProps) {
   const location = useLocation();
   const { pathname } = location;
   const [query, setQuery] = useState("");
+  const navRef = useRef(null);
+  const maxMenuItemWidth = 220;
+  const [maxMenuItemsThatCanFit, setMaxMenuItemsThatCanFit] = useState(0);
+  const { width: screenWidth } = useWindowSizeHooks();
 
   useEffect(() => {
     setQuery(window.location.search);
@@ -51,21 +56,20 @@ export function TopInline(props: TopInlineProps) {
     });
   }
 
-  return appPages.length > 1 ? (
-    <Container className="flex gap-x-2 items-center">
-      {appPages.map((page, index) => {
-        const shouldShowDropdown = index === 4;
+  useEffect(() => {
+    if (navRef?.current) {
+      const { offsetWidth } = navRef.current;
 
-        if (shouldShowDropdown) {
-          return (
-            <MoreDropdownButton
-              key="more-button"
-              navigationSetting={currentApplicationDetails?.navigationSetting}
-              pages={appPages}
-            />
-          );
-        } else {
-          return (
+      // using max menu item width for simpler calculation
+      setMaxMenuItemsThatCanFit(Math.floor(offsetWidth / maxMenuItemWidth));
+    }
+  }, [navRef, appPages, screenWidth]);
+
+  return appPages.length > 1 ? (
+    <Container className="flex gap-x-2 items-center" ref={navRef}>
+      {appPages.map(
+        (page, index) =>
+          index < maxMenuItemsThatCanFit && (
             <MenuItemContainer
               isTabActive={pathname.indexOf(page.pageId) > -1}
               key={page.pageId}
@@ -76,9 +80,16 @@ export function TopInline(props: TopInlineProps) {
                 query={query}
               />
             </MenuItemContainer>
-          );
-        }
-      })}
+          ),
+      )}
+
+      {appPages.length > maxMenuItemsThatCanFit && (
+        <MoreDropdownButton
+          key="more-button"
+          navigationSetting={currentApplicationDetails?.navigationSetting}
+          pages={appPages.slice(maxMenuItemsThatCanFit, appPages.length)}
+        />
+      )}
     </Container>
   ) : (
     // eslint-disable-next-line react/jsx-no-useless-fragment
