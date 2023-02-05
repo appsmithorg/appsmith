@@ -18,7 +18,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
-
+  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10"
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
@@ -493,6 +493,11 @@ export class AggregateHelper {
         });
       this.AssertAutoSave();
     });
+  }
+
+  public VerifyCallCount(alias: string, expectedNumberOfCalls: number) {
+    cy.wait(alias);
+    cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
   }
 
   public GetNClick(
@@ -1019,8 +1024,8 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementExist(selector: ElementType, index = 0) {
-    return this.GetElement(selector)
+  public AssertElementExist(selector: ElementType, index = 0, timeout = 20000) {
+    return this.GetElement(selector, timeout)
       .eq(index)
       .should("exist");
   }
