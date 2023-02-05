@@ -38,9 +38,10 @@ describe("Fork a template to the current app", () => {
       200,
     );
     cy.xpath(
-      "//div[text()='Slack Bot']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Slack Bot']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
+      .wait(500)
       .click();
     cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
       errorMsg: "Setting Templates did not finish even after 75 seconds",

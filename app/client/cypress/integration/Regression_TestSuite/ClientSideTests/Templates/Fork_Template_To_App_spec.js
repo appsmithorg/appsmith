@@ -36,9 +36,10 @@ describe("Fork a template to the current app", () => {
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
-      "//div[text()='Applicant Tracker-test']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Applicant Tracker-test']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
+      .wait(500)
       .click();
     _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.wait("@getTemplatePages").should(
