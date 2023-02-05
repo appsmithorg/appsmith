@@ -7,3 +7,4 @@ export const segmentInitSuccess = () => ({
 export const segmentInitUncertain = () => ({
   type: ReduxActionTypes.SEGMENT_INIT_UNCERTAIN,
 });
+//afsdfsdfsd
