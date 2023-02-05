@@ -696,3 +696,4 @@ const jsCodeToObject4 = (script: string) => {
   return script.replace(jsObjectDeclaration, "export default");
 }
 ///daskdjalksdjlaks
+///dsadadasdasd
