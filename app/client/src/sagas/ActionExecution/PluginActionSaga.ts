@@ -414,7 +414,7 @@ export default function* executePluginActionTriggerSaga(
     } else {
       throw new PluginTriggerFailureError(
         createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
-        [payload.body, params],
+        [],
       );
     }
   } else {
