@@ -9,6 +9,7 @@ function showModalFnDescriptor(modalName: string) {
 
 export type TShowModalArgs = Parameters<typeof showModalFnDescriptor>;
 export type TShowModalDescription = ReturnType<typeof showModalFnDescriptor>;
+export type TShowModalActionType = TShowModalDescription["type"];
 
 async function showModal(...args: TShowModalArgs) {
   return promisify(showModalFnDescriptor)(...args);
@@ -23,6 +24,7 @@ function closeModalFnDescriptor(modalName: string) {
 
 export type TCloseModalArgs = Parameters<typeof closeModalFnDescriptor>;
 export type TCloseModalDescription = ReturnType<typeof closeModalFnDescriptor>;
+export type TCloseModalActionType = TCloseModalDescription["type"];
 
 async function closeModal(...args: TCloseModalArgs) {
   return promisify(closeModalFnDescriptor)(...args);

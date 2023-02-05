@@ -20,6 +20,8 @@ export type TCopyToClipboardDescription = ReturnType<
   typeof copyToClipboardFnDescriptor
 >;
 
+export type TCopyToClipboardActionType = TCopyToClipboardDescription["type"];
+
 async function copyToClipboard(...args: TCopyToClipboardArgs) {
   return promisify(copyToClipboardFnDescriptor)(...args);
 }

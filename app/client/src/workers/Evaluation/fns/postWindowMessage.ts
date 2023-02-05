@@ -21,6 +21,7 @@ export type TPostWindowMessageArgs = Parameters<
 export type TPostWindowMessageDescription = ReturnType<
   typeof postWindowMessageFnDescriptor
 >;
+export type TPostWindowMessageActionType = TPostWindowMessageDescription["type"];
 
 export default function postWindowMessage(...args: TPostWindowMessageArgs) {
   const metaData = ExecutionMetaData.getExecutionMetaData();

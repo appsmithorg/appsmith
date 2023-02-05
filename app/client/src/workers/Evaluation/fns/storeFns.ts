@@ -14,6 +14,7 @@ function storeFnDescriptor(key: string, value: string, persist = true) {
 
 export type TStoreValueArgs = Parameters<typeof storeFnDescriptor>;
 export type TStoreValueDescription = ReturnType<typeof storeFnDescriptor>;
+export type TStoreValueActionType = TStoreValueDescription["type"];
 
 export async function storeValue(
   this: any,
@@ -42,6 +43,7 @@ export type TRemoveValueArgs = Parameters<typeof removeValueFnDescriptor>;
 export type TRemoveValueDescription = ReturnType<
   typeof removeValueFnDescriptor
 >;
+export type TRemoveValueActionType = TRemoveValueDescription["type"];
 
 export async function removeValue(this: any, key: string) {
   delete this.appsmith.store[key];
@@ -61,6 +63,7 @@ function clearStoreFnDescriptor() {
 
 export type TClearStoreArgs = Parameters<typeof clearStoreFnDescriptor>;
 export type TClearStoreDescription = ReturnType<typeof clearStoreFnDescriptor>;
+export type TClearStoreActionType = TClearStoreDescription["type"];
 
 export async function clearStore(this: any) {
   this.appsmith.store = {};

@@ -11,6 +11,7 @@ export type TResetWidgetArgs = Parameters<typeof resetWidgetFnDescriptor>;
 export type TResetWidgetDescription = ReturnType<
   typeof resetWidgetFnDescriptor
 >;
+export type TResetWidgetActionType = TResetWidgetDescription["type"];
 
 async function resetWidget(
   ...args: Parameters<typeof resetWidgetFnDescriptor>

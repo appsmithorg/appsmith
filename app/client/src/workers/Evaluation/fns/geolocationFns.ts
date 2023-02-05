@@ -27,6 +27,7 @@ export type TGetGeoLocationArgs = Parameters<typeof getGeoLocationFnDescriptor>;
 export type TGetGeoLocationDescription = ReturnType<
   typeof getGeoLocationFnDescriptor
 >;
+export type TGetGeoLocationActionType = TGetGeoLocationDescription["type"];
 
 export async function getGeoLocation(
   ...args: Parameters<typeof getGeoLocationFnDescriptor>
@@ -75,6 +76,7 @@ export type TWatchGeoLocationArgs = Parameters<
 export type TWatchGeoLocationDescription = ReturnType<
   typeof watchGeoLocationFnDescriptor
 >;
+export type TWatchGeoLocationActionType = TWatchGeoLocationDescription["type"];
 
 export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
   const metaData = ExecutionMetaData.getExecutionMetaData();
@@ -118,6 +120,7 @@ export type TStopWatchGeoLocationArgs = Parameters<
 export type TStopWatchGeoLocationDescription = ReturnType<
   typeof stopWatchGeoLocationFnDescriptor
 >;
+export type TStopWatchGeoLocationActionType = TStopWatchGeoLocationDescription["type"];
 
 export async function stopWatchGeoLocation() {
   const executor = promisify(stopWatchGeoLocationFnDescriptor);

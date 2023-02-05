@@ -1,12 +1,19 @@
-import navigateTo from "./navigateTo";
-import showAlert from "./showAlert";
-import { closeModal, showModal } from "./modalFns";
-import download from "./download";
-import postWindowMessage from "./postWindowMessage";
-import copyToClipboard from "./copyToClipboard";
-import resetWidget from "./resetWidget";
+import navigateTo, { TNavigateToActionType } from "./navigateTo";
+import showAlert, { TShowAlertActionType } from "./showAlert";
+import {
+  closeModal,
+  showModal,
+  TCloseModalActionType,
+  TShowModalActionType,
+} from "./modalFns";
+import download, { TDownloadActionType } from "./download";
+import postWindowMessage, {
+  TPostWindowMessageActionType,
+} from "./postWindowMessage";
+import copyToClipboard, { TCopyToClipboardActionType } from "./copyToClipboard";
+import resetWidget, { TResetWidgetActionType } from "./resetWidget";
 import { clearStore, removeValue, storeValue } from "./storeFns";
-import run, { clear } from "./actionFns";
+import run, { clear, TClearActionType, TRunActionType } from "./actionFns";
 import {
   isAction,
   isAppsmithEntity,
@@ -18,6 +25,9 @@ import {
 import {
   getGeoLocation,
   stopWatchGeoLocation,
+  TGetGeoLocationActionType,
+  TStopWatchGeoLocationActionType,
+  TWatchGeoLocationActionType,
   watchGeoLocation,
 } from "./geolocationFns";
 import { isAsyncGuard } from "./utils/fnGuard";
@@ -107,3 +117,35 @@ export const entityFns = [
       isAsyncGuard(stopWatchGeoLocation, "appsmith.geolocation.clearWatch"),
   },
 ];
+
+export type ActionTypes =
+  | TClearActionType
+  | TRunActionType
+  | TDownloadActionType
+  | TShowModalActionType
+  | TCloseModalActionType
+  | TShowAlertActionType
+  | TDownloadActionType
+  | TNavigateToActionType
+  | TResetWidgetActionType
+  | TCopyToClipboardActionType
+  | TPostWindowMessageActionType
+  | TGetGeoLocationActionType
+  | TWatchGeoLocationActionType
+  | TStopWatchGeoLocationActionType;
+
+export const ActionNames: Record<ActionTypes, string> = {
+  CLEAR_PLUGIN_ACTION: "clear",
+  RUN_PLUGIN_ACTION: "action.run",
+  DOWNLOAD: "download",
+  SHOW_MODAL_BY_NAME: "showModal",
+  CLOSE_MODAL: "closeModal",
+  SHOW_ALERT: "showAlert",
+  NAVIGATE_TO: "navigateTo",
+  RESET_WIDGET_META_RECURSIVE_BY_NAME: "resetWidget",
+  COPY_TO_CLIPBOARD: "copyToClipboard",
+  POST_MESSAGE: "postWindowMessage",
+  WATCH_CURRENT_LOCATION: "watchGeoLocation",
+  STOP_WATCHING_CURRENT_LOCATION: "stopWatchGeoLocation",
+  GET_CURRENT_LOCATION: "getGeoLocation",
+};

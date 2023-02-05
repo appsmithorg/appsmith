@@ -10,6 +10,7 @@ function showAlertFnDescriptor(message: string, style: TypeOptions) {
 
 export type TShowAlertArgs = Parameters<typeof showAlertFnDescriptor>;
 export type TShowAlertDescription = ReturnType<typeof showAlertFnDescriptor>;
+export type TShowAlertActionType = TShowAlertDescription["type"];
 
 async function showAlert(...args: Parameters<typeof showAlertFnDescriptor>) {
   return promisify(showAlertFnDescriptor)(...args);

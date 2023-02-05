@@ -27,6 +27,7 @@ function runFnDescriptor(
 
 export type TRunArgs = Parameters<typeof runFnDescriptor>;
 export type TRunDescription = ReturnType<typeof runFnDescriptor>;
+export type TRunActionType = TRunDescription["type"];
 
 export default async function run(
   this: any,
@@ -67,6 +68,7 @@ function clearFnDescriptor(this: any) {
 
 export type TClearArgs = Parameters<typeof clearFnDescriptor>;
 export type TClearDescription = ReturnType<typeof clearFnDescriptor>;
+export type TClearActionType = TClearDescription["type"];
 
 export async function clear(this: any) {
   return promisify(clearFnDescriptor.bind(this))();

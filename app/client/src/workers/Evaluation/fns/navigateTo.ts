@@ -18,6 +18,7 @@ function navigateToFnDescriptor(
 
 export type TNavigateToArgs = Parameters<typeof navigateToFnDescriptor>;
 export type TNavigateToDescription = ReturnType<typeof navigateToFnDescriptor>;
+export type TNavigateToActionType = TNavigateToDescription["type"];
 
 async function navigateTo(...args: Parameters<typeof navigateToFnDescriptor>) {
   return promisify(navigateToFnDescriptor)(...args);
