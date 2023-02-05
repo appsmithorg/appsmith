@@ -254,13 +254,13 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
         run: |
-          chmod a+x ./cypress/setup-perf-test.sh
-          ./cypress/setup-perf-test.sh
+          chmod a+x ./perf/setup-perf-test.sh
+          ./perf/setup-perf-test.sh
 
       - name: Get the performance-infra branch/ref
         id: perf_infra_ref
         run: |
-          ref=${{ github.event.client_payload.slash_command.args.named.ref }}
+          ref=${{ github.event.client_payload.slash_command.args.named.ref }}ß
           if [[ -z "$ref" ]]; then ref="main"; fi
           echo ref=$ref >> $GITHUB_OUTPUT
 
