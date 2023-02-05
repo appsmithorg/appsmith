@@ -682,3 +682,17 @@ const jsObjectToCode = (script: string) => {
 const jsCodeToObject = (script: string) => {
   return script.replace(jsObjectDeclaration, "export default");
 };
+
+
+//Replace export default by a variable declaration.
+//This is required for acorn to parse code into AST.
+const jsObjectToCode2 = (script: string) => {
+  return script.replace(/export default/g, jsObjectDeclaration);
+};
+
+//Revert the string replacement from 'jsObjectToCode'.
+//variable declaration is replaced back by export default.
+const jsCodeToObject4 = (script: string) => {
+  return script.replace(jsObjectDeclaration, "export default");
+}
+///daskdjalksdjlaks
