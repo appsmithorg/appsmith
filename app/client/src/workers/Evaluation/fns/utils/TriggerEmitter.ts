@@ -95,7 +95,7 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
       if (error) {
         acc.JSExecutionErrors[name] = error;
         return acc;
-      } else if (data) {
+      } else {
         acc.JSExecutionData[name] = data;
       }
       return acc;

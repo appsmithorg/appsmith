@@ -16,11 +16,11 @@ export interface JSExecutionData {
 }
 
 function saveExecutionData(name: string, data: unknown) {
-  let error = null;
+  let error;
   try {
     data = self.structuredClone(data);
   } catch (e) {
-    data = null;
+    data = undefined;
     error = {
       message: `Execution of ${name} returned an unserializable data`,
     };
@@ -47,6 +47,10 @@ export function functionFactory<P extends ReadonlyArray<unknown>>(
         result.then((res) => {
           postProcessors.forEach((p) => p(name, res));
           return res;
+        });
+        result.catch((e) => {
+          postProcessors.forEach((p) => p(name, undefined));
+          throw e;
         });
       } else {
         postProcessors.forEach((p) => p(name, result));
