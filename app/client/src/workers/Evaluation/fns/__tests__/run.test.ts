@@ -37,7 +37,7 @@ describe("Tests for run function in callback styled", () => {
   it("1. Success callback should be called when the request is successful", async () => {
     requestMock.mockReturnValue(
       Promise.resolve({
-        data: "resolved",
+        data: ["resolved"],
       }),
     );
     const successCallback = jest.fn(() => "success");
@@ -101,7 +101,7 @@ describe("Tests for run function in callback styled", () => {
   it("3. Callback should have access to variables in outer scope", async () => {
     requestMock.mockReturnValue(
       Promise.resolve({
-        data: "resolved",
+        data: ["resolved"],
       }),
     );
     const successCallback = jest.fn();
@@ -121,7 +121,7 @@ describe("Tests for run function in callback styled", () => {
       new Promise((resolve) => {
         setTimeout(() => {
           resolve({
-            data: "resolved",
+            data: ["resolved"],
           });
         }, 1000);
       }),
@@ -146,7 +146,7 @@ describe("Tests for run function in promise styled", () => {
   it("1. Should return a promise which resolves when the request is successful", async () => {
     requestMock.mockReturnValue(
       Promise.resolve({
-        data: "resolved",
+        data: ["resolved"],
       }),
     );
     const successHandler = jest.fn();
