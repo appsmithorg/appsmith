@@ -321,9 +321,7 @@ export function* executeTriggerRequestSaga(
     // @ts-expect-error: reason is of type string
     responsePayload.error = {
       // @ts-expect-error: reason is of type string
-      message: error.message,
-      // @ts-expect-error: geolocation errors and plugin execution errors have a responseBody
-      errorBody: error.responseData[0],
+      message: error.responseData?.[0] || error.message,
     };
   }
   return responsePayload;

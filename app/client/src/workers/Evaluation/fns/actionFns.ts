@@ -35,21 +35,20 @@ export default async function run(
   params = {},
 ) {
   const executor = promisify(runFnDescriptor.bind(this));
-  let response;
   try {
-    response = await executor(onSuccessOrParams, onError, params);
+    const response = await executor(onSuccessOrParams, onError, params);
     if (typeof onSuccessOrParams === "function") {
       onSuccessOrParams(response);
       return;
     }
+    return response;
   } catch (e) {
     if (typeof onError === "function") {
-      onError((e as any).errorBody);
+      onError((e as any).message);
       return;
     }
     throw e;
   }
-  return response;
 }
 
 function clearFnDescriptor(this: any) {
