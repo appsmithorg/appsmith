@@ -138,6 +138,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
     if (props.onForkTemplateClick) {
       e.preventDefault();
+      e.stopPropagation();
       props.onForkTemplateClick(props.template);
     } else {
       e.stopPropagation();
