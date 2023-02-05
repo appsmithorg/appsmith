@@ -44,7 +44,7 @@ export default async function run(
     }
   } catch (e) {
     if (typeof onError === "function") {
-      onError((e as Error).message);
+      onError((e as any).errorBody);
       return;
     }
     throw e;

@@ -11,7 +11,7 @@ import {
 } from "workers/Evaluation/fns/geolocationFns";
 
 class GeoLocationError extends Error {
-  constructor(message: string, private data?: any) {
+  constructor(message: string, private responseData?: any) {
     super(message);
   }
 }
@@ -132,7 +132,7 @@ export function* getCurrentLocationSaga(
     );
     if (error instanceof GeolocationPositionError) {
       const sanitizedError = sanitizeGeolocationError(error);
-      throw new GeoLocationError(sanitizedError.message, sanitizedError);
+      throw new GeoLocationError(sanitizedError.message, [sanitizedError]);
     }
   }
 }

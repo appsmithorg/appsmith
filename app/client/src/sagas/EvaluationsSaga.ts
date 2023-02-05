@@ -318,9 +318,13 @@ export function* executeTriggerRequestSaga(
   } catch (error) {
     // When error occurs in execution of triggers,
     // a success: false is sent to reject the promise
-
     // @ts-expect-error: reason is of type string
-    responsePayload.error = { message: error.message, errorBody: error.data };
+    responsePayload.error = {
+      // @ts-expect-error: reason is of type string
+      message: error.message,
+      // @ts-expect-error: geolocation errors and plugin execution errors have a responseBody
+      errorBody: error.responseData[0],
+    };
   }
   return responsePayload;
 }
