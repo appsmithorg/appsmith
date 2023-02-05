@@ -48,7 +48,7 @@ export default {
   disconnectLearnMoreLink: ".t--disconnect-learn-more",
   learnMoreOnRepoLimitModal: ".t--learn-more-repo-limit-modal",
   gitSyncModalDeployTab: "[data-cy=t--tab-DEPLOY]",
-  gitPullCount: ".t--bottom-bar-pull .count",
+  gitPullCount: ".t--bottom-bar-commit .count",
   gitConnectionContainer: "[data-test=t--git-connection-container]",
   gitRemoteURLContainer: "[data-test=t--remote-url-container]",
   discardChanges: ".t--discard-button",
