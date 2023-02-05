@@ -433,7 +433,7 @@ export default function* executePluginActionTriggerSaga(
       },
     });
   }
-  return payload.body;
+  return [payload.body, params];
 }
 
 function* runActionShortcutSaga() {

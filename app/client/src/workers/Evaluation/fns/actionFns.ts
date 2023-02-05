@@ -38,10 +38,15 @@ export default async function run(
   try {
     const response = await executor(onSuccessOrParams, onError, params);
     if (typeof onSuccessOrParams === "function") {
-      onSuccessOrParams(response);
+      onSuccessOrParams.apply(this, response);
       return;
     }
-    return response;
+    /*
+     * Api execution returns [response, params]
+     * Old callback style are passed both response and params
+     * Promise implementation somehow only passes response to the then callback.
+     * */
+    return response[0];
   } catch (e) {
     if (typeof onError === "function") {
       onError((e as any).message);
