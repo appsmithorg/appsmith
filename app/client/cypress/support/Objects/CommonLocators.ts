@@ -172,10 +172,5 @@ export class CommonLocators {
   _editorVariable = ".cm-variable";
   _consoleString = ".cm-string";
   _commentString = ".cm-comment";
-  _listWidgetItemsDatalabel = ".t--property-pane-section-data";
-  _listWidgetVisiblelabel = "//label[contains(text(),'Visible')]";
-  _listWidgetAnimateLoadinglabel = "//label[contains(text(),'Animate Loading')]";
-  _listWidgetClickEventlabel = "//label[contains(text(),'onListItemClick')]";
-  _listWidgetPaginationlabel = "//label[contains(text(),'Server Side Pagination')]";
 }
 
