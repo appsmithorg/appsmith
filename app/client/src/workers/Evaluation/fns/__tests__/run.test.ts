@@ -69,7 +69,7 @@ describe("Tests for run function in callback styled", () => {
   it("2. Error callback should be called when the request is unsuccessful", async () => {
     requestMock.mockReturnValue(
       Promise.resolve({
-        error: { message: "error" },
+        error: { message: "error", errorBody: "Error body" },
       }),
     );
     const successCallback = jest.fn(() => "success");
@@ -94,7 +94,7 @@ describe("Tests for run function in callback styled", () => {
         },
       },
     });
-    expect(errorCallback).toBeCalledWith("error");
+    expect(errorCallback).toBeCalledWith("Error body");
     expect(errorCallback).toReturnWith("failed");
     expect(successCallback).toBeCalledTimes(0);
   });
