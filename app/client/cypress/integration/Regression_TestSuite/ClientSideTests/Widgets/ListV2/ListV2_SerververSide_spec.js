@@ -13,6 +13,7 @@ describe("List widget V2 Serverside Pagination", () => {
   before(() => {
     cy.addDsl(dsl);
   });
+
   it("1. Next button disabled when there's no data", () => {
     jsEditor.CreateJSObject(
       `
@@ -48,6 +49,7 @@ describe("List widget V2 Serverside Pagination", () => {
     });
     cy.get(commonlocators.listPaginateActivePage).should("have.text", "2");
   });
+
   it("2. Next button disabled but visible in view mode when there's no data", () => {
     deployMode.DeployApp();
 
@@ -192,6 +194,99 @@ describe("List widget V2 Serverside Pagination", () => {
       const data = JSON.parse($el.text());
       cy.wrap(data.name).should("equal", "Perry234");
       cy.wrap(data.phone).should("equal", "1234 456 789");
+    });
+  });
+
+  it("4. SelectedItemView and TriggeredItemView with changing data", () => {
+    // Initiate data change using store value
+    cy.get(`${widgetSelector("Button1")} button`)
+      .first()
+      .click({ force: true });
+
+    cy.wait(2000);
+
+    // Expect value should be the same
+    cy.get(
+      `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
+
+    cy.get(
+      `${widgetSelector("TriggeredItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
+
+    // Change Page and Validate Data change
+    cy.get(commonlocators.listPaginatePrevButton).click({
+      force: true,
+    });
+
+    cy.wait(2000);
+
+    cy.get(
+      `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234 Changed",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
+
+    cy.get(
+      `${widgetSelector("TriggeredItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234 Changed",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
     });
   });
 });
