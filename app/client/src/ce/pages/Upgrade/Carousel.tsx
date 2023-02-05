@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
-import { Icon, IconSize, Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system-old";
 import { CarouselProps } from "./types";
 
 const CarouselContainer = styled.div`

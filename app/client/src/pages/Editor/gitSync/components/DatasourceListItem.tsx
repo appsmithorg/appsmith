@@ -1,4 +1,4 @@
-import { Icon, IconSize, Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";

@@ -9,7 +9,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   actionChannel,
   ActionPattern,

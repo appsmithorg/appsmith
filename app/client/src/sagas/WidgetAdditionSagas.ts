@@ -1,15 +1,12 @@
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Toaster } from "design-system";
+import { Toaster } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import {
   CanvasWidgetsReduxState,
@@ -26,10 +23,6 @@ import {
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
-import {
-  getParentBottomRowAfterAddingWidget,
-  resizeCanvasToLowestWidget,
-} from "./WidgetOperationUtils";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
@@ -41,8 +34,6 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { getMainCanvasProps } from "selectors/editorSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -262,18 +253,10 @@ export function* getUpdateDslAfterCreatingChild(
     addChildPayload.props?.blueprint,
   );
 
-  const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
-
-  const parentBottomRow = getParentBottomRowAfterAddingWidget(
-    stateParent,
-    newWidget,
-  );
-
   // Update widgets to put back in the canvasWidgetsReducer
   // TODO(abhinav): This won't work if dont already have an empty children: []
   const parent = {
     ...stateParent,
-    bottomRow: parentBottomRow,
     children: [...(stateParent.children || []), childWidgetPayload.widgetId],
   };
 
@@ -302,23 +285,6 @@ export function* getUpdateDslAfterCreatingChild(
     [addChildPayload.newWidgetId],
     widgets,
   );
-
-  if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
-    const mainCanvasMinHeight = mainCanvasProps?.height;
-
-    //updates bottom Row of main Canvas
-    updatedWidgets[
-      MAIN_CONTAINER_WIDGET_ID
-    ].bottomRow = resizeCanvasToLowestWidget(
-      updatedWidgets,
-      widgetId,
-      updatedWidgets[MAIN_CONTAINER_WIDGET_ID].bottomRow,
-      mainCanvasMinHeight,
-    );
-  }
 
   return updatedWidgets;
 }

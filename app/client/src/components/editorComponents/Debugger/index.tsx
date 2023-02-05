@@ -1,4 +1,4 @@
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -16,7 +16,7 @@ import {
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
 import { matchBuilderPath } from "constants/routes";
-import { getTypographyByKey, TooltipComponent } from "design-system";
+import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
 

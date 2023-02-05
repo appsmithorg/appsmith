@@ -68,6 +68,7 @@ export class DeployMode {
     cy.get(this.locator._backToEditor).click();
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
+    this.agHelper.AssertElementVisible(this.locator._dropHere);//Assert if canvas is visible after Navigating back!
   }
 
   public EnterJSONInputValue(fieldName: string, value: string, index = 0) {
