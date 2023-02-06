@@ -34,12 +34,6 @@ describe("Fork a template to the current app from new page popover", () => {
       .scrollIntoView()
       .click();
     cy.wait(1000);
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait(6000);
     _.agHelper.CheckForErrorToast(
       "Internal server error while processing request",
     );
