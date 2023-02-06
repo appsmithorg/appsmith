@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import BEBannerImage from "assets/images/upgrade/be-cta/be-box-image.png";
 import BETextImage from "assets/svg/be-upgrade/upgrade-to-be-text.svg";
+import BECtaImage from "assets/svg/be-upgrade/be-cta.svg";
 import {
   createMessage,
   MOVE_TO_BUSINESS_EDITION,
@@ -11,8 +11,6 @@ import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { Colors } from "constants/Colors";
 
 export const UpgradeToBEPageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, #fff 20px, transparent 1%) center,
@@ -22,12 +20,11 @@ export const UpgradeToBEPageWrapper = styled.div`
 
 export const ImageContainer = styled.div`
   display: flex;
-  min-width: 50%;
+  justify-content: center;
+  min-width: 400px;
   img {
-    width: 400px;
-    height: 400px;
-    position: relative;
-    right: 200px;
+    width: 600px;
+    height: 600px;
   }
 `;
 
@@ -54,23 +51,30 @@ export const Overlay = styled.div`
 
 export const FlexContainer = styled.div`
   display: flex;
-  flex-direction: row;
   align-items: center;
   height: calc(100% - 96px);
   width: 100%;
-  padding: 48px 200px;
-  justify-content: space-between;
-  min-width: 900px;
+  justify-content: center;
+  min-width: 1200px;
 `;
 
 export const LeftWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-width: 80%;
+  min-width: 700px;
   img {
-    width: 800px;
-    height: 800px;
+    width: 1000px;
+    height: 1000px;
   }
+`;
+
+export const ContentWrapper = styled.div`
+  display: flex;
+  height: 100%;
+  width: 1000px;
+  flex-direction: row;
+  padding: 48px 200px;
+  align-items: center;
+  justify-content: center;
+  min-width: 900px;
 `;
 
 export const UpgradeToBEPage = () => {
@@ -82,13 +86,15 @@ export const UpgradeToBEPage = () => {
   return (
     <UpgradeToBEPageWrapper>
       <Overlay>
-        <FlexContainer>
-          <LeftWrapper>
-            <img alt="text-content" src={BETextImage} />
-          </LeftWrapper>
-          <ImageContainer>
-            <img alt="Upgrade to Business Edition" src={BEBannerImage} />
-          </ImageContainer>
+        <FlexContainer className="flex-container">
+          <ContentWrapper className="content-wrapper">
+            <LeftWrapper>
+              <img alt="text-content" src={BETextImage} />
+            </LeftWrapper>
+            <ImageContainer>
+              <img alt="Upgrade to Business Edition" src={BECtaImage} />
+            </ImageContainer>
+          </ContentWrapper>
         </FlexContainer>
       </Overlay>
       <FooterContainer>
