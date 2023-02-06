@@ -29,7 +29,7 @@ const DEFAULT_LIST_DATA = [
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "List V2",
+  name: "List",
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,

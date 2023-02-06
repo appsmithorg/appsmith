@@ -17,6 +17,9 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  isDeprecated: true,
+  hideCard: true,
+  replacement: "LIST_WIDGET_V2",
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
