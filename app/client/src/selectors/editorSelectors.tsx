@@ -18,7 +18,6 @@ import {
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
-  WidgetType,
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
@@ -36,9 +35,6 @@ import {
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
-import WidgetFactory, {
-  NonSerialisableWidgetConfigs,
-} from "utils/WidgetFactory";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
@@ -152,6 +148,12 @@ export const selectCurrentPageSlug = createSelector(
     pages.find((page) => page.pageId === pageId)?.slug || PLACEHOLDER_PAGE_SLUG,
 );
 
+export const getCurrentPageDescription = createSelector(
+  getCurrentPageId,
+  getPageList,
+  (pageId, pages) => pages.find((page) => page.pageId === pageId)?.description,
+);
+
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
   pages.reduce((acc, page: Page) => {
     // Comeback
@@ -233,33 +235,6 @@ export const getCurrentPageName = createSelector(
     pageList.pages.find((page) => page.pageId === pageList.currentPageId)
       ?.pageName,
 );
-
-/**
- * This returns the number of rows which is not occupied by a Canvas Widget within
- * a parent container like widget of type widgetType
- * For example, the Tabs Widget takes 4 rows for the tabs
- * @param widgetType Type of widget
- * @param props Widget properties
- * @returns the offset in rows
- */
-export const getCanvasHeightOffset = (
-  widgetType: WidgetType,
-  props: WidgetProps,
-) => {
-  // Get the non serialisable configs for the widget type
-  const config:
-    | Record<NonSerialisableWidgetConfigs, unknown>
-    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
-  let offset = 0;
-  // If this widget has a registered canvasHeightOffset function
-  if (config?.canvasHeightOffset) {
-    // Run the function to get the offset value
-    offset = (config.canvasHeightOffset as (props: WidgetProps) => number)(
-      props,
-    );
-  }
-  return offset;
-};
 
 export const getWidgetCards = createSelector(
   getWidgetConfigs,

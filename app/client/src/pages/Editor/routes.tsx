@@ -39,6 +39,7 @@ import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
 import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
 import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -202,7 +203,7 @@ function PaneDrawer(props: PaneDrawerProps) {
         // delaying setting select and focus state,
         // so that the focus history has time to store the selected values
         setTimeout(() => {
-          selectWidget(undefined);
+          selectWidget(SelectionRequestType.Empty);
           focusWidget(undefined);
         }, 0);
       }

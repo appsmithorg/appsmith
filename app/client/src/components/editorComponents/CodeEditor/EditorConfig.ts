@@ -28,6 +28,7 @@ export enum TabBehaviour {
 export enum EditorSize {
   COMPACT = "COMPACT",
   EXTENDED = "EXTENDED",
+  COMPACT_RETAIN_FORMATTING = "COMPACT_RETAIN_FORMATTING",
 }
 
 export type EditorConfig = {

@@ -18,7 +18,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
-
+  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10"
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
@@ -136,7 +136,19 @@ export class AggregateHelper {
     this.Sleep();
   }
 
+  public CheckForPageSaveError() {
+    // Wait for "saving" status to disappear
+    this.GetElement(this.locator._statusSaving).should("not.exist");
+    // Check for page save error
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this.locator._saveStatusError).length) {
+        this.RefreshPage();
+      }
+    });
+  }
+
   public AssertAutoSave() {
+    this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
     cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
       "not.exist",
@@ -481,6 +493,11 @@ export class AggregateHelper {
         });
       this.AssertAutoSave();
     });
+  }
+
+  public VerifyCallCount(alias: string, expectedNumberOfCalls: number) {
+    cy.wait(alias);
+    cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
   }
 
   public GetNClick(
@@ -929,8 +946,18 @@ export class AggregateHelper {
       .should("be.visible");
   }
 
-  public AssertElementExist(selector: ElementType, index = 0) {
-    return this.GetElement(selector)
+  public CheckForErrorToast(error: string) {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this.locator._toastMsg).length) {
+        if ($ele.find(this.locator._specificToast(error)).length) {
+          throw new Error("Error Toast from Application:" + error);
+        }
+      }
+    });
+  }
+
+  public AssertElementExist(selector: ElementType, index = 0, timeout = 20000) {
+    return this.GetElement(selector, timeout)
       .eq(index)
       .should("exist");
   }
@@ -1017,6 +1044,22 @@ export class AggregateHelper {
       }
     });
     this.Sleep();
+  }
+
+  public AssertElementEnabledDisabled(
+    selector: ElementType,
+    index = 0,
+    disabled = true,
+  ) {
+    if (disabled) {
+      return this.GetElement(selector)
+        .eq(index)
+        .should("be.disabled");
+    } else {
+      return this.GetElement(selector)
+        .eq(index)
+        .should("not.be.disabled");
+    }
   }
 
   //Not used:

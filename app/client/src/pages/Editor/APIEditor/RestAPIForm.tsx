@@ -14,7 +14,7 @@ import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
 import { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes, Text, TextType } from "design-system";
+import { Classes, Text, TextType } from "design-system-old";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 import get from "lodash/get";
 import { Datasource } from "entities/Datasource";

@@ -6,8 +6,8 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { functionDeterminer } from "../functionDeterminer";
+import { resetJSLibraries } from "workers/common/JSLibrary";
 
 describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
@@ -40,6 +40,7 @@ describe("evaluateSync", () => {
   };
   beforeAll(() => {
     setupEvalEnv();
+    resetJSLibraries();
   });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';

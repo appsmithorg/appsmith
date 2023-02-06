@@ -1,5 +1,6 @@
-import styled from "constants/DefaultTheme";
 import React, { forwardRef, RefObject, useEffect, useRef } from "react";
+import styled from "styled-components";
+
 import ResizeObserver from "resize-observer-polyfill";
 import { useSelector } from "react-redux";
 import { getCanvasScale } from "selectors/editorSelectors";
@@ -122,7 +123,9 @@ export const StickyCanvasArena = forwardRef(
     };
     const observeSlider = () => {
       interSectionObserver.current.disconnect();
-      interSectionObserver.current.observe(slidingArenaRef.current);
+      if (slidingArenaRef && slidingArenaRef.current) {
+        interSectionObserver.current.observe(slidingArenaRef.current);
+      }
     };
 
     useEffect(() => {
@@ -147,7 +150,9 @@ export const StickyCanvasArena = forwardRef(
       return () => {
         parentCanvas?.removeEventListener("scroll", observeSlider);
         parentCanvas?.removeEventListener("mouseover", observeSlider);
-        resizeObserver.current.unobserve(slidingArenaRef.current);
+        if (slidingArenaRef && slidingArenaRef.current) {
+          resizeObserver.current.unobserve(slidingArenaRef.current);
+        }
       };
     }, []);
 

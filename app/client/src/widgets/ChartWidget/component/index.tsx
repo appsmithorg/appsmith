@@ -14,6 +14,7 @@ import {
   LabelOrientation,
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
 } from "../constants";
+import { getSeriesChartData } from "./utils";
 import log from "loglevel";
 import { Colors } from "constants/Colors";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
@@ -198,28 +199,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
-  getSeriesChartData = (data: ChartDataPoint[], categories: string[]) => {
-    const dataMap: { [key: string]: string } = {};
-
-    // if not array or (is array and array length is zero)
-    if (!Array.isArray(data) || (Array.isArray(data) && data.length === 0)) {
-      return [
-        {
-          value: "",
-        },
-      ];
-    }
-    for (let index = 0; index < data.length; index++) {
-      const item: ChartDataPoint = data[index];
-      dataMap[item.x] = item.y;
-    }
-    return categories.map((category: string) => {
-      return {
-        value: dataMap[category] ? dataMap[category] : null,
-      };
-    });
-  };
-
   /**
    * creates dataset need by fusion chart  from widget object-data
    *
@@ -235,7 +214,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       const seriesChartData: Array<Record<
         string,
         unknown
-      >> = this.getSeriesChartData(get(item, "data", []), categories);
+      >> = getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
         color: item.color

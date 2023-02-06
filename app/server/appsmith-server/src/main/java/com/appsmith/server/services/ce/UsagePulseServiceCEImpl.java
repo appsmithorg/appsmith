@@ -72,13 +72,14 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
                             // Hashed user email is stored to user for future mapping of user and pulses
                             User updateUser = new User();
                             updateUser.setHashedEmail(hashedEmail);
-                            updateUser.setPasswordResetInitiated(user.getPasswordResetInitiated());
-                            updateUser.setSource(user.getSource());
+
+                            // Avoid updating the ACL fields
                             updateUser.setGroupIds(null);
                             updateUser.setPolicies(null);
+                            updateUser.setPermissions(null);
 
-                            return Mono.zip(userService.update(user.getId(), updateUser),save(usagePulse))
-                                            .map(tuple1 -> tuple1.getT2());
+                            return userService.updateWithoutPermission(user.getId(), updateUser)
+                                    .then(save(usagePulse));
                         }
                         usagePulse.setUser(user.getHashedEmail());
                     }

@@ -1,5 +1,6 @@
 import React from "react";
 import SelectComponent from "widgets/SelectWidget/component";
+import styled from "styled-components";
 import { DropdownOption } from "widgets/SelectWidget/constants";
 import {
   BaseCellComponentProps,
@@ -7,7 +8,6 @@ import {
   TABLE_SIZES,
 } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import styled from "constants/DefaultTheme";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";

@@ -1,22 +1,52 @@
-import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
-import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { useWidgetSelection } from "./useWidgetSelection";
+import equal from "fast-deep-equal/es6";
 import React, { ReactNode, useCallback } from "react";
-import { stopEventPropagation } from "utils/AppsmithUtils";
+import { useSelector } from "react-redux";
+import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {
   getFocusedParentToOpen,
   isWidgetSelected,
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
-import equal from "fast-deep-equal/es6";
+import styled from "styled-components";
+import { stopEventPropagation } from "utils/AppsmithUtils";
+import { scrollCSS } from "widgets/WidgetUtils";
+import { useWidgetSelection } from "./useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { Colors } from "constants/Colors";
+
+const ContentWrapper = styled.div<{
+  backgroundColor?: string;
+  borderRadius?: string;
+}>`
+  width: 100%;
+  height: 100%;
+  background: ${({ backgroundColor }) => `${backgroundColor || Colors.WHITE}`};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  ${scrollCSS}
+`;
+
+const ScrollWrapper = styled.div<{
+  backgroundColor?: string;
+  borderRadius?: string;
+}>`
+  width: 100%;
+  height: 100%;
+  background: ${({ backgroundColor }) => `${backgroundColor || Colors.WHITE}`};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  overflow: hidden;
+`;
 
 export function ClickContentToOpenPropPane({
+  backgroundColor,
+  borderRadius,
   children,
   widgetId,
 }: {
   widgetId: string;
   children?: ReactNode;
+  backgroundColor?: string;
+  borderRadius?: string;
 }) {
   const { focusWidget } = useWidgetSelection();
 
@@ -41,20 +71,20 @@ export function ClickContentToOpenPropPane({
     e.stopPropagation();
   };
 
-  const styles = {
-    width: "100%",
-    height: "100%",
-  };
-
   return (
-    <div
-      onClick={stopEventPropagation}
-      onClickCapture={clickToSelectWidget}
-      onMouseOver={handleMouseOver}
-      style={styles}
+    <ScrollWrapper
+      backgroundColor={backgroundColor}
+      borderRadius={borderRadius}
     >
-      {children}
-    </div>
+      <ContentWrapper
+        className="scroll-parent"
+        onClick={stopEventPropagation}
+        onMouseDownCapture={clickToSelectWidget}
+        onMouseOver={handleMouseOver}
+      >
+        {children}
+      </ContentWrapper>
+    </ScrollWrapper>
   );
 }
 
@@ -74,16 +104,24 @@ export const useClickToSelectWidget = (widgetId: string) => {
       // 2. If table filter property pane is open.
       if (shouldIgnoreClicks) return;
       if ((!isPropPaneVisible && isSelected) || !isSelected) {
-        const isMultiSelect = e.metaKey || e.ctrlKey || e.shiftKey;
+        let type: SelectionRequestType = SelectionRequestType.One;
+        if (e.metaKey || e.ctrlKey) {
+          type = SelectionRequestType.PushPop;
+        } else if (e.shiftKey) {
+          type = SelectionRequestType.ShiftSelect;
+        }
 
         if (parentWidgetToOpen) {
-          selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
+          selectWidget(type, [parentWidgetToOpen.widgetId]);
         } else {
-          selectWidget(widgetId, isMultiSelect);
+          selectWidget(type, [widgetId]);
           focusWidget(widgetId);
         }
 
-        if (isMultiSelect) {
+        if (
+          type === SelectionRequestType.PushPop ||
+          type === SelectionRequestType.ShiftSelect
+        ) {
           e.stopPropagation();
         }
       }
