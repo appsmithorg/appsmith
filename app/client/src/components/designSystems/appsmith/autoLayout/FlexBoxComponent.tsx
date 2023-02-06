@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import AutoLayoutLayer from "./AutoLayoutLayer";
-import { FLEXBOX_PADDING } from "constants/WidgetConstants";
+import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
 
 export interface FlexBoxProps {
@@ -149,10 +149,13 @@ function FlexBoxComponent(props: FlexBoxProps) {
         key={index}
         start={start}
         widgetId={props.widgetId}
-        wrapCenter={centerColumns > 64}
-        wrapEnd={endColumns > 64}
-        wrapLayer={startColumns + centerColumns + endColumns > 64}
-        wrapStart={startColumns > 64}
+        wrapCenter={centerColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
+        wrapEnd={endColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
+        wrapLayer={
+          startColumns + centerColumns + endColumns >
+          GridDefaults.DEFAULT_GRID_COLUMNS
+        }
+        wrapStart={startColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
       />
     );
   }

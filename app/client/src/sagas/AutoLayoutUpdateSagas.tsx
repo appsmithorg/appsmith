@@ -4,11 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import {
-  LayoutDirection,
-  Positioning,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -23,7 +19,6 @@ import {
 import { getWidgets } from "./selectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import {
   getCurrentAppPositioningType,
   getMainCanvasProps,
@@ -32,6 +27,7 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
+import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 
 type LayoutUpdatePayload = {
   parentId: string;
@@ -149,17 +145,16 @@ export function* updateLayoutPositioningSaga(
   actionPayload: ReduxAction<AppPositioningTypes>,
 ) {
   try {
+    const currPositioningType: AppPositioningTypes = yield select(
+      getCurrentAppPositioningType,
+    );
     const payloadPositioningType = actionPayload.payload;
 
+    if (currPositioningType === payloadPositioningType) return;
+
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
     if (payloadPositioningType === AppPositioningTypes.AUTO) {
-      const currPositioningType: AppPositioningTypes = yield select(
-        getCurrentAppPositioningType,
-      );
-
-      if (currPositioningType === AppPositioningTypes.AUTO) return;
-
-      const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-
       const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
         MAIN_CONTAINER_WIDGET_ID,
         { canvasWidgets: allWidgets },
@@ -177,18 +172,7 @@ export function* updateLayoutPositioningSaga(
       yield call(recalculateOnPageLoad);
     } else {
       yield put(
-        batchUpdateMultipleWidgetProperties([
-          {
-            widgetId: MAIN_CONTAINER_WIDGET_ID,
-            updates: {
-              modify: {
-                positioning: Positioning.Fixed,
-                useAutoLayout: false,
-                direction: LayoutDirection.Vertical,
-              },
-            },
-          },
-        ]),
+        updateAndSaveLayout(convertNormalizedDSLToFixed(allWidgets, "DESKTOP")),
       );
     }
   } catch (error) {

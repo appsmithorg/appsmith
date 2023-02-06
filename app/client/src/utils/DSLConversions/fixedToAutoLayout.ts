@@ -89,7 +89,7 @@ export function fitChildWidgetsIntoLayers(
     return { children: [], flexLayers };
   }
 
-  //separate ot widgets to be skipped
+  //separate the widgets to be skipped
   const [nonLayerWidgets, currWidgets] = partition(
     widgets,
     (widget) => nonFlexLayerWidgets.indexOf(widget.type) > -1,
