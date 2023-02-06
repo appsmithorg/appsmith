@@ -1836,7 +1836,7 @@ Cypress.Commands.add(
     let comm =
       "docker run -d --name " +
       containerName +
-      ' -p 80:80 -p 9001:9001 -v "' +
+      ' -p 8081:80 -p 9002:9002 -v "' +
       path +
       '/stacks:/appsmith-stacks" ' +
       version;
@@ -1862,7 +1862,7 @@ Cypress.Commands.add(
     let comm =
       "docker run -d --name " +
       containerName +
-      ' -p 80:80 -p 9001:9001 -v "' +
+      ' -p 8081:80 -p 9002:9002 -v "' +
       path +
       '/stacks:/appsmith-stacks" ' +
       version;
