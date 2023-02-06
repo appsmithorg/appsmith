@@ -279,8 +279,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     ) {
       this.setViewModeFromQueryParams();
     }
-
-    this.props.initializeFormWithDefaults(this.props.pluginType);
   }
 
   // To move to edit state for new datasources and when we want to move to edit state
