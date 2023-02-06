@@ -14,17 +14,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.AuthenticationValidator;
-import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.DatasourceContextService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.MarketplaceService;
-import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.PluginService;
-import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.*;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -37,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.codec.ByteBufferDecoder;
 import org.springframework.core.codec.StringDecoder;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -63,11 +52,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -134,7 +119,7 @@ public class NewActionServiceCEImplTest {
     PagePermission pagePermission;
     @MockBean
     ActionPermission actionPermission;
-    @SpyBean
+    @MockBean
     ObservationRegistry observationRegistry;
 
     private BodyExtractor.Context context;
@@ -168,6 +153,9 @@ public class NewActionServiceCEImplTest {
                 pagePermission,
                 actionPermission,
                 observationRegistry);
+
+        ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
     @BeforeEach
@@ -351,8 +339,8 @@ public class NewActionServiceCEImplTest {
         StepVerifier
                 .create(actionExecutionResultMono)
                 .assertNext(response -> {
-                    assertTrue(response.getIsExecutionSuccess());
                     assertTrue(response instanceof ActionExecutionResult);
+                    assertTrue(response.getIsExecutionSuccess());
                     assertEquals(mockResult.getBody().toString(), response.getBody().toString());
                 })
                 .verifyComplete();
@@ -401,8 +389,8 @@ public class NewActionServiceCEImplTest {
         StepVerifier
                 .create(actionExecutionResultMono)
                 .assertNext(response -> {
-                    assertTrue(response.getIsExecutionSuccess());
                     assertTrue(response instanceof ActionExecutionResult);
+                    assertTrue(response.getIsExecutionSuccess());
                     assertEquals(mockResult.getBody().toString(), response.getBody().toString());
                 })
                 .verifyComplete();
