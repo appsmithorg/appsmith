@@ -69,6 +69,7 @@ describe("Dynamic Height Width validation list widget", function() {
           200,
         );
         cy.wait(2000);
+        cy.get("#switcher--explorer").click({ force: true });
         cy.selectEntityByName("Text3Copy");
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.get("body").type(`{${modifierKey}}c`);

@@ -163,7 +163,10 @@ function Link(props: {
           ? props.name
           : props.name + "." + props.entityType.toLowerCase();
       return (
-        <span className="debugger-entity-link" onClick={onClick}>
+        <span
+          className="debugger-entity-link t--debugger-log-entity-link"
+          onClick={onClick}
+        >
           {link}
         </span>
       );

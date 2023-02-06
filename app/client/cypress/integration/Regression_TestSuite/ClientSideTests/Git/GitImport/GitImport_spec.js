@@ -1,15 +1,16 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
+const explorer = require("../../../../../locators/explorerlocators.json");
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../../locators/Pages.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 const jsObject = "JSObject1";
 let newBranch = "feat/temp";
 const mainBranch = "master";
 let repoName, newWorkspaceName;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git import flow ", function() {
   before(() => {
@@ -72,7 +73,7 @@ describe("Git import flow ", function() {
         _.gitSync.CreateGitBranch(repoName);
       });
 
-      cy.wait(5000); // for git connection to settle!
+      _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
     });
   });
 
@@ -119,7 +120,6 @@ describe("Git import flow ", function() {
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
       force: true,
     });
-    cy.wait(4000); //for git connection to settle
     /* cy.get(homePage.toastMessage).should(
       "contain",
      "Application imported successfully",
@@ -127,6 +127,14 @@ describe("Git import flow ", function() {
     cy.wait("@gitStatus").then((interception) => {
       cy.log(interception.response.body.data);
       cy.wait(1000);
+    });
+    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+
+    cy.wait(3000); //for uncommited changes to appear if any!
+    cy.get("body").then(($body) => {
+      if ($body.find(gitSyncLocators.gitPullCount).length > 0) {
+        cy.commitAndPush();
+      }
     });
   });
 
@@ -145,6 +153,7 @@ describe("Git import flow ", function() {
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
 
+  // skipping below 3 cases due to open bug #18776
   it("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     //cy.createGitBranch(newBranch);
     _.gitSync.CreateGitBranch(newBranch, true);
@@ -194,7 +203,7 @@ describe("Git import flow ", function() {
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
-    cy.wait(10000);
+    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.merge(mainBranch);
@@ -247,7 +256,8 @@ describe("Git import flow ", function() {
   });
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
-    _.canvasHelper.OpenWidgetPane();
+    //_.canvasHelper.OpenWidgetPane();
+    _.ee.NavigateToSwitcher("widgets");
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);
