@@ -42,6 +42,13 @@ describe("Tests functionality of platform function", () => {
           console.log("Hello from setTimeout");
         }, 4000);
       },
+      metaDataApiTest: () => {
+        getAllUsers.run().then(() => {
+          setTimeout(() => {
+            console.log("Hello from setTimeout inside API")
+          }, 2000);
+        })
+      },
       switchMetaData: () => {},
       accessSetIntervalFromSetTimeout: () => {
         setTimeout(() => {
@@ -104,5 +111,15 @@ describe("Tests functionality of platform function", () => {
     agHelper.Sleep(3000);
     debuggerHelper.filter("JSObject1.metaDataForSetInterval");
     debuggerHelper.DoesConsoleLogExist("Hello from setInterval");
+
+    jsEditor.SelectFunctionDropdown("metaDataApiTest");
+    jsEditor.RunJSObj();
+    debuggerHelper.ClickDebuggerIcon();
+    agHelper.GetNClick(jsEditor._logsTab);
+    jsEditor.SelectFunctionDropdown("switchMetaData");
+    jsEditor.RunJSObj();
+    agHelper.Sleep(2000);
+    debuggerHelper.filter("JSObject1.metaDataApiTest");
+    debuggerHelper.DoesConsoleLogExist("Hello from setTimeout inside API");
   });
 });
