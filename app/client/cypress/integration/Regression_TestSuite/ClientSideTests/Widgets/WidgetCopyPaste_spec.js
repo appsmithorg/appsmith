@@ -3,7 +3,6 @@ const commonLocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget Copy paste", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -103,6 +102,7 @@ describe("Widget Copy paste", function() {
 
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);
+    // cy.get(explorer.explorerSwitchId).click();
     // cy.get(explorer.entityModal).click();
     cy.get(".t--modal-widget")
       .find(widgetsPage.chartWidget)
@@ -118,7 +118,7 @@ describe("Widget Copy paste", function() {
     cy.get("body").type("{del}");
 
     //add list widget
-    _.canvasHelper.OpenWidgetPane();
+    cy.get(explorer.widgetSwitchId).click();
     cy.dragAndDropToCanvas("listwidget", { x: 300, y: 700 });
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 

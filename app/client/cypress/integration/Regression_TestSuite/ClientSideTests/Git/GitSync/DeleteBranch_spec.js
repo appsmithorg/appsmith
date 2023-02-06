@@ -2,11 +2,14 @@ import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-let branchName;
+let repoName, branchName;
 describe("Delete branch flow", () => {
   it("1. Connect app to git, create new branch and delete it", () => {
     // create git repo and connect app to git
     _.gitSync.CreateNConnectToGit();
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
+    });
     _.gitSync.CreateGitBranch();
     //cy.createGitBranch(branchName);
     cy.wait(1000);
@@ -54,7 +57,7 @@ describe("Delete branch flow", () => {
     cy.switchGitBranch("master");
     _.gitSync.CreateGitBranch("", true);
     cy.wait(1000);
-    _.canvasHelper.OpenWidgetPane();
+    cy.get("#switcher--widgets").click();
     cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
     cy.get(".t--draggable-checkboxwidget").should("exist");
     cy.wait(2000);
@@ -83,7 +86,7 @@ describe("Delete branch flow", () => {
   it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
     _.gitSync.CreateGitBranch("", true);
     cy.wait(1000);
-    _.canvasHelper.OpenWidgetPane();
+    cy.get("#switcher--widgets").click();
     cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
     cy.get(".t--widget-chartwidget").should("exist");
     cy.wait(2000);
@@ -122,4 +125,9 @@ describe("Delete branch flow", () => {
       "Cannot delete default branch: master",
     );
   }); */
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });

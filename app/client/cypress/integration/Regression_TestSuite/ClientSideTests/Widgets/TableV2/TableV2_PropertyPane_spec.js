@@ -1,7 +1,6 @@
 const ObjectsRegistry = require("../../../../../support/Objects/Registry")
   .ObjectsRegistry;
-let propPane = ObjectsRegistry.PropertyPane,
-  canvasHelper = ObjectsRegistry.CanvasHelper;
+let propPane = ObjectsRegistry.PropertyPane;
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -24,7 +23,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
     // close Widget side bar
-    canvasHelper.OpenWidgetPane();
+    cy.get(widgetsPage.explorerSwitchId).click({ force: true });
     cy.wait(2000);
     cy.SearchEntityandOpen("Table2");
     // Verify default array data
@@ -39,7 +38,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
     // close Widget side bar
-    canvasHelper.OpenWidgetPane();
+    cy.get(widgetsPage.explorerSwitchId).click({ force: true });
     cy.get(widgetsPage.tabedataField).should("not.be.empty");
     cy.get(`${widgetsPage.tabedataField} .CodeMirror`)
       .first()

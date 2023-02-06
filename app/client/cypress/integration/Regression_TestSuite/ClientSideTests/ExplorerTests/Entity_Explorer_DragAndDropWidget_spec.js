@@ -3,7 +3,6 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Entity explorer Drag and Drop widgets testcases", function() {
   it("Drag and drop form widget and validate", function() {
@@ -39,9 +38,9 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
      */
     cy.moveToContentTab();
     cy.get(formWidgetsPage.formD)
-      .scrollTo("bottom")
+      .scrollTo("bottom", { ensureScrollable: false })
       .should("be.visible");
-    _.canvasHelper.OpenWidgetPane();
+    cy.get(explorer.explorerSwitchId).click();
     cy.PublishtheApp();
     cy.get(publish.backToEditor)
       .first()
