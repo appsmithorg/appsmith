@@ -11,7 +11,6 @@ import {
   setCallbackFunctionField,
   getFuncExpressionAtPosition,
   getFunctionBodyStatements,
-  replaceActionInQuery,
   setObjectAtPosition,
 } from "@shared/ast";
 import { TreeDropdownOption } from "design-system-old";
@@ -370,13 +369,13 @@ export function actionToCode(
       .map((callback) => actionToCode(callback, false));
     const errorCallbackCode = errorCallbackCodes.join("");
 
-    const withSuccessCallback = replaceActionInQuery(
+    const withSuccessCallback = setCallbackFunctionField(
       code,
       `() => { ${successCallbackCode} }`,
       0,
       self.evaluationVersion,
     );
-    const withSuccessAndErrorCallback = replaceActionInQuery(
+    const withSuccessAndErrorCallback = setCallbackFunctionField(
       withSuccessCallback,
       `() => { ${errorCallbackCode} }`,
       1,
