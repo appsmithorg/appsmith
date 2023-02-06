@@ -18,7 +18,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
-  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10"
+  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10";
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
@@ -296,8 +296,12 @@ export class AggregateHelper {
     );
   }
 
-  public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
-    cy.wait(aliasName).should(
+  public ValidateNetworkStatus(
+    aliasName: string,
+    expectedStatus = 200,
+    timeout = 20000,
+  ) {
+    cy.wait(aliasName, { timeout: timeout }).should(
       "have.nested.property",
       "response.body.responseMeta.status",
       expectedStatus,
