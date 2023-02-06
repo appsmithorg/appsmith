@@ -28,6 +28,9 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 
+// import { ObjectsRegistry } from "../support/Objects/Registry";
+// let agHelper = ObjectsRegistry.AggregateHelper;
+
 let pageidcopy = " ";
 const chainStart = Symbol();
 
@@ -990,7 +993,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
 
-  cy.route("POST", "api/v1/git/connect/app/*").as("connectGitRepo");
   cy.route("POST", "api/v1/git/commit/app/*").as("commit");
   cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
   cy.route("POST", "/api/v1/git/merge/app/*").as("mergeBranch");
@@ -1016,6 +1018,21 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
   cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
+  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
+  cy.intercept(
+    {
+      method: "POST",
+      url: "/api/v1/git/connect/app/*",
+      hostname: window.location.host,
+    },
+    (req) => {
+      req.headers["origin"] = "Cypress";
+    },
+  ).as("connectGitLocalRepo");
+
+  cy.intercept({
+    method: "PUT",
+  }).as("sucessSave");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1167,8 +1184,9 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
 Cypress.Commands.add("assertPageSave", () => {
   cy.CheckForPageSaveError();
   cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-    timeout: 40000,
+    timeout: 30000,
   });
+  //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
 Cypress.Commands.add(
