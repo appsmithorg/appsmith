@@ -33,7 +33,7 @@ describe("Upgrade appsmith version", () => {
     });
 
     //verify the Applications after upgrade
-    cy.visit(testdata.APPURL);
+    cy.forceVisit(testdata.APPURL);
     agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true);
     agHelper.Sleep(1000);
     agHelper.GetNAssertElementText(

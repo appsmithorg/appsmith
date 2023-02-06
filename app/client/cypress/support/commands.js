@@ -1990,3 +1990,9 @@ Cypress.Commands.add("execute", (url, command) => {
     expect(res.status).equal(200);
   });
 });
+
+Cypress.Commands.add("forceVisit", (url) => {
+  cy.window().then((win) => {
+    return win.open(url, "_self");
+  });
+});
