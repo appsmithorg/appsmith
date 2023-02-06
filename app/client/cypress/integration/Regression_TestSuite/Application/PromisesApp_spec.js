@@ -13,7 +13,7 @@ describe("JSEditor tests", function() {
   });
 
   it("Testing promises with resetWidget, storeValue action and API call", () => {
-    _.apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users", "TC1api");
+    _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl, "TC1api");
     _.apiPage.RunAPI();
     _.jsEditor.CreateJSObject(
       `export default {

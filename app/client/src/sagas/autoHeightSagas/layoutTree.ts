@@ -50,6 +50,7 @@ export function* generateTreeForAutoHeightComputations(
   action: ReduxAction<{
     shouldCheckContainersForAutoHeightUpdates: boolean;
     layoutUpdated: boolean;
+    resettingTabs: boolean;
   }>,
 ) {
   const { canvasLevelMap, tree } = yield getLayoutTree(
@@ -62,7 +63,7 @@ export function* generateTreeForAutoHeightComputations(
     yield put({
       type: ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
     });
-    yield put(checkContainersForAutoHeightAction());
+    yield put(checkContainersForAutoHeightAction(action.payload.resettingTabs));
   }
 
   return tree;
