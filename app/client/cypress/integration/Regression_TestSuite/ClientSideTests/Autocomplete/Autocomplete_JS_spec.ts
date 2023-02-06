@@ -147,7 +147,7 @@ describe("Autocomplete tests", () => {
   });
 
   it("5. Api data with array of object autocompletion test", () => {
-    ApiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    ApiPage.CreateAndFillApi(agHelper.mockApiUrl);
     agHelper.Sleep(2000);
     ApiPage.RunAPI();
     // Using same js object
@@ -155,10 +155,10 @@ describe("Autocomplete tests", () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "Api1.data.u");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "users");
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "Api1.d");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "data");
     agHelper.Sleep();
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "sers[0].e");
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "ata[0].e");
     agHelper.GetNAssertElementText(CommonLocators._hints, "email");
     agHelper.Sleep();
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "mail");
@@ -330,6 +330,35 @@ describe("Autocomplete tests", () => {
       "myFun1()",
       "have.text",
       4,
+    );
+  });
+
+  it("9. Bug #10115 Autocomplete needs to show async await keywords instead of showing 'no suggestions'", () => {
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "aw");
+
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "await",
+      "have.text",
+      0,
+    );
+
+    agHelper.RemoveCharsNType(CommonLocators._codeMirrorTextArea, 2, "as");
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "async",
+      "have.text",
+      0,
     );
   });
 });
