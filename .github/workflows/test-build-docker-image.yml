@@ -137,7 +137,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository
       )
       ) &&
-      github.ref == 'refs/heads/release'
+      (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/cloud-fork')
       )
 
     steps:
@@ -199,7 +199,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push client master image to Docker Hub with commit tag
@@ -209,8 +209,8 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly
 
       - name: Build and push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -222,7 +222,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{steps.vars.outputs.tag}}
 
       - name: Build and push master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -234,8 +234,20 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:nightly
+
+      - name: Build and push cloud-fork image
+        if: success() && github.ref == 'refs/heads/cloud-fork' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:cloud-fork
 
       # - name: Check and push CI image to Docker Hub with commit tag
       #   if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -247,16 +259,16 @@ jobs:
       #       tag="${{ steps.vars.outputs.tag }}"
       #     fi
       #     docker run --detach --publish 80:80 --name appsmith \
-      #       "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:$tag"
+      #       "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:$tag"
       #     sleep 180
       #     cd deploy/docker
       #     if bash run-test.sh; then
       #       echo "Fat container test passed. Pushing image."
-      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee
       #     else
       #       echo "Fat container test FAILED. Not pushing image."
       #       # Temporarily pushing even if test fails.
-      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee
       #     fi
 
       # Build release Docker image and push to Docker Hub
@@ -269,7 +281,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push server master image to Docker Hub with commit tag
@@ -281,8 +293,9 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:nightly
+
       # Build release Docker image and push to Docker Hub
       - name: Push RTS release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
@@ -291,7 +304,7 @@ jobs:
           context: app/rts
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push RTS master image to Docker Hub with commit tag
@@ -301,5 +314,6 @@ jobs:
           context: app/rts
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:nightly
+            
