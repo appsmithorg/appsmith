@@ -41,25 +41,6 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
-  autoLayout: {
-    defaults: {
-      rows: 4,
-    },
-    mobile: {
-      rows: 4,
-    },
-    widgetSize: [
-      {
-        viewportMinWidth: 0,
-        configuration: () => {
-          return {
-            minWidth: "100px",
-            minHeight: "40px",
-          };
-        },
-      },
-    ],
-  },
 };
 
 export default Widget;

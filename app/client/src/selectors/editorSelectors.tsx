@@ -288,7 +288,6 @@ export const getWidgetCards = createSelector(
 
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
-        autoLayout,
         columns,
         detachFromLayout = false,
         displayName,
@@ -299,7 +298,6 @@ export const getWidgetCards = createSelector(
         type,
       } = config;
       return {
-        autoLayout,
         key,
         type,
         rows,

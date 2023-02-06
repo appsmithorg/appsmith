@@ -962,7 +962,6 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_BULK_DELETE: "WIDGET_BULK_DELETE",
   WIDGET_SINGLE_DELETE: "WIDGET_SINGLE_DELETE",
   WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
-  WIDGET_REACHED_MIN_WIDTH: "WIDGET_REACHED_MIN_WIDTH",
 };
 
 export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];

@@ -187,16 +187,6 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
     `}
   }
 
-  .auto-layout && {
-    margin-bottom: 10px;
-    font-size: 15px;
-  }
-
-  .mobile-view .auto-layout && {
-    margin-bottom: 4px;
-    font-size: 14px;
-  }
-
   ${({ $isDynamicHeightEnabled }) =>
     $isDynamicHeightEnabled
       ? "&& { text-overflow: initial; white-space: initial; }"

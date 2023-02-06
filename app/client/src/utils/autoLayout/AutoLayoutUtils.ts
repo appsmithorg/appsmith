@@ -209,11 +209,6 @@ export function alterLayoutForMobile(
 
     widget.mobileTopRow = widget.topRow;
     widget.mobileBottomRow = widget.bottomRow;
-    if (widget.autoLayout?.mobile?.rows) {
-      widget.mobileBottomRow =
-        widget.mobileTopRow + widget.autoLayout.mobile.rows;
-    }
-
     if (widget.mobileRightColumn !== undefined)
       widgets = alterLayoutForMobile(
         widgets,
