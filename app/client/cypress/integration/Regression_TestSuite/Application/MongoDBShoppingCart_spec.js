@@ -212,4 +212,9 @@ describe("Shopping cart App", function() {
       .should("have.text", "A man called ove");
     cy.wait(1000);
   });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });
