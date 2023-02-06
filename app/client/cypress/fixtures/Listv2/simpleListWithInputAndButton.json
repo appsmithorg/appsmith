@@ -25,21 +25,41 @@
                 "requiresFlatWidgetChildren": true,
                 "listData": [
                     {
-                        "id": "001",
-                        "name": "Blue",
-                        "img": "https://assets.appsmith.com/widgets/default.png"
+                      "id": "000",
+                      "name": "Yellow",
+                      "img": "https://assets.appsmith.com/widgets/default.png"
                     },
                     {
-                        "id": "002",
-                        "name": "Green",
-                        "img": "https://assets.appsmith.com/widgets/default.png"
+                      "id": "001",
+                      "name": "Blue",
+                      "img": "https://assets.appsmith.com/widgets/default.png"
                     },
                     {
-                        "id": "003",
-                        "name": "Red",
-                        "img": "https://assets.appsmith.com/widgets/default.png"
+                      "id": "002",
+                      "name": "Green",
+                      "img": "https://assets.appsmith.com/widgets/default.png"
+                    },
+                    {
+                      "id": "003",
+                      "name": "Red",
+                      "img": "https://assets.appsmith.com/widgets/default.png"
+                    },
+                    {
+                      "id": "004",
+                      "name": "Black",
+                      "img": "https://assets.appsmith.com/widgets/default.png"
+                    },
+                    {
+                      "id": "005",
+                      "name": "Yellow",
+                      "img": "https://assets.appsmith.com/widgets/default.png"
+                    },
+                    {
+                      "id": "006",
+                      "name": "Indigo",
+                      "img": "https://assets.appsmith.com/widgets/default.png"
                     }
-                ],
+                    ],
                 "isCanvas": true,
                 "displayName": "List V2",
                 "iconSVG": "/static/media/icon.9925ee17dee37bf1ba7374412563a8a7.svg",

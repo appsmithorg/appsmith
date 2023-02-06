@@ -151,7 +151,67 @@ describe("List widget v2 - Basic server side data tests", () => {
       .should("have.length", 1);
   });
 
-  it("4. no of items rendered should be equal to page size", () => {
+  it("4. retains input values when pages are switched", () => {
+    // Type a number in each of the item's input widget
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .type(index + 1);
+    });
+
+    // Verify the typed value
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .should("have.value", index + 1);
+    });
+
+    // Go to page 2
+    cy.get(".t--list-widget-next-page.rc-pagination-next")
+      .find("button")
+      .click({ force: true });
+
+    cy.get(".rc-pagination-item").contains(2);
+
+    /**
+     * isLoading of the widget does not work properly so for a moment
+     * the previous data are visible which can cause the test to pass/fail.
+     * Adding a wait makes sure the next page data is loaded.
+     */
+    cy.wait(5000);
+
+    // Type a number in each of the item's input widget
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .type(index + 4);
+    });
+
+    // Verify the typed value
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .should("have.value", index + 4);
+    });
+
+    // Go to page 1
+    cy.get(".t--list-widget-prev-page.rc-pagination-prev")
+      .find("button")
+      .click({ force: true });
+
+    cy.get(".rc-pagination-item")
+      .contains(1)
+      .wait(5000);
+
+    // Verify if previously the typed values are retained
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .should("have.value", index + 1);
+    });
+  });
+
+  it("5. no of items rendered should be equal to page size", () => {
     cy.NavigateToDatasourceEditor();
 
     // Click on sample(mock) user database.

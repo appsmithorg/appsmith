@@ -1,5 +1,10 @@
 const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
+const simpleListWithInputAndButtonDSL = require("../../../../../fixtures/Listv2/simpleListWithInputAndButton.json");
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
+
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 const simpleListData1 = [
   {
@@ -20,11 +25,16 @@ const simpleListData1 = [
 ];
 
 describe("List widget v2 - Basic client side data tests", () => {
-  before(() => {
-    cy.addDsl(simpleListDSL);
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   it("1. shows correct number of items", () => {
+    cy.addDsl(simpleListDSL);
     cy.get(publishLocators.containerWidget).should("have.length", 3);
     cy.get(publishLocators.imageWidget).should("have.length", 3);
     cy.get(publishLocators.textWidget).should("have.length", 6);
@@ -40,6 +50,69 @@ describe("List widget v2 - Basic client side data tests", () => {
         .find(publishLocators.textWidget)
         .eq(1)
         .should("have.text", simpleListData1[index].id);
+    });
+  });
+
+  it("3. retains input values when pages are switched", () => {
+    cy.addDsl(simpleListWithInputAndButtonDSL);
+
+    cy.get(publishLocators.inputWidget).should("have.length", 2);
+
+    // Type a number in each of the item's input widget
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .type(index + 1);
+    });
+
+    // Verify the typed value
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .should("have.value", index + 1);
+    });
+
+    // Change to page 2
+    cy.get(".rc-pagination-item")
+      .find("a")
+      .contains("2")
+      .click({ force: true })
+      .wait(500);
+
+    cy.get(".rc-pagination-item-active").contains(2);
+
+    cy.get(publishLocators.inputWidget).should("have.length", 2);
+
+    // Type a number in each of the item's input widget
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .type(index + 4);
+    });
+
+    // Verify the typed value
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .should("have.value", index + 4);
+    });
+
+    // Go to page 1
+    cy.get(".rc-pagination-item")
+      .find("a")
+      .contains("1")
+      .click({ force: true })
+      .wait(500);
+
+    cy.get(".rc-pagination-item-active").contains(1);
+
+    cy.get(publishLocators.inputWidget).should("have.length", 2);
+
+    // Verify if previously the typed values are retained
+    cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
+      cy.wrap($inputWidget)
+        .find("input")
+        .should("have.value", index + 1);
     });
   });
 });

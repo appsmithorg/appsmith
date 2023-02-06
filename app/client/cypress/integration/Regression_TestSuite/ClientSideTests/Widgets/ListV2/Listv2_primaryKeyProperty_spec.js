@@ -1,11 +1,14 @@
 const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
 const simpleListWithLargeDataDSL = require("../../../../../fixtures/Listv2/simpleListWithLargeData.json");
+const ListV2WithNullPrimaryKeyDSL = require("../../../../../fixtures/Listv2/ListV2WithNullPrimaryKey.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const propertyControl = ".t--property-control";
 const agHelper = ObjectsRegistry.AggregateHelper;
+
+const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe("List v2 - Primary Key property", () => {
   beforeEach(() => {
@@ -156,5 +159,63 @@ describe("List v2 - Primary Key property", () => {
       .click({ force: true });
 
     cy.get(widgetsPage.containerWidget).should("have.length", 2);
+  });
+
+  it("Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
+    cy.addDsl(ListV2WithNullPrimaryKeyDSL);
+    cy.createAndFillApi(
+      "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
+      "",
+    );
+    cy.RunAPI();
+    cy.SearchEntityandOpen("List1");
+    cy.openPropertyPaneByWidgetName("Text2", "textwidget");
+
+    cy.testJsontext("text", "{{currentIndex}}");
+
+    cy.get(`${widgetSelector("Text2")} ${commonlocators.bodyTextStyle}`)
+      .first()
+      .should("have.text", `0`);
+
+    cy.get(commonlocators.listPaginateNextButton)
+      .first()
+      .click({
+        force: true,
+      });
+    cy.wait(1000);
+
+    cy.get(`${widgetSelector("Text2")} ${commonlocators.bodyTextStyle}`)
+      .first()
+      .should("have.text", "0");
+  });
+
+  it("Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
+    cy.openPropertyPaneByWidgetName("Text4", "textwidget");
+
+    cy.testJsontext("text", "{{currentIndex}}");
+
+    cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
+      .first()
+      .should("have.text", `0`);
+
+    cy.get(commonlocators.listPaginateNextButton)
+      .eq(1)
+      .click({
+        force: true,
+      });
+
+    cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
+      .first()
+      .should("have.text", `1`);
+
+    cy.get(commonlocators.listPaginateNextButton)
+      .eq(1)
+      .click({
+        force: true,
+      });
+
+    cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
+      .first()
+      .should("have.text", `2`);
   });
 });

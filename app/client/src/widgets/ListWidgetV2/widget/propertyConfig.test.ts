@@ -130,4 +130,58 @@ describe(".primaryColumnValidation", () => {
       messages: ["Primary key cannot be empty"],
     });
   });
+
+  it(" primary key that doesn't exist", () => {
+    const props = ({
+      listData: [
+        {
+          id: 1,
+        },
+        {
+          id: 2,
+        },
+      ],
+      dynamicPropertyPathList: [{ key: "primaryKeys" }],
+    } as unknown) as ListWidgetProps;
+
+    const input: unknown = [null, null];
+
+    const output = primaryColumnValidation(input, props, _);
+
+    expect(output).toEqual({
+      isValid: false,
+      parsed: input,
+      messages: ["Chosen Primary key doesn't exist"],
+    });
+  });
+
+  it(" primary key contain null value in array", () => {
+    const props = ({
+      listData: [
+        {
+          id: 1,
+        },
+        {
+          id: 12,
+        },
+        {
+          id: 14,
+        },
+        {
+          id: 11,
+        },
+      ],
+      dynamicPropertyPathList: [{ key: "primaryKeys" }],
+    } as unknown) as ListWidgetProps;
+
+    const input: unknown = [1, null, undefined, 4];
+
+    const output = primaryColumnValidation(input, props, _);
+
+    expect(output).toEqual({
+      isValid: false,
+      parsed: input,
+      messages: ["Primary key cannot be null or undefined"],
+    });
+  });
 });

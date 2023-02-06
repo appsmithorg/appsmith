@@ -38,6 +38,24 @@ export const primaryColumnValidation = (
       };
     }
 
+    // when PrimaryKey is {{ currentItem["img"] }} and img doesn't exist in the data.
+    if (inputValue.every((value) => _.isNil(value))) {
+      return {
+        isValid: false,
+        parsed: inputValue, // undefined the chosen key doesn't exist.
+        messages: ["Chosen Primary key doesn't exist"],
+      };
+    }
+
+    //  PrimaryKey evaluation has null or undefined values.
+    if (inputValue.some((value) => _.isNil(value))) {
+      return {
+        isValid: false,
+        parsed: inputValue,
+        messages: ["Primary key cannot be null or undefined"],
+      };
+    }
+
     const areKeysUnique = _.uniq(inputValue).length === listData.length;
 
     if (!areKeysUnique) {
@@ -134,8 +152,8 @@ export const PropertyPaneContentConfig = [
     sectionName: "Data",
     children: [
       {
-        helpText: "Takes in an array of objects to display items in the list.",
         propertyName: "listData",
+        helpText: "Takes in an array of objects to display items in the list.",
         label: "Items",
         controlType: "INPUT_TEXT",
         placeholderText: '[{ "name": "John" }]',
@@ -199,8 +217,8 @@ export const PropertyPaneContentConfig = [
         isTriggerProperty: false,
       },
       {
-        helpText: "Triggers an action when a list page is changed",
         propertyName: "onPageChange",
+        helpText: "Triggers an action when a list page is changed",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
