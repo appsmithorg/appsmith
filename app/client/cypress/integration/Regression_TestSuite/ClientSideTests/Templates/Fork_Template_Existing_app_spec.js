@@ -1,7 +1,7 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 const publish = require("../../../../locators/publishWidgetspage.json");
-import * as _ from "../../../../support/Objects/ObjectsCore"
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 beforeEach(() => {
   // Closes template dialog if it is already open - useful for retry
@@ -11,11 +11,10 @@ beforeEach(() => {
     }
   });
   cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains(Page1)`)
-      .trigger("mouseover")
-      .click({ force: true });
+  cy.get(`.t--entity-name:contains(Page1)`)
+    .trigger("mouseover")
+    .click({ force: true });
 });
-
 
 describe("Fork a template to the current app from new page popover", () => {
   it("1. Fork template from page section", () => {
@@ -25,9 +24,10 @@ describe("Fork a template to the current app from new page popover", () => {
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Meeting Scheduler']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
+      .wait(500)
       .click();
     cy.wait(1000);
     cy.wait("@getTemplatePages").should(
@@ -57,7 +57,7 @@ describe("Fork a template to the current app from new page popover", () => {
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
-    cy.xpath("//div[text()='Customer Support Dashboard']").click();
+    cy.xpath("//div[text()='Meeting Scheduler']").click();
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -66,7 +66,7 @@ describe("Fork a template to the current app from new page popover", () => {
     cy.xpath(template.selectAllPages)
       .next()
       .click();
-    cy.xpath("//span[text()='DASHBOARD']")
+    cy.xpath("//span[text()='CALENDAR MOBILE']")
       .parent()
       .next()
       .click();

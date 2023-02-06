@@ -15,9 +15,12 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.net.URI;
+import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +67,9 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
                                         // isCloudHosted should be true only for our cloud instance,
                                         // For docker images that burn the segment key with the image, the CE key will be present
                                         "&isSourceInstall=" + (commonConfig.isCloudHosting() || StringUtils.isEmpty(segmentConfig.getCeKey())) +
-                                        (StringUtils.isEmpty(commonConfig.getRepo()) ? "" : ("&repo=" + commonConfig.getRepo()))
+                                        (StringUtils.isEmpty(commonConfig.getRepo()) ? "" : ("&repo=" + commonConfig.getRepo())) +
+                                        "&version=" + projectProperties.getVersion() +
+                                        "&edition=" + ProjectProperties.EDITION
                         )
                         .get()
                         .exchange()

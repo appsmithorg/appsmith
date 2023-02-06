@@ -1,10 +1,11 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
+const locator = ObjectsRegistry.CommonLocators;
+
 const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
-  CanvasHelper: canvasHelper,
   DebuggerHelper: debuggerHelper,
   EntityExplorer: ee,
   JSEditor: jsEditor,
@@ -194,6 +195,7 @@ describe("Debugger logs", function() {
   });
 
   it("12. Console log in sync function", function() {
+    ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
         myFun1: () => {
@@ -217,6 +219,7 @@ describe("Debugger logs", function() {
   });
 
   it("13. Console log in async function", function() {
+    ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
         myFun1: async () => {
@@ -255,6 +258,7 @@ describe("Debugger logs", function() {
   });
 
   it("14. Console log after API succedes", function() {
+    ee.NavigateToSwitcher("explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "Api1");
     const returnText = "success";
     jsEditor.CreateJSObject(
@@ -285,12 +289,12 @@ describe("Debugger logs", function() {
     agHelper.WaitUntilAllToastsDisappear();
 
     cy.get("@jsObjName").then((jsObjName) => {
+      agHelper.Sleep(2000)
       agHelper.GetNClick(jsEditor._runButton);
       agHelper.GetNClick(jsEditor._logsTab);
       debuggerHelper.DoesConsoleLogExist(`${logString} Started`);
       debuggerHelper.DoesConsoleLogExist(`${logString} Success`);
       ee.DragDropWidgetNVerify("textwidget", 200, 600);
-      canvasHelper.CloseWidgetPane();
       propPane.UpdatePropertyFieldValue("Text", `{{${jsObjName}.myFun1.data}}`);
       agHelper.GetNAssertElementText(
         commonlocators.textWidgetContainer,
@@ -302,6 +306,7 @@ describe("Debugger logs", function() {
   });
 
   it("15. Console log after API execution fails", function() {
+    ee.NavigateToSwitcher("explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods + "xyz", "Api2");
     jsEditor.CreateJSObject(
       `export default {
@@ -387,6 +392,7 @@ describe("Debugger logs", function() {
   });
 
   it("18. Console log should not mutate the passed object", function() {
+    ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
         myFun1: () => {
@@ -412,5 +418,32 @@ describe("Debugger logs", function() {
     agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist("start: []");
     debuggerHelper.DoesConsoleLogExist("end: [0,1,2,3,4]");
+  });
+
+  it("6. Bug #19115 - Objects that start with an underscore `_JSObject1` fail to be navigated from the debugger", function() {
+    const JSOBJECT_WITH_UNNECCESARY_SEMICOLON = `export default {
+        myFun1: () => {
+            //write code here
+            if (1) {
+                return true;;
+            };
+        }
+    }
+    `;
+
+    jsEditor.CreateJSObject(JSOBJECT_WITH_UNNECCESARY_SEMICOLON, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    ee.SelectEntityByName("Page1", "Pages");
+    agHelper.GetNClick(".t--debugger");
+    agHelper.GetNClick(locator._errorTab);
+
+    debuggerHelper.ClicklogEntityLink(0);
+
+    cy.get(".t--js-action-name-edit-field").should("exist");
   });
 });

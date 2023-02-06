@@ -71,7 +71,7 @@ describe("Entity explorer datasource structure", function() {
       .click();
     cy.deleteQueryUsingContext();
 
-    cy.ClearSearch();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
     cy.deleteDatasource(datasourceName);
   });
