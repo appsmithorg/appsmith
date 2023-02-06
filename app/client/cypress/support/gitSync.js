@@ -5,6 +5,10 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
+import { ObjectsRegistry } from "../support/Objects/Registry";
+
+let gitSync = ObjectsRegistry.GitSync,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -157,6 +161,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
+  agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
   cy.wait(1000);
@@ -233,18 +238,20 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
+  agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
   cy.get(gitSyncLocators.commitButton).click();
   if (!assertFailure) {
     // check for commit success
-    cy.wait("@commit").should(
+    //adding timeout since commit is taking longer sometimes
+    cy.wait("@commit", { timeout: 35000 }).should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
     cy.wait(3000);
   } else {
-    cy.wait("@commit").then((interception) => {
+    cy.wait("@commit", { timeout: 35000 }).then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
     });
@@ -285,6 +292,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("merge", (destinationBranch) => {
+  agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
   cy.wait(6000); // wait for git status call to finish
   /*cy.wait("@gitStatus").should(
@@ -292,11 +300,19 @@ Cypress.Commands.add("merge", (destinationBranch) => {
     "response.body.responseMeta.status",
     200,
   ); */
+
+  agHelper.AssertElementEnabledDisabled(
+    gitSyncLocators.mergeBranchDropdownDestination,
+    0,
+    false,
+  );
+  cy.wait(3000);
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
     .click();
-  cy.wait("@mergeStatus").should(
+  agHelper.AssertElementAbsence(gitSync._checkMergeability, 30000);
+  cy.wait("@mergeStatus", { timeout: 35000 }).should(
     "have.nested.property",
     "response.body.data.isMergeAble",
     true,
@@ -304,11 +320,11 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.wait(2000);
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
-  cy.wait("@mergeBranch").should(
+  cy.wait("@mergeBranch", { timeout: 35000 }).should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
-  );
+  ); //adding timeout since merge is taking longer sometimes
   cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 

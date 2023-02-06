@@ -1,13 +1,8 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let appName: string = "";
 let datasourceName: string = "GraphQL_DS_";
 let apiName: string = "GraphQL_API_";
-
-let dataSources = ObjectsRegistry.DataSources;
-let agHelper = ObjectsRegistry.AggregateHelper;
-let homePage = ObjectsRegistry.HomePage;
-let apiPage = ObjectsRegistry.ApiPage;
 
 const GRAPHQL_QUERY = `
   query($id: ID!) {
@@ -18,7 +13,7 @@ const GRAPHQL_QUERY = `
       landings
 `;
 
-const CAPSULE_ID = "C105";
+const CAPSULE_ID = "5e9e2c5bf35918ed873b2664"
 
 const GRAPHQL_VARIABLES = `
   {
@@ -35,17 +30,17 @@ const GRAPHQL_LIMIT_QUERY = `
 
 const GRAPHQL_LIMIT_DATA = [
   {
-    mission_name: "Starlink-15 (v1.0)",
+    mission_name: "FalconSat",
   },
   {
-    mission_name: "Sentinel-6 Michael Freilich",
+    mission_name: "DemoSat",
   },
 ];
 
 describe("GraphQL Datasource Implementation", function() {
   before(() => {
     appName = localStorage.getItem("AppName") || "";
-    agHelper.GenerateUUID();
+    _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       datasourceName = `${datasourceName}${uid}`;
       apiName = `${apiName}${uid}`;
@@ -54,78 +49,78 @@ describe("GraphQL Datasource Implementation", function() {
 
   it("1. Should create the Graphql datasource with Credentials", function() {
     // Navigate to Datasource Editor
-    dataSources.CreateGraphqlDatasource(datasourceName);
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+    _.dataSources.CreateGraphqlDatasource(datasourceName);
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName);
   });
 
   it("2. Should create an GraphQL API with updated name", function() {
-    dataSources.CreateGraphqlDatasource(datasourceName);
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    agHelper.ValidateNetworkStatus("@createNewApi", 201);
-    agHelper.RenameWithInPane(apiName, true);
+    _.dataSources.CreateGraphqlDatasource(datasourceName);
+    _.dataSources.NavigateFromActiveDS(datasourceName, true);
+    _.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+    _.agHelper.RenameWithInPane(apiName, true);
   });
 
-  it.skip("3. Should execute the API and validate the response", function() {
+  it("3. Should execute the API and validate the response", function() {
     /* Create an API */
-    dataSources.NavigateFromActiveDS(datasourceName, true);
+    _.dataSources.NavigateFromActiveDS(datasourceName, true);
 
-    apiPage.SelectPaneTab("Body");
-    dataSources.UpdateGraphqlQueryAndVariable({
+    _.apiPage.SelectPaneTab("Body");
+    _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_QUERY,
       variable: GRAPHQL_VARIABLES,
     });
 
-    apiPage.RunAPI(false, 20, {
+    _.apiPage.RunAPI(false, 20, {
       expectedPath: "response.body.data.body.data.capsule.id",
       expectedRes: CAPSULE_ID,
     });
   });
 
-  it.skip("4. Pagination for limit based should work without offset", function() {
+  it("4. Pagination for limit based should work without offset", function() {
     /* Create an API */
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    apiPage.SelectPaneTab("Body");
-    dataSources.UpdateGraphqlQueryAndVariable({
+    _.dataSources.NavigateFromActiveDS(datasourceName, true);
+    _.apiPage.SelectPaneTab("Body");
+    _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
     });
 
     // Change tab to Pagination tab
-    apiPage.SelectPaneTab("Pagination");
+    _.apiPage.SelectPaneTab("Pagination");
 
     // Select Limit base Pagination
-    apiPage.SelectPaginationTypeViaIndex(1);
+    _.apiPage.SelectPaginationTypeViaIndex(1);
 
-    dataSources.UpdateGraphqlPaginationParams({
+    _.dataSources.UpdateGraphqlPaginationParams({
       limit: {
         variable: "limit",
-        value: "1",
+        value: "2",
       },
     });
 
-    apiPage.RunAPI(false, 20, {
+    _.apiPage.RunAPI(false, 20, {
       expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
       expectedRes: GRAPHQL_LIMIT_DATA[0].mission_name,
     });
   });
 
-  it.skip("5. Pagination for limit based should work with offset", function() {
+  it("5. Pagination for limit based should work with offset", function() {
     /* Create an API */
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    apiPage.SelectPaneTab("Body");
-    dataSources.UpdateGraphqlQueryAndVariable({
+    _.dataSources.NavigateFromActiveDS(datasourceName, true);
+    _.apiPage.SelectPaneTab("Body");
+    _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
     });
 
     // Change tab to Pagination tab
-    apiPage.SelectPaneTab("Pagination");
+    _.apiPage.SelectPaneTab("Pagination");
 
     // Select Limit base Pagination
-    apiPage.SelectPaginationTypeViaIndex(1);
+    _.apiPage.SelectPaginationTypeViaIndex(1);
 
-    dataSources.UpdateGraphqlPaginationParams({
+    _.dataSources.UpdateGraphqlPaginationParams({
       limit: {
         variable: "limit",
-        value: "1",
+        value: "5",
       },
       offset: {
         variable: "offset",
@@ -133,13 +128,9 @@ describe("GraphQL Datasource Implementation", function() {
       },
     });
 
-    apiPage.RunAPI(false, 20, {
+    _.apiPage.RunAPI(false, 20, {
       expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
       expectedRes: GRAPHQL_LIMIT_DATA[1].mission_name,
     });
-  });
-
-  after(() => {
-    homePage.NavigateToHome();
   });
 });
