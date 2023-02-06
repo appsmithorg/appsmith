@@ -34,6 +34,7 @@ import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
@@ -334,22 +335,38 @@ public class DatabaseChangelogEE {
         });
     }
 
+    @ChangeSet(order = "012", id = "update-usage-pulse-index", author = "")
+    public void updateUsagePulseIndex(MongoTemplate mongoTemplate) {
+        ensureIndexes(
+            mongoTemplate,
+            UsagePulse.class,
+            makeIndex(
+                fieldName(QUsagePulse.usagePulse.createdAt),
+                fieldName(QUsagePulse.usagePulse.deleted)
+            )
+            .named("createdAt_deleted_compound_index")
+        );
+    }
+
     /**
      * We have modified the usage pulse format to include instanceId and tenantId. This migration removes the stale
      * pulses created before updating the format
      * @param mongoTemplate
      */
-    @ChangeSet(order = "012", id = "remove-stale-usage-pulses", author = "")
+    @ChangeSet(order = "013", id = "remove-stale-usage-pulses", author = "")
     public void removeStaleUsagePulses(MongoTemplate mongoTemplate) {
         final Update update = new Update();
         final Instant deletedAt = Instant.now();
-        update.set(fieldName(QUsagePulse.usagePulse.deletedAt) , deletedAt);
-        update.set(fieldName(QUsagePulse.usagePulse.deleted) , true);
+        update.set(fieldName(QUsagePulse.usagePulse.deletedAt), deletedAt);
+        update.set(fieldName(QUsagePulse.usagePulse.deleted), true);
 
-        mongoTemplate.updateMulti(
-            query(where(fieldName(QUsagePulse.usagePulse.tenantId)).exists(false)),
-            update,
-            UsagePulse.class);
+
+        Query invalidUsagePulseQuery = new Query();
+        invalidUsagePulseQuery.addCriteria(where(fieldName(QUsagePulse.usagePulse.tenantId)).exists(false))
+            .addCriteria(where(fieldName(QUser.user.deleted)).ne(true));
+
+        mongoTemplate.updateMulti(invalidUsagePulseQuery, update, UsagePulse.class);
     }
+
 
 }
