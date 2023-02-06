@@ -1,11 +1,8 @@
 import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
-import initFetch from "../fns/overrides/fetch";
 import setupDOM from "../SetupDOM";
-import initTimeoutFns from "../fns/overrides/timeout";
 import { EvalWorkerSyncRequest } from "../types";
-import userLogs from "../fns/overrides/console";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
-import initLocalStorage from "../fns/overrides/localStorage";
+import { initOverrides } from "../fns/overrides";
 
 export default function() {
   ///// Remove all unsafe functions
@@ -13,12 +10,9 @@ export default function() {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
-  userLogs.overrideConsoleAPI();
-  initTimeoutFns();
-  initFetch();
   setupDOM();
+  initOverrides(self);
   addPlatformFunctionsToEvalContext(self);
-  initLocalStorage.call(self);
   return true;
 }
 

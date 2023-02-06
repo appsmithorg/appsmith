@@ -547,8 +547,6 @@ describe("Test addDataTreeToContext method", () => {
       download: true,
       copyToClipboard: true,
       resetWidget: true,
-      setInterval: true,
-      clearInterval: true,
       postWindowMessage: true,
     };
 

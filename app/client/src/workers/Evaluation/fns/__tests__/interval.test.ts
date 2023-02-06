@@ -3,6 +3,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
+import { initOverrides } from "../overrides";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
 
 const dataTree: DataTree = {
@@ -46,6 +47,7 @@ describe("Tests for interval functions", () => {
   beforeAll(() => {
     self["$allowAsync"] = true;
     ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
+    initOverrides(evalContext);
     addPlatformFunctionsToEvalContext(evalContext);
   });
 

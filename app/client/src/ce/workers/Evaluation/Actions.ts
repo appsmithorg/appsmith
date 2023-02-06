@@ -2,7 +2,6 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { EvaluationVersion } from "api/ApplicationApi";
-import { initIntervalFns } from "workers/Evaluation/fns/overrides/interval";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import { set } from "lodash";
 import { entityFns, platformFns } from "workers/Evaluation/fns";
@@ -62,7 +61,6 @@ export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const fnDef of platformFns) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));
   }
-  initIntervalFns(context);
 };
 
 export const getAllAsyncFunctions = (dataTree: DataTree) => {
