@@ -783,7 +783,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             dsContextIdentifier.setDatasourceId(datasourceContextIdentifier.getDatasourceId());
                             dsContextIdentifier.setEnvironmentId(datasourceContextIdentifier.getEnvironmentId());
 
-                            return getValidatedDatasourceForActionExecution(datasource1, environmentName)
+                            return getValidatedDatasourceForActionExecution(datasource1, datasourceContextIdentifier.getEnvironmentId())
                                     .zipWhen(validatedDatasource -> getDsContextForActionExecution(validatedDatasource,
                                             plugin,
                                             datasourceContextIdentifier,
@@ -850,10 +850,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param datasource
      * @return
      */
-    protected Mono<Datasource> getValidatedDatasourceForActionExecution(Datasource datasource, String environmentName) {
+    protected Mono<Datasource> getValidatedDatasourceForActionExecution(Datasource datasource, String environmentId) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
-        return authenticationValidator.validateAuthentication(datasource).cache();
+        return authenticationValidator.validateAuthentication(datasource, environmentId).cache();
     }
 
     /**
