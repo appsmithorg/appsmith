@@ -41,6 +41,7 @@ export function useCollapse({
   onExpandEnd = noop,
   onCollapseStart = noop,
   onCollapseEnd = noop,
+  onToggle = noop,
 }: UseCollapseInput = {}) {
   const [isExpanded, setExpanded] = useState(isOpened);
 
@@ -149,7 +150,7 @@ export function useCollapse({
       ...rest,
       onClick: disabled
         ? noop
-        : callAll(() => expandCollapse(!isExpanded), onClick),
+        : callAll(() => expandCollapse(!isExpanded), onToggle, onClick),
     };
   }
 

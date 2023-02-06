@@ -7,7 +7,7 @@ import {
   RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory from "utils/WidgetFactory";
 import ContainerComponent, { ContainerStyle } from "../component";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -36,6 +36,17 @@ class ContainerWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
+          {
+            helpText: "Set the default state of the widget",
+            propertyName: "isOpen",
+            label: "Default State",
+            controlType: "SWITCH",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
           {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
@@ -138,14 +149,16 @@ class ContainerWidget extends BaseWidget<
     ];
   }
 
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
-  }
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
+    return {
+      value: "isOpen",
+    };
   }
-  static getMetaPropertiesMap(): Record<string, any> {
-    return {};
+
+  static getMetaPropertiesMap(): Record<string, unknown> {
+    return {
+      value: true,
+    };
   }
 
   static getStylesheetConfig(): Stylesheet {
@@ -208,10 +221,18 @@ class ContainerWidget extends BaseWidget<
     );
   };
 
+  onToggle = () => {
+    this.props.updateWidgetMetaProperty("value", !this.props.value);
+  };
+
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    const snapRows = getCanvasSnapRows(props.bottomRow);
     return (
-      <ContainerComponent {...props}>
+      <ContainerComponent
+        isOpen={this.props.value}
+        onToggle={this.onToggle}
+        {...props}
+      >
         {props.type === "CANVAS_WIDGET" &&
           props.renderMode === RenderModes.CANVAS && (
             <>

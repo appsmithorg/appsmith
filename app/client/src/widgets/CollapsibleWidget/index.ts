@@ -8,6 +8,7 @@ import Widget from "./widget";
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Collapsible",
+  needsMeta: true,
   iconSVG: IconSVG,
   isCanvas: true,
   features: {
@@ -21,6 +22,7 @@ export const CONFIG = {
     backgroundColor: "#FFFFFF",
     rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
     columns: 24,
+    isOpen: true,
     widgetName: "Collapsible",
     containerStyle: "card",
     borderColor: Colors.GREY_5,

@@ -135,7 +135,10 @@ const collapseHeaderStyles: React.CSSProperties = {
 };
 
 function ContainerComponent(props: ContainerComponentProps) {
-  const { getCollapseProps, getToggleProps, isExpanded } = useCollapse({});
+  const { getCollapseProps, getToggleProps, isExpanded } = useCollapse({
+    isOpened: props.isOpen,
+    onToggle: props.onToggle,
+  });
 
   return (
     <div>
@@ -181,6 +184,8 @@ export interface ContainerComponentProps
   children?: ReactNode;
   className?: string;
   backgroundColor?: Color;
+  isOpen: boolean;
+  onToggle: () => void;
   shouldScrollContents?: boolean;
   resizeDisabled?: boolean;
   selected?: boolean;

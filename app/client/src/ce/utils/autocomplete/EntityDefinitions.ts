@@ -674,6 +674,11 @@ export const entityDefinitions = {
     start: "number",
     end: "number",
   },
+  COLLAPSIBLE_WIDGET: {
+    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    value: "bool",
+  },
   CODE_SCANNER_WIDGET: {
     "!doc": "Scan a Code",
     "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",
