@@ -388,9 +388,14 @@ export function getFillWidgetLengthForLayer(
     fillCount = 0;
   for (const child of layer.children) {
     const childWidget = allWidgets[child.id];
-    if (childWidget.responsiveBehavior !== ResponsiveBehavior.Fill)
+    if (!childWidget) {
+      continue;
+    }
+    if (childWidget.responsiveBehavior !== ResponsiveBehavior.Fill) {
       hugLength += childWidget.rightColumn - childWidget.leftColumn;
-    else fillCount += 1;
+    } else {
+      fillCount += 1;
+    }
   }
   fillLength = (fillLength - hugLength) / (fillCount || 1);
   return fillLength;
