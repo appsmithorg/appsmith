@@ -1205,10 +1205,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application ", throwable.getMessage());
-                    if (importedApplication.getId() != null && applicationId == null) {
-                        return applicationPageService.deleteApplication(importedApplication.getId())
-                                .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
-                    }
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
                 })
                 .as(transactionalOperator::transactional);
