@@ -1,3 +1,4 @@
+import HomePage from "../../../../locators/HomePage";
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
@@ -39,5 +40,18 @@ describe("Tests JS Libraries", () => {
     aggregateHelper.AssertContains("true");
     deployMode.NavigateBacktoEditor();
     aggregateHelper.AssertContains("true");
+  });
+  it("6. Tests library access and installation in public apps", () => {
+    let appURL = "";
+    cy.get(HomePage.shareApp).click();
+    //@ts-expect-error no type access
+    cy.enablePublicAccess(true);
+    deployMode.DeployApp();
+    cy.url().then((url) => {
+      appURL = url;
+      homePage.LogOutviaAPI();
+      cy.visit(appURL);
+      aggregateHelper.AssertContains("true");
+    });
   });
 });

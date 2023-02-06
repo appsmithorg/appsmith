@@ -1,10 +1,12 @@
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import { PROPERTY_SELECTOR } from "../../../../locators/WidgetLocators";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const commonLocators = ObjectsRegistry.CommonLocators;
+const ee = ObjectsRegistry.EntityExplorer;
 
 const NAVIGATION_ATTRIBUTE = "data-navigate-to";
 
@@ -52,9 +54,6 @@ const JSInput2TestCode = `export default {
 describe("1. CommandClickNavigation", function() {
   it("1. Import the test application", () => {
     homePage.NavigateToHome();
-    cy.intercept("GET", "/api/v1/users/features", {
-      fixture: "featureFlags.json",
-    }).as("featureFlags");
     cy.reload();
     homePage.ImportApp("ContextSwitching.json");
     cy.wait("@importNewApplication").then((interception) => {
@@ -136,18 +135,40 @@ describe("1. CommandClickNavigation", function() {
   });
 
   it("7. Will navigate to specific JS Functions", () => {
+    // It was found that when having git connected,
+    // cmd clicking to JS function reloaded the app. Will assert that does not happen
+    cy.generateUUID().then((uid) => {
+      const repoName = uid;
+      _.gitSync.CreateNConnectToGit(repoName);
+      _.gitSync.CreateGitBranch(repoName);
+    });
+
     cy.SearchEntityandOpen("Text1");
     cy.updateCodeInput(".t--property-control-text", "{{ JSObject1.myFun1() }}");
+
+    cy.wait(1000);
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
       ctrlKey: true,
     });
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 1, line: 3 });
+
+    // Assert context switching works when going back to canvas
+    ee.SelectEntityByName("Page1", "Pages");
+
+    cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
+    cy.get(".t--property-pane-title").should("contain", "Text1");
+
+    // Go back to JS editor
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
+      ctrlKey: true,
+    });
   });
 
   it("8. Will navigate within Js Object properly", () => {
     cy.updateCodeInput(".js-editor", JSInputTestCode);
+    cy.wait(1000);
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myVar1"]`).click({
       ctrlKey: true,
     });
@@ -156,7 +177,7 @@ describe("1. CommandClickNavigation", function() {
       codeMirrorInput.focus();
     });
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 1 });
-
+    cy.wait(1000);
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
       ctrlKey: true,
     });
@@ -166,7 +187,7 @@ describe("1. CommandClickNavigation", function() {
     });
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
-
+    cy.wait(1000);
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject2.myFun1"]`).click({
       ctrlKey: true,
     });
