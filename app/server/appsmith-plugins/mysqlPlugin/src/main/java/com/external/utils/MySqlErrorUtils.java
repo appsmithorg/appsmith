@@ -43,7 +43,8 @@ public class MySqlErrorUtils extends AppsmithPluginErrorUtils {
         if (externalError instanceof io.r2dbc.spi.R2dbcNonTransientResourceException) {
 
             R2dbcNonTransientResourceException r2dbcNonTransientResourceException = (R2dbcNonTransientResourceException) externalError;
-            return r2dbcNonTransientResourceException.getMessage().split(" : ")[1].trim();
+            return r2dbcNonTransientResourceException.getMessage().split(" : ")[1].
+                    split(" \\(")[0].trim();
 
         }
 
