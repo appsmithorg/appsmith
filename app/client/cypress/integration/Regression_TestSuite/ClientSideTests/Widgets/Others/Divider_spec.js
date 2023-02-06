@@ -13,6 +13,7 @@ describe("Divider Widget Functionality", function() {
   });
 
   it("Open Existing Divider from created Widgets list", () => {
+    cy.get("#switcher--explorer").click({ force: true });
     cy.GlobalSearchEntity("Widgets");
     cy.get(".t--entity-name:contains(Divider1)").click();
     cy.get(".t--entity-name:contains(Divider2)").click();

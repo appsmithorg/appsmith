@@ -1,7 +1,7 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 const publish = require("../../../../locators/publishWidgetspage.json");
-import * as _ from "../../../../support/Objects/ObjectsCore"
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 beforeEach(() => {
   // Closes template dialog if it is already open - useful for retry
@@ -11,11 +11,10 @@ beforeEach(() => {
     }
   });
   cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains(Page1)`)
-      .trigger("mouseover")
-      .click({ force: true });
+  cy.get(`.t--entity-name:contains(Page1)`)
+    .trigger("mouseover")
+    .click({ force: true });
 });
-
 
 describe("Fork a template to the current app from new page popover", () => {
   it("1. Fork template from page section", () => {

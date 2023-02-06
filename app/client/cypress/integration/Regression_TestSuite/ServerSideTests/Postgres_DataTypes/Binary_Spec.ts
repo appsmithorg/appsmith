@@ -7,8 +7,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,
-  appSettings = ObjectsRegistry.AppSettings,
-  canvasHelper = ObjectsRegistry.CanvasHelper;
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Binary Datatype tests", function() {
   before(() => {
@@ -22,7 +21,7 @@ describe("Binary Datatype tests", function() {
     cy.fixture("Datatypes/BinaryDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    canvasHelper.OpenWidgetPane();
+    ee.NavigateToSwitcher("widgets");
     appSettings.OpenPaneAndChangeThemeColors(24, -37);
   });
 

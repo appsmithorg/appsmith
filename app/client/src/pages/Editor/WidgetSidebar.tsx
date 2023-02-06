@@ -67,7 +67,9 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   };
 
   return (
-    <div className="flex flex-col min-h-0">
+    <div
+      className={`flex flex-col overflow-hidden ${isActive ? "" : "hidden"}`}
+    >
       <ExplorerSearch
         autoFocus
         clear={clearSearchInput}
@@ -76,7 +78,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         ref={searchInputRef}
       />
       <div
-        className="px-3 overflow-y-auto"
+        className="flex-grow px-3 overflow-y-scroll"
         data-cy="widget-sidebar-scrollable-wrapper"
       >
         <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400 t--widget-sidebar">

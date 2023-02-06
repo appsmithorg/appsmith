@@ -3,6 +3,7 @@ import * as _objects from "../../../../support/Objects/ObjectsCore"
 describe("clearStore Action test", () => {
   before(() => {
     _objects.ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    _objects.ee.NavigateToSwitcher("explorer");
   });
 
   it("1. Feature 11639 : Clear all store value", function() {
