@@ -118,7 +118,7 @@ export const entityFns = [
   },
 ];
 
-export type ActionTypes =
+export type ActionTriggerKeys =
   | TClearActionType
   | TRunActionType
   | TDownloadActionType
@@ -134,18 +134,25 @@ export type ActionTypes =
   | TWatchGeoLocationActionType
   | TStopWatchGeoLocationActionType;
 
-export const ActionNames: Record<ActionTypes, string> = {
-  CLEAR_PLUGIN_ACTION: "clear",
-  RUN_PLUGIN_ACTION: "action.run",
-  DOWNLOAD: "download",
-  SHOW_MODAL_BY_NAME: "showModal",
+export const ActionTriggerFunctionNames: Record<string, string> = {
+  CLEAR_INTERVAL: "clearInterval",
+  CLEAR_PLUGIN_ACTION: "action.clear",
   CLOSE_MODAL: "closeModal",
-  SHOW_ALERT: "showAlert",
+  COPY_TO_CLIPBOARD: "copyToClipboard",
+  DOWNLOAD: "download",
   NAVIGATE_TO: "navigateTo",
   RESET_WIDGET_META_RECURSIVE_BY_NAME: "resetWidget",
-  COPY_TO_CLIPBOARD: "copyToClipboard",
+  RUN_PLUGIN_ACTION: "action.run",
+  SET_INTERVAL: "setInterval",
+  SHOW_ALERT: "showAlert",
+  SHOW_MODAL_BY_NAME: "showModal",
+  STORE_VALUE: "storeValue",
+  REMOVE_VALUE: "removeValue",
+  CLEAR_STORE: "clearStore",
+  GET_CURRENT_LOCATION: "getCurrentLocation",
+  WATCH_CURRENT_LOCATION: "watchLocation",
+  STOP_WATCHING_CURRENT_LOCATION: "stopWatch",
   POST_MESSAGE: "postWindowMessage",
-  WATCH_CURRENT_LOCATION: "watchGeoLocation",
-  STOP_WATCHING_CURRENT_LOCATION: "stopWatchGeoLocation",
-  GET_CURRENT_LOCATION: "getGeoLocation",
+  SET_TIMEOUT: "setTimeout",
+  CLEAR_TIMEOUT: "clearTimeout",
 };
