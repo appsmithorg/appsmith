@@ -480,7 +480,7 @@ export class DataSources {
 
   public NavigateToActiveTab() {
     this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab);
+    this.agHelper.GetNClick(this._activeTab,0,true);
   }
 
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
@@ -489,6 +489,7 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
+    this.ee.NavigateToSwitcher("explorer");
     this.ee.ExpandCollapseEntity("Datasources", false);
     //this.ee.SelectEntityByName(datasourceName, "Datasources");
     //this.ee.ExpandCollapseEntity(datasourceName, false);

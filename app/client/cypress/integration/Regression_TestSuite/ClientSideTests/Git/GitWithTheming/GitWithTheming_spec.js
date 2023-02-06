@@ -141,4 +141,9 @@ describe("Git with Theming:", function() {
       backgroudColorMaster,
     );
   }); */
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });

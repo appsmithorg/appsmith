@@ -2,6 +2,7 @@ export * from "ce/sagas/userSagas";
 import {
   createUserSaga,
   getCurrentUserSaga,
+  runUserSideEffectsSaga,
   forgotPasswordSaga,
   resetPasswordSaga,
   verifyResetPasswordTokenSaga,
@@ -23,6 +24,10 @@ export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
     takeLatest(ReduxActionTypes.FETCH_USER_INIT, getCurrentUserSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+      runUserSideEffectsSaga,
+    ),
     takeLatest(ReduxActionTypes.FORGOT_PASSWORD_INIT, forgotPasswordSaga),
     takeLatest(ReduxActionTypes.RESET_USER_PASSWORD_INIT, resetPasswordSaga),
     takeLatest(
