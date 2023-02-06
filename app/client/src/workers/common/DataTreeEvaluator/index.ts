@@ -46,6 +46,7 @@ import {
   difference,
   flatten,
   get,
+  has,
   isEmpty,
   isFunction,
   isObject,
@@ -1324,8 +1325,9 @@ export default class DataTreeEvaluator {
       trimmedChangedPaths,
       this.inverseDependencyMap,
     );
+    const deletedPaths = removedPaths.filter((path) => !has(unEvalTree, path));
     // Remove any paths that do not exist in the data tree anymore
-    return difference(completeSortOrder, removedPaths);
+    return difference(completeSortOrder, deletedPaths);
   }
 
   getInverseDependencyTree(

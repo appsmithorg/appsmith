@@ -764,7 +764,11 @@ export const overrideWidgetProperties = (params: {
 
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
-      if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
+      if (
+        pathsNotToOverride.includes(overriddenPropertyPath) ||
+        clonedValue === undefined
+      )
+        return;
       _.set(
         currentTree,
         [entity.widgetName, ...overriddenPropertyPathArray],
