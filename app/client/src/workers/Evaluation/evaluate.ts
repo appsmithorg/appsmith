@@ -5,8 +5,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
-import { LogObject, Severity } from "entities/AppsmithConsole";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { Severity } from "entities/AppsmithConsole";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
@@ -19,8 +18,6 @@ import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
-  triggers?: ActionDescription[];
-  logs?: LogObject[];
 };
 
 export enum EvaluationScriptType {

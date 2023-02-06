@@ -38,7 +38,7 @@ import {
   watchCurrentLocation,
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 
 export type TriggerMeta = {
   source?: TriggerSource;

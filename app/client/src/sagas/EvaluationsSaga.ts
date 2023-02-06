@@ -104,7 +104,7 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 
 export const evalWorker = new GracefulWorkerService(

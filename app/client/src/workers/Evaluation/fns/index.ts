@@ -1,19 +1,50 @@
-import navigateTo, { TNavigateToActionType } from "./navigateTo";
-import showAlert, { TShowAlertActionType } from "./showAlert";
+import navigateTo, {
+  TNavigateToActionType,
+  TNavigateToDescription,
+} from "./navigateTo";
+import showAlert, {
+  TShowAlertActionType,
+  TShowAlertDescription,
+} from "./showAlert";
 import {
   closeModal,
   showModal,
   TCloseModalActionType,
+  TCloseModalDescription,
   TShowModalActionType,
+  TShowModalDescription,
 } from "./modalFns";
-import download, { TDownloadActionType } from "./download";
+import download, {
+  TDownloadActionType,
+  TDownloadDescription,
+} from "./download";
 import postWindowMessage, {
   TPostWindowMessageActionType,
+  TPostWindowMessageDescription,
 } from "./postWindowMessage";
-import copyToClipboard, { TCopyToClipboardActionType } from "./copyToClipboard";
-import resetWidget, { TResetWidgetActionType } from "./resetWidget";
-import { clearStore, removeValue, storeValue } from "./storeFns";
-import run, { clear, TClearActionType, TRunActionType } from "./actionFns";
+import copyToClipboard, {
+  TCopyToClipboardActionType,
+  TCopyToClipboardDescription,
+} from "./copyToClipboard";
+import resetWidget, {
+  TResetWidgetActionType,
+  TResetWidgetDescription,
+} from "./resetWidget";
+import {
+  clearStore,
+  removeValue,
+  storeValue,
+  TClearStoreDescription,
+  TRemoveValueDescription,
+  TStoreValueDescription,
+} from "./storeFns";
+import run, {
+  clear,
+  TClearActionType,
+  TClearDescription,
+  TRunActionType,
+  TRunDescription,
+} from "./actionFns";
 import {
   isAction,
   isAppsmithEntity,
@@ -26,8 +57,11 @@ import {
   getGeoLocation,
   stopWatchGeoLocation,
   TGetGeoLocationActionType,
+  TGetGeoLocationDescription,
   TStopWatchGeoLocationActionType,
+  TStopWatchGeoLocationDescription,
   TWatchGeoLocationActionType,
+  TWatchGeoLocationDescription,
   watchGeoLocation,
 } from "./geolocationFns";
 import { isAsyncGuard } from "./utils/fnGuard";
@@ -156,3 +190,22 @@ export const ActionTriggerFunctionNames: Record<string, string> = {
   SET_TIMEOUT: "setTimeout",
   CLEAR_TIMEOUT: "clearTimeout",
 };
+
+export type ActionDescription =
+  | TRunDescription
+  | TClearDescription
+  | TShowModalDescription
+  | TCloseModalDescription
+  | TClearDescription
+  | TStoreValueDescription
+  | TClearStoreDescription
+  | TRemoveValueDescription
+  | TDownloadDescription
+  | TPostWindowMessageDescription
+  | TNavigateToDescription
+  | TShowAlertDescription
+  | TResetWidgetDescription
+  | TCopyToClipboardDescription
+  | TGetGeoLocationDescription
+  | TWatchGeoLocationDescription
+  | TStopWatchGeoLocationDescription;

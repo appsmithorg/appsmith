@@ -2,7 +2,7 @@ import { ActionResponse } from "api/ActionAPI";
 import { PluginId } from "api/PluginApi";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { ActionConfig, PluginType } from "entities/Action";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { Variable } from "entities/JSCollection";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 
