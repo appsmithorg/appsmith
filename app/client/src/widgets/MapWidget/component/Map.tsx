@@ -125,16 +125,18 @@ const Map = (props: MapProps) => {
         id="map"
         ref={mapRef}
       />
-      <MarkersOrCluster
-        key={`markers-${allowClustering ? "cluster" : "markers"}-${
-          markers?.length
-        }`}
-        map={map}
-        markers={markers}
-        selectMarker={selectMarker}
-        updateCenter={updateCenter}
-        updateMarker={updateMarker}
-      />
+      {map && (
+        <MarkersOrCluster
+          key={`markers-${allowClustering ? "cluster" : "markers"}-${
+            markers?.length
+          }`}
+          map={map}
+          markers={markers}
+          selectMarker={selectMarker}
+          updateCenter={updateCenter}
+          updateMarker={updateMarker}
+        />
+      )}
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<any>, {

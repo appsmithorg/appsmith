@@ -11,14 +11,7 @@ type MarkerProps = google.maps.MarkerOptions & {
 };
 
 const Marker: React.FC<MarkerProps> = (options) => {
-  const {
-    color,
-    markerClusterer,
-    onClick,
-    onDragEnd,
-    position,
-    ...rest
-  } = options;
+  const { color, map, markerClusterer, onClick, onDragEnd, position } = options;
   const [marker, setMarker] = useState<google.maps.Marker>();
 
   const icon = {
@@ -32,13 +25,12 @@ const Marker: React.FC<MarkerProps> = (options) => {
       const googleMapMarker = new google.maps.Marker({
         position,
         icon,
+        map,
       });
 
       googleMapMarker.addListener("click", () => {
         if (onClick) onClick();
       });
-
-      googleMapMarker.setOptions(rest);
 
       setMarker(googleMapMarker);
     }
@@ -57,7 +49,7 @@ const Marker: React.FC<MarkerProps> = (options) => {
         markerClusterer.removeMarker(marker);
       }
     };
-  }, [marker, markerClusterer]);
+  }, [marker, markerClusterer, map]);
 
   // track color change
   useEffect(() => {
