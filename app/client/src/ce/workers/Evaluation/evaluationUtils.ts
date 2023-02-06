@@ -102,35 +102,6 @@ const isUninterestingChangeForDependencyUpdate = (path: string) => {
   return path.match(ignorePathsForEvalRegex);
 };
 
-function translateCollectionDiffs(
-  propertyPath: string,
-  data: unknown,
-  event: DataTreeDiffEvent,
-) {
-  const dataTreeDiffs: DataTreeDiff[] = [];
-  if (Array.isArray(data)) {
-    data.forEach((diff, idx) => {
-      dataTreeDiffs.push({
-        event,
-        payload: {
-          propertyPath: `${propertyPath}[${idx}]`,
-        },
-      });
-    });
-  } else if (isTrueObject(data)) {
-    Object.keys(data).forEach((diffKey) => {
-      const path = `${propertyPath}.${diffKey}`;
-      dataTreeDiffs.push({
-        event,
-        payload: {
-          propertyPath: path,
-        },
-      });
-    });
-  }
-  return dataTreeDiffs;
-}
-
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
@@ -177,13 +148,17 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "E": {
-      const rhsChange =
-        typeof difference.rhs === "string" &&
-        (isDynamicValue(difference.rhs) || isJsAction);
+      let rhsChange, lhsChange;
+      if (isJsAction) {
+        rhsChange = typeof difference.rhs === "string";
+        lhsChange = typeof difference.lhs === "string";
+      } else {
+        rhsChange =
+          typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
 
-      const lhsChange =
-        typeof difference.lhs === "string" &&
-        (isDynamicValue(difference.lhs) || isJsAction);
+        lhsChange =
+          typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
+      }
 
       // JsObject function renaming
       // remove .data from a String instance manually
@@ -224,12 +199,28 @@ export const translateDiffEventToDataTreeDiffEvent = (
          * If lhs is an array/object
          * Add delete events for all memberExpressions
          */
-        const dataTreeDeleteDiffs = translateCollectionDiffs(
-          propertyPath,
-          difference.lhs,
-          DataTreeDiffEvent.DELETE,
-        );
-        result = result.concat(dataTreeDeleteDiffs);
+        if (Array.isArray(difference.lhs)) {
+          difference.lhs.forEach((diff, idx) => {
+            (result as DataTreeDiff[]).push({
+              event: DataTreeDiffEvent.DELETE,
+              payload: {
+                propertyPath: `${propertyPath}[${idx}]`,
+              },
+            });
+          });
+        }
+
+        if (isTrueObject(difference.lhs)) {
+          Object.keys(difference.lhs).forEach((diffKey) => {
+            const path = `${propertyPath}.${diffKey}`;
+            (result as DataTreeDiff[]).push({
+              event: DataTreeDiffEvent.DELETE,
+              payload: {
+                propertyPath: path,
+              },
+            });
+          });
+        }
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
@@ -244,11 +235,8 @@ export const translateDiffEventToDataTreeDiffEvent = (
           difference.rhs === undefined &&
           (isTrueObject(difference.lhs) || Array.isArray(difference.lhs))
         ) {
-          result = translateCollectionDiffs(
-            propertyPath,
-            difference.lhs,
-            DataTreeDiffEvent.DELETE,
-          );
+          result.event = DataTreeDiffEvent.DELETE;
+          result.payload = { propertyPath };
         }
       } else if (
         isTrueObject(difference.lhs) &&
@@ -259,18 +247,22 @@ export const translateDiffEventToDataTreeDiffEvent = (
         // in such a case we want to delete all nested paths of the
         // original lhs object
 
-        result = translateCollectionDiffs(
-          propertyPath,
-          difference.lhs,
-          DataTreeDiffEvent.DELETE,
-        );
+        result = Object.keys(difference.lhs).map((diffKey) => {
+          const path = `${propertyPath}.${diffKey}`;
+          return {
+            event: DataTreeDiffEvent.DELETE,
+            payload: {
+              propertyPath: path,
+            },
+          };
+        });
 
         // when an object is being replaced by an array
         // list all new array accessors that are being added
         // so dependencies will be created based on existing bindings
         if (Array.isArray(difference.rhs)) {
           result = result.concat(
-            translateCollectionDiffs(
+            translateDiffArrayIndexAccessors(
               propertyPath,
               difference.rhs,
               DataTreeDiffEvent.NEW,
@@ -285,18 +277,22 @@ export const translateDiffEventToDataTreeDiffEvent = (
         // from being any other type like string or number to an object
         // in such a case we want to add all nested paths of the
         // new rhs object
-        result = translateCollectionDiffs(
-          propertyPath,
-          difference.rhs,
-          DataTreeDiffEvent.NEW,
-        );
+        result = Object.keys(difference.rhs).map((diffKey) => {
+          const path = `${propertyPath}.${diffKey}`;
+          return {
+            event: DataTreeDiffEvent.NEW,
+            payload: {
+              propertyPath: path,
+            },
+          };
+        });
 
         // when an array is being replaced by an object
         // remove all array accessors that are deleted
         // so dependencies by existing bindings are removed
         if (Array.isArray(difference.lhs)) {
           result = result.concat(
-            translateCollectionDiffs(
+            translateDiffArrayIndexAccessors(
               propertyPath,
               difference.lhs,
               DataTreeDiffEvent.DELETE,
