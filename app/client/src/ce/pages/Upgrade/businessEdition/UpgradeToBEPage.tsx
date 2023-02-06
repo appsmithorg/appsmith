@@ -19,8 +19,6 @@ export const UpgradeToBEPageWrapper = styled.div`
 `;
 
 export const ImageContainer = styled.div`
-  display: flex;
-  justify-content: center;
   min-width: 400px;
   img {
     width: 600px;
