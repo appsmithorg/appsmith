@@ -287,6 +287,7 @@ describe("Debugger logs", function() {
     agHelper.WaitUntilAllToastsDisappear();
 
     cy.get("@jsObjName").then((jsObjName) => {
+      agHelper.Sleep(2000)
       agHelper.GetNClick(jsEditor._runButton);
       agHelper.GetNClick(jsEditor._logsTab);
       debuggerHelper.DoesConsoleLogExist(`${logString} Started`);
