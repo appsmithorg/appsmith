@@ -95,7 +95,16 @@ export interface ActionResponse {
   errorType?: string;
   readableError?: string;
   responseDisplayFormat?: string;
-  pluginErrorDetails?: any;
+  pluginErrorDetails?: PluginErrorDetails;
+}
+
+export interface PluginErrorDetails {
+  title: string;
+  errorType: string;
+  appsmithErrorCode: string;
+  appsmithErrorMessage: string;
+  downstreamErrorCode: string;
+  downstreamErrorMessage: string;
 }
 
 export interface MoveActionRequest {
