@@ -1110,7 +1110,7 @@
                 "widgetId": "hzi419yzw9",
                 "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                 "isVisibleFilters": true,
-                "tableData": "{{TC1api.data.users}}",
+                "tableData": "{{TC1api.data}}",
                 "isVisible": true,
                 "label": "Data",
                 "searchKey": "",

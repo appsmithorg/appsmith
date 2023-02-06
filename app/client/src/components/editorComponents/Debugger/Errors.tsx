@@ -1,25 +1,9 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import styled from "styled-components";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
-import ErrorLogItem, { getLogItemProps } from "./ErrorLogItem";
-import { BlankState } from "./helpers";
-import { createMessage, NO_ERRORS } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
-import { thinScrollbar } from "constants/DefaultTheme";
-
-const ContainerWrapper = styled.div`
-  overflow: hidden;
-  height: 100%;
-`;
-
-const ListWrapper = styled.div`
-  overflow: auto;
-  ${thinScrollbar};
-  height: 100%;
-  padding-bottom: 25px;
-`;
+import ErrorLog from "./ErrorLogs/ErrorLog";
 
 function Errors(props: { hasShortCut?: boolean }) {
   const errors = useSelector(getFilteredErrors);
@@ -29,38 +13,7 @@ function Errors(props: { hasShortCut?: boolean }) {
     bootIntercom(currentUser);
   }, [currentUser?.email]);
 
-  return (
-    <ContainerWrapper>
-      <ListWrapper className="debugger-list">
-        {!Object.values(errors).length ? (
-          <BlankState
-            hasShortCut={props.hasShortCut}
-            placeholderText={createMessage(NO_ERRORS)}
-          />
-        ) : (
-          Object.values(errors).map((e, index) => {
-            const logItemProps = getLogItemProps(e);
-            const messages = e.messages || [];
-            const logItems = [];
-            if (messages) {
-              messages.forEach((message) => {
-                logItemProps.messages = [message];
-                logItems.push(
-                  <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
-                );
-              });
-            } else {
-              // Expand all errors by default
-              logItems.push(
-                <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
-              );
-            }
-            return logItems;
-          })
-        )}
-      </ListWrapper>
-    </ContainerWrapper>
-  );
+  return <ErrorLog errors={errors} hasShortCut={props.hasShortCut} />;
 }
 
 export default Errors;
