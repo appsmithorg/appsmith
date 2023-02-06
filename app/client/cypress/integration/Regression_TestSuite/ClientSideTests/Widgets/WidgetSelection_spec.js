@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget Selection", function() {
   before(() => {
@@ -49,6 +48,8 @@ describe("Widget Selection", function() {
   });
 
   it("3. Should not select widgets if we hit CTRL + A on other Pages", function() {
+    // Switch to the Explorer Pane
+    cy.get("#switcher--explorer").click();
     // Click to create a New Data Source
     cy.get(".t--entity-add-btn")
       .eq(3)
@@ -56,7 +57,7 @@ describe("Widget Selection", function() {
     // Hit CTRL +A
     cy.get("body").type("{ctrl}{a}");
     // Switch to the Canvas
-    _.canvasHelper.OpenWidgetPane();
+    cy.get("#switcher--widgets").click();
     // Widgets should not be selected
     cy.get(".t--multi-selection-box").should("not.exist");
   });
