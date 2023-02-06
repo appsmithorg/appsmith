@@ -620,7 +620,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           this.updateColumnProperties(newTableColumns);
         }
 
-        this.props.updateWidgetMetaProperty("filters", DEFAULT_FILTER);
+        this.props.updateWidgetMetaProperty("filters", [DEFAULT_FILTER]);
       }
     }
 
