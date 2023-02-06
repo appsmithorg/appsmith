@@ -56,6 +56,7 @@ export function* logLatestLintPropertyErrors({
       },
     });
   }
+
   AppsmithConsole.addErrors(errorsToAdd);
   AppsmithConsole.deleteErrors(errorsToRemove);
 }

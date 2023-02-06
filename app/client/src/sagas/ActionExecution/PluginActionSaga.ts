@@ -1000,16 +1000,15 @@ function* executePluginActionSaga(
     params,
   );
 
+  let payload = EMPTY_RESPONSE;
+  let response: ActionExecutionResponse;
   try {
-    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
-      formData,
-      timeout,
-    );
+    response = yield ActionAPI.executeAction(formData, timeout);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
     );
     yield validateResponse(response);
-    const payload = createActionExecutionResponse(response);
+    payload = createActionExecutionResponse(response);
 
     yield put(
       executePluginActionSuccess({
@@ -1017,17 +1016,20 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
-    let plugin: Plugin | undefined;
-    if (!!pluginAction.pluginId) {
-      plugin = shouldBeDefined<Plugin>(
-        yield select(getPlugin, pluginAction.pluginId),
-        `Plugin not found for id - ${pluginAction.pluginId}`,
-      );
+    try {
+      let plugin: Plugin | undefined;
+      if (!!pluginAction.pluginId) {
+        plugin = shouldBeDefined<Plugin>(
+          yield select(getPlugin, pluginAction.pluginId),
+          `Plugin not found for id - ${pluginAction.pluginId}`,
+        );
+      }
+
+      // sets the default display format for action response e.g Raw, Json or Table
+      yield setDefaultActionDisplayFormat(actionId, plugin, payload);
+    } catch (e) {
+      log.error("plugin no found", e);
     }
-
-    // sets the default display format for action response e.g Raw, Json or Table
-    yield setDefaultActionDisplayFormat(actionId, plugin, payload);
-
     return {
       payload,
       isError: isErrorResponse(response),

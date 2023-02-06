@@ -553,4 +553,9 @@ describe("Git sync apps", function() {
       .eq(5)
       .contains("Child_Page");
   });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });

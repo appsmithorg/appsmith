@@ -2,11 +2,14 @@ import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-let branchName;
+let repoName, branchName;
 describe("Delete branch flow", () => {
   it("1. Connect app to git, create new branch and delete it", () => {
     // create git repo and connect app to git
     _.gitSync.CreateNConnectToGit();
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
+    });
     _.gitSync.CreateGitBranch();
     //cy.createGitBranch(branchName);
     cy.wait(1000);
@@ -122,4 +125,9 @@ describe("Delete branch flow", () => {
       "Cannot delete default branch: master",
     );
   }); */
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });
