@@ -100,7 +100,7 @@ export class GitSync {
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
-        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo", 200, 40000);
+        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo", 200, 40000);//Increasing wait time for GitRepo to create in Gitea
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
       }
