@@ -417,25 +417,25 @@ const ControlledCurrentValueViewer = memo(
             <CollapseToggle isOpen={openEvaluatedValue} />
           </StyledTitle>
         )}
-        <Collapse isOpen={openEvaluatedValue}>
-          <CurrentValueWrapper
-            className="t-property-evaluated-value"
-            colorTheme={props.theme}
-          >
-            {content}
-            {props.hasOwnProperty("evaluatedValue") && (
-              <CopyIconWrapper
-                colorTheme={props.theme}
-                minimal
-                onClick={() =>
-                  copyContent(props.evaluatedValue, onCopyContentText)
-                }
-              >
-                <CopyIcon height={34} />
-              </CopyIconWrapper>
-            )}
-          </CurrentValueWrapper>
-        </Collapse>
+        {/* <Collapse isOpen={openEvaluatedValue}> */}
+        <CurrentValueWrapper
+          className="t-property-evaluated-value"
+          colorTheme={props.theme}
+        >
+          {content}
+          {props.hasOwnProperty("evaluatedValue") && (
+            <CopyIconWrapper
+              colorTheme={props.theme}
+              minimal
+              onClick={() =>
+                copyContent(props.evaluatedValue, onCopyContentText)
+              }
+            >
+              <CopyIcon height={34} />
+            </CopyIconWrapper>
+          )}
+        </CurrentValueWrapper>
+        {/* </Collapse> */}
       </>
     );
   },
