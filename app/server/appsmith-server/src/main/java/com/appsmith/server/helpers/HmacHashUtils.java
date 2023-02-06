@@ -7,7 +7,9 @@ import java.security.NoSuchAlgorithmException;
 
 public class HmacHashUtils {
 
-    public static String hmacWithJava(String algorithm, String data, String key)
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
+    public static String createHash(String algorithm, String data, String key)
             throws NoSuchAlgorithmException, InvalidKeyException {
         SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), algorithm);
         Mac mac = Mac.getInstance(algorithm);
@@ -15,7 +17,6 @@ public class HmacHashUtils {
         return bytesToHex(mac.doFinal(data.getBytes()));
     }
 
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {

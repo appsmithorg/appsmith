@@ -2,8 +2,8 @@ const publishPage = require("../../../locators/publishWidgetspage.json");
 const testdata = require("../../../fixtures/testdata.json");
 
 const testUrl = "http://localhost:5001/v1/parent/cmd";
-describe("Upgrade appsmith version", () => {
-  it("Upgrade Appsmith version and verify the Applications", () => {
+describe.skip("Upgrade appsmith version", () => {
+  it.skip("Upgrade Appsmith version and verify the Applications", () => {
     const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
     cy.wait(2000);

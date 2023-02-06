@@ -1,4 +1,5 @@
 export * from "ce/selectors/tenantSelectors";
+import { Status } from "@appsmith/pages/Billing/StatusBadge";
 import { AppState } from "@appsmith/reducers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 
@@ -11,7 +12,14 @@ export const getLicenseType = (state: AppState) => {
 };
 
 export const getLicenseExpiry = (state: AppState) => {
-  return state.tenant?.tenantConfiguration?.license?.expiry;
+  const date = new Date(
+    state.tenant?.tenantConfiguration?.license?.expiry * 1000,
+  ).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  return date;
 };
 
 export const getLicenseKey = (state: AppState) => {
@@ -28,10 +36,12 @@ export const getLicenseDetails = (state: AppState) => {
 
 export const getRemainingDays = (state: AppState) => {
   const presentDate = new Date();
-  const expiryDate = new Date(
-    false ? state.tenant?.tenantConfiguration?.license?.expiry : "20 Jan 2023",
-  );
-  const diffTime = Math.abs(expiryDate.getTime() - presentDate.getTime());
+  const expiryDate = getLicenseExpiry(state);
+
+  const expiryTimeStamp = new Date(expiryDate).getTime();
+  const presentTimeStamp = presentDate.getTime();
+
+  const diffTime = Math.abs(expiryTimeStamp - presentTimeStamp);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;
 };
@@ -53,4 +63,23 @@ export const shouldShowLicenseBanner = (state: AppState) => {
   const isBEBanner = isBEBannerVisible(state);
   const featureFlags = selectFeatureFlags(state);
   return featureFlags.USAGE_AND_BILLING ? !isBEBanner && trialLicense : false;
+};
+
+export const hasInvalidLicenseKeyError = (state: AppState) => {
+  return state.tenant.tenantConfiguration?.license?.invalidLicenseKeyError;
+};
+
+export const getLicenseStatus = (state: AppState) => {
+  const isLicenseValid = isValidLicense(state);
+  const isTrial = isTrialLicense(state);
+
+  if (isLicenseValid) {
+    if (isTrial) {
+      return Status.TRIAL;
+    } else {
+      return Status.ACTIVE;
+    }
+  } else {
+    return Status.INACTIVE;
+  }
 };

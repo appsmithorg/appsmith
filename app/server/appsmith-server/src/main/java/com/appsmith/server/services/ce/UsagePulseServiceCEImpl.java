@@ -66,7 +66,7 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
                     }
                     else {
                         usagePulse.setIsAnonymousUser(false);
-                        if (user.getHashedEmail() == null || StringUtils.isEmpty(user.getHashedEmail())) {
+                        if (StringUtils.isEmpty(user.getHashedEmail())) {
                             String hashedEmail = DigestUtils.sha256Hex(user.getEmail());
                             usagePulse.setUser(hashedEmail);
                             // Hashed user email is stored to user for future mapping of user and pulses

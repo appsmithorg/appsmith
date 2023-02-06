@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -23,6 +25,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -88,8 +92,9 @@ public class TenantServiceTest {
         String licenseKey = "sample-license-key";
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(true);
-        license.setType(TenantConfiguration.License.LicenseType.PAID);
+        license.setType(LicenseType.PAID);
         license.setKey(licenseKey);
+        license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
 
         // Mock CS response to get valid license
         Mockito.when(licenseValidator.licenseCheck(any()))
@@ -98,7 +103,12 @@ public class TenantServiceTest {
         StepVerifier.create(tenantService.setTenantLicenseKey(licenseKey))
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    assertThat(tenantConfiguration.getLicense()).isEqualTo(license);
+                    TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
+                    assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey));
+                    assertThat(savedLicense.getActive()).isTrue();
+                    assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
+                    assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
+                    assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
                 .verifyComplete();
 
@@ -106,7 +116,12 @@ public class TenantServiceTest {
         StepVerifier.create(tenantService.getTenantConfiguration())
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    assertThat(tenantConfiguration.getLicense()).isEqualTo(license);
+                    TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
+                    assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey));
+                    assertThat(savedLicense.getActive()).isTrue();
+                    assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
+                    assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
+                    assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
                 .verifyComplete();
     }

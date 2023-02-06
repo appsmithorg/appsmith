@@ -893,20 +893,25 @@ public class MySqlPluginTest {
                         .blockLast(); // wait until completion of all the queries
 
                 /* Test numeric types */
-                testExecute(query_select_from_test_numeric_types);
+                testExecute(query_select_from_test_numeric_types, null);
                 /* Test date time types */
-                testExecute(query_select_from_test_date_time_types);
+                testExecute(query_select_from_test_date_time_types, null);
                 /* Test data types */
-                testExecute(query_select_from_test_data_types);
-                /* Test data types */
-                testExecute(query_select_from_test_json_data_type);
-                /* Test data types */
-                testExecute(query_select_from_test_geometry_types);
+                testExecute(query_select_from_test_data_types, null);
+                /* Test json type */
+                /**
+                 * TBD: add check for other data types as well.
+                 * Tracked here: https://github.com/appsmithorg/appsmith/issues/20069
+                 */
+                String expectedJsonResult = "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
+                testExecute(query_select_from_test_json_data_type, expectedJsonResult);
+                /* Test geometry types */
+                testExecute(query_select_from_test_geometry_types, null);
 
                 return;
         }
 
-        private void testExecute(String query) {
+        private void testExecute(String query, String expectedResult) {
                 Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
                 ActionConfiguration actionConfiguration = new ActionConfiguration();
                 actionConfiguration.setBody(query);
@@ -918,6 +923,9 @@ public class MySqlPluginTest {
                                 assertNotNull(result);
                                 assertTrue(result.getIsExecutionSuccess());
                                 assertNotNull(result.getBody());
+                                if (expectedResult != null) {
+                                        assertEquals(expectedResult, result.getBody().toString());
+                                }
                         })
                         .verifyComplete();
         }

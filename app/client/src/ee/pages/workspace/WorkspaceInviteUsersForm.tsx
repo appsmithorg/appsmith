@@ -60,7 +60,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
   Callout,
-  CalloutV2,
   DropdownOption,
   Icon,
   IconSize,
@@ -344,18 +343,6 @@ function WorkspaceInviteUsersForm(props: any) {
             Invite users to {currentWorkspace?.name}{" "}
           </Text>
         </WorkspaceInviteTitle>
-      )}
-      {isEEFeature && (
-        <CalloutV2
-          actionLabel="Learn More"
-          desc={
-            "You can now invite users or entire groups and give them permissions"
-          }
-          showCrossIcon
-          title="Granular access control is here!"
-          type="Notify"
-          url="https://docs.appsmith.com/advanced-concepts/access-control/granular-access-control"
-        />
       )}
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {

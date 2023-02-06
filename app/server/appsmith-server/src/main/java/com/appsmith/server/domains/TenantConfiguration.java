@@ -1,6 +1,8 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.server.constants.LicenseStatus;
+import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ce.TenantConfigurationCE;
 import com.appsmith.server.services.UserServiceImpl;
@@ -74,20 +76,12 @@ public class TenantConfiguration extends TenantConfigurationCE {
     License license;
     @Data
     public static class License {
-        public enum LicenseType {
-            TRIAL,
-            PAID
-        }
         Boolean active;
         String id;
         String key;
         LicenseType type;
         Instant expiry;
-        // Instance id of this tenant in Cloud Services
-        // This is a unique ID on Cloud Services for a combination of tenantId and instanceId on the instance
-        // Passed while reporting usage to Cloud Services
-        // Is returned on license checks with Cloud Services and stored locally
-        String csInstanceId;
+        LicenseStatus status;
     }
 
 }

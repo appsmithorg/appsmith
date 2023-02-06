@@ -11,7 +11,7 @@ import {
 import { BillingDashboardCard } from "./types";
 
 export function DashboardCard(props: BillingDashboardCard) {
-  const { icon, subtitle, title, value } = props;
+  const { content, icon, subtitle, title, value } = props;
   return (
     <StyledCard>
       <CardLeftContent>
@@ -24,6 +24,7 @@ export function DashboardCard(props: BillingDashboardCard) {
         </IconBadge>
         <CardTextWrapper>
           {title}
+          {content}
           {subtitle}
         </CardTextWrapper>
       </CardLeftContent>

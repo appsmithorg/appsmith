@@ -31,7 +31,7 @@ const TagInputWrapper = styled.div`
   &&& {
     .${Classes.TAG_INPUT} {
       background-color: var(--appsmith-color-black-0);
-      min-height: 38px;
+      min-height: 36px;
       border: 1.2px solid var(--appsmith-color-black-250);
       border-radius: 0px;
     }
