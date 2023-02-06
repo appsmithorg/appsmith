@@ -10,7 +10,7 @@ import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { functionFactory } from "workers/Evaluation/JSObject/JSProxy";
+import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
@@ -184,7 +184,7 @@ export const assignJSFunctionsToContext = (
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
       const data = jsObject[fnName]?.data;
       jsObjectFunction[fnName] = isTriggerBased
-        ? functionFactory(fn, jsObjectName + "." + fnName)
+        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
         : fn;
       if (!!data) {
         jsObjectFunction[fnName]["data"] = data;

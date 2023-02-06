@@ -1,6 +1,6 @@
 import { isPromise } from "workers/Evaluation/JSObject/utils";
 import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObject/postJSFunctionExecution";
-import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
+import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
 
 declare global {
   interface Window {
@@ -32,7 +32,7 @@ function saveExecutionData(name: string, data: unknown) {
   });
 }
 
-export function functionFactory<P extends ReadonlyArray<unknown>>(
+export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
   fn: (...args: P) => unknown,
   name: string,
   postProcessors: Array<(name: string, res: unknown) => void> = [
