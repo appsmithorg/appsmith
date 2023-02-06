@@ -20,10 +20,32 @@
           "initialValue": "authorization_code"
         },
         {
+          "label": "Mode",
+          "configProperty": "datasourceConfiguration.authentication.mode",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "options": [
+            {
+              "label": "Whole Drive Access",
+              "value": "ALL_SHEETS"
+            },
+            {
+              "label": "Limited Access to Sheets",
+              "value": "SPECIFIC_SHEETS"
+            }
+          ],
+          "initialValue": "ALL_SHEETS"
+        },
+        {
           "label": "Scope",
           "configProperty": "datasourceConfiguration.authentication.scopeString",
           "controlType": "DROP_DOWN",
           "isRequired": true,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.mode",
+            "comparison": "NOT_EQUALS",
+            "value": "ALL_SHEETS"
+          },
           "options": [
             {
               "label": "Read Files",

@@ -873,7 +873,8 @@ public class ExamplesWorkspaceClonerTests {
                             ),
                             null,
                             null,
-                            false
+                            false,
+                            "mode"
                     ));
 
                     final Datasource ds3 = new Datasource();
