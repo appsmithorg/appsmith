@@ -1,8 +1,11 @@
 import React from "react";
 import { Button, Category, Size, Text, TextType } from "design-system-old";
-import AppsmithImage from "assets/images/appsmith_logo_square.png";
+import BECtaImage from "assets/images/upgrade/be-cta/be-box-image.png";
 import { useDispatch, useSelector } from "react-redux";
-import { getRemainingDays } from "@appsmith/selectors/tenantSelectors";
+import {
+  getRemainingDays,
+  isAdminUser,
+} from "@appsmith/selectors/tenantSelectors";
 import { setBEBanner } from "@appsmith/actions/tenantActions";
 import {
   BE_TRIAL_BANNER_EXPIRY_MESSAGE,
@@ -23,6 +26,7 @@ import {
 export function BEBanner() {
   const daysLeft = useSelector(getRemainingDays);
   const dispatch = useDispatch();
+  const isAdmin = useSelector(isAdminUser);
 
   const handleClose = () => {
     dispatch(setBEBanner(false));
@@ -34,12 +38,12 @@ export function BEBanner() {
         <img
           alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
           className="no-sub-img"
-          height="200px"
-          src={AppsmithImage}
-          width="140px"
+          height="176px"
+          src={BECtaImage}
+          width="176px"
         />
         <BannerTextWrapper>
-          <Text className="main-text" type={TextType.H1} weight="800">
+          <Text className="main-text" type={TextType.H1} weight="700">
             🚀 {createMessage(BE_WELCOME_MESSAGE)}
           </Text>
           <Text
@@ -55,14 +59,16 @@ export function BEBanner() {
         </BannerTextWrapper>
       </BannerContentWrapper>
       <BannerCtaWrapper>
-        <Button
-          className="upgrade-button"
-          fill
-          onClick={goToCustomerPortal}
-          size={Size.large}
-          tag="button"
-          text={createMessage(UPGRADE_NOW)}
-        />
+        {isAdmin && (
+          <Button
+            className="upgrade-button"
+            fill
+            onClick={goToCustomerPortal}
+            size={Size.large}
+            tag="button"
+            text={createMessage(UPGRADE_NOW)}
+          />
+        )}
         <Button
           category={Category.secondary}
           className="close-button"

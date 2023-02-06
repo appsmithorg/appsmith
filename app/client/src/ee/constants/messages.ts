@@ -107,9 +107,9 @@ export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
   "Set your organization's logo and brand colors.";
 
 // Billing
-export const ADMIN_BILLING_SETTINGS_TITLE = () => "Billing Information";
+export const ADMIN_BILLING_SETTINGS_TITLE = () => "License & Billing";
 export const ADMIN_BILLING_SETTINGS_SUBTITLE = () =>
-  "See users on this instance and billing related information";
+  "View customer portal to view usage and billing related information, and to manage your subscription.";
 export const NO_ACTIVE_SUBSCRIPTION = () => "No active subscription";
 export const GET_STARTED_MESSAGE = () =>
   "Kindly choose one of the following option to get started";
@@ -121,6 +121,8 @@ export const TRIAL_EXPIRY_WARNING = (gracePeriod: number | string) =>
   `Your trial will expire in <span>${gracePeriod}</span> days.`;
 export const CONTINUE_USING_FEATURES = () =>
   `to continue using all the features.`;
+export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
+  `Please contact your administrator to upgrade and continue using all the features.`;
 export const TOTAL_USERS_MESSAGE = () => `Total Users`;
 export const NUMBER_OF_SELF_HOSTED_USERS = () =>
   ` Number of users on the self-hosted instance`;

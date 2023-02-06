@@ -3,6 +3,7 @@ import { IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch, useSelector } from "react-redux";
+import BECtaImage from "assets/images/upgrade/be-cta/be-box-image.png";
 // import { getAllAclUsers } from "@appsmith/selectors/aclSelectors";
 import {
   ACTIVATE,
@@ -41,7 +42,6 @@ import {
   getLicenseExpiry,
   getLicenseStatus,
 } from "@appsmith/selectors/tenantSelectors";
-import AppsmithImage from "assets/images/appsmith_logo_square.png";
 import { LicenseForm } from "../setup/LicenseForm";
 
 const headerProps = {
@@ -154,7 +154,7 @@ export function Billing() {
           <DialogHeaderImg
             className="no-sub-img"
             loading="lazy"
-            src={AppsmithImage}
+            src={BECtaImage}
           />
           <Text type={TextType.H1}>{createMessage(UPDATE_LICENSE)}</Text>
           <Text type={TextType.P1}>{createMessage(PREV_LICENSE_INVALID)}</Text>

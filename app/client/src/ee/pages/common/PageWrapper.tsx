@@ -15,14 +15,18 @@ import {
   getRemainingDays,
   isTrialLicense,
   shouldShowLicenseBanner,
+  isAdminUser,
 } from "@appsmith/selectors/tenantSelectors";
 import {
   CONTINUE_USING_FEATURES,
   createMessage,
   TRIAL_EXPIRY_WARNING,
   UPGRADE,
+  NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING,
 } from "@appsmith/constants/messages";
 import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
+import capitalize from "lodash/capitalize";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const StyledBanner = styled(BannerMessage)`
   position: fixed;
@@ -54,6 +58,8 @@ export function PageWrapper(props: PageWrapperProps) {
   const gracePeriod = useSelector(getRemainingDays);
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
+  const isAdmin = useSelector(isAdminUser);
+  const features = useSelector(selectFeatureFlags);
 
   const getBannerMessage: any = () => {
     if (isTrial) {
@@ -76,23 +82,35 @@ export function PageWrapper(props: PageWrapperProps) {
               type={TextType.P1}
               weight="600"
             />
-            <StyledText
-              as="button"
-              color={gracePeriod > 3 ? Colors.BLACK : Colors.RED_500}
-              onClick={goToCustomerPortal}
-              type={TextType.P1}
-              underline
-              weight="600"
-            >
-              {createMessage(UPGRADE)}
-            </StyledText>{" "}
-            <StyledText
-              color={gracePeriod > 3 ? Colors.BLACK : Colors.RED_500}
-              type={TextType.P1}
-              weight="600"
-            >
-              {createMessage(CONTINUE_USING_FEATURES)}
-            </StyledText>
+            {isAdmin ? (
+              <>
+                <StyledText
+                  as="button"
+                  color={gracePeriod > 3 ? Colors.BLACK : Colors.RED_500}
+                  onClick={goToCustomerPortal}
+                  type={TextType.P1}
+                  underline
+                  weight="600"
+                >
+                  {capitalize(createMessage(UPGRADE))}
+                </StyledText>{" "}
+                <StyledText
+                  color={gracePeriod > 3 ? Colors.BLACK : Colors.RED_500}
+                  type={TextType.P1}
+                  weight="600"
+                >
+                  {createMessage(CONTINUE_USING_FEATURES)}
+                </StyledText>
+              </>
+            ) : (
+              <StyledText
+                color={gracePeriod > 3 ? Colors.BLACK : Colors.RED_500}
+                type={TextType.P1}
+                weight="600"
+              >
+                {createMessage(NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING)}
+              </StyledText>
+            )}
           </>
         ),
       };
@@ -101,9 +119,10 @@ export function PageWrapper(props: PageWrapperProps) {
 
   return (
     <Wrapper isFixed={isFixed}>
-      {showBanner && isHomePage && getBannerMessage && (
-        <StyledBanner {...getBannerMessage()} />
-      )}
+      {features.USAGE_AND_BILLING &&
+        showBanner &&
+        isHomePage &&
+        getBannerMessage && <StyledBanner {...getBannerMessage()} />}
       <Helmet>
         <title>{`${
           props.displayName ? `${props.displayName} | ` : ""

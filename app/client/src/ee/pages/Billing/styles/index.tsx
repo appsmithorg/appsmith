@@ -123,10 +123,10 @@ export const DialogWrapper = styled.div`
 
 export const DialogHeaderImg = styled.img`
   position: fixed;
-  transform: translateY(-120%);
+  transform: translateY(-96%);
   z-index: 1;
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  height: 180px;
 `;
 
 export const StyledInput = styled(TextInput)`

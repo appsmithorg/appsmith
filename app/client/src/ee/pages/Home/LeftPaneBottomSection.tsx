@@ -34,6 +34,7 @@ import {
 } from "@appsmith/utils/adminSettingsHelpers";
 import {
   getTenantPermissions,
+  isAdminUser,
   isTrialLicense,
 } from "@appsmith/selectors/tenantSelectors";
 import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
@@ -58,12 +59,13 @@ function LeftPaneBottomSection() {
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
   const isTrial = useSelector(isTrialLicense);
+  const isAdmin = useSelector(isAdminUser);
   const isUsageAndBillingEnabled = useSelector(selectFeatureFlags)
     ?.USAGE_AND_BILLING;
 
   return (
     <StyledWrapper>
-      {isUsageAndBillingEnabled && isTrial && (
+      {isUsageAndBillingEnabled && isTrial && isAdmin && (
         <MenuItem
           className="business-plan-menu-option"
           icon="upload-cloud"

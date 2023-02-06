@@ -7,7 +7,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import AppsmithImage from "assets/images/appsmith_logo_square.png";
+import BECtaImage from "assets/images/upgrade/be-cta/be-box-image.png";
 import {
   ACTIVATE_INSTANCE,
   ADD_KEY,
@@ -66,9 +66,9 @@ function LicenseCheckPage() {
             <img
               alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
               className="no-sub-img"
-              height="657"
-              src={AppsmithImage}
-              width="177"
+              loading="lazy"
+              src={BECtaImage}
+              width="180"
             />
             <Text type={TextType.H1} weight="600">
               {createMessage(NO_ACTIVE_SUBSCRIPTION)}

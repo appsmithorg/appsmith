@@ -4,7 +4,6 @@ import { Text, TextType, Size } from "design-system-old";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  INVALID_LICENSE_KEY,
   REQUIRED_LICENSE_KEY,
   ADD_KEY,
   ACTIVATE_INSTANCE,
@@ -41,7 +40,6 @@ export const LicenseForm = (props: LicenseFormProps) => {
     if (isFieldTouched && isInvalid && !isEmptyString(values?.licenseKey)) {
       setError("licenseKey", {
         type: "invalid",
-        message: createMessage(INVALID_LICENSE_KEY),
       });
     }
   }, [isInvalid, isFieldTouched, errors]);
