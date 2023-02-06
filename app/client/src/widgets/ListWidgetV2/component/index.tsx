@@ -12,13 +12,12 @@ type ListComponentProps = React.PropsWithChildren<{
 type StyledListContainerProps = Omit<ListComponentProps, "componentRef">;
 
 const StyledListContainer = styled.div<StyledListContainerProps>`
-  height: ${(props) => props.height}px;
+  height: ${(props) => props.height - 8}px;
   width: 100%;
   position: relative;
   background: ${(props) => props.backgroundColor};
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => boxShadow};
-  overflow-y: auto;
 `;
 
 export const ListComponentEmpty = styled.div<{
