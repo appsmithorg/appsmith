@@ -325,7 +325,7 @@ function getFieldsForSelectedAction(
       functionMatch === "navigateTo" &&
       activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.URL
     ) {
-      fields[isChainedAction ? 2 : 1] = {
+      fields[2] = {
         field: FieldType.URL_FIELD,
       };
     }
