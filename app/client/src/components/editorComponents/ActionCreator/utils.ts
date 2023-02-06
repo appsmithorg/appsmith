@@ -119,14 +119,12 @@ export const textSetter = (
     } catch (e) {
       // code
       try {
-        return (
-          setCallbackFunctionField(
-            requiredValue,
-            changeValueWithoutBraces,
-            argNum,
-            self.evaluationVersion,
-          ) || currentValue
-        );
+        return `{{${setCallbackFunctionField(
+          requiredValue,
+          changeValueWithoutBraces,
+          argNum,
+          self.evaluationVersion,
+        ) || currentValue}}}`;
       } catch (e) {
         // showError();
         return currentValue;
@@ -203,14 +201,12 @@ export const callBackFieldSetter = (
   const requiredValue = stringToJS(currentValue);
   const requiredChangeValue = stringToJS(changeValue);
   try {
-    return (
-      setCallbackFunctionField(
-        requiredValue,
-        requiredChangeValue,
-        argNum,
-        self.evaluationVersion,
-      ) || currentValue
-    );
+    return `{{${setCallbackFunctionField(
+      requiredValue,
+      requiredChangeValue,
+      argNum,
+      self.evaluationVersion,
+    ) || currentValue}}}`;
   } catch (e) {
     // showError();
     throw e;

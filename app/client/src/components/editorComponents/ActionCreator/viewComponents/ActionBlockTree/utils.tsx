@@ -21,7 +21,7 @@ import { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
 import { getFunctionName } from "@shared/ast";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
-import { JSToString, stringToJS } from "../../utils";
+import { getCodeFromMoustache, JSToString, stringToJS } from "../../utils";
 import { ApiMethodIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
@@ -182,7 +182,13 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
       return FIELD_CONFIG[FieldType.ID_FIELD].getter(code) || "Add ID";
 
     case AppsmithFunction.getGeolocation:
-      return "{{ }}";
+      return (
+        getCodeFromMoustache(
+          FIELD_CONFIG[FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION].getter(
+            code,
+          ),
+        ) || "Add callback"
+      );
 
     case AppsmithFunction.watchGeolocation:
       return "";

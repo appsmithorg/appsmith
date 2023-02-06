@@ -37,7 +37,7 @@ export const Action: React.FC<Props> = ({
   value,
 }) => {
   const firstRender = React.useRef(true);
-  const isActionInteraction = React.useRef(false);
+  const isActionInteraction = React.useRef(true);
   const [isOpen, setOpen] = useState(isEmptyBlock(value));
   const [
     selectedCallbackBlock,
@@ -95,7 +95,7 @@ export const Action: React.FC<Props> = ({
       if (!isActionInteraction.current) {
         handleCloseClick();
       }
-    }, 10);
+    }, 0);
   };
 
   const handleMainBlockClick = () => {

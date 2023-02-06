@@ -13,7 +13,7 @@ import {
     isBlockStatementNode, BlockStatementNode,
 } from "../index";
 import {sanitizeScript} from "../utils";
-import {ancestor, simple} from "acorn-walk";
+import {ancestor, findNodeAt, simple} from "acorn-walk";
 import {Node, Comment} from "acorn";
 import {NodeTypes} from "../constants";
 import {generate} from "astring";
@@ -202,19 +202,30 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
         // }
     });
 
+    if (changeValue === "") {
+        requiredNode = changeValueAstWithComments;
+    }
+
+    // const changeValueNodeFound = findNodeAt(changeValueAstWithComments, 0, undefined, (type, node) => true);
+
+    // if (changeValueNodeFound) {
+    //     // @ts-ignore
+    //     requiredNode = changeValueNodeFound.node;
+    // }
+
+    const found = findNodeAt(currentValueAstWithComments, 0, undefined, (type, node) => isCallExpressionNode(node));
     // @ts-ignore
-    if(!!requiredNode) {
-        simple(currentValueAstWithComments, {
-            CallExpression(node) {
-                if (isCallExpressionNode(node) && node.arguments[argNum]) {
-                    requiredNode.start = node.arguments[0].start;
-                    requiredNode.end = node.arguments[0].start + changedValue.length;
-                    // @ts-ignore
-                    node.arguments[argNum] = requiredNode;
-                    changedValue = `{{${generate(currentValueAstWithComments, {comments: true}).trim()}}}`;
-                }
-            },
-        });
+    if(!!requiredNode && found) {
+        const { node } = found;
+        // @ts-ignore
+        if(node.arguments[argNum]) {
+            // @ts-ignore
+            node.arguments[argNum] = requiredNode;
+        } else {
+            // @ts-ignore
+            node.arguments.push(requiredNode);
+        }
+        changedValue = generate(currentValueAstWithComments, {comments: true}).trim();
 
     }
 
@@ -472,6 +483,9 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
                 if (argument) {
                     requiredArgument = `${generate(argument, {comments: true})}`;
                 }
+            } else {
+                // If argument doesn't exist, return empty string
+                requiredArgument = "";
             }
         },
     });
