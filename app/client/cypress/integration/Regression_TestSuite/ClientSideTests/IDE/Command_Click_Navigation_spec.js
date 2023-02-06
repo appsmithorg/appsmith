@@ -93,6 +93,7 @@ describe("1. CommandClickNavigation", function() {
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click({
       ctrlKey: true,
+      force: true,
     });
 
     cy.url().should("contain", "/api/");
