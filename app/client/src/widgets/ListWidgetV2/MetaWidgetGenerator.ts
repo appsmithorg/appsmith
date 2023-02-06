@@ -1267,8 +1267,7 @@ class MetaWidgetGenerator {
    */
   private getRowIndexFromPrimaryKey = (key: string) => {
     const rowCache = this.getRowCache(key) ?? {};
-    const primaryKeys = this.convertPrimaryKeyToString();
-    const rowIndex = primaryKeys?.includes(key)
+    const rowIndex = this.primaryKeys?.includes(key)
       ? rowCache[this.containerWidgetId]?.rowIndex
       : rowCache[this.containerWidgetId]?.prevRowIndex ??
         rowCache[this.containerWidgetId]?.rowIndex;
@@ -1745,31 +1744,20 @@ class MetaWidgetGenerator {
     this.cachedItemKeys.curr = keys;
   };
 
-  private convertPrimaryKeyToString = () => {
-    const keys = this.primaryKeys?.map((key) => {
-      if (isNil(key)) return "";
-      return key.toString();
-    });
-    return keys;
-  };
-
   shouldUpdateCachedKeyDataMap = () => {
     return Array.from(this.cachedItemKeys.curr).some((key) => {
-      const primaryKeys = this.convertPrimaryKeyToString();
-      const isKeyInPrimaryKey = primaryKeys.includes(key);
+      const isKeyInPrimaryKey = this.primaryKeys.includes(key);
 
       if (!isKeyInPrimaryKey) return false;
 
-      const viewIndex = primaryKeys.indexOf(key);
+      const viewIndex = this.primaryKeys.indexOf(key);
       return !isEqual(this.data[viewIndex], this.cachedKeyDataMap[key]);
     });
   };
 
   private getDataForCacheKey = (key: string) => {
-    const primaryKeys = this.convertPrimaryKeyToString();
-
-    if (primaryKeys?.includes(key)) {
-      const viewIndex = primaryKeys.indexOf(key);
+    if (this.primaryKeys?.includes(key)) {
+      const viewIndex = this.primaryKeys.indexOf(key);
       return this.data[viewIndex];
     }
 
