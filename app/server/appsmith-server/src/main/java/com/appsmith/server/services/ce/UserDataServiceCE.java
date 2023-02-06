@@ -47,5 +47,4 @@ public interface UserDataServiceCE {
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
     Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId);
-
 }

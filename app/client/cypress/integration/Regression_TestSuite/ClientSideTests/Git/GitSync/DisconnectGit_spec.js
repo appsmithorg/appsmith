@@ -14,13 +14,11 @@ describe("Git disconnect modal:", function() {
     cy.generateUUID().then((uid) => {
       repoName = uid;
       _.gitSync.CreateTestGiteaRepo(repoName);
-      //cy.createTestGithubRepo(repoName);
     });
   });
 
   it("1. should be opened with proper components", function() {
-    _.gitSync.AuthorizeKeyToGitea(repoName, false);
-    //cy.connectToGitRepo(repoName, false);
+    _.gitSync.AuthorizeKeyToGitea(repoName);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
     // after clicked disconnect on connection modal,
@@ -62,7 +60,6 @@ describe("Git disconnect modal:", function() {
   });
 
   it("2. should have disconnect repo button", function() {
-    cy.wait(4000);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
 
