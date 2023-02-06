@@ -2,6 +2,7 @@ import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxC
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { generateReactKey } from "utils/generators";
 import { updateRelationships } from "./autoLayoutDraggingUtils";
+import { CanvasSplitTypes } from "./canvasSplitProperties";
 import { ResponsiveBehavior } from "./constants";
 import { Widget } from "./positionUtils";
 
@@ -16,6 +17,7 @@ import { Widget } from "./positionUtils";
 export function addNewCanvas(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  ratios: number[],
 ): { existingCanvas: Widget; newCanvasPayload: any } | undefined {
   if (!parentId) return;
   const widgets = { ...allWidgets };
@@ -36,8 +38,8 @@ export function addNewCanvas(
     existingCanvas.rightColumn - existingCanvas.leftColumn;
   existingCanvas = {
     ...existingCanvas,
-    rightColumn: existingCanvas.leftColumn + existingCanvasWidth / 2,
-    canvasSplitRatio: 0.5,
+    rightColumn: existingCanvas.leftColumn + existingCanvasWidth * ratios[0],
+    canvasSplitRatio: ratios[0],
   };
 
   /**
@@ -50,7 +52,7 @@ export function addNewCanvas(
     type: "CANVAS_WIDGET",
     leftColumn: existingCanvas.rightColumn,
     topRow: 0,
-    columns: existingCanvas.rightColumn - existingCanvas.leftColumn,
+    columns: existingCanvas.rightColumn + existingCanvasWidth * ratios[1],
     rows: existingCanvas.bottomRow - existingCanvas.topRow,
     canExtend: true,
     parentRowSpace: 1,
@@ -58,7 +60,7 @@ export function addNewCanvas(
     responsiveBehavior: ResponsiveBehavior.Fill,
     newWidgetId: newCanvasId,
     props: {
-      canvasSplitRatio: 0.5,
+      canvasSplitRatio: ratios[1],
     },
   };
 
@@ -68,6 +70,7 @@ export function addNewCanvas(
 export function deleteCanvas(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  canvasSplitType: CanvasSplitTypes,
   isMobile: boolean,
 ): CanvasWidgetsReduxState {
   if (!parentId) return allWidgets;
@@ -117,7 +120,7 @@ export function deleteCanvas(
     [parentId]: {
       ...parent,
       children: [remainingCanvasId],
-      canvasSplitRatio: 1,
+      canvasSplitType,
     },
   };
 

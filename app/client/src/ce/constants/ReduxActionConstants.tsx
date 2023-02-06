@@ -760,6 +760,7 @@ export const ReduxActionTypes = {
   UPDATE_FILL_CHILD_LAYER: "UPDATE_FILL_CHILD_LAYER",
   RECALCULATE_COLUMNS: "RECALCULATE_COLUMNS",
   SPLIT_CANVAS: "SPLIT_CANVAS",
+  UPDATE_CANVAS_SPLIT: "UPDATE_CANVAS_SPLIT",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

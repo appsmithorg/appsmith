@@ -19,10 +19,12 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import {
-  getCanvasSplitConfig,
-  getResponsiveLayoutConfig,
-} from "utils/layoutPropertiesUtils";
+  CanvasSplitTypes,
+  getCanvasSplitRatio,
+  getCanvasSplittingConfig,
+} from "utils/autoLayout/canvasSplitProperties";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -70,7 +72,8 @@ export class ContainerWidget extends BaseWidget<
         ],
       },
       ...getResponsiveLayoutConfig(this.getWidgetType()),
-      getCanvasSplitConfig(),
+      // getCanvasSplitConfig(),
+      getCanvasSplittingConfig(),
     ];
   }
 
@@ -198,12 +201,25 @@ export class ContainerWidget extends BaseWidget<
     const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-
+    const canvasSplitRatio: number =
+      this.props.canvasSplitType && index !== undefined
+        ? getCanvasSplitRatio(this.props.canvasSplitType)[index]
+        : 1;
     childWidget.rightColumn =
-      componentWidth *
-      (this.props.canvasSplitRatio && index !== undefined
-        ? this.props.canvasSplitRatio * (index + 1)
-        : 1);
+      index === undefined || index === 1
+        ? componentWidth
+        : componentWidth * canvasSplitRatio;
+    console.log(
+      "#### canvasSplitRatio: ",
+      canvasSplitRatio,
+      index,
+      this.props.canvasSplitType,
+      childWidget.canvasSplitRatio,
+      "right column",
+      index === undefined || index === 1
+        ? componentWidth
+        : componentWidth * canvasSplitRatio,
+    );
     childWidget.bottomRow = this.props.shouldScrollContents
       ? childWidget.bottomRow
       : componentHeight;
@@ -218,7 +234,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning !== Positioning.Fixed
       : false;
-    childWidget.columnSplitRatio = this.props.canvasSplitRatio;
+    childWidget.canvasSplitRatio = canvasSplitRatio;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -272,7 +288,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   noPad?: boolean;
   positioning?: Positioning;
   canvasSplit?: boolean;
-  canvasSplitRatio?: number;
+  canvasSplitType?: CanvasSplitTypes;
 }
 
 export default ContainerWidget;

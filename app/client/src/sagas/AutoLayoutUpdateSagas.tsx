@@ -21,6 +21,7 @@ import { addNewCanvas, deleteCanvas } from "utils/autoLayout/canvasSplitUtils";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { getUpdateDslAfterCreatingChild } from "./WidgetAdditionSagas";
 import { Widget } from "utils/autoLayout/positionUtils";
+import { CanvasSplitTypes } from "utils/autoLayout/canvasSplitProperties";
 
 type LayoutUpdatePayload = {
   parentId: string;
@@ -137,18 +138,20 @@ export function* updateLayoutForMobileCheckpoint(
 export function* manageCanvasSplit(
   actionPayload: ReduxAction<{
     parentId: string;
-    isSplit: boolean;
+    ratios: number[];
+    canvasSplitType: CanvasSplitTypes;
   }>,
 ) {
   try {
+    console.log("#### manageCanvasSplit", actionPayload);
     const start = performance.now();
-    const { isSplit, parentId } = actionPayload.payload;
+    const { canvasSplitType, parentId, ratios } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     let updatedWidgets = allWidgets;
-    if (isSplit) {
+    if (ratios.length > 1) {
       const payload:
         | { existingCanvas: Widget; newCanvasPayload: any }
-        | undefined = addNewCanvas(allWidgets, parentId);
+        | undefined = addNewCanvas(allWidgets, parentId, ratios);
       if (!payload) throw new Error("Unable to split canvas");
       const updatedWidgetsAfterCreatingCanvas: {
         [widgetId: string]: FlattenedWidgetProps;
@@ -158,12 +161,18 @@ export function* manageCanvasSplit(
         [payload.existingCanvas.widgetId]: payload.existingCanvas,
         [parentId]: {
           ...updatedWidgetsAfterCreatingCanvas[parentId],
-          canvasSplitRatio: 0.5,
+          canvasSplitType,
         },
       };
+      console.log("#### udpatedWidgets", updatedWidgets);
     } else {
       const isMobile: boolean = yield select(getIsMobile);
-      updatedWidgets = deleteCanvas(updatedWidgets, parentId, isMobile);
+      updatedWidgets = deleteCanvas(
+        updatedWidgets,
+        parentId,
+        canvasSplitType,
+        isMobile,
+      );
     }
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug(

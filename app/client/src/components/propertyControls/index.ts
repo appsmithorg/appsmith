@@ -76,6 +76,9 @@ import TableInlineEditValidPropertyControl from "./TableInlineEditValidPropertyC
 import MenuButtonDynamicItemsControl, {
   MenuButtonDynamicItemsControlProps,
 } from "components/propertyControls/MenuButtonDynamicItemsControl";
+import CanvasSplitOptionsControl, {
+  CanvasSplitOptionsControlProps,
+} from "components/propertyControls/CanvasSplitOptionControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -117,6 +120,7 @@ export const PropertyControls = {
   SelectDefaultValueControl,
   TableInlineEditValidationControl,
   TableInlineEditValidPropertyControl,
+  CanvasSplitOptionsControl,
 };
 
 export type PropertyControlPropsType =
@@ -139,7 +143,8 @@ export type PropertyControlPropsType =
   | PrimaryColumnDropdownControlProps
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps
-  | TableInlineEditValidationControlProps;
+  | TableInlineEditValidationControlProps
+  | CanvasSplitOptionsControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

@@ -64,7 +64,7 @@ class CanvasWidget extends ContainerWidget {
     return (
       <DropTargetComponent
         bottomRow={this.props.bottomRow}
-        columnSplitRatio={this.props.columnSplitRatio}
+        canvasSplitRatio={this.props.canvasSplitRatio}
         isMobile={this.props.isMobile}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
         mobileBottomRow={this.props.mobileBottomRow}
