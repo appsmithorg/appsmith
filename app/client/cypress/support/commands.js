@@ -22,13 +22,14 @@ const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
+const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../support/Objects/Registry";
 
-const { CanvasHelper } = ObjectsRegistry;
+// import { ObjectsRegistry } from "../support/Objects/Registry";
+// let agHelper = ObjectsRegistry.AggregateHelper;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -401,7 +402,7 @@ Cypress.Commands.add("SelectAction", (action) => {
 });
 
 Cypress.Commands.add("ClearSearch", () => {
-  cy.get(commonlocators.searchEntityInExplorer).clear({ force: true });
+  cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 });
 
 Cypress.Commands.add(
@@ -742,7 +743,6 @@ Cypress.Commands.add("deleteDataSource", () => {
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
-  CanvasHelper.OpenWidgetPane();
   cy.wait(500);
   cy.get(selector)
     .trigger("dragstart", { force: true })
@@ -758,7 +758,6 @@ Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
     const selector = `.t--widget-card-draggable-${widgetType}`;
-    CanvasHelper.OpenWidgetPane();
     cy.wait(800);
     cy.get(selector)
       .scrollIntoView()
@@ -1030,6 +1029,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       req.headers["origin"] = "Cypress";
     },
   ).as("connectGitLocalRepo");
+
+  cy.intercept({
+    method: "PUT",
+  }).as("sucessSave");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1183,6 +1186,7 @@ Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusContainer).should("not.exist", {
     timeout: 30000,
   });
+  //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
 Cypress.Commands.add(

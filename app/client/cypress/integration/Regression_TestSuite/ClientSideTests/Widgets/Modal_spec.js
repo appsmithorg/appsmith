@@ -97,6 +97,7 @@ describe("Modal Widget Functionality", function() {
     cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
     cy.get(widgets.modalCloseButton).click({ force: true });
     cy.dragAndDropToCanvas("containerwidget", { x: 300, y: 300 });
+    cy.get("#switcher--explorer").click();
     cy.get(".t--entity-name")
       .contains("Widgets")
       .click();

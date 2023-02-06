@@ -18,7 +18,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
-  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10"
+  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10";
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
@@ -57,15 +57,6 @@ export class AggregateHelper {
   public ClearLocalStorageCache() {
     localStorage.clear();
     LOCAL_STORAGE_MEMORY = {};
-  }
-
-  public DoesElementExist(selector: string) {
-    return cy.get("body").then((body) => {
-      if (body.find(selector).length > 0) {
-        return cy.wrap(true);
-      }
-      return cy.wrap(false);
-    });
   }
 
   public TypeTab(shiftKey = false, ctrlKey = false) {
@@ -162,6 +153,8 @@ export class AggregateHelper {
     cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
       "not.exist",
     ); //adding timeout since waiting more time is not worth it!
+
+    //this.ValidateNetworkStatus("@sucessSave", 200);
   }
 
   public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
@@ -305,8 +298,12 @@ export class AggregateHelper {
     );
   }
 
-  public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
-    cy.wait(aliasName).should(
+  public ValidateNetworkStatus(
+    aliasName: string,
+    expectedStatus = 200,
+    timeout = 20000,
+  ) {
+    cy.wait(aliasName, { timeout: timeout }).should(
       "have.nested.property",
       "response.body.responseMeta.status",
       expectedStatus,
@@ -779,10 +776,6 @@ export class AggregateHelper {
     cy.get(propFieldName).then(($field: any) => {
       this.CheckCodeInputValue($field, value);
     });
-  }
-
-  public BlurFocusedElement() {
-    cy.focused().blur();
   }
 
   public BlurInput(propFieldName: string) {
