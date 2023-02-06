@@ -58,6 +58,16 @@ describe("Git Bugs", function() {
     _.agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
+  // it.only("1. Import application json and validate headers", () => {
+  //   _.homePage.NavigateToHome();
+  //   _.homePage.ImportApp("DeleteGitRepos.json");
+  //   _.deployMode.DeployApp();
+  //   _.agHelper.Sleep(2000);
+  //   for (let i = 0; i < 100; i++) {
+  //     _.agHelper.ClickButton("Delete");
+  //   }
+  // });
+
   after(() => {
     _.gitSync.DeleteTestGithubRepo(repoName);
   });
