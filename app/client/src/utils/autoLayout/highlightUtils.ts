@@ -519,7 +519,12 @@ export function getCanvasWidth(
   while (widget.parentId) {
     columns = getWidgetWidth(widget, isMobile);
     padding += getPadding(widget);
-    width *= columns > 64 ? 1 : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+    width *=
+      columns > 64
+        ? widget.type === "CANVAS_WIDGET" && widget.canvasSplitRatio > 0
+          ? widget.canvasSplitRatio
+          : 1
+        : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
     widget = widgets[widget.parentId];
   }
   const totalWidth = width * mainCanvasWidth;

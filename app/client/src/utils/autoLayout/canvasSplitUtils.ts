@@ -1,7 +1,6 @@
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { generateReactKey } from "utils/generators";
-import widget from "widgets/ModalWidget/widget";
 import { updateRelationships } from "./autoLayoutDraggingUtils";
 import { ResponsiveBehavior } from "./constants";
 import { Widget } from "./positionUtils";
@@ -38,6 +37,7 @@ export function addNewCanvas(
   existingCanvas = {
     ...existingCanvas,
     rightColumn: existingCanvas.leftColumn + existingCanvasWidth / 2,
+    canvasSplitRatio: 0.5,
   };
 
   /**
