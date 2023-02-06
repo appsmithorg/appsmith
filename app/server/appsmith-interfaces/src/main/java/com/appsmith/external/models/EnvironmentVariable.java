@@ -20,15 +20,14 @@ public class EnvironmentVariable extends BaseDomain {
 
 
     String environmentId;
-
+    /**
+     * Each variable has a datasource associated to it, meaning that in the environment v1.
+     * environmentVariables would be used to plug values in datasource configurations.
+     */
+    String datasourceId;
     String applicationId;
-
     String workspaceId;
-
     String name;
-
-    //subject to type change;
-
     @Encrypted
     String value;
 

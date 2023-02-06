@@ -12,22 +12,15 @@ import java.util.List;
 public interface EnvironmentService extends EnvironmentServiceCE {
     //Read methods to fetch environments and its variables.
     Flux<Environment> findByWorkspaceId(String workspaceId, AclPermission aclPermission);
-
+    Flux<Environment> findByWorkspaceIdWithoutPermission(String workspaceId);
     Mono<Environment> findById(String id, AclPermission aclPermission);
-
-    Mono<EnvironmentDTO> findEnvironmentByEnvironmentId(String envId);
-
-    Flux<EnvironmentDTO> findEnvironmentByWorkspaceId(String workspaceId);
+    Mono<EnvironmentDTO> getEnvironmentDTOByEnvironmentId(String envId);
+    Flux<EnvironmentDTO> getEnvironmentDTOByWorkspaceId(String workspaceId);
 
     //update methods for updating environments and environment variables
-
     Flux<EnvironmentDTO> updateEnvironment(List<EnvironmentDTO> environmentDTOList);
 
-    //Create methods for generating/updating new environments
+    //Create/update methods for generating/updating new environments
     Mono<Environment> save(Environment environment);
-
     EnvironmentDTO createEnvironmentDTO(Environment environment);
-
-    Mono<EnvironmentDTO> createNewEnvironment(EnvironmentDTO environmentDTO);
-
 }

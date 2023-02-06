@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.external.models.EnvironmentVariable;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -29,42 +28,35 @@ public class EnvironmentVariableServiceImpl extends EnvironmentVariableServiceCE
                                             Validator validator,
                                             MongoConverter mongoConverter,
                                             ReactiveMongoTemplate reactiveMongoTemplate,
-                                            EnvironmentVariableRepository repository,
+                                            EnvironmentVariableRepository environmentVariableRepository,
                                             AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
 
-    }
-
-    // read
-    @Override
-    public Mono<EnvironmentVariable> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission);
-    }
-
-
-    @Override
-    public Flux<EnvironmentVariable> findAllByIds(List<String> ids, AclPermission aclPermission) {
-        return repository.findAllByIds(ids, aclPermission);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, environmentVariableRepository, analyticsService);
     }
 
     @Override
-    public Flux<EnvironmentVariable> findByEnvironmentId(String envId, AclPermission aclPermission) {
-        return repository.findByEnvironmentId(envId, aclPermission);
+    public Mono<EnvironmentVariable> findById(String id) {
+        return repository.findById(id);
     }
 
     @Override
-    public Flux<EnvironmentVariable> findEnvironmentVariableByEnvironmentId(String envId) {
-        return  findByEnvironmentId(envId, AclPermission.MANAGE_ENVIRONMENT_VARIABLES);
+    public Flux<EnvironmentVariable> findAllByIds(List<String> ids) {
+        return repository.findAllByIds(ids);
     }
 
     @Override
-    public Flux<EnvironmentVariable> findByWorkspaceId(String workspaceId, AclPermission aclPermission) {
-        return repository.findByWorkspaceId(workspaceId, aclPermission);
+    public Flux<EnvironmentVariable> findByEnvironmentId(String envId) {
+        return repository.findByEnvironmentId(envId);
     }
 
     @Override
-    public Flux<EnvironmentVariable> findEnvironmentVariableByWorkspaceId(String workspaceId) {
-        return findByWorkspaceId(workspaceId, AclPermission.READ_ENVIRONMENT_VARIABLES);
+    public Flux<EnvironmentVariable> findByWorkspaceId(String workspaceId) {
+        return repository.findByWorkspaceId(workspaceId);
+    }
+
+    @Override
+    public Flux<EnvironmentVariable> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+        return repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId);
     }
 
     // Write
@@ -79,20 +71,16 @@ public class EnvironmentVariableServiceImpl extends EnvironmentVariableServiceCE
     }
 
     // Delete/Archive
-
     @Override
     public Mono<EnvironmentVariable> archive(EnvironmentVariable envVariable) {
         return repository.archive(envVariable);
     }
 
-
     @Override
-    public Mono<EnvironmentVariable> archiveById(String id, AclPermission aclPermission) {
-        Mono<EnvironmentVariable> environmentVariableMono = repository.findById(id, aclPermission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT_VARIABLE, id)));
-
-        // scope for analytics event to be added.
-        return environmentVariableMono.flatMap(repository::archive);
+    public Mono<EnvironmentVariable> archiveById(String id) {
+        return this.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT_VARIABLE, id)))
+                .flatMap(repository::archive);
     }
 
     @Override
@@ -100,14 +88,27 @@ public class EnvironmentVariableServiceImpl extends EnvironmentVariableServiceCE
         return repository.archiveAllById(ids);
     }
 
-    // Update
     @Override
-    public Mono<EnvironmentVariable> update(String id, EnvironmentVariable envVariable) {
-        return super.update(id, envVariable);
+    public Flux<EnvironmentVariable> findByNameAndWorkspaceId(List<String> envVarNameList, String workspaceId) {
+        return repository.findByNameAndWorkspaceId(envVarNameList, workspaceId);
     }
 
+    // used for fetching variables when we get variable names from dynamicBinding path map
     @Override
-    public  Mono<EnvironmentVariable> updateById(String id, EnvironmentVariable environmentVariable, AclPermission aclPermission) {
-        return repository.updateById(id, environmentVariable, aclPermission);
+    public Flux<EnvironmentVariable> findByEnvironmentIdAndVariableNames(String environmentId, List<String> envVarNames) {
+        return repository.findByEnvironmentIdAndVariableNames(environmentId, envVarNames);
+    }
+
+    // will be used for archiving when we are deleting the variables for which the user doesn't have access to
+    // as it will be in different environment
+    @Override
+    public Mono<EnvironmentVariable> archiveByNameAndEnvironmentId(EnvironmentVariable envVar) {
+        return repository.archiveByNameAndEnvironmentId(envVar);
+    }
+
+    // will be used for archiving variables when we are deleting the datasource
+    @Override
+    public Mono<Long> archiveByDatasourceIdAndWorkspaceId(String datasourceId, String workspaceId) {
+        return repository.archiveByDatasourceIdAndWorkspaceId(datasourceId, workspaceId);
     }
 }

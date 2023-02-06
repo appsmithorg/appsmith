@@ -57,85 +57,90 @@ public class EnvironmentServiceTest {
     private static final String environmentName = "Staging-Test";
     private Mono<EnvironmentDTO> responseEnvironmentDTOMono;
 
-    @BeforeEach
-    public void setup() {
-        Mono<User> userMono = userRepository.findByEmail("api_user").cache();
-        workspace = userMono
-                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
-                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
-                .block();
 
-        Mockito.when(workspaceService.findById(Mockito.any(), Mockito.<AclPermission>any()))
-                .thenReturn(Mono.just(workspace));
-
-        Mockito.when(featureFlagService.check(Mockito.any()))
-                .thenReturn(Mono.just(Boolean.TRUE));
-
-        EnvironmentDTO environmentDTO = new EnvironmentDTO();
-        environmentDTO.setName(environmentName);
-        environmentDTO.setWorkspaceId(workspace.getId());
-
-        responseEnvironmentDTOMono = environmentService.createNewEnvironment(environmentDTO);
-    }
-
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void createEnvironment() {
-        StepVerifier.create(responseEnvironmentDTOMono)
-                .assertNext(envDTO -> {
-                    assert (envDTO instanceof EnvironmentDTO);
-                    assert (envDTO.getName().equals(environmentName));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void getEnvironmentDTO() {
-
-        EnvironmentDTO responseEnvironmentDTO = responseEnvironmentDTOMono.block();
-        Mono<EnvironmentDTO> environmentDTOMono = environmentService
-                .findEnvironmentByEnvironmentId(responseEnvironmentDTO.getId());
-
-        StepVerifier.create(environmentDTOMono)
-                .assertNext(environmentDTO1 -> {
-                    assert (environmentDTO1 instanceof EnvironmentDTO);
-                    assert (environmentDTO1.getName().equals(environmentName));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void updateEnvironment() {
-        EnvironmentDTO environmentDTO = responseEnvironmentDTOMono.block();
-
-        EnvironmentVariable envVar1 = new EnvironmentVariable();
-        envVar1.setName("envVar1");
-        envVar1.setValue("someCredential");
-
-        EnvironmentVariable envVar2 = new EnvironmentVariable();
-        envVar1.setName("envVar2");
-        envVar1.setValue("credential");
-
-        environmentDTO.setEnvironmentVariableList(List.of(envVar1, envVar2));
-
-        Mono<List<EnvironmentDTO>> environmentDTOListMono = environmentService
-                .updateEnvironment(List.of(environmentDTO)).collectList();
-
-        StepVerifier.create(environmentDTOListMono)
-                .assertNext(environmentDTOList -> {
-                    assert (environmentDTOList != null);
-                    assert (environmentDTOList.size() == 1);
-                    assert (environmentDTOList.get(0).getEnvironmentVariableList() != null);
-                    assert (environmentDTOList.get(0).getEnvironmentVariableList().size() == 2);
-                    for (EnvironmentVariable envVar : environmentDTOList.get(0).getEnvironmentVariableList()) {
-                        assert (envVar != null);
-                        assert (envVar instanceof EnvironmentVariable);
-                    }
-                })
-                .verifyComplete();
-    }
+    /**
+     * These test cases have been commented out because we don't have any method to create environment object now,
+     * these test cases would be uncommented when environments would be created by default with the workspaces,
+     * This is a WIP of RBAC pr for multiple environments.
+     */
+//
+//    @BeforeEach
+//    public void setup() {
+//        Mono<User> userMono = userRepository.findByEmail("api_user").cache();
+//        workspace = userMono
+//                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+//                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
+//                .block();
+//
+//        Mockito.when(workspaceService.findById(Mockito.any(), Mockito.<AclPermission>any()))
+//                .thenReturn(Mono.just(workspace));
+//
+//        Mockito.when(featureFlagService.check(Mockito.any()))
+//                .thenReturn(Mono.just(Boolean.TRUE));
+//
+//        EnvironmentDTO environmentDTO = new EnvironmentDTO();
+//        environmentDTO.setName(environmentName);
+//        environmentDTO.setWorkspaceId(workspace.getId());
+//
+//        responseEnvironmentDTOMono = environmentService.createNewEnvironment(environmentDTO);
+//    }
+//
+//
+//    @Test
+//    @WithUserDetails(value = "api_user")
+//    public void createEnvironment() {
+//        StepVerifier.create(responseEnvironmentDTOMono)
+//                .assertNext(envDTO -> {
+//                    assert (envDTO.getName().equals(environmentName));
+//                })
+//                .verifyComplete();
+//    }
+//
+//    @Test
+//    @WithUserDetails(value = "api_user")
+//    public void getEnvironmentDTO() {
+//
+//        EnvironmentDTO responseEnvironmentDTO = responseEnvironmentDTOMono.block();
+//        Mono<EnvironmentDTO> environmentDTOMono = environmentService
+//                .getEnvironmentDTOByEnvironmentId(responseEnvironmentDTO.getId());
+//
+//        StepVerifier.create(environmentDTOMono)
+//                .assertNext(environmentDTO1 -> {
+//                    assert (environmentDTO1 instanceof EnvironmentDTO);
+//                    assert (environmentDTO1.getName().equals(environmentName));
+//                })
+//                .verifyComplete();
+//    }
+//
+//    @Test
+//    @WithUserDetails(value = "api_user")
+//    public void updateEnvironment() {
+//        EnvironmentDTO environmentDTO = responseEnvironmentDTOMono.block();
+//
+//        EnvironmentVariable envVar1 = new EnvironmentVariable();
+//        envVar1.setName("envVar1");
+//        envVar1.setValue("someCredential");
+//
+//        EnvironmentVariable envVar2 = new EnvironmentVariable();
+//        envVar1.setName("envVar2");
+//        envVar1.setValue("credential");
+//
+//        environmentDTO.setEnvironmentVariableList(List.of(envVar1, envVar2));
+//
+//        Mono<List<EnvironmentDTO>> environmentDTOListMono = environmentService
+//                .updateEnvironment(List.of(environmentDTO)).collectList();
+//
+//        StepVerifier.create(environmentDTOListMono)
+//                .assertNext(environmentDTOList -> {
+//                    assert (environmentDTOList != null);
+//                    assert (environmentDTOList.size() == 1);
+//                    assert (environmentDTOList.get(0).getEnvironmentVariableList() != null);
+//                    assert (environmentDTOList.get(0).getEnvironmentVariableList().size() == 2);
+//                    for (EnvironmentVariable envVar : environmentDTOList.get(0).getEnvironmentVariableList()) {
+//                        assert (envVar != null);
+//                    }
+//                })
+//                .verifyComplete();
+//    }
 
 }
