@@ -7,8 +7,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,
-  appSettings = ObjectsRegistry.AppSettings,
-  canvasHelper = ObjectsRegistry.CanvasHelper;
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Json & JsonB Datatype tests", function() {
   before(() => {
@@ -32,7 +31,7 @@ describe("Json & JsonB Datatype tests", function() {
     cy.fixture("Datatypes/JsonDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    canvasHelper.OpenWidgetPane();
+    ee.NavigateToSwitcher("widgets");
     appSettings.OpenPaneAndChangeThemeColors(33, 39);
   });
 
@@ -356,7 +355,7 @@ describe("Json & JsonB Datatype tests", function() {
     cy.fixture("Datatypes/JsonBDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    canvasHelper.OpenWidgetPane();
+    ee.NavigateToSwitcher("widgets");
     appSettings.OpenPaneAndChangeThemeColors(12, 23);
   });
 

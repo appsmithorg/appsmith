@@ -11,6 +11,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
+import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import {
@@ -26,18 +27,18 @@ import {
   getExplorerWidth,
 } from "selectors/explorerSelector";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { scrollbarWidth } from "utils/helpers";
-import { useWindowSizeHooks } from "./dragResizeHooks";
 import {
   getPaneCount,
   getTabsPaneWidth,
   isMultiPaneActive,
 } from "selectors/multiPaneSelectors";
-import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { scrollbarWidth } from "utils/helpers";
+import { useWindowSizeHooks } from "./dragResizeHooks";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
+export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ export const useDynamicAppLayout = () => {
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   // /**
   //  * calculates min height
@@ -139,6 +141,11 @@ export const useDynamicAppLayout = () => {
     ) {
       calculatedWidth = ele.clientWidth;
     }
+
+    if (appPositioningType === AppPositioningTypes.AUTO && isPreviewMode) {
+      calculatedWidth -= AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
+    }
+
     switch (true) {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
@@ -202,6 +209,7 @@ export const useDynamicAppLayout = () => {
     currentPageId,
     appMode,
     appLayout,
+    isPreviewMode,
   ]);
 
   const resizeObserver = new ResizeObserver(immediateDebouncedResize);
@@ -217,7 +225,7 @@ export const useDynamicAppLayout = () => {
     return () => {
       ele && resizeObserver.unobserve(ele);
     };
-  }, [appLayout, currentPageId]);
+  }, [appLayout, currentPageId, isPreviewMode]);
 
   /**
    * when screen height is changed, update canvas layout
@@ -254,7 +262,6 @@ export const useDynamicAppLayout = () => {
     propertyPaneWidth,
     isAppSettingsPaneOpen,
   ]);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   useEffect(() => {
     function relayoutAtBreakpoint() {

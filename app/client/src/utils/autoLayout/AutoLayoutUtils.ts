@@ -1,20 +1,21 @@
 import {
-  defaultAutoLayoutWidgets,
-  FlexLayerAlignment,
-  Positioning,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
-import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   FLEXBOX_PADDING,
   layoutConfigurations,
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import {
+  defaultAutoLayoutWidgets,
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getMinPixelWidth } from "./flexWidgetUtils";
 
@@ -407,4 +408,26 @@ export function getViewportClassName(viewportWidth: number) {
   } else {
     return "mobile-view";
   }
+}
+
+export function getFillWidgetLengthForLayer(
+  layer: any,
+  allWidgets: any,
+): number | undefined {
+  let fillLength = GridDefaults.DEFAULT_GRID_COLUMNS;
+  let hugLength = 0,
+    fillCount = 0;
+  for (const child of layer.children) {
+    const childWidget = allWidgets[child.id];
+    if (!childWidget) {
+      continue;
+    }
+    if (childWidget.responsiveBehavior !== ResponsiveBehavior.Fill) {
+      hugLength += childWidget.rightColumn - childWidget.leftColumn;
+    } else {
+      fillCount += 1;
+    }
+  }
+  fillLength = (fillLength - hugLength) / (fillCount || 1);
+  return fillLength;
 }

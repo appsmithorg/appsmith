@@ -39,7 +39,6 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import {
-  getCanvasHeightOffset,
   getContainerWidgetSpacesSelector,
   getCurrentAppPositioningType,
   getCurrentPageId,
@@ -58,9 +57,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
-import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
 import {
   createMessage,
@@ -133,7 +130,6 @@ import {
   getNewPositionsForCopiedWidgets,
   getNextWidgetName,
   getOccupiedSpacesFromProps,
-  getParentBottomRowAfterAddingWidget,
   getParentWidgetIdForGrouping,
   getParentWidgetIdForPasting,
   getPastePositionMapFromMousePointer,
@@ -156,53 +152,8 @@ import {
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-
-export function* updateAllChildCanvasHeights(
-  currentContainerLikeWidgetId: string,
-  topRow: number,
-  bottomRow: number,
-  allWidgets?: CanvasWidgetsReduxState,
-) {
-  const containerLikeWidget: FlattenedWidgetProps = yield select(
-    getWidget,
-    currentContainerLikeWidgetId,
-  );
-  let stateWidgets: CanvasWidgetsReduxState | undefined = allWidgets;
-  if (!stateWidgets) stateWidgets = yield select(getWidgets);
-  const canvasHeightOffset: number = getCanvasHeightOffset(
-    containerLikeWidget.type,
-    containerLikeWidget,
-  );
-  const containerLikeWidgetHeightInPx: number =
-    (bottomRow - topRow - canvasHeightOffset) *
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-  const widgets = { ...stateWidgets };
-  if (Array.isArray(containerLikeWidget.children)) {
-    containerLikeWidget.children.forEach((childWidgetId: string) => {
-      const childWidget = { ...widgets[childWidgetId] };
-      if (Array.isArray(childWidget.children)) {
-        const maxChildBottomRow = childWidget.children.reduce((prev, next) => {
-          return widgets[next].bottomRow > prev
-            ? widgets[next].bottomRow
-            : prev;
-        }, 0);
-        const maxHeightBasedOnChildrenInPx =
-          maxChildBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-        const finalHeight = Math.max(
-          containerLikeWidgetHeightInPx,
-          maxHeightBasedOnChildrenInPx,
-        );
-        widgets[childWidgetId] = {
-          ...childWidget,
-          bottomRow: finalHeight,
-          minHeight: finalHeight,
-        };
-      }
-    });
-  }
-  return widgets;
-}
+import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
+import WidgetFactory from "utils/WidgetFactory";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -227,7 +178,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       getCurrentAppPositioningType,
     );
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
-    let movedWidgets: {
+    const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(
       reflowWidgets,
@@ -235,13 +186,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       widget,
       snapColumnSpace,
       snapRowSpace,
-    );
-
-    movedWidgets = yield updateAllChildCanvasHeights(
-      widgetId,
-      topRow,
-      bottomRow,
-      movedWidgets,
     );
 
     const updatedCanvasBottomRow: number = yield call(
@@ -1377,7 +1321,6 @@ function* pasteWidgetSaga(
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
   const isMobile: boolean = yield select(getIsMobile);
   let reflowedMovementMap,
-    bottomMostRow: number | undefined,
     gridProps: GridProps | undefined,
     newPastingPositionMap: SpaceMap | undefined,
     canvasId;
@@ -1411,7 +1354,6 @@ function* pasteWidgetSaga(
     // If there are already widgets inside the selection box even before grouping
     //then we will have to move it down to the bottom most row
     ({
-      bottomMostRow,
       copiedWidgetGroups,
       gridProps,
       reflowedMovementMap,
@@ -1445,7 +1387,6 @@ function* pasteWidgetSaga(
     // new pasting positions, the variables are undefined if the positions cannot be calculated,
     // then it pastes the regular way at the bottom of the canvas
     ({
-      bottomMostRow,
       canvasId,
       gridProps,
       newPastingPositionMap,
@@ -1653,16 +1594,11 @@ function* pasteWidgetSaga(
                 ...widgetChildren.slice(originalWidgetIndex + 1),
               ];
             }
-            const parentBottomRow = getParentBottomRowAfterAddingWidget(
-              widgets[pastingParentId],
-              widget,
-            );
 
             widgets = {
               ...widgets,
               [pastingParentId]: {
                 ...widgets[pastingParentId],
-                bottomRow: Math.max(parentBottomRow, bottomMostRow || 0),
                 children: parentChildren,
               },
             };

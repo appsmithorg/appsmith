@@ -98,6 +98,7 @@ describe("test canvasDraggingUtils Methods", () => {
       rowHeight: 50,
       widgetId: "id",
       isNotColliding: true,
+      type: "CANVAS_WIDGET",
     };
 
     expect(
@@ -186,6 +187,7 @@ describe("test canvasDraggingUtils Methods", () => {
         rowHeight: 20,
         widgetId: "id",
         isNotColliding: true,
+        type: "CANVAS_WIDGET",
       };
       expect(
         modifyBlockDimension(draggingBlock, 10, 10, 100, true, false),
@@ -213,6 +215,7 @@ describe("test canvasDraggingUtils Methods", () => {
         rowHeight: VERTICAL_RESIZE_MIN_LIMIT,
         widgetId: "id",
         isNotColliding: true,
+        type: "CANVAS_WIDGET",
       };
       expect(
         modifyBlockDimension(draggingBlock, 10, 10, 100, true, false),
@@ -240,6 +243,7 @@ describe("test canvasDraggingUtils Methods", () => {
         rowHeight: 40,
         widgetId: "id",
         isNotColliding: true,
+        type: "CANVAS_WIDGET",
       };
       expect(
         modifyBlockDimension(draggingBlock, 10, 10, 100, false, false),
@@ -269,6 +273,7 @@ describe("test canvasDraggingUtils Methods", () => {
         widgetId: "id",
         isNotColliding: true,
         fixedHeight: 90,
+        type: "CANVAS_WIDGET",
       };
       expect(
         modifyBlockDimension(draggingBlock, 10, 10, 100, false, false),
@@ -335,6 +340,7 @@ describe("test canvasDraggingUtils Methods", () => {
           rowHeight: 90,
           widgetId: "1",
           isNotColliding: false,
+          type: "CANVAS_WIDGET",
         },
         {
           left: 100,
@@ -345,6 +351,7 @@ describe("test canvasDraggingUtils Methods", () => {
           rowHeight: 95,
           widgetId: "2",
           isNotColliding: false,
+          type: "CANVAS_WIDGET",
         },
         {
           left: 300,
@@ -355,6 +362,7 @@ describe("test canvasDraggingUtils Methods", () => {
           rowHeight: 34,
           widgetId: "3",
           isNotColliding: false,
+          type: "CANVAS_WIDGET",
         },
         {
           left: 400,
@@ -365,6 +373,7 @@ describe("test canvasDraggingUtils Methods", () => {
           rowHeight: 12,
           widgetId: "4",
           isNotColliding: true,
+          type: "CANVAS_WIDGET",
         },
       ];
 

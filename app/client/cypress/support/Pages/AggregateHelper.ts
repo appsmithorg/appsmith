@@ -18,7 +18,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
-
+  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10"
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
@@ -57,15 +57,6 @@ export class AggregateHelper {
   public ClearLocalStorageCache() {
     localStorage.clear();
     LOCAL_STORAGE_MEMORY = {};
-  }
-
-  public DoesElementExist(selector: string) {
-    return cy.get("body").then((body) => {
-      if (body.find(selector).length > 0) {
-        return cy.wrap(true);
-      }
-      return cy.wrap(false);
-    });
   }
 
   public TypeTab(shiftKey = false, ctrlKey = false) {
@@ -504,6 +495,11 @@ export class AggregateHelper {
     });
   }
 
+  public VerifyCallCount(alias: string, expectedNumberOfCalls: number) {
+    cy.wait(alias);
+    cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
+  }
+
   public GetNClick(
     selector: string,
     index = 0,
@@ -776,10 +772,6 @@ export class AggregateHelper {
     });
   }
 
-  public BlurFocusedElement() {
-    cy.focused().blur();
-  }
-
   public BlurInput(propFieldName: string) {
     cy.get(propFieldName).then(($field: any) => {
       this.BlurCodeInput($field);
@@ -964,8 +956,8 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementExist(selector: ElementType, index = 0) {
-    return this.GetElement(selector)
+  public AssertElementExist(selector: ElementType, index = 0, timeout = 20000) {
+    return this.GetElement(selector, timeout)
       .eq(index)
       .should("exist");
   }

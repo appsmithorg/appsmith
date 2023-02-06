@@ -29,6 +29,14 @@ describe("Branding", () => {
   let favicon;
   let shades = {};
 
+  it("check if localStorage is populated with tenantConfig values", () => {
+    if (Cypress.env("Edition") === 0) {
+      const tenantConfig = localStorage.getItem("tenantConfig");
+
+      expect(tenantConfig).to.be.null;
+    }
+  });
+
   it("super user can access branding page", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
