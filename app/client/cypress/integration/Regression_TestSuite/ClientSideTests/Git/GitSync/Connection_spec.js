@@ -31,18 +31,6 @@ describe("Git sync modal: connect tab", function() {
     });
   });
 
-  beforeEach(() => {
-    // cy.intercept(
-    //   {
-    //     url: "api/v1/git/connect/app/*",
-    //     hostname: window.location.host,
-    //   },
-    //   (req) => {
-    //     req.headers["origin"] = "Cypress";
-    //   },
-    // );
-  });
-
   it("1. validates repo URL", function() {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click({ force: true });
@@ -102,7 +90,7 @@ describe("Git sync modal: connect tab", function() {
     cy.xpath(gitSyncLocators.learnMoreDeployKey).click({ force: true });
   });
 
-  it("2. validates copy key", function() {
+  it("2. validates copy key and validates repo url input after key generation", function() {
     cy.window().then((win) => {
       cy.stub(win, "prompt")
         .returns(win.prompt)
@@ -110,16 +98,6 @@ describe("Git sync modal: connect tab", function() {
     });
 
     cy.get(gitSyncLocators.copySshKey).click();
-
-    // To Check
-    // cy.get("@copyToClipboardPrompt").should("be.called");
-    // cy.get("@copyToClipboardPrompt").should((prompt) => {
-    //   expect(prompt.args[0][1]).to.equal(generatedKey);
-    //   generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-    // });
-  });
-
-  it("3. validates repo url input after key generation", function() {
     cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${httpsRepoURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.disabled");
@@ -137,7 +115,7 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.connectSubmitBtn).should("not.be.disabled");
   });
 
-  it("4. validates git user config", function() {
+  it("3. validates git user config", function() {
     cy.get(gitSyncLocators.useGlobalGitConfig).click();
 
     // name empty invalid
@@ -205,7 +183,7 @@ describe("Git sync modal: connect tab", function() {
       });
   });
 
-  it("5. validates submit errors", function() {
+  it("4. validates submit errors", function() {
     cy.get(gitSyncLocators.useGlobalGitConfig).click();
     cy.get(gitSyncLocators.gitConfigNameInput)
       .scrollIntoView()
@@ -243,22 +221,6 @@ describe("Git sync modal: connect tab", function() {
       .type(`{selectAll}git@35.154.225.218:CI-Gitea/${repoName}.git`, {
         force: true,
       });
-
-    // cy.request({
-    //   method: "POST",
-    //   url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-    //     "TEST_GITHUB_USER_NAME",
-    //   )}/${repoName}/keys`,
-    //   headers: {
-    //     Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
-    //   },
-    //   body: {
-    //     title: "key0",
-    //     key: generatedKey,
-    //     read_only: true,
-    //   },
-    // });
-
     cy.request({
       method: "POST",
       url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repoName}/keys`,

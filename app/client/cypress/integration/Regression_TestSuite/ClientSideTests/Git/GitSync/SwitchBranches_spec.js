@@ -25,13 +25,7 @@ describe("Git sync:", function() {
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-
     cy.wait(3000);
-    // cy.generateUUID().then((uid) => {
-    //   repoName = uid;
-    //   cy.createTestGithubRepo(repoName);
-    //   cy.connectToGitRepo(repoName);
-    // });
   });
 
   it("1. create branch input", function() {
@@ -62,16 +56,13 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeBranchList).click();
   });
 
-  it("2. creates a new branch", function() {
+  it("2. creates a new branch and create branch specific resources", function() {
     cy.get(commonLocators.canvas).click({ force: true });
     //cy.createGitBranch(parentBranchKey);
     _.gitSync.CreateGitBranch(parentBranchKey, true);
     cy.get("@gitbranchName").then((branName) => {
       parentBranchKey = branName;
     });
-  });
-
-  it("3. creates branch specific resources", function() {
     cy.Createpage("ParentPage1");
     cy.get(pages.addEntityAPI)
       .last()
@@ -130,7 +121,7 @@ describe("Git sync:", function() {
   });
 
   // rename entities
-  it("4. makes branch specific resource updates", function() {
+  it("3. makes branch specific resource updates", function() {
     cy.switchGitBranch(childBranchKey);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -152,7 +143,7 @@ describe("Git sync:", function() {
     // );
   });
 
-  it("5. enables switching branch from the URL", () => {
+  it("4. enables switching branch from the URL", () => {
     cy.url().then((url) => {
       cy.GlobalSearchEntity("ParentPage1");
       cy.contains("ParentPage1").click();
@@ -204,7 +195,7 @@ describe("Git sync:", function() {
   });
 
   //Rename - hence skipping for Gitea
-  it.skip("6. test sync and prune branches", () => {
+  it.skip("5. test sync and prune branches", () => {
     // uncomment once prune branch flow is complete
     let tempBranch = "featureA";
     const tempBranchRenamed = "newFeatureA";
@@ -244,7 +235,7 @@ describe("Git sync:", function() {
   });
 
   // Validate the error faced when user switches between the branches
-  it("7. error faced when user switches branch with new page", function() {
+  it("6. error faced when user switches branch with new page", function() {
     cy.goToEditFromPublish(); //Adding since skipping 6th case
     cy.generateUUID().then((uuid) => {
       _.gitSync.CreateGitBranch(childBranchKey, true);
@@ -264,7 +255,7 @@ describe("Git sync:", function() {
     cy.reload();
   });
 
-  it("8. branch list search", function() {
+  it("7. branch list search", function() {
     cy.get(".bp3-spinner").should("not.exist");
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;
