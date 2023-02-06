@@ -66,7 +66,7 @@ export function diffModifiedVariables(modifiedJSVariableList: string[]) {
       if (variableDiff[0].path) {
         path.concat(variableDiff[0].path);
       }
-      variableDiff[0].path = path;
+      variableDiff[0] = { ...variableDiff[0], path };
       variableDiffCollection.push(...variableDiff);
     }
   }

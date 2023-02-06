@@ -15,7 +15,6 @@ function checkForJsVariableUpdate() {
     modifiedVariablesList,
   ) as unknown) as Diff<DataTree, DataTree>[];
 
-  //
   if (diffs.length > 0) {
     // trigger evaluation
     triggerEvalWithDataTreeDiff(diffs);
