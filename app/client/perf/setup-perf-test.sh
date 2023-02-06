@@ -19,7 +19,7 @@ echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/localhost.pem
 echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
 
 
-sleep 30
+sleep 10
 
 echo "Checking if the containers have started"
 sudo docker ps -a
