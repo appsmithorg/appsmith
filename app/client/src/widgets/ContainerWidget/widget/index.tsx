@@ -193,7 +193,7 @@ export class ContainerWidget extends BaseWidget<
 
   renderChildWidget(
     childWidgetData: WidgetProps,
-    index: number,
+    index?: number,
   ): React.ReactNode {
     const childWidget = { ...childWidgetData };
 
@@ -201,7 +201,7 @@ export class ContainerWidget extends BaseWidget<
 
     childWidget.rightColumn =
       componentWidth *
-      (this.props.canvasSplitRatio
+      (this.props.canvasSplitRatio && index !== undefined
         ? this.props.canvasSplitRatio * (index + 1)
         : 1);
     childWidget.bottomRow = this.props.shouldScrollContents
