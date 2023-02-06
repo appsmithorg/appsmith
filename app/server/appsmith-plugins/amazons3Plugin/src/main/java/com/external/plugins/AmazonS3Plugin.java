@@ -797,19 +797,14 @@ public class AmazonS3Plugin extends BasePlugin {
                         log.debug("In the S3 Plugin, got action execution result");
                         return Mono.just(actionExecutionResult);
                     })
-                    // Transform AmazonS3Exception and AmazonServiceException to AppsmithPluginException
                     .onErrorResume(e -> {
-                        if (e instanceof AmazonS3Exception || e instanceof AmazonServiceException) {
-                            return Mono.error(new AppsmithPluginException(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED, S3ErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage()));
-                        }
-                        return Mono.error(e);
-                    })
-                    .onErrorResume(e -> {
-                        if (e instanceof StaleConnectionException) {
-                            return Mono.error(e);
-                        }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
+                        if (e instanceof StaleConnectionException) {
+                            return Mono.error(e);
+                        } else if (! (e instanceof AppsmithPluginException)) {
+                            e = new AppsmithPluginException(e, S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED, S3ErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG);
+                        }
                         result.setErrorInfo(e, amazonS3ErrorUtils);
                         return Mono.just(result);
 
