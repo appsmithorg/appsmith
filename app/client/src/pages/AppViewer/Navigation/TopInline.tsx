@@ -1,18 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import MenuItemContainer from "./components/MenuItemContainer";
-import MenuItem from "./components/MenuItem";
+import React, { useEffect, useRef, useState } from "react";
+import { get } from "lodash";
+import { useSelector } from "react-redux";
 import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { get } from "lodash";
-import { useSelector } from "react-redux";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { Container } from "./TopInline.styled";
-import MoreDropdownButton from "./components/MoreDropdownButton";
 import { useWindowSizeHooks } from "utils/hooks/dragResizeHooks";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import MenuItem from "./components/MenuItem";
+import { Container } from "./TopInline.styled";
+import MenuItemContainer from "./components/MenuItemContainer";
+import MoreDropdownButton from "./components/MoreDropdownButton";
 
 // TODO - @Dhruvik - ImprovedAppNav
 // Replace with NavigationProps if nothing changes
@@ -65,7 +65,9 @@ export function TopInline(props: TopInlineProps) {
     }
   }, [navRef, appPages, screenWidth]);
 
-  return appPages.length > 1 ? (
+  if (appPages.length <= 1) return null;
+
+  return (
     <Container className="flex gap-x-2 items-center" ref={navRef}>
       {appPages.map(
         (page, index) =>
@@ -91,9 +93,6 @@ export function TopInline(props: TopInlineProps) {
         />
       )}
     </Container>
-  ) : (
-    // eslint-disable-next-line react/jsx-no-useless-fragment
-    <></>
   );
 }
 

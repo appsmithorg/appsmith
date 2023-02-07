@@ -111,3 +111,5 @@ export const SIDEBAR_WIDTH = {
   REGULAR: 270,
   MINIMAL: 66,
 };
+
+export const APPLICATION_TITLE_MAX_WIDTH = 224;

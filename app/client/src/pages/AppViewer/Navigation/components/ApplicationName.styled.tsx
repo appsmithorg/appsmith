@@ -1,7 +1,10 @@
 import styled from "styled-components";
-import { getApplicationNameTextColor } from "pages/AppViewer/utils";
+import {
+  APPLICATION_TITLE_MAX_WIDTH,
+  NavigationSetting,
+} from "constants/AppConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import { NavigationSetting } from "constants/AppConstants";
+import { getApplicationNameTextColor } from "pages/AppViewer/utils";
 
 export const StyledApplicationName = styled.div<{
   primaryColor: string;
@@ -12,5 +15,5 @@ export const StyledApplicationName = styled.div<{
     getApplicationNameTextColor(primaryColor, navColorStyle)};
   font-size: ${({ forSidebar }) =>
     forSidebar ? THEMEING_TEXT_SIZES.sm : THEMEING_TEXT_SIZES.base};
-  max-width: 224px;
+  max-width: ${APPLICATION_TITLE_MAX_WIDTH}px;
 `;
