@@ -788,7 +788,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
         Set<String> bindingPaths = actionBindingMap.keySet();
 
-        return Flux.fromIterable(bindingPaths).flatMap(bindingPath -> {
+        return Flux.fromIterable(bindingPaths)
+                .flatMap(bindingPath -> {
                     EntityDependencyNode actionDependencyNode = new EntityDependencyNode(entityDependencyNode.getEntityReferenceType(), entityDependencyNode.getValidEntityName(), bindingPath, null, false, action);
                     return getPossibleEntityReferences(actionNameToActionMapMono, actionBindingMap.get(bindingPath), evalVersion, bindingsInDsl)
                             .flatMapMany(Flux::fromIterable)
