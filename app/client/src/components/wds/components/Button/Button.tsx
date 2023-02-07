@@ -56,6 +56,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   return (
     <StyledButton
       {...rest}
+      data-button
       data-disabled={isDisabled || undefined}
       data-loading={isLoading || undefined}
       disabled={isDisabled || undefined}

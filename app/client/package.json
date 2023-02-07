@@ -13,6 +13,8 @@
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
+    "@capsizecss/core": "^3.1.0",
+    "@capsizecss/metrics": "^1.0.1",
     "@draft-js-plugins/editor": "^4.1.0",
     "@draft-js-plugins/mention": "^4.5.1",
     "@floating-ui/react": "^0.18.1",

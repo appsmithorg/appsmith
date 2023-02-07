@@ -48,7 +48,7 @@
   outline: 1px solid red;
 }
 
-RootMenu {
+.RootMenu {
   padding: 6px 14px;
   border: none;
   font-size: 16px;

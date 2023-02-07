@@ -1,6 +1,7 @@
 import React, { useState, PropsWithChildren } from "react";
 import { Button } from "../components/Button";
 import { Checkbox } from "../components/Checkbox/Checkbox";
+import { Menu, MenuItem } from "../components/Menu";
 import { NativeSelect } from "../components/NativeSelect";
 import { TextInput } from "../components/TextInput/TextInput";
 
@@ -87,14 +88,12 @@ export const useControls = (props: ControlProps) => {
 };
 
 const Showcase = (props: Props) => {
+  const ref = React.useRef<HTMLAnchorElement>(null);
   const { children, height = 32, settings, title, width = 180 } = props;
 
   return (
     <div>
       <h2 className="my-2 text-xl font-semibold">{title}</h2>
-      <Button as="a" href="http://google.com" variant="link">
-        Google
-      </Button>
       <div className="space-y-3">
         <div className="flex space-x-3 border">
           <div className="flex items-center justify-center flex-grow min-h-56">

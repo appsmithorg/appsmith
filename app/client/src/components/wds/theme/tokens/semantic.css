@@ -1,11 +1,4 @@
 :root {
   --wds-v2-color-bg-action-disabled: var(--wds-v2-color-gray-100);
   --wds-v2-color-text-action-disabled: var(--wds-v2-color-gray-400);
-
-  /* spacing */
-  --wds-v2-spacing-xs: 1px;
-  --wds-v2-spacing-sm: 2px;
-  --wds-v2-spacing: 4px;
-  --wds-v2-spacing-md: 8px;
-  --wds-v2-spacing-lg: 16px;
 }

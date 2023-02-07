@@ -1534,6 +1534,18 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
+"@capsizecss/core@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@capsizecss/core/-/core-3.1.0.tgz#0afe90dc2b6d3089963e77f261bdecf7fbac775b"
+  integrity sha512-MoHbXUMqJtYL+idLVSQY57OPRyPaUBGN0o1Im0JElmfRVV+X1i1i5QsQTuEJpJgYFwi4jsck7A+jt6X7XB0p8w==
+  dependencies:
+    csstype "^3.1.1"
+
+"@capsizecss/metrics@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@capsizecss/metrics/-/metrics-1.0.1.tgz#f136f52072b70dc367c657d6eec1d733a2fd9de8"
+  integrity sha512-Ox2n3gSm8X8UciUkKjXUEDfAhEC+xVz+6wQS5GCCxOw2Zc7RGLOMbeuCgtuTarp5eVfjPp3iaqhCfJiP0UWfjA==
+
 "@colors/colors@1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
@@ -6061,6 +6073,11 @@ csstype@^2.5.7:
 csstype@^3.0.2:
   version "3.0.3"
   resolved "https://registry.npmjs.org/csstype/-/csstype-3.0.3.tgz"
+
+csstype@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.1.tgz#841b532c45c758ee546a11d5bd7b7b473c8c30b9"
+  integrity sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==
 
 cuid@^2.1.1:
   version "2.1.8"

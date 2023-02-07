@@ -7,7 +7,10 @@ import {
 } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import ButtonShowcase from "./Button";
+import ButtonGroupShowcase from "./ButtonGroup";
 import { createTokens } from "../utils/createTokens";
+import { Checkbox } from "../components/Checkbox/Checkbox";
+import TextShowcase from "./Text";
 
 type StyledWrapperProps = {
   borderRadius: CSSProperties["borderRadius"];
@@ -85,9 +88,10 @@ function Showcase() {
           ))}
         </div>
       </div>
-
       <div className="space-y-5">
         <ButtonShowcase loading={loading} />
+        {/* <ButtonGroupShowcase loading={loading} /> */}
+        {/* <TextShowcase loading={loading} /> */}
       </div>
     </StyledWrapper>
   );
