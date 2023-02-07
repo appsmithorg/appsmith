@@ -194,6 +194,17 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
+            propertyName: "allowClustering",
+            label: "Enable clustering",
+            controlType: "SWITCH",
+            helpText: "Allows markers to be clustered",
+            defaultValue: false,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "enableSearch",
             label: "Enable search location",
             helpText: "Allows a user to search for a location",
@@ -424,6 +435,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         )}
         {google.enabled && (
           <MapComponent
+            allowClustering={this.props.allowClustering}
             allowZoom={this.props.allowZoom}
             apiKey={google.apiKey}
             borderRadius={this.props.borderRadius}
@@ -484,6 +496,7 @@ export interface MapWidgetProps extends WidgetProps {
   onCreateMarker?: string;
   borderRadius: string;
   boxShadow?: string;
+  allowClustering?: boolean;
 }
 
 export default MapWidget;
