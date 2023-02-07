@@ -150,7 +150,7 @@ export const draggableElement = (
   }
 
   const OnInit = () => {
-    if (dragHandle) {
+    if (0 && dragHandle) {
       dragHandler = createDragHandler(
         id,
         element,
