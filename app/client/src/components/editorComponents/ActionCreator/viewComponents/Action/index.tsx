@@ -250,13 +250,9 @@ export const Action: React.FC<Props> = ({
     );
   });
 
-  const boundaryParent =
-    (document.querySelector("#canvas-viewport") as HTMLElement) || undefined;
-
   return (
     <>
       <Popover2
-        boundary={boundaryParent}
         className="w-full"
         content={
           <div
@@ -331,7 +327,7 @@ export const Action: React.FC<Props> = ({
         isOpen={isOpen}
         minimal
         onClose={onCloseByFocusOut}
-        popoverClassName="!translate-x-[-18px] translate-y-[35%] w-[280px]"
+        popoverClassName="!translate-x-[-18px] w-[280px]"
         position="left"
       >
         {/* <TooltipComponent boundary="viewport" content="Action"> */}

@@ -78,8 +78,8 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
       }}
       onSelect={set}
       optionTree={filteredOptions}
-      popoverClassName="absolute top-[12px]"
-      position="left"
+      popoverClassName="!mt-0"
+      position="bottom"
       selectedValue={fieldConfig.getter(value)}
       toggle={
         isOpen ? (
