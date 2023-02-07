@@ -29,15 +29,6 @@ sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
     -v `pwd`/docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
     -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
     nginx:latest
-# sudo mkdir -p git-server/keys
-# sudo mkdir -p git-server/repos
-
-# sudo docker run --name TED -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
-#   -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-#   -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
-
-# echo "Waiting for test event driver to start"
-# sleep 50
 
 echo "Checking if the containers have started"
 sudo docker ps -a
