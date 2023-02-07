@@ -63,21 +63,5 @@ export const getCanvasSplittingConfig = () => {
     isBindProperty: false,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
-    // additionalAction: (
-    //   props: any,
-    //   propertyName?: string,
-    //   propertyValue?: any,
-    // ) => {
-    //   const canvasSplitType: CanvasSplitTypes = propertyValue as CanvasSplitTypes;
-    //   console.log("#### here");
-    //   return {
-    //     type: ReduxActionTypes.SPLIT_CANVAS,
-    //     payload: {
-    //       parentId: props.widgetId,
-    //       ratios: getCanvasSplitRatio(canvasSplitType),
-    //     },
-    //   };
-    // },
-    // dependencies: ["widgetId"],
   };
 };

@@ -4,7 +4,7 @@ import { generateReactKey } from "utils/generators";
 import { updateRelationships } from "./autoLayoutDraggingUtils";
 import { CanvasSplitTypes } from "./canvasSplitProperties";
 import { ResponsiveBehavior } from "./constants";
-import { Widget } from "./positionUtils";
+import { updateWidgetPositions, Widget } from "./positionUtils";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { call } from "redux-saga/effects";
 
@@ -147,6 +147,8 @@ export function deleteCanvas(
       canvasSplitType,
     },
   };
+
+  widgets = updateWidgetPositions(widgets, remainingCanvasId, isMobile);
 
   return widgets;
 }
