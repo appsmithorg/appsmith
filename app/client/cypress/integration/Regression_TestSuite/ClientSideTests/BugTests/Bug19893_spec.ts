@@ -21,7 +21,5 @@ describe("Bug 19933: Authenticated API DS in case of OAuth2, should have save an
         2,
       );
     });
-
-    dataSources.DeleteDSDirectly();
   });
 });
