@@ -81,8 +81,6 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
-import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
-import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -623,17 +621,11 @@ public class WorkspaceResourcesTest {
 
         RoleTabDTO roleTabDTO = tenantResources.createGroupsAndRolesTab(additionalPg.getId()).block();
 
-        String tenantAssociateRoleKey = tenantId + "_Associate Role_" + TENANT_ROLE;
-        String tenantCreateRoleKey = tenantId + "_Create_" + TENANT_ROLE;
-        String tenantDeleteRoleKey = tenantId + "_Delete_" + TENANT_ROLE;
-        String tenantEditRoleKey = tenantId + "_Edit_" + TENANT_ROLE;
-        String tenantViewRoleKey = tenantId + "_View_" + TENANT_ROLE;
-        String tenantCreateGroupKey = tenantId + "_Create_" + TENANT_GROUP;
-        String tenantDeleteGroupKey = tenantId + "_Delete_" + TENANT_GROUP;
-        String tenantEditGroupKey = tenantId + "_Edit_" + TENANT_GROUP;
-        String tenantViewGroupKey = tenantId + "_View_" + TENANT_GROUP;
-        String tenantInviteUserGroupKey = tenantId + "_Invite User_" + TENANT_GROUP;
-        String tenantRemoveUserGroupKey = tenantId + "_Remove User_" + TENANT_GROUP;
+        String tenantAssociateRoleKey = tenantId + "_Associate Role";
+        String tenantCreateKey = tenantId + "_Create";
+        String tenantDeleteKey = tenantId + "_Delete";
+        String tenantEditKey = tenantId + "_Edit";
+        String tenantViewKey = tenantId + "_View";
         String adminPgEditKey = adminPg.getId() + "_Edit";
         String adminPgDeleteKey = adminPg.getId() + "_Delete";
         String adminPgViewKey = adminPg.getId() + "_View";
@@ -648,16 +640,14 @@ public class WorkspaceResourcesTest {
         String additionalPgViewKey = additionalPg.getId() + "_View";
 
 
-        assertThat(roleTabDTO.getHoverMap()).containsKeys(tenantAssociateRoleKey, tenantCreateRoleKey,
-                tenantDeleteRoleKey, tenantEditRoleKey, tenantViewRoleKey, tenantCreateGroupKey, tenantDeleteGroupKey,
-                tenantEditGroupKey, tenantViewGroupKey, tenantInviteUserGroupKey, tenantRemoveUserGroupKey,
-                adminPgViewKey, devPgViewKey, viewPgViewKey, additionalPgDeleteKey, additionalPgEditKey,
-                additionalPgViewKey);
+        assertThat(roleTabDTO.getHoverMap()).containsKeys(tenantAssociateRoleKey, tenantCreateKey, tenantDeleteKey,
+                tenantEditKey, tenantViewKey, adminPgViewKey, devPgViewKey, viewPgViewKey, additionalPgDeleteKey,
+                additionalPgEditKey, additionalPgViewKey);
 
         assertThat(roleTabDTO.getHoverMap()).doesNotContainKeys(adminPgDeleteKey, adminPgEditKey, devPgDeleteKey,
                 devPgEditKey, viewPgDeleteKey, viewPgEditKey);
 
-        assertThat(roleTabDTO.getHoverMap().get(tenantCreateRoleKey)).contains(
+        assertThat(roleTabDTO.getHoverMap().get(tenantCreateKey)).contains(
                 new IdPermissionDTO(tenantId, PermissionViewableName.ASSOCIATE_ROLE),
                 new IdPermissionDTO(tenantId, PermissionViewableName.DELETE),
                 new IdPermissionDTO(tenantId, PermissionViewableName.EDIT),
@@ -673,7 +663,7 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.ASSOCIATE_ROLE)
         );
 
-        assertThat(roleTabDTO.getHoverMap().get(tenantDeleteRoleKey)).contains(
+        assertThat(roleTabDTO.getHoverMap().get(tenantDeleteKey)).contains(
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.VIEW),
                 new IdPermissionDTO(devPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
@@ -683,7 +673,7 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.DELETE)
         );
 
-        assertThat(roleTabDTO.getHoverMap().get(tenantEditRoleKey)).contains(
+        assertThat(roleTabDTO.getHoverMap().get(tenantEditKey)).contains(
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.VIEW),
                 new IdPermissionDTO(devPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
@@ -693,7 +683,7 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.EDIT)
         );
 
-        assertThat(roleTabDTO.getHoverMap().get(tenantViewRoleKey)).contains(
+        assertThat(roleTabDTO.getHoverMap().get(tenantViewKey)).contains(
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.VIEW),
                 new IdPermissionDTO(devPg.getId(), PermissionViewableName.VIEW),
                 new IdPermissionDTO(viewPg.getId(), PermissionViewableName.VIEW),
