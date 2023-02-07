@@ -38,9 +38,10 @@ export const initialState: TenantReduxState<any> = {
 export const handlers = {
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG]: (
     state: TenantReduxState<any>,
+    action: ReduxAction<{ isBackgroundRequest: boolean }>,
   ) => ({
     ...state,
-    isLoading: true,
+    isLoading: !action.payload.isBackgroundRequest,
   }),
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
     state: TenantReduxState<any>,
