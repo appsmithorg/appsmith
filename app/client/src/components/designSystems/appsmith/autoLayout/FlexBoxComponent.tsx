@@ -13,6 +13,7 @@ import { getAppMode } from "selectors/entitiesSelector";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import {
+  AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
   FlexLayer,
 } from "utils/autoLayout/autoLayoutTypes";
@@ -108,9 +109,10 @@ function FlexBoxComponent(props: FlexBoxProps) {
     const start = [],
       center = [],
       end = [];
-    const startColumns = alignmentColumnInfo[index][FlexLayerAlignment.Start],
-      centerColumns = alignmentColumnInfo[index][FlexLayerAlignment.Center],
-      endColumns = alignmentColumnInfo[index][FlexLayerAlignment.End];
+    const columnInfo: AlignmentColumnInfo = alignmentColumnInfo[index];
+    const startColumns = columnInfo ? columnInfo[FlexLayerAlignment.Start] : 0,
+      centerColumns = columnInfo ? columnInfo[FlexLayerAlignment.Center] : 0,
+      endColumns = columnInfo ? columnInfo[FlexLayerAlignment.End] : 0;
 
     for (const child of children) {
       const widget = map[child.id];
