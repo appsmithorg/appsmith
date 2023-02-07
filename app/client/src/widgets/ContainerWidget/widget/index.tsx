@@ -72,13 +72,15 @@ export class ContainerWidget extends BaseWidget<
         ],
       },
       ...getResponsiveLayoutConfig(this.getWidgetType()),
-      // getCanvasSplitConfig(),
-      getCanvasSplittingConfig(),
     ];
   }
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "Layout",
+        children: [getCanvasSplittingConfig()],
+      },
       {
         sectionName: "Color",
         children: [

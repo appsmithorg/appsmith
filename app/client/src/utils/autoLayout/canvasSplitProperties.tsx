@@ -4,7 +4,6 @@ import { ReactComponent as Column25_75 } from "assets/icons/control/2-column-25-
 import { ReactComponent as Column50_50 } from "assets/icons/control/2-column-50-50.svg";
 import { ReactComponent as Column75_25 } from "assets/icons/control/2-column-75-25.svg";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 interface CanvasSplitOptionType {
   label: string;
@@ -54,9 +53,9 @@ export const CanvasSplitOptions: CanvasSplitOptionType[] = [
 
 export const getCanvasSplittingConfig = () => {
   return {
-    helpText: "Canvas Split",
+    helpText: "Split a column into two.",
     propertyName: "canvasSplitType",
-    label: "Canvas Split",
+    label: "Column Split",
     controlType: "CANVAS_SPLIT_OPTIONS",
     defaultValue: CanvasSplitOptions[0].value,
     options: CanvasSplitOptions,

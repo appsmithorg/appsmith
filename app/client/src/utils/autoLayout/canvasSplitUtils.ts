@@ -75,7 +75,7 @@ export function* addNewCanvas(
   return {
     ...widgetsAfterAddingNewCanvas,
     [existingCanvasId]: existingCanvas,
-    [parentId]: { ...parent, canvasSplitType },
+    [parentId]: { ...widgetsAfterAddingNewCanvas[parentId], canvasSplitType },
   };
 }
 

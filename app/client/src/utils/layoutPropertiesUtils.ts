@@ -303,32 +303,3 @@ export function getResponsiveLayoutConfig(widgetType: string) {
     },
   ];
 }
-
-export function getCanvasSplitConfig() {
-  return {
-    helpText: "Canvas Split",
-    propertyName: "canvasSplit",
-    label: "Canvas Split",
-    controlType: "SWITCH",
-    defaultValue: false,
-    isJSConvertible: false,
-    isBindProperty: true,
-    isTriggerProperty: true,
-    validation: { type: ValidationTypes.BOOLEAN },
-    additionalAction: (
-      props: any,
-      propertyName?: string,
-      propertyValue?: any,
-    ) => {
-      const canvasSplit: boolean = propertyValue as boolean;
-      return {
-        type: ReduxActionTypes.SPLIT_CANVAS,
-        payload: {
-          isSplit: canvasSplit,
-          parentId: props.widgetId,
-        },
-      };
-    },
-    dependencies: ["widgetId"],
-  };
-}

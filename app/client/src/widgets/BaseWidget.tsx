@@ -531,8 +531,8 @@ abstract class BaseWidget<
         </AutoHeightContainerWrapper>
       );
     }
-    return content;
-    return this.addErrorBoundary(content);
+    // TODO: @Preet: Remove this check and find a better way to update error boundary width.
+    return this.props.useAutoLayout ? content : this.addErrorBoundary(content);
   };
 
   private getWidgetView(): ReactNode {
