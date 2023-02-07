@@ -1,6 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/defaultTableV2Dsl.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane deafult feature validation", function() {
   before(() => {
@@ -15,7 +14,7 @@ describe("Table Widget V2 property pane deafult feature validation", function() 
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 100 });
     // close Widget side bar
-    _.canvasHelper.OpenWidgetPane();
+    cy.get(widgetsPage.explorerSwitchId).click({ force: true });
     cy.wait(2000);
     cy.SearchEntityandOpen("Table2");
     // Verify default array data

@@ -52,7 +52,6 @@ myFun2: async () => {
       },
     );
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
-    agHelper.WaitUntilAllToastsDisappear();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify6");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -262,7 +261,6 @@ myFun2: async () => {
       .wait(1000)
       .matchImageSnapshot("jsObjBeforePrettify3");
 
-    agHelper.WaitUntilAllToastsDisappear();
     cy.get("div.CodeMirror").type("{shift+cmd+p}");
     cy.get("div.CodeMirror")
       .wait(1000)
@@ -317,7 +315,6 @@ myFun2: async () => {
     );
 
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
-    agHelper.WaitUntilAllToastsDisappear();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
 
     cy.get("div.CodeMirror")

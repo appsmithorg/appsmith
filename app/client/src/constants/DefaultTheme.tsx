@@ -401,7 +401,6 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
-  widgetTopBar: string;
   bottomBarHeight: string;
   pageTabsHeight: string;
   integrationsPageUnusableHeight: string;
@@ -2910,7 +2909,6 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "40px",
-  widgetTopBar: "40px",
   bottomBarHeight: "34px",
   pageTabsHeight: "32px",
   integrationsPageUnusableHeight: "182px",

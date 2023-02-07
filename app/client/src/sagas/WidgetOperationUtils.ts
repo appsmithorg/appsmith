@@ -1514,21 +1514,6 @@ export const getAllWidgetsInTree = (
   return widgetList;
 };
 
-export const getParentBottomRowAfterAddingWidget = (
-  stateParent: FlattenedWidgetProps,
-  newWidget: FlattenedWidgetProps,
-) => {
-  const parentRowSpace =
-    newWidget.parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-  const newBottomRow =
-    (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-    parentRowSpace;
-  const updateBottomRow =
-    stateParent.type === "CANVAS_WIDGET" &&
-    newBottomRow > stateParent.bottomRow;
-  return updateBottomRow ? newBottomRow : stateParent.bottomRow;
-};
-
 /**
  * sometimes, selected widgets contains the grouped widget,
  * in those cases, we will just selected the main container as the
@@ -1729,54 +1714,6 @@ export function mergeDynamicPropertyPaths(
   b?: DynamicPath[],
 ) {
   return _.unionWith(a, b, (a, b) => a.key === b.key);
-}
-
-/**
- * returns the BottomRow for CANVAS_WIDGET
- * @param finalWidgets
- * @param canvasWidgetId
- */
-export function resizeCanvasToLowestWidget(
-  finalWidgets: CanvasWidgetsReduxState,
-  canvasWidgetId: string | undefined,
-  currentBottomRow: number,
-  mainCanvasMinHeight?: number, //defined only if canvasWidgetId is MAIN_CONTAINER_ID
-) {
-  if (!canvasWidgetId) return currentBottomRow;
-
-  if (
-    !finalWidgets[canvasWidgetId] ||
-    finalWidgets[canvasWidgetId].type !== "CANVAS_WIDGET"
-  ) {
-    return currentBottomRow;
-  }
-
-  const defaultLowestBottomRow =
-    mainCanvasMinHeight ||
-    finalWidgets[canvasWidgetId].minHeight ||
-    CANVAS_DEFAULT_MIN_HEIGHT_PX;
-
-  const childIds = finalWidgets[canvasWidgetId].children || [];
-
-  let lowestBottomRow = 0;
-  // find the lowest row
-  childIds.forEach((cId) => {
-    const child = finalWidgets[cId];
-
-    if (!child.detachFromLayout && child.bottomRow > lowestBottomRow) {
-      lowestBottomRow = child.bottomRow;
-    }
-  });
-
-  const canvasOffset =
-    canvasWidgetId === MAIN_CONTAINER_WIDGET_ID
-      ? GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET
-      : GridDefaults.CANVAS_EXTENSION_OFFSET;
-
-  return Math.max(
-    defaultLowestBottomRow,
-    (lowestBottomRow + canvasOffset) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
 }
 
 /**

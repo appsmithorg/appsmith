@@ -89,11 +89,15 @@ describe("Git discard changes:", function() {
       .last()
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
+    cy.get("#switcher--explorer").click({ force: true });
     // connect app to git
     cy.generateUUID().then((uid) => {
       repoName = uid;
       _.gitSync.CreateNConnectToGit(repoName);
       _.gitSync.CreateGitBranch(repoName);
+    });
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
   });
 
@@ -242,5 +246,10 @@ describe("Git discard changes:", function() {
     cy.gitDiscardChanges();
     cy.wait(5000);
     cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
+  });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });

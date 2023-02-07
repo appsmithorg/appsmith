@@ -12,6 +12,7 @@ const {
 describe("storeValue Action test", () => {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    ee.NavigateToSwitcher("explorer");
   });
 
   it("1. Bug 14653: Running consecutive storeValue actions and await", function() {

@@ -24,7 +24,10 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
-import { waitForSegmentInit } from "ce/sagas/userSagas";
+import {
+  waitForSegmentInit,
+  waitForFetchUserSuccess,
+} from "ce/sagas/userSagas";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -107,6 +110,7 @@ export default class AppViewerEngine extends AppEngine {
         `Unable to fetch actions for the application: ${applicationId}`,
       );
 
+    yield call(waitForFetchUserSuccess);
     yield call(waitForSegmentInit, true);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
