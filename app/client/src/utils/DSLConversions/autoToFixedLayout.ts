@@ -219,7 +219,6 @@ function processMobileCanvasChildren(
   let currWidgets = { ...widgets };
 
   for (const childId of canvasWidget.children || []) {
-    currWidgets = convertAutoWidgetToFixed(currWidgets, childId, true);
     const currWidget = currWidgets[childId];
 
     currWidgets[childId] = {
@@ -229,6 +228,8 @@ function processMobileCanvasChildren(
       leftColumn: getLeftColumn(currWidget, true),
       rightColumn: getRightColumn(currWidget, true),
     };
+
+    currWidgets = convertAutoWidgetToFixed(currWidgets, childId, true);
   }
 
   // Delete Canvas widget responsive properties
