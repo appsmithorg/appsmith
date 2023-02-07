@@ -132,6 +132,8 @@ server {
     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto \$origin_scheme;
     proxy_set_header X-Forwarded-Host \$host;
+    # Keycloak sticks big long JWTs in cookies, which makes headers too big. This throws 502 error, unless we have the below.
+    proxy_buffer_size 8k;
   }
 }
 EOF
