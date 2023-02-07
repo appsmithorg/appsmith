@@ -683,7 +683,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           getAllStickyColumnsCount(this.props.orderedTableColumns))
     ) {
       if (this.props.renderMode === RenderModes.CANVAS) {
-        super.updateWidgetProperty("columnUpdatedAt", Date.now());
+        super.batchUpdateWidgetProperty(
+          {
+            modify: {
+              columnUpdatedAt: Date.now(),
+            },
+          },
+          false,
+        );
       }
     }
     // Check if tableData is modifed
@@ -1116,7 +1123,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               columnOrder: newColumnOrder,
             },
           },
-          false,
+          true,
         );
       } else if (
         localTableColumnOrder &&

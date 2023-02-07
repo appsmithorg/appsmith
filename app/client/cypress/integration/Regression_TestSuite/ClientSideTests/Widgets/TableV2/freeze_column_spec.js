@@ -338,6 +338,60 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
       cy.freezeColumnFromDropdown("step", "right");
       cy.checkColumnPosition("step", 3);
       cy.checkLocalColumnOrder([], "right");
+      cy.goToEditFromPublish();
+    });
+  });
+
+  describe("2.3 Hiding frozen columns", () => {
+    it("2.3.1 Hide left frozen column and check it's position is before right frozen columns", () => {
+      cy.openPropertyPane(WIDGET.TABLE);
+      cy.hideColumn("action");
+      cy.getTableV2DataSelector("0", "2").then((selector) => {
+        cy.get(selector).should("have.class", "hidden-cell");
+      });
+      // Now check if the column next to this hidden column is right frozen
+      cy.checkIfColumnIsFrozenViaCSS("0", "3");
+    });
+
+    it("2.3.2 Check if the hidden frozen column comes back to it's original frozen position", () => {
+      cy.showColumn("action");
+      cy.checkColumnPosition("action", 0);
+      cy.checkIfColumnIsFrozenViaCSS("0", "0");
+    });
+
+    it("2.3.3 Hide and unhide right frozen column", () => {
+      cy.hideColumn("step");
+      cy.getTableV2DataSelector("0", "3").then((selector) => {
+        cy.get(selector).should("have.class", "hidden-cell");
+      });
+      cy.showColumn("step");
+      cy.checkColumnPosition("step", 3);
+      cy.checkIfColumnIsFrozenViaCSS("0", "3");
+    });
+
+    it("2.3.4 Hide and unhide frozen columns with existing frozen columns", () => {
+      /**
+       * At this point: action is left frozen and step is right frozen
+       * Adding one more left frozen column
+       */
+      cy.freezeColumnFromDropdown("task", "left");
+
+      // Hide and unhide one left frozen column and then right frozen column
+      cy.hideColumn("task");
+      cy.getTableV2DataSelector("0", "2").then((selector) => {
+        cy.get(selector).should("have.class", "hidden-cell");
+      });
+      cy.hideColumn("step");
+      cy.getTableV2DataSelector("0", "3").then((selector) => {
+        cy.get(selector).should("have.class", "hidden-cell");
+      });
+
+      cy.showColumn("task");
+      cy.checkColumnPosition("task", 1);
+      cy.checkIfColumnIsFrozenViaCSS("0", "1");
+      cy.showColumn("step");
+      cy.checkColumnPosition("step", 3);
+      cy.checkIfColumnIsFrozenViaCSS("0", "3");
     });
   });
 });

@@ -41,6 +41,21 @@ export const renderEmptyRows = (
           {row.cells.map(
             (cell: Cell<Record<string, unknown>>, cellIndex: number) => {
               const cellProps = cell.getCellProps();
+              const distanceFromEdge: {
+                left?: number;
+                right?: number;
+                width?: string;
+              } = {};
+
+              if (multiRowSelection) {
+                if (columns[cellIndex].sticky === StickyType.LEFT) {
+                  distanceFromEdge["left"] =
+                    cellIndex === 0
+                      ? MULTISELECT_CHECKBOX_WIDTH
+                      : MULTISELECT_CHECKBOX_WIDTH +
+                        columns[cellIndex].columnProperties.width;
+                }
+              }
               return (
                 <div
                   {...cellProps}
@@ -48,6 +63,7 @@ export const renderEmptyRows = (
                     columns[cellIndex].isHidden
                       ? "td hidden-cell"
                       : `td${
+                          columns[cellIndex].sticky &&
                           cellIndex !== 0 &&
                           columns[cellIndex - 1].sticky === StickyType.RIGHT &&
                           columns[cellIndex - 1].isHidden
@@ -56,6 +72,7 @@ export const renderEmptyRows = (
                         }`
                   }
                   key={cellProps.key}
+                  style={{ ...cellProps.style, ...distanceFromEdge }}
                 />
               );
             },
@@ -132,11 +149,14 @@ export const renderEmptyRows = (
                 className={
                   column && column.isHidden
                     ? "td hidden-cell"
-                    : `td${column?.sticky &&
+                    : `td${
+                        column?.sticky &&
                         colIndex !== 0 &&
                         columns[colIndex - 1].sticky === StickyType.RIGHT &&
-                        columns[colIndex - 1].isHidden &&
-                        " sticky-right-modifier"}`
+                        columns[colIndex - 1].isHidden
+                          ? " sticky-right-modifier"
+                          : ""
+                      }`
                 }
                 {...stickyAttributes}
                 key={colIndex}

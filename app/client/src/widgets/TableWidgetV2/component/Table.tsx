@@ -414,6 +414,7 @@ export function Table(props: TableProps) {
       shouldUseVirtual,
       totalColumnsWidth,
       props.canFreezeColumn,
+      props.pageSize,
     ],
   );
 

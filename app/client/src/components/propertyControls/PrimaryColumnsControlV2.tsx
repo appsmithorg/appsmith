@@ -142,12 +142,12 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     ) {
       const columns = Object.keys(this.props.propertyValue);
 
-      const frozenColumnIndex = columns
-        .map((column) => this.props.propertyValue[column])
+      const frozenColumnIndex = Object.keys(prevProps.propertyValue)
+        .map((column) => prevProps.propertyValue[column])
         .filter((column) => column.sticky !== StickyType.RIGHT).length;
 
       this.updateFocus(
-        frozenColumnIndex === 0 ? columns.length - 1 : frozenColumnIndex - 1,
+        frozenColumnIndex === 0 ? columns.length - 1 : frozenColumnIndex,
         true,
       );
       this.checkAndUpdateIfEditableColumnPresent();

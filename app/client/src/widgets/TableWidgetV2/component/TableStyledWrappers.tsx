@@ -274,7 +274,7 @@ export const TableWrapper = styled.div<{
     cursor: grab;
     display: inline-block;
     width: 100%;
-    height: 38px;
+    height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT};
     &.reorder-line {
       width: 1px;
       height: 100%;

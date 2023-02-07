@@ -271,6 +271,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   }, [
     props.columns.map((column) => column.alias).toString(),
     props.serverSidePaginationEnabled,
+    props.searchKey,
+    props.multiRowSelection,
   ]);
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
