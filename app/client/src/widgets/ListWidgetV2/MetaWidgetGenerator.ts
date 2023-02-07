@@ -57,6 +57,12 @@ type UpdateSiblingsOptions = {
   metaWidget: MetaWidget;
 };
 
+type GenerateDefaultCacheOptions = {
+  lookupId: string;
+  templateWidget: FlattenedWidgetProps;
+  generateEntityDefinition: boolean;
+};
+
 export type HookOptions = {
   childMetaWidgets: MetaWidgets;
   rowReferences: Record<string, string | undefined>;
@@ -598,7 +604,11 @@ class MetaWidgetGenerator {
     if (templateWidget.type === this.primaryWidgetType) {
       this.addLevelData(metaWidget, rowIndex, key);
       metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
-      metaWidget.nestedViewIndex = viewIndex;
+      /**
+       * If nestedViewIndex is present then it comes from the outermost listwidget
+       * and that value should ideally be continued to the nested list widgets.
+       *  */
+      metaWidget.nestedViewIndex = this.nestedViewIndex || viewIndex;
     }
 
     if (this.isRowNonConfigurable(metaCacheProps)) {
@@ -678,21 +688,17 @@ class MetaWidgetGenerator {
     const updatedRowCache: MetaWidgetCache[string] = {};
 
     templateWidgets.forEach((templateWidget) => {
-      const {
-        type,
-        widgetId: templateWidgetId,
-        widgetName: templateWidgetName,
-      } = templateWidget;
+      const { widgetId: templateWidgetId } = templateWidget;
 
       if (templateWidgetId === this.containerParentId) return;
 
-      const currentCache = rowCache[templateWidgetId] || {};
-      const metaWidgetId =
-        currentCache.metaWidgetId || this.generateMetaWidgetId();
-      const metaWidgetName = `${this.widgetName}_${templateWidgetName}_${metaWidgetId}`;
-      const entityDefinition =
-        currentCache.entityDefinition ||
-        this.getPropertiesOfWidget(metaWidgetName, type);
+      const defaultCache = this.generateDefaultCache(key, {
+        lookupId: templateWidgetId,
+        templateWidget,
+        generateEntityDefinition: true,
+      });
+
+      const { metaWidgetId } = defaultCache;
 
       if (!isClonedItem) {
         this.templateWidgetCandidates.add(metaWidgetId);
@@ -707,18 +713,9 @@ class MetaWidgetGenerator {
       this.metaIdToTemplateIdMap[metaWidgetId] = templateWidgetId;
 
       updatedRowCache[templateWidgetId] = {
-        entityDefinition,
-        prevRowIndex: currentCache.rowIndex,
+        ...defaultCache,
         rowIndex,
-        metaWidgetId,
-        metaWidgetName,
         viewIndex,
-        prevViewIndex: currentCache.viewIndex,
-        templateWidgetId,
-        templateWidgetName,
-        type,
-        originalMetaWidgetId: metaWidgetId,
-        originalMetaWidgetName: metaWidgetName,
       };
     });
 
@@ -733,40 +730,64 @@ class MetaWidgetGenerator {
   ) => {
     if (templateWidget) {
       const rowCache = this.getRowCache(ROOT_ROW_KEY) || {};
-      const currentCache = rowCache[ROOT_CONTAINER_PARENT_KEY] || {};
       const updatedRowCache: MetaWidgetCache[string] = {};
-      const {
-        type,
-        widgetId: containerParentId,
-        widgetName: containerParentName,
-      } = templateWidget;
 
-      const metaWidgetId = this.isListCloned
-        ? currentCache.metaWidgetId || this.generateMetaWidgetId()
-        : containerParentId;
+      const defaultCache = this.generateDefaultCache(ROOT_ROW_KEY, {
+        lookupId: ROOT_CONTAINER_PARENT_KEY,
+        templateWidget,
+        generateEntityDefinition: false,
+      });
 
-      const metaWidgetName = this.isListCloned
-        ? `${this.widgetName}_${containerParentName}_${metaWidgetId}`
-        : containerParentName;
+      if (this.nestedViewIndex === undefined || this.nestedViewIndex === 0) {
+        this.templateWidgetCandidates.add(defaultCache.metaWidgetId);
+      }
 
-      updatedRowCache[ROOT_CONTAINER_PARENT_KEY] = {
-        metaWidgetId,
-        metaWidgetName,
-        type,
-        rowIndex: -1,
-        viewIndex: -1,
-        entityDefinition: {},
-        templateWidgetId: containerParentId,
-        templateWidgetName: containerParentName,
-        originalMetaWidgetId: metaWidgetId,
-        originalMetaWidgetName: metaWidgetName,
-      };
+      updatedRowCache[ROOT_CONTAINER_PARENT_KEY] = defaultCache;
 
       this.setRowCache(ROOT_ROW_KEY, {
         ...rowCache,
         ...updatedRowCache,
       });
     }
+  };
+
+  private generateDefaultCache = (
+    key: string,
+    options: GenerateDefaultCacheOptions,
+  ) => {
+    const { generateEntityDefinition, lookupId, templateWidget } = options;
+    const rowCache = this.getRowCache(key) || {};
+    const currentCache = rowCache[lookupId] || {};
+
+    const {
+      type,
+      widgetId: templateWidgetId,
+      widgetName: templateWidgetName,
+    } = templateWidget;
+
+    const metaWidgetId =
+      currentCache.metaWidgetId || this.generateMetaWidgetId();
+
+    const metaWidgetName = `${this.widgetName}_${templateWidgetId}_${metaWidgetId}`;
+    const entityDefinition = generateEntityDefinition
+      ? currentCache.entityDefinition ||
+        this.getPropertiesOfWidget(metaWidgetName, type)
+      : {};
+
+    return {
+      entityDefinition,
+      metaWidgetId,
+      metaWidgetName,
+      originalMetaWidgetId: metaWidgetId,
+      originalMetaWidgetName: metaWidgetName,
+      prevRowIndex: currentCache.rowIndex,
+      prevViewIndex: currentCache.viewIndex,
+      rowIndex: -1,
+      templateWidgetId,
+      templateWidgetName,
+      type,
+      viewIndex: -1,
+    };
   };
 
   private generatePrimaryKeys = (options: GeneratorOptions) => {
@@ -1000,12 +1021,18 @@ class MetaWidgetGenerator {
      * Calling this here as all references in all the dynamicBindingPathList has to
      * be collected first in the above loop and then added at last.
      */
-    if (pathTypes.has(DynamicPathType.CURRENT_VIEW)) {
-      this.addCurrentViewProperty(
-        metaWidget,
-        Object.values(referencesEntityDef),
-      );
-    }
+    // if (pathTypes.has(DynamicPathType.CURRENT_VIEW)) {
+    //   this.addCurrentViewProperty(
+    //     metaWidget,
+    //     Object.values(referencesEntityDef),
+    //   );
+    // }
+    /**
+     * The above commented out code should be used instead of this
+     * only after the following issue is resolved
+     * https://github.com/appsmithorg/appsmith/issues/20401
+     */
+    this.addCurrentViewProperty(metaWidget, Object.values(referencesEntityDef));
   };
 
   /**
