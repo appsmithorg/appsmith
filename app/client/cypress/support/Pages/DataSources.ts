@@ -480,7 +480,7 @@ export class DataSources {
 
   public NavigateToActiveTab() {
     this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab);
+    this.agHelper.GetNClick(this._activeTab,0,true);
   }
 
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {

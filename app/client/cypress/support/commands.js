@@ -30,6 +30,9 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 
 const { CanvasHelper } = ObjectsRegistry;
 
+// import { ObjectsRegistry } from "../support/Objects/Registry";
+// let agHelper = ObjectsRegistry.AggregateHelper;
+
 let pageidcopy = " ";
 const chainStart = Symbol();
 
@@ -1030,6 +1033,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       req.headers["origin"] = "Cypress";
     },
   ).as("connectGitLocalRepo");
+
+  cy.intercept({
+    method: "PUT",
+  }).as("sucessSave");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1183,6 +1190,7 @@ Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusContainer).should("not.exist", {
     timeout: 30000,
   });
+  //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
 Cypress.Commands.add(

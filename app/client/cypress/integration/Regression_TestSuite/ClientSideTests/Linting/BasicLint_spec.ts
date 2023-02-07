@@ -26,11 +26,11 @@ const clickButtonAndAssertLintError = (
   if (shouldExist) {
     agHelper.AssertElementExist(locator._lintErrorElement);
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage(errorMessage);
+    agHelper.AssertContains(errorMessage);
   } else {
     agHelper.AssertElementAbsence(locator._lintErrorElement);
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage(successMessage);
+    agHelper.AssertContains(successMessage);
   }
 
   //Reload and Check for presence/ absence of lint error
@@ -143,7 +143,6 @@ describe("Linting", () => {
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
     ee.SelectEntityByName("Button1", "Widgets");
-
     clickButtonAndAssertLintError(true);
 
     // Re-create JSObject, lint error should be gone

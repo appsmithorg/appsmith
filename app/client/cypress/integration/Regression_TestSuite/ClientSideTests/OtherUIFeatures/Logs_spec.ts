@@ -1,6 +1,8 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
+const locator = ObjectsRegistry.CommonLocators;
+
 const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
@@ -285,6 +287,7 @@ describe("Debugger logs", function() {
     agHelper.WaitUntilAllToastsDisappear();
 
     cy.get("@jsObjName").then((jsObjName) => {
+      agHelper.Sleep(2000)
       agHelper.GetNClick(jsEditor._runButton);
       agHelper.GetNClick(jsEditor._logsTab);
       debuggerHelper.DoesConsoleLogExist(`${logString} Started`);
@@ -412,5 +415,32 @@ describe("Debugger logs", function() {
     agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist("start: []");
     debuggerHelper.DoesConsoleLogExist("end: [0,1,2,3,4]");
+  });
+
+  it("6. Bug #19115 - Objects that start with an underscore `_JSObject1` fail to be navigated from the debugger", function() {
+    const JSOBJECT_WITH_UNNECCESARY_SEMICOLON = `export default {
+        myFun1: () => {
+            //write code here
+            if (1) {
+                return true;;
+            };
+        }
+    }
+    `;
+
+    jsEditor.CreateJSObject(JSOBJECT_WITH_UNNECCESARY_SEMICOLON, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    ee.SelectEntityByName("Page1", "Pages");
+    agHelper.GetNClick(".t--debugger");
+    agHelper.GetNClick(locator._errorTab);
+
+    debuggerHelper.ClicklogEntityLink(0);
+
+    cy.get(".t--js-action-name-edit-field").should("exist");
   });
 });
