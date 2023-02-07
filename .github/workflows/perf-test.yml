@@ -143,34 +143,40 @@ jobs:
           name: build
           path: app/server/dist
 
-      # Start server
-      - name: start server
-        if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/server
-        env:
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
-          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
-          APPSMITH_ENCRYPTION_PASSWORD: "password"
-          APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_IS_SELF_HOSTED: false
-          APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
-          APPSMITH_CLOUD_SERVICES_USERNAME: ""
-          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
-          APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
-          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: rts-dist
+          path: app/rts/dist
+
+      - name: Un-tar the rts folder
+        working-directory: "."
         run: |
-          ls -l
-          ls -l scripts/
-          ls -l dist/
-          # Run the server in the background and redirect logs to a log file
-          ./scripts/start-dev-server.sh &> server-logs.log &
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
 
       - name: Installing Yarn serve
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
+      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
+      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
+      - name: Build  docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
+        run: |
+          docker build -t cicontainer .
+
+      - name: Create folder
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
+        run: |
+          mkdir -p cicontainerlocal/stacks/configuration/
+
 
       - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
@@ -180,10 +186,16 @@ jobs:
         run: |
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
-          docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
-          -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
+          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3000:3000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
-          
+          cd cicontainerlocal
+          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
+            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -e APPSMITH_AUDITLOG_ENABLED=true \
+            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            --add-host=host.docker.internal:host-gateway \
+            cicontainer
 
       # Start rts
       - name: Start RTS Server
@@ -243,17 +255,6 @@ jobs:
         working-directory: app/client/perf
         shell: bash
         run: yarn install --frozen-lockfile
-
-      - name: Exit if Server hasnt started
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          if lsof -i :8080; then
-            echo "Server Found"
-          else
-            echo "Server Not Started. Printing logs from server process"
-            cat app/server/nohup.out
-            exit 1
-          fi
 
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'
