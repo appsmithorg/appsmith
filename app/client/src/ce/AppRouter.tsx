@@ -207,7 +207,7 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
-  getCurrentTenant: () => dispatch(getCurrentTenant()),
+  getCurrentTenant: () => dispatch(getCurrentTenant(false)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);
