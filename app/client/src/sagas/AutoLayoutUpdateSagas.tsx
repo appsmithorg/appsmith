@@ -17,10 +17,10 @@ import {
   wrapChildren,
 } from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
-import { addNewCanvas, deleteCanvas } from "utils/autoLayout/canvasSplitUtils";
-import { FlattenedWidgetProps } from "widgets/constants";
-import { getUpdateDslAfterCreatingChild } from "./WidgetAdditionSagas";
-import { Widget } from "utils/autoLayout/positionUtils";
+import {
+  deleteCanvas,
+  updateCanvasSize,
+} from "utils/autoLayout/canvasSplitUtils";
 import { CanvasSplitTypes } from "utils/autoLayout/canvasSplitProperties";
 
 type LayoutUpdatePayload = {
@@ -143,28 +143,18 @@ export function* manageCanvasSplit(
   }>,
 ) {
   try {
-    console.log("#### manageCanvasSplit", actionPayload);
     const start = performance.now();
     const { canvasSplitType, parentId, ratios } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     let updatedWidgets = allWidgets;
     if (ratios.length > 1) {
-      const payload:
-        | { existingCanvas: Widget; newCanvasPayload: any }
-        | undefined = addNewCanvas(allWidgets, parentId, ratios);
-      if (!payload) throw new Error("Unable to split canvas");
-      const updatedWidgetsAfterCreatingCanvas: {
-        [widgetId: string]: FlattenedWidgetProps;
-      } = yield call(getUpdateDslAfterCreatingChild, payload.newCanvasPayload);
-      updatedWidgets = {
-        ...updatedWidgetsAfterCreatingCanvas,
-        [payload.existingCanvas.widgetId]: payload.existingCanvas,
-        [parentId]: {
-          ...updatedWidgetsAfterCreatingCanvas[parentId],
-          canvasSplitType,
-        },
-      };
-      console.log("#### udpatedWidgets", updatedWidgets);
+      updatedWidgets = yield call(
+        updateCanvasSize,
+        allWidgets,
+        parentId,
+        ratios,
+        canvasSplitType,
+      );
     } else {
       const isMobile: boolean = yield select(getIsMobile);
       updatedWidgets = deleteCanvas(
