@@ -1,4 +1,4 @@
-import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FlexLayer } from "./autoLayoutTypes";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { generateReactKey } from "utils/generators";
 import { updateRelationships } from "./autoLayoutDraggingUtils";
@@ -112,6 +112,7 @@ export function deleteCanvas(
     rightColumn: remainingCanvas.leftColumn + remainingCanvasWidth * 2,
     flexLayers: [...(remainingCanvas.flexLayers || []), ...selectedFlexLayers],
     children: [...(remainingCanvas.children || []), ...selectedChildren],
+    canvasSplitRatio: 1,
   };
 
   widgets = {

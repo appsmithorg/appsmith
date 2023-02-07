@@ -531,6 +531,7 @@ abstract class BaseWidget<
         </AutoHeightContainerWrapper>
       );
     }
+    return content;
     return this.addErrorBoundary(content);
   };
 
@@ -550,9 +551,9 @@ abstract class BaseWidget<
             content = this.makeFlex(content);
           } else {
             content = this.makePositioned(content);
-          }
-          if (isAutoHeightEnabledForWidget(this.props, true)) {
-            content = this.addAutoHeightOverlay(content);
+            if (isAutoHeightEnabledForWidget(this.props, true)) {
+              content = this.addAutoHeightOverlay(content);
+            }
           }
         }
 

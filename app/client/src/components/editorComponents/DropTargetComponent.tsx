@@ -31,6 +31,7 @@ import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { updateDOMDirectlyBasedOnAutoHeightAction } from "actions/autoHeightActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { isNaN } from "lodash";
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -268,6 +269,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     height,
     boxShadow,
     display: props.canvasSplitRatio === 1 ? "block" : "inline-block",
+    width:
+      !props.canvasSplitRatio || isNaN(props.canvasSplitRatio)
+        ? "100%"
+        : `${props.canvasSplitRatio * 100}%`,
   };
 
   const shouldOnboard =

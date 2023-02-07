@@ -209,17 +209,6 @@ export class ContainerWidget extends BaseWidget<
       index === undefined || index === 1
         ? componentWidth
         : componentWidth * canvasSplitRatio;
-    console.log(
-      "#### canvasSplitRatio: ",
-      canvasSplitRatio,
-      index,
-      this.props.canvasSplitType,
-      childWidget.canvasSplitRatio,
-      "right column",
-      index === undefined || index === 1
-        ? componentWidth
-        : componentWidth * canvasSplitRatio,
-    );
     childWidget.bottomRow = this.props.shouldScrollContents
       ? childWidget.bottomRow
       : componentHeight;
