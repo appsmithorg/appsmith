@@ -9,6 +9,7 @@ type FeatureFlags = {
   USAGE_AND_BILLING?: boolean;
   DATASOURCE_ENVIRONMENTS?: boolean;
   MULTIPLE_PANES?: boolean;
+  LIMITING_GOOGLE_SHEET_ACCESS?: boolean;
 };
 
 export default FeatureFlags;

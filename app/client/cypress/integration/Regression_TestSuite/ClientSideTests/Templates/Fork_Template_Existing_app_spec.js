@@ -29,9 +29,10 @@ describe("Fork a template to the current app from new page popover", () => {
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Meeting Scheduler']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
+      .wait(500)
       .click();
     cy.wait(1000);
     _.agHelper.CheckForErrorToast(
@@ -55,7 +56,7 @@ describe("Fork a template to the current app from new page popover", () => {
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
-    cy.xpath("//div[text()='Customer Support Dashboard']").click();
+    cy.xpath("//div[text()='Meeting Scheduler']").click();
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -64,7 +65,7 @@ describe("Fork a template to the current app from new page popover", () => {
     cy.xpath(template.selectAllPages)
       .next()
       .click();
-    cy.xpath("//span[text()='DASHBOARD']")
+    cy.xpath("//span[text()='CALENDAR MOBILE']")
       .parent()
       .next()
       .click();
