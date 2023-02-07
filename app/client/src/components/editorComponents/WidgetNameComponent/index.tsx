@@ -147,6 +147,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidgets &&
     selectedWidgets.length > 1 &&
     selectedWidgets.includes(props.widgetId);
+  // True when any widget is dragging or resizing, including this one
+  const isResizingOrDragging = !!isResizing || !!isDragging;
   const shouldShowWidgetName = () => {
     return (
       !isResizingOrDragging &&
@@ -189,8 +191,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
 
-  // True when any widget is dragging or resizing, including this one
-  const isResizingOrDragging = !!isResizing || !!isDragging;
   const allowDrag = canDrag(
     isResizingOrDragging,
     isDraggingDisabled,
