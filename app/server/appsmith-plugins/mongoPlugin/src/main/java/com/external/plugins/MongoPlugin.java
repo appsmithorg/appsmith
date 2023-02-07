@@ -337,7 +337,7 @@ public class MongoPlugin extends BasePlugin {
                             error -> new AppsmithPluginException(
                                     error,
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    error.getErrorMessage()
+                                    MongoPluginErrorMessages.QUERY_INVALID_ERROR_MSG
                             )
                     )
                     /**
