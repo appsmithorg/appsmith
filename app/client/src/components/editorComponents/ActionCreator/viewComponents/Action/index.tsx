@@ -37,7 +37,7 @@ export const Action: React.FC<Props> = ({
   value,
 }) => {
   const firstRender = React.useRef(true);
-  const isActionInteraction = React.useRef(true);
+  const isActionInteraction = React.useRef(!isEmptyBlock(value));
   const [isOpen, setOpen] = useState(isEmptyBlock(value));
   const [
     selectedCallbackBlock,
