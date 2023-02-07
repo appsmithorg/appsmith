@@ -3,8 +3,8 @@ import React, { useEffect, useRef } from "react";
 type MenuItemContainerProps = {
   children: React.ReactNode;
   isTabActive: boolean;
-  tabsScrollable: boolean;
-  setShowScrollArrows: () => void;
+  tabsScrollable?: boolean;
+  setShowScrollArrows?: () => void;
 };
 
 const MenuItemContainer = ({
@@ -16,7 +16,7 @@ const MenuItemContainer = ({
   const tabContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isTabActive) {
+    if (isTabActive && tabsScrollable && setShowScrollArrows) {
       tabContainerRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",

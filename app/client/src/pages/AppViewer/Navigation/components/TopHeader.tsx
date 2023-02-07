@@ -23,6 +23,7 @@ import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import TopStacked from "../TopStacked";
 import { HeaderRow, StyledNav } from "./TopHeader.styled";
+import TopInline from "../TopInline";
 
 type TopHeaderProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -67,21 +68,31 @@ const TopHeader = (props: TopHeaderProps) => {
         name={currentApplicationDetails?.name}
       />
       <HeaderRow
-        className="relative h-12 px-3 py-3 md:px-6"
+        className="relative h-12 px-3 md:px-6"
         navColorStyle={navColorStyle}
         primaryColor={primaryColor}
       >
-        <section className="flex items-center gap-3 z-1">
+        <section className="py-3">
           <MobileNavToggle isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} />
-        </section>
-        <div className="absolute top-0 bottom-0 flex items-center w-full mt-auto">
+
           <ApplicationName
             appName={currentApplicationDetails?.name || "Application Name"}
             navColorStyle={navColorStyle}
             primaryColor={primaryColor}
           />
-        </div>
-        <section className="relative flex items-center ml-auto space-x-3 z-1">
+        </section>
+
+        {currentApplicationDetails?.navigationSetting?.orientation ===
+          NAVIGATION_SETTINGS.ORIENTATION.TOP &&
+          currentApplicationDetails?.navigationSetting?.navStyle ===
+            NAVIGATION_SETTINGS.NAV_STYLE.INLINE && (
+            <TopInline
+              currentApplicationDetails={currentApplicationDetails}
+              pages={pages}
+            />
+          )}
+
+        <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
           {currentApplicationDetails && (
             <div className="hidden space-x-1 md:flex">
               {/* Since the Backend doesn't have navigationSetting field by default
@@ -106,6 +117,7 @@ const TopHeader = (props: TopHeaderProps) => {
               </HeaderRightItemContainer>
             </div>
           )}
+
           {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
             <HeaderRightItemContainer>
               <ProfileDropdown
@@ -124,10 +136,15 @@ const TopHeader = (props: TopHeaderProps) => {
         </section>
       </HeaderRow>
 
-      <TopStacked
-        currentApplicationDetails={currentApplicationDetails}
-        pages={pages}
-      />
+      {currentApplicationDetails?.navigationSetting?.orientation ===
+        NAVIGATION_SETTINGS.ORIENTATION.TOP &&
+        currentApplicationDetails?.navigationSetting?.navStyle ===
+          NAVIGATION_SETTINGS.NAV_STYLE.STACKED && (
+          <TopStacked
+            currentApplicationDetails={currentApplicationDetails}
+            pages={pages}
+          />
+        )}
     </StyledNav>
   );
 };

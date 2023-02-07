@@ -107,7 +107,9 @@ export function TopStacked(props: TopStackedProps) {
     return clear;
   }, [isScrolling, isScrollingLeft]);
 
-  return appPages.length > 1 ? (
+  if (appPages.length <= 1) return null;
+
+  return (
     <Container
       className="relative hidden px-6 h-11 md:flex"
       navColorStyle={navColorStyle}
@@ -163,9 +165,6 @@ export function TopStacked(props: TopStackedProps) {
         <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
       </ScrollBtnContainer>
     </Container>
-  ) : (
-    // eslint-disable-next-line react/jsx-no-useless-fragment
-    <></>
   );
 }
 
