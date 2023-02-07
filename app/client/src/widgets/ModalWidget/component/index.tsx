@@ -138,6 +138,7 @@ export type ModalComponentProps = {
   isDynamicHeightEnabled: boolean;
   background?: string;
   borderRadius?: string;
+  settingsComponent?: ReactNode;
 };
 
 /* eslint-disable react/display-name */
@@ -250,6 +251,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}
       >
+        {props.settingsComponent}
         <Wrapper
           $background={props.background}
           $borderRadius={props.borderRadius}

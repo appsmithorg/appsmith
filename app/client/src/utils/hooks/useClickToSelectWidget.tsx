@@ -10,7 +10,6 @@ import {
 } from "selectors/widgetSelectors";
 import styled from "styled-components";
 import { stopEventPropagation } from "utils/AppsmithUtils";
-// import { scrollCSS } from "widgets/WidgetUtils";
 import { useWidgetSelection } from "./useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
