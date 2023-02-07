@@ -21,6 +21,8 @@ import { validateResponse } from "sagas/ErrorSagas";
 import log from "loglevel";
 import history from "utils/history";
 import { TenantReduxState, License } from "@appsmith/reducers/tenantReducer";
+import localStorage from "utils/localStorage";
+import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
 import { LICENSE_CHECK_PATH, SETUP, USER_AUTH_URL } from "constants/routes";
 import { getLicenseDetails } from "@appsmith/selectors/tenantSelectors";
 import { selectFeatureFlags } from "selectors/usersSelectors";
@@ -33,9 +35,18 @@ export function* fetchCurrentTenantConfigSaga(): any {
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      const payload = response.data as any;
+
+      // If the tenant config is not present, we need to set the default config
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-        payload: response.data,
+        payload: {
+          ...payload,
+          tenantConfiguration: {
+            ...CE_defaultBrandingConfig,
+            ...payload.tenantConfiguration,
+          },
+        },
       });
     }
   } catch (error) {
@@ -122,6 +133,18 @@ export function* validateLicenseSaga(
   }
 }
 
+/**
+ * saves the tenant config in local storage
+ *
+ * @param action
+ */
+export function cacheTenentConfigSaga(action: ReduxAction<any>) {
+  localStorage.setItem(
+    "tenantConfig",
+    JSON.stringify(action.payload.tenantConfiguration),
+  );
+}
+
 export function* initLicenseStatusCheckSaga(): unknown {
   const features = yield select(selectFeatureFlags);
   const license = yield select(getLicenseDetails);
@@ -157,6 +180,10 @@ export default function* tenantSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
       initLicenseStatusCheckSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
+      cacheTenentConfigSaga,
     ),
   ]);
 }

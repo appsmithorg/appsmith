@@ -2,12 +2,12 @@ import tinycolor from "tinycolor2";
 import { useSelector } from "react-redux";
 
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 
 const useBrandingTheme = () => {
   const config = useSelector(getTenantConfig);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const hsl = tinycolor(config.brandColors.primary).toHsl();
     const hue = hsl.h;
     const saturation = hsl.s;

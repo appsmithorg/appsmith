@@ -1,9 +1,8 @@
 export * from "ce/reducers/tenantReducer";
 import {
+  TenantReduxState,
   handlers as CE_Handlers,
   initialState as CE_InitialState,
-  TenantReduxState,
-  defaultBrandingConfig,
 } from "ce/reducers/tenantReducer";
 import {
   ReduxActionTypes,
@@ -11,6 +10,10 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
+import {
+  cachedTenantConfigParsed,
+  createBrandColorsFromPrimaryColor,
+} from "utils/BrandingUtils";
 
 export interface License {
   active: boolean;
@@ -23,10 +26,16 @@ export interface License {
   invalidLicenseKeyError: boolean;
 }
 
+const INITIAL_BRAND_COLOR = "#000";
+
 export const initialState: TenantReduxState<any> = {
   ...CE_InitialState,
   tenantConfiguration: {
     ...CE_InitialState.tenantConfiguration,
+    brandColors: {
+      ...createBrandColorsFromPrimaryColor(INITIAL_BRAND_COLOR),
+    },
+    ...cachedTenantConfigParsed,
     license: {},
   },
 };
@@ -40,8 +49,8 @@ export const handlers = {
     ...state,
     userPermissions: action.payload.userPermissions || [],
     tenantConfiguration: {
-      ...defaultBrandingConfig,
-      ...action.payload?.tenantConfiguration,
+      ...state.tenantConfiguration,
+      ...action.payload.tenantConfiguration,
       license: {
         ...action.payload.tenantConfiguration?.license,
         showBEBanner:

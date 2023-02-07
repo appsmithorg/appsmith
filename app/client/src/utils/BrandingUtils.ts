@@ -183,3 +183,16 @@ export const faivconImageValidator = (
     callback && callback(e);
   };
 };
+
+// NOTE: the reason why the json parsing is out of selector is we don't
+// want to do the parsing everytime selector is called
+let cachedTenantConfigParsed = {};
+const cachedTenantConfig = localStorage.getItem("tenantConfig");
+
+try {
+  if (cachedTenantConfig) {
+    cachedTenantConfigParsed = JSON.parse(cachedTenantConfig);
+  }
+} catch (e) {}
+
+export { cachedTenantConfigParsed };

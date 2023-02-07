@@ -35,6 +35,12 @@ describe("Branding", () => {
 
       expect(tenantConfig).to.be.null;
     }
+
+    if (Cypress.env("Edition") === 1) {
+      const tenantConfig = localStorage.getItem("tenantConfig");
+
+      expect(tenantConfig).to.not.be.null;
+    }
   });
 
   it("super user can access branding page", () => {

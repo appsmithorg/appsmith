@@ -1,5 +1,11 @@
 import { AppState } from "@appsmith/reducers";
 
+/**
+ * selects the tenant permissions
+ *
+ * @param state
+ * @returns
+ */
 export const getTenantPermissions = (state: AppState) => {
   return state.tenant?.userPermissions;
 };
