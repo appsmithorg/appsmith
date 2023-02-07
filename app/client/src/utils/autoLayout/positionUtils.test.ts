@@ -1,5 +1,6 @@
 import {
   FlexLayerAlignment,
+  Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
@@ -17,6 +18,7 @@ import {
   Row,
   updateWidgetPositions,
 } from "./positionUtils";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 describe("test PositionUtils methods", () => {
   describe("test extractAlignmentInfo method", () => {
@@ -722,7 +724,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 640,
           responsiveBehavior: ResponsiveBehavior.Fill,
-          parentId: "4",
+          parentId: "0",
           flexLayers: [
             {
               children: [
@@ -732,8 +734,8 @@ describe("test PositionUtils methods", () => {
             },
           ],
         },
-        "4": {
-          widgetId: "3",
+        "0": {
+          widgetId: "0",
           leftColumn: 0,
           rightColumn: 64,
           alignment: FlexLayerAlignment.Start,
@@ -752,6 +754,12 @@ describe("test PositionUtils methods", () => {
           mobileRightColumn: 64,
           responsiveBehavior: ResponsiveBehavior.Fill,
           parentId: "",
+          positioning: Positioning.Vertical,
+          appPositioningType: AppPositioningTypes.AUTO,
+          useAutoLayout: true,
+          flexLayers: [
+            { children: [{ id: "3", align: FlexLayerAlignment.Start }] },
+          ],
         },
       };
       const result = updateWidgetPositions(widgets, "3", false);
@@ -855,6 +863,36 @@ describe("test PositionUtils methods", () => {
           responsiveBehavior: ResponsiveBehavior.Fill,
           parentId: "0",
           children: ["3"],
+        },
+        "0": {
+          widgetId: "0",
+          leftColumn: 0,
+          rightColumn: 64,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 700,
+          type: "CANVAS_WIDGET",
+          widgetName: "MainContainer",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 1,
+          parentRowSpace: 1,
+          isLoading: false,
+          mobileTopRow: 0,
+          mobileBottomRow: 700,
+          mobileLeftColumn: 0,
+          mobileRightColumn: 640,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+          parentId: "4",
+          flexLayers: [
+            {
+              children: [{ id: "4", align: FlexLayerAlignment.Start }],
+            },
+          ],
+          children: ["4"],
+          positioning: Positioning.Vertical,
+          appPositioningType: AppPositioningTypes.AUTO,
+          useAutoLayout: true,
         },
       };
       const result = updateWidgetPositions(widgets, "3", true);
