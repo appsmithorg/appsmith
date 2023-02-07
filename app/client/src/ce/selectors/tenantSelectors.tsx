@@ -36,3 +36,6 @@ export const isValidLicense = () => {
 export const isTenantLoading = (state: AppState) => {
   return state.tenant?.isLoading;
 };
+
+export const getGoogleMapsApiKey = (state: AppState): string | undefined =>
+  state.tenant?.tenantConfiguration?.googleMapsKey as string | undefined;
