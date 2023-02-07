@@ -47,6 +47,16 @@ describe("setCallbackFunctionField", () => {
     expect(result).toEqual("Api1.run(() => showModal('Modal1'), () => setAlert('Success'));");
   });
 
+  it("should be able to set Dynamic bindings as argument", () => {
+    const value = "showAlert('hello', '');";
+
+    const message = "Button1.text";
+
+    const result = setCallbackFunctionField(value, message, 0, 2);
+
+    expect(result).toEqual("showAlert(Button1.text, '');");
+  });
+
   it("should be able to set empty string as argument", () => {
     const value = "appsmith.geolocation.getCurrentPosition(() => { console.log('hello'); });"
 
@@ -55,6 +65,27 @@ describe("setCallbackFunctionField", () => {
     const result = setCallbackFunctionField(value, callbackFunction, 0, 2);
 
     expect(result).toEqual("appsmith.geolocation.getCurrentPosition();");
+  });
+
+  it("should be able to set empty string as argument", () => {
+    const value = "Api1.run(() => showModal('Modal1'), () => {});";
+
+    const callbackFunction = "";
+
+    const result = setCallbackFunctionField(value, callbackFunction, 0, 2);
+
+    expect(result).toEqual("Api1.run('', () => {});");
+  });
+
+
+  it("should be able to set empty string as argument", () => {
+    const value = "showAlert('hello', '');";
+
+    const message = "";
+
+    const result = setCallbackFunctionField(value, message, 0, 2);
+
+    expect(result).toEqual("showAlert('', '');");
   });
 });
 

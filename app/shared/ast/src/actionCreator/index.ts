@@ -146,7 +146,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     let changedValue: string = currentValue;
     let changedValueCommentArray: Array<Comment> = [];
     let currentValueCommentArray: Array<Comment> = [];
-    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode | BinaryExpressionNode | CallExpressionNode | BlockStatementNode;
+    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode | BinaryExpressionNode | CallExpressionNode | BlockStatementNode | LiteralNode;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
@@ -174,49 +174,32 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     const changeValueAstWithComments = klona(attachCommentsToAst(changeValueAst, changedValueCommentArray));
     const currentValueAstWithComments = klona(attachCommentsToAst(ast, currentValueCommentArray));
 
-    simple(changeValueAstWithComments, {
-        ArrowFunctionExpression(node) {
-            if(isArrowFunctionExpression(node)) {
-                requiredNode = node;
-            }
-        },
-        MemberExpression(node) {
-            if (isMemberExpressionNode(node)) {
-                requiredNode = node;
-            }
-        },
-        BinaryExpression(node) {
-            if(isBinaryExpressionNode(node)) {
-                requiredNode = node;
-            }
-        },
-        CallExpression(node) {
-            if(isCallExpressionNode(node)) {
-                requiredNode = node;
-            }
-        },
-        // BlockStatement(node) {
-        //     if(isBlockStatementNode(node)) {
-        //         requiredNode = node;
-        //     }
-        // }
-    });
+    console.log(changeValueAstWithComments);
 
-    if (changeValue === "") {
-        requiredNode = changeValueAstWithComments;
+    const changeValueNodeFound = findNodeAt(changeValueAstWithComments, 0, undefined, (type) => type === "Program");
+
+    if (changeValueNodeFound) {
+        // @ts-ignore
+        requiredNode = changeValueNodeFound?.node?.body[0]?.expression || changeValueNodeFound.node;
+
     }
-
-    // const changeValueNodeFound = findNodeAt(changeValueAstWithComments, 0, undefined, (type, node) => true);
-
-    // if (changeValueNodeFound) {
-    //     // @ts-ignore
-    //     requiredNode = changeValueNodeFound.node;
-    // }
 
     const found = findNodeAt(currentValueAstWithComments, 0, undefined, (type, node) => isCallExpressionNode(node));
     // @ts-ignore
-    if(!!requiredNode && found) {
+    if(found) {
         const { node } = found;
+        // When there is an argument after the specified argument number, then only add empty string literal
+        // @ts-ignore
+        if (changeValue === "" && node.arguments[argNum + 1]) {
+            requiredNode = {
+                type: NodeTypes.Literal,
+                value: `${changeValue}`,
+                raw: `'${String.raw`${changeValue}`}'`,
+                start: 0,
+                end: 2,
+            };
+        }   
+
         // @ts-ignore
         if(node.arguments[argNum]) {
             // @ts-ignore
@@ -225,6 +208,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
             // @ts-ignore
             node.arguments.push(requiredNode);
         }
+        
         changedValue = generate(currentValueAstWithComments, {comments: true}).trim();
 
     }
@@ -478,14 +462,17 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
 
     simple(astWithComments, {
         CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments[argNum]) {
-                let argument = node.arguments[argNum];
-                if (argument) {
-                    requiredArgument = `${generate(argument, {comments: true})}`;
+            if (isCallExpressionNode(node)) {
+                if (node.arguments[argNum]) {
+                    let argument = node.arguments[argNum];
+                    if (argument) {
+                        requiredArgument = `${generate(argument, {comments: true})}`;
+                    }
+                }  else {
+                    // If argument doesn't exist, return empty string
+                    requiredArgument = "";
                 }
-            } else {
-                // If argument doesn't exist, return empty string
-                requiredArgument = "";
+    
             }
         },
     });

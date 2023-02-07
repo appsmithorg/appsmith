@@ -105,8 +105,8 @@ export const textSetter = (
   currentValue: string,
   argNum: number,
 ): string => {
-  const requiredValue = stringToJS(currentValue);
-  const changeValueWithoutBraces = stringToJS(changeValue);
+  const requiredValue = getCodeFromMoustache(currentValue);
+  const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
   let requiredChangeValue;
   if (changeValue.indexOf("{{") === -1) {
     // raw string values
@@ -198,7 +198,7 @@ export const callBackFieldSetter = (
   argNum: number,
 ): string => {
   const requiredValue = stringToJS(currentValue);
-  const requiredChangeValue = stringToJS(changeValue);
+  const requiredChangeValue = stringToJS(changeValue) || "() => {}";
   try {
     return `{{${setCallbackFunctionField(
       requiredValue,
