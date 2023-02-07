@@ -1,8 +1,13 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
 
-let testName: any;
+let repoName: any;
 describe("Git Bugs", function() {
+  before(() => {
+    _.homePage.NavigateToHome();
+    _.homePage.CreateNewWorkspace("GitBugs1 workspace");
+    _.homePage.CreateAppInWorkspace("GitBugs1 workspace");
+  });
 
   it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function() {
     const largeResponseApiUrl = "https://jsonplaceholder.typicode.com/users";
@@ -23,9 +28,8 @@ describe("Git Bugs", function() {
     _.dataSources.CreatePlugIn("PostgreSQL");
     _.dataSources.SaveDSFromDialog(false);
     _.agHelper.AssertElementVisible(_.gitSync._branchButton);
-    cy.get("@gitRepoName").then((repoName) => {
-      testName = repoName;
-      cy.log("testName is :"+ testName)
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
   });
 
@@ -50,11 +54,11 @@ describe("Git Bugs", function() {
     _.agHelper
       .GetText(_.locators._textWidget)
       .then(($qp) => expect($qp).to.eq("Yes"));
-    _.agHelper.ValidateURL("branch=" + testName); //Validate we are still in Git branch
+    _.agHelper.ValidateURL("branch=" + repoName); //Validate we are still in Git branch
     _.agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
   after(() => {
-    _.gitSync.DeleteTestGithubRepo(testName);
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });
