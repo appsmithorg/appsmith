@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
@@ -96,6 +97,7 @@ public class TenantServiceTest {
         license.setType(LicenseType.PAID);
         license.setKey(licenseKey);
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
+        license.setOrigin(LicenseOrigin.SELF_SERVE);
 
         // Mock CS response to get valid license
         Mockito.when(licenseValidator.licenseCheck(any()))
@@ -109,6 +111,7 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getActive()).isTrue();
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
+                    assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
                 .verifyComplete();
@@ -122,6 +125,7 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getActive()).isTrue();
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
+                    assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
                 .verifyComplete();

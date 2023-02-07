@@ -7,6 +7,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.LicenseValidator;
 import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -44,12 +46,15 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    private final TenantService tenantService;
+
     private boolean isRtsAccessible = false;
 
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
         // On startup, check the license key
+        // TODO update license for all tenants after multi-tenancy is introduced
         licenseValidator.check();
 
         Mono<Void> registrationAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)

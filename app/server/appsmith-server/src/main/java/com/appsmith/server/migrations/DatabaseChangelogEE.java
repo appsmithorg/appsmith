@@ -3,7 +3,10 @@ package com.appsmith.server.migrations;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
 import com.appsmith.external.models.Environment;
@@ -37,6 +40,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -368,5 +372,32 @@ public class DatabaseChangelogEE {
         mongoTemplate.updateMulti(invalidUsagePulseQuery, update, UsagePulse.class);
     }
 
+    /**
+     * Migration to move license key from env to DB under tenant configuration
+     * Discussion on why @Value is not supported in Mongock: https://github.com/mongock/mongock/discussions/525
+     * @param mongoTemplate
+     */
+    @ChangeSet(order = "013", id = "move-license-key-to-db", author = "")
+    public void moveLicenseKeyToDB(MongoTemplate mongoTemplate, @NonLockGuarded LicenseConfig licenseConfig) {
+
+        // Get default tenant as we only have single entry in tenant collection (before multi-tenancy is introduced)
+        Tenant tenant = mongoTemplate.findOne(new Query(), Tenant.class);
+        assert tenant != null;
+        TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration() == null
+                ? new TenantConfiguration()
+                : tenant.getTenantConfiguration();
+
+        if (tenantConfiguration.getLicense() == null || !StringUtils.hasText(tenantConfiguration.getLicense().getKey())) {
+                String licenseKey = licenseConfig.getLicenseKey();
+                TenantConfiguration.License license = new TenantConfiguration.License();
+                license.setActive(true);
+                license.setStatus(LicenseStatus.ACTIVE);
+                license.setKey(licenseKey);
+                license.setOrigin(LicenseOrigin.ENTERPRISE);
+                tenantConfiguration.setLicense(license);
+                tenant.setTenantConfiguration(tenantConfiguration);
+                mongoTemplate.save(tenant);
+        }
+    }
 
 }

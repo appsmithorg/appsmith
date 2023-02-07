@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.Url;
@@ -82,6 +83,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
         LicenseType type;
         Instant expiry;
         LicenseStatus status;
+        LicenseOrigin origin;
     }
 
 }
