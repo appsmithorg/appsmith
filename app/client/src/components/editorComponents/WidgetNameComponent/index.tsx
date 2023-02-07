@@ -303,6 +303,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       placement="top-start"
       popoverClassName="widget-name-popper"
       portalContainer={document.getElementById("widgets-editor") || undefined}
+      targetTagName="div"
       usePortal
     >
       {props.children}
