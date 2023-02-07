@@ -82,6 +82,8 @@ export class HomePage {
     "//span[text()='" + action + "']/ancestor::a";
   private _homeTab = ".t--apps-tab";
   private _templatesTab = ".t--templates-tab";
+  private _profileMenu = ".t--profile-menu";
+  private _signout = ".t--logout-icon";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -240,6 +242,14 @@ export class HomePage {
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
     cy.request("POST", "/api/v1/logout");
+    this.agHelper.Sleep(); //for logout to complete!
+  }
+
+  public Signout() {
+    this.NavigateToHome();
+    this.agHelper.GetNClick(this._profileMenu);
+    this.agHelper.GetNClick(this._signout);
+    this.agHelper.ValidateNetworkStatus("@postLogout")
     this.agHelper.Sleep(); //for logout to complete!
   }
 
