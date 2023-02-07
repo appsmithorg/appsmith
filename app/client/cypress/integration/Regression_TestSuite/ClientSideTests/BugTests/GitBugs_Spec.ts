@@ -5,8 +5,11 @@ let repoName: any;
 describe("Git Bugs", function() {
   before(() => {
     _.homePage.NavigateToHome();
-    _.homePage.CreateNewWorkspace("GitBugs1 workspace");
-    _.homePage.CreateAppInWorkspace("GitBugs1 workspace");
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("GitBugs" + uid);
+      _.homePage.CreateAppInWorkspace("GitBugs" + uid);
+    });
   });
 
   it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function() {
@@ -58,7 +61,7 @@ describe("Git Bugs", function() {
     _.agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
-  // it.only("1. Import application json and validate headers", () => {
+  // it.only("4. Import application json and validate headers", () => {
   //   _.homePage.NavigateToHome();
   //   _.homePage.ImportApp("DeleteGitRepos.json");
   //   _.deployMode.DeployApp();
