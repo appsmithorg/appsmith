@@ -775,3 +775,74 @@ Cypress.Commands.add("fillMySQLDatasourceEnvironmentDetailsStaging", () => {
     200,
   );
 });
+
+Cypress.Commands.add(
+  "fillMongoDBDatasourceEnvironmentDetails", () => {
+    cy.get(".cs-text:contains('Select a new field')").click({force:true});
+    cy.get("[data-cy='t--dropdown-option-Username']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Password']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Database Name']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-SSL Mode']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Connection Mode']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Connection Type']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Authentication Type']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Default Database Name']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Connection String URI']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Use Mongo Connection String URI']").click({force:true});
+
+
+
+    cy.xpath("//input[contains(@name,'host')]").clear().type(datasourceFormData["mongo-host"]);
+    cy.xpath("//input[contains(@name,'port')]").clear().type(datasourceFormData["mongo-port"]);
+    cy.get("[data-cy='database_name.active_env_value']").clear();
+    cy.get("[data-cy='database_name.active_env_value']").type(
+      datasourceFormData["mongo-databaseName"].concat("production"),
+    );
+    cy.get("[data-cy='username.active_env_value']").clear();
+    cy.get("[data-cy='username.active_env_value']").type(
+      datasourceFormData["mongo-username"],
+    );
+    cy.get("[data-cy='password.active_env_value']").clear().type(
+      datasourceFormData["mongo-password"],
+    );
+    cy.get("a:contains('Bind Values')").click({force: true});
+    // cy.wait("@updateEnvironments").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
+  }
+);
+
+Cypress.Commands.add(
+  "fillMongoDatasourceEnvironmentDetailsStaging", () => {
+    cy.xpath("//input[contains(@name,'host')]").type(datasourceFormData["mongo-host"]);
+    cy.xpath("//input[contains(@name,'port')]").type(datasourceFormData["mongo-port"]);
+    cy.get("[data-cy='username.active_env_value']").clear();
+    cy.get("[data-cy='username.active_env_value']").type(
+      datasourceFormData["mongo-username"],
+    );
+    cy.get("[data-cy='password.active_env_value']").type(
+      datasourceFormData["mongo-password"],
+    );
+    cy.get("[data-cy='database_name.active_env_value']").clear();
+    cy.get("[data-cy='database_name.active_env_value']").type(
+      datasourceFormData["mongo-databaseName"].concat("staging"),
+    );
+    cy.get("a:contains('Bind Values')").click({force: true});
+    // cy.wait("@updateEnvironments").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
+  }
+);
