@@ -1,7 +1,4 @@
-import {
-  FlexLayer,
-  LayerChild,
-} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import {
   FLEXBOX_PADDING,
   GridDefaults,
@@ -16,6 +13,8 @@ import {
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { AlignmentColumnInfo } from "./autoLayoutTypes";
+import { getWidgetWidth } from "./flexWidgetUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
   const container = widgets[containerId];
@@ -398,4 +397,34 @@ export function getFillWidgetLengthForLayer(
   }
   fillLength = (fillLength - hugLength) / (fillCount || 1);
   return fillLength;
+}
+
+export function getAlignmentColumnInfo(
+  widgets: CanvasWidgetsReduxState,
+  layer: FlexLayer,
+  isMobile: boolean,
+): AlignmentColumnInfo {
+  if (!layer)
+    return {
+      [FlexLayerAlignment.Start]: 0,
+      [FlexLayerAlignment.Center]: 0,
+      [FlexLayerAlignment.End]: 0,
+    };
+  let start = 0,
+    end = 0,
+    center = 0;
+  for (const child of layer.children) {
+    const widget = widgets[child.id];
+    if (!widget) continue;
+    if (child.align === FlexLayerAlignment.End)
+      end += getWidgetWidth(widget, isMobile);
+    else if (child.align === FlexLayerAlignment.Center)
+      center += getWidgetWidth(widget, isMobile);
+    else start += getWidgetWidth(widget, isMobile);
+  }
+  return {
+    [FlexLayerAlignment.Start]: start,
+    [FlexLayerAlignment.Center]: center,
+    [FlexLayerAlignment.End]: end,
+  };
 }
