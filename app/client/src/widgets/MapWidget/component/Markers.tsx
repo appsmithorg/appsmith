@@ -51,8 +51,8 @@ const Markers: React.FC<MarkersProps> = (props) => {
           onDragEnd={(e) => {
             if (e.latLng && e.latLng.lat() && e.latLng.lng()) {
               updateMarker(
-                Number(e.latLng?.lat()),
-                Number(e.latLng?.lng()),
+                Number(e.latLng.lat()),
+                Number(e.latLng.lng()),
                 index,
               );
             }
