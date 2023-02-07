@@ -214,8 +214,11 @@ init_keycloak() {
   export KC_DB
 
   if [[ $KC_DB == "postgres" ]]; then
-    # TODO: DB name should be a part of the URL, and not as a separate variable.
-    export KC_DB_URL="$APPSMITH_KEYCLOAK_DB_URL"
+    KC_DB_URL="$APPSMITH_KEYCLOAK_DB_URL"
+    if [[ $KC_DB_URL != jdbc:* ]]; then
+      KC_DB_URL="jdbc:postgresql://$KC_DB_URL"
+    fi
+    export KC_DB_URL
     export KC_DB_USERNAME="${APPSMITH_KEYCLOAK_DB_USERNAME-}"
     export KC_DB_PASSWORD="${APPSMITH_KEYCLOAK_DB_PASSWORD-}"
   fi
@@ -360,8 +363,9 @@ configure_supervisord() {
     fi
   fi
 
-  # copy keycloak configuration without any conditions.
-  cp "$SUPERVISORD_CONF_PATH/keycloak.conf" /etc/supervisor/conf.d/
+  if [[ ${APPSMITH_DISABLE_EMBEDDED_KEYCLOAK-0} != 1 ]]; then
+    cp "$SUPERVISORD_CONF_PATH/keycloak.conf" /etc/supervisor/conf.d/
+  fi
 }
 
 # This is a workaround to get Redis working on diffent memory pagesize
