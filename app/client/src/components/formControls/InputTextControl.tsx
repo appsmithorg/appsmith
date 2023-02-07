@@ -23,8 +23,9 @@ export const StyledInfo = styled.span`
 `;
 
 const FieldWrapper = styled.div`
-  width: 35vw;
   position: relative;
+  min-width: 380px;
+  max-width: 520px;
 `;
 
 const SecretDisplayIndicator = styled.input`
@@ -191,7 +192,6 @@ class InputTextControl extends BaseControl<InputControlProps> {
         return "text";
     }
   }
-
   getControlType(): ControlType {
     return "INPUT_TEXT";
   }
