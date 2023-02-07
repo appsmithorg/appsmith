@@ -162,7 +162,11 @@ public class NewActionServiceCEImplTest {
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                observationRegistry);
+
+        ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
     @BeforeEach
@@ -346,8 +350,8 @@ public class NewActionServiceCEImplTest {
         StepVerifier
                 .create(actionExecutionResultMono)
                 .assertNext(response -> {
-                    assertTrue(response.getIsExecutionSuccess());
                     assertTrue(response instanceof ActionExecutionResult);
+                    assertTrue(response.getIsExecutionSuccess());
                     assertEquals(mockResult.getBody().toString(), response.getBody().toString());
                 })
                 .verifyComplete();
@@ -396,8 +400,8 @@ public class NewActionServiceCEImplTest {
         StepVerifier
                 .create(actionExecutionResultMono)
                 .assertNext(response -> {
-                    assertTrue(response.getIsExecutionSuccess());
                     assertTrue(response instanceof ActionExecutionResult);
+                    assertTrue(response.getIsExecutionSuccess());
                     assertEquals(mockResult.getBody().toString(), response.getBody().toString());
                 })
                 .verifyComplete();

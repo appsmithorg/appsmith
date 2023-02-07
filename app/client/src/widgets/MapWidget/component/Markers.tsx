@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import React from "react";
 
 import Marker from "./Marker";
 import { MapComponentProps } from ".";
 
-type ClustererProps = {
+type MarkersProps = {
   map?: google.maps.Map;
 } & Pick<
   MapComponentProps,
@@ -16,7 +15,7 @@ type ClustererProps = {
   | "clickedMarkerCentered"
 >;
 
-const Clusterer: React.FC<ClustererProps> = (props) => {
+const Markers: React.FC<MarkersProps> = (props) => {
   const {
     clickedMarkerCentered,
     map,
@@ -26,24 +25,6 @@ const Clusterer: React.FC<ClustererProps> = (props) => {
     updateCenter,
     updateMarker,
   } = props;
-  const [markerClusterer, setMarkerClusterer] = useState<MarkerClusterer>();
-
-  // add marker clusterer on map
-  useEffect(() => {
-    if (!map) return;
-
-    setMarkerClusterer(
-      new MarkerClusterer({
-        map,
-      }),
-    );
-
-    return () => {
-      if (markerClusterer) {
-        markerClusterer.clearMarkers();
-      }
-    };
-  }, [map]);
 
   if (!Array.isArray(markers)) return null;
 
@@ -58,9 +39,8 @@ const Clusterer: React.FC<ClustererProps> = (props) => {
             selectedMarker?.lat === marker.lat &&
             selectedMarker?.long === marker.long
           }
-          key={index}
+          key={`marker-lat-${marker.lat}-long-${marker.long}}`}
           map={map}
-          markerClusterer={markerClusterer}
           onClick={() => {
             if (clickedMarkerCentered) {
               updateCenter(marker.lat, marker.long);
@@ -69,11 +49,13 @@ const Clusterer: React.FC<ClustererProps> = (props) => {
             selectMarker(marker.lat, marker.long, marker.title);
           }}
           onDragEnd={(e) => {
-            updateMarker(
-              Number(e.latLng?.lat()),
-              Number(e.latLng?.lng()),
-              index,
-            );
+            if (e.latLng && e.latLng.lat() && e.latLng.lng()) {
+              updateMarker(
+                Number(e.latLng.lat()),
+                Number(e.latLng.lng()),
+                index,
+              );
+            }
           }}
           position={{
             lat: marker.lat,
@@ -86,4 +68,4 @@ const Clusterer: React.FC<ClustererProps> = (props) => {
   );
 };
 
-export default Clusterer;
+export default Markers;
