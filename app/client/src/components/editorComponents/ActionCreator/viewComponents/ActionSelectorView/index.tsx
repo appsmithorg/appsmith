@@ -78,7 +78,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
       }}
       onSelect={set}
       optionTree={filteredOptions}
-      popoverClassName="!mt-0"
+      popoverClassName="action-selector-dropdown"
       position="bottom"
       selectedValue={fieldConfig.getter(value)}
       toggle={

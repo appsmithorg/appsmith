@@ -94,6 +94,10 @@ div.bp3-popover-arrow {
   margin-top: 8px !important;
 }
 
+.bp3-popover.bp3-minimal.action-selector-dropdown {
+  margin-top: 0px !important;
+}
+
 .layout-control.bp3-popover.bp3-minimal {
   margin-top: 8px !important;
 }
