@@ -88,17 +88,17 @@ describe("Tests for interval functions", () => {
     expect(stalker).toBeCalledWith(2);
   });
 
-  // it("It should have access to platform fns inside callbacks", async () => {
-  //   const showAlertMock = jest.fn();
-  //   //@ts-expect-error no types for this
-  //   self.showAlert = showAlertMock;
-  //   const interval = evalContext.setInterval(() => {
-  //     //@ts-expect-error no types for this
-  //     self.showAlert("Hello World");
-  //   }, 100);
-  //   await new Promise((resolve) => setTimeout(resolve, 200));
-  //   clearInterval(interval);
-  //   expect(showAlertMock).toBeCalledTimes(1);
-  //   expect(showAlertMock).toBeCalledWith("Hello World");
-  // });
+  it("It should have access to platform fns inside callbacks", async () => {
+    const showAlertMock = jest.fn();
+    //@ts-expect-error no types for this
+    self.showAlert = showAlertMock;
+    const interval = evalContext.setInterval(() => {
+      //@ts-expect-error no types for this
+      self.showAlert("Hello World");
+    }, 100);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    clearInterval(interval);
+    expect(showAlertMock).toBeCalledTimes(2);
+    expect(showAlertMock).toBeCalledWith("Hello World");
+  });
 });

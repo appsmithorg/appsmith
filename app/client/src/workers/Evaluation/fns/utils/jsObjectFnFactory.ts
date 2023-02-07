@@ -16,19 +16,9 @@ export interface JSExecutionData {
 }
 
 function saveExecutionData(name: string, data: unknown) {
-  let error;
-  try {
-    data = self.structuredClone(data);
-  } catch (e) {
-    data = undefined;
-    error = {
-      message: `Execution of ${name} returned an unserializable data`,
-    };
-  }
   TriggerEmitter.emit(BatchKey.process_batched_fn_execution, {
     name,
     data,
-    error,
   });
 }
 

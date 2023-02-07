@@ -91,12 +91,13 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
     JSExecutionErrors: Record<string, any>;
   }>(
     (acc, d: any) => {
-      const { data, error, name } = d;
-      if (error) {
-        acc.JSExecutionErrors[name] = error;
-        return acc;
-      } else {
-        acc.JSExecutionData[name] = data;
+      const { data, name } = d;
+      try {
+        acc.JSExecutionData[name] = self.structuredClone(data);
+      } catch (e) {
+        acc.JSExecutionErrors[name] = {
+          message: `Execution of ${name} returned an unserializable data`,
+        };
       }
       return acc;
     },
