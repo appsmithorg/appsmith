@@ -9,6 +9,18 @@ import {
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
 import { renderBodyCheckBoxCell } from "./SelectionCheckboxCell";
 
+const shouldHaveStickyModifierClass = (
+  columns: ReactTableColumnProps[],
+  cellIndex: number,
+) => {
+  return columns[cellIndex].sticky &&
+    cellIndex !== 0 &&
+    columns[cellIndex - 1].sticky === StickyType.RIGHT &&
+    columns[cellIndex - 1].isHidden
+    ? " sticky-right-modifier"
+    : "";
+};
+
 export const renderEmptyRows = (
   rowCount: number,
   columns: ReactTableColumnProps[],
@@ -47,14 +59,15 @@ export const renderEmptyRows = (
                 width?: string;
               } = {};
 
-              if (multiRowSelection) {
-                if (columns[cellIndex].sticky === StickyType.LEFT) {
-                  distanceFromEdge["left"] =
-                    cellIndex === 0
-                      ? MULTISELECT_CHECKBOX_WIDTH
-                      : MULTISELECT_CHECKBOX_WIDTH +
-                        columns[cellIndex].columnProperties.width;
-                }
+              if (
+                multiRowSelection &&
+                columns[cellIndex].sticky === StickyType.LEFT
+              ) {
+                distanceFromEdge["left"] =
+                  cellIndex === 0
+                    ? MULTISELECT_CHECKBOX_WIDTH
+                    : MULTISELECT_CHECKBOX_WIDTH +
+                      columns[cellIndex].columnProperties.width;
               }
               return (
                 <div
@@ -62,14 +75,7 @@ export const renderEmptyRows = (
                   className={
                     columns[cellIndex].isHidden
                       ? "td hidden-cell"
-                      : `td${
-                          columns[cellIndex].sticky &&
-                          cellIndex !== 0 &&
-                          columns[cellIndex - 1].sticky === StickyType.RIGHT &&
-                          columns[cellIndex - 1].isHidden
-                            ? " sticky-right-modifier"
-                            : ""
-                        }`
+                      : `td${shouldHaveStickyModifierClass(columns, cellIndex)}`
                   }
                   key={cellProps.key}
                   style={{ ...cellProps.style, ...distanceFromEdge }}
@@ -149,14 +155,7 @@ export const renderEmptyRows = (
                 className={
                   column && column.isHidden
                     ? "td hidden-cell"
-                    : `td${
-                        column?.sticky &&
-                        colIndex !== 0 &&
-                        columns[colIndex - 1].sticky === StickyType.RIGHT &&
-                        columns[colIndex - 1].isHidden
-                          ? " sticky-right-modifier"
-                          : ""
-                      }`
+                    : `td${shouldHaveStickyModifierClass(columns, colIndex)}`
                 }
                 {...stickyAttributes}
                 key={colIndex}

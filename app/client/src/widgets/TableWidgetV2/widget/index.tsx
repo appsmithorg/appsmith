@@ -50,7 +50,7 @@ import {
   OnColumnEventArgs,
   ORIGINAL_INDEX_KEY,
   TableWidgetProps,
-  LOCAL_TABLE_COLUMN_ORDER,
+  TABLE_COLUMN_ORDER_KEY,
   TransientDataPayload,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
@@ -1050,7 +1050,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   ) => {
     const widgetId = this.props.widgetId;
     const localTableWidgetColumnOrder = localStorage.getItem(
-      LOCAL_TABLE_COLUMN_ORDER,
+      TABLE_COLUMN_ORDER_KEY,
     );
     let newTableColumnOrder;
 
@@ -1096,7 +1096,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       newTableColumnOrder = tableWidgetColumnOrder;
     }
     localStorage.setItem(
-      LOCAL_TABLE_COLUMN_ORDER,
+      TABLE_COLUMN_ORDER_KEY,
       JSON.stringify(newTableColumnOrder),
     );
   };

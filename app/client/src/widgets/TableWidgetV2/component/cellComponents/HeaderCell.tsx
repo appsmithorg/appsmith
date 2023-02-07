@@ -165,6 +165,7 @@ export function HeaderCell(props: {
         props.column.sticky !== value ? value : StickyType.NONE,
       );
   };
+
   return (
     <div
       {...headerProps}

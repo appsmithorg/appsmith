@@ -19,7 +19,7 @@ import {
   ColumnTypes,
   DEFAULT_BUTTON_COLOR,
   DEFAULT_COLUMN_WIDTH,
-  LOCAL_TABLE_COLUMN_ORDER,
+  TABLE_COLUMN_ORDER_KEY,
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
@@ -761,27 +761,21 @@ export const generateLocalNewColumnOrderFromStickyValue = (
   newColumnOrder = without(newColumnOrder, columnName);
 
   let columnIndex = -1;
-  if (sticky === StickyType.LEFT) {
-    if (leftOrder) {
-      columnIndex = leftOrder.length;
-    }
-  } else if (sticky === StickyType.RIGHT) {
-    if (rightOrder) {
-      if (rightOrder.length !== 0) {
-        columnIndex = columnOrder.indexOf(rightOrder[0]) - 1;
-      } else {
-        columnIndex = columnOrder.length - 1;
-      }
-    }
+  if (sticky === StickyType.LEFT && leftOrder) {
+    columnIndex = leftOrder.length;
+  } else if (sticky === StickyType.RIGHT && rightOrder) {
+    columnIndex =
+      rightOrder.length !== 0
+        ? columnOrder.indexOf(rightOrder[0]) - 1
+        : columnOrder.length - 1;
   } else {
     if (leftOrder?.includes(columnName)) {
       columnIndex = leftOrder.length - 1;
     } else if (rightOrder?.includes(columnName)) {
-      if (rightOrder.length !== 0) {
-        columnIndex = columnOrder.indexOf(rightOrder[0]);
-      } else {
-        columnIndex = columnOrder.length - 1;
-      }
+      columnIndex =
+        rightOrder.length !== 0
+          ? columnOrder.indexOf(rightOrder[0])
+          : columnOrder.length - 1;
     }
   }
   newColumnOrder.splice(columnIndex, 0, columnName);
@@ -859,12 +853,12 @@ export const getSourceDataAndCaluclateKeysForEventAutoComplete = (
 
 export const deleteLocalTableColumnOrderByWidgetId = (widgetId: string) => {
   try {
-    const localData = localStorage.getItem(LOCAL_TABLE_COLUMN_ORDER);
+    const localData = localStorage.getItem(TABLE_COLUMN_ORDER_KEY);
     if (localData) {
       const localColumnOrder = JSON.parse(localData);
       delete localColumnOrder[widgetId];
       localStorage.setItem(
-        LOCAL_TABLE_COLUMN_ORDER,
+        TABLE_COLUMN_ORDER_KEY,
         JSON.stringify(localColumnOrder),
       );
     }
@@ -926,7 +920,7 @@ export const updateAndSyncTableLocalColumnOrders = (
 
 export const getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
   const localTableWidgetColumnOrder = localStorage.getItem(
-    LOCAL_TABLE_COLUMN_ORDER,
+    TABLE_COLUMN_ORDER_KEY,
   );
   if (localTableWidgetColumnOrder) {
     try {

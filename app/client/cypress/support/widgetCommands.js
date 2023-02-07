@@ -14,7 +14,7 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
-import { LOCAL_TABLE_COLUMN_ORDER } from "./Constants";
+import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
 
 let pageidcopy = " ";
 
@@ -1767,7 +1767,7 @@ Cypress.Commands.add("readLocalColumnOrder", (columnOrderKey) => {
 
 Cypress.Commands.add(
   "checkLocalColumnOrder",
-  (expectedOrder, direction, columnOrderKey = LOCAL_TABLE_COLUMN_ORDER) => {
+  (expectedOrder, direction, columnOrderKey = TABLE_COLUMN_ORDER_KEY) => {
     cy.wait(1000);
     cy.readLocalColumnOrder(columnOrderKey).then((tableWidgetOrder) => {
       if (tableWidgetOrder) {
