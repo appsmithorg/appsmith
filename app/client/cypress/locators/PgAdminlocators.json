@@ -3,6 +3,7 @@
     "addNewtable":"//span[text()='New Table']",
     "addTablename":"(//div[@class='bp3-input-group']//input)[2]",
     "addColumn":"//span[text()='Add Column']/parent::button/parent::div",
+    "addColumnName":"div[data-testid='input-container']",
     "textField":"//span[text()='Text']",
     "selectDatatype":"//div[text()='Varchar']",
     "submitButton":"//span[text()='Submit']",

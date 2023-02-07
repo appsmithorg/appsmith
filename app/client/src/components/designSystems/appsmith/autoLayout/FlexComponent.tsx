@@ -124,6 +124,7 @@ export function FlexComponent(props: AutoLayoutProps) {
   return (
     <FlexWidget
       className={className}
+      id={"auto_" + props.widgetId}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
       style={flexComponentStyle}
