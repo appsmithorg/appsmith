@@ -22,7 +22,6 @@ describe("test fixed to Auto Conversion methods", () => {
     },
     {
       widgetName: "Button3",
-
       topRow: 0.0,
       bottomRow: 4.0,
       type: "BUTTON_WIDGET",
