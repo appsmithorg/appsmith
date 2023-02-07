@@ -758,8 +758,6 @@ public class PageServiceTest {
 
         final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
 
-        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
-
         // Save actionCollection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testCollection1");

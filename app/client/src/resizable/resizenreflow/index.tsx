@@ -48,7 +48,7 @@ const resizeOutline = 1;
 export const RESIZE_BORDER_BUFFER =
   resizeBorderPadding + resizeBorder + resizeBoxShadow + resizeOutline;
 
-const ResizeWrapper = styled(animated.div)<{
+export const ResizeWrapper = styled(animated.div)<{
   $prevents: boolean;
   isHovered: boolean;
   showBoundaries: boolean;
@@ -459,7 +459,9 @@ export function ReflowResizable(props: ResizableProps) {
 
   if (
     !(
-      isAutoHeight && widget.rightColumn === GridDefaults.DEFAULT_GRID_COLUMNS
+      isAutoHeight &&
+      widget.leftColumn !== 0 &&
+      widget.rightColumn === GridDefaults.DEFAULT_GRID_COLUMNS
     ) &&
     props.handles.right
   ) {

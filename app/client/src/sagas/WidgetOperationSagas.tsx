@@ -80,6 +80,7 @@ import { validateProperty } from "./EvaluationsSaga";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -105,12 +106,14 @@ import {
   collisionCheckPostReflow,
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
+import WidgetFactory from "utils/WidgetFactory";
 import {
   addChildToPastedFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
 } from "../utils/autoLayout/AutoLayoutUtils";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
+import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
@@ -149,11 +152,8 @@ import {
   purgeOrphanedDynamicPaths,
   WIDGET_PASTE_PADDING,
 } from "./WidgetOperationUtils";
-import { SelectionRequestType } from "./WidgetSelectUtils";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
-import WidgetFactory from "utils/WidgetFactory";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1648,7 +1648,7 @@ function* pasteWidgetSaga(
            */
           if (widget.parentId) {
             const pastingIntoWidget = widgets[widget.parentId];
-            if (isStack(widgets, pastingIntoWidget)) {
+            if (pastingIntoWidget && isStack(widgets, pastingIntoWidget)) {
               if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
                 widgets = pasteWidgetInFlexLayers(
                   widgets,

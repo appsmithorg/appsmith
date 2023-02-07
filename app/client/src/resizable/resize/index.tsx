@@ -1,21 +1,13 @@
-import React, { ReactNode, useState, useEffect, forwardRef, Ref } from "react";
-import styled, { StyledComponent } from "styled-components";
+import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
+import React, { ReactNode, useEffect, useState } from "react";
+import { Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
-import { Spring, animated } from "react-spring";
+import { ReflowDirection } from "reflow/reflowTypes";
+import { ResizeWrapper } from "resizable/resizenreflow";
+import { StyledComponent } from "styled-components";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { ReflowDirection } from "reflow/reflowTypes";
-import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
-
-const ResizeWrapper = styled(animated.div)<{ $prevents: boolean }>`
-  display: block;
-  & {
-    * {
-      pointer-events: ${(props) => !props.$prevents && "none"};
-    }
-  }
-`;
 
 const getSnappedValues = (
   x: number,
@@ -31,6 +23,7 @@ const getSnappedValues = (
 type ResizableHandleProps = {
   allowResize: boolean;
   showLightBorder?: boolean;
+  isHovered: boolean;
   disableDot: boolean;
   dragCallback: (x: number, y: number) => void;
   component: StyledComponent<"div", Record<string, unknown>>;
@@ -64,8 +57,8 @@ function ResizableHandle(props: ResizableHandleProps) {
   const propsToPass = {
     ...bind(),
     showAsBorder: !props.allowResize,
-    showLightBorder: props.showLightBorder,
     disableDot: props.disableDot,
+    isHovered: props.isHovered,
   };
 
   return <props.component {...propsToPass} />;
@@ -100,22 +93,19 @@ type ResizableProps = {
   ) => boolean;
   className?: string;
   resizeDualSides?: boolean;
+  widgetId: string;
   showLightBorder?: boolean;
   zWidgetType?: string;
-  zWidgetId?: string;
 };
 
-export const Resizable = forwardRef(function Resizable(
-  props: ResizableProps,
-  ref: Ref<HTMLDivElement>,
-) {
+export const Resizable = function Resizable(props: ResizableProps) {
   // Performance tracking start
   const sentryPerfTags = props.zWidgetType
     ? [{ name: "widget_type", value: props.zWidgetType }]
     : [];
   PerformanceTracker.startTracking(
     PerformanceTransactionName.SHOW_RESIZE_HANDLES,
-    { widgetId: props.zWidgetId },
+    { widgetId: props.widgetId },
     true,
     sentryPerfTags,
   );
@@ -299,25 +289,27 @@ export const Resizable = forwardRef(function Resizable(
       },
     );
   };
-
+  const showResizeBoundary = props.enableHorizontalResize;
   const renderHandles = handles.map((handle, index) => {
-    const disableDot = !isHandleResizeAllowed(
-      props.enableHorizontalResize,
-      props.enableVerticalResize,
-      handle.handleDirection,
-    );
+    const disableDot =
+      !showResizeBoundary ||
+      !isHandleResizeAllowed(
+        props.enableHorizontalResize,
+        props.enableVerticalResize,
+        handle.handleDirection,
+      );
     return (
       <ResizableHandle
         {...handle}
         allowResize={props.allowResize}
         disableDot={disableDot}
+        isHovered={showResizeBoundary}
         key={index}
         onStart={() => {
           togglePointerEvents(false);
           props.onStart();
         }}
         onStop={onResizeStop}
-        showLightBorder={props.showLightBorder}
         snapGrid={props.snapGrid}
       />
     );
@@ -345,7 +337,8 @@ export const Resizable = forwardRef(function Resizable(
         <ResizeWrapper
           $prevents={pointerEvents}
           className={props.className}
-          ref={ref}
+          isHovered={showResizeBoundary}
+          showBoundaries={showResizeBoundary}
           style={_props}
         >
           {props.children}
@@ -354,6 +347,6 @@ export const Resizable = forwardRef(function Resizable(
       )}
     </Spring>
   );
-});
+};
 
 export default Resizable;

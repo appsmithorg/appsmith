@@ -5,10 +5,12 @@ import { Layers } from "constants/Layers";
 import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { RESIZE_BORDER_BUFFER } from "resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
+  getCurrentAppPositioningType,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -80,6 +82,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
+  const isAutoLayout =
+    useSelector(getCurrentAppPositioningType) === AppPositioningTypes.AUTO;
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
   );
@@ -143,6 +147,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidgets &&
     selectedWidgets.length > 1 &&
     selectedWidgets.includes(props.widgetId);
+  // True when any widget is dragging or resizing, including this one
+  const isResizingOrDragging = !!isResizing || !!isDragging;
   const shouldShowWidgetName = () => {
     return (
       !isResizingOrDragging &&
@@ -174,7 +180,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     propertyPaneWidgetId === props.widgetId
   )
     currentActivity = Activities.ACTIVE;
-  const targetNode: any = document.getElementById(`${props.widgetId}`);
+  const targetNode: any = document.getElementById(
+    `${isAutoLayout ? "auto_" : ""}${props.widgetId}`,
+  );
 
   // This state tells us to disable dragging,
   // This is usually true when widgets themselves implement drag/drop
@@ -183,8 +191,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
 
-  // True when any widget is dragging or resizing, including this one
-  const isResizingOrDragging = !!isResizing || !!isDragging;
   const allowDrag = canDrag(
     isResizingOrDragging,
     isDraggingDisabled,
@@ -297,6 +303,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       placement="top-start"
       popoverClassName="widget-name-popper"
       portalContainer={document.getElementById("widgets-editor") || undefined}
+      targetTagName="div"
       usePortal
     >
       {props.children}

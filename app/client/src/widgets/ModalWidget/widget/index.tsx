@@ -220,22 +220,9 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   makeModalComponent(content: ReactNode, isEditMode: boolean) {
     const artBoard = document.getElementById("art-board");
     const portalContainer = isEditMode && artBoard ? artBoard : undefined;
-    const {
-      focusedWidget,
-      isDragging,
-      isSnipingMode,
-      selectedWidget,
-      selectedWidgets,
-      widgetId,
-    } = this.props;
+    const { isPreviewMode, isSnipingMode } = this.props;
 
-    const isWidgetFocused =
-      focusedWidget === widgetId ||
-      selectedWidget === widgetId ||
-      selectedWidgets.includes(widgetId);
-
-    const isResizeEnabled =
-      !isDragging && isWidgetFocused && isEditMode && !isSnipingMode;
+    const isResizeEnabled = isEditMode && !isSnipingMode && !isPreviewMode;
 
     return (
       <ModalComponent
@@ -325,11 +312,8 @@ const mapStateToProps = (state: AppState) => {
   const props = {
     mainCanvasWidth: getCanvasWidth(state),
     isSnipingMode: snipingModeSelector(state),
-    selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,
-    selectedWidgets: state.ui.widgetDragResize.selectedWidgets,
-    focusedWidget: state.ui.widgetDragResize.focusedWidget,
-    isDragging: state.ui.widgetDragResize.isDragging,
     isResizing: state.ui.widgetDragResize.isResizing,
+    isPreviewMode: state.ui.editor.isPreviewMode,
   };
   return props;
 };
