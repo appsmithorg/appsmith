@@ -9,10 +9,6 @@ WORKDIR /opt/appsmith
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
-RUN mkdir -p /tmp/keycloak /opt/keycloak
-
-COPY ./app/keycloak-docker-config/launch.sh /tmp/keycloak/launch.sh
-
 # Update APT packages - Base Layer
 RUN apt-get update \
   && apt-get upgrade --yes \
@@ -20,6 +16,7 @@ RUN apt-get update \
     supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
     software-properties-common gettext \
     python3-pip python-setuptools git ca-certificates-java \
+    gawk \
   && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
   && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
   && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
@@ -35,13 +32,9 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
   && rm -rf /var/lib/apt/lists/*
 
 # Untar & install keycloak - Service Layer
-RUN curl --location --output /tmp/keycloak/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/16.1.1/keycloak-16.1.1.tar.gz \
-    && cd /tmp/keycloak \
-    && tar -C /opt/keycloak -zxvf keycloak.tar.gz --strip-components 1 \
-    && mkdir -p /etc/keycloak \
-    && cp /tmp/keycloak/launch.sh /opt/keycloak/bin/ \
-    && chmod +x /opt/keycloak/bin/launch.sh \
-    && chmod +x /opt/keycloak/bin/standalone.sh
+RUN mkdir -p /opt/keycloak/data \
+  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/20.0.3/keycloak-20.0.3.tar.gz \
+  && tar -C /opt/keycloak -zxvf /tmp/keycloak.tar.gz --strip-components 1
 
 # Clean up cache file - Service layer
 RUN rm -rf \
@@ -79,9 +72,6 @@ COPY ./app/rts/package.json ./app/rts/dist rts/
 # Nginx & MongoDB config template - Configuration layer
 COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/docker.env.sh \
-  ./deploy/docker/templates/keycloak-standalone.xml \
-  ./deploy/docker/templates/postgres-module.xml \
-  ./deploy/docker/templates/postgresql-42.2.20.jar \
   templates/
 
 # Add bootstrapfile
