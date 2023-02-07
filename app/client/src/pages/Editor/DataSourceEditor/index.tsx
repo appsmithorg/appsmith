@@ -307,7 +307,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   componentWillUnmount() {
     this.props.discardTempDatasource();
     this.props.deleteTempDSFromDraft();
-    this.props?.toggleDatasourceViewMode(true);
     !!this.state.unblock && this.state.unblock();
     this.props.resetDefaultKeyValPairFlag();
   }
