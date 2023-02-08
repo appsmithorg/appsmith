@@ -400,4 +400,21 @@ public class DatabaseChangelogEE {
         }
     }
 
+    @ChangeSet(order = "014", id = "update-license-status-for-invalid-keys", author = "")
+    public void updateLicenseStatus(MongoTemplate mongoTemplate) {
+
+        // Get default tenant as we only have single entry in tenant collection (before multi-tenancy is introduced)
+        Tenant tenant = mongoTemplate.findOne(new Query(), Tenant.class);
+        assert tenant != null;
+        TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+
+        if (tenantConfiguration != null
+            && tenantConfiguration.getLicense() != null
+            && !StringUtils.hasText(tenantConfiguration.getLicense().getKey())) {
+
+            tenantConfiguration.setLicense(new TenantConfiguration.License());
+            mongoTemplate.save(tenant);
+        }
+    }
+
 }
