@@ -14,7 +14,6 @@ import {
   BUILDER_PATCH_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
-  LICENSE_CHECK_PATH,
   PROFILE,
   SETUP,
   SIGNUP_SUCCESS_URL,
@@ -68,7 +67,6 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
-import { Spinner } from "design-system-old";
 
 /*
     We use this polyfill to show emoji flags
@@ -135,7 +133,6 @@ export function Routes() {
        */}
       <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
       <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
-      <SentryRoute component={Spinner} path={LICENSE_CHECK_PATH} />
       <SentryRoute component={PageNotFound} />
     </Switch>
   );
