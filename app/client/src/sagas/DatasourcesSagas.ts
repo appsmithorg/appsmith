@@ -1136,7 +1136,7 @@ function* initializeFormWithDefaults(
       getFormValues(DATASOURCE_REST_API_FORM),
     );
     const formData: Datasource = yield select(
-      getFormValues(DATASOURCE_REST_API_FORM),
+      getFormValues(DATASOURCE_DB_FORM),
     );
 
     const formDataObj: Datasource =

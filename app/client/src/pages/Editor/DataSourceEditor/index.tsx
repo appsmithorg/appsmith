@@ -210,7 +210,6 @@ export interface DatasourcePaneFunctions {
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
   createTempDatasource: (data: any) => void;
   resetDefaultKeyValPairFlag: () => void;
-  toggleDatasourceViewMode: (newMode: boolean) => void;
   initializeFormWithDefaults: (pluginType: string) => void;
 }
 
@@ -556,8 +555,6 @@ const mapDispatchToProps = (
   resetDefaultKeyValPairFlag: () => dispatch(resetDefaultKeyValPairFlag()),
   initializeFormWithDefaults: (pluginType: string) =>
     dispatch(initializeDatasourceFormDefaults(pluginType)),
-  toggleDatasourceViewMode: (newMode: boolean) =>
-    dispatch(setDatasourceViewMode(newMode)),
 });
 
 export default connect(
