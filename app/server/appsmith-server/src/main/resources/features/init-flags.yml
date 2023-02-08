@@ -116,3 +116,12 @@ ff4j:
         param:
           - name: emails
             value: usage@appsmith.com,usage1@appsmith.com
+
+    - uid: LAZY_CANVAS_RENDERING
+      enable: true
+      description: Enable Canvas to lazily render widgets below the fold
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
