@@ -133,6 +133,9 @@ const getJsObjectChildren = (
     let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       peekData[jsChild.name] = function() {}; // can use new Function to parse string
+      if (jsAction.data?.[jsChild.id] && jsChild.executeOnLoad) {
+        (peekData[jsChild.name] as any).data = jsAction.data[jsChild.id];
+      }
       return {
         name: `${jsAction.config.name}.${jsChild.name}`,
         key: jsChild.name,
@@ -144,7 +147,21 @@ const getJsObjectChildren = (
           functionName: jsChild.name,
         }),
         navigable: true,
-        children: {},
+        children:
+          jsAction.data?.[jsChild.id] && jsChild.executeOnLoad
+            ? {
+                ["data" as string]: {
+                  name: `${jsAction.config.name}.${jsChild.name}.data`,
+                  key: jsChild.name + ".data",
+                  id: `${jsAction.config.name}.${jsChild.name}.data`,
+                  type: ENTITY_TYPE.JSACTION,
+                  url: undefined,
+                  children: {},
+                  navigable: false,
+                  peekable: true,
+                },
+              }
+            : {},
         peekable: true,
       };
     });

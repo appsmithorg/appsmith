@@ -58,7 +58,11 @@ export const entityMarker: MarkHelper = (
 ) => {
   editor
     .getAllMarks()
-    .filter((marker) => marker.className === NAVIGATION_CLASSNAME)
+    .filter(
+      (marker) =>
+        marker.className === NAVIGATION_CLASSNAME ||
+        marker.className === PEEKABLE_CLASSNAME,
+    )
     .forEach((marker) => marker.clear());
 
   editor.eachLine((line: CodeMirror.LineHandle) => {

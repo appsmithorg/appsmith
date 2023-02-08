@@ -124,10 +124,11 @@ import {
 import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
-import { Portal } from "@blueprintjs/core";
-import ReactJson from "react-json-view";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import styled from "styled-components";
+import {
+  PeekOverlayPopUp,
+  PeekOverlayStateProps,
+} from "./PeekOverlayPopup/PeekOverlayPopup";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -221,15 +222,7 @@ type State = {
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
   ctrlPressed: boolean;
-  peekOverlayProps:
-    | {
-        name: string;
-        position: DOMRect;
-        textWidth: number;
-        data: unknown;
-        dataType: string;
-      }
-    | undefined;
+  peekOverlayProps: PeekOverlayStateProps | undefined;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -249,19 +242,6 @@ class CodeEditor extends Component<Props, State> {
   hinters: Hinter[] = [];
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
-  reactJsonProps = {
-    name: null,
-    enableClipboard: false,
-    displayDataTypes: false,
-    displayArrayKey: false,
-    quotesOnKeys: false,
-    style: {
-      fontSize: "10px",
-    },
-    collapsed: 1,
-    indentWidth: 2,
-    collapseStringsAfterLength: 30,
-  };
   private editorWrapperRef = React.createRef<HTMLDivElement>();
 
   constructor(props: Props) {
@@ -552,7 +532,6 @@ class CodeEditor extends Component<Props, State> {
 
   debouncedPeekHide = debounce(() => this.peekHide(), 200);
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   peekHide = () =>
     this.setState({
       peekOverlayProps: undefined,
@@ -569,11 +548,7 @@ class CodeEditor extends Component<Props, State> {
       if (peekableAttribute) {
         const paths = peekableAttribute.split(".");
         if (paths.length) {
-          const propertyAccessor =
-            paths.length > 1
-              ? "peekData." +
-                paths.slice(1).reduce((prev, cur) => prev + cur, "")
-              : "peekData";
+          const propertyAccessor = ["peekData", ...paths.slice(1)];
           this.debouncedPeek(
             peekableAttribute,
             tokenElementPosition,
@@ -1173,69 +1148,6 @@ class CodeEditor extends Component<Props, State> {
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!dataTreePath));
 
-    const JsonWrapper = styled.div`
-      .node-ellipsis,
-      .function-collapsed span:nth-child(2),
-      .string-value span {
-        font-size: 10px !important;
-      }
-      .icon-container {
-        width: 10px !important;
-        height: 8px !important;
-        svg {
-          color: var(--appsmith-color-black-600) !important;
-        }
-      }
-      .pushed-content.object-container {
-        .object-content {
-          .variable-row {
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-            .variable-value div {
-              text-transform: lowercase;
-              font-size: 10px !important;
-              padding-top: 0 !important;
-              padding-bottom: 0 !important;
-            }
-          }
-          .object-key-val {
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-          }
-        }
-      }
-
-      .rjv-function-container {
-        pointer-events: none;
-        font-weight: normal !important;
-        .function-collapsed {
-          font-weight: normal !important;
-          span:nth-child(1) {
-            display: none;
-          }
-          span:nth-child(2) {
-            color: #393939 !important;
-          }
-        }
-      }
-      div:has(.rjv-function-container) {
-        cursor: default !important;
-      }
-
-      // .object-key-val:not(:has(.pushed-content.object-container)) .object-size {
-      //   display: none !important;
-      // }
-
-      // .object-key-val:has(.pushed-content.object-container
-      //     > .object-content
-      //     > .variable-row
-      //     > span
-      //     > .object-key)
-      //   .object-size {
-      //   display: none !important;
-      // }
-    `;
-
     return (
       <DynamicAutocompleteInputWrapper
         className="t--code-editor-wrapper"
@@ -1298,80 +1210,11 @@ class CodeEditor extends Component<Props, State> {
             size={size}
           >
             {this.state.peekOverlayProps && (
-              <Portal>
-                <div
-                  onMouseEnter={() => this.debouncedPeekHide.cancel()}
-                  onMouseLeave={() => this.debouncedPeekHide()}
-                  style={{
-                    position: "absolute",
-                    height: "152px", // +2 px to accomodate scroll bar
-                    width: "300px",
-                    backgroundColor: "white",
-                    boxShadow: "0px 0px 10px #0000001A",
-                    left:
-                      this.state.peekOverlayProps.position.left +
-                      this.state.peekOverlayProps.position.width -
-                      300 +
-                      "px",
-                    top: this.state.peekOverlayProps.position.top - 150 + "px",
-                    zIndex: 2,
-                  }}
-                >
-                  <div
-                    className="first-letter:uppercase"
-                    style={{
-                      height: "25px",
-                      color: "var(--appsmith-color-black-700)",
-                      padding: "4px 0px 4px 12px",
-                      fontSize: "10px",
-                    }}
-                  >
-                    {this.state.peekOverlayProps.dataType === "object"
-                      ? Array.isArray(this.state.peekOverlayProps.data)
-                        ? "array"
-                        : "object"
-                      : this.state.peekOverlayProps.dataType}
-                  </div>
-                  <div>
-                    {this.state.peekOverlayProps.dataType === "object" && (
-                      <JsonWrapper
-                        style={{
-                          height: "125px",
-                          overflowY: "auto",
-                        }}
-                      >
-                        <ReactJson
-                          src={this.state.peekOverlayProps.data}
-                          {...this.reactJsonProps}
-                        />
-                      </JsonWrapper>
-                    )}
-                    {this.state.peekOverlayProps.dataType === "function" && (
-                      <div
-                        style={{
-                          padding: "4px 0px 4px 12px",
-                          fontSize: "10px",
-                        }}
-                      >
-                        {(this.state.peekOverlayProps.data as any).toString()}
-                      </div>
-                    )}
-                    {this.state.peekOverlayProps.dataType !== "object" &&
-                      this.state.peekOverlayProps.dataType !== "function" && (
-                        <div
-                          style={{
-                            padding: "4px 0px 4px 12px",
-                            fontSize: "10px",
-                          }}
-                        >
-                          {(this.state.peekOverlayProps
-                            .data as any)?.toString() ??
-                            this.state.peekOverlayProps.dataType}
-                        </div>
-                      )}
-                  </div>
-                </div>
-              </Portal>
+              <PeekOverlayPopUp
+                onMouseEnter={() => this.debouncedPeekHide.cancel()}
+                onMouseLeave={() => this.debouncedPeekHide()}
+                {...this.state.peekOverlayProps}
+              />
             )}
             {this.props.leftIcon && (
               <IconContainer>{this.props.leftIcon}</IconContainer>
