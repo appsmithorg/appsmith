@@ -1,6 +1,5 @@
 import React from "react";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { Message, Severity } from "entities/AppsmithConsole";
+import { Severity } from "entities/AppsmithConsole";
 
 export default function LogTimeStamp(props: {
   timestamp: string;
