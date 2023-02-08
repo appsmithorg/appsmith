@@ -5,7 +5,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 describe("List widget v2 onItemClick", () => {
-  it("1. List widget V2 with onRowCLick", () => {
+  it("1. List widget V2 with onItemClick", () => {
     cy.dragAndDropToCanvas("listwidgetv2", {
       x: 300,
       y: 300,
@@ -24,23 +24,32 @@ describe("List widget v2 onItemClick", () => {
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Blue_0");
-    cy.wait(5000);
+    cy.get(commonlocators.toastBody)
+      .first()
+      .click();
+    cy.wait(300);
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(1)
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Green_1");
-    cy.wait(5000);
+    cy.get(commonlocators.toastBody)
+      .first()
+      .click();
+    cy.wait(300);
 
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(2)
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Red_2");
-    cy.wait(5000);
+    cy.get(commonlocators.toastBody)
+      .first()
+      .click();
+    cy.wait(300);
   });
 
-  it("2. List widget V2 with onRowCLick shouldn't be triggered when child widget is clicked", () => {
+  it("2. List widget V2 with onItemClick shouldn't be triggered when child widget is clicked", () => {
     cy.get(widgetSelector("Image1"))
       .first()
       .click({ force: true });
