@@ -408,6 +408,7 @@ class CodeEditor extends Component<Props, State> {
     }
     window.addEventListener("keydown", this.handleKeydown);
     window.addEventListener("keyup", this.handleKeyUp);
+    window.addEventListener("wheel", this.peekHide);
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
@@ -603,6 +604,7 @@ class CodeEditor extends Component<Props, State> {
 
     window.removeEventListener("keydown", this.handleKeydown);
     window.removeEventListener("keyup", this.handleKeyUp);
+    window.removeEventListener("wheel", this.peekHide);
 
     // return if component unmounts before editor is created
     if (!this.editor) return;
@@ -915,6 +917,7 @@ class CodeEditor extends Component<Props, State> {
       });
       this.props.startingEntityUpdate();
     }
+    this.peekHide();
     this.handleDebouncedChange(instance, changeObj);
   };
 
