@@ -33,7 +33,6 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { TJSLibrary } from "workers/common/JSLibrary";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
 
@@ -309,8 +308,6 @@ function JSDependencies() {
     dispatch(toggleInstaller(true));
   }, []);
 
-  const featureFlags = useSelector(selectFeatureFlags);
-
   return (
     <Entity
       className={"libraries"}
@@ -336,7 +333,7 @@ function JSDependencies() {
       isDefaultExpanded={isOpen}
       isSticky
       name="Libraries"
-      showAddButton={canCreateActions && featureFlags?.CUSTOM_JS_LIBRARY}
+      showAddButton={canCreateActions}
       step={0}
     >
       {dependencyList}
