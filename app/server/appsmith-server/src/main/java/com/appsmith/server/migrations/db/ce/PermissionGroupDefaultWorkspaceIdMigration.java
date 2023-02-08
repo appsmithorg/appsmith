@@ -7,6 +7,7 @@ import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
+import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 
@@ -34,7 +35,7 @@ public class PermissionGroupDefaultWorkspaceIdMigration {
                 fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(true));
         UpdateDefinition copyWorkspaceIdToDomainId = AggregationUpdate.update()
                 .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .toValueOf(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId));
+                .toValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)));
         UpdateDefinition addWorkspaceAsDomainReference = AggregationUpdate.update()
                 .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainReference))
                 .toValue(WORKSPACE);

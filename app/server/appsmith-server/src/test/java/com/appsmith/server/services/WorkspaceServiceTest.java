@@ -196,7 +196,7 @@ public class WorkspaceServiceTest {
         String workspaceName = user.computeFirstName() + "'s apps";
         Workspace defaultWorkspace = workspaceRepository.findByName(workspaceName).block();
 
-        PermissionGroup permissionGroup = permissionGroupRepository.findByDefaultDomainIdAndDomainReference(defaultWorkspace.getId(), WORKSPACE)
+        PermissionGroup permissionGroup = permissionGroupRepository.findByDefaultDomainIdAndDefaultDomainReference(defaultWorkspace.getId(), WORKSPACE)
                 .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
                 .blockFirst();
 
