@@ -55,6 +55,8 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { MetaState } from "reducers/entityReducers/metaReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import { Toaster, Variant } from "design-system-old";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1795,4 +1797,68 @@ const updateListWidgetBindings = (
   widgets[listWidgetId].primaryKeys = primaryKeys;
 
   return widgets;
+};
+
+/**
+ *
+ * @param pastingIntoWidgetId WidgetId of the Canvas we want to paste the widgets
+ * @param widgets CanvasWidgetState
+ * @returns @param widgetID Nearest Parent List widget V2
+ */
+export const getPastingListV2ID = (
+  pastingIntoWidgetId: string,
+  widgets: CanvasWidgetsReduxState,
+): string | undefined => {
+  if (!pastingIntoWidgetId || !widgets[pastingIntoWidgetId]) return;
+
+  if (widgets[pastingIntoWidgetId].type === "LIST_WIDGET_V2") {
+    return widgets[pastingIntoWidgetId].widgetId;
+  }
+
+  if (
+    pastingIntoWidgetId === MAIN_CONTAINER_WIDGET_ID ||
+    widgets[pastingIntoWidgetId].parentId === MAIN_CONTAINER_WIDGET_ID ||
+    widgets[pastingIntoWidgetId].parentId === undefined
+  ) {
+    return;
+  }
+
+  return getPastingListV2ID(
+    widgets[pastingIntoWidgetId].parentId as string,
+    widgets,
+  );
+};
+
+/**
+ *
+ * @param copiedWidgetGroups Array of Copied widgets
+ * @param metaWidgets MetaWidgetState
+ * @param pastingIntoWidgetId WidgetId of the Canvas we want to paste the widgets
+ * @param widgets CanvasWidgetState
+ * @returns @param copiedWidgetGroups Filtered array of copied widgets removing any list widget only if the parent list widget already has 3 levels of nesting
+ */
+export const handleNestedListWidget = (
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  metaWidgets: MetaWidgetsReduxState,
+  pastingIntoWidgetId: string,
+  widgets: CanvasWidgetsReduxState,
+) => {
+  const listV2Id = getPastingListV2ID(pastingIntoWidgetId, widgets);
+
+  if (listV2Id && metaWidgets[listV2Id]?.level >= 3) {
+    copiedWidgetGroups = copiedWidgetGroups.filter((widgetGroup) => {
+      if (widgets[widgetGroup.widgetId].type === "LIST_WIDGET_V2") {
+        Toaster.show({
+          text: "Cannot have more than 3 levels of nesting",
+          variant: Variant.info,
+        });
+
+        return false;
+      }
+
+      return true;
+    });
+  }
+
+  return copiedWidgetGroups;
 };

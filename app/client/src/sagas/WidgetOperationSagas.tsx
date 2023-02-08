@@ -58,6 +58,7 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
   getContainerWidgetSpacesSelector,
+  getMetaWidgets,
 } from "selectors/editorSelectors";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
@@ -107,6 +108,7 @@ import {
   getVerticallyAdjustedPositions,
   getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
+  handleNestedListWidget,
   handleSpecificCasesWhilePasting,
   isDropTarget,
   isSelectedWidgetsColliding,
@@ -146,6 +148,7 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1294,6 +1297,7 @@ function* pasteWidgetSaga(
   const newlyCreatedWidgetIds: string[] = [];
   const evalTree: DataTree = yield select(getDataTree);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
@@ -1378,6 +1382,20 @@ function* pasteWidgetSaga(
     ));
 
     if (canvasId) pastingIntoWidgetId = canvasId;
+  }
+
+  // Avoid having more than 3 levels of nesting in ListV2
+  if (widgets[pastingIntoWidgetId].type === "CANVAS_WIDGET") {
+    copiedWidgetGroups = handleNestedListWidget(
+      copiedWidgetGroups,
+      metaWidgets,
+      pastingIntoWidgetId,
+      widgets,
+    );
+  }
+
+  if (!copiedWidgetGroups.length) {
+    return;
   }
 
   yield all(

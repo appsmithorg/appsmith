@@ -83,7 +83,7 @@ export type GeneratorOptions = {
   hooks?: Hooks;
   itemSpacing: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
-  level: number;
+  level?: number;
   levelData?: LevelData;
   nestedViewIndex?: number;
   pageNo?: number;
@@ -221,7 +221,7 @@ class MetaWidgetGenerator {
   private itemSpacing: GeneratorOptions["itemSpacing"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
   private isListCloned: ConstructorProps["isListCloned"];
-  private level: ConstructorProps["level"];
+  private level?: ConstructorProps["level"];
   private levelData: GeneratorOptions["levelData"];
   private metaIdToTemplateIdMap: Record<string, string>;
   private modificationsQueue: Queue<MODIFICATION_TYPE>;
@@ -922,7 +922,11 @@ class MetaWidgetGenerator {
       });
     }
 
-    metaWidget.level = this.level + 1;
+    if (!this.level) {
+      metaWidget.level = 1;
+    } else {
+      metaWidget.level = this.level + 1;
+    }
   };
 
   updateWidgetNameInDynamicBinding = (
