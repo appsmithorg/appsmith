@@ -106,6 +106,7 @@ import {
   isMetaWidgetTemplate,
   isWidgetDefaultPropertyPath,
 } from "entities/DataTree/utils";
+import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -859,6 +860,7 @@ export default class DataTreeEvaluator {
           } else if (isJSAction(entity)) {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
+              // TODO: To update JSObject variable value on modification remove picking value from currentEvaluatedValue logic.
               const currentEvaluatedValue = get(
                 this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
@@ -866,6 +868,9 @@ export default class DataTreeEvaluator {
                   fullPath: true,
                 }),
               );
+              const evalValue = currentEvaluatedValue
+                ? currentEvaluatedValue
+                : evalPropertyValue;
               if (!currentEvaluatedValue) {
                 set(
                   this.evalProps,
@@ -875,10 +880,9 @@ export default class DataTreeEvaluator {
                   }),
                   evalPropertyValue,
                 );
-                set(currentTree, fullPropertyPath, evalPropertyValue);
-              } else {
-                set(currentTree, fullPropertyPath, currentEvaluatedValue);
               }
+              set(currentTree, fullPropertyPath, evalValue);
+              jsObjectCollection.setVariableValue(evalValue, fullPropertyPath);
             }
             return currentTree;
           } else {
