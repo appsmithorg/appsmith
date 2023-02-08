@@ -17,18 +17,19 @@ class JSObjectCollection {
   }
 
   setVariableState(currentVariableState: VariableState) {
-    if (this.currentVariableState)
-      this.prevVariableState = klona(this.currentVariableState);
+    if (this.currentVariableState) {
+      this.prevVariableState = this.currentVariableState;
+    }
 
-    this.currentVariableState = klona(currentVariableState);
+    this.currentVariableState = currentVariableState;
   }
 
   getCurrentVariableState(
     JSObjectName?: string,
   ): VariableState | Record<string, unknown> {
     if (JSObjectName && this.currentVariableState)
-      return this.currentVariableState[JSObjectName];
-    return this.currentVariableState;
+      return klona(this.currentVariableState[JSObjectName]);
+    return klona(this.currentVariableState);
   }
 
   getPrevVariableState() {
