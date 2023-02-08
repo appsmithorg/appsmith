@@ -132,7 +132,7 @@ public class CommonConfig {
         isSignupDisabled = "true".equalsIgnoreCase(value);
     }
     
-    public String getRtsBaseDomain() {
+    public String getRtsBaseUrl() {
         return "http://127.0.0.1:" + rtsPort;
     }
 }
