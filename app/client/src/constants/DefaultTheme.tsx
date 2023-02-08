@@ -1037,6 +1037,7 @@ type ColorType = {
   apiPane: {
     bg: ShadeColor;
     text: ShadeColor;
+    keyValueText?: ShadeColor;
     dividerBg: ShadeColor;
     iconHoverBg: ShadeColor;
     tabBg: ShadeColor;
@@ -1939,6 +1940,7 @@ export const dark: ColorType = {
     bg: darkShades[0],
     tabBg: lightShades[10],
     text: darkShades[6],
+    keyValueText: lightShades[8],
     dividerBg: darkShades[4],
     iconHoverBg: darkShades[1],
     requestTree: {
@@ -2571,6 +2573,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     tabBg: lightShades[11],
     text: lightShades[16],
+    keyValueText: lightShades[8],
     dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
     requestTree: {

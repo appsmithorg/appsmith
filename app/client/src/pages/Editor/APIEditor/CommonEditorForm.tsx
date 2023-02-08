@@ -377,7 +377,7 @@ const FlexContainer = styled.div`
 
   .key-value {
     .${Classes.TEXT} {
-      color: #4b4848;
+      color: ${(props) => props.theme.colors.apiPane.keyValueText};
       padding: ${(props) => props.theme.spaces[2]}px 0px
         ${(props) => props.theme.spaces[2]}px
         ${(props) => props.theme.spaces[5]}px;
