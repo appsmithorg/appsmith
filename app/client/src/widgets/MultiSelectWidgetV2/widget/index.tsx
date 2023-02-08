@@ -27,24 +27,24 @@ export function defaultOptionValueValidation(
 ): ValidationResponse {
   let isValid = false;
   let parsed: any[] = [];
-  let message = { name: "", text: "" };
+  let message = { name: "", message: "" };
   const isServerSideFiltered = props.serverSideFiltering;
   // TODO: options shouldn't get un-eval values;
   let options = props.options;
 
   const DEFAULT_ERROR_MESSAGE = {
     name: "TypeError",
-    text:
+    message:
       "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
   };
   const MISSING_FROM_OPTIONS = {
     name: "ValidationError",
-    text:
+    message:
       "Some or all default values are missing from options. Please update the values.",
   };
   const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
     name: "ValidationError",
-    text:
+    message:
       "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
   };
   /*
@@ -107,7 +107,7 @@ export function defaultOptionValueValidation(
         parsed = [];
         message = {
           name: "ValidationError",
-          text: "values must be unique. Duplicate values found",
+          message: "values must be unique. Duplicate values found",
         };
       }
     } else if (value.every(hasLabelValue)) {
@@ -121,7 +121,7 @@ export function defaultOptionValueValidation(
         parsed = [];
         message = {
           name: "ValidationError",
-          text: "path:value must be unique. Duplicate values found",
+          message: "path:value must be unique. Duplicate values found",
         };
       }
     } else {

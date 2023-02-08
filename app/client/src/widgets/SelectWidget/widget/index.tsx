@@ -33,7 +33,7 @@ export function defaultOptionValueValidation(
 ): ValidationResponse {
   let isValid;
   let parsed;
-  let message = { name: "", text: "" };
+  let message = { name: "", message: "" };
   const isServerSideFiltered = props.serverSideFiltering;
   // TODO: validation of defaultOption is dependent on serverSideFiltering and options, this property should reValidated once the dependencies change
   //this issue is been tracked here https://github.com/appsmithorg/appsmith/issues/15303
@@ -74,7 +74,7 @@ export function defaultOptionValueValidation(
     parsed = undefined;
     message = {
       name: "TypeError",
-      text:
+      message:
         'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }',
     };
   }
@@ -105,14 +105,14 @@ export function defaultOptionValueValidation(
         isValid = false;
         message = {
           name: "ValidationError",
-          text: `Default value is missing in options. Please update the value.`,
+          message: `Default value is missing in options. Please update the value.`,
         };
       } else {
         if (!hasLabelValue(parsed)) {
           isValid = false;
           message = {
             name: "ValidationError",
-            text: `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.`,
+            message: `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.`,
           };
         }
       }

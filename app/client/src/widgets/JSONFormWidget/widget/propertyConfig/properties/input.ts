@@ -31,7 +31,7 @@ function defaultValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [{ name: "ondhu 2", text: "eradu 2" }],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -46,7 +46,7 @@ function defaultValueValidation(
         return {
           isValid: true,
           parsed: undefined,
-          messages: [{ name: "ondhu 3", text: "eradu 3" }],
+          messages: [{ name: "", message: "" }],
         };
       }
 
@@ -55,7 +55,7 @@ function defaultValueValidation(
           isValid: false,
           parsed: undefined,
           messages: [
-            { name: "TypeError", text: "This value must be a number" },
+            { name: "TypeError", message: "This value must be a number" },
           ],
         };
       }
@@ -64,7 +64,7 @@ function defaultValueValidation(
     return {
       isValid: true,
       parsed,
-      messages: [{ name: "ondhu 4", text: "eradu 4" }],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -72,7 +72,7 @@ function defaultValueValidation(
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: [{ name: "TypeError", text: "This value must be string" }],
+      messages: [{ name: "TypeError", message: "This value must be string" }],
     };
   }
 
@@ -86,7 +86,7 @@ function defaultValueValidation(
       return {
         isValid: false,
         parsed: "",
-        messages: [{ name: "TypeError", text: "This value must be string" }],
+        messages: [{ name: "TypeError", message: "This value must be string" }],
       };
     }
   }
@@ -94,7 +94,7 @@ function defaultValueValidation(
   return {
     isValid,
     parsed: parsed,
-    messages: [{ name: "", text: "" }],
+    messages: [{ name: "", message: "" }],
   };
 }
 
@@ -116,13 +116,13 @@ export function minValueValidation(
     return {
       isValid: true,
       parsed: undefined,
-      messages: [{ name: "ondhu 6", text: "eradu 6" }],
+      messages: [{ name: "", message: "" }],
     };
   } else if (!Number.isFinite(min)) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: [{ name: "TypeError", text: "This value must be number" }],
+      messages: [{ name: "TypeError", message: "This value must be number" }],
     };
   } else if (max !== undefined && min >= max) {
     return {
@@ -131,7 +131,7 @@ export function minValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be lesser than max value",
+          message: "This value must be lesser than max value",
         },
       ],
     };
@@ -139,7 +139,7 @@ export function minValueValidation(
     return {
       isValid: true,
       parsed: min,
-      messages: [{ name: "ondhu 7", text: "eradu 7" }],
+      messages: [{ name: "", message: "" }],
     };
   }
 }
@@ -162,13 +162,13 @@ export function maxValueValidation(
     return {
       isValid: true,
       parsed: undefined,
-      messages: [{ name: "ondhu 8", text: "eradu 8" }],
+      messages: [{ name: "", message: "" }],
     };
   } else if (!Number.isFinite(max)) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: [{ name: "TypeError", text: "This value must be number" }],
+      messages: [{ name: "TypeError", message: "This value must be number" }],
     };
   } else if (min !== undefined && max <= min) {
     return {
@@ -177,7 +177,7 @@ export function maxValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than min value",
+          message: "This value must be greater than min value",
         },
       ],
     };

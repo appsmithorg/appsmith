@@ -34,7 +34,7 @@ class ErrorModifier {
       if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {
         return {
           name: "ValidationError",
-          text: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+          message: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
             "{{actionName}}",
             asyncFunctionFullPath + "()",
           ),
@@ -78,11 +78,11 @@ export const getErrorMessage = (error: Error) => {
   return error.name
     ? {
         name: error.name,
-        text: error.message,
+        message: error.message,
       }
     : {
         name: "ValidationError",
-        text: error.message,
+        message: error.message,
       };
 };
 

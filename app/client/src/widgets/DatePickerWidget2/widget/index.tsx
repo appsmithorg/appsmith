@@ -27,13 +27,13 @@ function allowedRange(value: any) {
       ? [
           {
             name: "",
-            text: "",
+            message: "",
           },
         ]
       : [
           {
             name: "RangeError",
-            text: "Number should be between 0-6.",
+            message: "Number should be between 0-6.",
           },
         ],
   };

@@ -32,7 +32,7 @@ describe("sourceDataArrayValidation", () => {
     const expected = {
       isValid: true,
       parsed: mockSourceData,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
     expect(result).toStrictEqual(expected);
   });
@@ -58,7 +58,7 @@ describe("sourceDataArrayValidation", () => {
       messages: [
         {
           name: "RangeError",
-          text: "Source data cannot have more than 10 items",
+          message: "Source data cannot have more than 10 items",
         },
       ],
     };
@@ -84,7 +84,7 @@ describe("sourceDataArrayValidation", () => {
       messages: [
         {
           name: "TypeError",
-          text: "This value does not evaluate to type Array",
+          message: "This value does not evaluate to type Array",
         },
       ],
     };

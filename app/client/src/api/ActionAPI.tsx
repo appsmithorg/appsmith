@@ -103,8 +103,8 @@ export interface PluginErrorDetails {
   errorType: string;
   appsmithErrorCode: string;
   appsmithErrorMessage: string;
-  downstreamErrorCode: string;
-  downstreamErrorMessage: string;
+  downstreamErrorCode?: string;
+  downstreamErrorMessage?: string;
 }
 
 export interface MoveActionRequest {

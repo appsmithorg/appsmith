@@ -66,7 +66,6 @@ function JSCollectionLink(props: EntityLinkProps) {
       }
     }
   }, []);
-
   return (
     <Link
       entityType={props.type}

@@ -6,7 +6,7 @@ describe("validate propertypane input : docUrl", () => {
     const expected1 = {
       isValid: true,
       parsed: "",
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
 
     const result = documentUrlValidation(input1);
@@ -17,7 +17,10 @@ describe("validate propertypane input : docUrl", () => {
       isValid: false,
       parsed: "",
       messages: [
-        { name: "ValidationError", text: "Provided URL / Base64 is invalid." },
+        {
+          name: "ValidationError",
+          message: "Provided URL / Base64 is invalid.",
+        },
       ],
     };
 
@@ -29,7 +32,10 @@ describe("validate propertypane input : docUrl", () => {
       isValid: false,
       parsed: "",
       messages: [
-        { name: "ValidationError", text: "Provided URL / Base64 is invalid." },
+        {
+          name: "ValidationError",
+          message: "Provided URL / Base64 is invalid.",
+        },
       ],
     };
 
@@ -41,7 +47,10 @@ describe("validate propertypane input : docUrl", () => {
       isValid: false,
       parsed: "",
       messages: [
-        { name: "ValidationError", text: "Provided URL / Base64 is invalid." },
+        {
+          name: "ValidationError",
+          message: "Provided URL / Base64 is invalid.",
+        },
       ],
     };
 
@@ -53,7 +62,10 @@ describe("validate propertypane input : docUrl", () => {
       isValid: false,
       parsed: "",
       messages: [
-        { name: "ValidationError", text: "Provided URL / Base64 is invalid." },
+        {
+          name: "ValidationError",
+          message: "Provided URL / Base64 is invalid.",
+        },
       ],
     };
 
@@ -67,7 +79,10 @@ describe("validate propertypane input : docUrl", () => {
       isValid: false,
       parsed: "",
       messages: [
-        { name: "ValidationError", text: "Provided URL / Base64 is invalid." },
+        {
+          name: "ValidationError",
+          message: "Provided URL / Base64 is invalid.",
+        },
       ],
     };
 
@@ -79,7 +94,10 @@ describe("validate propertypane input : docUrl", () => {
       isValid: false,
       parsed: "",
       messages: [
-        { name: "ValidationError", text: "Provided URL / Base64 is invalid." },
+        {
+          name: "ValidationError",
+          message: "Provided URL / Base64 is invalid.",
+        },
       ],
     };
 

@@ -10,7 +10,7 @@ describe("defaultOptionValueValidation - ", () => {
     ).toEqual({
       isValid: true,
       parsed: "",
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     });
   });
   it("should get tested with number", () => {
@@ -20,7 +20,7 @@ describe("defaultOptionValueValidation - ", () => {
         {
           isValid: true,
           parsed: "1",
-          messages: [{ name: "", text: "" }],
+          messages: [{ name: "", message: "" }],
         },
       ],
       [
@@ -28,7 +28,7 @@ describe("defaultOptionValueValidation - ", () => {
         {
           isValid: true,
           parsed: 1,
-          messages: [{ name: "", text: "" }],
+          messages: [{ name: "", message: "" }],
         },
       ],
     ];
@@ -65,7 +65,7 @@ describe("defaultOptionValueValidation - ", () => {
     ).toEqual({
       isValid: true,
       parsed: "green",
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     });
   });
 
@@ -86,7 +86,7 @@ describe("defaultOptionValueValidation - ", () => {
     ).toEqual({
       isValid: true,
       parsed: "green",
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     });
   });
 
@@ -111,7 +111,7 @@ describe("defaultOptionValueValidation - ", () => {
         label: "green",
         value: "green",
       },
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     });
   });
   it("should get tested with valid strings", () => {
@@ -121,7 +121,7 @@ describe("defaultOptionValueValidation - ", () => {
         {
           isValid: true,
           parsed: "undefined",
-          messages: [{ name: "", text: "" }],
+          messages: [{ name: "", message: "" }],
         },
       ],
       [
@@ -129,7 +129,7 @@ describe("defaultOptionValueValidation - ", () => {
         {
           isValid: true,
           parsed: "null",
-          messages: [{ name: "", text: "" }],
+          messages: [{ name: "", message: "" }],
         },
       ],
       [
@@ -137,7 +137,7 @@ describe("defaultOptionValueValidation - ", () => {
         {
           isValid: true,
           parsed: "true",
-          messages: [{ name: "", text: "" }],
+          messages: [{ name: "", message: "" }],
         },
       ],
     ];
@@ -170,7 +170,7 @@ describe("defaultOptionValueValidation - ", () => {
           messages: [
             {
               name: "TypeError",
-              text: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
+              message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
         },
@@ -183,7 +183,7 @@ describe("defaultOptionValueValidation - ", () => {
           messages: [
             {
               name: "TypeError",
-              text: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
+              message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
         },
@@ -196,7 +196,7 @@ describe("defaultOptionValueValidation - ", () => {
           messages: [
             {
               name: "TypeError",
-              text: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
+              message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
         },
@@ -209,7 +209,7 @@ describe("defaultOptionValueValidation - ", () => {
           messages: [
             {
               name: "TypeError",
-              text: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
+              message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
         },
@@ -224,7 +224,7 @@ describe("defaultOptionValueValidation - ", () => {
           messages: [
             {
               name: "TypeError",
-              text: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
+              message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
         },
@@ -270,7 +270,8 @@ describe("defaultOptionValueValidation - ", () => {
       messages: [
         {
           name: "ValidationError",
-          text: "Default value is missing in options. Please update the value.",
+          message:
+            "Default value is missing in options. Please update the value.",
         },
       ],
     });
@@ -297,7 +298,7 @@ describe("defaultOptionValueValidation - ", () => {
       messages: [
         {
           name: "ValidationError",
-          text:
+          message:
             "Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.",
         },
       ],

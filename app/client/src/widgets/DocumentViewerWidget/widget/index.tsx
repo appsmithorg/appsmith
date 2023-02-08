@@ -37,7 +37,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
           messages: [
             {
               name: "ValidationError",
-              text: "Provided URL / Base64 is invalid.",
+              message: "Provided URL / Base64 is invalid.",
             },
           ],
         };
@@ -56,7 +56,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
         messages: [
           {
             name: "ValidationError",
-            text: "Provided URL / Base64 is invalid.",
+            message: "Provided URL / Base64 is invalid.",
           },
         ],
       };
@@ -66,7 +66,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
   return {
     isValid: true,
     parsed: "",
-    messages: [{ name: "", text: "" }],
+    messages: [{ name: "", message: "" }],
   };
 }
 

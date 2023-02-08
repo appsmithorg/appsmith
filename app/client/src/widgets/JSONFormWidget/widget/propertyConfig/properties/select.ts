@@ -20,7 +20,7 @@ export function defaultOptionValueValidation(
 ): ValidationResponse {
   const DEFAULT_ERROR_MESSAGE = {
     name: "TypeError",
-    text:
+    message:
       'value should match: string | { "label": "label1", "value": "value1" }',
   };
   let value = inputValue;
@@ -43,7 +43,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: inputValue,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -58,7 +58,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -67,7 +67,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
   }
 

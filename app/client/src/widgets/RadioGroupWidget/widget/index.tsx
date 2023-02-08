@@ -33,7 +33,7 @@ export function optionsCustomValidation(
     _: any,
   ) => {
     let _isValid = true;
-    let message = { name: "", text: "" };
+    let message = { name: "", message: "" };
     let valueType = "";
     const uniqueLabels: Record<string | number, string> = {};
 
@@ -49,7 +49,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "ValidationError",
-          text: "path:value must be unique. Duplicate values found",
+          message: "path:value must be unique. Duplicate values found",
         };
         break;
       }
@@ -59,7 +59,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "ValidationError",
-          text:
+          message:
             "Invalid entry at index: " + i + ". Missing required key: label",
         };
         break;
@@ -74,7 +74,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "ValidationError",
-          text:
+          message:
             "Invalid entry at index: " +
             i +
             ". Value of key: label is invalid: This value does not evaluate to type string",
@@ -87,7 +87,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "TypeError",
-          text: "All value properties in options must have the same type",
+          message: "All value properties in options must have the same type",
         };
         break;
       }
@@ -97,7 +97,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "TypeError",
-          text:
+          message:
             'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
         };
         break;
@@ -117,7 +117,7 @@ export function optionsCustomValidation(
     messages: [
       {
         name: "TypeError",
-        text:
+        message:
           'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
       },
     ],
@@ -149,7 +149,7 @@ function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value does not evaluate to type: string or number",
+          message: "This value does not evaluate to type: string or number",
         },
       ],
     };
@@ -163,7 +163,7 @@ function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value does not evaluate to type: string or number",
+          message: "This value does not evaluate to type: string or number",
         },
       ],
     };

@@ -53,7 +53,7 @@ describe("getLintAnnotations()", () => {
         severity: WARNING,
         errorMessage: {
           name: "LintingError",
-          text: "Expected '===' and instead saw '=='.",
+          message: "Expected '===' and instead saw '=='.",
         },
         errorSegment: "    const result =  world == test ",
         originalBinding: " world == test ",
@@ -69,7 +69,7 @@ describe("getLintAnnotations()", () => {
         severity: WARNING,
         errorMessage: {
           name: "LintingError",
-          text: "'world' is not defined.",
+          message: "'world' is not defined.",
         },
         errorSegment: "    const result =  world == test ",
         originalBinding: " world == test ",
@@ -81,7 +81,7 @@ describe("getLintAnnotations()", () => {
       {
         errorMessage: {
           name: "LintingError",
-          text: "'test' is not defined.",
+          message: "'test' is not defined.",
         },
         severity: WARNING,
         raw:
@@ -146,7 +146,7 @@ describe("getLintAnnotations()", () => {
         severity: ERROR,
         errorMessage: {
           name: "LintingError",
-          text: "'hss' is not defined.",
+          message: "'hss' is not defined.",
         },
         errorSegment: "    const result = hss",
         originalBinding: "{{hss}}",
@@ -185,7 +185,7 @@ describe("getLintAnnotations()", () => {
         severity: ERROR,
         errorMessage: {
           name: "LintingError",
-          text: "'world' is not defined.",
+          message: "'world' is not defined.",
         },
         errorSegment: "    const result =  world",
         originalBinding: " world\n",

@@ -132,7 +132,7 @@ describe("Test error modifier", () => {
     const result = errorModifier.run(error);
     expect(result).toEqual({
       name: "ValidationError",
-      text:
+      message:
         "Found a reference to Api2.run() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to Api2.run() and try again.",
     });
   });
@@ -144,7 +144,7 @@ describe("Test error modifier", () => {
     const result = errorModifier.run(error);
     expect(result).toEqual({
       name: "TypeError",
-      text: "Api1.run is not a function",
+      message: "Api1.run is not a function",
     });
   });
 
@@ -155,7 +155,7 @@ describe("Test error modifier", () => {
     const result = errorModifier.run(error);
     expect(result).toEqual({
       name: "ValidationError",
-      text:
+      message:
         "Found a reference to storeValue() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to storeValue() and try again.",
     });
   });
@@ -167,7 +167,7 @@ describe("Test error modifier", () => {
     const result = errorModifier.run(error);
     expect(result).toEqual({
       name: error.name,
-      text: error.message,
+      message: error.message,
     });
   });
 });
