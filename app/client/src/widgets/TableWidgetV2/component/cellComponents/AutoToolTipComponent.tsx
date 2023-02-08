@@ -87,7 +87,7 @@ function useToolTip(
       defaultIsOpen
       hoverOpenDelay={TOOLTIP_OPEN_DELAY}
       interactionKind={PopoverInteractionKind.HOVER}
-      position="top"
+      position="right-top"
     >
       {
         <Content className="t--table-cell-tooltip-target" ref={ref}>
