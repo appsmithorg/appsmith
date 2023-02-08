@@ -21,7 +21,9 @@ const variantStyles = css`
       case "filled":
         return css`
           background-color: var(--wds-v2-color-bg-accent);
-          color: var(--wds-v2-color-text-onbrand);
+          color: var(--wds-v2-color-text-onaccent);
+          border-width: 1px;
+          border-color: transparent;
 
           &:not([data-disabled]):hover {
             background-color: var(--wds-v2-color-bg-accent-hover);
@@ -35,8 +37,8 @@ const variantStyles = css`
         return css`
           border-width: 1px;
           background-color: transparent;
-          color: var(--wds-v2-color-text-brand);
-          border-color: var(--wds-v2-color-border-brand);
+          color: var(--wds-v2-color-text-accent);
+          border-color: var(--wds-v2-color-border-accent);
 
           &:not([data-disabled]):hover {
             background-color: var(--wds-v2-color-bg-accent-light-hover);
@@ -52,7 +54,7 @@ const variantStyles = css`
         `;
       case "link":
         return css`
-          color: var(--wds-v2-color-text-brand);
+          color: var(--wds-v2-color-text-accent);
           box-shadow: none;
 
           &:not([data-disabled]):hover {
@@ -63,7 +65,7 @@ const variantStyles = css`
         return css`
           background: var(--wds-v2-color-bg-accent-light);
           border-color: transparent;
-          color: var(--wds-v2-color-text-brand);
+          color: var(--wds-v2-color-text-accent);
           border-width: 0;
 
           &:not([data-disabled]):hover {
@@ -77,7 +79,7 @@ const variantStyles = css`
       case "subtle":
         return css`
           border-color: transparent;
-          color: var(--wds-v2-color-text-brand);
+          color: var(--wds-v2-color-text-accent);
           border-width: 0;
 
           &:not([data-disabled]):hover {
@@ -108,6 +110,7 @@ export const variantTokens = css`
     const complementaryAccentColor = getComplementaryGrayscaleColor(
       accentColor,
     );
+    const darkAccentColor = darkenColor(color);
     const lightAcctentActiveColor = darkenColor(lightAccentHoverColor, 0.03);
 
     return css`
@@ -118,10 +121,12 @@ export const variantTokens = css`
       --wds-v2-color-bg-accent-light-active: ${lightAcctentActiveColor};
       --wds-v2-color-bg-accent-light-hover: ${lightAccentHoverColor};
 
-      --wds-v2-color-text-brand: ${accentColor};
-      --wds-v2-color-text-onbrand: ${complementaryAccentColor};
+      --wds-v2-color-text-accent: ${accentColor};
+      --wds-v2-color-text-onaccent: ${complementaryAccentColor};
 
-      --wds-v2-color-border-brand: ${accentColor};
+      --wds-v2-color-border-accent: ${accentColor};
+      --wds-vs-color-border-accent-dark: ${darkAccentColor};
+      --wds-vs-color-border-accent-light: ${lightAccentHoverColor};
     `;
   }}
 `;

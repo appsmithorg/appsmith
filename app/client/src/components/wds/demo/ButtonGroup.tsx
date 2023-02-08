@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Button } from "components/wds";
-import { ButtonGroup } from "components/wds/components/Button/ButtonGroup";
+import { ButtonGroup } from "components/wds/components/ButtonGroup";
 import Showcase, { useControls } from "./Showcase";
 
 type Props = {
@@ -12,15 +12,15 @@ const ButtonGroupShowcase = (props: Props) => {
   const { controls, state } = useControls({
     controls: [
       ["select", "orientation", "horizontal", ["horizontal", "vertical"]],
-      ["checkbox", "isLoading", false],
       ["checkbox", "isDisabled", false],
+      ["select", "variant", "filled", ["filled", "light", "outline", "subtle"]],
     ],
   });
 
   const { label, orientation, ...rest } = state;
 
   return (
-    <Showcase settings={controls} title="ButtonGroup">
+    <Showcase settings={controls} title="ButtonGroup" width={250}>
       <ButtonGroup orientation={orientation}>
         <Button {...rest}>Edit</Button>
         <Button {...rest}>Share</Button>

@@ -1,5 +1,6 @@
 import React, { HTMLAttributes, useMemo, forwardRef } from "react";
 
+import { Text } from "../Text";
 import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
 
@@ -45,7 +46,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     return (
       <>
         {leadingIcon && <span data-component="leadingIcon">{leadingIcon}</span>}
-        {children && <span data-component="text">{children}</span>}
+        {children && (
+          <span data-component="text">
+            <Text>{children}</Text>
+          </span>
+        )}
         {trailingIcon && (
           <span data-component="trailingIcon">{trailingIcon}</span>
         )}
@@ -59,6 +64,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
       data-button
       data-disabled={isDisabled || undefined}
       data-loading={isLoading || undefined}
+      data-variant={variant}
       disabled={isDisabled || undefined}
       ref={ref}
       variant={variant}

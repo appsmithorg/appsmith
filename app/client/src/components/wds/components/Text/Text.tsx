@@ -20,7 +20,7 @@ export type TextProps = {
 export const Text = React.forwardRef<HTMLDivElement, TextProps>(
   (props, ref) => {
     const {
-      capHeight = 14,
+      capHeight = 10,
       children,
       fontFamily,
       lineGap = 8,
@@ -29,8 +29,6 @@ export const Text = React.forwardRef<HTMLDivElement, TextProps>(
     } = props;
 
     const typographyStyles = useMemo(() => {
-      if (!props.fontFamily) return undefined;
-
       return createTypographyStyles({ fontFamily, capHeight, lineGap });
     }, [fontFamily, capHeight, lineGap]);
 

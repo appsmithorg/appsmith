@@ -29,6 +29,7 @@ export const createTokens = css`
       accentColor,
     );
     const lightAcctentActiveColor = darkenColor(lightAccentHoverColor, 0.03);
+    const darkAccentColor = darkenColor(color);
 
     return css`
       --wds-v2-color-bg-accent: ${accentColor};
@@ -38,10 +39,12 @@ export const createTokens = css`
       --wds-v2-color-bg-accent-light-active: ${lightAcctentActiveColor};
       --wds-v2-color-bg-accent-light-hover: ${lightAccentHoverColor};
 
-      --wds-v2-color-text-brand: ${accentColor};
-      --wds-v2-color-text-onbrand: ${complementaryAccentColor};
+      --wds-v2-color-text-accent: ${accentColor};
+      --wds-v2-color-text-onaccent: ${complementaryAccentColor};
 
-      --wds-v2-color-border-brand: ${accentColor};
+      --wds-v2-color-border-accent: ${accentColor};
+      --wds-vs-color-border-accent-dark: ${darkAccentColor};
+      --wds-vs-color-border-accent-light: ${lightAccentHoverColor};
 
       --wds-v2-shadow: ${boxShadow};
       --wds-v2-radii: ${borderRadius};
