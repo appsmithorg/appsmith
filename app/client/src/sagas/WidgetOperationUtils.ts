@@ -1801,36 +1801,6 @@ const updateListWidgetBindings = (
 
 /**
  *
- * @param pastingIntoWidgetId WidgetId of the Canvas we want to paste the widgets
- * @param widgets CanvasWidgetState
- * @returns @param widgetID Nearest Parent List widget V2
- */
-export const getPastingListV2ID = (
-  pastingIntoWidgetId: string,
-  widgets: CanvasWidgetsReduxState,
-): string | undefined => {
-  if (!pastingIntoWidgetId || !widgets[pastingIntoWidgetId]) return;
-
-  if (widgets[pastingIntoWidgetId].type === "LIST_WIDGET_V2") {
-    return widgets[pastingIntoWidgetId].widgetId;
-  }
-
-  if (
-    pastingIntoWidgetId === MAIN_CONTAINER_WIDGET_ID ||
-    widgets[pastingIntoWidgetId].parentId === MAIN_CONTAINER_WIDGET_ID ||
-    widgets[pastingIntoWidgetId].parentId === undefined
-  ) {
-    return;
-  }
-
-  return getPastingListV2ID(
-    widgets[pastingIntoWidgetId].parentId as string,
-    widgets,
-  );
-};
-
-/**
- *
  * @param copiedWidgetGroups Array of Copied widgets
  * @param metaWidgets MetaWidgetState
  * @param pastingIntoWidgetId WidgetId of the Canvas we want to paste the widgets
@@ -1843,9 +1813,13 @@ export const handleNestedListWidget = (
   pastingIntoWidgetId: string,
   widgets: CanvasWidgetsReduxState,
 ) => {
-  const listV2Id = getPastingListV2ID(pastingIntoWidgetId, widgets);
+  const parentListWidgetId = metaWidgets[pastingIntoWidgetId]?.creatorId;
 
-  if (listV2Id && metaWidgets[listV2Id]?.level >= 3) {
+  if (
+    parentListWidgetId &&
+    metaWidgets[parentListWidgetId]?.type === "LIST_WIDGET_V2" &&
+    metaWidgets[parentListWidgetId]?.level >= 3
+  ) {
     copiedWidgetGroups = copiedWidgetGroups.filter((widgetGroup) => {
       if (widgets[widgetGroup.widgetId].type === "LIST_WIDGET_V2") {
         Toaster.show({

@@ -239,25 +239,12 @@ export function* getUpdateDslAfterCreatingChild(
   addChildPayload: WidgetAddChild,
 ) {
   // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
-  const { type, widgetId } = addChildPayload;
+  const { widgetId } = addChildPayload;
   // Get the current parent widget whose child will be the new widget.
   const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
   // const parent = Object.assign({}, stateParent);
   // Get all the widgets from the canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-
-  if (type === "LIST_WIDGET_V2") {
-    const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
-    const parentListWidgetId = metaWidgets[widgetId]?.creatorId;
-
-    if (parentListWidgetId && metaWidgets[parentListWidgetId]?.level >= 3) {
-      Toaster.show({
-        text: "Cannot have more than 3 levels of nesting",
-        variant: Variant.info,
-      });
-      return stateWidgets;
-    }
-  }
 
   const widgets = Object.assign({}, stateWidgets);
   // Generate the full WidgetProps of the widget to be added.
@@ -301,10 +288,6 @@ export function* getUpdateDslAfterCreatingChild(
     [addChildPayload.newWidgetId],
     widgets,
   );
-  yield put({
-    type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
-    payload: [addChildPayload.newWidgetId],
-  });
 
   return updatedWidgets;
 }
@@ -318,11 +301,35 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     Toaster.clear();
+
+    // Avoid having more than 3 levels of nesting in ListV2
+    if (addChildAction.payload.type === "LIST_WIDGET_V2") {
+      const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
+      const parentListWidgetId =
+        metaWidgets[addChildAction.payload.widgetId]?.creatorId;
+
+      if (
+        parentListWidgetId &&
+        metaWidgets[parentListWidgetId]?.type === "LIST_WIDGET_V2" &&
+        metaWidgets[parentListWidgetId]?.level >= 3
+      ) {
+        Toaster.show({
+          text: "Cannot have more than 3 levels of nesting",
+          variant: Variant.info,
+        });
+        return;
+      }
+    }
+
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
 
     yield put(updateAndSaveLayout(updatedWidgets));
+    yield put({
+      type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
+      payload: [addChildAction.payload.newWidgetId],
+    });
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     log.debug("add child computations took", performance.now() - start, "ms");
