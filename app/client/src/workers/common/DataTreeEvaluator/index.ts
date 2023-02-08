@@ -363,6 +363,7 @@ export default class DataTreeEvaluator {
     lintOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
+    pathsToClearErrorsFor: string[];
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
 
@@ -404,6 +405,7 @@ export default class DataTreeEvaluator {
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
       return {
+        pathsToClearErrorsFor: [],
         unEvalUpdates: [],
         evalOrder: [],
         lintOrder: [],
@@ -428,6 +430,7 @@ export default class DataTreeEvaluator {
     const {
       dependenciesOfRemovedPaths,
       extraPathsToLint,
+      pathsToClearErrorsFor,
       removedPaths,
     } = updateDependencyMap({
       dataTreeEvalRef: this,
@@ -523,6 +526,7 @@ export default class DataTreeEvaluator {
       nonDynamicFieldValidationOrder: Array.from(
         nonDynamicFieldValidationOrderSet,
       ),
+      pathsToClearErrorsFor,
     };
   }
 

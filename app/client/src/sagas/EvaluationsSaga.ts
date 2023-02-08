@@ -181,7 +181,9 @@ export function* evaluateTreeSaga(
     unEvalUpdates,
     isCreateFirstTree = false,
     staleMetaIds,
+    pathsToClearErrorsFor,
   } = workerResponse;
+
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -229,7 +231,13 @@ export function* evaluateTreeSaga(
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
-  yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
+  yield call(
+    evalErrorHandler as any,
+    errors,
+    updatedDataTree,
+    evaluationOrder,
+    pathsToClearErrorsFor,
+  );
 
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);

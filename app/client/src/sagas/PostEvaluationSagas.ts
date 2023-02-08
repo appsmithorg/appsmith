@@ -53,6 +53,7 @@ function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
   dataTree: DataTree,
   evaluationOrder: Array<string>,
+  pathsToClearErrorsFor?: Array<string>,
 ) {
   const errorsToAdd = [];
   const errorsToDelete = [];
@@ -179,6 +180,19 @@ function logLatestEvalPropertyErrors(
     }
   }
   // Add and delete errors from debugger
+  if (pathsToClearErrorsFor) {
+    for (const errorPath of pathsToClearErrorsFor) {
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        errorPath,
+      );
+      const entity = dataTree[entityName];
+      if (isWidget(entity)) {
+        const idField = entity.widgetId;
+        errorsToDelete.push({ id: `${idField}-${propertyPath}` });
+      }
+    }
+  }
+
   AppsmithConsole.addErrors(errorsToAdd);
   AppsmithConsole.deleteErrors(errorsToDelete);
 }
@@ -187,6 +201,7 @@ export function* evalErrorHandler(
   errors: EvalError[],
   dataTree?: DataTree,
   evaluationOrder?: Array<string>,
+  pathsToClearErrorsFor?: Array<string>,
 ): any {
   if (dataTree && evaluationOrder) {
     const currentDebuggerErrors: Record<string, Log> = yield select(
@@ -197,6 +212,7 @@ export function* evalErrorHandler(
       currentDebuggerErrors,
       dataTree,
       evaluationOrder,
+      pathsToClearErrorsFor,
     );
   }
 
