@@ -4,7 +4,7 @@ export const reactJsonProps = {
   name: null,
   enableClipboard: false,
   displayDataTypes: false,
-  displayArrayKey: false,
+  displayArrayKey: true,
   quotesOnKeys: false,
   style: {
     fontSize: "10px",
@@ -32,6 +32,7 @@ export const JsonWrapper = styled.div`
       .variable-row {
         padding-top: 0 !important;
         padding-bottom: 0 !important;
+        border-left: 0 !important;
         .variable-value div {
           text-transform: lowercase;
           font-size: 10px !important;
@@ -42,6 +43,8 @@ export const JsonWrapper = styled.div`
       .object-key-val {
         padding-top: 0 !important;
         padding-bottom: 0 !important;
+        padding-left: 4px !important;
+        border-left: 0 !important;
       }
     }
   }
