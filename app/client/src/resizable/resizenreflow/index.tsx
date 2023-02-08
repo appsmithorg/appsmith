@@ -426,6 +426,7 @@ export function ReflowResizable(props: ResizableProps) {
   if (!(isAutoHeight && widget.leftColumn === 0) && props.handles.left) {
     handles.push({
       dragCallback: (x: number) => {
+        if (props.componentWidth - x < 300 && x > 0) return;
         setNewDimensions({
           width: props.componentWidth - x,
           height: newDimensions.height,
@@ -467,6 +468,7 @@ export function ReflowResizable(props: ResizableProps) {
   ) {
     handles.push({
       dragCallback: (x: number) => {
+        if (props.componentWidth + x < 300 && x < 0) return;
         setNewDimensions({
           width: props.componentWidth + x,
           height: newDimensions.height,
@@ -484,6 +486,7 @@ export function ReflowResizable(props: ResizableProps) {
   if (props.handles.bottom) {
     handles.push({
       dragCallback: (x: number, y: number) => {
+        if (props.componentHeight + y < 300 && y < 0) return;
         setNewDimensions({
           width: newDimensions.width,
           height: props.componentHeight + y,
@@ -595,6 +598,7 @@ export function ReflowResizable(props: ResizableProps) {
       props.isFlexChild,
       props.responsiveBehavior,
     );
+
     return (
       <ResizableHandle
         {...handle}
