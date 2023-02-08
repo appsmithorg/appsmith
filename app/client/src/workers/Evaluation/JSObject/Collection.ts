@@ -1,14 +1,25 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { klona } from "klona/full";
+import { get, set } from "lodash";
 
 export type VariableState = Record<string, Record<string, unknown>>;
 class JSObjectCollection {
   private prevVariableState: VariableState = {};
   private currentVariableState: VariableState = {};
 
+  setVariableValue(variableValue: unknown, fullPropertyPath: string) {
+    set(
+      this.prevVariableState,
+      fullPropertyPath,
+      get(this.currentVariableState, fullPropertyPath),
+    );
+    set(this.currentVariableState, fullPropertyPath, variableValue);
+  }
+
   setVariableState(currentVariableState: VariableState) {
     if (this.currentVariableState)
       this.prevVariableState = klona(this.currentVariableState);
+
     this.currentVariableState = klona(currentVariableState);
   }
 
