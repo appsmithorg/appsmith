@@ -265,7 +265,8 @@ function ErrorLogItem(props: LogItemProps) {
         ) && (
           <div className="debugger-description">
             <span
-              className="debugger-label t--debugger-log-message"
+              className="debugger-label"
+              data-cy="t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}
             >
               {props.pluginErrorDetails
