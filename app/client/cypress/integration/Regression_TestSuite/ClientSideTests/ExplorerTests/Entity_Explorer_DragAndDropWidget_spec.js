@@ -3,6 +3,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Entity explorer Drag and Drop widgets testcases", function() {
   it("Drag and drop form widget and validate", function() {

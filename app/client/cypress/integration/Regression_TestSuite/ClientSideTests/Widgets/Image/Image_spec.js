@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
 
 describe("Image Widget Functionality", function() {

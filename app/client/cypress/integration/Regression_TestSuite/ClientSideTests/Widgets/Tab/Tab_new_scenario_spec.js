@@ -1,6 +1,7 @@
 const Layoutpage = require("../../../../../locators/Layout.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tabsWithWidgetDsl.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Tab widget test", function() {
   before(() => {

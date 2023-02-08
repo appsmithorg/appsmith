@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/formWithRTEDsl.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("RichTextEditor Widget Functionality in Form", function() {
   before(() => {
