@@ -221,7 +221,7 @@ class MetaWidgetGenerator {
   private itemSpacing: GeneratorOptions["itemSpacing"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
   private isListCloned: ConstructorProps["isListCloned"];
-  private level?: ConstructorProps["level"];
+  private level: ConstructorProps["level"];
   private levelData: GeneratorOptions["levelData"];
   private metaIdToTemplateIdMap: Record<string, string>;
   private modificationsQueue: Queue<MODIFICATION_TYPE>;
@@ -317,7 +317,7 @@ class MetaWidgetGenerator {
       options.containerParentId,
     );
 
-    this.level = options.level;
+    this.level = options.level ?? 1;
     this.prevPrimaryKeys = this.primaryKeys;
     this.primaryKeys = this.generatePrimaryKeys(options);
 
@@ -922,11 +922,7 @@ class MetaWidgetGenerator {
       });
     }
 
-    if (!this.level) {
-      metaWidget.level = 1;
-    } else {
-      metaWidget.level = this.level + 1;
-    }
+    metaWidget.level = this.level + 1;
   };
 
   updateWidgetNameInDynamicBinding = (
