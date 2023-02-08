@@ -43,7 +43,6 @@ import {
   TextType,
   TooltipComponent,
   Variant,
-  MenuDivider,
 } from "design-system-old";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
@@ -425,12 +424,6 @@ const CenteredIcon = styled(Icon)`
   margin-right: 5px;
 `;
 
-const Divider = styled(MenuDivider)`
-  margin-bottom: 10px;
-  margin-left: 0px;
-  border-top: 1px solid #f0f0f0;
-`;
-
 function ImportedKeyValue(props: {
   datas: { key: string; value: string; isInvalid?: boolean }[];
   keyValueName: string;
@@ -592,7 +585,6 @@ function ImportedDatas(props: {
   return (
     <>
       <KeyValueFlexContainer>
-        {props?.data && props.data.length > 0 && <Divider />}
         {props?.data &&
           props.data.length > 0 &&
           renderImportedDatasButton(
