@@ -325,7 +325,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       "UncaughtPromiseRejection: User cancelled action execution"
     ) {
       const errorMessage =
-        `${errors[0].errorMessage.name}: ${errors[0].errorMessage.text}` ||
+        `${errors[0].errorMessage.name}: ${errors[0].errorMessage.message}` ||
         errors[0].message;
       throw new UncaughtPromiseError(errorMessage);
     }
