@@ -1,66 +1,70 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
-const jsEditor = ObjectsRegistry.JSEditor;
-const apiPage = ObjectsRegistry.ApiPage;
-const debuggerHelper = ObjectsRegistry.DebuggerHelper;
+import {
+  agHelper,
+  apiPage,
+  jsEditor,
+  debuggerHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Tests functionality of platform function", () => {
   it("1. Tests access to outer variable", () => {
-    apiPage.CreateAndFillApi(
-      "https://mock-api.appsmith.com/users",
-      "getAllUsers",
-    );
+    apiPage.CreateAndFillApi(agHelper.mockApiUrl, "getAllUsers");
     jsEditor.CreateJSObject(
       `export default {
-      myFun1: () => {
-        const outer = "World";
-        getAllUsers.run(() => {
-          showAlert("Hello " + outer + " from success callback");
-        });
-      },
-      myFun2: async () => {
-        const outer = "World";
-        setInterval(() => {
-          showAlert("Hello " + outer +" from setInterval");
-          clearInterval("test");
-        }, 1000, "test")
-      },
-      myFun3: async () => {
-        const outer = "World";
-        appsmith.geolocation.getCurrentPosition(() => {
-          showAlert("Hello " + outer+ " from current position");
-        });
-      },
-      metaDataForSetInterval: () => {
-        setInterval(() => {
-          console.log("Hello from setInterval");
-          clearInterval("test345")
-        }, 3000, "test345");
-      },
-      metaDataForSetTimeout: () => {
-        setTimeout(() => {
-          console.log("Hello from setTimeout");
-        }, 4000);
-      },
-      metaDataApiTest: () => {
-        getAllUsers.run().then(() => {
-          setTimeout(() => {
-            console.log("Hello from setTimeout inside API")
-          }, 2000);
-        })
-      },
-      switchMetaData: () => {},
-      accessSetIntervalFromSetTimeout: () => {
-        setTimeout(() => {
+        myFun1: () => {
+
+        },
+        myFun2: async () => {
+
+        },
+        accessOuterVariableInsideSuccessCb: () => {
+          const outer = "World";
+          getAllUsers.run(() => {
+            showAlert("Hello " + outer + " from success callback");
+          });
+        },
+        accessOuterVariableInsideSetIntervalCb: async () => {
+          const outer = "World";
           setInterval(() => {
-            showAlert("Hello World from setInterval inside setTimeout");
-            clearInterval("test123");
-          }, 1000, "test123");
-        }, 1000);
-      },
-      executeTriggersOutsideReqResCycle: () => {
-        showAlert("Hello").then(() => getAllUsers.run(() => showAlert("World")));
-      }
+            showAlert("Hello " + outer +" from setInterval");
+            clearInterval("test");
+          }, 1000, "test")
+        },
+        accessOuterVariableInsideGeoCb: async () => {
+          const outer = "World";
+          appsmith.geolocation.getCurrentPosition(() => {
+            showAlert("Hello " + outer+ " from current position");
+          });
+        },
+        metaDataForSetInterval: () => {
+          setInterval(() => {
+            console.log("Hello from setInterval");
+            clearInterval("test345")
+          }, 3000, "test345");
+        },
+        metaDataForSetTimeout: () => {
+          setTimeout(() => {
+            console.log("Hello from setTimeout");
+          }, 4000);
+        },
+        metaDataApiTest: () => {
+          getAllUsers.run().then(() => {
+            setTimeout(() => {
+              console.log("Hello from setTimeout inside API")
+            }, 2000);
+          })
+        },
+        switchMetaData: () => {},
+        accessSetIntervalFromSetTimeout: () => {
+          setTimeout(() => {
+            setInterval(() => {
+              showAlert("Hello World from setInterval inside setTimeout");
+              clearInterval("test123");
+            }, 1000, "test123");
+          }, 1000);
+        },
+        executeTriggersOutsideReqResCycle: () => {
+          showAlert("Hello").then(() => getAllUsers.run(() => showAlert("World")));
+        }
     }`,
       {
         paste: true,
@@ -77,9 +81,6 @@ describe("Tests functionality of platform function", () => {
     jsEditor.SelectFunctionDropdown("myFun2");
     jsEditor.RunJSObj();
     agHelper.AssertContains("Hello World from setInterval", "exist");
-    // jsEditor.SelectFunctionDropdown("myFun3");
-    // jsEditor.RunJSObj();
-    // agHelper.AssertContains("Hello World from current position", "exist");
     jsEditor.SelectFunctionDropdown("accessSetIntervalFromSetTimeout");
     jsEditor.RunJSObj();
     agHelper.AssertContains(
