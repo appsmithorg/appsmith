@@ -1,5 +1,5 @@
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Toaster } from "design-system-old";
+import { Toaster, Variant } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -35,6 +35,8 @@ import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { getMetaWidgets } from "selectors/editorSelectors";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -237,12 +239,26 @@ export function* getUpdateDslAfterCreatingChild(
   addChildPayload: WidgetAddChild,
 ) {
   // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
-  const { widgetId } = addChildPayload;
+  const { type, widgetId } = addChildPayload;
   // Get the current parent widget whose child will be the new widget.
   const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
   // const parent = Object.assign({}, stateParent);
   // Get all the widgets from the canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+  if (type === "LIST_WIDGET_V2") {
+    const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
+    const parentListWidgetId = metaWidgets[widgetId]?.creatorId;
+
+    if (parentListWidgetId && metaWidgets[parentListWidgetId]?.level >= 3) {
+      Toaster.show({
+        text: "Cannot have more than 3 levels of nesting",
+        variant: Variant.info,
+      });
+      return stateWidgets;
+    }
+  }
+
   const widgets = Object.assign({}, stateWidgets);
   // Generate the full WidgetProps of the widget to be added.
   const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
@@ -285,6 +301,10 @@ export function* getUpdateDslAfterCreatingChild(
     [addChildPayload.newWidgetId],
     widgets,
   );
+  yield put({
+    type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
+    payload: [addChildPayload.newWidgetId],
+  });
 
   return updatedWidgets;
 }
@@ -303,10 +323,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
 
     yield put(updateAndSaveLayout(updatedWidgets));
-    yield put({
-      type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
-      payload: [addChildAction.payload.newWidgetId],
-    });
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     log.debug("add child computations took", performance.now() - start, "ms");

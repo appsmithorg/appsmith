@@ -1,6 +1,8 @@
 import React, { RefObject } from "react";
 import styled from "styled-components";
 
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+
 type ListComponentProps = React.PropsWithChildren<{
   backgroundColor: string;
   borderRadius: string;
@@ -12,7 +14,7 @@ type ListComponentProps = React.PropsWithChildren<{
 type StyledListContainerProps = Omit<ListComponentProps, "componentRef">;
 
 const StyledListContainer = styled.div<StyledListContainerProps>`
-  height: ${(props) => props.height - 8}px;
+  height: ${(props) => props.height - WIDGET_PADDING * 2}px;
   width: 100%;
   position: relative;
   background: ${(props) => props.backgroundColor};
