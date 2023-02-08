@@ -1,9 +1,6 @@
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import LOG_TYPE from "./logtype";
-import {
-  ErrorMessage,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { PluginType } from "entities/Action";
 import { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
@@ -115,7 +112,7 @@ export interface LogActionPayload {
 
 export interface Message {
   // More contextual message than `text`
-  message: ErrorMessage;
+  message: Error;
   type?: ErrorType;
   subType?: string;
   lineNumber?: number;

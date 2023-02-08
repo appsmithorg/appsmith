@@ -40,22 +40,22 @@ describe("#defaultValueValidation", () => {
     "abcd",
   ];
   const expectedOutputs = [
-    { isValid: true, parsed: undefined, messages: [{ name: "", text: "" }] },
-    { isValid: true, parsed: undefined, messages: [{ name: "", text: "" }] },
-    { isValid: true, parsed: 0, messages: [{ name: "", text: "" }] },
-    { isValid: true, parsed: 123, messages: [{ name: "", text: "" }] },
-    { isValid: true, parsed: -23, messages: [{ name: "", text: "" }] },
-    { isValid: true, parsed: 0.000001, messages: [{ name: "", text: "" }] },
-    { isValid: true, parsed: -23, messages: [{ name: "", text: "" }] },
-    { isValid: true, parsed: 0, messages: [{ name: "", text: "" }] },
-    { isValid: true, parsed: 100, messages: [{ name: "", text: "" }] },
+    { isValid: true, parsed: undefined, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: undefined, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 0, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 123, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: -23, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 0.000001, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: -23, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 0, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 100, messages: [{ name: "", message: "" }] },
     {
       isValid: false,
       parsed: undefined,
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     },
@@ -65,7 +65,7 @@ describe("#defaultValueValidation", () => {
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     },
@@ -133,7 +133,7 @@ describe("#defaultValueValidation", () => {
     expect(response).toStrictEqual({
       isValid: true,
       parsed: undefined,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     });
   });
 });

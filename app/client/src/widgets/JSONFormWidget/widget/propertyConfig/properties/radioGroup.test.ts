@@ -24,7 +24,7 @@ describe(".optionsValidation", () => {
       messages: [
         {
           name: "ValidationError",
-          text: "path:value must be unique. Duplicate values found",
+          message: "path:value must be unique. Duplicate values found",
         },
       ],
     };
@@ -43,7 +43,7 @@ describe(".optionsValidation", () => {
       messages: [
         {
           name: "ValidationError",
-          text: "Invalid entry at index: 0. Missing required key: label",
+          message: "Invalid entry at index: 0. Missing required key: label",
         },
       ],
     };
@@ -64,7 +64,7 @@ describe(".optionsValidation", () => {
       messages: [
         {
           name: "TypeError",
-          text: "All value properties in options must have the same type",
+          message: "All value properties in options must have the same type",
         },
       ],
     };
@@ -92,7 +92,7 @@ describe(".optionsValidation", () => {
       messages: [
         {
           name: "TypeError",
-          text:
+          message:
             'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
         },
       ],
@@ -122,7 +122,7 @@ describe(".optionsValidation", () => {
       const expectedOutput = {
         isValid: true,
         parsed: input,
-        messages: [{ name: "", text: "" }],
+        messages: [{ name: "", message: "" }],
       };
 
       expect(response).toEqual(expectedOutput);

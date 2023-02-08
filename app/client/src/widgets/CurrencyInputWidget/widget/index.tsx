@@ -46,15 +46,15 @@ export function defaultValueValidation(
 ): ValidationResponse {
   const NUMBER_ERROR_MESSAGE = {
     name: "TypeError",
-    text: "This value must be number",
+    message: "This value must be number",
   };
   const DECIMAL_SEPARATOR_ERROR_MESSAGE = {
     name: "ValidationError",
-    text: "Please use . as the decimal separator for default values.",
+    message: "Please use . as the decimal separator for default values.",
   };
   const EMPTY_ERROR_MESSAGE = {
     name: "",
-    text: "",
+    message: "",
   };
   const localeLang = navigator.languages?.[0] || "en-US";
 
@@ -113,7 +113,7 @@ export function defaultValueValidation(
       messages = [
         {
           name: "RangeError",
-          text:
+          message:
             "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
         },
       ];

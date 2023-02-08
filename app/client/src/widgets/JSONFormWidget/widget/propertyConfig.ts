@@ -28,7 +28,7 @@ export const sourceDataValidationFn = (
       messages: [
         {
           name: "ValidationError",
-          text: "Source data cannot be empty.",
+          message: "Source data cannot be empty.",
         },
       ],
     };
@@ -57,12 +57,7 @@ export const sourceDataValidationFn = (
     return {
       isValid: false,
       parsed: {},
-      messages: [
-        {
-          name: (e as Error).name,
-          text: (e as Error).message,
-        },
-      ],
+      messages: [e as Error],
     };
   }
 };

@@ -17,7 +17,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -78,7 +79,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -165,7 +167,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -276,7 +279,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -387,7 +391,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -524,7 +529,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -611,7 +617,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -660,7 +667,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -702,7 +710,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -776,7 +785,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },
@@ -820,7 +830,8 @@ describe("getFilteredErrors", () => {
             {
               message: {
                 name: "TypeError",
-                text: "Cannot read properties of undefined (reading 'users')",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
               },
               type: PropertyEvaluationErrorType.PARSE,
             },

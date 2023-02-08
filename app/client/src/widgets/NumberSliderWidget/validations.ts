@@ -12,7 +12,7 @@ export function minValueValidation(
       messages: [
         {
           name: "ValidationError",
-          text: "This value is required",
+          message: "This value is required",
         },
       ],
     };
@@ -28,7 +28,7 @@ export function minValueValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -41,7 +41,7 @@ export function minValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be less than max value",
+          message: "This value must be less than max value",
         },
       ],
     };
@@ -53,7 +53,7 @@ export function minValueValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };
@@ -71,7 +71,7 @@ export function maxValueValidation(
       messages: [
         {
           name: "ValidationError",
-          text: "This value is required",
+          message: "This value is required",
         },
       ],
     };
@@ -87,7 +87,7 @@ export function maxValueValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -100,7 +100,7 @@ export function maxValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than min value",
+          message: "This value must be greater than min value",
         },
       ],
     };
@@ -112,7 +112,7 @@ export function maxValueValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };
@@ -130,7 +130,7 @@ export function defaultValueValidation(
       messages: [
         {
           name: "",
-          text: "",
+          message: "",
         },
       ],
     };
@@ -147,7 +147,7 @@ export function defaultValueValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -160,7 +160,7 @@ export function defaultValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than or equal to the min value",
+          message: "This value must be greater than or equal to the min value",
         },
       ],
     };
@@ -173,7 +173,7 @@ export function defaultValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be less than or equal to the max value",
+          message: "This value must be less than or equal to the max value",
         },
       ],
     };
@@ -185,7 +185,7 @@ export function defaultValueValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };
@@ -203,7 +203,7 @@ export function stepSizeValidation(
       messages: [
         {
           name: "ValidationError",
-          text: "This value is required",
+          message: "This value is required",
         },
       ],
     };
@@ -218,7 +218,7 @@ export function stepSizeValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -231,7 +231,7 @@ export function stepSizeValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than 0.1",
+          message: "This value must be greater than 0.1",
         },
       ],
     };
@@ -249,7 +249,7 @@ export function stepSizeValidation(
       messages: [
         {
           name: "RangeError",
-          text: `This value must be less than ${sliderRange}`,
+          message: `This value must be less than ${sliderRange}`,
         },
       ],
     };
@@ -261,7 +261,7 @@ export function stepSizeValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };

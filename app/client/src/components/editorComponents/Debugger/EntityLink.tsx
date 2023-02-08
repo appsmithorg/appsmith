@@ -66,7 +66,6 @@ function JSCollectionLink(props: EntityLinkProps) {
       }
     }
   }, []);
-
   return (
     <Link
       entityType={props.type}
@@ -160,7 +159,10 @@ function Link(props: {
     case DebuggerLinkUI.ENTITY_NAME:
       const link = props.name;
       return (
-        <span className="debugger-entity-link" onClick={onClick}>
+        <span
+          className="debugger-entity-link t--debugger-log-entity-link"
+          onClick={onClick}
+        >
           {link}
         </span>
       );

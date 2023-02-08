@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { debounce } from "lodash";
 import {
@@ -10,7 +10,6 @@ import {
   Variant,
 } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
-import { Classes } from "@blueprintjs/core";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import {
@@ -18,16 +17,8 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
-import { AppState } from "@appsmith/reducers";
 import UserProfileImagePicker from "./UserProfileImagePicker";
-import {
-  Wrapper,
-  FieldWrapper,
-  LabelWrapper,
-  Loader,
-  TextLoader,
-} from "./StyledComponents";
-import { getCurrentUser as refreshCurrentUser } from "actions/authActions";
+import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 const { disableLoginForm } = getAppsmithConfigs();
@@ -70,14 +61,6 @@ function General() {
     );
   }, timeout);
 
-  const isFetchingUser = useSelector(
-    (state: AppState) => state.ui.users.loadingStates.fetchingUser,
-  );
-
-  useEffect(() => {
-    dispatch(refreshCurrentUser());
-  }, []);
-
   if (user?.email === ANONYMOUS_USERNAME) return null;
 
   return (
@@ -92,8 +75,7 @@ function General() {
         <LabelWrapper>
           <Text type={TextType.H4}>Display name</Text>
         </LabelWrapper>
-        {isFetchingUser && <Loader className={Classes.SKELETON} />}
-        {!isFetchingUser && (
+        {
           <div style={{ flex: 1 }}>
             <TextInput
               cypressSelector="t--display-name"
@@ -104,15 +86,14 @@ function General() {
               validator={notEmptyValidator}
             />
           </div>
-        )}
+        }
       </FieldWrapper>
       <FieldWrapper>
         <LabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </LabelWrapper>
         <div style={{ flexDirection: "column", display: "flex" }}>
-          {isFetchingUser && <TextLoader className={Classes.SKELETON} />}
-          {!isFetchingUser && <Text type={TextType.P1}>{user?.email}</Text>}
+          {<Text type={TextType.P1}>{user?.email}</Text>}
 
           {!disableLoginForm && (
             <ForgotPassword onClick={forgotPassword}>

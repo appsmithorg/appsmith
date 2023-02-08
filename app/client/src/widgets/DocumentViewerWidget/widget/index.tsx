@@ -37,7 +37,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
           messages: [
             {
               name: "ValidationError",
-              text: "Provided URL / Base64 is invalid.",
+              message: "Provided URL / Base64 is invalid.",
             },
           ],
         };
@@ -56,7 +56,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
         messages: [
           {
             name: "ValidationError",
-            text: "Provided URL / Base64 is invalid.",
+            message: "Provided URL / Base64 is invalid.",
           },
         ],
       };
@@ -66,7 +66,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
   return {
     isValid: true,
     parsed: "",
-    messages: [{ name: "", text: "" }],
+    messages: [{ name: "", message: "" }],
   };
 }
 
@@ -81,7 +81,7 @@ class DocumentViewerWidget extends BaseWidget<
         children: [
           {
             helpText:
-              "Document url for preview. for URL, supported extensions are txt, pdf, docx, ppt, pptx, xlsx. ppt is currently not supported by base64.",
+              "Preview document URL supports txt, pdf, docx, ppt, pptx, xlsx file formats, but base64 ppt/pptx are not supported.",
             propertyName: "docUrl",
             label: "Document Link",
             controlType: "INPUT_TEXT",

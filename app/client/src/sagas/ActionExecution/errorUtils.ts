@@ -80,7 +80,7 @@ export const logActionExecutionError = (
           messages: [
             {
               type: errorType,
-              message: { name: "TriggerExecutionError", text: errorMessage },
+              message: { name: "TriggerExecutionError", message: errorMessage },
             },
           ],
         },

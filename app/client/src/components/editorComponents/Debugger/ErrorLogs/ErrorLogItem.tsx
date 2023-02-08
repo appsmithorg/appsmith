@@ -1,8 +1,6 @@
-import React, { useState, useMemo } from "react";
-import { useSelector } from "react-redux";
-import { get, keyBy } from "lodash";
+import React, { useState } from "react";
+import { get } from "lodash";
 import {
-  ENTITY_TYPE,
   Log,
   LOG_CATEGORY,
   Message,
@@ -10,36 +8,42 @@ import {
   SourceEntity,
 } from "entities/AppsmithConsole";
 import styled, { useTheme } from "styled-components";
-import EntityLink, { DebuggerLinkUI } from "../EntityLink";
 import { getLogIcon } from "../helpers";
 import {
+  AppIcon,
   Classes,
   getTypographyByKey,
   Icon,
   IconName,
   IconSize,
+  Text,
+  TextType,
+  TooltipComponent,
 } from "design-system-old";
+import {
+  createMessage,
+  TROUBLESHOOT_ISSUE,
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import {
-  ApiMethodIcon,
-  EntityIcon,
-  JsFileIconV2,
-} from "pages/Editor/Explorer/ExplorerIcons";
-import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
-import { getPlugins } from "selectors/entitiesSelector";
-import { PluginType } from "entities/Action";
-import CollapseData from "./CollapseData";
+import LogCollapseData from "./components/LogCollapseData";
+import LogAdditionalInfo from "./components/LogAdditionalInfo";
+import { PluginErrorDetails } from "api/ActionAPI";
+import ContextualMenu from "../ContextualMenu";
+import LogEntityLink from "./components/LogEntityLink";
+import LogTimeStamp from "./components/LogTimeStamp";
 
 const InnerWrapper = styled.div`
   display: flex;
   align-items: flex-start;
+  gap: 4px;
 `;
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 6px 12px 6px 12px;
+  cursor: default;
 
   &.${Severity.INFO} {
     border-bottom: 1px solid
@@ -48,7 +52,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
   &.${Severity.ERROR} {
     background-color: #fff8f8;
-    border-bottom: 1px solid #ffecec;
+    border-bottom: 1px solid #ffebeb;
   }
 
   &.${Severity.WARNING} {
@@ -56,10 +60,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       props.theme.colors.debugger.warning.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.warning.borderBottom};
-  }
-
-  .bp3-popover-target {
-    display: inline;
   }
 
   .${Classes.ICON} {
@@ -76,7 +76,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   .debugger-time {
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
-    margin-left: 4px;
     font-weight: 500;
     color: ${Colors.GRAY_500};
     cursor: default;
@@ -96,9 +95,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   .debugger-error-type {
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
-    margin-left: 4px;
-    margin-right: 4px;
-    cursor: default;
     color: ${(props) => props.theme.colors.debugger.error.type};
   }
 
@@ -107,7 +103,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     align-items: center;
     overflow-wrap: anywhere;
     word-break: break-word;
-    margin-right: 4px;
 
     .debugger-label {
       ${getTypographyByKey("h6")}
@@ -128,8 +123,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       margin-left: 6px;
 
       & > span {
-        cursor: pointer;
-
         &:hover {
           text-decoration: underline;
           text-decoration-color: ${(props) =>
@@ -149,25 +142,25 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-const IconWrapper = styled.span`
-  line-height: ${(props) => props.theme.lineHeights[0]}px;
-  color: ${Colors.CHARCOAL};
-  display: flex;
-  align-items: center;
-
+const StyledSearchIcon = styled(AppIcon)`
+  height: 14px;
+  width: 14px;
   svg {
-    width: 12px;
-    height: 12px;
+    height: 14px;
+    width: 14px;
   }
-  margin-right: 4px;
 `;
 
-const LineNumber = styled.div`
-  ${getTypographyByKey("h6")}
-  font-weight: 400;
-  letter-spacing: -0.195px;
-  color: ${Colors.GRAY_500};
-  min-width: 90px;
+const ContextWrapper = styled.div`
+  height: 14px;
+  display: flex;
+  align-items: center;
+`;
+
+const FlexWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const showToggleIcon = (e: Log) => {
@@ -191,7 +184,6 @@ export const getLogItemProps = (e: Log) => {
     id: e.source ? e.source.id : undefined,
     messages: e.messages,
     collapsable: showToggleIcon(e),
-    occurences: e.occurrenceCount || 1,
     pluginErrorDetails: e.pluginErrorDetails,
   };
 };
@@ -212,99 +204,60 @@ export type LogItemProps = {
   id?: string;
   source?: SourceEntity;
   messages?: Message[];
-  occurences: number;
-  pluginErrorDetails?: any;
+  pluginErrorDetails?: PluginErrorDetails;
 };
 
 function ErrorLogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { collapsable } = props;
   const theme = useTheme();
-  const plugins = useSelector(getPlugins);
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-
-  const getIcon = () => {
-    if (props.source) {
-      if (props.source.type === ENTITY_TYPE.WIDGET && props.source.pluginType) {
-        return (
-          <WidgetIcon height={12} type={props.source.pluginType} width={12} />
-        );
-      } else if (props.source.type === ENTITY_TYPE.JSACTION) {
-        return JsFileIconV2(12, 12);
-      } else if (props.source.type === ENTITY_TYPE.ACTION) {
-        if (
-          props.source.pluginType === PluginType.API &&
-          props.source.httpMethod
-        ) {
-          return ApiMethodIcon(props.source.httpMethod, "9px", "17px", 28);
-        } else if (props.iconId && pluginGroups[props.iconId]) {
-          return (
-            <EntityIcon height={"12px"} width={"12px"}>
-              <img
-                alt="entityIcon"
-                src={pluginGroups[props.iconId].iconLocation}
-              />
-            </EntityIcon>
-          );
-        }
-      }
-    }
-    return <img alt="icon" src={undefined} />;
-  };
 
   return (
     <Wrapper className={props.severity} collapsed={!isOpen}>
-      <InnerWrapper>
-        <Icon
-          clickable={collapsable}
-          fillColor={
-            props.severity === Severity.ERROR
-              ? get(theme, "colors.debugger.error.hoverIconColor")
-              : ""
-          }
-          name={props.icon}
-          size={IconSize.SMALL}
-        />
-        {props.logType !== LOG_TYPE.LINT_ERROR &&
-          props.messages &&
-          props.messages[0].message.name !== "SyntaxError" && (
-            <span className={`debugger-time ${props.severity}`}>
-              {props.timestamp}
-            </span>
-          )}
-        {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
+      <InnerWrapper
+        onClick={() => {
+          if (collapsable) setIsOpen(!isOpen);
+        }}
+      >
+        <FlexWrapper
+          style={{ display: "flex", alignItems: "center", gap: "4px" }}
+        >
           <Icon
-            className={`${Classes.ICON} debugger-toggle`}
-            clickable={collapsable}
-            fillColor={get(theme, "colors.debugger.collapseIcon")}
-            name={"expand-more"}
-            onClick={() => setIsOpen(!isOpen)}
+            clickable={false}
+            fillColor={
+              props.severity === Severity.ERROR
+                ? get(theme, "colors.debugger.error.hoverIconColor")
+                : ""
+            }
+            name={props.icon}
             size={IconSize.SMALL}
           />
-        )}
-        <span className={`debugger-error-type`}>
-          {`${props.messages && props.messages[0].message.name}:`}
-        </span>
 
-        {props.source && (
-          <span
-            style={{
-              marginRight: "4px",
-              display: "flex",
-              alignItems: "center",
-              lineHeight: "14px",
-            }}
-          >
-            <IconWrapper>{getIcon()}</IconWrapper>
-            <EntityLink
-              id={props.source.id}
-              name={props.source.name}
-              type={props.source.type}
-              uiComponent={DebuggerLinkUI.ENTITY_NAME}
+          {props.logType &&
+            props.logType !== LOG_TYPE.LINT_ERROR &&
+            props.messages &&
+            props.messages[0].message.name !== "SyntaxError" && (
+              <LogTimeStamp
+                severity={props.severity}
+                timestamp={props.timestamp}
+              />
+            )}
+          {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
+            <Icon
+              className={`${Classes.ICON} debugger-toggle`}
+              clickable={collapsable}
+              fillColor={get(theme, "colors.debugger.collapseIcon")}
+              name={"expand-more"}
+              onClick={() => setIsOpen(!isOpen)}
+              size={IconSize.MEDIUM}
             />
-            :
-          </span>
-        )}
+          )}
+          <div className={`debugger-error-type`}>
+            {`${props.messages && props.messages[0].message.name}:`}
+          </div>
+
+          <LogEntityLink {...props} />
+        </FlexWrapper>
         {!(
           props.collapsable &&
           isOpen &&
@@ -317,28 +270,48 @@ function ErrorLogItem(props: LogItemProps) {
             >
               {props.pluginErrorDetails
                 ? props.pluginErrorDetails.title
-                : props.messages && props.messages[0].message.text}
+                : props.messages && props.messages[0].message.message}
             </span>
           </div>
         )}
-        {props.messages && props.messages[0].lineNumber ? (
-          <LineNumber>
-            [Ln{" "}
-            {props.messages[0].lineNumber < 10
-              ? "0" + (props.messages[0].lineNumber + 1)
-              : props.messages[0].lineNumber + 1}
-            ]
-          </LineNumber>
-        ) : (
-          props.pluginErrorDetails &&
-          props.pluginErrorDetails.appsmithErrorCode && (
-            <LineNumber>
-              [{props.pluginErrorDetails.appsmithErrorCode}]
-            </LineNumber>
-          )
+        {props.messages && props.messages[0].lineNumber && (
+          <LogAdditionalInfo
+            text={`Ln ${
+              props.messages[0].lineNumber < 9
+                ? "0" + (props.messages[0].lineNumber + 1)
+                : props.messages[0].lineNumber + 1
+            }`}
+            width="40px"
+          />
         )}
+        {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
+          props.severity === Severity.ERROR &&
+          props.logType !== LOG_TYPE.LINT_ERROR && (
+            <ContextWrapper onClick={(e) => e.stopPropagation()}>
+              <ContextualMenu
+                entity={props.source}
+                error={{ message: { name: "", message: "" } }}
+              >
+                <TooltipComponent
+                  content={
+                    <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                      {createMessage(TROUBLESHOOT_ISSUE)}
+                    </Text>
+                  }
+                  minimal
+                  position="bottom-right"
+                >
+                  <StyledSearchIcon
+                    className={`${Classes.ICON}`}
+                    name={"help"}
+                    size={IconSize.SMALL}
+                  />
+                </TooltipComponent>
+              </ContextualMenu>
+            </ContextWrapper>
+          )}
       </InnerWrapper>
-      {collapsable && isOpen && <CollapseData isOpen={isOpen} {...props} />}
+      {collapsable && isOpen && <LogCollapseData isOpen={isOpen} {...props} />}
     </Wrapper>
   );
 }

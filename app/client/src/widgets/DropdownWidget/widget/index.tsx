@@ -25,7 +25,7 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
       messages: [
         {
           name: "TypeError",
-          text: "This value does not evaluate to type: string",
+          message: "This value does not evaluate to type: string",
         },
       ],
     };

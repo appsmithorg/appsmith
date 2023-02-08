@@ -12,7 +12,7 @@ export function minValueValidation(
       messages: [
         {
           name: "ValidationError",
-          text: "This value is required",
+          message: "This value is required",
         },
       ],
     };
@@ -28,7 +28,7 @@ export function minValueValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -41,7 +41,7 @@ export function minValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be less than max value",
+          message: "This value must be less than max value",
         },
       ],
     };
@@ -53,7 +53,7 @@ export function minValueValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };
@@ -71,7 +71,7 @@ export function maxValueValidation(
       messages: [
         {
           name: "ValidationError",
-          text: "This value is required",
+          message: "This value is required",
         },
       ],
     };
@@ -87,7 +87,7 @@ export function maxValueValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -100,7 +100,7 @@ export function maxValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than min value",
+          message: "This value must be greater than min value",
         },
       ],
     };
@@ -112,7 +112,7 @@ export function maxValueValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };
@@ -130,7 +130,7 @@ export function stepSizeValidation(
       messages: [
         {
           name: "ValidationError",
-          text: "This value is required",
+          message: "This value is required",
         },
       ],
     };
@@ -145,7 +145,7 @@ export function stepSizeValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -158,7 +158,7 @@ export function stepSizeValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than 0.1",
+          message: "This value must be greater than 0.1",
         },
       ],
     };
@@ -176,7 +176,7 @@ export function stepSizeValidation(
       messages: [
         {
           name: "RangeError",
-          text: `This value must be less than ${sliderRange}`,
+          message: `This value must be less than ${sliderRange}`,
         },
       ],
     };
@@ -191,7 +191,7 @@ export function stepSizeValidation(
       messages: [
         {
           name: "RangeError",
-          text: `This value must be less than or equal to minRange`,
+          message: `This value must be less than or equal to minRange`,
         },
       ],
     };
@@ -203,7 +203,7 @@ export function stepSizeValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };
@@ -221,7 +221,7 @@ export function startValueValidation(
       messages: [
         {
           name: "",
-          text: "",
+          message: "",
         },
       ],
     };
@@ -238,7 +238,7 @@ export function startValueValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -251,7 +251,7 @@ export function startValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than or equal to the min value",
+          message: "This value must be greater than or equal to the min value",
         },
       ],
     };
@@ -264,7 +264,7 @@ export function startValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be less than defaultEnd value",
+          message: "This value must be less than defaultEnd value",
         },
       ],
     };
@@ -276,7 +276,7 @@ export function startValueValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };
@@ -294,7 +294,7 @@ export function endValueValidation(
       messages: [
         {
           name: "",
-          text: "",
+          message: "",
         },
       ],
     };
@@ -311,7 +311,7 @@ export function endValueValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -324,7 +324,7 @@ export function endValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be less than or equal to the max value",
+          message: "This value must be less than or equal to the max value",
         },
       ],
     };
@@ -337,7 +337,7 @@ export function endValueValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than defaultStart value",
+          message: "This value must be greater than defaultStart value",
         },
       ],
     };
@@ -349,7 +349,7 @@ export function endValueValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };
@@ -367,7 +367,7 @@ export function minRangeValidation(
       messages: [
         {
           name: "ValidationError",
-          text: "This value is required",
+          message: "This value is required",
         },
       ],
     };
@@ -383,7 +383,7 @@ export function minRangeValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value must be a number",
+          message: "This value must be a number",
         },
       ],
     };
@@ -401,7 +401,7 @@ export function minRangeValidation(
       messages: [
         {
           name: "RangeError",
-          text: `This value must be less than ${sliderRange}`,
+          message: `This value must be less than ${sliderRange}`,
         },
       ],
     };
@@ -414,7 +414,7 @@ export function minRangeValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than 0.1",
+          message: "This value must be greater than 0.1",
         },
       ],
     };
@@ -427,7 +427,7 @@ export function minRangeValidation(
       messages: [
         {
           name: "RangeError",
-          text: "This value must be greater than or equal to step size",
+          message: "This value must be greater than or equal to step size",
         },
       ],
     };
@@ -439,7 +439,7 @@ export function minRangeValidation(
     messages: [
       {
         name: "",
-        text: "",
+        message: "",
       },
     ],
   };

@@ -5,13 +5,14 @@ import { LOG_CATEGORY } from "entities/AppsmithConsole";
 import { getTypographyByKey } from "design-system-old";
 import ReactJson from "react-json-view";
 import { Colors } from "constants/Colors";
+import LogAdditionalInfo from "./LogAdditionalInfo";
 
 const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
   padding-top: ${(props) =>
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
       ? " -20px"
       : " 4px"};
-  padding-left: 78px;
+  padding-left: 83px;
 `;
 
 type StyledCollapseProps = PropsWithChildren<{
@@ -23,6 +24,9 @@ const MessageInfo = styled.div`
   font-weight: 400;
   letter-spacing: -0.195px;
   color: ${Colors.GRAY_800};
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
 `;
 
 const MessageWrapper = styled.div`
@@ -42,7 +46,7 @@ const JsonWrapper = styled.div`
   }
 `;
 
-export default function CollapseData(props: any) {
+export default function LogCollapseData(props: any) {
   const reactJsonProps = {
     name: null,
     enableClipboard: false,
@@ -68,10 +72,26 @@ export default function CollapseData(props: any) {
       {props.pluginErrorDetails && (
         <MessageWrapper>
           <MessageInfo>
-            {props.pluginErrorDetails.appsmithErrorMessage}
+            <LogAdditionalInfo
+              text={props.pluginErrorDetails.appsmithErrorCode}
+              width="90px"
+            />
+            <span>{props.pluginErrorDetails.appsmithErrorMessage}</span>
           </MessageInfo>
           <MessageInfo>
-            {props.pluginErrorDetails.downstreamErrorMessage}
+            {props.pluginErrorDetails.downstreamErrorMessage && (
+              <>
+                <LogAdditionalInfo
+                  text={
+                    props.pluginErrorDetails.downstreamErrorCode
+                      ? props.pluginErrorDetails.downstreamErrorCode
+                      : "Downstream Error"
+                  }
+                  width="90px"
+                />
+                <span>{props.pluginErrorDetails.downstreamErrorMessage}</span>
+              </>
+            )}
           </MessageInfo>
         </MessageWrapper>
       )}

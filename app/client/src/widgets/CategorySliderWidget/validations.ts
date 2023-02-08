@@ -16,7 +16,7 @@ export function optionsCustomValidation(
         messages: [
           {
             name: "ValidationError",
-            text: "Please have at-least 2 options",
+            message: "Please have at-least 2 options",
           },
         ],
       };
@@ -25,7 +25,7 @@ export function optionsCustomValidation(
     let _isValid = true;
     let message = {
       name: "",
-      text: "",
+      message: "",
     };
     let valueType = "";
     const uniqueLabels: Record<string | number, string> = {};
@@ -42,7 +42,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "ValidationError",
-          text: "path:value must be unique. Duplicate values found",
+          message: "path:value must be unique. Duplicate values found",
         };
         break;
       }
@@ -52,7 +52,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "ValidationError",
-          text:
+          message:
             "Invalid entry at index: " + i + ". Missing required key: label",
         };
         break;
@@ -67,7 +67,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "ValidationError",
-          text:
+          message:
             "Invalid entry at index: " +
             i +
             ". Value of key: label is invalid: This value does not evaluate to type string",
@@ -80,7 +80,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "TypeError",
-          text: "All value properties in options must have the same type",
+          message: "All value properties in options must have the same type",
         };
         break;
       }
@@ -90,7 +90,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "TypeError",
-          text:
+          message:
             'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
         };
         break;
@@ -110,7 +110,7 @@ export function optionsCustomValidation(
     messages: [
       {
         name: "TypeError",
-        text:
+        message:
           'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
       },
     ],
@@ -143,7 +143,7 @@ export function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value does not evaluate to type: string or number",
+          message: "This value does not evaluate to type: string or number",
         },
       ],
     };
@@ -157,7 +157,7 @@ export function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value does not evaluate to type: string or number",
+          message: "This value does not evaluate to type: string or number",
         },
       ],
     };
@@ -175,7 +175,8 @@ export function defaultOptionValidation(
       messages: [
         {
           name: "ValidationError",
-          text: "Default value is missing in options. Please update the value.",
+          message:
+            "Default value is missing in options. Please update the value.",
         },
       ],
     };

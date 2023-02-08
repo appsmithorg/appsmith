@@ -2409,7 +2409,69 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createBranch_BranchSetPageIcon_SrcBranchPageIconRemainsNull() throws GitAPIException, IOException {
+        GitBranchDTO createGitBranchDTO = new GitBranchDTO();
+        createGitBranchDTO.setBranchName("valid_branch");
 
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        mockitoSetUp(createGitBranchDTO);
+
+        Application testApplication = new Application();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey("testkey");
+        gitAuth.setPrivateKey("privatekey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Tuple2<PageDTO, PageDTO>> createBranchMono = applicationPageService.createApplication(testApplication)
+                .flatMap(application -> gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"))
+                .flatMap(application ->
+                        Mono.zip(gitService
+                                        .createBranch(application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
+                                        .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)),
+                                Mono.just(application))
+
+                )
+                .flatMap(applicationTuple->{
+                    Application branchedApplication = applicationTuple.getT1();
+                    Application application = applicationTuple.getT2();
+                    String srcBranchName = application.getGitApplicationMetadata().getBranchName();
+                    String otherBranchName = branchedApplication.getGitApplicationMetadata().getBranchName();
+                    String defaultApplicationId = branchedApplication.getGitApplicationMetadata().getDefaultApplicationId();
+
+                    PageDTO newSrcPage = new PageDTO();
+                    newSrcPage.setName("newSrcPage");
+                    newSrcPage.setApplicationId(defaultApplicationId);
+
+                    PageDTO newBranchPage = new PageDTO();
+                    newBranchPage.setName("newBranchPage");
+                    newBranchPage.setIcon("flight");
+                    newBranchPage.setApplicationId(defaultApplicationId);
+
+                    return Mono.zip(
+                            applicationPageService.createPageWithBranchName(newBranchPage, otherBranchName),
+                            applicationPageService.createPageWithBranchName(newSrcPage, srcBranchName)
+                    );
+                });
+
+        StepVerifier
+                .create(createBranchMono)
+                .assertNext(tuple -> {
+                    PageDTO branchedPage = tuple.getT1();
+                    PageDTO srcPage = tuple.getT2();
+                    assertThat(srcPage.getName()).isEqualTo("newSrcPage");
+                    assertThat(srcPage.getIcon()).isNull();
+                    assertThat(branchedPage.getName()).isEqualTo("newBranchPage");
+                    assertThat(branchedPage.getIcon()).isEqualTo("flight");
+
+                })
+                .verifyComplete();
+    }
 
     @Test
     @WithUserDetails(value = "api_user")

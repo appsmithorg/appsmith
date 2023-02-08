@@ -1023,7 +1023,7 @@ export default class DataTreeEvaluator {
                 errorType: PropertyEvaluationErrorType.PARSE,
                 errorMessage: {
                   name: (error as Error).name,
-                  text: (error as Error).message,
+                  message: (error as Error).message,
                 },
                 severity: Severity.ERROR,
               },
@@ -1087,7 +1087,7 @@ export default class DataTreeEvaluator {
             severity: Severity.ERROR,
             errorMessage: {
               name: (error as Error).name,
-              text: (error as Error).message,
+              message: (error as Error).message,
             },
           },
         ],

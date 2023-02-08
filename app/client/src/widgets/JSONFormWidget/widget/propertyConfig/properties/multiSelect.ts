@@ -20,12 +20,12 @@ export function defaultOptionValueValidation(
 ): ValidationResponse {
   const DEFAULT_ERROR_MESSAGE = {
     name: "TypeError",
-    text:
+    message:
       "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
   };
   const UNIQUE_ERROR_MESSAGE = {
     name: "ValidationError",
-    text: "value must be unique. Duplicate values found",
+    message: "value must be unique. Duplicate values found",
   };
 
   const hasUniqueValues = (arr: unknown[]) => {
@@ -70,7 +70,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -121,7 +121,7 @@ export function defaultOptionValueValidation(
   return {
     isValid: true,
     parsed: values,
-    messages: [{ name: "", text: "" }],
+    messages: [{ name: "", message: "" }],
   };
 }
 

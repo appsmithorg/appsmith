@@ -405,7 +405,7 @@ export default function* executePluginActionTriggerSaga(
               // and rendering objects can crash the app
               message: {
                 name: "PluginExecutionError",
-                text: !isString(payload.body)
+                message: !isString(payload.body)
                   ? JSON.stringify(payload.body)
                   : payload.body,
               },
@@ -569,7 +569,7 @@ function* runActionSaga(
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
-  let error = { name: "", text: "" };
+  let error = { name: "", message: "" };
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
@@ -598,7 +598,7 @@ function* runActionSaga(
       return;
     }
     log.error(e);
-    error = { name: (e as Error).name, text: (e as Error).message };
+    error = e as Error;
   }
 
   // Error should be readable error if present.
@@ -608,20 +608,20 @@ function* runActionSaga(
   const readableError = payload.readableError
     ? {
         name: "PluginExecutionError",
-        text: getErrorAsString(payload.readableError),
+        message: getErrorAsString(payload.readableError),
       }
     : undefined;
 
   const payloadBodyError = payload.body
     ? {
         name: "PluginExecutionError",
-        text: getErrorAsString(payload.body),
+        message: getErrorAsString(payload.body),
       }
     : undefined;
 
   const defaultError = {
     name: "PluginExecutionError",
-    text: "An unexpected error occurred",
+    message: "An unexpected error occurred",
   };
 
   if (isError) {
@@ -800,7 +800,7 @@ function* executePageLoadAction(pageAction: PageAction) {
     let isError = true;
     let error = {
       name: "PluginExecutionError",
-      text: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
+      message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
     };
     try {
       const executePluginActionResponse: ExecutePluginActionResponse = yield call(
@@ -815,7 +815,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       if (e instanceof UserCancelledActionExecutionError) {
         error = {
           name: "PluginExecutionError",
-          text: createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name),
+          message: createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name),
         };
       }
     }
@@ -852,7 +852,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         executePluginActionError({
           actionId: pageAction.id,
           isPageLoad: true,
-          error: { message: error.text },
+          error: { message: error.message },
           data: payload,
         }),
       );
@@ -1000,16 +1000,15 @@ function* executePluginActionSaga(
     params,
   );
 
+  let payload = EMPTY_RESPONSE;
+  let response: ActionExecutionResponse;
   try {
-    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
-      formData,
-      timeout,
-    );
+    response = yield ActionAPI.executeAction(formData, timeout);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
     );
     yield validateResponse(response);
-    const payload = createActionExecutionResponse(response);
+    payload = createActionExecutionResponse(response);
 
     yield put(
       executePluginActionSuccess({
@@ -1017,17 +1016,20 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
-    let plugin: Plugin | undefined;
-    if (!!pluginAction.pluginId) {
-      plugin = shouldBeDefined<Plugin>(
-        yield select(getPlugin, pluginAction.pluginId),
-        `Plugin not found for id - ${pluginAction.pluginId}`,
-      );
+    try {
+      let plugin: Plugin | undefined;
+      if (!!pluginAction.pluginId) {
+        plugin = shouldBeDefined<Plugin>(
+          yield select(getPlugin, pluginAction.pluginId),
+          `Plugin not found for id - ${pluginAction.pluginId}`,
+        );
+      }
+
+      // sets the default display format for action response e.g Raw, Json or Table
+      yield setDefaultActionDisplayFormat(actionId, plugin, payload);
+    } catch (e) {
+      log.error("plugin no found", e);
     }
-
-    // sets the default display format for action response e.g Raw, Json or Table
-    yield setDefaultActionDisplayFormat(actionId, plugin, payload);
-
     return {
       payload,
       isError: isErrorResponse(response),
