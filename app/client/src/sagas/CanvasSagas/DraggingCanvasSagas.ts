@@ -12,7 +12,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { Toaster } from "design-system-old";
+import { Toaster, Variant } from "design-system-old";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
@@ -20,9 +20,10 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidget, getWidgets } from "sagas/selectors";
+import { getMetaWidgets, getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "sagas/WidgetBlueprintSagas";
 import {
@@ -307,18 +308,41 @@ function* moveWidgetsSaga(
   const { canvasId, draggedBlocksToUpdate } = actionPayload.payload;
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
+
+    // Avoid having more than 3 levels of nesting in ListV2
+    const blocksToUpdate = draggedBlocksToUpdate.filter((dragBlock) => {
+      if (allWidgets[dragBlock.widgetId].type === "LIST_WIDGET_V2") {
+        const parentListWidgetId = metaWidgets[canvasId]?.creatorId;
+
+        if (
+          parentListWidgetId &&
+          metaWidgets[parentListWidgetId]?.type === "LIST_WIDGET_V2" &&
+          metaWidgets[parentListWidgetId]?.level >= 3
+        ) {
+          Toaster.show({
+            text: "Cannot have more than 3 levels of nesting",
+            variant: Variant.info,
+          });
+          return false;
+        }
+      }
+      return true;
+    });
+
+    if (!blocksToUpdate.length) return;
 
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
       moveAndUpdateWidgets,
       allWidgets,
-      draggedBlocksToUpdate,
+      blocksToUpdate,
       canvasId,
     );
 
     if (
       !collisionCheckPostReflow(
         updatedWidgetsOnMove,
-        draggedBlocksToUpdate.map((block) => block.widgetId),
+        blocksToUpdate.map((block) => block.widgetId),
         canvasId,
       )
     ) {
@@ -327,7 +351,7 @@ function* moveWidgetsSaga(
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
-    const block = draggedBlocksToUpdate[0];
+    const block = blocksToUpdate[0];
     const oldParentId = block.updateWidgetParams.payload.parentId;
     const newParentId = block.updateWidgetParams.payload.newParentId;
 
@@ -335,14 +359,14 @@ function* moveWidgetsSaga(
     const newParentWidgetType = getParentWidgetType(allWidgets, newParentId);
 
     AnalyticsUtil.logEvent("WIDGET_DRAG", {
-      widgets: draggedBlocksToUpdate.map((block) => {
+      widgets: blocksToUpdate.map((block) => {
         const widget = allWidgets[block.widgetId];
         return {
           widgetType: widget.type,
           widgetName: widget.widgetName,
         };
       }),
-      multiple: draggedBlocksToUpdate.length > 1,
+      multiple: blocksToUpdate.length > 1,
       movedToNewWidget: oldParentId !== newParentId,
       source: oldParentWidgetType,
       destination: newParentWidgetType,
