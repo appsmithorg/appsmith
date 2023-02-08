@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode, useMemo } from "react";
+import React, { CSSProperties, ReactNode, Ref, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
 import {
   CONTAINER_GRID_PADDING,
@@ -56,7 +56,10 @@ export const checkIsDropTarget = memoize(function isDropTarget(
   return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
 });
 
-export function PositionedContainer(props: PositionedContainerProps) {
+export function PositionedContainer(
+  props: PositionedContainerProps,
+  ref: Ref<HTMLDivElement>,
+) {
   const { componentHeight, componentWidth } = props;
 
   // Memoizing the style
@@ -177,6 +180,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.
       onClick={stopEventPropagation}
       onClickCapture={clickToSelectWidget}
+      ref={ref}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
       zIndexOnHover={onHoverZIndex}
@@ -186,6 +190,4 @@ export function PositionedContainer(props: PositionedContainerProps) {
   );
 }
 
-PositionedContainer.padding = WIDGET_PADDING;
-
-export default PositionedContainer;
+export default React.forwardRef(PositionedContainer);

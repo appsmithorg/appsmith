@@ -20,6 +20,7 @@ type InitProps = {
   optionsProps?: Partial<GeneratorOptions>;
   constructorProps?: Partial<ConstructorProps>;
   passedCache?: Cache;
+  listWidgetId?: string;
 };
 
 const data = [
@@ -127,15 +128,15 @@ const levelData: LevelData = {
 };
 
 class Cache {
-  data = {};
+  data: Record<string, any> = {};
   refData = {};
 
-  getWidgetCache = () => {
-    return this.data;
+  getWidgetCache = (widgetId: string) => {
+    return this.data[widgetId];
   };
 
-  setWidgetCache = (data: any) => {
-    this.data = data;
+  setWidgetCache = (widgetId: string, data: any) => {
+    this.data[widgetId] = klona(data);
   };
 
   setWidgetReferenceCache = (data: any) => {
@@ -149,6 +150,7 @@ class Cache {
 
 const init = ({
   constructorProps,
+  listWidgetId = "DEFAULT_LIST_ID",
   optionsProps,
   passedCache,
 }: InitProps = {}) => {
@@ -159,8 +161,8 @@ const init = ({
   const cache = passedCache || new Cache();
 
   const generator = new MetaWidgetGenerator({
-    getWidgetCache: cache.getWidgetCache,
-    setWidgetCache: cache.setWidgetCache,
+    getWidgetCache: () => cache.getWidgetCache(listWidgetId),
+    setWidgetCache: (data) => cache.setWidgetCache(listWidgetId, data),
     infiniteScroll: false,
     isListCloned: false,
     level: 1,
@@ -222,28 +224,12 @@ const validateMetaWidgetType = (
 
 describe("#generate", () => {
   it("generates meta widgets for first instance", () => {
-    const cache = new Cache();
-
-    const generator = new MetaWidgetGenerator({
-      getWidgetCache: cache.getWidgetCache,
-      setWidgetCache: cache.setWidgetCache,
-      getWidgetReferenceCache: cache.getWidgetReferenceCache,
-      setWidgetReferenceCache: cache.setWidgetReferenceCache,
-      infiniteScroll: false,
-      isListCloned: false,
-      level: 1,
-      onVirtualListScroll: jest.fn,
-      primaryWidgetType: "LIST_WIDGET_V2",
-      renderMode: RenderModes.CANVAS,
-      prefixMetaWidgetId: "test",
-    });
+    const { initialResult } = init();
 
     const expectedGeneratedCount = 12;
     const expectedRemovedCount = 0;
 
-    const { metaWidgets, removedMetaWidgetIds } = generator
-      .withOptions(DEFAULT_OPTIONS)
-      .generate();
+    const { metaWidgets, removedMetaWidgetIds } = initialResult;
 
     const metaWidgetsCount = Object.keys(metaWidgets).length;
 
@@ -796,11 +782,15 @@ describe("#generate", () => {
   });
 
   it("generates meta widgets for nestedList widget", () => {
+    const nestedListWidgetId = "fs2d2lqjgd";
+    const nestedListWidget =
+      nestedListInput.templateWidgets[nestedListWidgetId];
+
     const cache = new Cache();
 
     const generator = new MetaWidgetGenerator({
-      getWidgetCache: cache.getWidgetCache,
-      setWidgetCache: cache.setWidgetCache,
+      getWidgetCache: () => cache.getWidgetCache(nestedListWidgetId),
+      setWidgetCache: (data) => cache.setWidgetCache(nestedListWidgetId, data),
       getWidgetReferenceCache: cache.getWidgetReferenceCache,
       setWidgetReferenceCache: cache.setWidgetReferenceCache,
       infiniteScroll: false,
@@ -811,10 +801,6 @@ describe("#generate", () => {
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
     });
-
-    const nestedListWidgetId = "fs2d2lqjgd";
-    const nestedListWidget =
-      nestedListInput.templateWidgets[nestedListWidgetId];
 
     const initialResult = generator
       .withOptions({
@@ -834,11 +820,13 @@ describe("#generate", () => {
   });
 
   it("updates the bindings properties that use currentItem, currentView, currentIndex and level_", () => {
-    const cache = new Cache();
+    const listWidgetName = "List6";
+    const nestedListWidgetId = "fs2d2lqjgd";
 
+    const cache = new Cache();
     const generator = new MetaWidgetGenerator({
-      getWidgetCache: cache.getWidgetCache,
-      setWidgetCache: cache.setWidgetCache,
+      getWidgetCache: () => cache.getWidgetCache(nestedListWidgetId),
+      setWidgetCache: (data) => cache.setWidgetCache(nestedListWidgetId, data),
       getWidgetReferenceCache: cache.getWidgetReferenceCache,
       setWidgetReferenceCache: cache.setWidgetReferenceCache,
       infiniteScroll: false,
@@ -849,8 +837,7 @@ describe("#generate", () => {
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
     });
-    const listWidgetName = "List6";
-    const nestedListWidgetId = "fs2d2lqjgd";
+
     const nestedListWidget =
       nestedListInput.templateWidgets[nestedListWidgetId];
     const textWidgetId = "q8e2zhxsdb";
@@ -1347,8 +1334,6 @@ describe("#generate", () => {
       passedCache: cache,
     });
 
-    jest.runAllTimers();
-
     const page2MetaWidgets = {
       ...nestedList1Page2.initialResult.metaWidgets,
       ...nestedList2Page2.initialResult.metaWidgets,
@@ -1374,6 +1359,246 @@ describe("#generate", () => {
         .map(({ metaWidgetId }) => metaWidgetId);
       expect(siblingsIds).toStrictEqual(expectedSiblings);
     });
+  });
+});
+
+describe("#getContainerParentCache", () => {
+  it("always returns template item for fist item and non template for rest of the items in edit mode", () => {
+    const cache = new Cache();
+    // Page 1 nested list widget
+    const nestedList1Page1 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 0,
+        primaryKeys: ["1_1", "1_2", "1_3", "1_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: false,
+      },
+      passedCache: cache,
+      listWidgetId: "list1",
+    });
+
+    const nestedList2Page1 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 1,
+        primaryKeys: ["2_1", "2_2", "2_3", "2_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: true,
+      },
+      passedCache: cache,
+      listWidgetId: "list2",
+    });
+
+    const parentCacheList1Page1 = klona(
+      nestedList1Page1.generator.getContainerParentCache(),
+    );
+    const parentCacheList2Page1 = klona(
+      nestedList2Page1.generator.getContainerParentCache(),
+    );
+
+    // In page 2 we are trying to mimic if the items position got swapped i.e the 1st item is not 2nd and vice-versa
+    const nestedList1Page2 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 0,
+        primaryKeys: ["2_1", "2_2", "2_3", "2_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: false,
+      },
+      passedCache: cache,
+      listWidgetId: "list2",
+    });
+
+    const nestedList2Page2 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 1,
+        primaryKeys: ["1_1", "1_2", "1_3", "1_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: true,
+      },
+      passedCache: cache,
+      listWidgetId: "list1",
+    });
+
+    const parentCacheList1Page2 = klona(
+      nestedList1Page2.generator.getContainerParentCache(),
+    );
+    const parentCacheList2Page2 = klona(
+      nestedList2Page2.generator.getContainerParentCache(),
+    );
+
+    // If the page 1 item 1 is equal to page 2 items 2
+    expect(parentCacheList1Page1?.originalMetaWidgetId).toEqual(
+      parentCacheList2Page2?.originalMetaWidgetId,
+    );
+    expect(parentCacheList1Page1?.originalMetaWidgetName).toEqual(
+      parentCacheList2Page2?.originalMetaWidgetName,
+    );
+
+    // If the page 1 item 2 is equal to page 2 items 1
+    expect(parentCacheList2Page1?.originalMetaWidgetId).toEqual(
+      parentCacheList1Page2?.originalMetaWidgetId,
+    );
+    expect(parentCacheList2Page1?.originalMetaWidgetName).toEqual(
+      parentCacheList1Page2?.originalMetaWidgetName,
+    );
+
+    // Page 1 item 1 is template item
+    expect(parentCacheList1Page1?.metaWidgetId).toEqual(
+      parentCacheList1Page1?.templateWidgetId,
+    );
+    // Page 1 item 2 is not template item
+    expect(parentCacheList2Page1?.metaWidgetId).not.toEqual(
+      parentCacheList1Page1?.templateWidgetId,
+    );
+
+    // Page 2 item 1 is template item
+    expect(parentCacheList1Page2?.metaWidgetId).toEqual(
+      parentCacheList1Page2?.templateWidgetId,
+    );
+    // Page 2 item 2 is not template item
+    expect(parentCacheList2Page2?.metaWidgetId).not.toEqual(
+      parentCacheList1Page2?.templateWidgetId,
+    );
+  });
+
+  it("always returns template item for fist item and non template for rest of the items in view mode", () => {
+    const cache = new Cache();
+    // Page 1 nested list widget
+    const nestedList1Page1 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 0,
+        primaryKeys: ["1_1", "1_2", "1_3", "1_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: false,
+        renderMode: RenderModes.PAGE,
+      },
+      passedCache: cache,
+      listWidgetId: "list1",
+    });
+
+    const nestedList2Page1 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 1,
+        primaryKeys: ["2_1", "2_2", "2_3", "2_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: true,
+        renderMode: RenderModes.PAGE,
+      },
+      passedCache: cache,
+      listWidgetId: "list2",
+    });
+
+    const parentCacheList1Page1 = klona(
+      nestedList1Page1.generator.getContainerParentCache(),
+    );
+    const parentCacheList2Page1 = klona(
+      nestedList2Page1.generator.getContainerParentCache(),
+    );
+
+    // In page 2 we are trying to mimic if the items position got swapped i.e the 1st item is not 2nd and vice-versa
+    const nestedList1Page2 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 0,
+        primaryKeys: ["2_1", "2_2", "2_3", "2_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: false,
+        renderMode: RenderModes.PAGE,
+      },
+      passedCache: cache,
+      listWidgetId: "list2",
+    });
+
+    const nestedList2Page2 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 1,
+        primaryKeys: ["1_1", "1_2", "1_3", "1_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: true,
+        renderMode: RenderModes.PAGE,
+      },
+      passedCache: cache,
+      listWidgetId: "list1",
+    });
+
+    const parentCacheList1Page2 = klona(
+      nestedList1Page2.generator.getContainerParentCache(),
+    );
+    const parentCacheList2Page2 = klona(
+      nestedList2Page2.generator.getContainerParentCache(),
+    );
+
+    // If the page 1 item 1 is equal to page 2 items 2
+    expect(parentCacheList1Page1?.originalMetaWidgetId).toEqual(
+      parentCacheList2Page2?.originalMetaWidgetId,
+    );
+    expect(parentCacheList1Page1?.originalMetaWidgetName).toEqual(
+      parentCacheList2Page2?.originalMetaWidgetName,
+    );
+
+    // If the page 1 item 2 is equal to page 2 items 1
+    expect(parentCacheList2Page1?.originalMetaWidgetId).toEqual(
+      parentCacheList1Page2?.originalMetaWidgetId,
+    );
+    expect(parentCacheList2Page1?.originalMetaWidgetName).toEqual(
+      parentCacheList1Page2?.originalMetaWidgetName,
+    );
+
+    // Page 1 item 1 is non template item
+    expect(parentCacheList1Page1?.metaWidgetId).not.toEqual(
+      parentCacheList1Page1?.templateWidgetId,
+    );
+    // Page 1 item 2 is not template item
+    expect(parentCacheList2Page1?.metaWidgetId).not.toEqual(
+      parentCacheList1Page1?.templateWidgetId,
+    );
+
+    // Page 2 item 1 is not template item
+    expect(parentCacheList1Page2?.metaWidgetId).not.toEqual(
+      parentCacheList1Page2?.templateWidgetId,
+    );
+    // Page 2 item 2 is not template item
+    expect(parentCacheList2Page2?.metaWidgetId).not.toEqual(
+      parentCacheList1Page2?.templateWidgetId,
+    );
   });
 });
 

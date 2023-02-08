@@ -18,11 +18,11 @@ describe("Select Widgets", function() {
   });
   it("a. Select Widgets default value", function() {
     cy.dragAndDropToWidget("multiselectwidgetv2", "listwidgetv2", {
-      x: 50,
+      x: 150,
       y: 50,
     });
     cy.dragAndDropToWidget("selectwidget", "listwidgetv2", {
-      x: 50,
+      x: 150,
       y: 120,
     });
     cy.openPropertyPane("multiselectwidgetv2");
@@ -93,7 +93,7 @@ describe("Select Widgets", function() {
   it("b. Select Widgets isValid", function() {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
+      x: 550,
       y: 50,
     });
 
@@ -108,7 +108,7 @@ describe("Select Widgets", function() {
       .should("have.text", `${items[0].name}_${items[0].id}_false_true`);
 
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
+      x: 550,
       y: 120,
     });
 

@@ -214,6 +214,6 @@
   "listPaginatePrevButton":".t--widget-listwidgetv2 .rc-pagination-prev .rc-pagination-item-link",
   "listPaginateNextButtonDisabled":".t--widget-listwidgetv2 .rc-pagination-disabled .rc-pagination-item-link",
   "PropertyPaneSearchInput": ".t--property-pane-search-input-wrapper input",
-  "BorderRadius0px": ".t--property-control-borderradius .t--button-tab-0px",
+  "BorderRadius0px": ".t--property-control-borderradius .t--button-group-0px",
   "EnableFormatting": ".t--property-control-enableformatting input[type='checkbox']"
 }

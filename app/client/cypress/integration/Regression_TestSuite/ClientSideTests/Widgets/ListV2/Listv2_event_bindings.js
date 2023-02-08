@@ -40,7 +40,7 @@ describe("Listv2 - Event bindings", () => {
       .find("button")
       .click({ force: true });
 
-    cy.get(commonlocators.toastmsg).contains("Input _ 001 _ 0");
+    cy.get(commonlocators.toastmsg).contains("Input _ 000 _ 0");
   });
 
   it("2. simple list widget should get updated values of currentView", () => {
@@ -57,7 +57,7 @@ describe("Listv2 - Event bindings", () => {
 
     cy.wait(1000);
 
-    cy.get(commonlocators.toastmsg).contains("Updated Input _ 001 _ 0");
+    cy.get(commonlocators.toastmsg).contains("Updated Input _ 000 _ 0");
   });
 
   it("3. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {

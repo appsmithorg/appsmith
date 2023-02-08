@@ -233,8 +233,8 @@ class ListWidget extends BaseWidget<
 
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
-      if (this.props.serverSidePagination && !this.props.pageSize) {
-        this.onPageChange(this.props.pageNo);
+      if (this.props.serverSidePagination && this.pageSize) {
+        this.executeOnPageChange();
       }
     }
 
@@ -589,7 +589,7 @@ class ListWidget extends BaseWidget<
       triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
       event: {
-        type: EventType.ON_PREV_PAGE,
+        type: EventType.ON_PAGE_SIZE_CHANGE,
       },
     });
   };

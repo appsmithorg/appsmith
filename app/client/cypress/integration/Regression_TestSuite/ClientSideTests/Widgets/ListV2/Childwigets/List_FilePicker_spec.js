@@ -10,7 +10,7 @@ describe(" File Picker Widget", function() {
   });
   it("a. should test allowed values", function() {
     cy.dragAndDropToWidget("filepickerwidgetv2", "listwidgetv2", {
-      x: 50,
+      x: 150,
       y: 50,
     });
     cy.openPropertyPane("filepickerwidgetv2");
@@ -49,7 +49,7 @@ describe(" File Picker Widget", function() {
   it("b. Select Widgets isValid and onFilesSelected", function() {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
+      x: 550,
       y: 50,
     });
 
@@ -121,6 +121,7 @@ describe(" File Picker Widget", function() {
 
     cy.get(widgetsPage.filepickerwidgetv2).click();
     cy.get(commonlocators.AddMoreFiles).should("not.exist");
+    cy.get(".uppy-Dashboard-close").click({ force: true });
 
     // Next Page
     cy.get(commonlocators.listPaginateNextButton).click({
@@ -128,6 +129,7 @@ describe(" File Picker Widget", function() {
     });
     cy.get(widgetsPage.filepickerwidgetv2).click();
     cy.get(commonlocators.AddMoreFiles).should("have.text", "Add more");
+    cy.get(".uppy-Dashboard-close").click({ force: true });
 
     // Prev Page
     cy.get(commonlocators.listPaginatePrevButton).click({

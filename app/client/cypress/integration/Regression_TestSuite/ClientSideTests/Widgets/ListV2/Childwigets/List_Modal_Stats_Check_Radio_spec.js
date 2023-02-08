@@ -12,9 +12,11 @@ describe("Modal, Radio, Checkbox widget", function() {
       .first()
       .should("have.text", "");
 
+    cy.wait(1000);
+
     cy.get(`${widgetSelector("Input1")} textarea`)
       .first()
-      .type("Leo Messi");
+      .type("Leo Messi", { force: true });
 
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()
