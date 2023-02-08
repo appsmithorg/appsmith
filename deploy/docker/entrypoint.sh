@@ -5,17 +5,6 @@ set -o xtrace
 
 stacks_path=/appsmith-stacks
 
-system_check() {
-  if [[ -f /proc/cpuinfo ]] && ! grep --quiet avx /proc/cpuinfo; then
-    echo "===================================================================================================="
-    echo "=="
-    echo "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
-    echo "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
-    echo "=="
-    echo "===================================================================================================="
-  fi
-}
-
 function get_maximum_heap() {
     resource=$(ulimit -u)
     echo "Resource : $resource"
@@ -184,6 +173,15 @@ init_replica_set() {
   fi
 
   if [[ $isUriLocal -gt 0 ]]; then
+    if [[ -f /proc/cpuinfo ]] && ! grep --quiet avx /proc/cpuinfo; then
+      echo "===================================================================================================="
+      echo "=="
+      echo "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
+      echo "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
+      echo "=="
+      echo "===================================================================================================="
+    fi
+
     echo "Checking Replica Set of external MongoDB"
 
     if appsmithctl check-replica-set; then
@@ -301,7 +299,6 @@ check_redis_compatible_page_size() {
 }
 
 # Main Section
-system_check
 init_env_file
 setup_proxy_variables
 unset_unused_variables
