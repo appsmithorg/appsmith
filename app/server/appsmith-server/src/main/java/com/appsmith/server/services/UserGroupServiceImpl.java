@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.UserGroupRepository;
 import jakarta.validation.Validator;
@@ -90,7 +91,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
     @Override
     public Flux<UserGroup> get(MultiValueMap<String, String> params) {
-        return this.getAll(READ_USER_GROUPS);
+        return this.getAll(READ_USER_GROUPS).sort(AppsmithComparators.userGroupComparator());
     }
 
     private Flux<UserGroup> getAll(AclPermission aclPermission) {

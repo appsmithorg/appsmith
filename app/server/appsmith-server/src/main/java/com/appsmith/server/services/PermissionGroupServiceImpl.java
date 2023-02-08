@@ -15,6 +15,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
@@ -103,6 +104,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getAll() {
         return permissionGroupUtils.mapToPermissionGroupInfoDto(repository.findAll(READ_PERMISSION_GROUPS))
+                .sort(AppsmithComparators.permissionGroupInfoComparator())
                 .collectList();
     }
 

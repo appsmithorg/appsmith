@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -114,6 +115,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 // Remove the auto generated anonymous user from this list
                 .filter(user -> !user.getEmail().equals(ANONYMOUS_USER))
                 .flatMap(this::addGroupsAndRolesForUser)
+                .sort(AppsmithComparators.managementUserComparator())
                 .collectList();
     }
 
