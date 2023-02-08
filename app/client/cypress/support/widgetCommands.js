@@ -280,7 +280,7 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
     .type("{enter}");
   cy.get(inputcss)
     .first()
-    .trigger("mouseover", { force: true });
+    .click({ force: true });
   cy.contains(innercss, text);
 });
 
@@ -1261,9 +1261,11 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
     .first()
     .trigger("mouseover", { force: true })
     .wait(500);
-  cy.get(
-    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
-  )
+  cy.get(`${selector}:first-of-type`)
+    .first()
+    .click({ force: true })
+    .wait(500);
+  cy.get(".t--widget-propertypane-toggle > .t--widget-name")
     .first()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
