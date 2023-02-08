@@ -121,6 +121,7 @@ describe(" File Picker Widget", function() {
 
     cy.get(widgetsPage.filepickerwidgetv2).click();
     cy.get(commonlocators.AddMoreFiles).should("not.exist");
+    cy.get(".uppy-Dashboard-close").click({ force: true });
 
     // Next Page
     cy.get(commonlocators.listPaginateNextButton).click({
@@ -128,6 +129,7 @@ describe(" File Picker Widget", function() {
     });
     cy.get(widgetsPage.filepickerwidgetv2).click();
     cy.get(commonlocators.AddMoreFiles).should("have.text", "Add more");
+    cy.get(".uppy-Dashboard-close").click({ force: true });
 
     // Prev Page
     cy.get(commonlocators.listPaginatePrevButton).click({
