@@ -3,7 +3,10 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const dsl = require("../../../../fixtures/buttondsl.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 
-const { DebuggerHelper: debuggerHelper } = ObjectsRegistry;
+const {
+  DebuggerHelper: debuggerHelper,
+  PropertyPane: propPane,
+} = ObjectsRegistry;
 
 describe("Widget error state", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -11,6 +14,7 @@ describe("Widget error state", function() {
   before(() => {
     cy.addDsl(dsl);
   });
+
   it("Check widget error state", function() {
     cy.openPropertyPane("buttonwidget");
 
@@ -63,5 +67,27 @@ describe("Widget error state", function() {
     debuggerHelper.AssertVisibleErrorMessagesCount(0);
     cy.get("body").type(`{${modifierKey}}z`);
     debuggerHelper.AssertVisibleErrorMessagesCount(2);
+  });
+
+  it("Bug-2760: Error log on a widget property not clearing out when the widget property is deleted", function() {
+    cy.dragAndDropToCanvas("tablewidgetv2", {
+      x: 150,
+      y: 300,
+    });
+    cy.openPropertyPane("tablewidgetv2");
+    cy.addColumnV2("customColumn1");
+    cy.editColumn("customColumn1");
+    propPane.UpdatePropertyFieldValue("Computed Value", "{{test}}");
+
+    debuggerHelper.AssertDebugError(
+      "The value at primaryColumns.customColumn1.computedValue is invalid",
+      "ReferenceError: test is not defined",
+    );
+
+    cy.deleteColumn("customColumn1");
+
+    debuggerHelper.DebuggerListDoesnotContain(
+      "ReferenceError: test is not defined",
+    );
   });
 });
