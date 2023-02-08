@@ -18,8 +18,8 @@ describe("Upgrade appsmith version", () => {
 
       localStorage.setItem("ContainerName", `appsmith-${name}`);
 
-      //Start CE Container with old stack
-      cy.StartCEContainer(
+      //Start a new Container with old stack
+      cy.StartNewContainer(
         tedUrl,
         path + "/oldstack/tempStacks/oldstacks",
         "cicontainer",

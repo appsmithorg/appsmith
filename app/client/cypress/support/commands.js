@@ -1831,14 +1831,14 @@ Cypress.Commands.add("StartContainer", (path, containerName) => {
 });
 
 Cypress.Commands.add(
-  "StartCEContainer",
+  "StartNewContainer",
   (url, path, version, containerName) => {
     let comm =
       "docker run -d --name " +
       containerName +
       ' -p 8081:80 -p 9002:9002 -v "' +
       path +
-      '/stacks:/appsmith-stacks" ' +
+      '/stacks:/appsmith-stacks" -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001' +
       version;
 
     cy.log(comm);
@@ -1851,31 +1851,6 @@ Cypress.Commands.add(
     }).then((res) => {
       cy.log("ContainerID", res.body.stdout);
       cy.log(res.body.stderr);
-      expect(res.status).equal(200);
-    });
-  },
-);
-
-Cypress.Commands.add(
-  "StartEEContainer",
-  (url, path, version, containerName) => {
-    let comm =
-      "docker run -d --name " +
-      containerName +
-      ' -p 8081:80 -p 9002:9002 -v "' +
-      path +
-      '/stacks:/appsmith-stacks" ' +
-      version;
-
-    cy.log(comm);
-    cy.request({
-      method: "GET",
-      url: url,
-      qs: {
-        cmd: comm,
-      },
-    }).then((res) => {
-      cy.log(res.body.stdout, res.body.stderr);
       expect(res.status).equal(200);
     });
   },
