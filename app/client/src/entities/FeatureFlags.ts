@@ -10,6 +10,7 @@ type FeatureFlags = {
   DATASOURCE_ENVIRONMENTS?: boolean;
   MULTIPLE_PANES?: boolean;
   LIMITING_GOOGLE_SHEET_ACCESS?: boolean;
+  LAZY_CANVAS_RENDERING?: boolean;
 };
 
 export default FeatureFlags;
