@@ -10,7 +10,7 @@ describe(" File Picker Widget", function() {
   });
   it("a. should test allowed values", function() {
     cy.dragAndDropToWidget("filepickerwidgetv2", "listwidgetv2", {
-      x: 50,
+      x: 150,
       y: 50,
     });
     cy.openPropertyPane("filepickerwidgetv2");
@@ -49,7 +49,7 @@ describe(" File Picker Widget", function() {
   it("b. Select Widgets isValid and onFilesSelected", function() {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
+      x: 550,
       y: 50,
     });
 

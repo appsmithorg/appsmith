@@ -447,7 +447,7 @@ export class AggregateHelper {
     items.forEach(($each) => {
       cy.xpath(this.locator._multiSelectItem($each))
         .eq(0)
-        .click()
+        .click({ force: true })
         .wait(1000);
     });
   }
