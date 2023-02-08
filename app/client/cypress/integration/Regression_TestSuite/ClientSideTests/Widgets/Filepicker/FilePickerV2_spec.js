@@ -1,9 +1,9 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer,
-  canvasHelper = ObjectsRegistry.CanvasHelper;
+let ee = ObjectsRegistry.EntityExplorer;
 
 const widgetName = "filepickerwidgetv2";
 
@@ -38,7 +38,7 @@ describe("File picker widget v2", () => {
       ".t--property-control-text",
       `{{FilePicker1.files[0].name}}`,
     );
-    cy.createAndFillApi("https://mock-api.appsmith.com/users", "");
+    cy.createAndFillApi(agHelper.mockApiUrl, "");
     cy.updateCodeInput(
       "[class*='t--actionConfiguration']",
       "{{FilePicker1.files}}",
@@ -51,13 +51,12 @@ describe("File picker widget v2", () => {
       .click({ force: true });
 
     // Go back to widgets page
-    canvasHelper.OpenWidgetPane();
+    cy.get(explorer.widgetSwitchId).click();
     cy.get(widgetsPage.filepickerwidgetv2).should(
       "contain",
       "1 files selected",
     );
     cy.get(".t--widget-textwidget").should("contain", "testFile.mov");
-    canvasHelper.CloseWidgetPane();
   });
 
   it("4. Check if the uploaded file is removed on click of cancel button", () => {
@@ -65,7 +64,7 @@ describe("File picker widget v2", () => {
     cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
-    canvasHelper.OpenWidgetPane();
+    cy.get(widgetsPage.explorerSwitchId).click();
     ee.ExpandCollapseEntity("Queries/JS");
     cy.get(".t--entity-item:contains(Api1)").click();
     cy.get("[class*='t--actionConfiguration']")

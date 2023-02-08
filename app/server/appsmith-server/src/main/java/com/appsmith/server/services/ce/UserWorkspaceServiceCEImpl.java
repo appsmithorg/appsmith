@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -256,7 +257,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         //TODO get users sorted from DB and fill in three buckets - admin, developer and viewer
         Mono<List<WorkspaceMemberInfoDTO>> sortedListMono = userAndPermissionGroupDTOsMono
                 .map(userAndPermissionGroupDTOS -> {
-                    Collections.sort(userAndPermissionGroupDTOS, this.getWorkspaceMemberComparator());
+                    Collections.sort(userAndPermissionGroupDTOS, AppsmithComparators.getWorkspaceMemberComparator());
 
                     return userAndPermissionGroupDTOS;
                 });
@@ -357,37 +358,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Get default permission groups
         return workspaceMono
                 .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, permissionGroupPermission.getMembersReadPermission()));
-    }
-
-    protected Comparator<WorkspaceMemberInfoDTO> getWorkspaceMemberComparator() {
-        return new Comparator<>() {
-            @Override
-            public int compare(WorkspaceMemberInfoDTO o1, WorkspaceMemberInfoDTO o2) {
-                int order1 = getOrder(o1.getPermissionGroupName());
-                int order2 = getOrder(o2.getPermissionGroupName());
-
-                // Administrator > Developer > App viewer
-                int permissionGroupSortOrder = order1 - order2;
-
-                if (permissionGroupSortOrder != 0) {
-                    return permissionGroupSortOrder;
-                }
-
-                if (o1.getUsername() == null || o2.getUsername() == null)
-                    return o1.getName().compareTo(o2.getName());
-                return o1.getUsername().compareTo(o2.getUsername());
-            }
-
-            private int getOrder(String name) {
-                if (name.startsWith(FieldName.ADMINISTRATOR)) {
-                    return 0;
-                } else if (name.startsWith(FieldName.DEVELOPER)) {
-                    return 1;
-                } else {
-                    return 2;
-                }
-            }
-        };
     }
 
     @Override
