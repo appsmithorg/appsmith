@@ -7,8 +7,11 @@ import {
 import { triggerEvalWithDataTreeDiff } from "./sendUpdatedDataTree";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 
+let registeredTask = false;
+
 // executes when worker is idle
 function checkForJsVariableUpdate() {
+  const start = performance.now();
   const updates = jsVariableUpdates.getAll();
   const modifiedVariablesList = filterPatches(updates);
   const diffs = (diffModifiedVariables(
@@ -18,12 +21,19 @@ function checkForJsVariableUpdate() {
   if (diffs.length > 0) {
     // trigger evaluation
     triggerEvalWithDataTreeDiff(diffs);
-    jsVariableUpdates.clear();
   }
+  jsVariableUpdates.clear();
+  registeredTask = false;
+
+  const end = performance.now();
+  console.log("$$$-checkForJsVariableUpdate", end - start);
 }
 
 export function addJSUpdateCheckTaskInQueue() {
-  queueMicrotask(() => {
-    checkForJsVariableUpdate();
-  });
+  if (!registeredTask) {
+    registeredTask = true;
+    queueMicrotask(() => {
+      checkForJsVariableUpdate();
+    });
+  }
 }

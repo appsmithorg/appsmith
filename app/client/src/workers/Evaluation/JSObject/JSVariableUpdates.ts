@@ -54,6 +54,7 @@ export function filterPatches(patches: Patch[]) {
 export function diffModifiedVariables(modifiedJSVariableList: string[]) {
   const prevState = jsObjectCollection.getPrevVariableState();
   const currentState = jsObjectCollection.getCurrentVariableState();
+
   const variableDiffCollection = [];
   for (const jsVariablePath of modifiedJSVariableList) {
     const currentValue = get(currentState, jsVariablePath);

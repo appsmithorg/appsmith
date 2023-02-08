@@ -9,7 +9,10 @@ export function jsVariableProxyHandler(
     get: function(target: any, prop: string, receiver: any): any {
       const value = target[prop];
 
-      if (typeof value === "function") {
+      if (prop === "__isProxy") return true;
+      if (prop === "__originalValue") return target;
+
+      if (value instanceof Function) {
         if (!target.hasOwnProperty(value)) {
           // HACK:
           // Assuming a prototype method call would mutate the property
@@ -18,9 +21,9 @@ export function jsVariableProxyHandler(
             method: PatchType.PROTOTYPE_METHOD_CALL,
           });
         }
-
-        return (...args: any[]) => {
-          return target[prop](...args);
+        return function(...args: any[]) {
+          // @ts-expect-error: this error
+          return value.apply(this === receiver ? target : this, args);
         };
       }
 
@@ -60,13 +63,16 @@ class JSProxy {
     jsObjectName: string,
     varState: Record<string, unknown> = {},
   ) {
+    let proxiedJSObject = jsObject;
+    const __originalValue = Object.assign({}, jsObject, varState);
     if (typeof jsObject === "object") {
-      return new Proxy(
-        Object.assign({}, jsObject, varState),
+      proxiedJSObject = new Proxy(
+        __originalValue,
         jsVariableProxyHandler(addPatch, jsObjectName),
       );
     }
-    return jsObject;
+
+    return proxiedJSObject;
   }
 }
 

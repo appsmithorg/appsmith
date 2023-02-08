@@ -23,7 +23,9 @@ class JSObjectCollection {
     this.currentVariableState = klona(currentVariableState);
   }
 
-  getCurrentVariableState(JSObjectName?: string) {
+  getCurrentVariableState(
+    JSObjectName?: string,
+  ): VariableState | Record<string, unknown> {
     if (JSObjectName && this.currentVariableState)
       return this.currentVariableState[JSObjectName];
     return this.currentVariableState;
