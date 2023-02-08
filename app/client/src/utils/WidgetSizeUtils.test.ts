@@ -85,6 +85,40 @@ it("Computes the bottomRow of the canvas within a Modal correctly", () => {
   expect(result).toBe(300);
 });
 
+it("Ignores the detached children of the canvas correctly", () => {
+  const canvasWidgets = {
+    x: {
+      ...DUMMY_WIDGET,
+      widgetId: "x",
+      bottomRow: 20,
+      topRow: 10,
+      type: "CANVAS_WIDGET",
+      children: ["m"],
+    },
+    m: {
+      ...DUMMY_WIDGET,
+      widgetId: "m",
+      parentId: "x",
+      children: ["n", "o"],
+      type: "CANVAS_WIDGET",
+    },
+    n: {
+      ...DUMMY_WIDGET,
+      detachFromLayout: true,
+      parentId: "m",
+      bottomRow: 30,
+    },
+    o: {
+      ...DUMMY_WIDGET,
+      parentId: "m",
+      bottomRow: 5,
+    },
+  };
+
+  const result = getCanvasBottomRow("m", canvasWidgets);
+  expect(result).toBe(100);
+});
+
 it("Computes the bottomRow of the canvas within a Modal correctly", () => {
   const canvasWidgets = {
     x: {
