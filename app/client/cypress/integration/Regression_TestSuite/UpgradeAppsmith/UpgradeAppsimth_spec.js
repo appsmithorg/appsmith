@@ -7,30 +7,30 @@ const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
 describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
-    // const uuid = () => Cypress._.random(0, 10000);
-    // const name = uuid();
-    // agHelper.Sleep(2000);
+    const uuid = () => Cypress._.random(0, 10000);
+    const name = uuid();
+    agHelper.Sleep(2000);
 
-    // cy.GetPath(tedUrl, "appsmith").then((path) => {
-    //   path = path.split("  ");
-    //   path = path[1].split(" ");
-    //   path = path[0].slice(0, -7);
+    cy.GetPath(tedUrl, "appsmith").then((path) => {
+      path = path.split("  ");
+      path = path[1].split(" ");
+      path = path[0].slice(0, -7);
 
-    //   localStorage.setItem("ContainerName", `appsmith-${name}`);
+      localStorage.setItem("ContainerName", `appsmith-${name}`);
 
-    //   //Start CE Container with old stack
-    //   cy.StartCEContainer(
-    //     tedUrl,
-    //     path + "/oldstack/tempStacks/oldstacks",
-    //     "cicontainer",
-    //     `appsmith-${name}`,
-    //   );
-    //   //Wait for the container to be up
-    //   agHelper.Sleep(60000);
+      //Start CE Container with old stack
+      cy.StartCEContainer(
+        tedUrl,
+        path + "/oldstack/tempStacks/oldstacks",
+        "cicontainer",
+        `appsmith-${name}`,
+      );
+      //Wait for the container to be up
+      agHelper.Sleep(60000);
 
-    //   // Get and verify the logs
-    //   cy.GetAndVerifyLogs(tedUrl, `appsmith-${name}`);
-    // });
+      // Get and verify the logs
+      cy.GetAndVerifyLogs(tedUrl, `appsmith-${name}`);
+    });
 
     //verify the Applications after upgrade
     cy.forceVisit(testdata.APPURL);
