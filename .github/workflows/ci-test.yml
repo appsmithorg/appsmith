@@ -185,10 +185,9 @@ jobs:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
+          sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
-          systemctl stop ssh
-          systemctl disable ssh
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
           -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3000:3000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
