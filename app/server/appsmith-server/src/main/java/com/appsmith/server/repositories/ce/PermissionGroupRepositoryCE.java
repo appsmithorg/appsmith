@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.DomainReference;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomPermissionGroupRepository;
@@ -18,5 +19,6 @@ public interface PermissionGroupRepositoryCE extends BaseRepository<PermissionGr
     Flux<PermissionGroup> findByAssignedToUserIdsIn(String userId);
 
     Flux<PermissionGroup> findByDefaultWorkspaceId(String defaultWorkspaceId);
+    Flux<PermissionGroup> findByDefaultDomainIdAndDomainReference(String defaultWorkspaceId, DomainReference domainReference);
 
 }

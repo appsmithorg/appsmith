@@ -119,6 +119,7 @@ import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.domains.DomainReference.WORKSPACE;
 import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
@@ -1538,7 +1539,8 @@ public class DatabaseChangelog2 {
         // Administrator permission group
         PermissionGroup adminPermissionGroup = new PermissionGroup();
         adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.ADMINISTRATOR, workspaceName));
-        adminPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        adminPermissionGroup.setDefaultDomainId(workspaceId);
+        adminPermissionGroup.setDefaultDomainReference(WORKSPACE);
         adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION);
         adminPermissionGroup = mongoTemplate.save(adminPermissionGroup);
@@ -1550,7 +1552,8 @@ public class DatabaseChangelog2 {
         // Developer permission group
         PermissionGroup developerPermissionGroup = new PermissionGroup();
         developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.DEVELOPER, workspaceName));
-        developerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        developerPermissionGroup.setDefaultDomainId(workspaceId);
+        developerPermissionGroup.setDefaultDomainReference(WORKSPACE);
         developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(FieldName.WORKSPACE_DEVELOPER_DESCRIPTION);
         developerPermissionGroup = mongoTemplate.save(developerPermissionGroup);
@@ -1562,7 +1565,8 @@ public class DatabaseChangelog2 {
         // App viewer permission group
         PermissionGroup viewerPermissionGroup = new PermissionGroup();
         viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.VIEWER, workspaceName));
-        viewerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        viewerPermissionGroup.setDefaultDomainId(workspaceId);
+        viewerPermissionGroup.setDefaultDomainReference(WORKSPACE);
         viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(FieldName.WORKSPACE_VIEWER_DESCRIPTION);
         viewerPermissionGroup = mongoTemplate.save(viewerPermissionGroup);

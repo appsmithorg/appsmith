@@ -25,7 +25,11 @@ public class PermissionGroup extends BaseDomain {
 
     //TODO: refactor this to defaultDocumentId, as we can use this to store associated document id for 
     //which we are auto creating this permission group.
+    @Deprecated
     String defaultWorkspaceId;
+
+    String defaultDomainId;
+    DomainReference defaultDomainReference;
 
     Set<Permission> permissions = new HashSet<>();
 

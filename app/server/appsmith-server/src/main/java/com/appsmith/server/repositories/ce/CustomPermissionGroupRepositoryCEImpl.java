@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.server.domains.DomainReference.WORKSPACE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<PermissionGroup>
@@ -33,8 +34,9 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(String userId, String workspaceId,
             AclPermission permission) {
         Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).in(userId);
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).is(workspaceId);
-        return queryAll(List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria), permission);
+        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)).is(workspaceId);
+        Criteria defaultDomainReferenceCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainReference)).is(WORKSPACE);
+        return queryAll(List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainReferenceCriteria), permission);
     }
 
     @Override
@@ -48,14 +50,16 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).is(workspaceId);
-        return queryAll(List.of(defaultWorkspaceIdCriteria), permission);
+        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)).is(workspaceId);
+        Criteria defaultDomainReferenceCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainReference)).is(WORKSPACE);
+        return queryAll(List.of(defaultWorkspaceIdCriteria, defaultDomainReferenceCriteria), permission);
     }
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).in(workspaceIds);
-        return queryAll(List.of(defaultWorkspaceIdCriteria), permission);
+        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)).in(workspaceIds);
+        Criteria defaultDomainReferenceCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainReference)).is(WORKSPACE);
+        return queryAll(List.of(defaultWorkspaceIdCriteria, defaultDomainReferenceCriteria), permission);
     }
 
     @Override
