@@ -7,7 +7,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import BECtaImage from "assets/images/upgrade/be-cta/be-box-image.png";
+import BECtaImage from "assets/svg/be-upgrade/be-cta.svg";
 import {
   ACTIVATE_INSTANCE,
   ADD_KEY,

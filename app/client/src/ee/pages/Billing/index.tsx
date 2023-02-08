@@ -3,7 +3,7 @@ import { IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch, useSelector } from "react-redux";
-import BECtaImage from "assets/images/upgrade/be-cta/be-box-image.png";
+import BECtaImage from "assets/svg/be-upgrade/be-cta.svg";
 // import { getAllAclUsers } from "@appsmith/selectors/aclSelectors";
 import {
   ACTIVATE,
@@ -15,7 +15,6 @@ import {
   // NUMBER_OF_SELF_HOSTED_USERS,
   OPEN_CUSTOMER_PORTAL,
   PASTE_LICENSE_KEY,
-  PREV_LICENSE_INVALID,
   UPDATE,
   // TOTAL_USERS_MESSAGE,
   UPDATE_LICENSE,
@@ -157,7 +156,6 @@ export function Billing() {
             src={BECtaImage}
           />
           <Text type={TextType.H1}>{createMessage(UPDATE_LICENSE)}</Text>
-          <Text type={TextType.P1}>{createMessage(PREV_LICENSE_INVALID)}</Text>
           <LicenseForm
             actionBtnText={createMessage(ACTIVATE)}
             placeholder={createMessage(PASTE_LICENSE_KEY)}

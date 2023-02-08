@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Category, Size, Text, TextType } from "design-system-old";
-import BECtaImage from "assets/images/upgrade/be-cta/be-box-image.png";
+import BECtaImage from "assets/svg/be-upgrade/be-cta.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getRemainingDays,
@@ -38,9 +38,9 @@ export function BEBanner() {
         <img
           alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
           className="no-sub-img"
-          height="176px"
+          height="180px"
           src={BECtaImage}
-          width="176px"
+          width="180px"
         />
         <BannerTextWrapper>
           <Text className="main-text" type={TextType.H1} weight="700">
@@ -53,8 +53,8 @@ export function BEBanner() {
                 BE_TRIAL_BANNER_EXPIRY_MESSAGE(daysLeft),
               ),
             }}
-            type={TextType.P0}
-            weight="700"
+            type={TextType.P1}
+            weight="600"
           />
         </BannerTextWrapper>
       </BannerContentWrapper>
@@ -64,7 +64,7 @@ export function BEBanner() {
             className="upgrade-button"
             fill
             onClick={goToCustomerPortal}
-            size={Size.large}
+            size={Size.medium}
             tag="button"
             text={createMessage(UPGRADE_NOW)}
           />
@@ -73,7 +73,7 @@ export function BEBanner() {
           category={Category.secondary}
           className="close-button"
           onClick={handleClose}
-          size={Size.large}
+          size={Size.medium}
           tag="button"
           text={createMessage(CLOSE)}
         />

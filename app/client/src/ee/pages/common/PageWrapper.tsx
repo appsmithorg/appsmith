@@ -36,6 +36,10 @@ const StyledBanner = styled(BannerMessage)`
   display: flex;
   align-items: center;
   justify-content: center;
+  svg {
+    position: relative;
+    top: 2px;
+  }
 `;
 
 const StyledText = styled(Text)<{ color: string; underline?: boolean }>`
@@ -70,12 +74,12 @@ export function PageWrapper(props: PageWrapperProps) {
             : Colors.DANGER_NO_SOLID_HOVER,
         className: "t--deprecation-warning banner",
         icon: "warning-line",
-        iconColor: gracePeriod > 3 ? Colors.GRAY_700 : Colors.RED_500,
+        iconColor: gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500,
         iconSize: IconSize.XXL,
         message: (
           <>
             <StyledText
-              color={gracePeriod > 3 ? Colors.BLACK : Colors.RED_500}
+              color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
               dangerouslySetInnerHTML={{
                 __html: createMessage(() => TRIAL_EXPIRY_WARNING(gracePeriod)),
               }}
@@ -86,7 +90,7 @@ export function PageWrapper(props: PageWrapperProps) {
               <>
                 <StyledText
                   as="button"
-                  color={gracePeriod > 3 ? Colors.BLACK : Colors.RED_500}
+                  color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
                   onClick={goToCustomerPortal}
                   type={TextType.P1}
                   underline
@@ -95,7 +99,7 @@ export function PageWrapper(props: PageWrapperProps) {
                   {capitalize(createMessage(UPGRADE))}
                 </StyledText>{" "}
                 <StyledText
-                  color={gracePeriod > 3 ? Colors.BLACK : Colors.RED_500}
+                  color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
                   type={TextType.P1}
                   weight="600"
                 >
@@ -104,7 +108,7 @@ export function PageWrapper(props: PageWrapperProps) {
               </>
             ) : (
               <StyledText
-                color={gracePeriod > 3 ? Colors.BLACK : Colors.RED_500}
+                color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
                 type={TextType.P1}
                 weight="600"
               >

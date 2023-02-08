@@ -36,14 +36,13 @@ export const getLicenseDetails = (state: AppState) => {
 };
 
 export const getRemainingDays = (state: AppState) => {
-  const presentDate = new Date();
   const expiryDate = getLicenseExpiry(state);
 
   const expiryTimeStamp = new Date(expiryDate).getTime();
-  const presentTimeStamp = presentDate.getTime();
+  const presentTimeStamp = Date.now();
 
-  const diffTime = Math.abs(expiryTimeStamp - presentTimeStamp);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffTime = expiryTimeStamp - presentTimeStamp;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;
 };
 

@@ -29,6 +29,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import LicenseCheckPage from "./pages/setup/LicenseCheckPage";
 import { LICENSE_CHECK_PATH } from "constants/routes";
+import { requiresLicenseCheck } from "./requiresLicenseCheck";
 
 /*
     We use this polyfill to show emoji flags
@@ -38,12 +39,15 @@ polyfillCountryFlagEmojis();
 
 const loadingIndicator = <PageLoadingBar />;
 
+const EE_Routes = requiresLicenseCheck(() => {
+  return <CE_Routes />;
+});
+
 function AppRouter(props: {
   safeCrash: boolean;
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
-  validateLicense?: () => void;
   isLicenseValid: boolean;
   safeCrashCode?: ERROR_CODES;
   featureFlags: FeatureFlags;
@@ -95,11 +99,13 @@ function AppRouter(props: {
               <AppHeader />
             )}
             <Switch>
-              <SentryRoute
-                component={LicenseCheckPage}
-                path={LICENSE_CHECK_PATH}
-              />
-              <CE_Routes />
+              {isUsageAndBillingEnabled && !props.isLicenseValid && (
+                <SentryRoute
+                  component={LicenseCheckPage}
+                  path={LICENSE_CHECK_PATH}
+                />
+              )}
+              <EE_Routes />
             </Switch>
           </>
         )}

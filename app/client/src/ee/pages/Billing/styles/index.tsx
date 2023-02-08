@@ -118,15 +118,15 @@ export const DialogWrapper = styled.div`
   align-items: center;
   gap: 16px;
   width: 100%;
-  margin-top: 36px;
+  margin-top: 32px;
 `;
 
 export const DialogHeaderImg = styled.img`
   position: fixed;
   transform: translateY(-96%);
   z-index: 1;
-  width: 180px;
-  height: 180px;
+  width: 190px;
+  height: 190px;
 `;
 
 export const StyledInput = styled(TextInput)`
