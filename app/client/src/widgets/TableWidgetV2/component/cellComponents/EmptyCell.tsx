@@ -9,7 +9,7 @@ import {
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
 import { renderBodyCheckBoxCell } from "./SelectionCheckboxCell";
 
-const shouldHaveStickyModifierClass = (
+const addStickyModifierClass = (
   columns: ReactTableColumnProps[],
   cellIndex: number,
 ) => {
@@ -75,7 +75,7 @@ export const renderEmptyRows = (
                   className={
                     columns[cellIndex].isHidden
                       ? "td hidden-cell"
-                      : `td${shouldHaveStickyModifierClass(columns, cellIndex)}`
+                      : `td${addStickyModifierClass(columns, cellIndex)}`
                   }
                   key={cellProps.key}
                   style={{ ...cellProps.style, ...distanceFromEdge }}
@@ -155,7 +155,7 @@ export const renderEmptyRows = (
                 className={
                   column && column.isHidden
                     ? "td hidden-cell"
-                    : `td${shouldHaveStickyModifierClass(columns, colIndex)}`
+                    : `td${addStickyModifierClass(columns, colIndex)}`
                 }
                 {...stickyAttributes}
                 key={colIndex}
