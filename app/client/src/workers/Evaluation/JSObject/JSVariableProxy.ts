@@ -21,13 +21,10 @@ export function jsVariableProxyHandler(
             method: PatchType.PROTOTYPE_METHOD_CALL,
           });
         }
-        return function(...args: any[]) {
-          // @ts-expect-error: this error
-          return value.apply(this === receiver ? target : this, args);
-        };
+        return value.bind(target);
       }
 
-      if (typeof value === "object" && value !== null) {
+      if (typeof value === "object" && value !== null && !value.__isProxy) {
         return new Proxy(
           value,
           jsVariableProxyHandler(updateTracker, `${path}.${prop}`),
@@ -64,10 +61,10 @@ class JSProxy {
     varState: Record<string, unknown> = {},
   ) {
     let proxiedJSObject = jsObject;
-    const __originalValue = Object.assign({}, jsObject, varState);
+
     if (typeof jsObject === "object") {
       proxiedJSObject = new Proxy(
-        __originalValue,
+        Object.assign({}, jsObject, varState),
         jsVariableProxyHandler(addPatch, jsObjectName),
       );
     }

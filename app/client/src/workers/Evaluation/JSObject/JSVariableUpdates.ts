@@ -1,6 +1,9 @@
 import { diff } from "deep-diff";
 import { jsObjectCollection } from "./Collection";
 import { get } from "lodash";
+import { dataTreeEvaluator } from "../handlers/evalTree";
+import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 export enum PatchType {
   "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
@@ -46,7 +49,14 @@ export function filterPatches(patches: Patch[]) {
   const modifiedVariablesSet = new Set<string>();
   for (const patch of patches) {
     const [jsObjectName, varName] = patch.path.split(".");
-    modifiedVariablesSet.add(`${jsObjectName}.${varName}`);
+    const dataTree = dataTreeEvaluator?.evalTree as DataTree;
+    const jsObject = dataTree[jsObjectName];
+    if (isJSAction(jsObject)) {
+      const variables = jsObject.variables;
+      if (variables.includes(varName)) {
+        modifiedVariablesSet.add(`${jsObjectName}.${varName}`);
+      }
+    }
   }
   return [...modifiedVariablesSet];
 }
@@ -59,7 +69,6 @@ export function diffModifiedVariables(modifiedJSVariableList: string[]) {
   for (const jsVariablePath of modifiedJSVariableList) {
     const currentValue = get(currentState, jsVariablePath);
     const prevValue = get(prevState, jsVariablePath);
-
     const variableDiff = diff(prevValue, currentValue);
 
     if (variableDiff && variableDiff[0]) {
