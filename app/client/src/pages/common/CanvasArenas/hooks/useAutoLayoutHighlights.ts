@@ -3,16 +3,14 @@ import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import { getCanvasWidth } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
-import {
-  deriveHighlightsFromLayers,
-  HighlightInfo,
-} from "utils/autoLayout/highlightUtils";
+import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import {
   getHighlightPayload,
   Point,
 } from "utils/autoLayout/highlightSelectionUtils";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];

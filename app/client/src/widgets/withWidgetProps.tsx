@@ -36,6 +36,7 @@ import {
   Positioning,
 } from "utils/autoLayout/constants";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -45,13 +46,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   ) {
     const { children, skipWidgetPropsHydration, type, widgetId } = props;
     const isPreviewMode = useSelector(previewModeSelector);
-
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
     );
+    const googleMapsApiKey = useSelector(getGoogleMapsApiKey);
     const renderMode = useSelector(getRenderMode);
     const evaluatedWidget = useSelector((state: AppState) =>
       getWidgetEvalValues(state, canvasWidget?.widgetName),
@@ -162,6 +163,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }
     //merging with original props
     widgetProps = { ...props, ...widgetProps, renderMode };
+
+    // adding google maps api key to widget props (although meant for map widget only)
+    widgetProps.googleMapsApiKey = googleMapsApiKey;
 
     // isVisible prop defines whether to render a detached widget
     if (widgetProps.detachFromLayout && !widgetProps.isVisible) {

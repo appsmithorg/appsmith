@@ -1,7 +1,4 @@
-import {
-  FlexLayer,
-  LayerChild,
-} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   getLayerIndexOfWidget,

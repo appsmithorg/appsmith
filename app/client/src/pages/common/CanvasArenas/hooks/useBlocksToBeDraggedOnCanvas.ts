@@ -30,8 +30,8 @@ import {
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { XYCord } from "./useRenderBlocksOnCanvas";
-import { HighlightInfo } from "utils/autoLayout/highlightUtils";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;

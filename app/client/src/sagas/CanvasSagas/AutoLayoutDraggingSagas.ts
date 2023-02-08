@@ -7,7 +7,6 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
 } from "utils/autoLayout/constants";
-import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -23,7 +22,7 @@ import {
   updateRelationships,
 } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
-import { HighlightInfo } from "utils/autoLayout/highlightUtils";
+import { HighlightInfo, FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{

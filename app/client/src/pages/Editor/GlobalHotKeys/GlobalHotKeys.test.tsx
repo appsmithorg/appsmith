@@ -442,6 +442,7 @@ describe("Cut/Copy/Paste hotkey", () => {
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
+      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
     const artBoard: any = await component.queryByTestId("t--canvas-artboard");
     // deselect all other widgets
@@ -481,7 +482,6 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
     await component.findByTestId("t--selection-box");
-
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,
