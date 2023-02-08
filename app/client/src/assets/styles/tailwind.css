@@ -13,3 +13,23 @@
 .action-callback-add.selected, .action-callback-add:hover {
   @apply bg-gray-200 border-[1px] border-gray-500;
 }
+
+.add-action {
+  @apply absolute right-[-16px];
+}
+
+.add-action:hover:not(.disabled) {
+  @apply bg-black;
+}
+
+.add-action:hover:not(.disabled) span svg path {
+  @apply !fill-white;
+}
+
+.add-action.disabled span {
+  @apply cursor-not-allowed;
+}
+
+.add-action.disabled span svg path {
+  @apply !fill-gray-500;
+}

@@ -682,42 +682,43 @@ const PropertyControl = memo((props: Props) => {
               </>
             )}
             {config.controlType === "ACTION_SELECTOR" ? (
-              <button
-                className={clsx(
-                  "ml-auto h-5 w-5 flex items-center justify-center",
-                  !isDynamic && "hover:bg-black",
-                )}
-                disabled={isDynamic}
-                onClick={() => {
-                  const valueWithoutMustache = getCodeFromMoustache(
-                    propertyValue,
-                  );
+              <span className="h-9 w-12">
+                <button
+                  className={clsx(
+                    "ml-auto h-9 w-12 add-action flex items-center justify-center",
+                    isDynamic && "disabled",
+                  )}
+                  disabled={isDynamic}
+                  onClick={() => {
+                    const valueWithoutMustache = getCodeFromMoustache(
+                      propertyValue,
+                    );
 
-                  // If there is already an empty action configured, do not add another one
-                  const actionBlocks = getActionBlocks(
-                    valueWithoutMustache,
-                    self.evaluationVersion,
-                  );
+                    // If there is already an empty action configured, do not add another one
+                    const actionBlocks = getActionBlocks(
+                      valueWithoutMustache,
+                      self.evaluationVersion,
+                    );
 
-                  if (
-                    actionBlocks.length > 0 &&
-                    isEmptyBlock(actionBlocks[actionBlocks.length - 1])
-                  )
-                    return;
+                    if (
+                      actionBlocks.length > 0 &&
+                      isEmptyBlock(actionBlocks[actionBlocks.length - 1])
+                    )
+                      return;
 
-                  onPropertyChange(
-                    propertyName,
-                    `{{${valueWithoutMustache + ";"}}}`,
-                  );
-                }}
-              >
-                <Icon
-                  fillColor="#182026"
-                  hoverFillColor={!isDynamic ? "white" : undefined}
-                  name="plus"
-                  size="extraLarge"
-                />
-              </button>
+                    onPropertyChange(
+                      propertyName,
+                      `{{${valueWithoutMustache + ";"}}}`,
+                    );
+                  }}
+                >
+                  <Icon
+                    fillColor="#182026"
+                    name="plus"
+                    size="extraExtraLarge"
+                  />
+                </button>
+              </span>
             ) : null}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(
