@@ -84,7 +84,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final AssetService assetService;
     private final ApplicationRepository applicationRepository;
     private final PermissionGroupService permissionGroupService;
-    protected final PolicyUtils policyUtils;
+    private final PolicyUtils policyUtils;
     private final ModelMapper modelMapper;
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
