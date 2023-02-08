@@ -22,13 +22,14 @@ const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
+const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../support/Objects/Registry";
 
-const { CanvasHelper } = ObjectsRegistry;
+// import { ObjectsRegistry } from "../support/Objects/Registry";
+// let agHelper = ObjectsRegistry.AggregateHelper;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -401,7 +402,7 @@ Cypress.Commands.add("SelectAction", (action) => {
 });
 
 Cypress.Commands.add("ClearSearch", () => {
-  cy.get(commonlocators.searchEntityInExplorer).clear({ force: true });
+  cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 });
 
 Cypress.Commands.add(
@@ -742,7 +743,6 @@ Cypress.Commands.add("deleteDataSource", () => {
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
-  CanvasHelper.OpenWidgetPane();
   cy.wait(500);
   cy.get(selector)
     .trigger("dragstart", { force: true })
@@ -758,7 +758,6 @@ Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
     const selector = `.t--widget-card-draggable-${widgetType}`;
-    CanvasHelper.OpenWidgetPane();
     cy.wait(800);
     cy.get(selector)
       .scrollIntoView()
@@ -1030,6 +1029,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       req.headers["origin"] = "Cypress";
     },
   ).as("connectGitLocalRepo");
+
+  cy.intercept({
+    method: "PUT",
+  }).as("sucessSave");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1183,6 +1186,7 @@ Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusContainer).should("not.exist", {
     timeout: 30000,
   });
+  //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
 Cypress.Commands.add(
@@ -1788,7 +1792,7 @@ Cypress.Commands.add("restoreLocalStorageCache", () => {
   });
 });
 
-Cypress.Commands.add("StopTheContainer", (path, containerName) => {
+Cypress.Commands.add("StopContainer", (path, containerName) => {
   cy.request({
     method: "GET",
     url: path,
@@ -1796,8 +1800,7 @@ Cypress.Commands.add("StopTheContainer", (path, containerName) => {
       cmd: "docker stop " + containerName,
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
+    cy.log(res.body.stdout, res.body.stderr);
     expect(res.status).equal(200);
   });
 });
@@ -1814,31 +1817,28 @@ Cypress.Commands.add("StopAllContainer", (path) => {
   });
 });
 
-Cypress.Commands.add("StartTheContainer", (path, containerName) => {
+Cypress.Commands.add("StartContainer", (path, containerName) => {
   cy.request({
     method: "GET",
     url: path,
     qs: {
-      cmd: "docker start " + containerName,
+      cmd: "docker restart " + containerName,
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
+    cy.log(res.body.stdout, res.body.stderr);
     expect(res.status).equal(200);
   });
 });
 
 Cypress.Commands.add(
-  "CreateAContainer",
+  "StartCEContainer",
   (url, path, version, containerName) => {
     let comm =
-      "cd " +
-      path +
-      ";docker run -d --name " +
+      "docker run -d --name " +
       containerName +
-      ' -p 80:80 -p 9001:9001 -v "' +
+      ' -p 8081:80 -p 9002:9002 -v "' +
       path +
-      '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
+      '/stacks:/appsmith-stacks" ' +
       version;
 
     cy.log(comm);
@@ -1849,24 +1849,22 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
+      cy.log("ContainerID", res.body.stdout);
       cy.log(res.body.stderr);
-      cy.log(res.body.stdout);
       expect(res.status).equal(200);
     });
   },
 );
 
 Cypress.Commands.add(
-  "CreateEEContainer",
+  "StartEEContainer",
   (url, path, version, containerName) => {
     let comm =
-      "cd " +
-      path +
-      ";docker run -d --name " +
+      "docker run -d --name " +
       containerName +
-      ' -p 80:80 -p 9001:9001 -v "' +
+      ' -p 8081:80 -p 9002:9002 -v "' +
       path +
-      '/stacks:/appsmith-stacks" appsmith/appsmith-ee:' +
+      '/stacks:/appsmith-stacks" ' +
       version;
 
     cy.log(comm);
@@ -1877,8 +1875,7 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
-      cy.log(res.body.stderr);
-      cy.log(res.body.stdout);
+      cy.log(res.body.stdout, res.body.stderr);
       expect(res.status).equal(200);
     });
   },
@@ -1920,10 +1917,8 @@ Cypress.Commands.add("GetAndVerifyLogs", (path, containerName) => {
       cmd: "docker logs " + containerName + " 2>&1 | grep 'APPLIED'",
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
     expect(res.status).equal(200);
-    // expect(res.body.stdout).not.equal("");
+    //expect(res.body.stdout).not.equal("");
   });
 });
 
@@ -1981,4 +1976,23 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
   cy.wait("@getMe");
   cy.wait(3000);
   initLocalstorage();
+});
+
+Cypress.Commands.add("execute", (url, command) => {
+  cy.request({
+    method: "GET",
+    url: url,
+    qs: {
+      cmd: command,
+    },
+  }).then((res) => {
+    cy.log(res.body.stdout, res.body.error);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("forceVisit", (url) => {
+  cy.window().then((win) => {
+    return win.open(url, "_self");
+  });
 });

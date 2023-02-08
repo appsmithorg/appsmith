@@ -311,4 +311,9 @@ describe("Git sync Bug #10773", function() {
       cy.SearchApp(`${newWorkspaceName}app`);
     });
   });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });
