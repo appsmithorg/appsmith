@@ -1620,7 +1620,7 @@ Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
     `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
   )
     .click({ force: true })
-    .clear();
+    .clear({ force: true} );
 
   if (text) {
     cy.get(
