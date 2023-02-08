@@ -144,6 +144,6 @@ describe("Widget Copy paste", function() {
     cy.get("body").type(`{${modifierKey}}{v}`);
 
     //verify a pasted list widget
-    cy.get(widgetsPage.listWidget).should("have.length", 1);
+    cy.get(widgetsPage.listWidgetv2).should("have.length", 1);
   });
 });
