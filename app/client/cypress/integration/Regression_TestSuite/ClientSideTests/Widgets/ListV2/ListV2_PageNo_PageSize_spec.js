@@ -145,6 +145,7 @@ describe("List widget V2 page number and page size", () => {
     cy.togglebarDisable(".t--property-control-serversidepagination input");
 
     cy.openPropertyPane("textwidget");
+    cy.testJsontextclear("text");
     cy.testJsontext("text", `PageSize {{List1.pageSize}}`);
     cy.wait("@updateLayout");
 
