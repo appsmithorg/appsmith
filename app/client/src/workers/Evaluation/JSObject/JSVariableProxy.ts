@@ -24,7 +24,7 @@ export function jsVariableProxyHandler(
         };
       }
 
-      if (typeof value === "object") {
+      if (typeof value === "object" && value !== null) {
         return new Proxy(
           value,
           jsVariableProxyHandler(updateTracker, `${path}.${prop}`),
@@ -58,12 +58,15 @@ class JSProxy {
   fromJSObject(
     jsObject: DataTreeJSAction,
     jsObjectName: string,
-    varState: Record<string, unknown>,
+    varState: Record<string, unknown> = {},
   ) {
-    return new Proxy(
-      Object.assign({}, jsObject, varState),
-      jsVariableProxyHandler(addPatch, jsObjectName),
-    );
+    if (typeof jsObject === "object") {
+      return new Proxy(
+        Object.assign({}, jsObject, varState),
+        jsVariableProxyHandler(addPatch, jsObjectName),
+      );
+    }
+    return jsObject;
   }
 }
 
