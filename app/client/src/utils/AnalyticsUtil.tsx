@@ -386,7 +386,20 @@ class AnalyticsUtil {
             resolve(false);
           }, 2000);
           analytics.SNIPPET_VERSION = "4.1.0";
-          analytics.load(key);
+          // Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#batching
+          analytics.load(key, {
+            integrations: {
+              "Segment.io": {
+                deliveryStrategy: {
+                  strategy: "batching", // The delivery strategy used for sending events to Segment
+                  config: {
+                    size: 100, // The batch size is the threshold that forces all batched events to be sent once it’s reached.
+                    timeout: 1000, // The number of milliseconds that forces all events queued for batching to be sent, regardless of the batch size, once it’s reached
+                  },
+                },
+              },
+            },
+          });
           analytics.page();
         }
       })(window);
