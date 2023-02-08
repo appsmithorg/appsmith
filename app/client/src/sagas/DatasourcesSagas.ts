@@ -1119,10 +1119,11 @@ function* executeDatasourceQuerySaga(
 function* initializeFormWithDefaults(
   action: ReduxAction<{ pluginType: string }>,
 ) {
-  // yield take("@@redux-form/INITIALIZE");
-  const initialValue: Datasource = yield select(
-    getFormInitialValues(DATASOURCE_REST_API_FORM),
-  );
+  const formName =
+    action?.payload?.pluginType === "API"
+      ? DATASOURCE_REST_API_FORM
+      : DATASOURCE_DB_FORM;
+  const initialValue: Datasource = yield select(getFormInitialValues(formName));
   const defaultKeyValueArrayConfig: string[] = yield select(
     (state) => state?.ui?.datasourcePane?.defaultKeyValueArrayConfig,
   );
