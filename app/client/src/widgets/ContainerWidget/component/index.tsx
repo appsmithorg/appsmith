@@ -41,6 +41,7 @@ const StyledContainerComponent = styled.div<
 `;
 
 interface ContainerWrapperProps {
+  onClick?: MouseEventHandler<HTMLDivElement>;
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
   resizeDisabled?: boolean;
   shouldScrollContents?: boolean;
@@ -119,6 +120,7 @@ function ContainerComponentWrapper(
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} container-with-scrollbar`}
       data-widgetId={props.widgetId}
+      onClick={props.onClick}
       onClickCapture={props.onClickCapture}
       onMouseOver={onMouseOver}
       ref={containerRef}
@@ -136,6 +138,7 @@ function ContainerComponent(props: ContainerComponentProps) {
   if (props.detachFromLayout) {
     return (
       <ContainerComponentWrapper
+        onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={props.shouldScrollContents}
@@ -160,6 +163,7 @@ function ContainerComponent(props: ContainerComponentProps) {
     >
       <ContainerComponentWrapper
         backgroundColor={props.backgroundColor}
+        onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={props.shouldScrollContents}
@@ -181,6 +185,7 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   selected?: boolean;
   focused?: boolean;
   detachFromLayout?: boolean;
+  onClick?: MouseEventHandler<HTMLDivElement>;
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
   backgroundColor?: string;
   type: WidgetType;
