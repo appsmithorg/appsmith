@@ -38,6 +38,7 @@ import reactor.test.StepVerifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,6 +46,8 @@ import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
+import static com.appsmith.server.constants.FieldName.CUSTOM_ROLES;
+import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -198,14 +201,27 @@ public class TenantResourcesTest {
                     assertThat(rolesTopView.getEnabled()).isEqualTo(perms);
                     assertThat(rolesTopView.getChildren().size()).isEqualTo(1);
 
-                    // Assert that the created role is returned in the view
                     List<BaseView> rolesEntities = (List<BaseView>) rolesTopView.getChildren().stream().findFirst().get().getEntities();
-                    BaseView createdRoleView = rolesEntities.stream().filter(roleEntity -> roleEntity.getId().equals(createdRole.getId())).findFirst().get();
-                    assertThat(createdRoleView.getName()).isEqualTo(createdRole.getName());
+                    // Check for 2 Headers: Default Roles and Custom Roles
+                    Optional<BaseView> defaultRoleBaseView = rolesEntities.stream().filter(view -> view.getName().equals(DEFAULT_ROLES)).findFirst();
+                    assertThat(defaultRoleBaseView.isPresent()).isTrue();
+                    Optional<BaseView> customRoleBaseView = rolesEntities.stream().filter(view -> view.getName().equals(CUSTOM_ROLES)).findFirst();
+                    assertThat(customRoleBaseView.isPresent()).isTrue();
+
+                    // Check for 1 entity inside Custom Role Header Entity
+                    Optional<EntityView> customRoleEntity = customRoleBaseView.get().getChildren().stream()
+                            .filter(entity -> entity.getType().equals(PermissionGroup.class.getSimpleName()))
+                            .findAny();
+                    assertThat(customRoleEntity.isPresent()).isTrue();
+                    // Assert that the created role is returned in the Custom Role Header Entity
+                    Optional<? extends BaseView> createdRoleView = customRoleEntity.get().getEntities().stream()
+                            .filter(view -> view.getId().equals(createdRole.getId())).findFirst();
+                    assertThat(createdRoleView.isPresent()).isTrue();
+                    assertThat(createdRoleView.get().getName()).isEqualTo(createdRole.getName());
                     // Assert that create, invite and remove users permissions are disabled. The rest of the permissions are enabled for the role
                     perms = List.of(-1, 1, 1, 1, -1, -1, 1);
-                    assertThat(createdRoleView.getEnabled()).isEqualTo(perms);
-                    assertThat(createdRoleView.getChildren()).isNull();
+                    assertThat(createdRoleView.get().getEnabled()).isEqualTo(perms);
+                    assertThat(createdRoleView.get().getChildren()).isNull();
 
                 })
                 .verifyComplete();

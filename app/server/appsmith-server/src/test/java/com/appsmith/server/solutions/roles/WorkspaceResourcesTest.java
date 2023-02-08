@@ -80,6 +80,8 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.CUSTOM_ROLES;
+import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static java.lang.Boolean.TRUE;
@@ -714,16 +716,27 @@ public class WorkspaceResourcesTest {
 
         assertThat(rolesView.getId()).isEqualTo(tenantId);
 
-        BaseView adminPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView defaultRolesBaseView = rolesView.getChildren().stream()
+                .filter(roleView -> roleView.getType().equals("Header"))
+                .findAny().get()
+                .getEntities().stream().filter(roleBaseView -> roleBaseView.getName().equals(DEFAULT_ROLES))
+                .findAny().get();
+        BaseView customRolesBaseView = rolesView.getChildren().stream()
+                .filter(roleView -> roleView.getType().equals("Header"))
+                .findAny().get()
+                .getEntities().stream().filter(roleBaseView -> roleBaseView.getName().equals(CUSTOM_ROLES))
+                .findAny().get();
+
+        BaseView adminPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(adminPg.getId()))
                 .findFirst().get();
-        BaseView devPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView devPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(devPg.getId()))
                 .findFirst().get();
-        BaseView viewPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView viewPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(viewPg.getId()))
                 .findFirst().get();
-        BaseView additionalPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView additionalPgBaseView = customRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(additionalPg.getId()))
                 .findFirst().get();
 
@@ -1700,16 +1713,28 @@ public class WorkspaceResourcesTest {
         BaseView rolesView = groupsAndRolesView.getEntities().stream()
                 .filter(entity -> entity.getName().equals("Roles")).findFirst().get();
 
-        BaseView adminPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView defaultRolesBaseView = rolesView.getChildren().stream()
+                .filter(roleView -> roleView.getType().equals("Header"))
+                .findAny().get()
+                .getEntities().stream().filter(roleBaseView -> roleBaseView.getName().equals(DEFAULT_ROLES))
+                .findAny().get();
+        BaseView customRolesBaseView = rolesView.getChildren().stream()
+                .filter(roleView -> roleView.getType().equals("Header"))
+                .findAny().get()
+                .getEntities().stream().filter(roleBaseView -> roleBaseView.getName().equals(CUSTOM_ROLES))
+                .findAny().get();
+
+
+        BaseView adminPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(adminPg.getId()))
                 .findFirst().get();
-        BaseView devPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView devPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(devPg.getId()))
                 .findFirst().get();
-        BaseView viewPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView viewPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(viewPg.getId()))
                 .findFirst().get();
-        BaseView createdPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView createdPgBaseView = customRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(createdPg.getId()))
                 .findFirst().get();
 

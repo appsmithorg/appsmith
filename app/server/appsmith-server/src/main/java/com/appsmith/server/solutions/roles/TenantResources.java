@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,8 @@ import static com.appsmith.server.acl.AclPermission.TENANT_READ_PERMISSION_GROUP
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
+import static com.appsmith.server.constants.FieldName.CUSTOM_ROLES;
+import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPermissionDTOsAndUpdateMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getHierarchicalLateralPermMap;
@@ -277,13 +280,35 @@ public class TenantResources {
                     return updateEnabledForPermissionGroup(permissionGroupDto, permissionGroup);
                 })
                 .collectList()
-                .map(permissionGroupDTOs -> {
+                .map(pgBaseView -> {
+                    List<BaseView> defaultPgBaseView = pgBaseView.stream().filter(Tuple2::getT2).map(Tuple2::getT1).toList();
+                    List<BaseView> customPgBaseView = pgBaseView.stream().filter(tuple -> ! tuple.getT2()).map(Tuple2::getT1).toList();
+                    return Tuples.of(defaultPgBaseView, customPgBaseView);
+                })
+                .map(pgBaseViewTuple -> {
 
-                    EntityView permissionGroupEntityView = new EntityView();
-                    permissionGroupEntityView.setType(PermissionGroup.class.getSimpleName());
-                    permissionGroupEntityView.setEntities(permissionGroupDTOs);
+                    EntityView header = new EntityView();
+                    header.setType("Header");
 
-                    baseView.setChildren(Set.of(permissionGroupEntityView));
+                    EntityView defaultPgEntityView = new EntityView();
+                    defaultPgEntityView.setType(PermissionGroup.class.getSimpleName());
+                    defaultPgEntityView.setEntities(pgBaseViewTuple.getT1());
+
+                    BaseView defaultPgBaseView = new BaseView();
+                    defaultPgBaseView.setName(DEFAULT_ROLES);
+                    defaultPgBaseView.setChildren(Set.of(defaultPgEntityView));
+
+                    EntityView customPgEntityView = new EntityView();
+                    customPgEntityView.setType(PermissionGroup.class.getSimpleName());
+                    customPgEntityView.setEntities(pgBaseViewTuple.getT2());
+
+                    BaseView customPgBaseView = new BaseView();
+                    customPgBaseView.setName(CUSTOM_ROLES);
+                    customPgBaseView.setChildren(Set.of(customPgEntityView));
+
+                    header.setEntities(List.of(defaultPgBaseView, customPgBaseView));
+
+                    baseView.setChildren(Set.of(header));
                     return baseView;
                 });
     }
@@ -418,7 +443,7 @@ public class TenantResources {
     This method is currently unused since the current relationships covered in the tab are unrelated. This method is kept for future use.
      */
     private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForOtherRoles(RoleTab roleTab,
-                                                                                       Flux<Workspace> workspaceFlux) {
+                                                                                      Flux<Workspace> workspaceFlux) {
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
         Set<AclPermission> workspacePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Workspace.class)).collect(Collectors.toSet());
@@ -449,8 +474,8 @@ public class TenantResources {
     /*
      * Checks if the Permission Group is auto-created or not and disables the Delete and Edit permissions.
      */
-    private Mono<BaseView> updateEnabledForPermissionGroup(BaseView permissionGroupDto,
-                                                         PermissionGroup permissionGroup) {
+    private Mono<Tuple2<BaseView, Boolean>> updateEnabledForPermissionGroup(BaseView permissionGroupDto,
+                                                                            PermissionGroup permissionGroup) {
         return permissionGroupUtils.isAutoCreated(permissionGroup).map(autoCreated -> {
             if (autoCreated) {
                 List<PermissionViewableName> viewablePermissions = RoleTab.GROUPS_ROLES.getViewablePermissions();
@@ -459,7 +484,7 @@ public class TenantResources {
                 permissionGroupDto.getEnabled().set(indexOfDeletePermission, -1);
                 permissionGroupDto.getEnabled().set(indexOfEditPermission, -1);
             }
-            return permissionGroupDto;
+            return Tuples.of(permissionGroupDto, autoCreated);
         });
     }
 

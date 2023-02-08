@@ -65,5 +65,7 @@ public class FieldName extends FieldNameCE {
     public static final String HASHED_INSTANCE_ID = "hashedInstanceId";
     public static final String USAGE_DATA = "usageData";
     public static final String TENANT = "tenant";
+    public static final String DEFAULT_ROLES = "Default Roles";
+    public static final String CUSTOM_ROLES = "Custom Roles";
     public static final String KEY = "key";
 }
