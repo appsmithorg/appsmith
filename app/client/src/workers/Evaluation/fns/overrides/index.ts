@@ -5,7 +5,7 @@ import { addFn } from "../utils/fnGuard";
 import userLogs from "./console";
 import initLocalStorage from "./localStorage";
 
-export function initOverrides(ctx: any) {
+export function overrideWebAPIs(ctx: any) {
   userLogs.overrideConsoleAPI();
   addFn(ctx, "setInterval", setInterval);
   addFn(ctx, "clearInterval", clearAllIntervals);

@@ -2,7 +2,7 @@ import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
 import setupDOM from "../SetupDOM";
 import { EvalWorkerSyncRequest } from "../types";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
-import { initOverrides } from "../fns/overrides";
+import { overrideWebAPIs } from "../fns/overrides";
 
 export default function() {
   self.$isDataField = false;
@@ -12,7 +12,7 @@ export default function() {
     self[func] = undefined;
   });
   setupDOM();
-  initOverrides(self);
+  overrideWebAPIs(self);
   addPlatformFunctionsToEvalContext(self);
   return true;
 }

@@ -2,10 +2,10 @@ import { PluginType } from "entities/Action";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "../evaluate";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
-import { initOverrides } from "../fns/overrides";
+import { overrideWebAPIs } from "../fns/overrides";
 
 describe("Expects appsmith setTimeout to pass the following criteria", () => {
-  initOverrides(self);
+  overrideWebAPIs(self);
   jest.useFakeTimers();
   jest.spyOn(self, "setTimeout");
   self.postMessage = jest.fn();
