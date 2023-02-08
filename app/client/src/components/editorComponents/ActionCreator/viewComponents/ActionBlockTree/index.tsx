@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { ActionTree, SelectedActionBlock } from "../../types";
 import { getActionInfo } from "./utils";
 import { ActionBlock } from "../ActionBlock";
-import { Icon } from "design-system-old";
+import { Icon, TooltipComponent } from "design-system-old";
 import TreeStructure from "components/utils/TreeStructure";
 import { AppsmithFunction } from "../../constants";
 
@@ -26,6 +26,7 @@ type CallbackBlock = {
   callbacks: ActionTree[];
   blockType: SelectedActionBlock["type"];
   handleSelection: (block: SelectedActionBlock) => void;
+  tooltipContent: string;
 };
 
 export const ActionBlockTree: React.FC<Props> = ({
@@ -66,6 +67,8 @@ export const ActionBlockTree: React.FC<Props> = ({
       callbacks: successCallbacks,
       blockType: "success",
       handleSelection: handleBlockSelection,
+      tooltipContent:
+        "Show a message, chain other Actions, or both when the parent Action block runs successfully. All nested Actions run at the same time.",
     },
     {
       label: "On failure",
@@ -73,6 +76,8 @@ export const ActionBlockTree: React.FC<Props> = ({
       callbacks: errorCallbacks,
       blockType: "failure",
       handleSelection: handleBlockSelection,
+      tooltipContent:
+        "Show a message, chain Actions, or both when the parent Action block fails to run. All nested Actions run at the same time.",
     },
   ];
 
@@ -150,30 +155,37 @@ export const ActionBlockTree: React.FC<Props> = ({
                 handleAddBlock,
                 handleSelection,
                 label,
+                tooltipContent,
               }) => (
                 <li key={label}>
                   <div className="flex flex-col">
-                    <button
-                      className={clsx(
-                        "action-callback-add",
-                        "flex justify-between bg-gray-50 border-[1px] border-b-transparent border-gray-200 box-border",
-                        callbacks.length === 0 &&
-                          "border-b-[1px] border-b-gray-200",
-                        isNewActionSelected(blockType) && "selected",
-                      )}
-                      onClick={handleAddBlock}
+                    <TooltipComponent
+                      boundary="viewport"
+                      content={tooltipContent}
+                      popoverClassName="!max-w-[300px]"
                     >
-                      <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300 px-2 py-1">
-                        {label}
-                      </span>
-                      <span className="icon w-7 h-7 flex items-center justify-center">
-                        <Icon
-                          fillColor="var(--ads-color-black-700)"
-                          name="plus"
-                          size="extraLarge"
-                        />
-                      </span>
-                    </button>
+                      <button
+                        className={clsx(
+                          "action-callback-add",
+                          "flex justify-between bg-gray-50 border-[1px] border-b-transparent border-gray-200 box-border",
+                          callbacks.length === 0 &&
+                            "border-b-[1px] border-b-gray-200",
+                          isNewActionSelected(blockType) && "selected",
+                        )}
+                        onClick={handleAddBlock}
+                      >
+                        <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300 px-2 py-1">
+                          {label}
+                        </span>
+                        <span className="icon w-7 h-7 flex items-center justify-center">
+                          <Icon
+                            fillColor="var(--ads-color-black-700)"
+                            name="plus"
+                            size="extraLarge"
+                          />
+                        </span>
+                      </button>
+                    </TooltipComponent>
                     {callbacks
                       .filter(
                         ({ actionType }) =>
