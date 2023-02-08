@@ -242,6 +242,7 @@ class CodeEditor extends Component<Props, State> {
   hinters: Hinter[] = [];
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
+  peekOverlayDelay = 200;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
 
   constructor(props: Props) {
@@ -528,12 +529,20 @@ class CodeEditor extends Component<Props, State> {
     });
   };
 
+  debouncedHidePeekOverlay = debounce(
+    () => this.hidePeekOverlay(),
+    this.peekOverlayDelay,
+  );
+
   hidePeekOverlay = () =>
     this.setState({
       peekOverlayProps: undefined,
     });
 
-  debounceHandleMouseOver = debounce((ev) => this.handleMouseOver(ev), 200);
+  debounceHandleMouseOver = debounce(
+    (ev) => this.handleMouseOver(ev),
+    this.peekOverlayDelay,
+  );
 
   handleMouseOver = (event: MouseEvent) => {
     if (
@@ -1210,8 +1219,8 @@ class CodeEditor extends Component<Props, State> {
           >
             {this.state.peekOverlayProps && (
               <PeekOverlayPopUp
-                onMouseEnter={() => this.debouncedPeekHide.cancel()}
-                onMouseLeave={() => this.debouncedPeekHide()}
+                onMouseEnter={() => this.debouncedHidePeekOverlay.cancel()}
+                onMouseLeave={() => this.debouncedHidePeekOverlay()}
                 {...this.state.peekOverlayProps}
               />
             )}
