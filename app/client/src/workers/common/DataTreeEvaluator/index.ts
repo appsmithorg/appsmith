@@ -880,9 +880,12 @@ export default class DataTreeEvaluator {
                   }),
                   evalPropertyValue,
                 );
+                jsObjectCollection.setVariableValue(
+                  evalValue,
+                  fullPropertyPath,
+                );
               }
               set(currentTree, fullPropertyPath, evalValue);
-              jsObjectCollection.setVariableValue(evalValue, fullPropertyPath);
             }
             return currentTree;
           } else {
