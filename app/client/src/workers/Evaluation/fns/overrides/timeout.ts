@@ -14,7 +14,7 @@ function setTimeout(cb: (...args: any) => any, delay: number, ...args: any) {
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,
       });
-      self["$allowAsync"] = true;
+      self["$isDataField"] = false;
       Object.assign(self, evalContext);
       ExecutionMetaData.setExecutionMetaData(
         metaData.triggerMeta,

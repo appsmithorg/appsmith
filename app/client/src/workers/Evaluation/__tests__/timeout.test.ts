@@ -106,7 +106,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
         logBlackList: {},
       },
     };
-    self["$allowAsync"] = true;
+    self["$isDataField"] = false;
     const evalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions: {},

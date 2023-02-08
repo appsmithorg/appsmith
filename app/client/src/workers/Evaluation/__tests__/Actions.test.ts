@@ -18,7 +18,7 @@ describe("Add functions", () => {
   self.postMessage = (payload: any) => {
     workerEventMock(payload);
   };
-  self["$allowAsync"] = true;
+  self["$isDataField"] = false;
   const dataTree: DataTree = {
     action1: {
       actionId: "123",

@@ -403,6 +403,6 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
 
   // Identifiers added to worker scope by Appsmith
   evaluationVersion: "evaluationVersion",
-  $allowAsync: "$allowAsync",
+  $isDataField: "$isDataField",
   $isAsync: "$isAsync",
 };

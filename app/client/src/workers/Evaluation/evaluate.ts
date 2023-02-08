@@ -68,6 +68,7 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 }, {} as any);
 
 function resetWorkerGlobalScope() {
+  self.$isDataField = false;
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     //TODO: Remove this once we have a better way to handle this
@@ -254,7 +255,7 @@ export default function evaluateSync(
       isTriggerBased: isJSCollection,
     });
 
-    evalContext["$allowAsync"] = false;
+    evalContext["$isDataField"] = true;
 
     const { script } = getUserScriptToEvaluate(
       userScript,
@@ -300,6 +301,7 @@ export default function evaluateSync(
           delete self[entityName];
         }
       }
+      self["$isDataField"] = false;
     }
     return { result, errors };
   })();
@@ -327,7 +329,7 @@ export async function evaluateAsync(
     });
 
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
-    evalContext["$allowAsync"] = true;
+    evalContext["$isDataField"] = false;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith

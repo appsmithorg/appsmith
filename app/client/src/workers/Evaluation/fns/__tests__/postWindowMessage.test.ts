@@ -12,7 +12,7 @@ jest.mock("../utils/Messenger.ts", () => ({
 
 describe("Post window message works", () => {
   beforeAll(() => {
-    self.$allowAsync = true;
+    self["$isDataField"] = false;
     addPlatformFunctionsToEvalContext(evalContext);
   });
 

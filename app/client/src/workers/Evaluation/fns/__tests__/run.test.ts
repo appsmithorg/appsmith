@@ -25,7 +25,7 @@ jest.mock("../utils/Messenger.ts", () => ({
 
 describe("Tests for run function in callback styled", () => {
   beforeAll(() => {
-    self["$allowAsync"] = true;
+    self["$isDataField"] = false;
     ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
     addPlatformFunctionsToEvalContext(evalContext);
   });
@@ -138,7 +138,7 @@ describe("Tests for run function in callback styled", () => {
 
 describe("Tests for run function in promise styled", () => {
   beforeAll(() => {
-    self["$allowAsync"] = true;
+    self["$isDataField"] = false;
     ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
     addPlatformFunctionsToEvalContext(evalContext);
   });

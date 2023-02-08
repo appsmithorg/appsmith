@@ -9,7 +9,7 @@ class FunctionDeterminer {
   setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
-      $allowAsync: false,
+      $isDataField: true,
       $isAsync: false,
     };
 

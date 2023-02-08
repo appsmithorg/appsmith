@@ -45,7 +45,7 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
 
 describe("Tests for interval functions", () => {
   beforeAll(() => {
-    self["$allowAsync"] = true;
+    self["$isDataField"] = false;
     ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
     initOverrides(evalContext);
     addPlatformFunctionsToEvalContext(evalContext);

@@ -27,6 +27,7 @@ const priorityBatchedActionHandler = function(
   let batchedData: unknown[] = [];
   return (data: unknown) => {
     if (batchedData.length === 0) {
+      // Ref - https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide
       queueMicrotask(() => {
         task(batchedData);
         batchedData = [];

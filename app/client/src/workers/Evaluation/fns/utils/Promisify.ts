@@ -27,7 +27,7 @@ export function promisify<P extends ReadonlyArray<unknown>>(
       metaData.triggerMeta,
       metaData.eventType,
     );
-    self["$allowAsync"] = true;
+    self["$isDataField"] = false;
     const evalContext = createEvaluationContext({
       dataTree: dataTreeEvaluator.evalTree,
       resolvedFunctions: dataTreeEvaluator.resolvedFunctions,

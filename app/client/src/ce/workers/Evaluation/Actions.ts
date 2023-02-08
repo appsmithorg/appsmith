@@ -12,7 +12,7 @@ declare global {
    * */
 
   interface Window {
-    $allowAsync: boolean;
+    $isDataField: boolean;
     $isAsync: boolean;
     $evaluationVersion: EvaluationVersion;
   }

@@ -5,6 +5,7 @@ import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/
 import { initOverrides } from "../fns/overrides";
 
 export default function() {
+  self.$isDataField = false;
   ///// Remove all unsafe functions
   unsafeFunctionForEval.forEach((func) => {
     // @ts-expect-error: Types are not available

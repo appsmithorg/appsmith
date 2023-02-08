@@ -1,5 +1,6 @@
 import { uniqueId } from "lodash";
 import { TDefaultMessage } from "utils/MessageUtil";
+import { dataTreeEvaluator } from "../handlers/evalTree";
 import ExecutionMetaData from "./utils/ExecutionMetaData";
 import { promisify } from "./utils/Promisify";
 import TriggerEmitter, { BatchKey } from "./utils/TriggerEmitter";
@@ -94,7 +95,12 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
       metaData.eventType,
     );
     const { body } = message;
-    // setup eval context
+    if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
+    ExecutionMetaData.setExecutionMetaData(
+      metaData.triggerMeta,
+      metaData.eventType,
+    );
+    self["$isDataField"] = false;
     if (body.data) {
       if (typeof onSuccessCallback === "function") onSuccessCallback(body.data);
     } else if (body.error) {

@@ -24,7 +24,7 @@ export function isAsyncGuard<P extends ReadonlyArray<unknown>>(
   fnName: string,
 ) {
   return (...args: P) => {
-    if (self["$allowAsync"]) return fn(...args);
+    if (!self.$isDataField) return fn(...args);
     self["$isAsync"] = true;
     throw new ActionCalledInSyncFieldError(fnName);
   };

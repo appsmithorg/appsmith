@@ -36,7 +36,7 @@ export function setInterval(
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,
       });
-      self["$allowAsync"] = true;
+      self["$isDataField"] = false;
       Object.assign(self, evalContext);
       ExecutionMetaData.setExecutionMetaData(
         metaData.triggerMeta,
