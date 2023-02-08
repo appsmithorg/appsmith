@@ -269,7 +269,7 @@ describe("Container Widget Functionality", function() {
     cy.widgetText(
       "List2",
       widgetsPage.listWidgetName,
-      widgetsPage.listWidgetName + " " + commonlocators.listWidgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
     // Change the list widget name from Entity Explorer
     cy.renameEntity("List2", "List1");

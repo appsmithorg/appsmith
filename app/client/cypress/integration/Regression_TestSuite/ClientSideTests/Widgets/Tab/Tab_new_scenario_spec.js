@@ -8,7 +8,7 @@ describe("Tab widget test", function() {
   });
   it("Tab Widget Functionality Test with Modal on change of selected tab", function() {
     cy.openPropertyPane("tabswidget");
-    cy.widgetText("tab", Layoutpage.tabWidget, Layoutpage.tabInput);
+    cy.widgetText("tab", Layoutpage.tabWidget, widgetsPage.widgetNameSpan);
     cy.AddActionWithModal();
     cy.get(".t--widget-buttonwidget:contains('Confirm')").click({
       force: true,

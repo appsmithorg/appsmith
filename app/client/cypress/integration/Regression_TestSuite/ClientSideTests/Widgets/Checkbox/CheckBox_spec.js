@@ -18,7 +18,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.widgetText(
       "checker",
       formWidgetsPage.checkboxWidget,
-      widgetsPage.checkboxInput,
+      widgetsPage.widgetNameSpan,
     );
     /**
      * @param{Text} Random Value

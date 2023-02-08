@@ -39,7 +39,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidgetV2,
-      commonlocators.tableV2Inner,
+      widgetsPage.widgetNameSpan,
     );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     cy.focused().blur();

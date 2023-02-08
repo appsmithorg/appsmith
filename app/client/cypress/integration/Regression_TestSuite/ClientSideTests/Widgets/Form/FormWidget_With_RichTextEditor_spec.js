@@ -17,7 +17,7 @@ describe("RichTextEditor Widget Functionality in Form", function() {
     cy.widgetText(
       this.data.RichTextEditorName,
       formWidgetsPage.richTextEditorWidget,
-      formWidgetsPage.richTextEditorWidget + " " + commonlocators.widgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
 
     //Validate Html

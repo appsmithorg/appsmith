@@ -1281,9 +1281,11 @@ Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
       .last()
       .trigger("mouseover", { force: true })
       .wait(500);
-    cy.get(
-      `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
-    )
+    cy.get(`${selector}:first-of-type`)
+      .first()
+      .click({ force: true })
+      .wait(500);
+    cy.get(".t--widget-propertypane-toggle > .t--widget-name")
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -1675,11 +1677,13 @@ Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
     .scrollIntoView()
     .trigger("mouseover", { force: true })
     .wait(500);
-  cy.get(
-    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
-  )
+  cy.get(`${selector}:first-of-type`)
     .eq(index)
     .scrollIntoView()
+    .click({ force: true })
+    .wait(500);
+  cy.get(".t--widget-propertypane-toggle > .t--widget-name")
+    .first()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);

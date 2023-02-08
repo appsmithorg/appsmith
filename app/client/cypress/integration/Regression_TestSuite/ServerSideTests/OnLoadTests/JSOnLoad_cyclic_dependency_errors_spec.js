@@ -75,7 +75,11 @@ describe("Cyclic Dependency Informational Error Messages", function() {
     cy.get(widgetsPage.widgetSwitchId).click();
     cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.defaultInput).type("{{" + queryName + ".data[0].gender");
-    cy.widgetText("gender", widgetsPage.inputWidget, widgetsPage.inputval);
+    cy.widgetText(
+      "gender",
+      widgetsPage.inputWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.assertPageSave();
   });
 

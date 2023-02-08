@@ -11,7 +11,11 @@ describe("Test Suite to validate copy/paste table Widget", function() {
   it("Copy paste table widget and valdiate application status", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.openPropertyPane("tablewidget");
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
+    cy.widgetText(
+      "Table1",
+      widgetsPage.tableWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);

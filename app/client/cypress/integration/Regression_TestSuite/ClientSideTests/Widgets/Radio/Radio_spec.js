@@ -17,7 +17,7 @@ describe("Radio Widget Functionality", function() {
     cy.widgetText(
       "radiotest",
       formWidgetsPage.radioWidget,
-      formWidgetsPage.radioInput,
+      widgetsPage.widgetNameSpan,
     );
     /**
      * @param{IndexValue} Provide Input Index Value

@@ -23,7 +23,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.widgetText(
       "FormTest",
       formWidgetsPage.formWidget,
-      formWidgetsPage.formInner,
+      widgetsPage.widgetNameSpan,
     );
     /**
      * @param{Text} Random Colour

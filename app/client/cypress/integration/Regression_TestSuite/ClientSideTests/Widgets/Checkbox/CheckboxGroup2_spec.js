@@ -19,7 +19,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.widgetText(
       "checkboxgrouptest",
       formWidgetsPage.checkboxGroupWidget,
-      formWidgetsPage.checkboxGroupInput,
+      widgetsPage.widgetNameSpan,
     );
     /**
      * @param{IndexValue} Provide Input Index Value

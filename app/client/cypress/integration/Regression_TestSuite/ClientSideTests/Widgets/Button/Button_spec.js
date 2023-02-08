@@ -81,7 +81,7 @@ describe("Button Widget Functionality", function() {
     cy.widgetText(
       this.data.ButtonName,
       widgetsPage.buttonWidget,
-      widgetsPage.buttonWidget + " " + commonlocators.widgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
 
     //Changing the text on the Button

@@ -18,7 +18,7 @@ describe("Image Widget Functionality", function() {
     cy.widgetText(
       "img",
       viewWidgetsPage.imageWidget,
-      viewWidgetsPage.imagecontainer,
+      widgetsPage.widgetNameSpan,
     );
     cy.testJsontext("defaultimage", this.data.defaultimage);
     cy.wait(1000);

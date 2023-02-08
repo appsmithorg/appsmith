@@ -22,7 +22,7 @@ describe("DatePicker Widget Functionality", function() {
     cy.widgetText(
       this.data.Datepickername,
       formWidgetsPage.datepickerWidget,
-      formWidgetsPage.datepickerWidget + " " + commonlocators.widgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
 
     // change the date to next day

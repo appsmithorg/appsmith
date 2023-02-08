@@ -13,7 +13,7 @@ describe("Test Suite to validate copy/paste table Widget V2", function() {
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidgetV2,
-      commonlocators.tableV2Inner,
+      widgetsPage.widgetNameSpan,
     );
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
