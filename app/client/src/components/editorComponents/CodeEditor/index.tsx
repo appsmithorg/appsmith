@@ -371,7 +371,7 @@ class CodeEditor extends Component<Props, State> {
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
-          this.handleMouseOver,
+          this.debounceHandleMouseOver,
         );
 
         if (this.props.height) {
@@ -408,7 +408,7 @@ class CodeEditor extends Component<Props, State> {
     }
     window.addEventListener("keydown", this.handleKeydown);
     window.addEventListener("keyup", this.handleKeyUp);
-    window.addEventListener("wheel", this.peekHide);
+    window.addEventListener("wheel", this.hidePeekOverlay);
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
@@ -512,31 +512,28 @@ class CodeEditor extends Component<Props, State> {
     this.editor.clearHistory();
   }
 
-  debouncedPeek = debounce(
-    (
-      peekableAttribute: string,
-      tokenElementPosition: DOMRect,
-      dataToShow: unknown,
-    ) => {
-      this.setState({
-        peekOverlayProps: {
-          name: peekableAttribute ?? "",
-          position: tokenElementPosition,
-          textWidth: tokenElementPosition.width,
-          data: dataToShow,
-          dataType: typeof dataToShow,
-        },
-      });
-    },
-    200,
-  );
+  showPeekOverlay = (
+    peekableAttribute: string,
+    tokenElementPosition: DOMRect,
+    dataToShow: unknown,
+  ) => {
+    this.setState({
+      peekOverlayProps: {
+        name: peekableAttribute ?? "",
+        position: tokenElementPosition,
+        textWidth: tokenElementPosition.width,
+        data: dataToShow,
+        dataType: typeof dataToShow,
+      },
+    });
+  };
 
-  debouncedPeekHide = debounce(() => this.peekHide(), 200);
-
-  peekHide = () =>
+  hidePeekOverlay = () =>
     this.setState({
       peekOverlayProps: undefined,
     });
+
+  debounceHandleMouseOver = debounce((ev) => this.handleMouseOver(ev), 200);
 
   handleMouseOver = (event: MouseEvent) => {
     if (
@@ -550,7 +547,7 @@ class CodeEditor extends Component<Props, State> {
         const paths = peekableAttribute.split(".");
         if (paths.length) {
           const propertyAccessor = ["peekData", ...paths.slice(1)];
-          this.debouncedPeek(
+          this.showPeekOverlay(
             peekableAttribute,
             tokenElementPosition,
             _.get(this.props.entitiesForNavigation[paths[0]], propertyAccessor),
@@ -558,8 +555,7 @@ class CodeEditor extends Component<Props, State> {
         }
       }
     } else {
-      this.debouncedPeek.cancel();
-      this.debouncedPeekHide();
+      this.hidePeekOverlay();
     }
   };
 
@@ -604,7 +600,7 @@ class CodeEditor extends Component<Props, State> {
 
     window.removeEventListener("keydown", this.handleKeydown);
     window.removeEventListener("keyup", this.handleKeyUp);
-    window.removeEventListener("wheel", this.peekHide);
+    window.removeEventListener("wheel", this.hidePeekOverlay);
 
     // return if component unmounts before editor is created
     if (!this.editor) return;
@@ -621,7 +617,7 @@ class CodeEditor extends Component<Props, State> {
     CodeMirror.off(
       this.editor.getWrapperElement(),
       "mousemove",
-      this.handleMouseOver,
+      this.debounceHandleMouseOver,
     );
     // @ts-expect-error: Types are not available
     this.editor.closeHint();
@@ -727,7 +723,7 @@ class CodeEditor extends Component<Props, State> {
                 if (navigationData.type === ENTITY_TYPE.WIDGET) {
                   this.props.selectWidget(navigationData.id);
                 }
-                this.peekHide();
+                this.hidePeekOverlay();
               }
             }
           },
@@ -917,7 +913,7 @@ class CodeEditor extends Component<Props, State> {
       });
       this.props.startingEntityUpdate();
     }
-    this.peekHide();
+    this.hidePeekOverlay();
     this.handleDebouncedChange(instance, changeObj);
   };
 
