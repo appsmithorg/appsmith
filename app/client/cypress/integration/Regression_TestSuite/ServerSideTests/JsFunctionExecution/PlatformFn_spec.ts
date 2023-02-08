@@ -75,10 +75,14 @@ describe("Tests functionality of platform function", () => {
       },
     );
     agHelper.Sleep(4000);
-    jsEditor.SelectFunctionDropdown("myFun1");
+    jsEditor.SelectFunctionDropdown("accessOuterVariableInsideGeoCb");
+    jsEditor.RunJSObj();
+    agHelper.AssertContains("Hello World from current position", "exist");
+
+    jsEditor.SelectFunctionDropdown("accessOuterVariableInsideSuccessCb");
     jsEditor.RunJSObj();
     agHelper.AssertContains("Hello World from success callback", "exist");
-    jsEditor.SelectFunctionDropdown("myFun2");
+    jsEditor.SelectFunctionDropdown("accessOuterVariableInsideSetIntervalCb");
     jsEditor.RunJSObj();
     agHelper.AssertContains("Hello World from setInterval", "exist");
     jsEditor.SelectFunctionDropdown("accessSetIntervalFromSetTimeout");
