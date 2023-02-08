@@ -18,7 +18,8 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { getLineCommentString } from "components/editorComponents/CodeEditor/utils/codeComment";
 
 const Wrapper = styled.div`
-  width: 872px;
+  min-width: 380px;
+  max-width: 872px;
   .dynamic-text-field {
     border-radius: 4px;
     font-size: 14px;

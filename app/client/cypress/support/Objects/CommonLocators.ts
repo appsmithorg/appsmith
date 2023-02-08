@@ -173,4 +173,5 @@ export class CommonLocators {
   _editorVariable = ".cm-variable";
   _consoleString = ".cm-string";
   _commentString = ".cm-comment";
+  _modalWrapper = "[data-cy='modal-wrapper']";
 }
