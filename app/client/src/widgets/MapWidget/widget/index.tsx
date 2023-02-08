@@ -236,7 +236,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           {
             propertyName: "onMarkerClick",
             label: "onMarkerClick",
-            helpText: "Triggers an action when the user clicks on the marker",
+            helpText: "when the user clicks on the marker",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,

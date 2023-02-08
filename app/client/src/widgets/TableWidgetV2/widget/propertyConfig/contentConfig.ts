@@ -171,7 +171,7 @@ export default [
         dependencies: ["serverSidePaginationEnabled"],
       },
       {
-        helpText: "Triggers an action when a table page is changed",
+        helpText: "when a table page is changed",
         propertyName: "onPageChange",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
@@ -182,7 +182,7 @@ export default [
         dependencies: ["serverSidePaginationEnabled"],
       },
       {
-        helpText: "Triggers an action when a table page size is changed",
+        helpText: "when a table page size is changed",
         propertyName: "onPageSizeChange",
         label: "onPageSizeChange",
         controlType: "ACTION_SELECTOR",
@@ -232,7 +232,7 @@ export default [
       {
         propertyName: "onSearchTextChanged",
         label: "onSearchTextChanged",
-        helpText: "Triggers an action when search text is modified by the user",
+        helpText: "when search text is modified by the user",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,
@@ -309,7 +309,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText: "Triggers an action when a table row is selected",
+        helpText: "when a table row is selected",
         propertyName: "onRowSelected",
         label: "onRowSelected",
         controlType: "ACTION_SELECTOR",
@@ -338,7 +338,7 @@ export default [
         },
       },
       {
-        helpText: "Triggers an action when a table column is sorted",
+        helpText: "when a table column is sorted",
         propertyName: "onSort",
         label: "onSort",
         controlType: "ACTION_SELECTOR",
@@ -367,8 +367,7 @@ export default [
       },
       {
         propertyName: "onAddNewRowSave",
-        helpText:
-          "Triggers an action when a add new row save button is clicked",
+        helpText: "when a add new row save button is clicked",
         label: "onSave",
         controlType: "ACTION_SELECTOR",
         hidden: (props: TableWidgetProps) => {
@@ -396,8 +395,7 @@ export default [
       },
       {
         propertyName: "onAddNewRowDiscard",
-        helpText:
-          "Triggers an action when a add new row discard button is clicked",
+        helpText: "when a add new row discard button is clicked",
         label: "onDiscard",
         controlType: "ACTION_SELECTOR",
         hidden: (props: TableWidgetProps) => {

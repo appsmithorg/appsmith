@@ -320,7 +320,7 @@ export default [
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onStartValueChange",
         label: "onStartValueChange",
         controlType: "ACTION_SELECTOR",
@@ -329,7 +329,7 @@ export default [
         isTriggerProperty: true,
       },
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onEndValueChange",
         label: "onEndValueChange",
         controlType: "ACTION_SELECTOR",

@@ -620,6 +620,11 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
+    const helpText =
+      config.controlType === "ACTION_SELECTOR"
+        ? `Configure one or chain multiple Actions ${props.helpText}. All nested Actions run at the same time.`
+        : props.helpText;
+
     try {
       return (
         <ControlWrapper
@@ -639,7 +644,7 @@ const PropertyControl = memo((props: Props) => {
             <PropertyHelpLabel
               label={label}
               theme={props.theme}
-              tooltip={props.helpText}
+              tooltip={helpText}
             />
             {isConvertible && (
               <TooltipComponent

@@ -157,7 +157,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when user clicks on an image",
+            helpText: "when user clicks on an image",
             propertyName: "onClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",

@@ -38,7 +38,7 @@ export default {
         {
           propertyName: "onDiscard",
           label: "onDiscard",
-          helpText: "Triggers an action when the discard button is clicked",
+          helpText: "when the discard button is clicked",
           controlType: "ACTION_SELECTOR",
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             const baseProperty = getBasePropertyPath(propertyPath);

@@ -234,8 +234,7 @@ class SwitchGroupWidget extends BaseWidget<
         sectionName: "Events",
         children: [
           {
-            helpText:
-              "Triggers an action when a switch state inside the group is changed",
+            helpText: "when a switch state inside the group is changed",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",

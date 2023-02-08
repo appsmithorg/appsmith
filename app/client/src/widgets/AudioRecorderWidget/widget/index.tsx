@@ -73,7 +73,7 @@ class AudioRecorderWidget extends BaseWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the recording starts",
+            helpText: "when the recording starts",
             propertyName: "onRecordingStart",
             label: "onRecordingStart",
             controlType: "ACTION_SELECTOR",
@@ -82,7 +82,7 @@ class AudioRecorderWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the recording ends",
+            helpText: "when the recording ends",
             propertyName: "onRecordingComplete",
             label: "onRecordingComplete",
             controlType: "ACTION_SELECTOR",

@@ -259,7 +259,7 @@ class BaseInputWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the text is changed",
+            helpText: "when the text is changed",
             propertyName: "onTextChanged",
             label: "onTextChanged",
             controlType: "ACTION_SELECTOR",
@@ -268,7 +268,7 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the input field receives focus",
+            helpText: "when the input field receives focus",
             propertyName: "onFocus",
             label: "onFocus",
             controlType: "ACTION_SELECTOR",
@@ -277,7 +277,7 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the input field loses focus",
+            helpText: "when the input field loses focus",
             propertyName: "onBlur",
             label: "onBlur",
             controlType: "ACTION_SELECTOR",
@@ -286,8 +286,7 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
-            helpText:
-              "Triggers an action on submit (when the enter key is pressed)",
+            helpText: "on submit (when the enter key is pressed)",
             propertyName: "onSubmit",
             label: "onSubmit",
             controlType: "ACTION_SELECTOR",

@@ -116,7 +116,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the switch state is changed",
+            helpText: "when the switch state is changed",
             propertyName: "onChange",
             label: "onChange",
             controlType: "ACTION_SELECTOR",

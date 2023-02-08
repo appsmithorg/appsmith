@@ -278,7 +278,7 @@ export default [
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onChange",
         label: "onChange",
         controlType: "ACTION_SELECTOR",

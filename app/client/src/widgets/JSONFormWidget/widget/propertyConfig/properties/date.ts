@@ -166,7 +166,7 @@ const PROPERTIES = {
       {
         propertyName: "onDateSelected",
         label: "onDateSelected",
-        helpText: "Triggers an action when a date is selected in the calendar",
+        helpText: "when a date is selected in the calendar",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,

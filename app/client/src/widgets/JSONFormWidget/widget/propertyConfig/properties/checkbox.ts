@@ -26,7 +26,7 @@ const PROPERTIES = {
     ],
     events: [
       {
-        helpText: "Triggers an action when the check state is changed",
+        helpText: "when the check state is changed",
         propertyName: "onCheckChange",
         label: "onCheckChange",
         controlType: "ACTION_SELECTOR",

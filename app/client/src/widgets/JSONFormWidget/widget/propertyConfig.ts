@@ -280,7 +280,7 @@ export const contentConfig = [
     children: [
       {
         propertyName: "onSubmit",
-        helpText: "Triggers an action when the submit button is clicked",
+        helpText: "when the submit button is clicked",
         label: "onSubmit",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
