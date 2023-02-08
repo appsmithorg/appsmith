@@ -163,6 +163,7 @@ export function getCanvasBottomRow(
 
   if (Array.isArray(children) && children.length > 0) {
     const bottomRow = children.reduce((prev, next) => {
+      if (canvasWidgets[next].detachFromLayout) return prev;
       return canvasWidgets[next].bottomRow > prev
         ? canvasWidgets[next].bottomRow
         : prev;
