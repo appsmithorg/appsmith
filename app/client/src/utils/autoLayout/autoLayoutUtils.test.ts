@@ -8,6 +8,7 @@ import {
 import { data } from "./testData";
 
 describe("test AutoLayoutUtils methods", () => {
+  const mainCanvasWidth = 960;
   describe("test updateFlexLayersOnDelete method", () => {
     it("should remove deleted widgets from flex layers of the parent", () => {
       const widgets = { ...data };
@@ -18,6 +19,7 @@ describe("test AutoLayoutUtils methods", () => {
         deletedWidgetId,
         parentId,
         false,
+        mainCanvasWidth,
       );
       expect(result[parentId].flexLayers?.length).toEqual(1);
       const layerIndex = getLayerIndexOfWidget(
@@ -35,6 +37,7 @@ describe("test AutoLayoutUtils methods", () => {
         deletedWidgetId,
         parentId,
         false,
+        mainCanvasWidth,
       );
       expect(result[parentId].flexLayers?.length).toEqual(1);
       expect(result[parentId].flexLayers[0]?.children.length).toEqual(2);
@@ -47,12 +50,14 @@ describe("test AutoLayoutUtils methods", () => {
         "pt32jvs72k",
         parentId,
         false,
+        mainCanvasWidth,
       );
       const result: CanvasWidgetsReduxState = updateFlexLayersOnDelete(
         updatedWidgets,
         "tg6jcd1kjp",
         parentId,
         false,
+        mainCanvasWidth,
       );
       expect(result[parentId].flexLayers?.length).toEqual(0);
     });
@@ -83,6 +88,7 @@ describe("test AutoLayoutUtils methods", () => {
         copiedWidget,
         originalWidgetId,
         false,
+        mainCanvasWidth,
       );
 
       expect(result[newParentId].flexLayers?.length).toEqual(1);
@@ -133,6 +139,7 @@ describe("test AutoLayoutUtils methods", () => {
         copiedWidget,
         originalWidgetId,
         false,
+        mainCanvasWidth,
       );
       // layer count should remain the same. => no new layer is created.
       expect(result[parentId].flexLayers?.length).toEqual(2);

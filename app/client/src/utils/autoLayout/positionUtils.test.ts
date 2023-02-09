@@ -21,6 +21,8 @@ import {
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 describe("test PositionUtils methods", () => {
+  const mainCanvasWidth = 960;
+  const columnSpace = 10;
   describe("test extractAlignmentInfo method", () => {
     it("should extract children and required columns for each alignment", () => {
       const widgets = {
@@ -390,7 +392,16 @@ describe("test PositionUtils methods", () => {
       const result: {
         height: number;
         widgets: CanvasWidgetsReduxState;
-      } = placeWidgetsWithoutWrap(widgets, arr, 0, 64, false, 0);
+      } = placeWidgetsWithoutWrap(
+        widgets,
+        arr,
+        0,
+        64,
+        false,
+        mainCanvasWidth,
+        columnSpace,
+        0,
+      );
       expect(result.height).toEqual(7);
       expect(result.widgets["2"].leftColumn).toEqual(16);
       expect(result.widgets["2"].rightColumn).toEqual(40);
@@ -465,7 +476,16 @@ describe("test PositionUtils methods", () => {
       const result: {
         height: number;
         widgets: CanvasWidgetsReduxState;
-      } = placeWidgetsWithoutWrap(widgets, arr, 0, 64, false, 0);
+      } = placeWidgetsWithoutWrap(
+        widgets,
+        arr,
+        0,
+        64,
+        false,
+        mainCanvasWidth,
+        columnSpace,
+        0,
+      );
       expect(result.height).toEqual(7);
       expect(result.widgets["1"].leftColumn).toEqual(8);
       expect(result.widgets["1"].rightColumn).toEqual(24);
@@ -557,7 +577,16 @@ describe("test PositionUtils methods", () => {
       const result: {
         height: number;
         widgets: CanvasWidgetsReduxState;
-      } = placeWidgetsWithoutWrap(widgets, arr, 0, 64, true, 0);
+      } = placeWidgetsWithoutWrap(
+        widgets,
+        arr,
+        0,
+        64,
+        true,
+        mainCanvasWidth,
+        columnSpace,
+        0,
+      );
       expect(result.height).toEqual(7);
       expect(result.widgets["1"].mobileLeftColumn).toEqual(8);
       expect(result.widgets["1"].mobileRightColumn).toEqual(24);
@@ -645,6 +674,7 @@ describe("test PositionUtils methods", () => {
         0,
         64,
         true,
+        mainCanvasWidth,
       );
       expect(result.height).toEqual(18);
       expect(result.widgets["1"].mobileLeftColumn).toEqual(48);
@@ -762,7 +792,12 @@ describe("test PositionUtils methods", () => {
           ],
         },
       };
-      const result = updateWidgetPositions(widgets, "3", false);
+      const result = updateWidgetPositions(
+        widgets,
+        "3",
+        false,
+        mainCanvasWidth,
+      );
       expect(result["1"].leftColumn).toEqual(24);
       expect(result["1"].rightColumn).toEqual(40);
       expect(result["2"].leftColumn).toEqual(40);
@@ -895,7 +930,7 @@ describe("test PositionUtils methods", () => {
           useAutoLayout: true,
         },
       };
-      const result = updateWidgetPositions(widgets, "3", true);
+      const result = updateWidgetPositions(widgets, "3", true, mainCanvasWidth);
       expect(result["3"].mobileBottomRow).toEqual(120);
       expect(result["4"].mobileBottomRow).toEqual(13);
     });
