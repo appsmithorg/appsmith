@@ -8,6 +8,7 @@ import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas"
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Resizable from "resizable/resizenreflow";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -99,19 +100,25 @@ export const ResizableComponent = memo(function ResizableComponent(
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
     width:
-      ((props.isMobile && props.mobileRightColumn !== undefined
+      ((props.isFlexChild &&
+      props.isMobile &&
+      props.mobileRightColumn !== undefined
         ? props.mobileRightColumn
         : props.rightColumn) -
-        (props.isMobile && props.mobileLeftColumn !== undefined
+        (props.isFlexChild &&
+        props.isMobile &&
+        props.mobileLeftColumn !== undefined
           ? props.mobileLeftColumn
           : props.leftColumn)) *
         props.parentColumnSpace -
       2 * props.paddingOffset,
     height:
-      ((props.isMobile && props.mobileBottomRow !== undefined
+      ((props.isFlexChild &&
+      props.isMobile &&
+      props.mobileBottomRow !== undefined
         ? props.mobileBottomRow
         : props.bottomRow) -
-        (props.isMobile && props.mobileTopRow !== undefined
+        (props.isFlexChild && props.isMobile && props.mobileTopRow !== undefined
           ? props.mobileTopRow
           : props.topRow)) *
         props.parentRowSpace -
@@ -215,15 +222,17 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       !isLastSelected &&
       parentWidgetToSelect?.widgetId !== props.widgetId &&
-      selectWidget(props.widgetId);
+      selectWidget(SelectionRequestType.One, [props.widgetId]);
 
     if (parentWidgetToSelect) {
       selectWidget &&
         !isParentWidgetSelected &&
-        selectWidget(parentWidgetToSelect.widgetId);
+        selectWidget(SelectionRequestType.One, [parentWidgetToSelect.widgetId]);
       focusWidget(parentWidgetToSelect.widgetId);
     } else {
-      selectWidget && !isLastSelected && selectWidget(props.widgetId);
+      selectWidget &&
+        !isLastSelected &&
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
     }
     // Property pane closes after a resize/drag
     showPropertyPane && showPropertyPane();
@@ -239,7 +248,9 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const handleResizeStart = (affectsWidth = false) => {
     setIsResizing && !isResizing && setIsResizing(true);
-    selectWidget && !isLastSelected && selectWidget(props.widgetId);
+    selectWidget &&
+      !isLastSelected &&
+      selectWidget(SelectionRequestType.One, [props.widgetId]);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
     // If resizing a fill widget "horizontally", then convert it to a hug widget.
@@ -315,10 +326,18 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isVerticalResizeEnabled = useMemo(() => {
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
+
+  const fixedHeight =
+    isAutoHeightEnabledForWidget(props, true) ||
+    !isAutoHeightEnabledForWidget(props) ||
+    !props.isCanvas;
+
   const allowResize: boolean =
     !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
     !props.isFlexChild;
   const isHovered = isFocused && !isSelected;
+  const showResizeBoundary =
+    !isPreviewMode && !isDragging && (isHovered || isSelected);
   return (
     <Resizable
       allowResize={allowResize}
@@ -327,27 +346,31 @@ export const ResizableComponent = memo(function ResizableComponent(
       direction={props.direction}
       enableHorizontalResize={isEnabled}
       enableVerticalResize={isVerticalResizeEnabled}
+      fixedHeight={fixedHeight}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
       isFlexChild={props.isFlexChild}
       isHovered={isHovered}
       isMobile={props.isMobile || false}
+      maxDynamicHeight={props.maxDynamicHeight}
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}
       paddingOffset={props.paddingOffset}
       parentId={props.parentId}
       responsiveBehavior={props.responsiveBehavior}
+      showResizeBoundary={showResizeBoundary}
       snapGrid={snapGrid}
       updateBottomRow={updateBottomRow}
-      widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.
+      widgetId={props.widgetId}
       zWidgetId={props.widgetId}
       zWidgetType={props.type}
     >
       <VisibilityContainer
         padding={props.paddingOffset}
+        reduceOpacity={props.isFlexChild ? isSelected && isDragging : false}
         visible={!!props.isVisible}
       >
         {props.children}

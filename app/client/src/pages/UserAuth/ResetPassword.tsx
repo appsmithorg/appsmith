@@ -15,7 +15,7 @@ import {
   FormMessageProps,
   MessageAction,
   Size,
-} from "design-system";
+} from "design-system-old";
 import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";

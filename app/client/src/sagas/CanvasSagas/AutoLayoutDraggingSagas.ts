@@ -7,10 +7,8 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
 } from "utils/autoLayout/constants";
-import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
-import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
@@ -23,7 +21,9 @@ import {
   updateExistingLayer,
   updateRelationships,
 } from "utils/autoLayout/autoLayoutDraggingUtils";
+import { HighlightInfo, FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { getCanvasWidth } from "selectors/editorSelectors";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -141,6 +141,7 @@ function* reorderAutolayoutChildren(params: {
   } = params;
   const widgets = Object.assign({}, allWidgets);
   if (!movedWidgets) return widgets;
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
   const selectedWidgets = [...movedWidgets];
 
   let updatedWidgets: CanvasWidgetsReduxState = updateRelationships(
@@ -149,6 +150,7 @@ function* reorderAutolayoutChildren(params: {
     parentId,
     false,
     isMobile,
+    mainCanvasWidth,
   );
 
   // Update flexLayers for a vertical stack.
@@ -218,6 +220,7 @@ function* reorderAutolayoutChildren(params: {
     updatedWidgets,
     parentId,
     isMobile,
+    mainCanvasWidth,
   );
 
   return widgetsAfterPositionUpdate;

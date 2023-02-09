@@ -3,7 +3,12 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
+import {
+  APPSMITH_BRAND_FAVICON_URL,
+  APPSMITH_BRAND_LOGO_URL,
+  APPSMITH_BRAND_PRIMARY_COLOR,
+  createBrandColorsFromPrimaryColor,
+} from "utils/BrandingUtils";
 import { createReducer } from "utils/ReducerUtils";
 
 export interface TenantReduxState<T> {
@@ -14,19 +19,17 @@ export interface TenantReduxState<T> {
 }
 
 export const defaultBrandingConfig = {
-  brandFaviconUrl: "https://assets.appsmith.com/appsmith-favicon-orange.ico",
+  brandFaviconUrl: APPSMITH_BRAND_FAVICON_URL,
   brandColors: {
-    ...createBrandColorsFromPrimaryColor("#F86A2B"),
+    ...createBrandColorsFromPrimaryColor(APPSMITH_BRAND_PRIMARY_COLOR),
   },
-  brandLogoUrl: "https://assets.appsmith.com/appsmith-logo.svg",
+  brandLogoUrl: APPSMITH_BRAND_LOGO_URL,
 };
 
 export const initialState: TenantReduxState<any> = {
   userPermissions: [],
   tenantConfiguration: {
-    brandColors: {
-      ...createBrandColorsFromPrimaryColor("#000"),
-    },
+    ...defaultBrandingConfig,
   },
   new: false,
   isLoading: true,
@@ -35,9 +38,10 @@ export const initialState: TenantReduxState<any> = {
 export const handlers = {
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG]: (
     state: TenantReduxState<any>,
+    action: ReduxAction<{ isBackgroundRequest: boolean }>,
   ) => ({
     ...state,
-    isLoading: true,
+    isLoading: !action.payload.isBackgroundRequest,
   }),
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
     state: TenantReduxState<any>,
@@ -46,7 +50,7 @@ export const handlers = {
     ...state,
     userPermissions: action.payload.userPermissions || [],
     tenantConfiguration: {
-      ...defaultBrandingConfig,
+      ...state.tenantConfiguration,
       ...action.payload.tenantConfiguration,
     },
     isLoading: false,

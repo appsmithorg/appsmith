@@ -2,7 +2,7 @@ import React from "react";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
-import { Category } from "design-system";
+import { Category } from "design-system-old";
 import { Datasource } from "entities/Datasource";
 import {
   getFormValues,
@@ -64,6 +64,8 @@ import {
   createMessage,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -87,6 +89,7 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
+  FeatureFlags?: FeatureFlags;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -258,6 +261,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
+      featureFlags,
       formData,
       hiddenHeader,
       pageId,
@@ -350,6 +354,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 ? _.map(sections, this.renderMainSection)
                 : null}
               {""}
+              {featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS &&
+                "Load UI for Limiting GSheet Access"}
             </>
           )}
           {viewMode && (
@@ -435,6 +441,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     ...pagePermissions,
   ]);
 
+  const featureFlags: FeatureFlags = selectFeatureFlags(state);
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -462,6 +470,7 @@ const mapStateToProps = (state: AppState, props: any) => {
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     canCreateDatasourceActions,
+    featureFlags,
   };
 };
 
