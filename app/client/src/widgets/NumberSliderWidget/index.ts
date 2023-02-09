@@ -50,9 +50,16 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
-    defaults: {
-      rows: 6.4,
-    },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "150px",
+          };
+        },
+      },
+    ],
   },
 };
 
