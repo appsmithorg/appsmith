@@ -83,6 +83,7 @@ export function InputText(props: {
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         disabled={props.disabled}
+        evaluatedPopUpLabel={props?.label || ""}
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}

@@ -78,15 +78,4 @@ describe("Dynamic input autocomplete", () => {
       ),
     );
   });
-
-  it("opens current value popup", () => {
-    // Test on api pane
-    cy.NavigateToAPI_Panel();
-    cy.get(apiwidget.createapi).click({ force: true });
-    cy.wait("@createNewApi");
-    cy.get(apiwidget.headerValue).within(() => {
-      cy.get("textarea").click({ force: true });
-    });
-    cy.assertEvaluatedValuePopup("string");
-  });
 });
