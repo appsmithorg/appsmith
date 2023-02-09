@@ -26,6 +26,8 @@ import { AppState } from "@appsmith/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { closeTableFilterPane } from "actions/widgetActions";
+import { Colors } from "constants/Colors";
+import { scrollCSS } from "widgets/WidgetUtils";
 
 const Container = styled.div<{
   width?: number;
@@ -79,14 +81,23 @@ const Container = styled.div<{
     }
   }
 `;
-const Content = styled.div<{
-  height?: number;
-  scroll: boolean;
-  ref: RefObject<HTMLDivElement>;
-}>`
+const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;
   width: 100%;
   height: 100%;
+  ${scrollCSS}
+  ${(props) => (!props.$scroll ? `overflow: hidden;` : ``)}
+`;
+
+const Wrapper = styled.div<{
+  $background?: string;
+  $borderRadius?: string;
+}>`
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: ${({ $background }) => `${$background || Colors.WHITE}`};
+  border-radius: ${({ $borderRadius }) => $borderRadius};
 `;
 
 const ComponentContainer = styled.div<{
@@ -125,6 +136,9 @@ export type ModalComponentProps = {
   widgetId: string;
   widgetName: string;
   isDynamicHeightEnabled: boolean;
+  background?: string;
+  borderRadius?: string;
+  settingsComponent?: ReactNode;
 };
 
 /* eslint-disable react/display-name */
@@ -237,15 +251,24 @@ export default function ModalComponent(props: ModalComponentProps) {
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}
       >
-        <Content
-          className={`${getCanvasClassName()} ${props.className}`}
-          id={props.widgetId}
-          ref={modalContentRef}
-          scroll={props.scrollContents}
-          tabIndex={0}
+        {props.settingsComponent}
+        <Wrapper
+          $background={props.background}
+          $borderRadius={props.borderRadius}
+          data-cy="modal-wrapper"
         >
-          {props.children}
-        </Content>
+          <Content
+            $scroll={!!props.scrollContents}
+            className={`${getCanvasClassName()} ${
+              props.className
+            } scroll-parent`}
+            id={props.widgetId}
+            ref={modalContentRef}
+            tabIndex={0}
+          >
+            {props.children}
+          </Content>
+        </Wrapper>
       </Resizable>
     );
   };
