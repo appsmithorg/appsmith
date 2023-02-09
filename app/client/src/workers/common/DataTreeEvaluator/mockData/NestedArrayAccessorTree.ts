@@ -5,7 +5,9 @@ import {
   DataTreeAction,
   DataTreeWidget,
   ENTITY_TYPE,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
+import { ActionEntityConfig } from "entities/DataTree/types";
 
 export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {
@@ -13,9 +15,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       run: {},
       clear: {},
       actionId: "6285d928db0f9c6e620d454a",
-      name: "Api1",
-      pluginId: "5ca385dc81b37f0004b4db85",
-      pluginType: PluginType.API,
       config: {
         timeoutInMillisecond: 10000,
         paginationType: PaginationType.NONE,
@@ -39,35 +38,11 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
           apiContentType: "none",
         },
       },
-      dynamicBindingPathList: [],
       responseMeta: {
         isExecutionSuccess: false,
       },
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       isLoading: false,
-      bindingPaths: {
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        "config.queryParameters[0].key": EvaluationSubstitutionType.TEMPLATE,
-        "config.queryParameters[0].value": EvaluationSubstitutionType.TEMPLATE,
-        "config.queryParameters[1].key": EvaluationSubstitutionType.TEMPLATE,
-        "config.queryParameters[1].value": EvaluationSubstitutionType.TEMPLATE,
-      },
-      reactivePaths: {
-        data: EvaluationSubstitutionType.TEMPLATE,
-        isLoading: EvaluationSubstitutionType.TEMPLATE,
-        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        "config.queryParameters[0].key": EvaluationSubstitutionType.TEMPLATE,
-        "config.queryParameters[0].value": EvaluationSubstitutionType.TEMPLATE,
-        "config.queryParameters[1].key": EvaluationSubstitutionType.TEMPLATE,
-        "config.queryParameters[1].value": EvaluationSubstitutionType.TEMPLATE,
-      },
-      dependencyMap: {
-        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
-      },
-      logBlackList: {},
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     } as unknown) as DataTreeAction,
     Text1: ({
@@ -83,22 +58,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       overflow: "NONE",
       fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
       parentColumnSpace: 11.796875,
-      dynamicTriggerPathList: [],
       leftColumn: 21,
-      dynamicBindingPathList: [
-        {
-          key: "fontFamily",
-        },
-        {
-          key: "borderRadius",
-        },
-        {
-          key: "text",
-        },
-        {
-          key: "value",
-        },
-      ],
       shouldTruncate: false,
       truncateButtonColor: "#FFC13D",
       text: "{{\nApi1.data[2][2].id\n}}",
@@ -116,98 +76,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      defaultProps: {},
-      defaultMetaProps: [],
-      logBlackList: {
-        value: true,
-      },
-      propertyOverrideDependency: {},
-      overridingPropertyPaths: {},
-      bindingPaths: {
-        text: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        animateLoading: EvaluationSubstitutionType.TEMPLATE,
-        disableLink: EvaluationSubstitutionType.TEMPLATE,
-        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
-        textColor: EvaluationSubstitutionType.TEMPLATE,
-        borderColor: EvaluationSubstitutionType.TEMPLATE,
-        borderWidth: EvaluationSubstitutionType.TEMPLATE,
-        fontSize: EvaluationSubstitutionType.TEMPLATE,
-        fontFamily: EvaluationSubstitutionType.TEMPLATE,
-        fontStyle: EvaluationSubstitutionType.TEMPLATE,
-        textAlign: EvaluationSubstitutionType.TEMPLATE,
-      },
-      reactivePaths: {
-        value: EvaluationSubstitutionType.TEMPLATE,
-        fontFamily: EvaluationSubstitutionType.TEMPLATE,
-        borderRadius: EvaluationSubstitutionType.TEMPLATE,
-        text: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        animateLoading: EvaluationSubstitutionType.TEMPLATE,
-        disableLink: EvaluationSubstitutionType.TEMPLATE,
-        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
-        textColor: EvaluationSubstitutionType.TEMPLATE,
-        borderColor: EvaluationSubstitutionType.TEMPLATE,
-        borderWidth: EvaluationSubstitutionType.TEMPLATE,
-        fontSize: EvaluationSubstitutionType.TEMPLATE,
-        fontStyle: EvaluationSubstitutionType.TEMPLATE,
-        textAlign: EvaluationSubstitutionType.TEMPLATE,
-      },
-      triggerPaths: {},
-      validationPaths: {
-        text: {
-          type: "TEXT",
-          params: {
-            limitLineBreaks: true,
-          },
-        },
-        isVisible: {
-          type: "BOOLEAN",
-        },
-        animateLoading: {
-          type: "BOOLEAN",
-        },
-        disableLink: {
-          type: "BOOLEAN",
-        },
-        backgroundColor: {
-          type: "TEXT",
-          params: {
-            regex: {},
-            expected: {
-              type: "string (HTML color name or HEX value)",
-              example: "red | #9C0D38",
-              autocompleteDataType: "STRING",
-            },
-          },
-        },
-        textColor: {
-          type: "TEXT",
-          params: {
-            regex: {},
-          },
-        },
-        borderColor: {
-          type: "TEXT",
-        },
-        borderWidth: {
-          type: "NUMBER",
-        },
-        fontSize: {
-          type: "TEXT",
-        },
-        fontFamily: {
-          type: "TEXT",
-        },
-        fontStyle: {
-          type: "TEXT",
-        },
-        textAlign: {
-          type: "TEXT",
-        },
-      },
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-      privateWidgets: {},
       meta: {},
     } as unknown) as DataTreeWidget,
   },
@@ -217,9 +86,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       run: {},
       clear: {},
       actionId: "6285d928db0f9c6e620d454a",
-      name: "Api1",
-      pluginId: "5ca385dc81b37f0004b4db85",
-      pluginType: PluginType.API,
       config: {
         timeoutInMillisecond: 10000,
         paginationType: PaginationType.NONE,
@@ -234,7 +100,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
           apiContentType: "none",
         },
       },
-      dynamicBindingPathList: [],
       data: [
         [
           {
@@ -349,21 +214,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       },
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       isLoading: false,
-      bindingPaths: {
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      reactivePaths: {
-        data: EvaluationSubstitutionType.TEMPLATE,
-        isLoading: EvaluationSubstitutionType.TEMPLATE,
-        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      dependencyMap: {
-        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
-      },
-      logBlackList: {},
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     // Text1.text binding Api1.data[2][2].id
@@ -380,22 +230,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       overflow: "NONE",
       fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
       parentColumnSpace: 11.796875,
-      dynamicTriggerPathList: [],
       leftColumn: 21,
-      dynamicBindingPathList: [
-        {
-          key: "fontFamily",
-        },
-        {
-          key: "borderRadius",
-        },
-        {
-          key: "text",
-        },
-        {
-          key: "value",
-        },
-      ],
       shouldTruncate: false,
       truncateButtonColor: "#FFC13D",
       text: "{{\nApi1.data[2][2].id\n}}",
@@ -413,98 +248,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      defaultProps: {},
-      defaultMetaProps: [],
-      logBlackList: {
-        value: true,
-      },
-      propertyOverrideDependency: {},
-      overridingPropertyPaths: {},
-      bindingPaths: {
-        text: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        animateLoading: EvaluationSubstitutionType.TEMPLATE,
-        disableLink: EvaluationSubstitutionType.TEMPLATE,
-        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
-        textColor: EvaluationSubstitutionType.TEMPLATE,
-        borderColor: EvaluationSubstitutionType.TEMPLATE,
-        borderWidth: EvaluationSubstitutionType.TEMPLATE,
-        fontSize: EvaluationSubstitutionType.TEMPLATE,
-        fontFamily: EvaluationSubstitutionType.TEMPLATE,
-        fontStyle: EvaluationSubstitutionType.TEMPLATE,
-        textAlign: EvaluationSubstitutionType.TEMPLATE,
-      },
-      reactivePaths: {
-        value: EvaluationSubstitutionType.TEMPLATE,
-        fontFamily: EvaluationSubstitutionType.TEMPLATE,
-        borderRadius: EvaluationSubstitutionType.TEMPLATE,
-        text: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        animateLoading: EvaluationSubstitutionType.TEMPLATE,
-        disableLink: EvaluationSubstitutionType.TEMPLATE,
-        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
-        textColor: EvaluationSubstitutionType.TEMPLATE,
-        borderColor: EvaluationSubstitutionType.TEMPLATE,
-        borderWidth: EvaluationSubstitutionType.TEMPLATE,
-        fontSize: EvaluationSubstitutionType.TEMPLATE,
-        fontStyle: EvaluationSubstitutionType.TEMPLATE,
-        textAlign: EvaluationSubstitutionType.TEMPLATE,
-      },
-      triggerPaths: {},
-      validationPaths: {
-        text: {
-          type: "TEXT",
-          params: {
-            limitLineBreaks: true,
-          },
-        },
-        isVisible: {
-          type: "BOOLEAN",
-        },
-        animateLoading: {
-          type: "BOOLEAN",
-        },
-        disableLink: {
-          type: "BOOLEAN",
-        },
-        backgroundColor: {
-          type: "TEXT",
-          params: {
-            regex: {},
-            expected: {
-              type: "string (HTML color name or HEX value)",
-              example: "red | #9C0D38",
-              autocompleteDataType: "STRING",
-            },
-          },
-        },
-        textColor: {
-          type: "TEXT",
-          params: {
-            regex: {},
-          },
-        },
-        borderColor: {
-          type: "TEXT",
-        },
-        borderWidth: {
-          type: "NUMBER",
-        },
-        fontSize: {
-          type: "TEXT",
-        },
-        fontFamily: {
-          type: "TEXT",
-        },
-        fontStyle: {
-          type: "TEXT",
-        },
-        textAlign: {
-          type: "TEXT",
-        },
-      },
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-      privateWidgets: {},
       meta: {},
     } as unknown) as DataTreeWidget,
   },
@@ -514,9 +258,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       run: {},
       clear: {},
       actionId: "6285d928db0f9c6e620d454a",
-      name: "Api1",
-      pluginId: "5ca385dc81b37f0004b4db85",
-      pluginType: PluginType.API,
       config: {
         timeoutInMillisecond: 10000,
         paginationType: PaginationType.NONE,
@@ -531,7 +272,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
           apiContentType: "none",
         },
       },
-      dynamicBindingPathList: [],
       data: {},
       responseMeta: {
         statusCode: "404 NOT_FOUND",
@@ -569,21 +309,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       },
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       isLoading: false,
-      bindingPaths: {
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      reactivePaths: {
-        data: EvaluationSubstitutionType.TEMPLATE,
-        isLoading: EvaluationSubstitutionType.TEMPLATE,
-        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      dependencyMap: {
-        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
-      },
-      logBlackList: {},
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     // Text1.text binding Api1.data[2][2].id
@@ -600,22 +325,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       overflow: "NONE",
       fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
       parentColumnSpace: 11.796875,
-      dynamicTriggerPathList: [],
       leftColumn: 21,
-      dynamicBindingPathList: [
-        {
-          key: "fontFamily",
-        },
-        {
-          key: "borderRadius",
-        },
-        {
-          key: "text",
-        },
-        {
-          key: "value",
-        },
-      ],
       shouldTruncate: false,
       truncateButtonColor: "#FFC13D",
       text: "{{\nApi1.data[2][2].id\n}}",
@@ -633,98 +343,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      defaultProps: {},
-      defaultMetaProps: [],
-      logBlackList: {
-        value: true,
-      },
-      propertyOverrideDependency: {},
-      overridingPropertyPaths: {},
-      bindingPaths: {
-        text: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        animateLoading: EvaluationSubstitutionType.TEMPLATE,
-        disableLink: EvaluationSubstitutionType.TEMPLATE,
-        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
-        textColor: EvaluationSubstitutionType.TEMPLATE,
-        borderColor: EvaluationSubstitutionType.TEMPLATE,
-        borderWidth: EvaluationSubstitutionType.TEMPLATE,
-        fontSize: EvaluationSubstitutionType.TEMPLATE,
-        fontFamily: EvaluationSubstitutionType.TEMPLATE,
-        fontStyle: EvaluationSubstitutionType.TEMPLATE,
-        textAlign: EvaluationSubstitutionType.TEMPLATE,
-      },
-      reactivePaths: {
-        value: EvaluationSubstitutionType.TEMPLATE,
-        fontFamily: EvaluationSubstitutionType.TEMPLATE,
-        borderRadius: EvaluationSubstitutionType.TEMPLATE,
-        text: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        animateLoading: EvaluationSubstitutionType.TEMPLATE,
-        disableLink: EvaluationSubstitutionType.TEMPLATE,
-        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
-        textColor: EvaluationSubstitutionType.TEMPLATE,
-        borderColor: EvaluationSubstitutionType.TEMPLATE,
-        borderWidth: EvaluationSubstitutionType.TEMPLATE,
-        fontSize: EvaluationSubstitutionType.TEMPLATE,
-        fontStyle: EvaluationSubstitutionType.TEMPLATE,
-        textAlign: EvaluationSubstitutionType.TEMPLATE,
-      },
-      triggerPaths: {},
-      validationPaths: {
-        text: {
-          type: "TEXT",
-          params: {
-            limitLineBreaks: true,
-          },
-        },
-        isVisible: {
-          type: "BOOLEAN",
-        },
-        animateLoading: {
-          type: "BOOLEAN",
-        },
-        disableLink: {
-          type: "BOOLEAN",
-        },
-        backgroundColor: {
-          type: "TEXT",
-          params: {
-            regex: {},
-            expected: {
-              type: "string (HTML color name or HEX value)",
-              example: "red | #9C0D38",
-              autocompleteDataType: "STRING",
-            },
-          },
-        },
-        textColor: {
-          type: "TEXT",
-          params: {
-            regex: {},
-          },
-        },
-        borderColor: {
-          type: "TEXT",
-        },
-        borderWidth: {
-          type: "NUMBER",
-        },
-        fontSize: {
-          type: "TEXT",
-        },
-        fontFamily: {
-          type: "TEXT",
-        },
-        fontStyle: {
-          type: "TEXT",
-        },
-        textAlign: {
-          type: "TEXT",
-        },
-      },
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-      privateWidgets: {},
       meta: {},
     } as unknown) as DataTreeWidget,
   },
@@ -734,9 +353,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       run: {},
       clear: {},
       actionId: "6285d928db0f9c6e620d454a",
-      name: "Api1",
-      pluginId: "5ca385dc81b37f0004b4db85",
-      pluginType: PluginType.API,
       config: {
         timeoutInMillisecond: 10000,
         paginationType: PaginationType.NONE,
@@ -751,7 +367,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
           apiContentType: "none",
         },
       },
-      dynamicBindingPathList: [],
       data: [
         [
           {
@@ -841,21 +456,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       },
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       isLoading: false,
-      bindingPaths: {
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      reactivePaths: {
-        data: EvaluationSubstitutionType.TEMPLATE,
-        isLoading: EvaluationSubstitutionType.TEMPLATE,
-        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      dependencyMap: {
-        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
-      },
-      logBlackList: {},
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     Text1: ({
@@ -871,22 +471,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       overflow: "NONE",
       fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
       parentColumnSpace: 11.796875,
-      dynamicTriggerPathList: [],
       leftColumn: 21,
-      dynamicBindingPathList: [
-        {
-          key: "fontFamily",
-        },
-        {
-          key: "borderRadius",
-        },
-        {
-          key: "text",
-        },
-        {
-          key: "value",
-        },
-      ],
       shouldTruncate: false,
       truncateButtonColor: "#FFC13D",
       text: "{{\nApi1.data[2][2].id\n}}",
@@ -904,98 +489,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      defaultProps: {},
-      defaultMetaProps: [],
-      logBlackList: {
-        value: true,
-      },
-      propertyOverrideDependency: {},
-      overridingPropertyPaths: {},
-      bindingPaths: {
-        text: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        animateLoading: EvaluationSubstitutionType.TEMPLATE,
-        disableLink: EvaluationSubstitutionType.TEMPLATE,
-        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
-        textColor: EvaluationSubstitutionType.TEMPLATE,
-        borderColor: EvaluationSubstitutionType.TEMPLATE,
-        borderWidth: EvaluationSubstitutionType.TEMPLATE,
-        fontSize: EvaluationSubstitutionType.TEMPLATE,
-        fontFamily: EvaluationSubstitutionType.TEMPLATE,
-        fontStyle: EvaluationSubstitutionType.TEMPLATE,
-        textAlign: EvaluationSubstitutionType.TEMPLATE,
-      },
-      reactivePaths: {
-        value: EvaluationSubstitutionType.TEMPLATE,
-        fontFamily: EvaluationSubstitutionType.TEMPLATE,
-        borderRadius: EvaluationSubstitutionType.TEMPLATE,
-        text: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        animateLoading: EvaluationSubstitutionType.TEMPLATE,
-        disableLink: EvaluationSubstitutionType.TEMPLATE,
-        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
-        textColor: EvaluationSubstitutionType.TEMPLATE,
-        borderColor: EvaluationSubstitutionType.TEMPLATE,
-        borderWidth: EvaluationSubstitutionType.TEMPLATE,
-        fontSize: EvaluationSubstitutionType.TEMPLATE,
-        fontStyle: EvaluationSubstitutionType.TEMPLATE,
-        textAlign: EvaluationSubstitutionType.TEMPLATE,
-      },
-      triggerPaths: {},
-      validationPaths: {
-        text: {
-          type: "TEXT",
-          params: {
-            limitLineBreaks: true,
-          },
-        },
-        isVisible: {
-          type: "BOOLEAN",
-        },
-        animateLoading: {
-          type: "BOOLEAN",
-        },
-        disableLink: {
-          type: "BOOLEAN",
-        },
-        backgroundColor: {
-          type: "TEXT",
-          params: {
-            regex: {},
-            expected: {
-              type: "string (HTML color name or HEX value)",
-              example: "red | #9C0D38",
-              autocompleteDataType: "STRING",
-            },
-          },
-        },
-        textColor: {
-          type: "TEXT",
-          params: {
-            regex: {},
-          },
-        },
-        borderColor: {
-          type: "TEXT",
-        },
-        borderWidth: {
-          type: "NUMBER",
-        },
-        fontSize: {
-          type: "TEXT",
-        },
-        fontFamily: {
-          type: "TEXT",
-        },
-        fontStyle: {
-          type: "TEXT",
-        },
-        textAlign: {
-          type: "TEXT",
-        },
-      },
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-      privateWidgets: {},
       meta: {},
     } as unknown) as DataTreeWidget,
   },
@@ -1005,9 +499,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       run: {},
       clear: {},
       actionId: "6285d928db0f9c6e620d454a",
-      name: "Api1",
-      pluginId: "5ca385dc81b37f0004b4db85",
-      pluginType: PluginType.API,
       config: {
         timeoutInMillisecond: 10000,
         paginationType: PaginationType.NONE,
@@ -1022,7 +513,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
           apiContentType: "none",
         },
       },
-      dynamicBindingPathList: [],
       data: [
         [
           {
@@ -1113,21 +603,6 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       },
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       isLoading: false,
-      bindingPaths: {
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      reactivePaths: {
-        data: EvaluationSubstitutionType.TEMPLATE,
-        isLoading: EvaluationSubstitutionType.TEMPLATE,
-        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
-        "config.path": EvaluationSubstitutionType.TEMPLATE,
-        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      dependencyMap: {
-        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
-      },
-      logBlackList: {},
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     // Text1.text binding Api1.data[2][2].id
@@ -1144,22 +619,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       overflow: "NONE",
       fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
       parentColumnSpace: 11.796875,
-      dynamicTriggerPathList: [],
       leftColumn: 21,
-      dynamicBindingPathList: [
-        {
-          key: "fontFamily",
-        },
-        {
-          key: "borderRadius",
-        },
-        {
-          key: "text",
-        },
-        {
-          key: "value",
-        },
-      ],
       shouldTruncate: false,
       truncateButtonColor: "#FFC13D",
       text: "{{\nApi1.data[2][2].id\n}}",
@@ -1177,6 +637,472 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      meta: {},
+    } as unknown) as DataTreeWidget,
+  },
+};
+
+export const nestedArrayAccessorCyclicDependencyConfig = {
+  initConfigTree: {
+    Api1: ({
+      name: "Api1",
+      actionId: "6285d928db0f9c6e620d454a",
+      pluginId: "5ca385dc81b37f0004b4db85",
+      pluginType: PluginType.API,
+      dynamicBindingPathList: [],
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      bindingPaths: {
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        "config.queryParameters[0].key": EvaluationSubstitutionType.TEMPLATE,
+        "config.queryParameters[0].value": EvaluationSubstitutionType.TEMPLATE,
+        "config.queryParameters[1].key": EvaluationSubstitutionType.TEMPLATE,
+        "config.queryParameters[1].value": EvaluationSubstitutionType.TEMPLATE,
+      },
+      reactivePaths: {
+        data: EvaluationSubstitutionType.TEMPLATE,
+        isLoading: EvaluationSubstitutionType.TEMPLATE,
+        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        "config.queryParameters[0].key": EvaluationSubstitutionType.TEMPLATE,
+        "config.queryParameters[0].value": EvaluationSubstitutionType.TEMPLATE,
+        "config.queryParameters[1].key": EvaluationSubstitutionType.TEMPLATE,
+        "config.queryParameters[1].value": EvaluationSubstitutionType.TEMPLATE,
+      },
+      dependencyMap: {
+        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+      },
+      logBlackList: {},
+    } as unknown) as ActionEntityConfig,
+    Text1: ({
+      type: "TEXT_WIDGET",
+      widgetId: "1p9hcl50i8",
+      privateWidgets: {},
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      defaultProps: {},
+      defaultMetaProps: [],
+      logBlackList: {
+        value: true,
+      },
+      propertyOverrideDependency: {},
+      overridingPropertyPaths: {},
+      dynamicTriggerPathList: [],
+      dynamicBindingPathList: [
+        {
+          key: "fontFamily",
+        },
+        {
+          key: "borderRadius",
+        },
+        {
+          key: "text",
+        },
+        {
+          key: "value",
+        },
+      ],
+      bindingPaths: {
+        text: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        disableLink: EvaluationSubstitutionType.TEMPLATE,
+        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        borderColor: EvaluationSubstitutionType.TEMPLATE,
+        borderWidth: EvaluationSubstitutionType.TEMPLATE,
+        fontSize: EvaluationSubstitutionType.TEMPLATE,
+        fontFamily: EvaluationSubstitutionType.TEMPLATE,
+        fontStyle: EvaluationSubstitutionType.TEMPLATE,
+        textAlign: EvaluationSubstitutionType.TEMPLATE,
+      },
+      reactivePaths: {
+        value: EvaluationSubstitutionType.TEMPLATE,
+        fontFamily: EvaluationSubstitutionType.TEMPLATE,
+        borderRadius: EvaluationSubstitutionType.TEMPLATE,
+        text: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        disableLink: EvaluationSubstitutionType.TEMPLATE,
+        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        borderColor: EvaluationSubstitutionType.TEMPLATE,
+        borderWidth: EvaluationSubstitutionType.TEMPLATE,
+        fontSize: EvaluationSubstitutionType.TEMPLATE,
+        fontStyle: EvaluationSubstitutionType.TEMPLATE,
+        textAlign: EvaluationSubstitutionType.TEMPLATE,
+      },
+      triggerPaths: {},
+      validationPaths: {
+        text: {
+          type: "TEXT",
+          params: {
+            limitLineBreaks: true,
+          },
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        animateLoading: {
+          type: "BOOLEAN",
+        },
+        disableLink: {
+          type: "BOOLEAN",
+        },
+        backgroundColor: {
+          type: "TEXT",
+          params: {
+            regex: {},
+            expected: {
+              type: "string (HTML color name or HEX value)",
+              example: "red | #9C0D38",
+              autocompleteDataType: "STRING",
+            },
+          },
+        },
+        textColor: {
+          type: "TEXT",
+          params: {
+            regex: {},
+          },
+        },
+        borderColor: {
+          type: "TEXT",
+        },
+        borderWidth: {
+          type: "NUMBER",
+        },
+        fontSize: {
+          type: "TEXT",
+        },
+        fontFamily: {
+          type: "TEXT",
+        },
+        fontStyle: {
+          type: "TEXT",
+        },
+        textAlign: {
+          type: "TEXT",
+        },
+      },
+    } as unknown) as WidgetEntityConfig,
+  },
+  apiSuccessConfigTree: {
+    Api1: ({
+      name: "Api1",
+      pluginId: "5ca385dc81b37f0004b4db85",
+      actionId: "6285d928db0f9c6e620d454a",
+      pluginType: PluginType.API,
+      dynamicBindingPathList: [],
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      bindingPaths: {
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      reactivePaths: {
+        data: EvaluationSubstitutionType.TEMPLATE,
+        isLoading: EvaluationSubstitutionType.TEMPLATE,
+        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      dependencyMap: {
+        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+      },
+      logBlackList: {},
+    } as unknown) as ActionEntityConfig,
+    Text1: ({
+      widgetId: "1p9hcl50i8",
+      type: "TEXT_WIDGET",
+      dynamicTriggerPathList: [],
+      dynamicBindingPathList: [
+        {
+          key: "fontFamily",
+        },
+        {
+          key: "borderRadius",
+        },
+        {
+          key: "text",
+        },
+        {
+          key: "value",
+        },
+      ],
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      privateWidgets: {},
+      defaultProps: {},
+      defaultMetaProps: [],
+      logBlackList: {
+        value: true,
+      },
+      propertyOverrideDependency: {},
+      overridingPropertyPaths: {},
+      bindingPaths: {
+        text: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        disableLink: EvaluationSubstitutionType.TEMPLATE,
+        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        borderColor: EvaluationSubstitutionType.TEMPLATE,
+        borderWidth: EvaluationSubstitutionType.TEMPLATE,
+        fontSize: EvaluationSubstitutionType.TEMPLATE,
+        fontFamily: EvaluationSubstitutionType.TEMPLATE,
+        fontStyle: EvaluationSubstitutionType.TEMPLATE,
+        textAlign: EvaluationSubstitutionType.TEMPLATE,
+      },
+      reactivePaths: {
+        value: EvaluationSubstitutionType.TEMPLATE,
+        fontFamily: EvaluationSubstitutionType.TEMPLATE,
+        borderRadius: EvaluationSubstitutionType.TEMPLATE,
+        text: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        disableLink: EvaluationSubstitutionType.TEMPLATE,
+        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        borderColor: EvaluationSubstitutionType.TEMPLATE,
+        borderWidth: EvaluationSubstitutionType.TEMPLATE,
+        fontSize: EvaluationSubstitutionType.TEMPLATE,
+        fontStyle: EvaluationSubstitutionType.TEMPLATE,
+        textAlign: EvaluationSubstitutionType.TEMPLATE,
+      },
+      triggerPaths: {},
+      validationPaths: {
+        text: {
+          type: "TEXT",
+          params: {
+            limitLineBreaks: true,
+          },
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        animateLoading: {
+          type: "BOOLEAN",
+        },
+        disableLink: {
+          type: "BOOLEAN",
+        },
+        backgroundColor: {
+          type: "TEXT",
+          params: {
+            regex: {},
+            expected: {
+              type: "string (HTML color name or HEX value)",
+              example: "red | #9C0D38",
+              autocompleteDataType: "STRING",
+            },
+          },
+        },
+        textColor: {
+          type: "TEXT",
+          params: {
+            regex: {},
+          },
+        },
+        borderColor: {
+          type: "TEXT",
+        },
+        borderWidth: {
+          type: "NUMBER",
+        },
+        fontSize: {
+          type: "TEXT",
+        },
+        fontFamily: {
+          type: "TEXT",
+        },
+        fontStyle: {
+          type: "TEXT",
+        },
+        textAlign: {
+          type: "TEXT",
+        },
+      },
+    } as unknown) as WidgetEntityConfig,
+  },
+  apiFailureConfigTree: {
+    Api1: ({
+      name: "Api1",
+      pluginId: "5ca385dc81b37f0004b4db85",
+      actionId: "6285d928db0f9c6e620d454a",
+      pluginType: PluginType.API,
+      dynamicBindingPathList: [],
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      bindingPaths: {
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      reactivePaths: {
+        data: EvaluationSubstitutionType.TEMPLATE,
+        isLoading: EvaluationSubstitutionType.TEMPLATE,
+        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      dependencyMap: {
+        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+      },
+      logBlackList: {},
+    } as unknown) as ActionEntityConfig,
+    Text1: ({
+      type: "TEXT_WIDGET",
+      dynamicTriggerPathList: [],
+      dynamicBindingPathList: [
+        {
+          key: "fontFamily",
+        },
+        {
+          key: "borderRadius",
+        },
+        {
+          key: "text",
+        },
+        {
+          key: "value",
+        },
+      ],
+      widgetId: "1p9hcl50i8",
+      privateWidgets: {},
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      defaultProps: {},
+      defaultMetaProps: [],
+      logBlackList: {
+        value: true,
+      },
+      propertyOverrideDependency: {},
+      overridingPropertyPaths: {},
+      bindingPaths: {
+        text: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        disableLink: EvaluationSubstitutionType.TEMPLATE,
+        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        borderColor: EvaluationSubstitutionType.TEMPLATE,
+        borderWidth: EvaluationSubstitutionType.TEMPLATE,
+        fontSize: EvaluationSubstitutionType.TEMPLATE,
+        fontFamily: EvaluationSubstitutionType.TEMPLATE,
+        fontStyle: EvaluationSubstitutionType.TEMPLATE,
+        textAlign: EvaluationSubstitutionType.TEMPLATE,
+      },
+      reactivePaths: {
+        value: EvaluationSubstitutionType.TEMPLATE,
+        fontFamily: EvaluationSubstitutionType.TEMPLATE,
+        borderRadius: EvaluationSubstitutionType.TEMPLATE,
+        text: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        disableLink: EvaluationSubstitutionType.TEMPLATE,
+        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        borderColor: EvaluationSubstitutionType.TEMPLATE,
+        borderWidth: EvaluationSubstitutionType.TEMPLATE,
+        fontSize: EvaluationSubstitutionType.TEMPLATE,
+        fontStyle: EvaluationSubstitutionType.TEMPLATE,
+        textAlign: EvaluationSubstitutionType.TEMPLATE,
+      },
+      triggerPaths: {},
+      validationPaths: {
+        text: {
+          type: "TEXT",
+          params: {
+            limitLineBreaks: true,
+          },
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        animateLoading: {
+          type: "BOOLEAN",
+        },
+        disableLink: {
+          type: "BOOLEAN",
+        },
+        backgroundColor: {
+          type: "TEXT",
+          params: {
+            regex: {},
+            expected: {
+              type: "string (HTML color name or HEX value)",
+              example: "red | #9C0D38",
+              autocompleteDataType: "STRING",
+            },
+          },
+        },
+        textColor: {
+          type: "TEXT",
+          params: {
+            regex: {},
+          },
+        },
+        borderColor: {
+          type: "TEXT",
+        },
+        borderWidth: {
+          type: "NUMBER",
+        },
+        fontSize: {
+          type: "TEXT",
+        },
+        fontFamily: {
+          type: "TEXT",
+        },
+        fontStyle: {
+          type: "TEXT",
+        },
+        textAlign: {
+          type: "TEXT",
+        },
+      },
+    } as unknown) as WidgetEntityConfig,
+  },
+  apiSuccessConfigTree2: {
+    Api1: ({
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      name: "Api1",
+      actionId: "6285d928db0f9c6e620d454a",
+      pluginId: "5ca385dc81b37f0004b4db85",
+      pluginType: PluginType.API,
+      dynamicBindingPathList: [],
+      bindingPaths: {
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      reactivePaths: {
+        data: EvaluationSubstitutionType.TEMPLATE,
+        isLoading: EvaluationSubstitutionType.TEMPLATE,
+        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      dependencyMap: {
+        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+      },
+      logBlackList: {},
+    } as unknown) as ActionEntityConfig,
+    Text1: ({
+      type: "TEXT_WIDGET",
+      dynamicTriggerPathList: [],
+      dynamicBindingPathList: [
+        {
+          key: "fontFamily",
+        },
+        {
+          key: "borderRadius",
+        },
+        {
+          key: "text",
+        },
+        {
+          key: "value",
+        },
+      ],
+      widgetId: "1p9hcl50i8",
+      privateWidgets: {},
       defaultProps: {},
       defaultMetaProps: [],
       logBlackList: {
@@ -1268,8 +1194,142 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
         },
       },
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    } as unknown) as WidgetEntityConfig,
+  },
+  apiSuccessConfigTree3: {
+    Api1: ({
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      name: "Api1",
+      actionId: "6285d928db0f9c6e620d454a",
+      pluginId: "5ca385dc81b37f0004b4db85",
+      pluginType: PluginType.API,
+      dynamicBindingPathList: [],
+      bindingPaths: {
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      reactivePaths: {
+        data: EvaluationSubstitutionType.TEMPLATE,
+        isLoading: EvaluationSubstitutionType.TEMPLATE,
+        datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
+        "config.path": EvaluationSubstitutionType.TEMPLATE,
+        "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      dependencyMap: {
+        "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+      },
+      logBlackList: {},
+    } as unknown) as ActionEntityConfig,
+    Text1: ({
+      widgetId: "1p9hcl50i8",
+      type: "TEXT_WIDGET",
       privateWidgets: {},
-      meta: {},
-    } as unknown) as DataTreeWidget,
+      dynamicTriggerPathList: [],
+      dynamicBindingPathList: [
+        {
+          key: "fontFamily",
+        },
+        {
+          key: "borderRadius",
+        },
+        {
+          key: "text",
+        },
+        {
+          key: "value",
+        },
+      ],
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      defaultProps: {},
+      defaultMetaProps: [],
+      logBlackList: {
+        value: true,
+      },
+      propertyOverrideDependency: {},
+      overridingPropertyPaths: {},
+      bindingPaths: {
+        text: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        disableLink: EvaluationSubstitutionType.TEMPLATE,
+        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        borderColor: EvaluationSubstitutionType.TEMPLATE,
+        borderWidth: EvaluationSubstitutionType.TEMPLATE,
+        fontSize: EvaluationSubstitutionType.TEMPLATE,
+        fontFamily: EvaluationSubstitutionType.TEMPLATE,
+        fontStyle: EvaluationSubstitutionType.TEMPLATE,
+        textAlign: EvaluationSubstitutionType.TEMPLATE,
+      },
+      reactivePaths: {
+        value: EvaluationSubstitutionType.TEMPLATE,
+        fontFamily: EvaluationSubstitutionType.TEMPLATE,
+        borderRadius: EvaluationSubstitutionType.TEMPLATE,
+        text: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        disableLink: EvaluationSubstitutionType.TEMPLATE,
+        backgroundColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        borderColor: EvaluationSubstitutionType.TEMPLATE,
+        borderWidth: EvaluationSubstitutionType.TEMPLATE,
+        fontSize: EvaluationSubstitutionType.TEMPLATE,
+        fontStyle: EvaluationSubstitutionType.TEMPLATE,
+        textAlign: EvaluationSubstitutionType.TEMPLATE,
+      },
+      triggerPaths: {},
+      validationPaths: {
+        text: {
+          type: "TEXT",
+          params: {
+            limitLineBreaks: true,
+          },
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        animateLoading: {
+          type: "BOOLEAN",
+        },
+        disableLink: {
+          type: "BOOLEAN",
+        },
+        backgroundColor: {
+          type: "TEXT",
+          params: {
+            regex: {},
+            expected: {
+              type: "string (HTML color name or HEX value)",
+              example: "red | #9C0D38",
+              autocompleteDataType: "STRING",
+            },
+          },
+        },
+        textColor: {
+          type: "TEXT",
+          params: {
+            regex: {},
+          },
+        },
+        borderColor: {
+          type: "TEXT",
+        },
+        borderWidth: {
+          type: "NUMBER",
+        },
+        fontSize: {
+          type: "TEXT",
+        },
+        fontFamily: {
+          type: "TEXT",
+        },
+        fontStyle: {
+          type: "TEXT",
+        },
+        textAlign: {
+          type: "TEXT",
+        },
+      },
+    } as unknown) as WidgetEntityConfig,
   },
 };

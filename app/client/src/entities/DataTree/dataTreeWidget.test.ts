@@ -206,63 +206,7 @@ describe("generateDataTreeWidget", () => {
       errorMessage: EvaluationSubstitutionType.TEMPLATE,
     };
 
-    const expected = {
-      __config__: {
-        ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-        bindingPaths,
-        reactivePaths: {
-          ...bindingPaths,
-          isDirty: EvaluationSubstitutionType.TEMPLATE,
-          isFocused: EvaluationSubstitutionType.TEMPLATE,
-          isValid: EvaluationSubstitutionType.TEMPLATE,
-          text: EvaluationSubstitutionType.TEMPLATE,
-          value: EvaluationSubstitutionType.TEMPLATE,
-          "meta.text": EvaluationSubstitutionType.TEMPLATE,
-        },
-
-        triggerPaths: {
-          onSubmit: true,
-          onTextChanged: true,
-        },
-        type: "INPUT_WIDGET_V2",
-        validationPaths: {
-          defaultText: { type: ValidationTypes.TEXT },
-          errorMessage: { type: ValidationTypes.TEXT },
-          isDisabled: { type: ValidationTypes.BOOLEAN },
-          isRequired: { type: ValidationTypes.BOOLEAN },
-          isVisible: { type: ValidationTypes.BOOLEAN },
-          placeholderText: { type: ValidationTypes.TEXT },
-          regex: { type: ValidationTypes.REGEX },
-          resetOnSubmit: { type: ValidationTypes.BOOLEAN },
-        },
-        dynamicBindingPathList: [
-          {
-            key: "isValid",
-          },
-          {
-            key: "value",
-          },
-        ],
-        logBlackList: {
-          isValid: true,
-          value: true,
-        },
-        propertyOverrideDependency: {
-          text: {
-            DEFAULT: "defaultText",
-            META: "meta.text",
-          },
-        },
-        defaultMetaProps: ["text", "isDirty", "isFocused"],
-        defaultProps: {
-          text: "defaultText",
-        },
-        overridingPropertyPaths: {
-          defaultText: ["text", "meta.text"],
-          "meta.text": ["text"],
-        },
-        privateWidgets: {},
-      },
+    const expectedData = {
       value: "{{Input1.text}}",
       isDirty: true,
       isFocused: false,
@@ -297,7 +241,66 @@ describe("generateDataTreeWidget", () => {
       },
     };
 
+    const expectedConfig = {
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      widgetId: "123",
+      bindingPaths,
+      reactivePaths: {
+        ...bindingPaths,
+        isDirty: EvaluationSubstitutionType.TEMPLATE,
+        isFocused: EvaluationSubstitutionType.TEMPLATE,
+        isValid: EvaluationSubstitutionType.TEMPLATE,
+        text: EvaluationSubstitutionType.TEMPLATE,
+        value: EvaluationSubstitutionType.TEMPLATE,
+        "meta.text": EvaluationSubstitutionType.TEMPLATE,
+      },
+
+      triggerPaths: {
+        onSubmit: true,
+        onTextChanged: true,
+      },
+      type: "INPUT_WIDGET_V2",
+      validationPaths: {
+        defaultText: { type: ValidationTypes.TEXT },
+        errorMessage: { type: ValidationTypes.TEXT },
+        isDisabled: { type: ValidationTypes.BOOLEAN },
+        isRequired: { type: ValidationTypes.BOOLEAN },
+        isVisible: { type: ValidationTypes.BOOLEAN },
+        placeholderText: { type: ValidationTypes.TEXT },
+        regex: { type: ValidationTypes.REGEX },
+        resetOnSubmit: { type: ValidationTypes.BOOLEAN },
+      },
+      dynamicBindingPathList: [
+        {
+          key: "isValid",
+        },
+        {
+          key: "value",
+        },
+      ],
+      logBlackList: {
+        isValid: true,
+        value: true,
+      },
+      propertyOverrideDependency: {
+        text: {
+          DEFAULT: "defaultText",
+          META: "meta.text",
+        },
+      },
+      defaultMetaProps: ["text", "isDirty", "isFocused"],
+      defaultProps: {
+        text: "defaultText",
+      },
+      overridingPropertyPaths: {
+        defaultText: ["text", "meta.text"],
+        "meta.text": ["text"],
+      },
+      privateWidgets: {},
+    };
+
     const result = generateDataTreeWidget(widget, widgetMetaProps);
-    expect(result).toStrictEqual(expected);
+    expect(result.unEvalEntity).toStrictEqual(expectedData);
+    expect(result.configEntity).toStrictEqual(expectedConfig);
   });
 });

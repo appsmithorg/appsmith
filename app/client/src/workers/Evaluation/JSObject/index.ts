@@ -193,9 +193,9 @@ export function saveResolvedFunctionsAndJSUpdates(
 
 export function parseJSActions(
   dataTreeEvalRef: DataTreeEvaluator,
-  unEvalDataTree: any,
-  differences?: DataTreeDiff[],
+  unEvalDataTree: DataTree,
   oldUnEvalTree?: DataTree,
+  differences?: DataTreeDiff[],
 ) {
   let jsUpdates: Record<string, JSUpdate> = {};
   if (!!differences && !!oldUnEvalTree) {

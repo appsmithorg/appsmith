@@ -6,6 +6,7 @@ import {
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
+  ConfigTree,
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
@@ -39,7 +40,6 @@ import InputWidget, {
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
 import { WidgetConfiguration } from "widgets/constants";
-import { createNewEntity } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
 
@@ -592,6 +592,7 @@ describe("5. overrideWidgetProperties", () => {
 
   describe("1. Input widget ", () => {
     const currentTree: DataTree = {};
+    const configTree: ConfigTree = {};
     beforeAll(() => {
       const inputWidgetDataTree = generateDataTreeWidget(
         {
@@ -611,17 +612,21 @@ describe("5. overrideWidgetProperties", () => {
         },
         {},
       );
-      currentTree["Input1"] = createNewEntity(inputWidgetDataTree);
+      currentTree["Input1"] = inputWidgetDataTree.unEvalEntity;
+      configTree["Input1"] = inputWidgetDataTree.configEntity;
     });
     // When default text is re-evaluated it will override values of meta.text and text in InputWidget
     it("1. defaultText updating meta.text and text", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        currentTree,
         entity: currentTree.Input1 as DataTreeWidget,
         propertyPath: "defaultText",
         value: "abcde",
+
+        currentTree,
+        configTree,
         evalMetaUpdates,
+        fullPropertyPath: "Input1.defaultText",
         isNewWidget: false,
       });
 
@@ -652,11 +657,13 @@ describe("5. overrideWidgetProperties", () => {
     it("2. meta.text updating text", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        currentTree,
         entity: currentTree.Input1 as DataTreeWidget,
         propertyPath: "meta.text",
         value: "abcdefg",
+        currentTree,
+        configTree,
         evalMetaUpdates,
+        fullPropertyPath: "Input1.meta.text",
         isNewWidget: false,
       });
 
@@ -671,6 +678,7 @@ describe("5. overrideWidgetProperties", () => {
 
   describe("2. Table widget ", () => {
     const currentTree: DataTree = {};
+    const configTree: ConfigTree = {};
     beforeAll(() => {
       const tableWidgetDataTree = generateDataTreeWidget(
         {
@@ -690,17 +698,20 @@ describe("5. overrideWidgetProperties", () => {
         },
         {},
       );
-      currentTree["Table1"] = createNewEntity(tableWidgetDataTree);
+      currentTree["Table1"] = tableWidgetDataTree.unEvalEntity;
+      configTree["Table1"] = tableWidgetDataTree.configEntity;
     });
     // When default defaultSelectedRow is re-evaluated it will override values of meta.selectedRowIndices, selectedRowIndices, meta.selectedRowIndex & selectedRowIndex.
     it("1. On change of defaultSelectedRow ", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        currentTree,
         entity: currentTree.Table1 as DataTreeWidget,
         propertyPath: "defaultSelectedRow",
         value: [0, 1],
+        currentTree,
+        configTree,
         evalMetaUpdates,
+        fullPropertyPath: "Table1.defaultSelectedRow",
         isNewWidget: false,
       });
 
@@ -730,11 +741,13 @@ describe("5. overrideWidgetProperties", () => {
     it("2. meta.selectedRowIndex updating selectedRowIndex", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        currentTree,
         entity: currentTree.Table1 as DataTreeWidget,
         propertyPath: "meta.selectedRowIndex",
         value: 0,
+        currentTree,
+        configTree,
         evalMetaUpdates,
+        fullPropertyPath: "Table1.meta.selectedRowIndex",
         isNewWidget: false,
       });
 

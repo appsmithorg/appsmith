@@ -9,7 +9,11 @@ import ButtonWidget, {
 import SelectWidget, {
   CONFIG as SELECT_WIDGET_CONFIG,
 } from "widgets/SelectWidget";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
+import {
+  unEvalTreeWidgetSelectWidgetConfig,
+  configTree,
+} from "workers/common/DataTreeEvaluator/mockData/mockConfigTree";
 
 const widgetConfigMap = {};
 
@@ -37,6 +41,7 @@ describe("test validationDependencyMap", () => {
   beforeAll(() => {
     dataTreeEvaluator.setupFirstTree(
       (unEvalTreeWidgetSelectWidget as unknown) as DataTree,
+      (unEvalTreeWidgetSelectWidgetConfig as unknown) as ConfigTree,
     );
     dataTreeEvaluator.evalAndValidateFirstTree();
   });
@@ -55,10 +60,14 @@ describe("test validationDependencyMap", () => {
       evalOrder,
       nonDynamicFieldValidationOrder,
       unEvalUpdates,
-    } = dataTreeEvaluator.setupUpdateTree((unEvalTree as unknown) as DataTree);
+    } = dataTreeEvaluator.setupUpdateTree(
+      (unEvalTree as unknown) as DataTree,
+      (configTree as unknown) as ConfigTree,
+    );
     dataTreeEvaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
+      (configTree as unknown) as ConfigTree,
       unEvalUpdates,
     );
 

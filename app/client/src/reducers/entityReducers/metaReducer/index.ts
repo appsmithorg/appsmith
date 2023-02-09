@@ -13,6 +13,7 @@ import {
 import produce from "immer";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { getMetaWidgetResetObj } from "./metaReducerUtils";
+import { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;
@@ -100,11 +101,17 @@ export const metaReducer = createReducer(initialState, {
     state: MetaState,
     action: ReduxAction<ResetWidgetMetaPayload>,
   ) => {
-    const { evaluatedWidget, widgetId } = action.payload;
+    const { evaluatedWidget, evaluatedWidgetConfig, widgetId } = action.payload;
 
     if (widgetId in state) {
       // only reset widgets whose meta properties were changed.
-      state = { ...state, [widgetId]: getMetaWidgetResetObj(evaluatedWidget) };
+      state = {
+        ...state,
+        [widgetId]: getMetaWidgetResetObj(
+          evaluatedWidget,
+          evaluatedWidgetConfig as WidgetEntityConfig,
+        ),
+      };
     }
     return state;
   },

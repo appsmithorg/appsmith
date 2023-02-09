@@ -1,4 +1,9 @@
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+  DataTreeEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 
 import { Position } from "codemirror";
 import {
@@ -58,6 +63,7 @@ import { ActionTriggerFunctionNames } from "@appsmith/entities/DataTree/actionTr
 export function getlintErrorsFromTree(
   pathsToLint: string[],
   unEvalTree: DataTree,
+  configTree: ConfigTree,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
 
@@ -91,6 +97,7 @@ export function getlintErrorsFromTree(
       fullPropertyPath,
     );
     const entity = unEvalTree[entityName];
+    const entityConfig = configTree[entityName];
     const unEvalPropertyValue = (get(
       unEvalTree,
       fullPropertyPath,
@@ -99,8 +106,11 @@ export function getlintErrorsFromTree(
     set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
 
     // We are only interested in paths that require linting
-    if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
-    if (isATriggerPath(entity, propertyPath))
+    if (
+      !pathRequiresLinting(unEvalTree, entity, fullPropertyPath, entityConfig)
+    )
+      return;
+    if (isATriggerPath(entityConfig, propertyPath))
       return triggerPaths.add(fullPropertyPath);
     if (isJSAction(entity))
       return bindingPathsRequiringFunctions.add(`${entityName}.body`);
@@ -242,6 +252,7 @@ export function pathRequiresLinting(
   dataTree: DataTree,
   entity: DataTreeEntity,
   fullPropertyPath: string,
+  entityConfig: DataTreeEntityConfig,
 ): boolean {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const unEvalPropertyValue = (get(
@@ -249,12 +260,12 @@ export function pathRequiresLinting(
     fullPropertyPath,
   ) as unknown) as string;
 
-  if (isATriggerPath(entity, propertyPath)) {
+  if (isATriggerPath(entityConfig, propertyPath)) {
     return isDynamicValue(unEvalPropertyValue);
   }
   const isADynamicBindingPath =
     (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
-    isPathADynamicBinding(entity, propertyPath);
+    isPathADynamicBinding(entityConfig, propertyPath);
   const requiresLinting =
     (isADynamicBindingPath && isDynamicValue(unEvalPropertyValue)) ||
     isJSAction(entity);
@@ -478,6 +489,7 @@ export function initiateLinting(
   lintOrder: string[],
   unevalTree: DataTree,
   requiresLinting: boolean,
+  configTree: ConfigTree,
 ) {
   if (!requiresLinting) return;
   sendMessage.call(self, {
@@ -487,6 +499,7 @@ export function initiateLinting(
       data: {
         lintOrder,
         unevalTree,
+        configTree,
       },
       method: MAIN_THREAD_ACTION.LINT_TREE,
     },

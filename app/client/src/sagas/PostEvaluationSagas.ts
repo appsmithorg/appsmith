@@ -8,6 +8,7 @@ import {
   ConfigTree,
   DataTree,
   UnEvalTree,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
@@ -50,6 +51,7 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
+import { ActionEntityConfig } from "entities/DataTree/types";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -300,6 +302,7 @@ export function* logSuccessfulBindings(
   dataTree: DataTree,
   evaluationOrder: string[],
   isCreateFirstTree: boolean,
+  configTree: ConfigTree,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
@@ -315,14 +318,19 @@ export function* logSuccessfulBindings(
       evaluatedPath,
     );
     const entity = dataTree[entityName];
+    const entityConfig = configTree[entityName] as
+      | WidgetEntityConfig
+      | ActionEntityConfig;
     if (isAction(entity) || isWidget(entity)) {
       const unevalValue = get(unEvalTree, evaluatedPath);
-      const entityType = isAction(entity) ? entity.pluginType : entity.type;
-      const isABinding = find(entity.dynamicBindingPathList, {
+      const entityType = isAction(entity)
+        ? entityConfig.pluginType
+        : entity.type;
+      const isABinding = find(entityConfig.dynamicBindingPathList, {
         key: propertyPath,
       });
 
-      const logBlackList = entity.logBlackList;
+      const logBlackList = entityConfig.logBlackList;
       const errors: EvaluationError[] = get(
         dataTree,
         getEvalErrorPath(evaluatedPath),
@@ -352,6 +360,7 @@ export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
 // is accurate
 export function* updateTernDefinitions(
   dataTree: DataTree,
+  configTree: ConfigTree,
   updates: DataTreeDiff[],
   isCreateFirstTree: boolean,
   jsData: Record<string, unknown> = {},
@@ -379,6 +388,7 @@ export function* updateTernDefinitions(
     treeWithoutPrivateWidgets,
     !!featureFlags.JS_EDITOR,
     jsData,
+    configTree,
   );
   CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
   const end = performance.now();

@@ -19,7 +19,7 @@ import { JSAction } from "entities/JSCollection";
 import { getJSFunctionFromName } from "selectors/entitiesSelector";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
-import { JSActionEntityConfig } from "./types";
+import { JSActionEntityConfig } from "entities/DataTree/types";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -40,13 +40,11 @@ export const updateJSCollectionInUnEvalTree = (
   // jsCollection here means unEvalTree JSObject
   const modifiedUnEvalTree = unEvalTree;
   const functionsList: Array<string> = [];
-  const jsEntityConfig: JSActionEntityConfig = configTree[entityName];
+  const jsEntityConfig = configTree[entityName] as JSActionEntityConfig;
   const varList: Array<string> = jsEntityConfig?.variables;
   Object.keys(jsEntityConfig?.meta).forEach((action) => {
     functionsList.push(action);
   });
-
-  // const oldConfig = Object.getPrototypeOf(jsCollection) as DataTreeJSAction;
   const oldConfig = jsEntityConfig;
 
   if (parsedBody.actions && parsedBody.actions.length > 0) {
@@ -196,7 +194,7 @@ export const removeFunctionsAndVariableJSCollection = (
   configTree: ConfigTree,
 ) => {
   // const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
-  const oldConfig: JSActionEntityConfig = configTree[entityName];
+  const oldConfig = configTree[entityName] as JSActionEntityConfig;
   const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
   Object.keys(oldConfig.meta).forEach((action) => {
@@ -238,7 +236,7 @@ export function isJSObjectFunction(
   key: string,
   configTree: ConfigTree,
 ) {
-  const entityConfig: JSActionEntityConfig = configTree[jsObjectName];
+  const entityConfig = configTree[jsObjectName] as JSActionEntityConfig;
   const entity = dataTree[jsObjectName];
   if (isJSAction(entity)) {
     return entityConfig.meta.hasOwnProperty(key);

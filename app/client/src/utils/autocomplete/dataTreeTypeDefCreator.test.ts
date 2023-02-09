@@ -8,6 +8,7 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 
@@ -29,6 +30,9 @@ describe("dataTreeTypeDefCreator", () => {
       bottomRow: 2,
       isLoading: false,
       version: 1,
+      meta: {},
+    };
+    const dataTreeEntityConfig: WidgetEntityConfig = {
       bindingPaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
       },
@@ -43,13 +47,19 @@ describe("dataTreeTypeDefCreator", () => {
       propertyOverrideDependency: {},
       overridingPropertyPaths: {},
       privateWidgets: {},
-      meta: {},
+      defaultMetaProps: [],
+      widgetId: "yolo",
+      widgetName: "Input1",
+      type: "INPUT_WIDGET_V2",
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     };
     const { def, entityInfo } = dataTreeTypeDefCreator(
       {
         Input1: dataTreeEntity,
       },
       false,
+      {},
+      dataTreeEntityConfig,
     );
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure

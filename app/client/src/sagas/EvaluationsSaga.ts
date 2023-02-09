@@ -19,6 +19,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
+  getConfigTree,
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
@@ -96,7 +97,11 @@ import {
   getAllActionValidationConfig,
   getAllJSActionsData,
 } from "selectors/entitiesSelector";
-import { DataTree, UnEvalTreeWidget } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  UnEvalTreeWidget,
+  ConfigTree,
+} from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -211,6 +216,7 @@ export function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
+  const updatedConfigTree: ConfigTree = yield select(getConfigTree);
   if (
     !(!isCreateFirstTree && Object.keys(jsUpdates).length > 0) &&
     !!userLogs &&
@@ -249,11 +255,13 @@ export function* evaluateTreeSaga(
       updatedDataTree,
       evaluationOrder,
       isCreateFirstTree,
+      configTree,
     );
 
     yield fork(
       updateTernDefinitions,
       updatedDataTree,
+      updatedConfigTree,
       unEvalUpdates,
       isCreateFirstTree,
       jsData,

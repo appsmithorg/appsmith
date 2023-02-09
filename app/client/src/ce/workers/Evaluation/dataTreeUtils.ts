@@ -17,7 +17,6 @@ export function makeEntityConfigsAsObjProperties(
   const { evalProps, sanitizeDataTree = true } = option;
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
-    // const entityConfig = Object.getPrototypeOf(dataTree[entityName]) || {};
     const entity = dataTree[entityName];
     newDataTree[entityName] = Object.assign({}, entity);
   }

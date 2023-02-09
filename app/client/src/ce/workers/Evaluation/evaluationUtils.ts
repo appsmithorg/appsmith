@@ -364,8 +364,8 @@ export const addDependantsOfNestedPropertyPaths = (
 };
 
 export function isWidget(
-  entity: Partial<DataTreeEntity>,
-): entity is DataTreeWidget {
+  entity: Partial<DataTreeEntity> | WidgetEntityConfig,
+): entity is DataTreeWidget | WidgetEntityConfig {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -658,7 +658,8 @@ export const isDynamicLeaf = (
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
     relativePropertyPath in entityConfig.reactivePaths ||
-    (isWidget(entity) && relativePropertyPath in entityConfig?.triggerPaths)
+    (isWidget(entityConfig) &&
+      relativePropertyPath in entityConfig?.triggerPaths)
   );
 };
 

@@ -71,6 +71,7 @@ export function createDependencyMap(
       );
       dependencyMap = { ...dependencyMap, ...entityListedDependencies };
     }
+
     if (isWidget(entity)) {
       // only widgets have trigger paths
       triggerFieldDependencyMap = {
@@ -183,9 +184,10 @@ export const updateDependencyMap = ({
       dataTreeDiff.payload.propertyPath,
     );
     let entity = unEvalDataTree[entityName];
-    const entityConfig = configTree[entityName];
+    let entityConfig = configTree[entityName];
     if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
       entity = dataTreeEvalRef.oldUnEvalTree[entityName];
+      entityConfig = dataTreeEvalRef.oldConfigTree[entityName];
     }
     const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
 
@@ -342,7 +344,8 @@ export const updateDependencyMap = ({
                   entityName,
                   propertyPath,
                 } = getEntityNameAndPropertyPath(path);
-                const entity = configTree[entityName];
+                const entity = unEvalDataTree[entityName];
+                const entityConfig = configTree[entityName];
                 if (validReferences.length) {
                   // For trigger paths, update the triggerfield dependency map
                   // For other paths, update the dependency map
@@ -416,7 +419,7 @@ export const updateDependencyMap = ({
               entityName,
               dataTreeEvalRef.allKeys,
               unEvalDataTree,
-              configTree,
+              dataTreeEvalRef.oldConfigTree,
             );
             Object.keys(entityDependencies).forEach((widgetDep) => {
               didUpdateDependencyMap = true;

@@ -135,6 +135,7 @@ describe("test EditorUtils methods", () => {
           canvasWidgets,
           dataTree,
           new Set<string>("one"),
+          {},
           "2",
         ),
       ).toEqual(childWidgetTree);
@@ -189,6 +190,7 @@ describe("test EditorUtils methods", () => {
           canvasWidgets,
           dataTree,
           new Set<string>("two"),
+          {},
           "1",
         ),
       ).toEqual(childWidgetTree);
@@ -259,7 +261,13 @@ describe("test EditorUtils methods", () => {
         },
       ];
       expect(
-        buildChildWidgetTree(canvasWidgets, {}, new Set<string>("one"), "1"),
+        buildChildWidgetTree(
+          canvasWidgets,
+          {},
+          new Set<string>("one"),
+          {},
+          "1",
+        ),
       ).toEqual(childWidgetTree);
     });
   });

@@ -209,7 +209,7 @@ export default class DataTreeEvaluator {
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
 
-    const parsedCollections = parseJSActions(this, localUnEvalTree, configTree);
+    const parsedCollections = parseJSActions(this, localUnEvalTree);
     jsUpdates = parsedCollections.jsUpdates;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
@@ -380,10 +380,11 @@ export default class DataTreeEvaluator {
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
+    const localConfigTree = Object.assign({}, configTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
-    this.updateLocalUnEvalTree(localUnEvalTree, configTree);
+    this.updateLocalUnEvalTree(localUnEvalTree, localConfigTree);
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
@@ -400,8 +401,8 @@ export default class DataTreeEvaluator {
     const parsedCollections = parseJSActions(
       this,
       localUnEvalTree,
-      jsTranslatedDiffs,
       this.oldUnEvalTree,
+      jsTranslatedDiffs,
     );
 
     jsUpdates = parsedCollections.jsUpdates;
@@ -409,7 +410,7 @@ export default class DataTreeEvaluator {
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
-      configTree,
+      localConfigTree,
     );
 
     const differences: Diff<DataTree, DataTree>[] =
@@ -444,7 +445,7 @@ export default class DataTreeEvaluator {
       extraPathsToLint,
       removedPaths,
     } = updateDependencyMap({
-      configTree,
+      configTree: localConfigTree,
       dataTreeEvalRef: this,
       translatedDiffs,
       unEvalDataTree: localUnEvalTree,
@@ -459,7 +460,7 @@ export default class DataTreeEvaluator {
       dependenciesOfRemovedPaths,
       removedPaths,
       localUnEvalTree,
-      configTree,
+      localConfigTree,
     );
     const calculateSortOrderEndTime = performance.now();
     // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
@@ -469,7 +470,7 @@ export default class DataTreeEvaluator {
     subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
       // So that the actual uneval value can be evaluated
-      if (isDynamicLeaf(localUnEvalTree, propertyPath, configTree)) {
+      if (isDynamicLeaf(localUnEvalTree, propertyPath, localConfigTree)) {
         const unEvalPropValue = get(localUnEvalTree, propertyPath);
         const evalPropValue = get(this.evalTree, propertyPath);
         if (!isFunction(evalPropValue)) {
@@ -494,6 +495,7 @@ export default class DataTreeEvaluator {
       inverse: this.inverseDependencyMap,
       updatedDependencyMap: this.dependencyMap,
       evaluationOrder: evaluationOrder,
+      triggerFieldDependencyMap: this.triggerFieldDependencyMap,
     });
 
     // Remove any deleted paths from the eval tree
@@ -505,6 +507,7 @@ export default class DataTreeEvaluator {
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldConfigTree = klona(localConfigTree);
     const cloneEndTime = performance.now();
 
     const totalUpdateTreeSetupEndTime = performance.now();
@@ -1285,8 +1288,6 @@ export default class DataTreeEvaluator {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
       // Apply the changes into the evalTree so that it gets the latest changes
       applyChange(this.evalTree, undefined, d);
-      // const { entityName } = getEntityNameAndPropertyPath(d.path.join("."));
-      // this.updateConfigForModifiedEntity(localUnEvalTree, entityName);
     }
   }
 
