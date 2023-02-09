@@ -17,6 +17,7 @@ describe("Button Widget Functionality", function() {
     //creating the Modal and verify Modal name
     cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
+    cy.get(publishPage.buttonWidget).should('be.visible')
     cy.get(publishPage.buttonWidget).click();
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
@@ -124,7 +125,7 @@ describe("Button Widget Functionality", function() {
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("5. Toggle JS - Button-Call-SetTimeout Validation", function() {
+  it("6. Toggle JS - Button-Call-SetTimeout Validation", function() {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
     cy.testJsontext(
