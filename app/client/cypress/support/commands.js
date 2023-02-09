@@ -1838,7 +1838,7 @@ Cypress.Commands.add(
       containerName +
       ' -p 8081:80 -p 9002:9002 -v "' +
       path +
-      '/stacks:/appsmith-stacks" -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 ' +
+      '/stacks:/appsmith-stacks" ' +
       version;
 
     cy.log(comm);
