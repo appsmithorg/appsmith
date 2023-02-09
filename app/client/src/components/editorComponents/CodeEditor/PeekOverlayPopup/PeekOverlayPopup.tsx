@@ -14,6 +14,13 @@ export type PeekOverlayStateProps = {
   dataType: string;
 };
 
+/*
+- using `componentWillAppendToBody` to work with variable height for peek overlay
+- we need a container that doesn't apply `position: absolute` to itself with zero height (bp3-portal does this)
+- Because then, child elements cannot be positioned using `bottom` property
+- with `react-append-to-body`, the container won't have `position: absolute`
+- instead we're applying it to the child element `<div>` directly, hence we can position using `bottom` property.
+*/
 export const PeekOverlayPopUp = componentWillAppendToBody(
   PeekOverlayPopUpContent,
 );
