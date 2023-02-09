@@ -78,7 +78,7 @@ const generateDataTreeWidgetWithoutMeta = (
     blockedDerivedProps[propertyName] = true;
   });
 
-  // Map of properties that can both be overridden by meta and default values
+  // Map of properties that can be overridden by both meta and default values
   const overridingMetaPropsMap: Record<string, boolean> = {};
 
   Object.entries(defaultProps).forEach(

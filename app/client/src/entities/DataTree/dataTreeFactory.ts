@@ -146,7 +146,7 @@ export class DataTreeFactory {
     Object.values(widgets).forEach((widget) => {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
-        widgetsMeta[widget.widgetId],
+        widgetsMeta[widget.metaWidgetId || widget.widgetId],
       );
 
       dataTree[widget.widgetName] = unEvalEntity;

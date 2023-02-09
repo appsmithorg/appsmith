@@ -1,4 +1,7 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
 import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
@@ -6,7 +9,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { call, put, select } from "redux-saga/effects";
 import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
 import { getWidgets } from "sagas/selectors";
-import { getCanvasHeightOffset } from "selectors/editorSelectors";
+import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
 import { getAutoHeightLayoutTree } from "selectors/autoHeightSelectors";
 import { FlattenedWidgetProps } from "widgets/constants";
 import {
@@ -18,7 +21,9 @@ import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 
-export function* dynamicallyUpdateContainersSaga() {
+export function* dynamicallyUpdateContainersSaga(
+  action?: ReduxAction<{ resettingTabs: boolean }>,
+) {
   const start = performance.now();
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -54,34 +59,8 @@ export function* dynamicallyUpdateContainersSaga() {
         dataTreeWidget &&
         (dataTreeWidget as DataTreeWidget).isVisible !== true &&
         shouldCollapse
-      )
-        continue;
-
-      let bottomRow, topRow;
-      // If the parent exists in the layout tree
-      if (dynamicHeightLayoutTree[parentContainerWidget.widgetId]) {
-        // Get the tree node for the parent
-        const layoutNode =
-          dynamicHeightLayoutTree[parentContainerWidget.widgetId];
-        // Get all the dimensions from the tree node
-        bottomRow = layoutNode.bottomRow;
-        topRow = layoutNode.topRow;
-      } else {
-        // If it doesn't exist in the layout tree
-        // It is most likely a Modal Widget
-        // Use the dimensions as they exist in the widget.
-        bottomRow = parentContainerWidget.bottomRow;
-        topRow = parentContainerWidget.topRow;
-      }
-
-      // If this is a Modal widget or some other widget
-      // which is detached from layout
-      // use the value 0, as the starting point.
-      if (
-        parentContainerWidget.detachFromLayout &&
-        parentContainerWidget.height
       ) {
-        topRow = 0;
+        continue;
       }
 
       if (isAutoHeightEnabledForWidget(parentContainerWidget)) {
@@ -98,7 +77,9 @@ export function* dynamicallyUpdateContainersSaga() {
         // For example, if this canvas widget in consideration
         // is not the selected tab's canvas in a tabs widget
         // we don't have to consider it at all
-        if (childWidgetId !== canvasWidget.widgetId) continue;
+        if (childWidgetId !== canvasWidget.widgetId) {
+          continue;
+        }
 
         // Get the boundaries for possible min and max dynamic height.
         const minDynamicHeightInRows = getWidgetMinAutoHeight(
@@ -110,9 +91,6 @@ export function* dynamicallyUpdateContainersSaga() {
 
         // Default to the min height expected.
         let maxBottomRow = minDynamicHeightInRows;
-
-        // For the child Canvas, use the value in pixels.
-        let canvasBottomRow = maxBottomRow + 0;
 
         // For widgets like Tabs Widget, some of the height is occupied by the
         // tabs themselves, the child canvas as a result has less number of rows available
@@ -136,16 +114,12 @@ export function* dynamicallyUpdateContainersSaga() {
           );
           // Add a canvas extension offset
           maxBottomRowBasedOnChildren += GridDefaults.CANVAS_EXTENSION_OFFSET;
-          // Set the canvas bottom row as a new variable with a new reference
-          canvasBottomRow = maxBottomRowBasedOnChildren + 0;
 
           // Add the offset to the total height of the parent widget
           maxBottomRowBasedOnChildren += canvasHeightOffset;
 
           // Get the larger value between the minDynamicHeightInRows and bottomMostRowForChild
           maxBottomRow = Math.max(maxBottomRowBasedOnChildren, maxBottomRow);
-        } else {
-          canvasBottomRow = maxBottomRow - canvasHeightOffset;
         }
 
         // The following makes sure we stay within bounds
@@ -158,20 +132,25 @@ export function* dynamicallyUpdateContainersSaga() {
           maxBottomRow = maxDynamicHeightInRows;
         }
 
-        canvasBottomRow =
-          Math.max(maxBottomRow - canvasHeightOffset, canvasBottomRow) *
-          GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+        if (
+          action?.payload.resettingTabs &&
+          parentContainerWidget.type === "TABS_WIDGET"
+        ) {
+          const layoutNode =
+            dynamicHeightLayoutTree[parentContainerWidget.widgetId];
+
+          if (
+            layoutNode &&
+            maxBottomRow === layoutNode.bottomRow - layoutNode.topRow
+          ) {
+            continue;
+          }
+        }
 
         // If we have a new height to set and
-        // If the canvas for some reason doesn't have the correct bottomRow
-        if (
-          maxBottomRow !== bottomRow - topRow ||
-          canvasBottomRow !== canvasWidget.bottomRow
-        ) {
-          if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
-            updates[parentContainerWidget.widgetId] =
-              maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-          }
+        if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
+          updates[parentContainerWidget.widgetId] =
+            maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
         }
       }
     }

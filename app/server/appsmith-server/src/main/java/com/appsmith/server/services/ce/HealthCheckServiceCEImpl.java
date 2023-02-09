@@ -38,7 +38,7 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
         Function<TimeoutException, Throwable> healthTimeout = error -> new AppsmithException(
                 AppsmithError.HEALTHCHECK_TIMEOUT, "Redis");
         RedisReactiveHealthIndicator redisReactiveHealthIndicator = new RedisReactiveHealthIndicator(reactiveRedisConnectionFactory);
-        return redisReactiveHealthIndicator.health().timeout(Duration.ofSeconds(1)).onErrorMap(TimeoutException.class, healthTimeout);
+        return redisReactiveHealthIndicator.health().timeout(Duration.ofSeconds(3)).onErrorMap(TimeoutException.class, healthTimeout);
     }
 
     @Override
