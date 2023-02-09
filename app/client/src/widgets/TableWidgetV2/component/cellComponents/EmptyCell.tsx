@@ -92,7 +92,7 @@ export const renderEmptyRows = (
       : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
 
     const lastLeftIdx = Object.keys(
-      pickBy(tableColumns, { sticky: StickyType.LEFT }),
+      pickBy(tableColumns, { sticky: StickyType.LEFT, isHidden: false }),
     ).length;
 
     const firstRightIdx =
@@ -123,8 +123,8 @@ export const renderEmptyRows = (
 
             if (column.sticky === StickyType.LEFT) {
               const leftColWidths = tableColumns
-                .slice(1, colIndex + 1)
-                .map((col) => col.columnProperties.width);
+                .slice(0, colIndex)
+                .map((col) => col.width);
 
               if (multiRowSelection) {
                 distanceFromEdge["left"] =
