@@ -68,6 +68,7 @@
     "instantsearch.css": "^7.4.2",
     "interweave": "^12.7.2",
     "interweave-autolink": "^4.4.2",
+    "jest-preview": "^0.3.1",
     "js-beautify": "^1.14.0",
     "js-sha256": "^0.9.0",
     "jshint": "^2.13.4",

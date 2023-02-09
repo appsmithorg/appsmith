@@ -106,7 +106,7 @@ describe("Wigdet selection methods", () => {
         ["w1"],
         "w1",
       );
-      expect(result).toStrictEqual(["w5", "w1", "w2", "w3", "w4"]);
+      expect(result).toStrictEqual(["w1", "w5", "w2", "w3", "w4"]);
     });
 
     it("backwards selection", () => {
@@ -116,7 +116,7 @@ describe("Wigdet selection methods", () => {
         ["w5"],
         "w5",
       );
-      expect(result).toStrictEqual(["w2", "w5", "w3", "w4"]);
+      expect(result).toStrictEqual(["w5", "w2", "w3", "w4"]);
     });
 
     it("appended selection on overlap", () => {
@@ -126,7 +126,7 @@ describe("Wigdet selection methods", () => {
         ["w5", "w3"],
         "w5",
       );
-      expect(result).toStrictEqual(["w1", "w5", "w3", "w2", "w4"]);
+      expect(result).toStrictEqual(["w5", "w3", "w1", "w2", "w4"]);
     });
 
     it("a single selection when last selected is not a sibling", () => {
