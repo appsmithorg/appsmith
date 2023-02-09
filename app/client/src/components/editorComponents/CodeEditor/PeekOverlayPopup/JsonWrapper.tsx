@@ -15,11 +15,25 @@ export const reactJsonProps = {
 };
 
 export const JsonWrapper = styled.div`
+  // all ellipsis font size
   .node-ellipsis,
   .function-collapsed span:nth-child(2),
   .string-value span {
     font-size: 10px !important;
   }
+
+  // disable and hide first object collapser
+  .pretty-json-container
+    > .object-content:first-of-type
+    > .object-key-val:first-of-type
+    > span {
+    pointer-events: none !important;
+    .icon-container {
+      display: none !important;
+    }
+  }
+
+  // collapse icon color change and alignment
   .icon-container {
     width: 10px !important;
     height: 8px !important;
@@ -27,6 +41,8 @@ export const JsonWrapper = styled.div`
       color: var(--appsmith-color-black-600) !important;
     }
   }
+
+  // font-sizes and alignments
   .pushed-content.object-container {
     .object-content {
       .variable-row {
@@ -49,13 +65,14 @@ export const JsonWrapper = styled.div`
     }
   }
 
+  // disabling function collapse and neutral styling
   .rjv-function-container {
     pointer-events: none;
     font-weight: normal !important;
     .function-collapsed {
       font-weight: normal !important;
       span:nth-child(1) {
-        display: none;
+        display: none; // hiding extra braces
       }
       span:nth-child(2) {
         color: #393939 !important;
