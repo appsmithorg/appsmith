@@ -71,15 +71,6 @@ ff4j:
           - name: emailDomains
             value: appsmith.com,moolya.com
 
-    - uid: CUSTOM_JS_LIBRARY
-      enable: true
-      description: Ability to use custom JS libraries
-      flipstrategy:
-        class: org.ff4j.strategy.PonderationStrategy
-        param:
-          - name: weight
-            value: 1
-
     - uid: MULTIPLE_PANES
       enable: true
       description: Have multiple panes in the Appsmith IDE
@@ -92,6 +83,15 @@ ff4j:
     - uid: AUTO_LAYOUT
       enable: true
       description: Enable auto layout editor by email domain of user.
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com,moolya.com
+
+    - uid: LIMITING_GOOGLE_SHEET_ACCESS
+      enable: true
+      description: Enable limiting gsheet access feature by email domain of the user
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
@@ -115,4 +115,13 @@ ff4j:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
           - name: emails
-            value: usage@appsmith.com
+            value: usage@appsmith.com,usage1@appsmith.com
+
+    - uid: LAZY_CANVAS_RENDERING
+      enable: true
+      description: Enable Canvas to lazily render widgets below the fold
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
