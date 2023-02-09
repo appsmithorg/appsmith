@@ -35,7 +35,7 @@ export const createCanvasWidget = (
     ...evaluatedStaticProps,
     ...evaluatedWidgetConfig,
     ...widgetStaticProps,
-  } as any;
+  } as WidgetEntityConfig;
 };
 
 const WidgetTypes = WidgetFactory.widgetTypes;

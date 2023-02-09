@@ -860,10 +860,12 @@ export function isValidEntity(
   return "ENTITY_TYPE" in entity;
 }
 export const isATriggerPath = (
-  entity: DataTreeEntityConfig,
+  entityConfig: DataTreeEntityConfig,
   propertyPath: string,
 ) => {
-  return isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
+  return (
+    isWidget(entityConfig) && isPathDynamicTrigger(entityConfig, propertyPath)
+  );
 };
 
 // Checks if entity newly got added to the unevalTree

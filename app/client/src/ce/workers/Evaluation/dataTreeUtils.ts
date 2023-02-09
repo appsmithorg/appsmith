@@ -8,7 +8,7 @@ import { removeFunctions } from "@appsmith/workers/Evaluation/evaluationUtils";
  * This is done to send back dataTree in the format expected by mainThread.
  */
 export function makeEntityConfigsAsObjProperties(
-  dataTree: any,
+  dataTree: DataTree,
   option = {} as {
     sanitizeDataTree?: boolean;
     evalProps?: EvalProps;

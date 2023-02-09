@@ -452,7 +452,7 @@ export default class DataTreeEvaluator {
     });
     const updateDependencyEndTime = performance.now();
 
-    this.applyDifferencesToEvalTree({ differences, localUnEvalTree });
+    this.applyDifferencesToEvalTree({ differences });
 
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
@@ -1286,10 +1286,8 @@ export default class DataTreeEvaluator {
 
   applyDifferencesToEvalTree({
     differences,
-    localUnEvalTree,
   }: {
     differences: Diff<any, any>[];
-    localUnEvalTree: DataTree;
   }) {
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
