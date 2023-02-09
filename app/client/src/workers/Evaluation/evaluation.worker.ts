@@ -42,10 +42,11 @@ async function asyncRequestMessageListener(
 
 function respond(messageId: string, data: unknown, timeTaken: number) {
   try {
+    const __data = JSON.parse(JSON.stringify(data));
     sendMessage.call(self, {
       messageId,
       messageType: MessageType.RESPONSE,
-      body: { data, timeTaken },
+      body: { data: __data, timeTaken },
     });
   } catch (e) {
     console.error(e);

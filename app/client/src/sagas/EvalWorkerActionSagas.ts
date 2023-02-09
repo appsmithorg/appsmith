@@ -23,6 +23,12 @@ import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga"
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import { EvalTreeResponseData } from "workers/Evaluation/types";
 import { isEmpty } from "lodash";
+import { UnEvalTree } from "entities/DataTree/dataTreeFactory";
+
+export type UpdateDataTreeMessageData = {
+  workerResponse: EvalTreeResponseData;
+  unevalTree: UnEvalTree;
+};
 
 /*
  * Used to evaluate and execute dynamic trigger end to end
@@ -141,11 +147,11 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       break;
     }
     case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
-      const { appMode, unevalTree, workerResponse } = data;
+      const { unevalTree, workerResponse } = data as UpdateDataTreeMessageData;
       yield call(
         updateDataTreeHandler,
         workerResponse as EvalTreeResponseData,
-        { appMode, unevalTree },
+        { unevalTree },
       );
       break;
     }

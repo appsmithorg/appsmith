@@ -9,7 +9,10 @@ export function jsVariableProxyHandler(
     get: function(target: any, prop: string, receiver: any): any {
       const value = target[prop];
 
-      if (typeof value === "function") {
+      if (prop === "__isProxy") return true;
+      if (prop === "__originalValue") return target;
+
+      if (value instanceof Function) {
         if (!target.hasOwnProperty(value)) {
           // HACK:
           // Assuming a prototype method call would mutate the property
@@ -18,13 +21,10 @@ export function jsVariableProxyHandler(
             method: PatchType.PROTOTYPE_METHOD_CALL,
           });
         }
-
-        return (...args: any[]) => {
-          return target[prop](...args);
-        };
+        return value.bind(target);
       }
 
-      if (typeof value === "object") {
+      if (typeof value === "object" && value !== null && !value.__isProxy) {
         return new Proxy(
           value,
           jsVariableProxyHandler(updateTracker, `${path}.${prop}`),
@@ -58,12 +58,18 @@ class JSProxy {
   fromJSObject(
     jsObject: DataTreeJSAction,
     jsObjectName: string,
-    varState: Record<string, unknown>,
+    varState: Record<string, unknown> = {},
   ) {
-    return new Proxy(
-      Object.assign({}, jsObject, varState),
-      jsVariableProxyHandler(addPatch, jsObjectName),
-    );
+    let proxiedJSObject = jsObject;
+
+    if (typeof jsObject === "object") {
+      proxiedJSObject = new Proxy(
+        Object.assign({}, jsObject, varState),
+        jsVariableProxyHandler(addPatch, jsObjectName),
+      );
+    }
+
+    return proxiedJSObject;
   }
 }
 

@@ -89,6 +89,7 @@ import {
 } from "workers/common/DependencyMap";
 import {
   getJSEntities,
+  getUpdatedLocalUnEvalTreeAfterDifferences,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
@@ -362,10 +363,6 @@ export default class DataTreeEvaluator {
 
   setupUpdateTree(
     unEvalTree: DataTree,
-    _differences?: Diff<
-      Record<string, DataTreeJSAction>,
-      Record<string, DataTreeJSAction>
-    >[],
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -384,8 +381,7 @@ export default class DataTreeEvaluator {
     const jsDifferences: Diff<
       Record<string, DataTreeJSAction>,
       Record<string, DataTreeJSAction>
-    >[] =
-      _differences || this.getDifferencesInJSCollectionBody(localUnEvalTree);
+    >[] = this.getDifferencesInJSCollectionBody(localUnEvalTree);
     const jsTranslatedDiffs = flatten(
       jsDifferences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
@@ -407,7 +403,7 @@ export default class DataTreeEvaluator {
     );
 
     const differences: Diff<DataTree, DataTree>[] =
-      _differences || diff(this.oldUnEvalTree, localUnEvalTree) || [];
+      diff(this.oldUnEvalTree, localUnEvalTree) || [];
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
@@ -419,6 +415,23 @@ export default class DataTreeEvaluator {
         nonDynamicFieldValidationOrder: [],
       };
     }
+    return {
+      ...this.updateTreeEvaluation(
+        localUnEvalTree,
+        differences,
+        totalUpdateTreeSetupStartTime,
+        diffCheckTimeStartTime,
+      ),
+      jsUpdates,
+    };
+  }
+
+  updateTreeEvaluation(
+    localUnEvalTree: DataTree,
+    differences: Diff<DataTree, DataTree>[],
+    totalUpdateTreeSetupStartTime?: any,
+    diffCheckTimeStartTime?: any,
+  ) {
     //find all differences which can lead to updating of dependency map
     const translatedDiffs = flatten(
       differences.map((diff) =>
@@ -529,11 +542,29 @@ export default class DataTreeEvaluator {
       unEvalUpdates: translatedDiffs,
       evalOrder: evaluationOrder,
       lintOrder: union(evaluationOrder, extraPathsToLint),
-      jsUpdates,
       nonDynamicFieldValidationOrder: Array.from(
         nonDynamicFieldValidationOrderSet,
       ),
     };
+  }
+
+  setupUpdateTreeWithDifferences(differences: Diff<DataTree, DataTree>[]) {
+    let localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
+    // skipped update local un eval tree
+    if (differences.length === 0) {
+      return {
+        unEvalUpdates: [],
+        evalOrder: [],
+        lintOrder: [],
+        jsUpdates: {},
+        nonDynamicFieldValidationOrder: [],
+      };
+    }
+    localUnEvalTree = getUpdatedLocalUnEvalTreeAfterDifferences(
+      differences,
+      localUnEvalTree,
+    );
+    return this.updateTreeEvaluation(localUnEvalTree, differences);
   }
 
   getDifferencesInJSCollectionBody(localUnEvalTree: DataTree) {
@@ -849,9 +880,12 @@ export default class DataTreeEvaluator {
                   }),
                   evalPropertyValue,
                 );
+                jsObjectCollection.setVariableValue(
+                  evalValue,
+                  fullPropertyPath,
+                );
               }
               set(currentTree, fullPropertyPath, evalValue);
-              jsObjectCollection.setVariableValue(evalValue, fullPropertyPath);
             }
             return currentTree;
           } else {

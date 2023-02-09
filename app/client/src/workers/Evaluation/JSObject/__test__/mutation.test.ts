@@ -93,7 +93,6 @@ describe("Mutation", () => {
     expect(modifiedVariablesList).toEqual(["JSObject1.var", "JSObject1.var2"]);
     expect(diffs).toEqual([
       [{ kind: "N", path: ["JSObject1", "var", "b"], rhs: { a: [2] } }],
-      undefined,
     ]);
   });
 });
