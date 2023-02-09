@@ -272,7 +272,7 @@ export const Action: React.FC<Props> = ({
               />
             </div>
 
-            <div className="flex w-full justify-between px-4 mb-[4px]">
+            <div className="flex w-full justify-between px-3 mb-[4px]">
               <div className="text-xs text-gray-600">Action</div>
               <Icon
                 fillColor="var(--ads-color-black-500)"
