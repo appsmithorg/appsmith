@@ -24,7 +24,7 @@ describe("Fork a template to the current app", () => {
       .click({ force: true });
   });
 
-  it("1. Fork a template to the current app", () => {
+  it("1. Fork a template to the current app + Bug 17477", () => {
     cy.wait(5000);
     cy.get(template.startFromTemplateCard).click();
     // Commented out below code as fetch template call is not going through when template dialog is closed
@@ -36,9 +36,10 @@ describe("Fork a template to the current app", () => {
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Applicant Tracker-test']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
+      .wait(500)
       .click();
     _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.wait("@getTemplatePages").should(
@@ -61,7 +62,7 @@ describe("Fork a template to the current app", () => {
     // [Bug]: Getting 'Resource not found' error on deploying template #17477
     cy.PublishtheApp();
     cy.get(".t--page-switch-tab")
-      .contains("Dashboard")
+      .contains("1 Track Applications")
       .click({ force: true });
     cy.wait(4000);
     cy.get(publish.backToEditor).click();
@@ -84,7 +85,7 @@ describe("Fork a template to the current app", () => {
     // );
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.xpath("//div[text()='Customer Support Dashboard']").click();
+    cy.xpath("//div[text()='Applicant Tracker-test']").click();
     _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
@@ -95,7 +96,7 @@ describe("Fork a template to the current app", () => {
       .next()
       .click();
     cy.wait(1000);
-    cy.xpath("//span[text()='SEARCH']")
+    cy.xpath("//span[text()='2 APPLICATION UPLOAD']")
       .parent()
       .next()
       .click();
@@ -106,7 +107,7 @@ describe("Fork a template to the current app", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(widgetLocators.toastAction, { timeout: 20000 }).should(
+    cy.get(widgetLocators.toastAction, { timeout: 40000 }).should(
       "contain",
       "template added successfully",
     );
