@@ -51,7 +51,7 @@ const JSInput2TestCode = `export default {
 \t
 }`;
 
-let repoName
+let repoName;
 
 describe("1. CommandClickNavigation", function() {
   it("1. Import the test application", () => {
