@@ -95,9 +95,7 @@ export default function SharedUserList(props: any) {
         >
           <ProfileImage
             className="workspace-share-user-icons"
-            source={
-              el.photoId ? `/api/${UserApi.photoURL}/${el.username}` : undefined
-            }
+            source={el.photoId ? `/api/v1/assets/${el.photoId}` : undefined}
             userName={el.name ? el.name : el.username}
           />
           <ProfileImagePopover>
