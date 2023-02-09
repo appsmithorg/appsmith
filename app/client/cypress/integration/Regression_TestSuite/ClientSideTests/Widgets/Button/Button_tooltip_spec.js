@@ -18,7 +18,7 @@ describe("Button Widget Functionality - Validate tooltip visibility", function()
     // Hover in
     cy.get(widgetsPage.buttonWidget).trigger("mouseover");
     // Check if a tooltip is displayed
-    cy.get(".bp3-popover2-content").should(
+    cy.get(".btnTooltipContainer .bp3-popover2-content").should(
       "have.text",
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
     );
