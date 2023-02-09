@@ -7,7 +7,6 @@ import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
-import { isAutoLayout } from "selectors/mainCanvasSelectors";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -23,16 +22,19 @@ export const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
   & > div {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
   }
+
   &:hover {
     background: ${Colors.Gallery};
     cursor: grab;
   }
+
   & i {
     font-family: ${(props) => props.theme.fonts.text};
     font-size: ${(props) => props.theme.fontSizes[7]}px;
@@ -59,6 +61,7 @@ export const IconLabel = styled.h5`
   flex-shrink: 1;
   font-size: ${(props) => props.theme.fontSizes[1]}px;
   line-height: ${(props) => props.theme.lineHeights[2]}px;
+
   &::selection {
     background: none;
   }
@@ -69,13 +72,8 @@ function WidgetCard(props: CardProps) {
   const { deselectAll } = useWidgetSelection();
 
   const onDragStart = (e: any) => {
-    let rows = (props.details as any).rows;
-    if (isAutoLayout()) {
-      rows = (props.details as any).autoLayout?.defaults?.rows ?? rows;
-    }
     e.preventDefault();
     e.stopPropagation();
-    deselectAll();
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: props.details.type,
       widgetName: props.details.displayName,
@@ -83,9 +81,9 @@ function WidgetCard(props: CardProps) {
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,
-        rows: rows,
         widgetId: generateReactKey(),
       });
+    deselectAll();
   };
 
   const type = `${props.details.type

@@ -41,20 +41,22 @@ function TernWorkerServer(this: any, ts: any) {
   }
   worker.onmessage = function(e) {
     const data = e.data;
-    if (data.type == TernWorkerAction.GET_FILE) {
-      getFile(ts, data.name, function(err, text) {
-        send({
-          type: TernWorkerAction.GET_FILE,
-          err: String(err),
-          text: text,
-          id: data.id,
+    if (data) {
+      if (data.type == TernWorkerAction.GET_FILE) {
+        getFile(ts, data.name, function(err, text) {
+          send({
+            type: TernWorkerAction.GET_FILE,
+            err: String(err),
+            text: text,
+            id: data.id,
+          });
         });
-      });
-    } else if (data.type == TernWorkerAction.DEBUG) {
-      window.console.log(data.message);
-    } else if (data.id && pending[data.id]) {
-      pending[data.id](data.err, data.body);
-      delete pending[data.id];
+      } else if (data.type == TernWorkerAction.DEBUG) {
+        window.console.log(data.message);
+      } else if (data.id && pending[data.id]) {
+        pending[data.id](data.err, data.body);
+        delete pending[data.id];
+      }
     }
   };
   worker.onerror = function(e) {

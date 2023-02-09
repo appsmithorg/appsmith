@@ -13,7 +13,6 @@ import {
 } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
@@ -21,9 +20,9 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import { getMainCanvasProps } from "selectors/editorSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getCanvasWidth } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   inGuidedTour,
@@ -39,10 +38,10 @@ import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
-  resizeCanvasToLowestWidget,
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
 } from "./WidgetOperationUtils";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -96,12 +95,14 @@ function* deleteTabChildSaga(
       };
       // Update flex layers of a canvas upon deletion of a widget.
       const isMobile: boolean = yield select(getIsMobile);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
       const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = yield call(
         updateFlexLayersOnDelete,
         parentUpdatedWidgets,
         widgetId,
         tabWidget.parentId,
         isMobile,
+        mainCanvasWidth,
       );
       yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
@@ -186,24 +187,6 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       otherWidgetsToDelete.map((widgets) => widgets.widgetId),
     );
 
-    //Main canvas's minheight keeps varying, hence retrieving updated value
-    let mainCanvasMinHeight;
-    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
-      const mainCanvasProps: MainCanvasReduxState = yield select(
-        getMainCanvasProps,
-      );
-      mainCanvasMinHeight = mainCanvasProps?.height;
-    }
-
-    if (parentId && finalWidgets[parentId]) {
-      finalWidgets[parentId].bottomRow = resizeCanvasToLowestWidget(
-        finalWidgets,
-        parentId,
-        finalWidgets[parentId].bottomRow,
-        mainCanvasMinHeight,
-      );
-    }
-
     return {
       finalWidgets,
       otherWidgetsToDelete,
@@ -244,12 +227,14 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         const isMobile: boolean = yield select(getIsMobile);
+        const mainCanvasWidth: number = yield select(getCanvasWidth);
         // Update flex layers of a canvas upon deletion of a widget.
         const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = updateFlexLayersOnDelete(
           finalWidgets,
           widgetId,
           parentId,
           isMobile,
+          mainCanvasWidth,
         );
         yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
@@ -264,7 +249,9 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
-          yield put(selectWidgetInitAction(undefined));
+          yield put(
+            selectWidgetInitAction(SelectionRequestType.Unselect, [widgetId]),
+          );
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
       }
@@ -320,6 +307,7 @@ function* deleteAllSelectedWidgetsSaga(
     let widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = finalWidgets;
     if (parentId) {
       const isMobile: boolean = yield select(getIsMobile);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
       for (const widgetId of selectedWidgets) {
         widgetsAfterUpdatingFlexLayers = yield call(
           updateFlexLayersOnDelete,
@@ -327,33 +315,34 @@ function* deleteAllSelectedWidgetsSaga(
           widgetId,
           parentId,
           isMobile,
+          mainCanvasWidth,
         );
       }
     }
     //Main canvas's minheight keeps varying, hence retrieving updated value
-    let mainCanvasMinHeight;
-    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
-      const mainCanvasProps: MainCanvasReduxState = yield select(
-        getMainCanvasProps,
-      );
-      mainCanvasMinHeight = mainCanvasProps?.height;
-    }
+    // let mainCanvasMinHeight;
+    // if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+    //   const mainCanvasProps: MainCanvasReduxState = yield select(
+    //     getMainCanvasProps,
+    //   );
+    //   mainCanvasMinHeight = mainCanvasProps?.height;
+    // }
 
-    if (parentId && widgetsAfterUpdatingFlexLayers[parentId]) {
-      widgetsAfterUpdatingFlexLayers[
-        parentId
-      ].bottomRow = resizeCanvasToLowestWidget(
-        widgetsAfterUpdatingFlexLayers,
-        parentId,
-        finalWidgets[parentId].bottomRow,
-        mainCanvasMinHeight,
-      );
-    }
+    // if (parentId && widgetsAfterUpdatingFlexLayers[parentId]) {
+    //   widgetsAfterUpdatingFlexLayers[
+    //     parentId
+    //   ].bottomRow = resizePublishedMainCanvasToLowestWidget(
+    //     widgetsAfterUpdatingFlexLayers,
+    //     parentId,
+    //     finalWidgets[parentId].bottomRow,
+    //     mainCanvasMinHeight,
+    //   );
+    // }
 
     yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
-    yield put(selectWidgetInitAction(""));
+    yield put(selectWidgetInitAction(SelectionRequestType.Empty));
     const bulkDeleteKey = selectedWidgets.join(",");
     if (!disallowUndo) {
       // close property pane after delete

@@ -1,9 +1,5 @@
 import { FlexLayerAlignment } from "utils/autoLayout/constants";
-import {
-  DEFAULT_HIGHLIGHT_SIZE,
-  FlexLayer,
-  LayerChild,
-} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   FLEXBOX_PADDING,
   GridDefaults,
@@ -25,28 +21,12 @@ import {
   getWrappedAlignmentInfo,
   Widget,
 } from "./positionUtils";
-
-export interface DropZone {
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-}
-
-export interface HighlightInfo {
-  isNewLayer: boolean; // determines if a new layer / child has been added directly to the container.
-  index: number; // index of the child in props.children.
-  layerIndex?: number; // index of layer in props.flexLayers.
-  rowIndex: number; // index of highlight within a horizontal layer.
-  alignment: FlexLayerAlignment; // alignment of the child in the layer.
-  posX: number; // x position of the highlight.
-  posY: number; // y position of the highlight.
-  width: number; // width of the highlight.
-  height: number; // height of the highlight.
-  isVertical: boolean; // determines if the highlight is vertical or horizontal.
-  canvasId: string; // widgetId of the canvas to which the highlight belongs.
-  dropZone: DropZone; // size of the drop zone of this highlight.
-}
+import {
+  DropZone,
+  FlexLayer,
+  HighlightInfo,
+  LayerChild,
+} from "./autoLayoutTypes";
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState
@@ -465,11 +445,15 @@ function generateHorizontalHighlights(
         ? alignment === FlexLayerAlignment.Start
           ? FLEXBOX_PADDING
           : containerWidth
-        : width * index + FLEXBOX_PADDING,
+        : width * index +
+          (canvasId === MAIN_CONTAINER_WIDGET_ID
+            ? FLEXBOX_PADDING
+            : FLEXBOX_PADDING / 2),
       posY: offsetTop,
       width: hasFillWidget
         ? alignment === FlexLayerAlignment.Start
-          ? containerWidth
+          ? containerWidth -
+            (canvasId === MAIN_CONTAINER_WIDGET_ID ? 0 : FLEXBOX_PADDING)
           : 0
         : width,
       height: DEFAULT_HIGHLIGHT_SIZE,
@@ -553,8 +537,7 @@ function updateVerticalHighlightDropZone(
   highlights: HighlightInfo[],
   canvasWidth: number,
 ): HighlightInfo[] {
-  const dropArea = localStorage.getItem("verticalHighlightDropArea");
-  const zoneSize = dropArea !== null ? parseFloat(dropArea) : 0.35;
+  const zoneSize = 0.35;
   for (const [index, highlight] of highlights.entries()) {
     const nextHighlight: HighlightInfo | undefined = highlights[index + 1];
     const previousHighlight: HighlightInfo | undefined = highlights[index - 1];

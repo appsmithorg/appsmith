@@ -291,15 +291,15 @@ export function getDefaultResponsiveBehavior(widgetType: string) {
 
 export function getResponsiveLayoutConfig(widgetType: string) {
   // ToDO(Ashok): disabling for now, will be revisited at a later point
-
-  // const defaultBehavior = getDefaultResponsiveBehavior(widgetType);
+  return [];
+  const defaultBehavior = getDefaultResponsiveBehavior(widgetType);
   return [
-    // {
-    //   sectionName: "Responsive Layout",
-    //   children: [
-    //     generateResponsiveBehaviorConfig(defaultBehavior),
-    //     generateVerticalAlignmentConfig(),
-    //   ],
-    // },
+    {
+      sectionName: "Responsive Layout",
+      children: [
+        generateResponsiveBehaviorConfig(defaultBehavior),
+        generateVerticalAlignmentConfig(),
+      ],
+    },
   ];
 }

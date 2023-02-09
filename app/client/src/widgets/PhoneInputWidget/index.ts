@@ -43,12 +43,6 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
-    defaults: {
-      rows: 8,
-    },
-    mobile: {
-      rows: 7,
-    },
     widgetSize: [
       {
         viewportMinWidth: 0,

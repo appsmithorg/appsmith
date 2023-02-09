@@ -38,11 +38,11 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   background-color: ${(props) => props.backgroundColor || "transparent"};
 
   display: block;
+  overflow: hidden;
 
   & > div {
     height: 100%;
     width: 100%;
-    overflow: hidden;
   }
 `;
 
@@ -50,7 +50,7 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
 function WidgetStyleContainer(props: WidgetStyleContainerProps) {
   return (
     <WidgetStyle {...props} data-testid={`container-wrapper-${props.widgetId}`}>
-      <div>{props.children}</div>
+      {props.children}
     </WidgetStyle>
   );
 }

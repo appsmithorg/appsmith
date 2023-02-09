@@ -20,13 +20,17 @@ const StyledTooltip = styled(Tooltip)<{
     height: 100%;
   }
 `;
-const SettingsWrapper = styled.div`
+const WidgetNameBoundary = 1;
+const BORDER_RADIUS = 4;
+const SettingsWrapper = styled.div<{ widgetWidth: number }>`
   justify-self: flex-end;
   height: 100%;
-  padding: 0 10px;
+  padding: 0 5px;
+  margin-left: 0px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  max-width: ${(props) => props.widgetWidth - BORDER_RADIUS / 2}px;
   & {
     pre {
       margin: 0 5px 0 0;
@@ -35,13 +39,16 @@ const SettingsWrapper = styled.div`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  border-top-left-radius: ${BORDER_RADIUS}px;
+  border-top-right-radius: ${BORDER_RADIUS}px;
+  border: ${WidgetNameBoundary}px solid ${Colors.GREY_1};
+  border-bottom: none;
 `;
 
 const WidgetName = styled.span`
-  margin-right: ${(props) => props.theme.spaces[1] + 1}px;
-  margin-left: ${(props) => props.theme.spaces[3]}px;
+  width: inherit;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 `;
 
@@ -61,6 +68,7 @@ type SettingsControlProps = {
   activity: Activities;
   name: string;
   errorCount: number;
+  widgetWidth: number;
 };
 
 const BindDataIcon = ControlIcons.BIND_DATA_CONTROL;
@@ -126,6 +134,7 @@ export function SettingsControl(props: SettingsControlProps) {
         data-testid="t--widget-propertypane-toggle"
         onClick={props.toggleSettings}
         style={getStyles(props.activity, props.errorCount, isSnipingMode)}
+        widgetWidth={props.widgetWidth}
       >
         {!!props.errorCount && !isSnipingMode && (
           <>

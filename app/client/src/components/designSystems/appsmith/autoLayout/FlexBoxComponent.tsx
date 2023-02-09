@@ -9,11 +9,15 @@ import {
 } from "utils/autoLayout/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
-import { getWidgets } from "sagas/selectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
-import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
+import {
+  AlignmentColumnInfo,
+  FlexBoxAlignmentColumnInfo,
+  FlexLayer,
+} from "utils/autoLayout/autoLayoutTypes";
+import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -24,15 +28,6 @@ export interface FlexBoxProps {
   overflow: Overflow;
   flexLayers: FlexLayer[];
   isMobile?: boolean;
-}
-
-export interface LayerChild {
-  id: string;
-  align: FlexLayerAlignment;
-}
-
-export interface FlexLayer {
-  children: LayerChild[];
 }
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
@@ -65,12 +60,14 @@ export const FlexContainer = styled.div<{
 `;
 
 function FlexBoxComponent(props: FlexBoxProps) {
-  const allWidgets = useSelector(getWidgets);
   const direction: LayoutDirection =
     props.direction || LayoutDirection.Horizontal;
   const appMode = useSelector(getAppMode);
   const leaveSpaceForWidgetName = appMode === APP_MODE.EDIT;
   const isMobile: boolean = props.isMobile || false;
+  const alignmentColumnInfo: FlexBoxAlignmentColumnInfo = useSelector(
+    getColumnsForAllLayers(props.widgetId),
+  );
 
   const renderChildren = () => {
     if (!props.children) return null;
@@ -96,18 +93,10 @@ function FlexBoxComponent(props: FlexBoxProps) {
 
   function processLayers(map: { [key: string]: any }) {
     const layers = [];
-    let index = 0;
-    for (const layer of props.flexLayers) {
+    for (const [index, layer] of props.flexLayers.entries()) {
       layers.push(processIndividualLayer(layer, map, index));
-      index += 1;
     }
     return layers;
-  }
-
-  function getColumns(id: string, isMobile: boolean): number {
-    const widget = allWidgets[id];
-    if (!widget) return 0;
-    return getWidgetWidth(widget, isMobile);
   }
 
   function processIndividualLayer(
@@ -120,22 +109,19 @@ function FlexBoxComponent(props: FlexBoxProps) {
     const start = [],
       center = [],
       end = [];
-    let startColumns = 0,
-      centerColumns = 0,
-      endColumns = 0;
+    const columnInfo: AlignmentColumnInfo = alignmentColumnInfo[index];
+    const startColumns = columnInfo ? columnInfo[FlexLayerAlignment.Start] : 0,
+      centerColumns = columnInfo ? columnInfo[FlexLayerAlignment.Center] : 0,
+      endColumns = columnInfo ? columnInfo[FlexLayerAlignment.End] : 0;
 
     for (const child of children) {
       const widget = map[child.id];
-
       if (child.align === "end") {
         end.push(widget);
-        endColumns += getColumns(child.id, isMobile);
       } else if (child.align === "center") {
         center.push(widget);
-        centerColumns += getColumns(child.id, isMobile);
       } else {
         start.push(widget);
-        startColumns += getColumns(child.id, isMobile);
       }
     }
 
