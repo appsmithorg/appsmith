@@ -8,7 +8,7 @@ type ActionBlockProps = {
   onClick: () => void;
   selected?: boolean;
   actionsCount?: number;
-  variant?: "borderLess" | "callbackBlock" | "hoverBorder";
+  variant?: "mainBlock" | "callbackBlock" | "hoverBorder";
 };
 
 export const ActionBlock: React.FC<ActionBlockProps> = ({
@@ -25,14 +25,17 @@ export const ActionBlock: React.FC<ActionBlockProps> = ({
   let className = "flex flex-col gap-1 w-full p-2";
 
   switch (variant) {
-    case "borderLess":
-      className = clsx(className, "border-[1px] border-transparent");
+    case "mainBlock":
+      className = clsx(
+        className,
+        "border-[1px] border-gray-200 border-b-transparent",
+      );
       break;
 
     case "callbackBlock":
       className = clsx(
         className,
-        "border-x-[1px] border-b-[1px] border-gray-200",
+        "border-[1px] border-t-transparent border-gray-200",
       );
       break;
 

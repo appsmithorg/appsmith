@@ -109,24 +109,22 @@ export const ActionBlockTree: React.FC<Props> = ({
       <div
         className={clsx(
           "flex flex-col",
-          selected && "border-[1px] border-gray-200",
+          // selected && "border-[1px] border-gray-200",
         )}
       >
-        {
-          <ActionBlock
-            action={action}
-            actionTypeLabel={actionTypeLabel}
-            // We don't have to show the action count if the action is selected
-            actionsCount={selected ? 0 : callBacksLength}
-            icon={MainActionIcon}
-            onClick={onClick}
-            selected={selected && !selectedCallbackBlock}
-            variant={selected ? "borderLess" : "hoverBorder"}
-          />
-        }
+        <ActionBlock
+          action={action}
+          actionTypeLabel={actionTypeLabel}
+          // We don't have to show the action count if the action is selected
+          actionsCount={selected ? 0 : callBacksLength}
+          icon={MainActionIcon}
+          onClick={onClick}
+          selected={selected && !selectedCallbackBlock}
+          variant={selected ? "mainBlock" : "hoverBorder"}
+        />
         {areCallbacksApplicable && selected ? (
           <button
-            className="flex justify-between bg-gray-50 px-2 py-1"
+            className="flex justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent"
             onClick={() => setShowCallbacks((prev) => !prev)}
           >
             <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300">
@@ -167,6 +165,9 @@ export const ActionBlockTree: React.FC<Props> = ({
                       <button
                         className={clsx(
                           "action-callback-add",
+                          selectedCallbackBlock?.type === blockType &&
+                            selectedCallbackBlock?.index === 0 &&
+                            "hide-bottom-border",
                           "flex justify-between bg-gray-50 border-[1px] border-b-transparent border-gray-200 box-border",
                           callbacks.length === 0 &&
                             "border-b-[1px] border-b-gray-200",

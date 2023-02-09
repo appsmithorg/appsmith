@@ -14,6 +14,10 @@
   @apply bg-gray-200 border-[1px] border-gray-500;
 }
 
+.action-callback-add.hide-bottom-border:hover {
+  @apply border-b-transparent;
+}
+
 .add-action {
   @apply absolute right-[-16px];
 }
