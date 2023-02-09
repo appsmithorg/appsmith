@@ -4,12 +4,10 @@ import { connect } from "react-redux";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
-import { deselectModalWidgetAction } from "actions/widgetSelectionActions";
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { Alignment, Positioning, Spacing } from "utils/autoLayout/constants";
 import { generateClassName } from "utils/generators";
@@ -20,6 +18,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
 // import { generatePositioningConfig } from "utils/layoutPropertiesUtils";
 import { Stylesheet } from "entities/AppTheming";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const minSize = 100;
 
@@ -136,11 +135,9 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     const childData = { ...childWidgetData };
     childData.parentId = this.props.widgetId;
-    childData.shouldScrollContents = false;
+
     childData.canExtend = this.props.shouldScrollContents;
-    childData.bottomRow = this.props.shouldScrollContents
-      ? Math.max(childData.bottomRow, this.props.height)
-      : this.props.height;
+
     childData.containerStyle = "none";
     childData.minHeight = this.props.height;
     childData.rightColumn =
@@ -149,7 +146,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childData.positioning = this.props.positioning;
     childData.alignment = this.props.alignment;
     childData.spacing = this.props.spacing;
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childData, this.props.renderMode);
   };
 
   onModalClose = () => {
@@ -162,9 +159,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
-    setTimeout(() => {
-      this.props.deselectModalWidget(this.props.widgetId, this.props.children);
-    }, 0);
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -190,10 +184,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   closeModal = (e: any) => {
-    this.props.showPropertyPane(undefined);
+    this.props.updateWidgetMetaProperty("isVisible", false);
+    this.selectWidgetRequest(SelectionRequestType.Empty);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
-    this.props.updateWidgetMetaProperty("isVisible", false);
     e.stopPropagation();
     e.preventDefault();
   };
@@ -213,7 +207,11 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   makeModalSelectable(content: ReactNode): ReactNode {
     // substitute coz the widget lacks draggable and position containers.
     return (
-      <ClickContentToOpenPropPane widgetId={this.props.widgetId}>
+      <ClickContentToOpenPropPane
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        widgetId={this.props.widgetId}
+      >
         {content}
       </ClickContentToOpenPropPane>
     );
@@ -222,27 +220,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   makeModalComponent(content: ReactNode, isEditMode: boolean) {
     const artBoard = document.getElementById("art-board");
     const portalContainer = isEditMode && artBoard ? artBoard : undefined;
-    const {
-      focusedWidget,
-      isDragging,
-      isSnipingMode,
-      selectedWidget,
-      selectedWidgets,
-      widgetId,
-    } = this.props;
+    const { isPreviewMode, isSnipingMode } = this.props;
 
-    const isWidgetFocused =
-      focusedWidget === widgetId ||
-      selectedWidget === widgetId ||
-      selectedWidgets.includes(widgetId);
-
-    const isResizeEnabled =
-      !isDragging && isWidgetFocused && isEditMode && !isSnipingMode;
+    const isResizeEnabled = isEditMode && !isSnipingMode && !isPreviewMode;
 
     return (
       <ModalComponent
-        backgroundColor={this.props.backgroundColor}
-        borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
@@ -271,14 +254,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
     children = this.showWidgetName(children, true);
-    if (isAutoHeightEnabledForWidget(this.props, true)) {
-      children = this.addAutoHeightOverlay(children, {
-        width: "100%",
-        height: "100%",
-        left: 0,
-        top: 0,
-      });
-    }
+
     return this.makeModalComponent(children, true);
   }
 
@@ -330,23 +306,14 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: { widgetId, callForDragOrResize, force },
     });
   },
-  deselectModalWidget: (
-    modalId: string,
-    modalWidgetChildren?: CanvasWidgetsStructureReduxState[],
-  ) => {
-    dispatch(deselectModalWidgetAction(modalId, modalWidgetChildren));
-  },
 });
 
 const mapStateToProps = (state: AppState) => {
   const props = {
     mainCanvasWidth: getCanvasWidth(state),
     isSnipingMode: snipingModeSelector(state),
-    selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,
-    selectedWidgets: state.ui.widgetDragResize.selectedWidgets,
-    focusedWidget: state.ui.widgetDragResize.focusedWidget,
-    isDragging: state.ui.widgetDragResize.isDragging,
     isResizing: state.ui.widgetDragResize.isResizing,
+    isPreviewMode: state.ui.editor.isPreviewMode,
   };
   return props;
 };

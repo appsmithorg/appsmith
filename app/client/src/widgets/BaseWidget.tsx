@@ -56,6 +56,8 @@ import {
   isAutoHeightEnabledForWidget,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
+import { getMinPixelWidth } from "utils/autoLayout/flexWidgetUtils";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 /***
  * BaseWidget
@@ -96,6 +98,7 @@ abstract class BaseWidget<
   static getDefaultPropertiesMap(): Record<string, any> {
     return {};
   }
+
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
@@ -228,11 +231,23 @@ abstract class BaseWidget<
     }
   };
 
+  selectWidgetRequest = (
+    selectionRequestType: SelectionRequestType,
+    payload?: string[],
+  ) => {
+    const { selectWidgetRequest } = this.context;
+    if (selectWidgetRequest) {
+      selectWidgetRequest(selectionRequestType, payload);
+    }
+  };
+
   /* eslint-disable @typescript-eslint/no-empty-function */
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   componentDidUpdate(prevProps: T) {}
 
   componentDidMount(): void {}
+
   /* eslint-enable @typescript-eslint/no-empty-function */
 
   getComponentDimensions = () => {
@@ -248,6 +263,7 @@ abstract class BaseWidget<
       this.props.mobileTopRow,
       this.props.mobileBottomRow,
       this.props.isMobile,
+      this.props.isFlexChild,
     );
   };
 
@@ -263,26 +279,30 @@ abstract class BaseWidget<
     mobileTopRow?: number,
     mobileBottomRow?: number,
     isMobile?: boolean,
+    isFlexChild?: boolean,
   ): {
     componentWidth: number;
     componentHeight: number;
   } {
-    const right =
-      isMobile && mobileRightColumn !== undefined && parentColumnSpace !== 1
-        ? mobileRightColumn
-        : rightColumn;
-    const left =
-      isMobile && mobileLeftColumn !== undefined && parentColumnSpace !== 1
-        ? mobileLeftColumn
-        : leftColumn;
-    const top =
-      isMobile && mobileTopRow !== undefined && parentRowSpace !== 1
-        ? mobileTopRow
-        : topRow;
-    const bottom =
-      isMobile && mobileBottomRow !== undefined && parentRowSpace !== 1
-        ? mobileBottomRow
-        : bottomRow;
+    let left = leftColumn;
+    let right = rightColumn;
+    let top = topRow;
+    let bottom = bottomRow;
+    if (isFlexChild && isMobile) {
+      if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
+        left = mobileLeftColumn;
+      }
+      if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
+        right = mobileRightColumn;
+      }
+      if (mobileTopRow !== undefined && parentRowSpace !== 1) {
+        top = mobileTopRow;
+      }
+      if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
+        bottom = mobileBottomRow;
+      }
+    }
+
     return {
       componentWidth: (right - left) * parentColumnSpace,
       componentHeight: (bottom - top) * parentRowSpace,
@@ -329,25 +349,22 @@ abstract class BaseWidget<
    * @param showControls
    */
   showWidgetName(content: ReactNode, showControls = false) {
-    return (
-      <>
-        {!this.props.disablePropertyPane && (
-          <WidgetNameComponent
-            errorCount={this.getErrorCount(
-              get(this.props, EVAL_ERROR_PATH, {}),
-            )}
-            isFlexChild={!!this.props.isFlexChild}
-            parentId={this.props.parentId}
-            showControls={showControls}
-            topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
-            type={this.props.type}
-            widgetId={this.props.widgetId}
-            widgetName={this.props.widgetName}
-            widgetProps={this.props}
-          />
-        )}
+    return !this.props.disablePropertyPane ? (
+      <WidgetNameComponent
+        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+        isFlexChild={!!this.props.isFlexChild}
+        parentId={this.props.parentId}
+        showControls={showControls}
+        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+        type={this.props.type}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
+        widgetProps={this.props}
+      >
         {content}
-      </>
+      </WidgetNameComponent>
+    ) : (
+      { content }
     );
   }
 
@@ -360,6 +377,7 @@ abstract class BaseWidget<
   makeDraggable(content: ReactNode) {
     return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
   }
+
   /**
    * wraps the widget in a draggable component.
    * Note: widget drag can be disabled by setting `dragDisabled` prop to true
@@ -454,6 +472,10 @@ abstract class BaseWidget<
 
   makeFlex(content: ReactNode) {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const minWidth = getMinPixelWidth(
+      this.props,
+      this.props?.mainCanvasWidth || 0,
+    );
     return (
       <FlexComponent
         componentHeight={componentHeight}
@@ -464,6 +486,7 @@ abstract class BaseWidget<
         }
         focused={this.props.focused}
         isMobile={this.props.isMobile}
+        minWidth={minWidth}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
@@ -620,6 +643,7 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
+  mainCanvasWidth?: number;
 }
 
 export type WidgetRowCols = {
@@ -681,6 +705,7 @@ export interface WidgetProps
     DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
+
   [key: string]: any;
 }
 

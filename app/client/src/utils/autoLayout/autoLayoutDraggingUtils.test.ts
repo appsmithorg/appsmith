@@ -1,7 +1,4 @@
-import {
-  FlexLayer,
-  LayerChild,
-} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FlexLayer } from "./autoLayoutTypes";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   addNewLayer,
@@ -67,6 +64,7 @@ describe("test AutoLayoutDraggingUtils methods", () => {
   });
 
   describe("test updateRelationships method", () => {
+    const mainCanvasWidth = 960;
     it("should remove moved widgets from old parent's layers and assign new parent to the widgets", () => {
       const widgets = { ...data };
       const movedWidget = "pt32jvs72k";
@@ -75,6 +73,9 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         [movedWidget],
         widgets,
         "0",
+        false,
+        false,
+        mainCanvasWidth,
       );
       expect(result[movedWidget].parentId === "0").toBeTruthy;
       if (result[oldParent]) {
@@ -95,6 +96,8 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         widgets,
         "0",
         true,
+        false,
+        mainCanvasWidth,
       );
       expect(result[movedWidget].parentId === "0").toBeFalsy;
       if (result[oldParent]) {

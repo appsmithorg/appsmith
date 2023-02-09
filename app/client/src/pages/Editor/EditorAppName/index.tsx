@@ -13,7 +13,7 @@ import {
   SavingState,
   Toaster,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";

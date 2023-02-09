@@ -13,4 +13,5 @@ export default function() {
   }
   const dom = documentMock.parseHTML(`<!DOCTYPE html><body></body>`);
   self.document = dom.window.document;
+  self.window = dom.window;
 }

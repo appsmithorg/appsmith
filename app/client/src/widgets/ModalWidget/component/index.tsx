@@ -1,32 +1,31 @@
 import React, {
   ReactNode,
   RefObject,
-  useRef,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
-import { Overlay, Classes } from "@blueprintjs/core";
+import { Classes, Overlay } from "@blueprintjs/core";
 import { get, omit } from "lodash";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 
+import { AppState } from "@appsmith/reducers";
+import { closeTableFilterPane } from "actions/widgetActions";
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import {
+  BottomHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
-  BottomHandleStyles,
 } from "components/editorComponents/ResizeStyledComponents";
 import { Layers } from "constants/Layers";
 import Resizable from "resizable/resize";
-import { getCanvasClassName } from "utils/generators";
-import { AppState } from "@appsmith/reducers";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Colors } from "constants/Colors";
-import { closeTableFilterPane } from "actions/widgetActions";
+import { getCanvasClassName } from "utils/generators";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 const Container = styled.div<{
   width?: number;
@@ -39,8 +38,6 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
-  backgroundColor: string;
-  borderRadius: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -78,9 +75,9 @@ const Container = styled.div<{
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
-        background: ${({ backgroundColor }) =>
-          `${backgroundColor || Colors.WHITE}`};
-        border-radius: ${({ borderRadius }) => borderRadius};
+        .bp3-popover2-target.bp3-popover2-open {
+          height: 100%;
+        }
       }
     }
   }
@@ -90,7 +87,6 @@ const Content = styled.div<{
   scroll: boolean;
   ref: RefObject<HTMLDivElement>;
 }>`
-  overflow-y: ${(props) => (props.scroll ? "visible" : "hidden")};
   overflow-x: hidden;
   width: 100%;
   height: 100%;
@@ -131,8 +127,6 @@ export type ModalComponentProps = {
   minSize?: number;
   widgetId: string;
   widgetName: string;
-  backgroundColor: string;
-  borderRadius: string;
   isDynamicHeightEnabled: boolean;
 };
 
@@ -142,7 +136,6 @@ export default function ModalComponent(props: ModalComponentProps) {
     null,
   );
   const { enableResize = false } = props;
-  const resizeRef = React.useRef<HTMLDivElement>(null);
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");
 
@@ -228,9 +221,23 @@ export default function ModalComponent(props: ModalComponentProps) {
     return !props.isDynamicHeightEnabled && enableResize;
   }, [props.isDynamicHeightEnabled, enableResize]);
 
+  const getModalContent = () => {
+    return (
+      <Content
+        className={`${getCanvasClassName()} ${props.className}`}
+        id={props.widgetId}
+        ref={modalContentRef}
+        scroll={props.scrollContents}
+        tabIndex={0}
+      >
+        {props.children}
+      </Content>
+    );
+  };
+
   const getResizableContent = () => {
     //id for Content is required for Copy Paste inside the modal
-    return (
+    return enableResize ? (
       <Resizable
         allowResize
         componentHeight={props.height || 0}
@@ -241,21 +248,15 @@ export default function ModalComponent(props: ModalComponentProps) {
         isColliding={() => false}
         onStart={onResizeStart}
         onStop={onResizeStop}
-        ref={resizeRef}
         resizeDualSides
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}
+        widgetId={props.widgetId}
       >
-        <Content
-          className={`${getCanvasClassName()} ${props.className}`}
-          id={props.widgetId}
-          ref={modalContentRef}
-          scroll={props.scrollContents}
-          tabIndex={0}
-        >
-          {props.children}
-        </Content>
+        {getModalContent()}
       </Resizable>
+    ) : (
+      getModalContent()
     );
   };
 
@@ -272,8 +273,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         usePortal={false}
       >
         <Container
-          backgroundColor={props.backgroundColor}
-          borderRadius={props.borderRadius}
           bottom={props.bottom}
           height={props.height}
           isEditMode={props.isEditMode}

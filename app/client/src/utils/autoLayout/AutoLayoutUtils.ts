@@ -1,20 +1,21 @@
+import { FlexLayer, LayerChild } from "./autoLayoutTypes";
+import {
+  FLEXBOX_PADDING,
+  layoutConfigurations,
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import {
-  FlexLayer,
-  LayerChild,
-} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import {
-  FLEXBOX_PADDING,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { getWidgetWidth } from "./flexWidgetUtils";
+import { AlignmentColumnInfo } from "./autoLayoutTypes";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
   const container = widgets[containerId];
@@ -45,7 +46,8 @@ export function removeChildLayers(
 export function* wrapChildren(
   allWidgets: CanvasWidgetsReduxState,
   containerId: string,
-  isMobile?: boolean,
+  isMobile: boolean,
+  mainCanvasWidth: number,
 ) {
   const widgets = { ...allWidgets };
   let canvas = getCanvas(widgets, containerId);
@@ -70,6 +72,7 @@ export function* wrapChildren(
     widgets,
     canvas.widgetId,
     isMobile,
+    mainCanvasWidth,
   );
   return updatedWidgets;
 }
@@ -78,7 +81,8 @@ export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   parentId: string,
-  isMobile?: boolean,
+  isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   if (
@@ -130,7 +134,7 @@ export function updateFlexLayersOnDelete(
   };
   widgets[parentId] = parent;
 
-  return updateWidgetPositions(widgets, parentId, isMobile);
+  return updateWidgetPositions(widgets, parentId, isMobile, mainCanvasWidth);
 }
 
 export function updateFillChildStatus(
@@ -138,6 +142,7 @@ export function updateFillChildStatus(
   widgetId: string,
   fill: boolean,
   isMobile: boolean,
+  mainCanvasWidth: number,
 ) {
   let widgets = { ...allWidgets };
   const widget = widgets[widgetId];
@@ -157,19 +162,85 @@ export function updateFillChildStatus(
     },
   };
 
-  return updateWidgetPositions(widgets, canvas.widgetId, isMobile);
+  return updateWidgetPositions(
+    widgets,
+    canvas.widgetId,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
+
+// export function alterLayoutForMobile(
+//   allWidgets: CanvasWidgetsReduxState,
+//   parentId: string,
+//   canvasWidth: number,
+//   mainCanvasWidth: number,
+// ): CanvasWidgetsReduxState {
+//   let widgets = { ...allWidgets };
+//   const parent = widgets[parentId];
+//   const children = parent.children;
+
+//   if (!isStack(allWidgets, parent)) {
+//     return widgets;
+//   }
+//   if (!children || !children.length) return widgets;
+
+//   for (const child of children) {
+//     const widget = { ...widgets[child] };
+//     const minWidth: number | undefined = getMinPixelWidth(
+//       widget,
+//       mainCanvasWidth,
+//     );
+
+//     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
+//       widget.mobileRightColumn = 64;
+//       widget.mobileLeftColumn = 0;
+//     } else if (
+//       widget.responsiveBehavior === ResponsiveBehavior.Hug &&
+//       minWidth
+//     ) {
+//       const { leftColumn, rightColumn } = widget;
+//       const columnSpace = (canvasWidth - FLEXBOX_PADDING * 2) / 64;
+//       if (columnSpace * (rightColumn - leftColumn) < minWidth) {
+//         /**
+//          * Set a proper width for the widget => left column = 0;
+//          * Actual positioning of the widget will be updated by updateWidgetPositions function.
+//          */
+//         widget.mobileLeftColumn = 0;
+//         widget.mobileRightColumn = Math.min(minWidth / columnSpace, 64);
+//       }
+//     } else {
+//       widget.mobileLeftColumn = widget.leftColumn;
+//       widget.mobileRightColumn = widget.rightColumn;
+//     }
+
+//     widget.mobileTopRow = widget.topRow;
+//     widget.mobileBottomRow = widget.bottomRow;
+//     if (widget.mobileRightColumn !== undefined)
+//       widgets = alterLayoutForMobile(
+//         widgets,
+//         child,
+//         (canvasWidth * widget.mobileRightColumn) / 64,
+//         mainCanvasWidth,
+//       );
+//     widgets[child] = widget;
+//     widgets = updateWidgetPositions(widgets, child, true, mainCanvasWidth);
+//   }
+//   widgets = updateWidgetPositions(widgets, parentId, true, mainCanvasWidth);
+//   return widgets;
+// }
 
 export function alterLayoutForMobile(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   canvasWidth: number,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
   const children = parent.children;
 
-  if (checkIsNotVerticalStack(parent) && parent.widgetId !== "0") {
+  if (!isStack(allWidgets, parent)) {
     return widgets;
   }
   if (!children || !children.length) return widgets;
@@ -192,46 +263,36 @@ export function alterLayoutForMobile(
     }
     widget.mobileTopRow = widget.topRow;
     widget.mobileBottomRow = widget.bottomRow;
-    if (widget.autoLayout?.mobile?.rows) {
-      widget.mobileBottomRow =
-        widget.mobileTopRow + widget.autoLayout.mobile.rows;
-    }
     widgets = alterLayoutForMobile(
       widgets,
       child,
       (canvasWidth * (widget.mobileRightColumn || 1)) / 64,
+      mainCanvasWidth,
     );
     widgets[child] = widget;
-    widgets = updateWidgetPositions(widgets, child, true);
+    widgets = updateWidgetPositions(widgets, child, true, mainCanvasWidth);
   }
-  widgets = updateWidgetPositions(widgets, parentId, true);
+  widgets = updateWidgetPositions(widgets, parentId, true, mainCanvasWidth);
   return widgets;
 }
 
 export function alterLayoutForDesktop(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
   const children = parent.children;
 
-  if (checkIsNotVerticalStack(parent) && parent.widgetId !== "0")
-    return widgets;
+  if (!isStack(allWidgets, parent)) return widgets;
   if (!children || !children.length) return widgets;
 
-  widgets = updateWidgetPositions(widgets, parentId, false);
+  widgets = updateWidgetPositions(widgets, parentId, false, mainCanvasWidth);
   for (const child of children) {
-    widgets = alterLayoutForDesktop(widgets, child);
+    widgets = alterLayoutForDesktop(widgets, child, mainCanvasWidth);
   }
   return widgets;
-}
-
-function checkIsNotVerticalStack(widget: any): boolean {
-  return (
-    widget.positioning !== undefined &&
-    widget.positioning !== Positioning.Vertical
-  );
 }
 
 /**
@@ -244,6 +305,7 @@ export function pasteWidgetInFlexLayers(
   widget: any,
   originalWidgetId: string,
   isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -307,7 +369,7 @@ export function pasteWidgetInFlexLayers(
       flexLayers,
     },
   };
-  return updateWidgetPositions(widgets, parentId, isMobile);
+  return updateWidgetPositions(widgets, parentId, isMobile, mainCanvasWidth);
 }
 
 /**
@@ -321,6 +383,7 @@ export function addChildToPastedFlexLayers(
   widget: any,
   widgetIdMap: Record<string, string>,
   isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[widget.parentId];
@@ -353,7 +416,12 @@ export function addChildToPastedFlexLayers(
       flexLayers,
     },
   };
-  return updateWidgetPositions(widgets, parent.widgetId, isMobile);
+  return updateWidgetPositions(
+    widgets,
+    parent.widgetId,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
 
 export function isStack(
@@ -391,9 +459,61 @@ export function getLayerIndexOfWidget(
 }
 
 export function getViewportClassName(viewportWidth: number) {
-  if (viewportWidth > 360) {
+  if (viewportWidth > layoutConfigurations.MOBILE.maxWidth) {
     return "desktop-view";
   } else {
     return "mobile-view";
   }
+}
+
+export function getFillWidgetLengthForLayer(
+  layer: any,
+  allWidgets: any,
+): number | undefined {
+  let fillLength = GridDefaults.DEFAULT_GRID_COLUMNS;
+  let hugLength = 0,
+    fillCount = 0;
+  for (const child of layer.children) {
+    const childWidget = allWidgets[child.id];
+    if (!childWidget) {
+      continue;
+    }
+    if (childWidget.responsiveBehavior !== ResponsiveBehavior.Fill) {
+      hugLength += childWidget.rightColumn - childWidget.leftColumn;
+    } else {
+      fillCount += 1;
+    }
+  }
+  fillLength = (fillLength - hugLength) / (fillCount || 1);
+  return fillLength;
+}
+
+export function getAlignmentColumnInfo(
+  widgets: CanvasWidgetsReduxState,
+  layer: FlexLayer,
+  isMobile: boolean,
+): AlignmentColumnInfo {
+  if (!layer)
+    return {
+      [FlexLayerAlignment.Start]: 0,
+      [FlexLayerAlignment.Center]: 0,
+      [FlexLayerAlignment.End]: 0,
+    };
+  let start = 0,
+    end = 0,
+    center = 0;
+  for (const child of layer.children) {
+    const widget = widgets[child.id];
+    if (!widget) continue;
+    if (child.align === FlexLayerAlignment.End)
+      end += getWidgetWidth(widget, isMobile);
+    else if (child.align === FlexLayerAlignment.Center)
+      center += getWidgetWidth(widget, isMobile);
+    else start += getWidgetWidth(widget, isMobile);
+  }
+  return {
+    [FlexLayerAlignment.Start]: start,
+    [FlexLayerAlignment.Center]: center,
+    [FlexLayerAlignment.End]: end,
+  };
 }

@@ -23,7 +23,17 @@ import LabelWithTooltip, {
 } from "widgets/components/LabelWithTooltip";
 
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
+import { required } from "utils/validation/common";
 
+function hasFulfilledRequiredCondition(
+  isRequired: boolean | undefined,
+  value: any,
+) {
+  // if the required condition is not enabled then it has fulfilled
+  if (!isRequired) return true;
+
+  return !required(value);
+}
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
   compactMode: boolean;
@@ -193,6 +203,7 @@ class DatePickerComponent extends React.Component<
       compactMode,
       isDisabled,
       isLoading,
+      isRequired,
       labelAlignment,
       labelPosition,
       labelStyle,
@@ -202,6 +213,7 @@ class DatePickerComponent extends React.Component<
       labelTooltip,
       labelWidth,
     } = this.props;
+
     const now = moment();
     const year = now.get("year");
     const minDate = this.props.minDate
@@ -223,6 +235,11 @@ class DatePickerComponent extends React.Component<
       isValid && this.state.selectedDate
         ? new Date(this.state.selectedDate)
         : null;
+
+    const hasFulfilledRequired = hasFulfilledRequiredCondition(
+      isRequired,
+      value,
+    );
 
     const getInitialMonth = () => {
       // None
@@ -321,7 +338,7 @@ class DatePickerComponent extends React.Component<
         compactMode={this.props.compactMode}
         data-testid="datepicker-container"
         fill
-        isValid={isValid}
+        isValid={isValid && hasFulfilledRequired}
         labelPosition={this.props.labelPosition}
         onClick={(e: any) => {
           e.stopPropagation();
@@ -509,6 +526,7 @@ interface DatePickerComponentProps extends ComponentProps {
   onPopoverClosed?: (e: unknown) => void;
   isPopoverOpen?: boolean;
   onDateOutOfRange?: () => void;
+  isRequired?: boolean;
 }
 
 interface DatePickerComponentState {

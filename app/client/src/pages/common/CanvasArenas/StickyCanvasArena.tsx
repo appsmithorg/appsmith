@@ -1,8 +1,8 @@
 import React, { forwardRef, RefObject, useEffect, useRef } from "react";
 import styled from "styled-components";
 
-import ResizeObserver from "resize-observer-polyfill";
 import { useSelector } from "react-redux";
+import ResizeObserver from "resize-observer-polyfill";
 import { getCanvasScale } from "selectors/editorSelectors";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
@@ -123,11 +123,15 @@ export const StickyCanvasArena = forwardRef(
     };
     const observeSlider = () => {
       interSectionObserver.current.disconnect();
-      interSectionObserver.current.observe(slidingArenaRef.current);
+      if (slidingArenaRef && slidingArenaRef.current) {
+        interSectionObserver.current.observe(slidingArenaRef.current);
+      }
     };
 
     useEffect(() => {
-      observeSlider();
+      if (slidingArenaRef.current) {
+        observeSlider();
+      }
     }, [
       showCanvas,
       snapRows,
@@ -148,7 +152,9 @@ export const StickyCanvasArena = forwardRef(
       return () => {
         parentCanvas?.removeEventListener("scroll", observeSlider);
         parentCanvas?.removeEventListener("mouseover", observeSlider);
-        resizeObserver.current.unobserve(slidingArenaRef.current);
+        if (slidingArenaRef && slidingArenaRef.current) {
+          resizeObserver.current.unobserve(slidingArenaRef.current);
+        }
       };
     }, []);
     return (
