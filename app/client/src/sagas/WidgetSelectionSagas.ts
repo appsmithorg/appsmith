@@ -3,7 +3,15 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
@@ -17,6 +25,7 @@ import { closeAllModals, showModal } from "actions/widgetActions";
 import history, { NavigationMethod } from "utils/history";
 import {
   getCurrentPageId,
+  getIsEditorInitialized,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { builderURL, widgetURL } from "RouteBuilder";
@@ -221,7 +230,12 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
 }
 
 function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
+  if (action.payload.widgetIds.length > 1) return;
   const widgetId = action.payload.widgetIds[0];
+  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+  if (!isEditorInitialized) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+  }
   const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
   if (widgetId) {
     setTimeout(() => {
