@@ -4,7 +4,7 @@ const pages = require("../../../../locators/Pages.json");
 describe("Dynamic Layout Functionality", function() {
   it("Dynamic Layout - Change Layout", function() {
     cy.get(commonlocators.layoutControls)
-      .eq(6)
+      .last()
       .click();
     cy.get(commonlocators.canvas)
       .invoke("width")
