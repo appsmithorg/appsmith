@@ -26,7 +26,8 @@ export class DebuggerHelper {
     _errorCount: ".t--debugger-count",
     _clearLogs: ".t--debugger-clear-logs",
     _logMessageOccurence: ".t--debugger-log-message-occurence",
-    _debuggerMessage: ".t--debugger-message",
+    _debuggerMessage: "[data-cy=t--debugger-log-message]",
+    _contextMenuIcon: ".t--debugger-contextual-error-menu ",
     _contextMenuItem: ".t--debugger-contextual-menuitem",
     _debuggerLabel: "span.debugger-label",
     _bottomPaneContainer: {
