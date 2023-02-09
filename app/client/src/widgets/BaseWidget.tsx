@@ -363,7 +363,7 @@ abstract class BaseWidget<
         {content}
       </WidgetNameComponent>
     ) : (
-      { content }
+      content
     );
   }
 
