@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import ReactJson from "react-json-view";
 import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
 import { componentWillAppendToBody } from "react-append-to-body";
