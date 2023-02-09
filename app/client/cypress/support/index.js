@@ -52,14 +52,6 @@ before(function() {
   // Clear indexedDB
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
-    const latitude = 28;
-    const longitude = 10;
-    cy.stub(window.navigator.geolocation, "getCurrentPosition").callsArgWith(
-      0,
-      {
-        coords: { latitude, longitude },
-      },
-    );
   });
   cy.visit("/setup/welcome");
   cy.wait("@getMe");
