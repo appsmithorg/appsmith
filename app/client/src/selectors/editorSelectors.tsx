@@ -482,14 +482,16 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
     widgets: CanvasWidgetsReduxState,
   ): {
     occupiedSpaces: {
-      [parentCanvasWidgetId: string]: Array<
+      [parentCanvasWidgetId: string]: Record<
+        string,
         OccupiedSpace & { originalTop: number; originalBottom: number }
       >;
     };
     canvasLevelMap: Record<string, number>;
   } => {
     const occupiedSpaces: {
-      [parentCanvasWidgetId: string]: Array<
+      [parentCanvasWidgetId: string]: Record<
+        string,
         OccupiedSpace & { originalTop: number; originalBottom: number }
       >;
     } = {};
@@ -521,7 +523,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
         }
         canvasLevelMap[canvasWidget.widgetId] = level;
         // Initialise the occupied spaces with an empty array
-        occupiedSpaces[canvasWidgetId] = [];
+        occupiedSpaces[canvasWidgetId] = {};
         // If this canvas widget has children
         if (canvasWidget.children && canvasWidget.children.length > 0) {
           // Iterate through all children
@@ -533,7 +535,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
             // (unlike a modal widget or another canvas widget)
             if (!widget.detachFromLayout) {
               // Add the occupied space co-ordinates to the initialised array
-              occupiedSpaces[canvasWidgetId].push({
+              occupiedSpaces[canvasWidgetId][widget.widgetId] = {
                 id: widget.widgetId,
                 parentId: canvasWidgetId,
                 left: widget.leftColumn,
@@ -542,7 +544,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
                 right: widget.rightColumn,
                 originalTop: widget.originalTopRow,
                 originalBottom: widget.originalBottomRow,
-              });
+              };
             }
           });
         }

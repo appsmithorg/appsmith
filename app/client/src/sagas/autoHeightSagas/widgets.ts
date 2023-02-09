@@ -23,12 +23,9 @@ import {
   resetAutoHeightUpdateQueue,
 } from "./batcher";
 import {
-  getChildOfContainerLikeWidget,
   getMinHeightBasedOnChildren,
-  getParentCurrentHeightInRows,
   mutation_setPropertiesToUpdate,
   shouldCollapseThisWidget,
-  shouldWidgetsCollapse,
 } from "./helpers";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import {
@@ -307,17 +304,14 @@ export function* updateWidgetAutoHeightSaga(
             // For each widget to update, add to the delta, the expected change.
             expectedUpdatesGroupedByParentCanvasWidget[
               parentCanvasWidgetId
-            ].forEach((update) => {
-              delta[
-                (update as {
-                  widgetId: string;
-                  expectedChangeInHeightInRows: number;
-                }).widgetId
-              ] = (update as {
+            ].forEach(
+              (update: {
                 widgetId: string;
                 expectedChangeInHeightInRows: number;
-              }).expectedChangeInHeightInRows;
-            });
+              }) => {
+                delta[update.widgetId] = update.expectedChangeInHeightInRows;
+              },
+            );
           }
         });
       }

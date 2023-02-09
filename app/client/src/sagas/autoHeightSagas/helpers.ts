@@ -150,6 +150,11 @@ export function* getMinHeightBasedOnChildren(
     // detachFromLayout helps us identify such widgets
     if (detachFromLayout) continue;
 
+    // Seems like sometimes, the children comes in as a string instead of string array.
+    // I'm not completely sure why that is, or which widgets use "children" properties as strings
+    // So, we're skipping computations for the children if such a thing happens.
+    if (tree[childWidgetId] === undefined) continue;
+
     // Get the child widget's dimenstions from the tree
     const { bottomRow, topRow } = tree[childWidgetId];
 
