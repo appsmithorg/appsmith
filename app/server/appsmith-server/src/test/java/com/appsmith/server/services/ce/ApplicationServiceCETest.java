@@ -351,8 +351,10 @@ public class ApplicationServiceCETest {
                     assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
                     assertThat(application.getApplicationVersion()).isEqualTo(ApplicationVersion.LATEST_VERSION);
                     assertThat(application.getColor()).isNotEmpty();
-                    assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
-                    assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
+//                    assertThat(application.getUnpublishedApplication().getThemeId()).isEqualTo(defaultThemeId);
+                    assertThat(application.getUnpublishedApplication().getThemeId()).isEqualTo(defaultThemeId);
+//                    assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
+                    assertThat(application.getPublishedApplication().getThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getCollapseInvisibleWidgets()).isEqualTo(TRUE);
 
                     List<PermissionGroup> permissionGroups = tuple2.getT3();
@@ -2256,7 +2258,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName()).isEqualTo(appName);
                     assertThat(application.getPages()).hasSize(1);
-                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getPublishedApplication().getPages()).hasSize(1);
 
                     assertThat(pages).hasSize(1);
                     NewPage newPage = pages.get(0);
@@ -2264,9 +2266,9 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getId()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getId());
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
 
-                    assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
-                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
-                    assertThat(application.getPublishedNavigationSetting()).isEqualTo(application.getUnpublishedNavigationSetting());
+                    assertThat(application.getPublishedApplication().getAppLayout()).isEqualTo(application.getUnpublishedApplication().getAppLayout());
+                    assertThat(application.getPublishedApplication().getAppPositioning()).isEqualTo(application.getUnpublishedApplication().getAppPositioning());
+                    assertThat(application.getPublishedApplication().getNavigationSetting()).isEqualTo(application.getUnpublishedApplication().getNavigationSetting());
                 })
                 .verifyComplete();
     }
@@ -2419,7 +2421,7 @@ public class ApplicationServiceCETest {
 
                     assertThat(application).isNotNull();
                     assertThat(application.getPages().size()).isEqualTo(1);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    assertThat(application.getPublishedApplication().getPages().size()).isEqualTo(1);
 
                     assertThat(pages.size()).isEqualTo(1);
                     NewPage newPage = pages.get(0);
@@ -2428,9 +2430,9 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
                     assertThat(newPage.getDefaultResources()).isNotNull();
 
-                    assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
-                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
-                    assertThat(application.getPublishedNavigationSetting()).isEqualTo(application.getUnpublishedNavigationSetting());
+                    assertThat(application.getPublishedApplication().getAppLayout()).isEqualTo(application.getUnpublishedApplication().getAppLayout());
+                    assertThat(application.getPublishedApplication().getAppPositioning()).isEqualTo(application.getUnpublishedApplication().getAppPositioning());
+                    assertThat(application.getPublishedApplication().getNavigationSetting()).isEqualTo(application.getUnpublishedApplication().getNavigationSetting());
                 })
                 .verifyComplete();
     }
@@ -2467,7 +2469,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName()).isEqualTo(appName);
                     assertThat(application.getPages()).hasSize(2);
-                    assertThat(application.getPublishedPages()).hasSize(2);
+                    assertThat(application.getPublishedApplication().getPages()).hasSize(2);
 
                     assertThat(pages).hasSize(2);
                     NewPage newPage = pages.get(1);
@@ -2515,7 +2517,7 @@ public class ApplicationServiceCETest {
                 .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
                 .assertNext(editedApplication -> {
 
-                    List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
+                    List<ApplicationPage> publishedPages = editedApplication.getPublishedApplication().getPages();
                     assertThat(publishedPages).size().isEqualTo(2);
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
@@ -2558,7 +2560,7 @@ public class ApplicationServiceCETest {
                 .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
                 .assertNext(editedApplication -> {
 
-                    List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
+                    List<ApplicationPage> publishedPages = editedApplication.getPublishedApplication().getPages();
                     assertThat(publishedPages).size().isEqualTo(2);
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
@@ -2610,7 +2612,7 @@ public class ApplicationServiceCETest {
                 .create(updatedDefaultPageApplicationMono)
                 .assertNext(editedApplication -> {
 
-                    List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
+                    List<ApplicationPage> publishedPages = editedApplication.getPublishedApplication().getPages();
                     assertThat(publishedPages).size().isEqualTo(2);
                     boolean isFound = false;
                     for (ApplicationPage page : publishedPages) {
@@ -2686,10 +2688,10 @@ public class ApplicationServiceCETest {
                     }
                     assertThat(isFound).isTrue();
 
-                    assertEquals(1, viewApplication.getPublishedCustomJSLibs().size());
+                    assertEquals(1, viewApplication.getPublishedApplication().getCustomJSLibs().size());
                     CustomJSLib jsLib = new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version",
                             "defs");
-                    assertEquals(getDTOFromCustomJSLib(jsLib), viewApplication.getPublishedCustomJSLibs().toArray()[0]);
+                    assertEquals(getDTOFromCustomJSLib(jsLib), viewApplication.getPublishedApplication().getCustomJSLibs().toArray()[0]);
                 })
                 .verifyComplete();
     }
@@ -2830,7 +2832,7 @@ public class ApplicationServiceCETest {
 
         Mono<PageDTO> publishedPageMono = applicationMono
                 .flatMap(application -> {
-                    List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    List<ApplicationPage> publishedPages = application.getPublishedApplication().getPages();
                     return applicationPageService.getPage(publishedPages.get(0).getId(), true);
                 });
 
@@ -2841,10 +2843,10 @@ public class ApplicationServiceCETest {
                     PageDTO publishedPage = tuple.getT2();
 
                     // Assert that the application has 1 published page
-                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getPublishedApplication().getPages()).hasSize(1);
 
                     // Assert that the published page and the unpublished page are one and the same
-                    assertThat(application.getPages().get(0).getId()).isEqualTo(application.getPublishedPages().get(0).getId());
+                    assertThat(application.getPages().get(0).getId()).isEqualTo(application.getPublishedApplication().getPages().get(0).getId());
 
                     // Assert that the published page has 1 layout
                     assertThat(publishedPage.getLayouts()).hasSize(1);
@@ -3347,7 +3349,7 @@ public class ApplicationServiceCETest {
                                         )
                         )
                 ).flatMap(objects ->
-                        themeService.getThemeById(objects.getT1().getEditModeThemeId(), MANAGE_THEMES)
+                        themeService.getThemeById(objects.getT1().getUnpublishedApplication().getThemeId(), MANAGE_THEMES)
                                 .zipWith(Mono.just(objects))
                 );
 
@@ -3356,7 +3358,7 @@ public class ApplicationServiceCETest {
                     Theme clonedTheme = objects.getT1();
                     Application clonedApp = objects.getT2().getT1();
                     Application srcApp = objects.getT2().getT2();
-                    assertThat(clonedApp.getEditModeThemeId()).isNotEqualTo(srcApp.getEditModeThemeId());
+                    assertThat(clonedApp.getUnpublishedApplication().getThemeId()).isNotEqualTo(srcApp.getUnpublishedApplication().getThemeId());
                     assertThat(clonedTheme.getApplicationId()).isNull();
                     assertThat(clonedTheme.getWorkspaceId()).isNull();
                 })
@@ -3511,10 +3513,10 @@ public class ApplicationServiceCETest {
         Mono<Tuple2<Application, Asset>> loadLogoImageMono = applicationService.findById(createdApplicationId)
                 .flatMap(fetchedApplication -> {
                     Mono<Application> fetchedApplicationMono = Mono.just(fetchedApplication);
-                    if (StringUtils.isEmpty(fetchedApplication.getUnpublishedNavigationSetting().getLogoAssetId())) {
+                    if (StringUtils.isEmpty(fetchedApplication.getUnpublishedApplication().getNavigationSetting().getLogoAssetId())) {
                         return fetchedApplicationMono.zipWith(Mono.just(new Asset()));
                     } else {
-                        return fetchedApplicationMono.zipWith(assetRepository.findById(fetchedApplication.getUnpublishedNavigationSetting().getLogoAssetId()));
+                        return fetchedApplicationMono.zipWith(assetRepository.findById(fetchedApplication.getUnpublishedApplication().getNavigationSetting().getLogoAssetId()));
                     }
                 });
 
@@ -3525,7 +3527,7 @@ public class ApplicationServiceCETest {
         StepVerifier.create(saveAndGetMono)
                 .assertNext(tuple -> {
                     final Application application1 = tuple.getT1();
-                    assertThat(application1.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(application1.getUnpublishedApplication().getNavigationSetting().getLogoAssetId()).isNotNull();
 
                     final Asset asset = tuple.getT2();
                     assertThat(asset).isNotNull();
@@ -3534,7 +3536,7 @@ public class ApplicationServiceCETest {
 
         StepVerifier.create(deleteAndGetMono)
                 .assertNext(objects -> {
-                    assertThat(objects.getT1().getUnpublishedNavigationSetting().getLogoAssetId()).isNull();
+                    assertThat(objects.getT1().getUnpublishedApplication().getNavigationSetting().getLogoAssetId()).isNull();
                     assertThat(objects.getT2().getId()).isNull();
                 })
                 // Should be empty since the profile photo has been deleted.

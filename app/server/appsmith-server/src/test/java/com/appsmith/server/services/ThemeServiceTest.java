@@ -203,7 +203,7 @@ public class ThemeServiceTest {
     @Test
     public void getApplicationTheme_WhenNoThemeFoundWithId_DefaultThemeReturned() {
         Application savedApplication = createApplication();
-        savedApplication.setPublishedModeThemeId("invalid-theme-id");
+        savedApplication.getPublishedApplication().setThemeId("invalid-theme-id");
         Mono<Theme> publishedThemeMono = applicationRepository.save(savedApplication).then(
                 themeService.getApplicationTheme(savedApplication.getId(), ApplicationMode.PUBLISHED, null)
         );
@@ -243,13 +243,13 @@ public class ThemeServiceTest {
                     Application updatedApplication = objects.getT1();
                     Application oldApplication = objects.getT2();
                     // edit mode and published mode has same theme id in old application
-                    assertThat(oldApplication.getEditModeThemeId()).isEqualTo(oldApplication.getPublishedModeThemeId());
+                    assertThat(oldApplication.getUnpublishedApplication().getThemeId()).isEqualTo(oldApplication.getPublishedApplication().getThemeId());
                     // edit mode and published mode has different theme id in updated application
-                    assertThat(updatedApplication.getEditModeThemeId()).isNotEqualTo(updatedApplication.getPublishedModeThemeId());
+                    assertThat(updatedApplication.getUnpublishedApplication().getThemeId()).isNotEqualTo(updatedApplication.getPublishedApplication().getThemeId());
                     // edit mode theme id has changed from old application to new application
-                    assertThat(oldApplication.getEditModeThemeId()).isNotEqualTo(updatedApplication.getEditModeThemeId());
+                    assertThat(oldApplication.getUnpublishedApplication().getThemeId()).isNotEqualTo(updatedApplication.getUnpublishedApplication().getThemeId());
                     // published mode theme id remains same in old application and new application
-                    assertThat(oldApplication.getPublishedModeThemeId()).isEqualTo(updatedApplication.getPublishedModeThemeId());
+                    assertThat(oldApplication.getPublishedApplication().getThemeId()).isEqualTo(updatedApplication.getPublishedApplication().getThemeId());
                 }).verifyComplete();
     }
 
@@ -273,7 +273,7 @@ public class ThemeServiceTest {
         replaceApiUserWithAnotherUserInWorkspace();
 
         // Change the app theme as api_user (after api_user has been removed from the workspace)
-        Mono<Theme> changeCurrentThemeMono = themeService.changeCurrentTheme(savedApplication.getEditModeThemeId(), savedApplication.getId(), null);
+        Mono<Theme> changeCurrentThemeMono = themeService.changeCurrentTheme(savedApplication.getUnpublishedApplication().getThemeId(), savedApplication.getId(), null);
 
         StepVerifier
                 .create(changeCurrentThemeMono)
@@ -328,7 +328,7 @@ public class ThemeServiceTest {
                 .then(applyDefaultThemeMono)
                 .then(themeService.getApplicationTheme(savedApplication.getId(), ApplicationMode.EDIT, null));
 
-        Mono<Theme> oldApplicationThemeMono = themeService.getThemeById(savedApplication.getEditModeThemeId(), READ_THEMES)
+        Mono<Theme> oldApplicationThemeMono = themeService.getThemeById(savedApplication.getUnpublishedApplication().getThemeId(), READ_THEMES)
                 .defaultIfEmpty(new Theme()); // this should be deleted, return empty theme
 
 
@@ -446,8 +446,8 @@ public class ThemeServiceTest {
                 .assertNext(objects -> {
                     Application application = objects.getT1();
                     Theme classicSystemTheme = objects.getT2();
-                    assertThat(application.getEditModeThemeId()).isEqualTo(classicSystemTheme.getId());
-                    assertThat(application.getEditModeThemeId()).isEqualTo(application.getPublishedModeThemeId());
+                    assertThat(application.getUnpublishedApplication().getThemeId()).isEqualTo(classicSystemTheme.getId());
+                    assertThat(application.getUnpublishedApplication().getThemeId()).isEqualTo(application.getPublishedApplication().getThemeId());
                 }).verifyComplete();
     }
 
@@ -490,7 +490,7 @@ public class ThemeServiceTest {
     public void updateTheme_WhenSystemThemeIsSet_NewThemeCreated() {
 
         Application application = createApplication();
-        Theme systemDefaultTheme = themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES).block();
+        Theme systemDefaultTheme = themeService.getThemeById(application.getUnpublishedApplication().getThemeId(), READ_THEMES).block();
         // publish the app to ensure system theme gets set
         applicationPageService.publish(application.getId(), TRUE).block();
 
@@ -522,7 +522,7 @@ public class ThemeServiceTest {
     public void updateTheme_WhenCustomThemeIsSet_ThemeIsOverridden() {
 
         Application application = createApplication();
-        Theme systemDefaultTheme = themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES).block();
+        Theme systemDefaultTheme = themeService.getThemeById(application.getUnpublishedApplication().getThemeId(), READ_THEMES).block();
 
         String applicationId = application.getId();
         // publish the app to ensure system theme gets set
@@ -558,8 +558,8 @@ public class ThemeServiceTest {
                     Application appBeforeUpdateTheme = objects.getT3();
 
                     // app should have same id, before and after for edit mode
-                    assertThat(appBeforeUpdateTheme.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
-                    assertThat(appBeforeUpdateTheme.getPublishedModeThemeId()).isEqualTo(publishedModeTheme.getId());
+                    assertThat(appBeforeUpdateTheme.getUnpublishedApplication().getThemeId()).isEqualTo(editModeTheme.getId());
+                    assertThat(appBeforeUpdateTheme.getPublishedApplication().getThemeId()).isEqualTo(publishedModeTheme.getId());
                     assertThat(editModeTheme.isSystemTheme()).isFalse();
                     assertThat(editModeTheme.getId()).isNotEqualTo(publishedModeTheme.getId()); // different id
                     assertThat(editModeTheme.getDisplayName()).isEqualTo("Updated name");
@@ -577,8 +577,8 @@ public class ThemeServiceTest {
 
         // Set the default system theme in edit and view mode as empty strings to remove the themes.
         Application updateApp = new Application();
-        updateApp.setEditModeThemeId("");
-        updateApp.setPublishedModeThemeId("");
+        updateApp.getUnpublishedApplication().setThemeId("");
+        updateApp.getPublishedApplication().setThemeId("");
         Application appWithoutTheme = applicationRepository.updateById(savedApplication.getId(), updateApp, MANAGE_APPLICATIONS).block();
 
         Application publishedApp = applicationPageService.publish(savedApplication.getId(), TRUE).block();
@@ -592,7 +592,7 @@ public class ThemeServiceTest {
                 .assertNext(objects -> {
                     Application application = objects.getT1();
                     Theme classicSystemTheme = objects.getT2();
-                    assertThat(application.getPublishedModeThemeId()).isEqualTo(classicSystemTheme.getId());
+                    assertThat(application.getPublishedApplication().getThemeId()).isEqualTo(classicSystemTheme.getId());
                 }).verifyComplete();
     }
 
@@ -698,7 +698,7 @@ public class ThemeServiceTest {
             assertThat(persistedThemeWithReadPermission.getApplicationId()).isNotEmpty();
             assertThat(persistedThemeWithReadPermission.getApplicationId()).isNotEmpty(); // theme should have application id set
             assertThat(persistedThemeWithReadPermission.getWorkspaceId()).isEqualTo(this.workspace.getId()); // theme should have workspace id set
-            assertThat(application.getEditModeThemeId()).isNotEqualTo(persistedThemeWithReadPermission.getId()); // a new copy should be created
+            assertThat(application.getUnpublishedApplication().getThemeId()).isNotEqualTo(persistedThemeWithReadPermission.getId()); // a new copy should be created
 
         }).verifyComplete();
     }
@@ -807,7 +807,7 @@ public class ThemeServiceTest {
                 );
 
         StepVerifier.create(applicationMono).assertNext(app -> {
-            assertThat(app.getEditModeThemeId().equals(app.getPublishedModeThemeId())).isFalse();
+            assertThat(app.getUnpublishedApplication().getThemeId().equals(app.getPublishedApplication().getThemeId())).isFalse();
         }).verifyComplete();
     }
 

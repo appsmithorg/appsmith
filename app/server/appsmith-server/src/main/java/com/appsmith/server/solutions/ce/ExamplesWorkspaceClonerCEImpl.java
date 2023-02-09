@@ -456,8 +456,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
 
     private Mono<UpdateResult> forkThemes(Application srcApplication, Application destApplication) {
         return Mono.zip(
-                themeService.cloneThemeToApplication(srcApplication.getEditModeThemeId(), destApplication),
-                themeService.cloneThemeToApplication(srcApplication.getPublishedModeThemeId(), destApplication)
+                themeService.cloneThemeToApplication(srcApplication.getUnpublishedApplication().getThemeId(), destApplication),
+                themeService.cloneThemeToApplication(srcApplication.getPublishedApplication().getThemeId(), destApplication)
         ).flatMap(themes -> {
             Theme editModeTheme = themes.getT1();
             Theme publishedModeTheme = themes.getT2();
@@ -484,8 +484,10 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         application.setClonedFromApplicationId(application.getId());
         application.setId(null);
         application.setPolicies(new HashSet<>());
-        application.setPages(new ArrayList<>());
-        application.setPublishedPages(new ArrayList<>());
+        application.getUnpublishedApplication().setPages(new ArrayList<>());
+//        application.setPages(new ArrayList<>());
+        application.getPublishedApplication().setPages(new ArrayList<>());
+//        application.setPublishedPages(new ArrayList<>());
         application.setIsPublic(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser();

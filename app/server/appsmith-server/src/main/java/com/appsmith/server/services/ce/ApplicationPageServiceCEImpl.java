@@ -316,8 +316,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        application.setPublishedPages(new ArrayList<>());
-        application.setUnpublishedCustomJSLibs(new HashSet<>());
+//        application.setPublishedPages(new ArrayList<>());
+        application.getPublishedApplication().setPages(new ArrayList<>());
+        application.getUnpublishedApplication().setCustomJSLibs(new HashSet<>());
+//        application.setUnpublishedCustomJSLibs(new HashSet<>());
         application.setCollapseInvisibleWidgets(Boolean.TRUE);
 
         // For all new applications being created, set it to use the latest evaluation version.
@@ -334,8 +336,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
                     // assign the default theme id to edit mode
                     return themeService.getDefaultThemeId().map(themeId -> {
-                        application1.setEditModeThemeId(themeId);
-                        application1.setPublishedModeThemeId(themeId);
+//                        application1.setEditModeThemeId(themeId);
+                        application1.getUnpublishedApplication().setThemeId(themeId);
+//                        application1.setPublishedModeThemeId(themeId);
+                        application1.getPublishedApplication().setThemeId(themeId);
                         return themeId;
                     }).then(applicationService.createDefault(application1));
                 })
@@ -785,19 +789,19 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                     .collectList()
                                     // Set the cloned pages into the cloned application and save.
                                     .flatMap(clonedPages -> {
-                                        savedApplication.setPages(clonedPages);
+                                        savedApplication.getUnpublishedApplication().setPages(clonedPages);
                                         return applicationService.save(savedApplication);
                                     })
                             )
                             // duplicate the source application's themes if required i.e. if they were customized
                             .flatMap(application ->
-                                    themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application)
-                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application))
+                                    themeService.cloneThemeToApplication(sourceApplication.getUnpublishedApplication().getThemeId(), application)
+                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedApplication().getThemeId(), application))
                                             .flatMap(themesZip -> {
                                                 String editModeThemeId = themesZip.getT1().getId();
                                                 String publishedModeThemeId = themesZip.getT2().getId();
-                                                application.setEditModeThemeId(editModeThemeId);
-                                                application.setPublishedModeThemeId(publishedModeThemeId);
+                                                application.getUnpublishedApplication().setThemeId(editModeThemeId);
+                                                application.getPublishedApplication().setThemeId(publishedModeThemeId);
                                                 return applicationService.setAppTheme(
                                                         application.getId(), editModeThemeId, publishedModeThemeId, applicationPermission.getEditPermission()
                                                 ).thenReturn(application);
@@ -967,9 +971,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 //Return all the pages in the Application
                 .flatMap(application -> {
                     // Update published custom JS lib objects.
-                    application.setPublishedCustomJSLibs(application.getUnpublishedCustomJSLibs());
-                    if (application.getUnpublishedCustomJSLibs() != null) {
-                        updatedPublishedJSLibDTOs.addAll(application.getPublishedCustomJSLibs());
+                    application.getPublishedApplication().setCustomJSLibs(application.getUnpublishedApplication().getCustomJSLibs());
+                    if (application.getUnpublishedApplication().getCustomJSLibs() != null) {
+                        updatedPublishedJSLibDTOs.addAll(application.getPublishedApplication().getCustomJSLibs());
                     }
 
                     List<ApplicationPage> pages = application.getPages();
@@ -978,7 +982,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
 
                     // This is the time to delete any page which was deleted in edit mode but still exists in the published mode
-                    List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    List<ApplicationPage> publishedPages = application.getPublishedApplication().getPages();
                     if (publishedPages == null) {
                         publishedPages = new ArrayList<>();
                     }
@@ -1009,11 +1013,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         archivePageListMono = Mono.just(new ArrayList<>());
                     }
 
-                    application.setPublishedPages(pages);
+//                    application.setPublishedPages(pages);
+                    application.getPublishedApplication().setPages(pages);
 
-                    application.setPublishedAppLayout(application.getUnpublishedAppLayout());
-                    application.setPublishedAppPositioning(application.getUnpublishedAppPositioning());
-                    application.setPublishedNavigationSetting(application.getUnpublishedNavigationSetting());
+                    application.getPublishedApplication().setAppLayout(application.getUnpublishedApplication().getAppLayout());
+                    application.getPublishedApplication().setAppPositioning(application.getUnpublishedApplication().getAppPositioning());
+                    application.getPublishedApplication().setNavigationSetting(application.getUnpublishedApplication().getNavigationSetting());
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }

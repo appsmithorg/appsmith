@@ -102,8 +102,8 @@ public class MigrationHelperMethods {
             publishedAppPage.setIsDefault(StringUtils.equals(pageName, applicationJson.getPublishedDefaultPageName()));
             applicationPages.get(VIEW).add(publishedAppPage);
         }
-        applicationJson.getExportedApplication().setPages(applicationPages.get(EDIT));
-        applicationJson.getExportedApplication().setPublishedPages(applicationPages.get(VIEW));
+        applicationJson.getExportedApplication().getUnpublishedApplication().setPages(applicationPages.get(EDIT));
+        applicationJson.getExportedApplication().getPublishedApplication().setPages(applicationPages.get(VIEW));
     }
 
     // Method to embed mongo escaped widgets in imported layouts as per modified serialization format where we are

@@ -1030,8 +1030,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     branch.remove(tuple.getT4());
                     defaultApplication.setGitApplicationMetadata(null);
                     defaultApplication.getPages().forEach(page -> page.setDefaultPageId(page.getId()));
-                    if (!CollectionUtils.isNullOrEmpty(defaultApplication.getPublishedPages())) {
-                        defaultApplication.getPublishedPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                    if (!CollectionUtils.isNullOrEmpty(defaultApplication.getPublishedApplication().getPages())) {
+                        defaultApplication.getPublishedApplication().getPages().forEach(page -> page.setDefaultPageId(page.getId()));
                     }
                     return fileUtils.deleteLocalRepo(repoSuffix)
                             .flatMap(status -> Flux.fromIterable(branch)
@@ -1161,10 +1161,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 srcBranchGitData.setGitAuth(null);
                                 srcBranchGitData.setLastCommittedAt(Instant.now());
                                 srcApplication.setId(null);
-                                srcApplication.setPages(null);
-                                srcApplication.setPublishedPages(null);
-                                srcApplication.setEditModeThemeId(null);
-                                srcApplication.setPublishedModeThemeId(null);
+                                srcApplication.getUnpublishedApplication().setPages(null);
+//                                srcApplication.setPages(null);
+                                srcApplication.getPublishedApplication().setPages(null);
+//                                srcApplication.setPublishedPages(null);
+                                srcApplication.getUnpublishedApplication().setThemeId(null);
+//                                srcApplication.setEditModeThemeId(null);
+                                srcApplication.getPublishedApplication().setThemeId(null);
+//                                srcApplication.setPublishedModeThemeId(null);
                                 srcApplication.setGitApplicationMetadata(srcBranchGitData);
                                 return Mono.zip(
                                         applicationService.save(srcApplication),
@@ -1279,8 +1283,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     srcBranchGitData.setIsRepoPrivate(null);
                     srcBranchGitData.setLastCommittedAt(Instant.now());
                     srcApplication.setId(null);
-                    srcApplication.setPages(null);
-                    srcApplication.setPublishedPages(null);
+                    srcApplication.getUnpublishedApplication().setPages(null);
+                    srcApplication.getPublishedApplication().setPages(null);
                     srcApplication.setGitApplicationMetadata(srcBranchGitData);
 
                     return applicationService.save(srcApplication)

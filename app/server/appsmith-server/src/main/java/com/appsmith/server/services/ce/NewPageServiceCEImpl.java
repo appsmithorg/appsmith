@@ -235,7 +235,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 // Throw a 404 error if the application has never been published
                 .flatMap(application -> {
                     if (Boolean.TRUE.equals(view)) {
-                        if (application.getPublishedPages() == null || application.getPublishedPages().isEmpty()) {
+                        if (application.getPublishedApplication().getPages() == null || application.getPublishedApplication().getPages().isEmpty()) {
                             // We are trying to fetch published pages but they don't exist because the application
                             // hasn't been published yet
                             return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
@@ -261,7 +261,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     String defaultPageId = null;
                     List<ApplicationPage> applicationPages;
                     if (Boolean.TRUE.equals(view)) {
-                        applicationPages = application.getPublishedPages();
+                        applicationPages = application.getPublishedApplication().getPages();
                     } else {
                         applicationPages = application.getPages();
                     }
@@ -282,7 +282,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 .map(application -> {
                     List<ApplicationPage> pages;
                     if (Boolean.TRUE.equals(view)) {
-                        pages = application.getPublishedPages();
+                        pages = application.getPublishedApplication().getPages();
                     } else {
                         pages = application.getPages();
                     }
@@ -302,7 +302,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
                     List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
                     List<ApplicationPage> pages = tuple.getT3().getPages();
-                    List<ApplicationPage> publishedPages = tuple.getT3().getPublishedPages();
+                    List<ApplicationPage> publishedPages = tuple.getT3().getPublishedApplication().getPages();
                     Map<String, Integer> pagesOrder = new HashMap<>();
                     Map<String, Integer> publishedPagesOrder = new HashMap<>();
 
@@ -364,8 +364,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 .map(tuple -> {
                     log.debug("Populating applicationPagesDTO ...");
                     Application application = tuple.getT1();
-                    application.setPages(null);
-                    application.setPublishedPages(null);
+                    application.getUnpublishedApplication().setPages(null);
+//                    application.setPages(null);
+                    application.getPublishedApplication().setPages(null);
+//                    application.setPublishedPages(null);
                     application.setViewMode(view);
                     List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
                     ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
@@ -431,7 +433,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         List<ApplicationPage> pages;
 
         if (Boolean.TRUE.equals(viewMode)) {
-            pages = application.getPublishedPages();
+            pages = application.getPublishedApplication().getPages();
         } else {
             pages = application.getPages();
         }

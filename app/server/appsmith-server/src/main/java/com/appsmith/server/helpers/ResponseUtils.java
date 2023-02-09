@@ -332,9 +332,9 @@ public class ResponseUtils {
                         }
                     });
         }
-        if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
+        if (!CollectionUtils.isEmpty(application.getPublishedApplication().getPages())) {
             application
-                    .getPublishedPages()
+                    .getPublishedApplication().getPages()
                     .forEach(page -> {
                         if (!StringUtils.isEmpty(page.getDefaultPageId())) {
                             page.setId(page.getDefaultPageId());

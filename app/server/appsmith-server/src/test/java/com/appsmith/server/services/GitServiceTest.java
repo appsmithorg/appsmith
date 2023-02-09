@@ -1062,7 +1062,7 @@ public class GitServiceTest {
 
                     assertThat(application.getGitApplicationMetadata()).isNull();
                     application.getPages().forEach(page -> assertThat(page.getDefaultPageId()).isEqualTo(page.getId()));
-                    application.getPublishedPages().forEach(page -> assertThat(page.getDefaultPageId()).isEqualTo(page.getId()));
+                    application.getPublishedApplication().getPages().forEach(page -> assertThat(page.getDefaultPageId()).isEqualTo(page.getId()));
 
                     assertThat(pageList).isNotNull();
                     pageList.forEach(newPage -> {
@@ -1830,8 +1830,8 @@ public class GitServiceTest {
         StepVerifier
                 .create(committedApplicationMono)
                 .assertNext(application -> {
-                    List<ApplicationPage> publishedPages = application.getPublishedPages();
-                    assertThat(application.getPublishedPages().size()).isEqualTo(preCommitApplication.getPublishedPages().size());
+                    List<ApplicationPage> publishedPages = application.getPublishedApplication().getPages();
+                    assertThat(application.getPublishedApplication().getPages().size()).isEqualTo(preCommitApplication.getPublishedApplication().getPages().size());
                     publishedPages.forEach(publishedPage -> {
                         assertThat(publishedPage.getId().equals(createdPage.getId())).isFalse();
                     });
@@ -2062,7 +2062,7 @@ public class GitServiceTest {
                     assertThat(gitData.getIsRepoPrivate()).isNull();
 
                     application.getPages().forEach(page -> assertThat(page.getDefaultPageId()).isNotEqualTo(page.getId()));
-                    application.getPublishedPages().forEach(page -> assertThat(page.getDefaultPageId()).isNotEqualTo(page.getId()));
+                    application.getPublishedApplication().getPages().forEach(page -> assertThat(page.getDefaultPageId()).isNotEqualTo(page.getId()));
 
                     assertThat(pageList).isNotNull();
                     pageList.forEach(newPage -> {
@@ -2193,8 +2193,8 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application srcApp = tuple.getT1();
                     Application branchedApp = tuple.getT2();
-                    assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(branchedApp.getEditModeThemeId());
-                    assertThat(srcApp.getPublishedModeThemeId()).isNotEqualTo(branchedApp.getPublishedModeThemeId());
+                    assertThat(srcApp.getUnpublishedApplication().getThemeId()).isNotEqualTo(branchedApp.getUnpublishedApplication().getThemeId());
+                    assertThat(srcApp.getPublishedApplication().getThemeId()).isNotEqualTo(branchedApp.getPublishedApplication().getThemeId());
                 })
                 .verifyComplete();
     }
@@ -2278,8 +2278,8 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                    assertThat(branchedApp.getUnpublishedApplication().getNavigationSetting().getOrientation()).isEqualTo("top");
+                    assertThat(srcApp.getUnpublishedApplication().getNavigationSetting()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2337,9 +2337,9 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                    assertThat(branchedApp.getUnpublishedApplication().getNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplication().getNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(srcApp.getUnpublishedApplication().getNavigationSetting()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2401,10 +2401,10 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplication().getNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplication().getNavigationSetting().getLogoAssetId()).isNull();
+                    assertThat(srcApp.getUnpublishedApplication().getNavigationSetting()).isNotNull();
+                    assertThat(srcApp.getUnpublishedApplication().getNavigationSetting().getLogoAssetId()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -2573,7 +2573,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(appFromDbMono)
                 .assertNext(application -> {
-                    assertThat(application.getPages()).isEqualTo(application.getPublishedPages());
+                    assertThat(application.getPages()).isEqualTo(application.getPublishedApplication().getPages());
                 })
                 .verifyComplete();
     }
@@ -2637,7 +2637,7 @@ public class GitServiceTest {
                     assertThat(gitData.getIsRepoPrivate()).isNull();
 
                     application.getPages().forEach(page -> assertThat(page.getDefaultPageId()).isNotEqualTo(page.getId()));
-                    application.getPublishedPages().forEach(page -> assertThat(page.getDefaultPageId()).isNotEqualTo(page.getId()));
+                    application.getPublishedApplication().getPages().forEach(page -> assertThat(page.getDefaultPageId()).isNotEqualTo(page.getId()));
                 })
                 .verifyComplete();
     }

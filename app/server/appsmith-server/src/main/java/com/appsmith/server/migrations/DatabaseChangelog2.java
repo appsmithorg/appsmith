@@ -770,7 +770,7 @@ public class DatabaseChangelog2 {
 
         final Query validPagesQuery = query(where(fieldName(QApplication.application.deleted)).ne(true));
         validPagesQuery.fields().include(fieldName(QApplication.application.pages));
-        validPagesQuery.fields().include(fieldName(QApplication.application.publishedPages));
+        validPagesQuery.fields().include(fieldName(QApplication.application.publishedApplication.pages));
 
         final List<Application> applications = mongoTemplate.find(validPagesQuery, Application.class);
 
@@ -786,8 +786,8 @@ public class DatabaseChangelog2 {
                     validPageIds.add(applicationPage.getId());
                 }
             }
-            if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
-                for (ApplicationPage applicationPublishedPage : application.getPublishedPages()) {
+            if (!CollectionUtils.isEmpty(application.getPublishedApplication().getPages())) {
+                for (ApplicationPage applicationPublishedPage : application.getPublishedApplication().getPages()) {
                     validPageIds.add(applicationPublishedPage.getId());
                 }
             }
@@ -1452,12 +1452,16 @@ public class DatabaseChangelog2 {
         List<Theme> systemThemes = mongoTemplate.find(getSystemThemesQuery, Theme.class);
         List<String> systemThemeIds = systemThemes.stream().map(BaseDomain::getId).collect(Collectors.toList());
 
+//        List<String> customizedEditModeThemeIds = getCustomizedThemeIds(
+//                fieldName(QApplication.application.editModeThemeId), Application::getEditModeThemeId, systemThemeIds, mongoTemplate
+//        );
         List<String> customizedEditModeThemeIds = getCustomizedThemeIds(
-                fieldName(QApplication.application.editModeThemeId), Application::getEditModeThemeId, systemThemeIds, mongoTemplate
+                fieldName(QApplication.application.unpublishedApplication.themeId), application -> application.getUnpublishedApplication().getThemeId(), systemThemeIds, mongoTemplate
         );
 
+
         List<String> customizedPublishedModeThemeIds = getCustomizedThemeIds(
-                fieldName(QApplication.application.publishedModeThemeId), Application::getPublishedModeThemeId, systemThemeIds, mongoTemplate
+                fieldName(QApplication.application.publishedApplication.themeId), application -> application.getPublishedApplication().getThemeId(), systemThemeIds, mongoTemplate
         );
 
         // combine the theme ids
@@ -1473,7 +1477,7 @@ public class DatabaseChangelog2 {
         mongoTemplate.updateMulti(new Query(deletedCustomThemes), update, Theme.class);
 
         for (String editModeThemeId : customizedEditModeThemeIds) {
-            Query query = new Query(Criteria.where(fieldName(QApplication.application.editModeThemeId)).is(editModeThemeId))
+            Query query = new Query(Criteria.where(fieldName(QApplication.application.unpublishedApplication.themeId)).is(editModeThemeId))
                     .addCriteria(where(fieldName(QApplication.application.deleted)).is(false))
                     .addCriteria(where(fieldName(QApplication.application.gitApplicationMetadata)).exists(true));
             query.fields().include(fieldName(QApplication.application.id));
@@ -1495,7 +1499,7 @@ public class DatabaseChangelog2 {
                     newTheme = mongoTemplate.insert(newTheme);
                     mongoTemplate.updateFirst(
                             new Query(Criteria.where(fieldName(QApplication.application.id)).is(application.getId())),
-                            new Update().set(fieldName(QApplication.application.editModeThemeId), newTheme.getId()),
+                            new Update().set(fieldName(QApplication.application.unpublishedApplication.themeId), newTheme.getId()),
                             Application.class
                     );
                 }
@@ -1842,11 +1846,11 @@ public class DatabaseChangelog2 {
                     Set<String> themeIdSet = mongoTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())), Application.class)
                             .flatMap(application -> {
                                 Set<String> themeIds = new HashSet<>();
-                                if (application.getEditModeThemeId() != null) {
-                                    themeIds.add(application.getEditModeThemeId());
+                                if (application.getUnpublishedApplication().getThemeId() != null) {
+                                    themeIds.add(application.getUnpublishedApplication().getThemeId());
                                 }
-                                if (application.getPublishedModeThemeId() != null) {
-                                    themeIds.add(application.getPublishedModeThemeId());
+                                if (application.getPublishedApplication().getThemeId() != null) {
+                                    themeIds.add(application.getPublishedApplication().getThemeId());
                                 }
                                 return themeIds.stream();
                             })
@@ -2252,8 +2256,8 @@ public class DatabaseChangelog2 {
 
         if (!themeExists) { // this is the first time we're running the migration
             // migrate all applications and set legacy theme to them in both mode
-            Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
-                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+            Update update = new Update().set(fieldName(QApplication.application.publishedApplication.themeId), legacyTheme.getId())
+                    .set(fieldName(QApplication.application.unpublishedApplication.themeId), legacyTheme.getId());
             mongoTemplate.updateMulti(
                     new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
             );
@@ -2398,8 +2402,8 @@ public class DatabaseChangelog2 {
         mongoTemplate.stream(query, Theme.class)
                 .forEach(theme -> {
                     Query applicationQuery = new Query();
-                    Criteria themeCriteria = new Criteria(fieldName(QApplication.application.editModeThemeId)).is(theme.getId())
-                            .orOperator(new Criteria(fieldName(QApplication.application.publishedModeThemeId)).is(theme.getId()));
+                    Criteria themeCriteria = new Criteria(fieldName(QApplication.application.unpublishedApplication.themeId)).is(theme.getId())
+                            .orOperator(new Criteria(fieldName(QApplication.application.publishedApplication.themeId)).is(theme.getId()));
 
                     List<Application> applications = mongoTemplate.find(applicationQuery.addCriteria(themeCriteria), Application.class);
                     // This is an erroneous state where the theme is being used by multiple applications
@@ -2429,11 +2433,13 @@ public class DatabaseChangelog2 {
 
                                 newTheme = mongoTemplate.save(newTheme);
 
-                                if (application.getEditModeThemeId().equals(theme.getId())) {
-                                    application.setEditModeThemeId(newTheme.getId());
+                                if (application.getUnpublishedApplication().getThemeId().equals(theme.getId())) {
+//                                    application.setEditModeThemeId(newTheme.getId());
+                                    application.getUnpublishedApplication().setThemeId(newTheme.getId());
                                 }
-                                if (application.getPublishedModeThemeId().equals(theme.getId())) {
-                                    application.setPublishedModeThemeId(newTheme.getId());
+                                if (application.getPublishedApplication().getThemeId().equals(theme.getId())) {
+//                                    application.setPublishedModeThemeId(newTheme.getId());
+                                    application.getPublishedApplication().setThemeId(newTheme.getId());
                                 }
                                 mongoTemplate.save(application);
                             }
@@ -2535,8 +2541,8 @@ public class DatabaseChangelog2 {
                     // Update application themes
                     Criteria nonSystemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(false);
                     Criteria idCriteria = Criteria.where(fieldName(QTheme.theme.id)).in(
-                            application.getEditModeThemeId(),
-                            application.getPublishedModeThemeId()
+                            application.getUnpublishedApplication().getThemeId(),
+                            application.getPublishedApplication().getThemeId()
                     );
                     Criteria queryCriteria = new Criteria().andOperator(nonSystemThemeCriteria, idCriteria);
                     Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);

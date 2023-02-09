@@ -260,10 +260,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         Update updateObj = new Update();
         if(StringUtils.hasLength(editModeThemeId)) {
-            updateObj = updateObj.set(fieldName(QApplication.application.editModeThemeId), editModeThemeId);
+            updateObj = updateObj.set(fieldName(QApplication.application.unpublishedApplication.themeId), editModeThemeId);
         }
         if(StringUtils.hasLength(publishedModeThemeId)) {
-            updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
+            updateObj = updateObj.set(fieldName(QApplication.application.publishedApplication.themeId), publishedModeThemeId);
         }
 
         return this.updateById(applicationId, updateObj, aclPermission);

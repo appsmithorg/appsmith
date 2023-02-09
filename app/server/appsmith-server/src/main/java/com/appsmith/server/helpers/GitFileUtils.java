@@ -333,7 +333,7 @@ public class GitFileUtils {
     private void removeUnwantedFieldsFromApplication(Application application) {
         // Don't commit application name as while importing we are using the repoName as application name
         application.setName(null);
-        application.setPublishedPages(null);
+        application.getPublishedApplication().setPages(null);
         application.setIsPublic(null);
         application.setSlug(null);
     }
@@ -368,7 +368,7 @@ public class GitFileUtils {
             final List<ApplicationPage> applicationPages = new ArrayList<>(application.getPages().size());
             application.getPages()
                     .forEach(applicationPage -> applicationPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
-            application.setPublishedPages(applicationPages);
+            application.getPublishedApplication().setPages(applicationPages);
         }
 
         List<CustomJSLib> customJSLibList = getApplicationResource(applicationReference.getJsLibraries(),

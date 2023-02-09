@@ -331,8 +331,8 @@ public class ApplicationForkingServiceTests {
                     assertThat(application.getName()).isEqualTo("1 - public app");
                     assertThat(application.getPages().get(0).getDefaultPageId())
                             .isEqualTo(application.getPages().get(0).getId());
-                    assertThat(application.getPublishedPages().get(0).getDefaultPageId())
-                            .isEqualTo(application.getPublishedPages().get(0).getId());
+                    assertThat(application.getPublishedApplication().getPages().get(0).getDefaultPageId())
+                            .isEqualTo(application.getPublishedApplication().getPages().get(0).getId());
 
                     assertThat(pageList).isNotEmpty();
                     pageList.forEach(newPage -> {
@@ -475,8 +475,8 @@ public class ApplicationForkingServiceTests {
                     assertThat(application.getName()).isEqualTo("1 - public app");
                     assertThat(application.getPages().get(0).getDefaultPageId())
                             .isEqualTo(application.getPages().get(0).getId());
-                    assertThat(application.getPublishedPages().get(0).getDefaultPageId())
-                            .isEqualTo(application.getPublishedPages().get(0).getId());
+                    assertThat(application.getPublishedApplication().getPages().get(0).getDefaultPageId())
+                            .isEqualTo(application.getPublishedApplication().getPages().get(0).getId());
 
                     assertThat(pageList).isNotEmpty();
                     pageList.forEach(newPage -> {
@@ -572,9 +572,9 @@ public class ApplicationForkingServiceTests {
             Application forkedApp = objects.getT3();
             Application srcApp = objects.getT4();
 
-            assertThat(forkedApp.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
-            assertThat(forkedApp.getPublishedModeThemeId()).isEqualTo(publishedModeTheme.getId());
-            assertThat(forkedApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getPublishedModeThemeId());
+            assertThat(forkedApp.getUnpublishedApplication().getThemeId()).isEqualTo(editModeTheme.getId());
+            assertThat(forkedApp.getPublishedApplication().getThemeId()).isEqualTo(publishedModeTheme.getId());
+            assertThat(forkedApp.getUnpublishedApplication().getThemeId()).isNotEqualTo(forkedApp.getPublishedApplication().getThemeId());
 
             // published mode should have the custom theme as we publish after forking the app
             assertThat(publishedModeTheme.isSystemTheme()).isFalse();
@@ -593,8 +593,8 @@ public class ApplicationForkingServiceTests {
             assertThat(publishedModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
 
             // forked application should have a new edit mode theme created, should not be same as src app theme
-            assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getEditModeThemeId());
-            assertThat(srcApp.getPublishedModeThemeId()).isNotEqualTo(forkedApp.getPublishedModeThemeId());
+            assertThat(srcApp.getUnpublishedApplication().getThemeId()).isNotEqualTo(forkedApp.getUnpublishedApplication().getThemeId());
+            assertThat(srcApp.getPublishedApplication().getThemeId()).isNotEqualTo(forkedApp.getPublishedApplication().getThemeId());
         }).verifyComplete();
     }
 
@@ -631,8 +631,8 @@ public class ApplicationForkingServiceTests {
             Application srcApp = objects.getT3();
 
             // same theme should be set to edit mode and published mode
-            assertThat(forkedApp.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
-            assertThat(forkedApp.getPublishedModeThemeId()).isEqualTo(editModeTheme.getId());
+            assertThat(forkedApp.getUnpublishedApplication().getThemeId()).isEqualTo(editModeTheme.getId());
+            assertThat(forkedApp.getPublishedApplication().getThemeId()).isEqualTo(editModeTheme.getId());
 
             // edit mode theme should be system theme
             assertThat(editModeTheme.isSystemTheme()).isTrue();
@@ -644,7 +644,7 @@ public class ApplicationForkingServiceTests {
             assertThat(editModeTheme.getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
 
             // forked application should have same theme set
-            assertThat(srcApp.getEditModeThemeId()).isEqualTo(forkedApp.getEditModeThemeId());
+            assertThat(srcApp.getUnpublishedApplication().getThemeId()).isEqualTo(forkedApp.getUnpublishedApplication().getThemeId());
         }).verifyComplete();
     }
 
@@ -688,9 +688,9 @@ public class ApplicationForkingServiceTests {
             Application forkedApp = objects.getT3();
             Application srcApp = objects.getT4();
 
-            assertThat(forkedApp.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
-            assertThat(forkedApp.getPublishedModeThemeId()).isEqualTo(publishedModeTheme.getId());
-            assertThat(forkedApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getPublishedModeThemeId());
+            assertThat(forkedApp.getUnpublishedApplication().getThemeId()).isEqualTo(editModeTheme.getId());
+            assertThat(forkedApp.getPublishedApplication().getThemeId()).isEqualTo(publishedModeTheme.getId());
+            assertThat(forkedApp.getUnpublishedApplication().getThemeId()).isNotEqualTo(forkedApp.getPublishedApplication().getThemeId());
 
             // published mode should have the custom theme as we publish after forking the app
             assertThat(publishedModeTheme.isSystemTheme()).isFalse();
@@ -711,8 +711,8 @@ public class ApplicationForkingServiceTests {
             assertThat(publishedModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
 
             // forked application should have a new edit mode theme created, should not be same as src app theme
-            assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getEditModeThemeId());
-            assertThat(srcApp.getPublishedModeThemeId()).isNotEqualTo(forkedApp.getPublishedModeThemeId());
+            assertThat(srcApp.getUnpublishedApplication().getThemeId()).isNotEqualTo(forkedApp.getUnpublishedApplication().getThemeId());
+            assertThat(srcApp.getPublishedApplication().getThemeId()).isNotEqualTo(forkedApp.getPublishedApplication().getThemeId());
         }).verifyComplete();
     }
 

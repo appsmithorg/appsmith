@@ -88,9 +88,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
                 .flatMap(application -> {
-                    String themeId = application.getEditModeThemeId();
+//                    String themeId = application.getEditModeThemeId();
+                    String themeId = application.getUnpublishedApplication().getThemeId();
                     if (applicationMode == ApplicationMode.PUBLISHED) {
-                        themeId = application.getPublishedModeThemeId();
+//                        themeId = application.getPublishedModeThemeId();
+                        themeId = application.getPublishedApplication().getThemeId();
                     }
                     if (StringUtils.hasLength(themeId)) {
                         return repository.findById(themeId, READ_THEMES)
@@ -118,7 +120,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 .flatMap(application -> {
                     // makes sure user has permission to edit application and an application exists by this applicationId
                     // check if this application has already a customized them
-                    return saveThemeForApplication(application.getEditModeThemeId(), resource, application, ApplicationMode.EDIT);
+                    return saveThemeForApplication(application.getUnpublishedApplication().getThemeId(), resource, application, ApplicationMode.EDIT);
                 });
     }
 
@@ -128,7 +130,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
-                .flatMap(application -> repository.findById(application.getEditModeThemeId(), READ_THEMES)
+                .flatMap(application -> repository.findById(application.getUnpublishedApplication().getThemeId(), READ_THEMES)
                         .defaultIfEmpty(new Theme())
                         .zipWith(repository.findById(newThemeId, READ_THEMES))
                         .flatMap(themeTuple2 -> {
@@ -210,16 +212,16 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         // fetch application to make sure user has permission to manage this application
         return applicationRepository.findById(applicationId, applicationPermission.getEditPermission()).flatMap(application -> {
             Mono<Theme> editModeThemeMono;
-            if (!StringUtils.hasLength(application.getEditModeThemeId())) { // theme id is empty, use the default theme
+            if (!StringUtils.hasLength(application.getUnpublishedApplication().getThemeId())) { // theme id is empty, use the default theme
                 editModeThemeMono = repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
             } else { // theme id is not empty, fetch it by id
-                editModeThemeMono = repository.findById(application.getEditModeThemeId(), READ_THEMES);
+                editModeThemeMono = repository.findById(application.getUnpublishedApplication().getThemeId(), READ_THEMES);
             }
 
             return editModeThemeMono.flatMap(editModeTheme -> {
                 if (editModeTheme.isSystemTheme()) {  // system theme is set as edit mode theme
                     // Delete published mode theme if it was a copy of custom theme
-                    return deletePublishedCustomizedThemeCopy(application.getPublishedModeThemeId()).then(
+                    return deletePublishedCustomizedThemeCopy(application.getPublishedApplication().getThemeId()).then(
                             // Set the system theme id as edit and published mode theme id to application object
                             applicationRepository.setAppTheme(
                                     applicationId, editModeTheme.getId(), editModeTheme.getId(), applicationPermission.getEditPermission()
@@ -227,7 +229,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     ).thenReturn(editModeTheme);
                 } else {  // a customized theme is set as edit mode theme, copy that theme for published mode
                     return saveThemeForApplication(
-                            application.getPublishedModeThemeId(), editModeTheme, application, ApplicationMode.PUBLISHED
+                            application.getPublishedApplication().getThemeId(), editModeTheme, application, ApplicationMode.PUBLISHED
                     );
                 }
             });
@@ -301,7 +303,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
                 .flatMap(application -> {
-                    String themeId = application.getEditModeThemeId();
+                    String themeId = application.getUnpublishedApplication().getThemeId();
                     if (!StringUtils.hasLength(themeId)) { // theme id is not present, raise error
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     } else {
@@ -439,7 +441,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     @Override
     public Mono<Application> archiveApplicationThemes(Application application) {
         return repository.archiveByApplicationId(application.getId())
-                .then(repository.archiveDraftThemesById(application.getEditModeThemeId(), application.getPublishedModeThemeId()))
+                .then(repository.archiveDraftThemesById(application.getUnpublishedApplication().getThemeId(), application.getPublishedApplication().getThemeId()))
                 .thenReturn(application);
     }
 
@@ -461,19 +463,21 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     @Override
     public Mono<Application> importThemesToApplication(Application destinationApp, ApplicationJson sourceJson) {
         Mono<Theme> editModeTheme = updateExistingAppThemeFromJSON(
-                destinationApp, destinationApp.getEditModeThemeId(), sourceJson.getEditModeTheme()
+                destinationApp, destinationApp.getUnpublishedApplication().getThemeId(), sourceJson.getEditModeTheme()
         );
 
         Mono<Theme> publishedModeTheme = updateExistingAppThemeFromJSON(
-                destinationApp, destinationApp.getPublishedModeThemeId(), sourceJson.getPublishedTheme()
+                destinationApp, destinationApp.getPublishedApplication().getThemeId(), sourceJson.getPublishedTheme()
         );
 
         return Mono.zip(editModeTheme, publishedModeTheme).flatMap(importedThemesTuple -> {
             String editModeThemeId = importedThemesTuple.getT1().getId();
             String publishedModeThemeId = importedThemesTuple.getT2().getId();
 
-            destinationApp.setEditModeThemeId(editModeThemeId);
-            destinationApp.setPublishedModeThemeId(publishedModeThemeId);
+//            destinationApp.setEditModeThemeId(editModeThemeId);
+            destinationApp.getUnpublishedApplication().setThemeId(editModeThemeId);
+//            destinationApp.setPublishedModeThemeId(publishedModeThemeId);
+            destinationApp.getPublishedApplication().setThemeId(publishedModeThemeId);
             // this will update the theme id in DB
             // also returning the updated application object so that theme id are available to the next pipeline
             return applicationService.setAppTheme(

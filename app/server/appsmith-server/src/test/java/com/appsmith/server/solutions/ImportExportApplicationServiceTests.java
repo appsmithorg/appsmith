@@ -361,8 +361,8 @@ public class ImportExportApplicationServiceTests {
                     assertThat(exportedApplication.getLastEditedAt()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
                     assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
-                    assertThat(exportedApplication.getEditModeThemeId()).isNull();
-                    assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
+                    assertThat(exportedApplication.getUnpublishedApplication().getThemeId()).isNull();
+                    assertThat(exportedApplication.getPublishedApplication().getThemeId()).isNull();
                 })
                 .verifyComplete();
     }
@@ -858,11 +858,11 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(2);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getPublishedApplication().getPages()).hasSize(1);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
-                    assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getUnpublishedApplication().getThemeId()).isNotNull();
+                    assertThat(application.getPublishedApplication().getThemeId()).isNotNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList).isNotNull();
 
@@ -974,8 +974,8 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                themeRepository.findById(applicationImportDTO.getApplication().getEditModeThemeId()),
-                                themeRepository.findById(applicationImportDTO.getApplication().getPublishedModeThemeId())
+                                themeRepository.findById(applicationImportDTO.getApplication().getUnpublishedApplication().getThemeId()),
+                                themeRepository.findById(applicationImportDTO.getApplication().getPublishedApplication().getThemeId())
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();
@@ -1061,7 +1061,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(2);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getPublishedApplication().getPages()).hasSize(1);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
 
@@ -1113,8 +1113,8 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
                 .create(resultMono)
                 .assertNext(applicationImportDTO -> {
-                    assertThat(applicationImportDTO.getApplication().getEditModeThemeId()).isNotEmpty();
-                    assertThat(applicationImportDTO.getApplication().getPublishedModeThemeId()).isNotEmpty();
+                    assertThat(applicationImportDTO.getApplication().getUnpublishedApplication().getThemeId()).isNotEmpty();
+                    assertThat(applicationImportDTO.getApplication().getPublishedApplication().getThemeId()).isNotEmpty();
                 })
                 .verifyComplete();
     }
@@ -1311,11 +1311,11 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(1);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getPublishedApplication().getPages()).hasSize(1);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
-                    assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getUnpublishedApplication().getThemeId()).isNotNull();
+                    assertThat(application.getPublishedApplication().getThemeId()).isNotNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList.size()).isNotEqualTo(0);
 
@@ -1587,11 +1587,11 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application.getName()).isEqualTo("discard-change-page-added");
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(3);
-                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getPublishedApplication().getPages()).hasSize(1);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
-                    assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getUnpublishedApplication().getThemeId()).isNotNull();
+                    assertThat(application.getPublishedApplication().getThemeId()).isNotNull();
 
                     assertThat(pageList).hasSize(3);
 
@@ -1644,7 +1644,7 @@ public class ImportExportApplicationServiceTests {
                     final List<PageDTO> pageList = tuple.getT2();
 
                     assertThat(application.getPages()).hasSize(2);
-                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getPublishedApplication().getPages()).hasSize(1);
 
                     assertThat(pageList).hasSize(2);
 
@@ -1929,7 +1929,7 @@ public class ImportExportApplicationServiceTests {
                     final List<PageDTO> pageList = tuple.getT2();
 
                     assertThat(application.getPages()).hasSize(2);
-                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getPublishedApplication().getPages()).hasSize(1);
 
                     assertThat(pageList).hasSize(2);
                 })
@@ -2551,7 +2551,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(pageList.get(1)).isEqualTo("testPage2");
                     assertThat(pageList.get(2)).isEqualTo("Page1");
 
-                    List<String> publishedPageList = applicationJson.getExportedApplication().getPublishedPages()
+                    List<String> publishedPageList = applicationJson.getExportedApplication().getPublishedApplication().getPages()
                             .stream()
                             .map(ApplicationPage::getId)
                             .collect(Collectors.toList());
@@ -2588,7 +2588,7 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
 
         // Get the published pages
-        List<ApplicationPage> publishedPageDTOs = application.getPublishedPages();
+        List<ApplicationPage> publishedPageDTOs = application.getPublishedApplication().getPages();
         Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), MANAGE_PAGES);
         Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), MANAGE_PAGES);
         Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), MANAGE_PAGES);
@@ -2657,7 +2657,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(pageOrder.get(2)).isEqualTo("Page1");
 
                     pageOrder.clear();
-                    pageOrder = exportedApplication.getPublishedPages()
+                    pageOrder = exportedApplication.getPublishedApplication().getPages()
                             .stream()
                             .map(ApplicationPage::getId)
                             .collect(Collectors.toList());
@@ -2694,7 +2694,7 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
 
         // Get the published pages
-        List<ApplicationPage> publishedPageDTOs = application.getPublishedPages();
+        List<ApplicationPage> publishedPageDTOs = application.getPublishedApplication().getPages();
         Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), MANAGE_PAGES);
         Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), MANAGE_PAGES);
         Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), MANAGE_PAGES);
@@ -2877,8 +2877,8 @@ public class ImportExportApplicationServiceTests {
         testApplication.setName("Application_" + randomId);
         Mono<ApplicationJson> exportedAppJson = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
-                    application.setEditModeThemeId("invalid-theme-id");
-                    application.setPublishedModeThemeId("invalid-theme-id");
+                    application.getUnpublishedApplication().setThemeId("invalid-theme-id");
+                    application.getPublishedApplication().setThemeId("invalid-theme-id");
                     String branchName = null;
                     return applicationService.save(application)
                             .then(importExportApplicationService.exportApplicationById(application.getId(), branchName));
@@ -2982,7 +2982,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedApplication().getPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3058,7 +3058,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedApplication().getPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3153,7 +3153,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application3.getPages().size());
-                    assertThat(finalApplication.getPages().size()).isEqualTo(application3.getPublishedPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application3.getPublishedApplication().getPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3247,7 +3247,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application3.getPages().size());
-                    assertThat(finalApplication.getPages().size()).isEqualTo(application3.getPublishedPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application3.getPublishedApplication().getPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3340,7 +3340,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application3.getPages().size());
-                    assertThat(finalApplication.getPages().size()).isEqualTo(application3.getPublishedPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application3.getPublishedApplication().getPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3402,7 +3402,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedApplication().getPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3464,7 +3464,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedApplication().getPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3596,7 +3596,7 @@ public class ImportExportApplicationServiceTests {
         application.setName("exportNavigationSettingsApplicationTest");
         Application.NavigationSetting navSetting = new Application.NavigationSetting();
         navSetting.setOrientation("top");
-        application.setUnpublishedNavigationSetting(navSetting);
+        application.getUnpublishedApplication().setNavigationSetting(navSetting);
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
         Mono<ApplicationJson> resultMono =
@@ -3607,8 +3607,8 @@ public class ImportExportApplicationServiceTests {
                 .assertNext(applicationJson -> {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication).isNotNull();
-                    assertThat(exportedApplication.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(exportedApplication.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
+                    assertThat(exportedApplication.getUnpublishedApplication().getNavigationSetting()).isNotNull();
+                    assertThat(exportedApplication.getUnpublishedApplication().getNavigationSetting().getOrientation()).isEqualTo("top");
                 })
                 .verifyComplete();
     }

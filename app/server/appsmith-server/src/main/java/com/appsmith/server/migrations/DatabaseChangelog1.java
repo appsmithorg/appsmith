@@ -1962,20 +1962,22 @@ public class DatabaseChangelog1 {
         //     Tablet: Old - 1024, New 650 - 800
         //     Mobile: Old - 720, New 350 - 450
         final Criteria criteria = new Criteria().orOperator(
-                where(fieldName(QApplication.application.unpublishedAppLayout)).exists(true),
-                where(fieldName(QApplication.application.publishedAppLayout)).exists(true)
+                where(fieldName(QApplication.application.unpublishedApplication.appLayout)).exists(true),
+                where(fieldName(QApplication.application.publishedApplication.appLayout)).exists(true)
         );
 
         final Query query = query(criteria);
         query.fields()
-                .include(fieldName(QApplication.application.unpublishedAppLayout))
-                .include(fieldName(QApplication.application.publishedAppLayout));
+                .include(fieldName(QApplication.application.unpublishedApplication.appLayout))
+                .include(fieldName(QApplication.application.publishedApplication.appLayout));
 
         List<Application> apps = mongoOperations.find(query, Application.class);
 
         for (final Application app : apps) {
-            final Integer unpublishedWidth = app.getUnpublishedAppLayout() == null ? null : app.getUnpublishedAppLayout().getWidth();
-            final Integer publishedWidth = app.getPublishedAppLayout() == null ? null : app.getPublishedAppLayout().getWidth();
+//            final Integer unpublishedWidth = app.getUnpublishedAppLayout() == null ? null : app.getUnpublishedAppLayout().getWidth();
+//            final Integer publishedWidth = app.getPublishedAppLayout() == null ? null : app.getPublishedAppLayout().getWidth();
+            final Integer unpublishedWidth = app.getUnpublishedApplication().getAppLayout() == null ? null : app.getUnpublishedApplication().getAppLayout().getWidth();
+            final Integer publishedWidth = app.getPublishedApplication().getAppLayout() == null ? null : app.getPublishedApplication().getAppLayout().getWidth();
             final Update update = new Update().unset("unpublishedAppLayout.width").unset("publishedAppLayout.width");
 
             if (unpublishedWidth != null) {
@@ -4117,8 +4119,8 @@ public class DatabaseChangelog1 {
                 page.setDefaultPageId(page.getId());
             });
 
-            if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
-                application.getPublishedPages().forEach(page -> {
+            if (!CollectionUtils.isEmpty(application.getPublishedApplication().getPages())) {
+                application.getPublishedApplication().getPages().forEach(page -> {
                     page.setDefaultPageId(page.getId());
                 });
             }

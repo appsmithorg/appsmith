@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.dtos.ApplicationDTO;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -51,10 +52,10 @@ public class Application extends BaseDomain {
     @Deprecated(forRemoval = true)
     Boolean isPublic = false;
 
-    List<ApplicationPage> pages;
-
-    @JsonIgnore
-    List<ApplicationPage> publishedPages;
+//    List<ApplicationPage> pages;
+//
+//    @JsonIgnore
+//    List<ApplicationPage> publishedPages;
 
     @JsonIgnore
     @Transient
@@ -75,14 +76,14 @@ public class Application extends BaseDomain {
 
     private String slug;
 
-    @JsonIgnore
-    AppLayout unpublishedAppLayout;
+//    @JsonIgnore
+//    AppLayout unpublishedAppLayout;
+//
+//    @JsonIgnore
+//    AppLayout publishedAppLayout;
 
-    @JsonIgnore
-    AppLayout publishedAppLayout;
-
-    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
-    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
+//    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+//    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
     GitApplicationMetadata gitApplicationMetadata;
 
@@ -111,19 +112,23 @@ public class Application extends BaseDomain {
 
     EmbedSetting embedSetting;
 
-    @JsonIgnore
-    NavigationSetting unpublishedNavigationSetting;
+//    @JsonIgnore
+//    NavigationSetting unpublishedNavigationSetting;
+//
+//    @JsonIgnore
+//    NavigationSetting publishedNavigationSetting;
 
-    @JsonIgnore
-    NavigationSetting publishedNavigationSetting;
-
-    @JsonIgnore
-    AppPositioning publishedAppPositioning;
-
-    @JsonIgnore
-    AppPositioning unpublishedAppPositioning;
+//    @JsonIgnore
+//    AppPositioning publishedAppPositioning;
+//
+//    @JsonIgnore
+//    AppPositioning unpublishedAppPositioning;
 
     Boolean collapseInvisibleWidgets;
+
+    ApplicationDTO unpublishedApplication;
+
+    ApplicationDTO publishedApplication;
 
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
@@ -164,11 +169,11 @@ public class Application extends BaseDomain {
     @JsonIgnore
     Integer serverSchemaVersion;
 
-    @JsonIgnore
-    String publishedModeThemeId;
-
-    @JsonIgnore
-    String editModeThemeId;
+//    @JsonIgnore
+//    String publishedModeThemeId;
+//
+//    @JsonIgnore
+//    String editModeThemeId;
 
     // TODO Temporary provision for exporting the application with datasource configuration for the sample/template apps
     Boolean exportWithConfiguration;
@@ -182,18 +187,31 @@ public class Application extends BaseDomain {
     public Application(Application application) {
         super();
         this.workspaceId = application.getWorkspaceId();
-        this.pages = new ArrayList<>();
-        this.publishedPages = new ArrayList<>();
+//        this.pages = new ArrayList<>();
+        this.getUnpublishedApplication().setPages(new ArrayList<>());
+        this.getPublishedApplication().setPages(new ArrayList<>());
+//        this.publishedPages = new ArrayList<>();
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
-        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
-        this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
-        this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
-        this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
-        this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
-        this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
-        this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
+        AppLayout unpublishedAppLayout = getUnpublishedApplication().getAppLayout() == null ? null : new AppLayout(getUnpublishedApplication().getAppLayout().type);
+        this.getUnpublishedApplication().setAppLayout(unpublishedAppLayout);
+//        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
+        AppLayout publishedAppLayout = getPublishedApplication().getAppLayout() == null ? null : new AppLayout(getPublishedApplication().getAppLayout().type);
+        this.getPublishedApplication().setAppLayout(publishedAppLayout);
+//        this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+        AppPositioning unpublishedAppPositioning = application.getUnpublishedApplication().getAppPositioning() == null ? null: new AppPositioning(getUnpublishedApplication().getAppPositioning().type);
+        this.getUnpublishedApplication().setAppPositioning(unpublishedAppPositioning);
+//        this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
+        AppPositioning publishedAppPositioning = application.getPublishedApplication().getAppPositioning() == null ? null: new AppPositioning(getPublishedApplication().getAppPositioning().type);
+        this.getPublishedApplication().setAppPositioning(publishedAppPositioning);
+//        this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
+        this.getUnpublishedApplication().setNavigationSetting(application.getUnpublishedApplication().getNavigationSetting() == null ? null: new NavigationSetting());
+//        this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
+        this.getPublishedApplication().setNavigationSetting(getPublishedApplication().getNavigationSetting() == null ? null: new NavigationSetting());
+//        this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
+        this.getUnpublishedApplication().setCustomJSLibs(getUnpublishedApplication().getCustomJSLibs());
+//        this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
 
@@ -202,7 +220,7 @@ public class Application extends BaseDomain {
             applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
             applicationPage.setDefaultPageId(null);
         }
-        for (ApplicationPage applicationPage : this.getPublishedPages()) {
+        for (ApplicationPage applicationPage : this.getPublishedApplication().getPages()) {
             applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
             applicationPage.setDefaultPageId(null);
         }
@@ -216,31 +234,83 @@ public class Application extends BaseDomain {
         this.setLastDeployedAt(null);
         this.setLastEditedAt(null);
         this.setGitApplicationMetadata(null);
-        this.setEditModeThemeId(null);
-        this.setPublishedModeThemeId(null);
+        this.getUnpublishedApplication().setThemeId(null);
+//        this.setEditModeThemeId(null);
+        this.getPublishedApplication().setThemeId(null);
+//        this.setPublishedModeThemeId(null);
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
         this.sanitiseToExportBaseObject();
         this.setDefaultPermissionGroup(null);
-        this.setPublishedCustomJSLibs(new HashSet<>());
+        this.getPublishedApplication().setCustomJSLibs(new HashSet<>());
+//        this.setPublishedCustomJSLibs(new HashSet<>());
     }
 
-    public List<ApplicationPage> getPages() {
-        return Boolean.TRUE.equals(viewMode) ? publishedPages : pages;
-    }
+
 
     public AppLayout getAppLayout() {
-        return Boolean.TRUE.equals(viewMode) ? publishedAppLayout : unpublishedAppLayout;
+        return Boolean.TRUE.equals(viewMode) ? getPublishedApplication().getAppLayout() : getUnpublishedApplication().getAppLayout();
     }
 
     public void setAppLayout(AppLayout appLayout) {
         if (Boolean.TRUE.equals(viewMode)) {
-            publishedAppLayout = appLayout;
+            getPublishedApplication().setAppLayout(appLayout);
+//            publishedAppLayout = appLayout;
         } else {
-            unpublishedAppLayout = appLayout;
+            getUnpublishedApplication().setAppLayout(appLayout);
+//            unpublishedAppLayout = appLayout;
         }
     }
+
+    public ApplicationDTO getUnpublishedApplication() {
+        return unpublishedApplication == null ? new ApplicationDTO() : unpublishedApplication;
+    }
+
+    public ApplicationDTO getPublishedApplication() {
+        return publishedApplication == null ? new ApplicationDTO() : publishedApplication;
+    }
+
+    public List<ApplicationPage> getPages() {
+        return Boolean.TRUE.equals(viewMode) ? getPublishedApplication().getPages() : getUnpublishedApplication().getPages();
+    }
+
+//    public String getEditModeThemeId(){
+//        return getUnpublishedApplication().getThemeId();
+//    }
+//
+//    public String getPublishedModeThemeId(){
+//        return getPublishedApplication().getThemeId();
+//    }
+//
+//
+//    public List<ApplicationPage> publishedPages(){
+//        return getUnpublishedApplication().getPages();
+//    }
+//
+//    public AppLayout getUnpublishedAppLayout(){
+//        return getUnpublishedApplication().getAppLayout();
+//    }
+//
+//    public AppLayout getPublishedAppLayout(){
+//        return getPublishedApplication().getAppLayout();
+//    }
+//
+//    public Set<CustomJSLibApplicationDTO> getUnpublishedCustomJSLibs(){
+//        return getUnpublishedApplication().getCustomJSLibs();
+//    }
+//
+//    public Set<CustomJSLibApplicationDTO> getPublishedCustomJSLibs(){
+//        return getPublishedApplication().getCustomJSLibs();
+//    }
+//
+//    public NavigationSetting getUnpublishedNavigationSetting(){
+//        return getUnpublishedApplication().getNavigationSetting();
+//    }
+//
+//    public NavigationSetting getPublishedNavigationSetting(){
+//        return getPublishedApplication().getNavigationSetting();
+//    }
 
     @Data
     @NoArgsConstructor
@@ -280,14 +350,14 @@ public class Application extends BaseDomain {
     }
 
     public NavigationSetting getNavigationSetting() {
-        return Boolean.TRUE.equals(viewMode) ? publishedNavigationSetting : unpublishedNavigationSetting;
+        return Boolean.TRUE.equals(viewMode) ? getPublishedApplication().getNavigationSetting() : getUnpublishedApplication().getNavigationSetting();
     }
 
     public void setNavigationSetting(NavigationSetting navigationSetting) {
         if (Boolean.TRUE.equals(viewMode)) {
-            publishedNavigationSetting = navigationSetting;
+            getPublishedApplication().setNavigationSetting(navigationSetting);
         } else {
-            unpublishedNavigationSetting = navigationSetting;
+            getUnpublishedApplication().setNavigationSetting(navigationSetting);
         }
     }
 
@@ -308,14 +378,14 @@ public class Application extends BaseDomain {
     }
 
     public AppPositioning getAppPositioning() {
-        return Boolean.TRUE.equals(viewMode) ? publishedAppPositioning : unpublishedAppPositioning;
+        return Boolean.TRUE.equals(viewMode) ? getPublishedApplication().getAppPositioning() : getUnpublishedApplication().getAppPositioning();
     }
 
     public void setAppPositioning(AppPositioning appPositioning) {
         if (Boolean.TRUE.equals(viewMode)) {
-            publishedAppPositioning = appPositioning;
+            getPublishedApplication().setAppPositioning(appPositioning);
         } else {
-            unpublishedAppPositioning = appPositioning;
+            getUnpublishedApplication().setAppPositioning(appPositioning);
         }
     }
 

@@ -157,12 +157,12 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                                 FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS), branchName)
                 .map(application -> {
                     if (isViewMode) {
-                        return application.getPublishedCustomJSLibs() == null ? new HashSet<>() :
-                                application.getPublishedCustomJSLibs();
+                        return application.getPublishedApplication().getCustomJSLibs() == null ? new HashSet<>() :
+                                application.getPublishedApplication().getCustomJSLibs();
                     }
 
-                    return application.getUnpublishedCustomJSLibs() == null ? new HashSet<>() :
-                            application.getUnpublishedCustomJSLibs();
+                    return application.getUnpublishedApplication().getCustomJSLibs() == null ? new HashSet<>() :
+                            application.getUnpublishedApplication().getCustomJSLibs();
                 });
     }
 }

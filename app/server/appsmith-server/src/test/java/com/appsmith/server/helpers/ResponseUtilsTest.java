@@ -121,7 +121,7 @@ public class ResponseUtilsTest {
         for (ApplicationPage applicationPage : application.getPages()) {
             assertNotEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
         }
-        for (ApplicationPage applicationPage : application.getPublishedPages()) {
+        for (ApplicationPage applicationPage : application.getPublishedApplication().getPages()) {
             assertNotEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
         }
         responseUtils.updateApplicationWithDefaultResources(application);
@@ -130,7 +130,7 @@ public class ResponseUtilsTest {
         for (ApplicationPage applicationPage : application.getPages()) {
             assertEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
         }
-        for (ApplicationPage applicationPage : application.getPublishedPages()) {
+        for (ApplicationPage applicationPage : application.getPublishedApplication().getPages()) {
             assertEquals(applicationPage.getId(), applicationPage.getDefaultPageId());
         }
     }

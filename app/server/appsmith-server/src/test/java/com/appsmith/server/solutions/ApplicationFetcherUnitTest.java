@@ -125,8 +125,8 @@ public class ApplicationFetcherUnitTest {
                 publishedPage.setDefaultPageId("page" + j);
                 publishedPage.setIsDefault(true);
 
-                application.setPages(List.of(unpublishedPage));
-                application.setPublishedPages(List.of(publishedPage));
+                application.getUnpublishedApplication().setPages(List.of(unpublishedPage));
+                application.getPublishedApplication().setPages(List.of(publishedPage));
                 applicationList.add(application);
             }
         }
@@ -163,7 +163,7 @@ public class ApplicationFetcherUnitTest {
     }
 
     private Application updateDefaultPageIdsWithinApplication(Application application) {
-        application.getPublishedPages().forEach(page -> page.setId(page.getDefaultPageId()));
+        application.getPublishedApplication().getPages().forEach(page -> page.setId(page.getDefaultPageId()));
         application.getPages().forEach(page -> page.setId(page.getDefaultPageId()));
         return application;
     }
@@ -235,7 +235,7 @@ public class ApplicationFetcherUnitTest {
                             application.getPages().forEach(
                                     page -> assertThat(page.getSlug()).isEqualTo(page.getId() + "-unpublished-slug")
                             );
-                            application.getPublishedPages().forEach(
+                            application.getPublishedApplication().getPages().forEach(
                                     page -> assertThat(page.getSlug()).isEqualTo(page.getId() + "-published-slug")
                             );
                         }
@@ -281,7 +281,7 @@ public class ApplicationFetcherUnitTest {
                             application.getPages().forEach(
                                     page -> assertThat(page.getSlug()).isEqualTo(page.getId() + "-unpublished-slug")
                             );
-                            application.getPublishedPages().forEach(
+                            application.getPublishedApplication().getPages().forEach(
                                     page -> assertThat(page.getSlug()).isEqualTo(page.getId() + "-published-slug")
                             );
                         }
@@ -312,7 +312,7 @@ public class ApplicationFetcherUnitTest {
                             application.getPages().forEach(
                                     page -> assertThat(page.getSlug()).isEqualTo(page.getId() + "-unpublished-slug")
                             );
-                            application.getPublishedPages().forEach(
+                            application.getPublishedApplication().getPages().forEach(
                                     page -> assertThat(page.getSlug()).isEqualTo(page.getId() + "-published-slug")
                             );
                         }
@@ -349,8 +349,8 @@ public class ApplicationFetcherUnitTest {
                     publishedPage.setDefaultPageId("page" + 5);
                     publishedPage.setIsDefault(true);
 
-                    branchApp.setPages(List.of(unpublishedPage));
-                    branchApp.setPublishedPages(List.of(publishedPage));
+                    branchApp.getUnpublishedApplication().setPages(List.of(unpublishedPage));
+                    branchApp.getPublishedApplication().setPages(List.of(publishedPage));
                     applications.add(branchApp);
 
                     return applicationService.save(branchApp);
@@ -368,7 +368,7 @@ public class ApplicationFetcherUnitTest {
                             application.getPages().forEach(
                                     page -> assertThat(page.getSlug()).isEqualTo(page.getId() + "-unpublished-slug")
                             );
-                            application.getPublishedPages().forEach(
+                            application.getPublishedApplication().getPages().forEach(
                                     page -> assertThat(page.getSlug()).isEqualTo(page.getId() + "-published-slug")
                             );
                         }

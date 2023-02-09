@@ -300,14 +300,14 @@ public class PolicyUtils {
 
     public Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
-        if(StringUtils.hasLength(application.getEditModeThemeId())) {
+        if(StringUtils.hasLength(application.getUnpublishedApplication().getThemeId())) {
             applicationThemes = applicationThemes.concatWith(
-                    themeRepository.findById(application.getEditModeThemeId(), READ_THEMES)
+                    themeRepository.findById(application.getUnpublishedApplication().getThemeId(), READ_THEMES)
             );
         }
-        if(StringUtils.hasLength(application.getPublishedModeThemeId())) {
+        if(StringUtils.hasLength(application.getPublishedApplication().getThemeId())) {
             applicationThemes = applicationThemes.concatWith(
-                    themeRepository.findById(application.getPublishedModeThemeId(), READ_THEMES)
+                    themeRepository.findById(application.getPublishedApplication().getThemeId(), READ_THEMES)
             );
         }
         return applicationThemes
