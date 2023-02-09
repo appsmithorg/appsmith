@@ -46,7 +46,8 @@ export function removeChildLayers(
 export function* wrapChildren(
   allWidgets: CanvasWidgetsReduxState,
   containerId: string,
-  isMobile?: boolean,
+  isMobile: boolean,
+  mainCanvasWidth: number,
 ) {
   const widgets = { ...allWidgets };
   let canvas = getCanvas(widgets, containerId);
@@ -71,6 +72,7 @@ export function* wrapChildren(
     widgets,
     canvas.widgetId,
     isMobile,
+    mainCanvasWidth,
   );
   return updatedWidgets;
 }
@@ -79,7 +81,8 @@ export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   parentId: string,
-  isMobile?: boolean,
+  isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   if (
@@ -131,7 +134,7 @@ export function updateFlexLayersOnDelete(
   };
   widgets[parentId] = parent;
 
-  return updateWidgetPositions(widgets, parentId, isMobile);
+  return updateWidgetPositions(widgets, parentId, isMobile, mainCanvasWidth);
 }
 
 export function updateFillChildStatus(
@@ -139,6 +142,7 @@ export function updateFillChildStatus(
   widgetId: string,
   fill: boolean,
   isMobile: boolean,
+  mainCanvasWidth: number,
 ) {
   let widgets = { ...allWidgets };
   const widget = widgets[widgetId];
@@ -158,7 +162,12 @@ export function updateFillChildStatus(
     },
   };
 
-  return updateWidgetPositions(widgets, canvas.widgetId, isMobile);
+  return updateWidgetPositions(
+    widgets,
+    canvas.widgetId,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
 
 export function alterLayoutForMobile(
@@ -215,15 +224,16 @@ export function alterLayoutForMobile(
         mainCanvasWidth,
       );
     widgets[child] = widget;
-    widgets = updateWidgetPositions(widgets, child, true);
+    widgets = updateWidgetPositions(widgets, child, true, mainCanvasWidth);
   }
-  widgets = updateWidgetPositions(widgets, parentId, true);
+  widgets = updateWidgetPositions(widgets, parentId, true, mainCanvasWidth);
   return widgets;
 }
 
 export function alterLayoutForDesktop(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -232,9 +242,9 @@ export function alterLayoutForDesktop(
   if (!isStack(allWidgets, parent)) return widgets;
   if (!children || !children.length) return widgets;
 
-  widgets = updateWidgetPositions(widgets, parentId, false);
+  widgets = updateWidgetPositions(widgets, parentId, false, mainCanvasWidth);
   for (const child of children) {
-    widgets = alterLayoutForDesktop(widgets, child);
+    widgets = alterLayoutForDesktop(widgets, child, mainCanvasWidth);
   }
   return widgets;
 }
@@ -249,6 +259,7 @@ export function pasteWidgetInFlexLayers(
   widget: any,
   originalWidgetId: string,
   isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -312,7 +323,7 @@ export function pasteWidgetInFlexLayers(
       flexLayers,
     },
   };
-  return updateWidgetPositions(widgets, parentId, isMobile);
+  return updateWidgetPositions(widgets, parentId, isMobile, mainCanvasWidth);
 }
 
 /**
@@ -326,6 +337,7 @@ export function addChildToPastedFlexLayers(
   widget: any,
   widgetIdMap: Record<string, string>,
   isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[widget.parentId];
@@ -358,7 +370,12 @@ export function addChildToPastedFlexLayers(
       flexLayers,
     },
   };
-  return updateWidgetPositions(widgets, parent.widgetId, isMobile);
+  return updateWidgetPositions(
+    widgets,
+    parent.widgetId,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
 
 export function isStack(

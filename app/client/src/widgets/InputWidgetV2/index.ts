@@ -55,7 +55,7 @@ export const CONFIG = {
         viewportMinWidth: layoutConfigurations.MOBILE.maxWidth,
         configuration: () => {
           return {
-            minWidth: "60px",
+            minWidth: "200px",
             minHeight: "80px",
           };
         },

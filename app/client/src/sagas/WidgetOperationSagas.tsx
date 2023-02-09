@@ -39,6 +39,7 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import {
+  getCanvasWidth,
   getContainerWidgetSpacesSelector,
   getCurrentAppPositioningType,
   getCurrentPageId,
@@ -177,6 +178,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const appPositioningType: AppPositioningTypes = yield select(
       getCurrentAppPositioningType,
     );
+    const mainCanvasWidth: number = yield select(getCanvasWidth);
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
@@ -208,6 +210,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
         movedWidgets,
         parentId,
         isMobile,
+        mainCanvasWidth,
       );
     }
     log.debug("resize computations took", performance.now() - start, "ms");
@@ -1320,6 +1323,7 @@ function* pasteWidgetSaga(
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
   const isMobile: boolean = yield select(getIsMobile);
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
   let reflowedMovementMap,
     gridProps: GridProps | undefined,
     newPastingPositionMap: SpaceMap | undefined,
@@ -1656,6 +1660,7 @@ function* pasteWidgetSaga(
                   widget,
                   reverseWidgetIdMap[widget.widgetId],
                   isMobile,
+                  mainCanvasWidth,
                 );
               else if (widget.type !== "CANVAS_WIDGET")
                 widgets = addChildToPastedFlexLayers(
@@ -1663,6 +1668,7 @@ function* pasteWidgetSaga(
                   widget,
                   widgetIdMap,
                   isMobile,
+                  mainCanvasWidth,
                 );
             }
           }

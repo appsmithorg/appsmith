@@ -472,7 +472,10 @@ abstract class BaseWidget<
 
   makeFlex(content: ReactNode) {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-    const minWidth = getMinPixelWidth(this.props, this.props.mainCanvasWidth);
+    const minWidth = getMinPixelWidth(
+      this.props,
+      this.props?.mainCanvasWidth || 0,
+    );
     return (
       <FlexComponent
         componentHeight={componentHeight}
@@ -640,7 +643,7 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
-  mainCanvasWidth: number;
+  mainCanvasWidth?: number;
 }
 
 export type WidgetRowCols = {
