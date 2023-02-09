@@ -887,7 +887,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     if (appendToApp) {
                         // add existing pages to importedApplication so that they are not lost
                         // when we update application from importedApplication
-//                        importedApplication.setPages(savedApp.getPages());
                         importedApplication.getUnpublishedApplication().setPages(savedApp.getPages());
                     }
 
@@ -950,7 +949,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .collectList()
                             .map(jsLibDTOList -> {
-//                                importedApplication.setUnpublishedCustomJSLibs(new HashSet<>(jsLibDTOList));
                                 importedApplication.getUnpublishedApplication().setCustomJSLibs(new HashSet<>(jsLibDTOList));
                                 return jsLibDTOList;
                             });
@@ -1058,9 +1056,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .flatMap(applicationPageMap -> {
 
                     // Set page sequence based on the order for published and unpublished pages
-//                    importedApplication.setPages(applicationPageMap.get(EDIT));
                     importedApplication.getUnpublishedApplication().setPages(applicationPageMap.get(EDIT));
-//                    importedApplication.setPublishedPages(applicationPageMap.get(VIEW));
                     importedApplication.getPublishedApplication().setPages(applicationPageMap.get(VIEW));
                     // This will be non-empty for GIT sync
                     return newActionRepository.findByApplicationId(importedApplication.getId())
@@ -2117,9 +2113,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     .collect(Collectors.toList());
             applicationJson.setPageList(importedNewPageList);
             // Remove the pages from the exported Application inside the json based on the pagesToImport
-//            applicationJson.getExportedApplication().setPages(applicationPageList);
             applicationJson.getExportedApplication().getUnpublishedApplication().setPages(applicationPageList);
-//            applicationJson.getExportedApplication().setPublishedPages(applicationPageList);
             applicationJson.getExportedApplication().getPublishedApplication().setPages(applicationPageList);
 //            if (!CollectionUtils.isEmpty(applicationJson.getExportedApplication().getPages())) {
 //                applicationJson.getExportedApplication().getPages().addAll(applicationPageList);

@@ -485,9 +485,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         application.setId(null);
         application.setPolicies(new HashSet<>());
         application.getUnpublishedApplication().setPages(new ArrayList<>());
-//        application.setPages(new ArrayList<>());
         application.getPublishedApplication().setPages(new ArrayList<>());
-//        application.setPublishedPages(new ArrayList<>());
         application.setIsPublic(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser();

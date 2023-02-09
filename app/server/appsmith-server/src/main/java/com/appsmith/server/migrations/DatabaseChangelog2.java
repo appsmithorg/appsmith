@@ -1452,9 +1452,6 @@ public class DatabaseChangelog2 {
         List<Theme> systemThemes = mongoTemplate.find(getSystemThemesQuery, Theme.class);
         List<String> systemThemeIds = systemThemes.stream().map(BaseDomain::getId).collect(Collectors.toList());
 
-//        List<String> customizedEditModeThemeIds = getCustomizedThemeIds(
-//                fieldName(QApplication.application.editModeThemeId), Application::getEditModeThemeId, systemThemeIds, mongoTemplate
-//        );
         List<String> customizedEditModeThemeIds = getCustomizedThemeIds(
                 fieldName(QApplication.application.unpublishedApplication.themeId), application -> application.getUnpublishedApplication().getThemeId(), systemThemeIds, mongoTemplate
         );
@@ -2434,11 +2431,9 @@ public class DatabaseChangelog2 {
                                 newTheme = mongoTemplate.save(newTheme);
 
                                 if (application.getUnpublishedApplication().getThemeId().equals(theme.getId())) {
-//                                    application.setEditModeThemeId(newTheme.getId());
                                     application.getUnpublishedApplication().setThemeId(newTheme.getId());
                                 }
                                 if (application.getPublishedApplication().getThemeId().equals(theme.getId())) {
-//                                    application.setPublishedModeThemeId(newTheme.getId());
                                     application.getPublishedApplication().setThemeId(newTheme.getId());
                                 }
                                 mongoTemplate.save(application);

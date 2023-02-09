@@ -316,10 +316,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-//        application.setPublishedPages(new ArrayList<>());
         application.getPublishedApplication().setPages(new ArrayList<>());
         application.getUnpublishedApplication().setCustomJSLibs(new HashSet<>());
-//        application.setUnpublishedCustomJSLibs(new HashSet<>());
         application.setCollapseInvisibleWidgets(Boolean.TRUE);
 
         // For all new applications being created, set it to use the latest evaluation version.
@@ -336,9 +334,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
                     // assign the default theme id to edit mode
                     return themeService.getDefaultThemeId().map(themeId -> {
-//                        application1.setEditModeThemeId(themeId);
                         application1.getUnpublishedApplication().setThemeId(themeId);
-//                        application1.setPublishedModeThemeId(themeId);
                         application1.getPublishedApplication().setThemeId(themeId);
                         return themeId;
                     }).then(applicationService.createDefault(application1));
@@ -1013,7 +1009,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         archivePageListMono = Mono.just(new ArrayList<>());
                     }
 
-//                    application.setPublishedPages(pages);
                     application.getPublishedApplication().setPages(pages);
 
                     application.getPublishedApplication().setAppLayout(application.getUnpublishedApplication().getAppLayout());

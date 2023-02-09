@@ -1162,13 +1162,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 srcBranchGitData.setLastCommittedAt(Instant.now());
                                 srcApplication.setId(null);
                                 srcApplication.getUnpublishedApplication().setPages(null);
-//                                srcApplication.setPages(null);
                                 srcApplication.getPublishedApplication().setPages(null);
-//                                srcApplication.setPublishedPages(null);
                                 srcApplication.getUnpublishedApplication().setThemeId(null);
-//                                srcApplication.setEditModeThemeId(null);
                                 srcApplication.getPublishedApplication().setThemeId(null);
-//                                srcApplication.setPublishedModeThemeId(null);
                                 srcApplication.setGitApplicationMetadata(srcBranchGitData);
                                 return Mono.zip(
                                         applicationService.save(srcApplication),

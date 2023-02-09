@@ -763,15 +763,12 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
 
-//        final List<ApplicationPage> publishedPages = importedApplication.getPublishedPages();
         final List<ApplicationPage> publishedPages = importedApplication.getPublishedApplication().getPages();
         importedApplication.setViewMode(false);
         final List<ApplicationPage> unpublishedPages = importedApplication.getPages();
 
-//        importedApplication.setPages(null);
         importedApplication.getUnpublishedApplication().setPages(null);
         importedApplication.getPublishedApplication().setPages(null);
-//        importedApplication.setPublishedPages(null);
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
         Mono<Application> importedApplicationMono = installedJSLibMono
@@ -933,7 +930,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     if (appendToApp) {
                         // add existing pages to importedApplication so that they are not lost
                         // when we update application from importedApplication
-//                        importedApplication.setPages(savedApp.getPages());
                         importedApplication.getUnpublishedApplication().setPages(savedApp.getPages());
                     }
 
@@ -1089,9 +1085,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 .flatMap(applicationPageMap -> {
 
                     // Set page sequence based on the order for published and unpublished pages
-//                    importedApplication.setPages(applicationPageMap.get(EDIT));
                     importedApplication.getUnpublishedApplication().setPages(applicationPageMap.get(EDIT));
-//                    importedApplication.setPublishedPages(applicationPageMap.get(VIEW));
                     importedApplication.getPublishedApplication().setPages(applicationPageMap.get(VIEW));
                     // This will be non-empty for GIT sync
                     return newActionRepository.findByApplicationId(importedApplication.getId())
@@ -2158,9 +2152,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
             applicationJson.setPageList(importedNewPageList);
             // Remove the pages from the exported Application inside the json based on the pagesToImport
             applicationJson.getExportedApplication().getUnpublishedApplication().setPages(applicationPageList);
-//            applicationJson.getExportedApplication().setPages(applicationPageList);
             applicationJson.getExportedApplication().getPublishedApplication().setPages(applicationPageList);
-//            applicationJson.getExportedApplication().setPublishedPages(applicationPageList);
 //            if (!CollectionUtils.isEmpty(applicationJson.getExportedApplication().getPages())) {
 //                applicationJson.getExportedApplication().getPages().addAll(applicationPageList);
 //            } else {

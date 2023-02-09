@@ -88,10 +88,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
                 .flatMap(application -> {
-//                    String themeId = application.getEditModeThemeId();
                     String themeId = application.getUnpublishedApplication().getThemeId();
                     if (applicationMode == ApplicationMode.PUBLISHED) {
-//                        themeId = application.getPublishedModeThemeId();
                         themeId = application.getPublishedApplication().getThemeId();
                     }
                     if (StringUtils.hasLength(themeId)) {
@@ -474,9 +472,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             String editModeThemeId = importedThemesTuple.getT1().getId();
             String publishedModeThemeId = importedThemesTuple.getT2().getId();
 
-//            destinationApp.setEditModeThemeId(editModeThemeId);
             destinationApp.getUnpublishedApplication().setThemeId(editModeThemeId);
-//            destinationApp.setPublishedModeThemeId(publishedModeThemeId);
             destinationApp.getPublishedApplication().setThemeId(publishedModeThemeId);
             // this will update the theme id in DB
             // also returning the updated application object so that theme id are available to the next pipeline

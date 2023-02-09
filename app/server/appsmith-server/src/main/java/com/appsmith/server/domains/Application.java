@@ -52,11 +52,6 @@ public class Application extends BaseDomain {
     @Deprecated(forRemoval = true)
     Boolean isPublic = false;
 
-//    List<ApplicationPage> pages;
-//
-//    @JsonIgnore
-//    List<ApplicationPage> publishedPages;
-
     @JsonIgnore
     @Transient
     Boolean viewMode = false;
@@ -75,15 +70,6 @@ public class Application extends BaseDomain {
     String icon;
 
     private String slug;
-
-//    @JsonIgnore
-//    AppLayout unpublishedAppLayout;
-//
-//    @JsonIgnore
-//    AppLayout publishedAppLayout;
-
-//    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
-//    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
     GitApplicationMetadata gitApplicationMetadata;
 
@@ -111,18 +97,6 @@ public class Application extends BaseDomain {
     Instant lastEditedAt;
 
     EmbedSetting embedSetting;
-
-//    @JsonIgnore
-//    NavigationSetting unpublishedNavigationSetting;
-//
-//    @JsonIgnore
-//    NavigationSetting publishedNavigationSetting;
-
-//    @JsonIgnore
-//    AppPositioning publishedAppPositioning;
-//
-//    @JsonIgnore
-//    AppPositioning unpublishedAppPositioning;
 
     Boolean collapseInvisibleWidgets;
 
@@ -169,12 +143,6 @@ public class Application extends BaseDomain {
     @JsonIgnore
     Integer serverSchemaVersion;
 
-//    @JsonIgnore
-//    String publishedModeThemeId;
-//
-//    @JsonIgnore
-//    String editModeThemeId;
-
     // TODO Temporary provision for exporting the application with datasource configuration for the sample/template apps
     Boolean exportWithConfiguration;
 
@@ -187,31 +155,22 @@ public class Application extends BaseDomain {
     public Application(Application application) {
         super();
         this.workspaceId = application.getWorkspaceId();
-//        this.pages = new ArrayList<>();
         this.getUnpublishedApplication().setPages(new ArrayList<>());
         this.getPublishedApplication().setPages(new ArrayList<>());
-//        this.publishedPages = new ArrayList<>();
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
         AppLayout unpublishedAppLayout = getUnpublishedApplication().getAppLayout() == null ? null : new AppLayout(getUnpublishedApplication().getAppLayout().type);
         this.getUnpublishedApplication().setAppLayout(unpublishedAppLayout);
-//        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         AppLayout publishedAppLayout = getPublishedApplication().getAppLayout() == null ? null : new AppLayout(getPublishedApplication().getAppLayout().type);
         this.getPublishedApplication().setAppLayout(publishedAppLayout);
-//        this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
         AppPositioning unpublishedAppPositioning = application.getUnpublishedApplication().getAppPositioning() == null ? null: new AppPositioning(getUnpublishedApplication().getAppPositioning().type);
         this.getUnpublishedApplication().setAppPositioning(unpublishedAppPositioning);
-//        this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
         AppPositioning publishedAppPositioning = application.getPublishedApplication().getAppPositioning() == null ? null: new AppPositioning(getPublishedApplication().getAppPositioning().type);
         this.getPublishedApplication().setAppPositioning(publishedAppPositioning);
-//        this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
         this.getUnpublishedApplication().setNavigationSetting(application.getUnpublishedApplication().getNavigationSetting() == null ? null: new NavigationSetting());
-//        this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
         this.getPublishedApplication().setNavigationSetting(getPublishedApplication().getNavigationSetting() == null ? null: new NavigationSetting());
-//        this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
         this.getUnpublishedApplication().setCustomJSLibs(getUnpublishedApplication().getCustomJSLibs());
-//        this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
 
@@ -235,16 +194,13 @@ public class Application extends BaseDomain {
         this.setLastEditedAt(null);
         this.setGitApplicationMetadata(null);
         this.getUnpublishedApplication().setThemeId(null);
-//        this.setEditModeThemeId(null);
         this.getPublishedApplication().setThemeId(null);
-//        this.setPublishedModeThemeId(null);
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
         this.sanitiseToExportBaseObject();
         this.setDefaultPermissionGroup(null);
         this.getPublishedApplication().setCustomJSLibs(new HashSet<>());
-//        this.setPublishedCustomJSLibs(new HashSet<>());
     }
 
 
@@ -256,10 +212,8 @@ public class Application extends BaseDomain {
     public void setAppLayout(AppLayout appLayout) {
         if (Boolean.TRUE.equals(viewMode)) {
             getPublishedApplication().setAppLayout(appLayout);
-//            publishedAppLayout = appLayout;
         } else {
             getUnpublishedApplication().setAppLayout(appLayout);
-//            unpublishedAppLayout = appLayout;
         }
     }
 
@@ -274,43 +228,6 @@ public class Application extends BaseDomain {
     public List<ApplicationPage> getPages() {
         return Boolean.TRUE.equals(viewMode) ? getPublishedApplication().getPages() : getUnpublishedApplication().getPages();
     }
-
-//    public String getEditModeThemeId(){
-//        return getUnpublishedApplication().getThemeId();
-//    }
-//
-//    public String getPublishedModeThemeId(){
-//        return getPublishedApplication().getThemeId();
-//    }
-//
-//
-//    public List<ApplicationPage> publishedPages(){
-//        return getUnpublishedApplication().getPages();
-//    }
-//
-//    public AppLayout getUnpublishedAppLayout(){
-//        return getUnpublishedApplication().getAppLayout();
-//    }
-//
-//    public AppLayout getPublishedAppLayout(){
-//        return getPublishedApplication().getAppLayout();
-//    }
-//
-//    public Set<CustomJSLibApplicationDTO> getUnpublishedCustomJSLibs(){
-//        return getUnpublishedApplication().getCustomJSLibs();
-//    }
-//
-//    public Set<CustomJSLibApplicationDTO> getPublishedCustomJSLibs(){
-//        return getPublishedApplication().getCustomJSLibs();
-//    }
-//
-//    public NavigationSetting getUnpublishedNavigationSetting(){
-//        return getUnpublishedApplication().getNavigationSetting();
-//    }
-//
-//    public NavigationSetting getPublishedNavigationSetting(){
-//        return getPublishedApplication().getNavigationSetting();
-//    }
 
     @Data
     @NoArgsConstructor

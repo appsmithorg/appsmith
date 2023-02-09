@@ -316,22 +316,18 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
         return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
-//                    application.setPages(null);
                     application.getUnpublishedApplication().setPages(null);
                     application.setGitApplicationMetadata(null);
                     /**
                      * Retaining the logoAssetId field value while updating NavigationSetting
                      */
                     Application.NavigationSetting requestNavSetting = application.getUnpublishedApplication().getNavigationSetting();
-//                    Application.NavigationSetting requestNavSetting = application.application.getUnpublishedNavigationSetting();
                     if (requestNavSetting != null) {
-//                        Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
                         Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplication().getNavigationSetting(), new Application.NavigationSetting());
                         String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
                         String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
                         requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
                         application.getUnpublishedApplication().setNavigationSetting(requestNavSetting);
-//                        application.setUnpublishedNavigationSetting(requestNavSetting);
                     }
                     return this.update(branchedApplication.getId(), application);
                 });
@@ -790,11 +786,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> saveAppNavigationLogo(String branchName, String applicationId, Part filePart) {
         return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
-
-//                    Application.NavigationSetting rootAppUnpublishedNavigationSetting = ObjectUtils.defaultIfNull(
-//                            branchedApplication.getUnpublishedNavigationSetting(),
-//                            new Application.NavigationSetting()
-//                    );
 
                     Application.NavigationSetting rootAppUnpublishedNavigationSetting = ObjectUtils.defaultIfNull(
                             branchedApplication.getUnpublishedApplication().getNavigationSetting(),

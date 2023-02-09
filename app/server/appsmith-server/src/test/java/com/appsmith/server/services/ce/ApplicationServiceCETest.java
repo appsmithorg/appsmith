@@ -351,9 +351,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
                     assertThat(application.getApplicationVersion()).isEqualTo(ApplicationVersion.LATEST_VERSION);
                     assertThat(application.getColor()).isNotEmpty();
-//                    assertThat(application.getUnpublishedApplication().getThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getUnpublishedApplication().getThemeId()).isEqualTo(defaultThemeId);
-//                    assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getPublishedApplication().getThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getCollapseInvisibleWidgets()).isEqualTo(TRUE);
 

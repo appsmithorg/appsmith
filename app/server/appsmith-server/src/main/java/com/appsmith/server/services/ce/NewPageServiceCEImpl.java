@@ -365,9 +365,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     log.debug("Populating applicationPagesDTO ...");
                     Application application = tuple.getT1();
                     application.getUnpublishedApplication().setPages(null);
-//                    application.setPages(null);
                     application.getPublishedApplication().setPages(null);
-//                    application.setPublishedPages(null);
                     application.setViewMode(view);
                     List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
                     ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();

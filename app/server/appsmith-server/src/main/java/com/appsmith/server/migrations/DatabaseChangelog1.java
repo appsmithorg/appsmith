@@ -1974,8 +1974,6 @@ public class DatabaseChangelog1 {
         List<Application> apps = mongoOperations.find(query, Application.class);
 
         for (final Application app : apps) {
-//            final Integer unpublishedWidth = app.getUnpublishedAppLayout() == null ? null : app.getUnpublishedAppLayout().getWidth();
-//            final Integer publishedWidth = app.getPublishedAppLayout() == null ? null : app.getPublishedAppLayout().getWidth();
             final Integer unpublishedWidth = app.getUnpublishedApplication().getAppLayout() == null ? null : app.getUnpublishedApplication().getAppLayout().getWidth();
             final Integer publishedWidth = app.getPublishedApplication().getAppLayout() == null ? null : app.getPublishedApplication().getAppLayout().getWidth();
             final Update update = new Update().unset("unpublishedAppLayout.width").unset("publishedAppLayout.width");
