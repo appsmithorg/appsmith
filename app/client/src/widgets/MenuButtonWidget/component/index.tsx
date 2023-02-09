@@ -92,16 +92,6 @@ export interface BaseStyleProps {
 }
 
 const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
-  .auto-layout && {
-    height: 50px;
-    min-width: 42px;
-    max-width: 320px;
-  }
-
-  .mobile-view .auto-layout && {
-    height: 40px;
-  }
-
   height: 100%;
   background-image: none !important;
   font-weight: ${(props) => props.theme.fontWeights[2]};

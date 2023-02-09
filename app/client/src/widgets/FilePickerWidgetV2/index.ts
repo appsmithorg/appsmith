@@ -39,6 +39,19 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "42px",
+            maxWidth: "320px",
+          };
+        },
+      },
+    ],
+  },
 };
 
 export default Widget;
