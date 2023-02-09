@@ -20,7 +20,7 @@ export const CONFIG = {
   // define them in a Map which the platform understands to have
   // them stored only in the WidgetFactory.
   canvasHeightOffset: (props: WidgetProps): number =>
-    props.shouldShowTabs === true ? 5 : 0,
+    props.shouldShowTabs === true ? 4 : 0,
   features: {
     dynamicHeight: {
       sectionIndex: 1,

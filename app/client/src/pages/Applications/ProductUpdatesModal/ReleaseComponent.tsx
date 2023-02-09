@@ -3,7 +3,14 @@ import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
 import { Colors } from "constants/Colors";
-import { Case, Classes, Icon, IconSize, Text, TextType } from "design-system";
+import {
+  Case,
+  Classes,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+} from "design-system-old";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};

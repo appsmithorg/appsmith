@@ -6,11 +6,14 @@ import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import Debugger from "components/editorComponents/Debugger";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+
 import {
   getCurrentPageId,
   getCurrentPageName,
   getIsFetchingPage,
 } from "selectors/editorSelectors";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import {
   getIsOnboardingTasksView,
   inGuidedTour,
@@ -30,7 +33,6 @@ import CanvasContainer from "./CanvasContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import PageTabs from "./PageTabs";
 import PropertyPaneContainer from "./PropertyPaneContainer";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -43,6 +45,7 @@ function WidgetsEditor() {
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -68,9 +71,7 @@ function WidgetsEditor() {
       !guidedTourEnabled
     ) {
       const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash);
-      if (document.getElementById(widgetIdFromURLHash))
-        selectWidget(widgetIdFromURLHash);
+      quickScrollToWidget(widgetIdFromURLHash, canvasWidgets);
     }
   }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
@@ -113,7 +114,6 @@ function WidgetsEditor() {
   );
 
   PerformanceTracker.stopTracking();
-
   return (
     <EditorContextProvider>
       {showOnboardingTasks ? (
@@ -128,6 +128,7 @@ function WidgetsEditor() {
                 className="relative flex flex-row w-full overflow-hidden justify-center"
                 data-testid="widgets-editor"
                 draggable
+                id="widgets-editor"
                 onClick={handleWrapperClick}
                 onDragStart={onDragStart}
               >

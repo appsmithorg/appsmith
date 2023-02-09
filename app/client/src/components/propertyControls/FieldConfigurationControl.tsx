@@ -10,7 +10,7 @@ import SchemaParser, {
   getKeysFromSchema,
 } from "widgets/JSONFormWidget/schemaParser";
 import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
-import { Category, Size } from "design-system";
+import { Category, Size } from "design-system-old";
 import { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";

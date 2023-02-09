@@ -15,6 +15,7 @@ import {
 } from "reflow/reflowTypes";
 import { getParentOffsetTop } from "selectors/autoLayoutSelectors";
 import { getCanvasScale } from "selectors/editorSelectors";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
@@ -25,17 +26,13 @@ import {
 } from "utils/WidgetPropsUtils";
 import {
   getEdgeDirection,
-  getInterpolatedMoveDirection,
   getMoveDirection,
   getReflowedSpaces,
   modifyBlockDimension,
   modifyDrawingRectangles,
   updateRectanglesPostReflow,
 } from "./canvasDraggingUtils";
-import {
-  HighlightInfo,
-  useAutoLayoutHighlights,
-} from "./useAutoLayoutHighlights";
+import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
 import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,
@@ -119,11 +116,11 @@ export const useCanvasDragging = (
   } = useAutoLayoutHighlights({
     blocksToDraw,
     canvasId: widgetId,
-    direction,
     isCurrentDraggedCanvas,
     isDragging,
     useAutoLayout,
   });
+  let selectedHighlight: HighlightInfo | undefined;
 
   if (useAutoLayout) {
     setTimeout(() => {
@@ -195,8 +192,6 @@ export const useCanvasDragging = (
         bottom: 0,
         id: "",
       };
-
-      let lastMousePositions: { x: number; y: number }[] = [];
 
       const resetCanvasState = () => {
         throttledStopReflowing();
@@ -385,9 +380,6 @@ export const useCanvasDragging = (
           );
           rowRef.current = newRows ? newRows : rowRef.current;
         };
-        const updateMousePosition = ({ x, y }: { x: number; y: number }) => {
-          lastMousePositions = [{ x, y }, ...lastMousePositions.slice(0, 4)];
-        };
 
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && slidingArenaRef.current) {
@@ -432,7 +424,6 @@ export const useCanvasDragging = (
                     each.detachFromLayout,
                   )),
             }));
-            let highlight: HighlightInfo | undefined;
             if (rowDelta && slidingArenaRef.current && !useAutoLayout) {
               isUpdatingRows = true;
               canScroll.current = false;
@@ -441,17 +432,9 @@ export const useCanvasDragging = (
               triggerReflow(e, firstMove);
 
               if (useAutoLayout && isCurrentDraggedCanvas) {
-                currentDirection.current = getInterpolatedMoveDirection(
-                  lastMousePositions,
-                  { x: e.clientX, y: e.clientY },
-                  currentDirection.current,
-                  updateMousePosition,
-                );
-                if (currentDirection.current !== ReflowDirection.UNSET)
-                  highlight = highlightDropPosition(
-                    e,
-                    currentDirection.current,
-                  );
+                setTimeout(() => {
+                  selectedHighlight = highlightDropPosition(e);
+                }, 50);
               }
             }
             isUpdatingRows = renderBlocks(
@@ -460,9 +443,10 @@ export const useCanvasDragging = (
               isUpdatingRows,
               canvasIsDragging,
               scrollParent,
-              highlight,
+              selectedHighlight,
               widgetId === MAIN_CONTAINER_WIDGET_ID,
               parentOffsetTop,
+              useAutoLayout,
             );
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,

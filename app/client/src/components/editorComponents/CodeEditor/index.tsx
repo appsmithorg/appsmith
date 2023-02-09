@@ -61,7 +61,7 @@ import {
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button, ScrollIndicator } from "design-system";
+import { Button, ScrollIndicator } from "design-system-old";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -123,6 +123,7 @@ import {
 import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -236,6 +237,7 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -248,6 +250,7 @@ class CodeEditor extends Component<Props, State> {
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
+
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
@@ -1214,7 +1217,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(setEditorFieldFocusAction(payload)),
   selectWidget: (widgetId: string) =>
-    dispatch(selectWidgetInitAction(widgetId, false)),
+    dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId])),
 });
 
 export default Sentry.withProfiler(

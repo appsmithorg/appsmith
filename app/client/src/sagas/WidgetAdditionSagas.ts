@@ -6,12 +6,8 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
-import { Toaster } from "design-system";
+import { RenderModes } from "constants/WidgetConstants";
+import { Toaster } from "design-system-old";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import produce from "immer";
@@ -23,12 +19,11 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { getMainCanvasProps } from "selectors/editorSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { generateReactKey } from "utils/generators";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
@@ -42,10 +37,6 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
-import {
-  getParentBottomRowAfterAddingWidget,
-  resizeCanvasToLowestWidget,
-} from "./WidgetOperationUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -271,18 +262,10 @@ export function* getUpdateDslAfterCreatingChild(
     addChildPayload.props?.blueprint,
   );
 
-  const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
-
-  const parentBottomRow = getParentBottomRowAfterAddingWidget(
-    stateParent,
-    newWidget,
-  );
-
   // Update widgets to put back in the canvasWidgetsReducer
   // TODO(abhinav): This won't work if dont already have an empty children: []
   const parent = {
     ...stateParent,
-    bottomRow: parentBottomRow,
     children: [...(stateParent.children || []), childWidgetPayload.widgetId],
   };
 
@@ -311,23 +294,6 @@ export function* getUpdateDslAfterCreatingChild(
     [addChildPayload.newWidgetId],
     widgets,
   );
-
-  if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
-    const mainCanvasMinHeight = mainCanvasProps?.height;
-
-    //updates bottom Row of main Canvas
-    updatedWidgets[
-      MAIN_CONTAINER_WIDGET_ID
-    ].bottomRow = resizeCanvasToLowestWidget(
-      updatedWidgets,
-      widgetId,
-      updatedWidgets[MAIN_CONTAINER_WIDGET_ID].bottomRow,
-      mainCanvasMinHeight,
-    );
-  }
 
   return updatedWidgets;
 }

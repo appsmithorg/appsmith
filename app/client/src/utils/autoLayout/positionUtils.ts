@@ -1,23 +1,25 @@
-import {
-  FlexLayerAlignment,
-  Positioning,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
-import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FlexLayer } from "./autoLayoutTypes";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   getBottomRow,
+  getMinPixelWidth,
   getTopRow,
   getWidgetHeight,
   getWidgetRows,
   getWidgetWidth,
   setDimensions,
 } from "./flexWidgetUtils";
+import { getCanvasWidth } from "./highlightUtils";
 
 export type Widget = WidgetProps & {
   children?: string[] | undefined;
@@ -45,6 +47,7 @@ export function updateWidgetPositions(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   isMobile = false,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
@@ -56,6 +59,14 @@ export function updateWidgetPositions(
     const parent = widgets[parentId];
     if (!parent) return widgets;
 
+    const canvasWidth = getCanvasWidth(
+      parent,
+      widgets,
+      mainCanvasWidth,
+      isMobile,
+    );
+    const columnSpace = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
+
     let height = 0;
     if (parent.flexLayers && parent.flexLayers?.length) {
       /**
@@ -66,7 +77,14 @@ export function updateWidgetPositions(
         const payload: {
           height: number;
           widgets: CanvasWidgetsReduxState;
-        } = calculateWidgetPositions(widgets, layer, height, isMobile);
+        } = calculateWidgetPositions(
+          widgets,
+          layer,
+          height,
+          isMobile,
+          mainCanvasWidth,
+          columnSpace,
+        );
         widgets = payload.widgets;
         height += payload.height;
       }
@@ -110,7 +128,12 @@ export function updateWidgetPositions(
       //   parent.parentId ? widgets[parent.parentId].widgetName : "no parent",
       // );
       if (shouldUpdateHeight && parent.parentId)
-        return updateWidgetPositions(widgets, parent.parentId, isMobile);
+        return updateWidgetPositions(
+          widgets,
+          parent.parentId,
+          isMobile,
+          mainCanvasWidth,
+        );
     }
     return widgets;
   } catch (e) {
@@ -124,6 +147,8 @@ function calculateWidgetPositions(
   layer: FlexLayer,
   topRow: number,
   isMobile = false,
+  mainCanvasWidth: number,
+  columnSpace: number,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   /**
    * Get information break down on each alignment within the layer.
@@ -152,6 +177,8 @@ function calculateWidgetPositions(
       topRow,
       fillWidgetLength,
       isMobile,
+      mainCanvasWidth,
+      columnSpace,
     );
 
   return placeWidgetsWithoutWrap(
@@ -160,6 +187,8 @@ function calculateWidgetPositions(
     topRow,
     fillWidgetLength,
     isMobile,
+    mainCanvasWidth,
+    columnSpace,
   );
 }
 
@@ -180,6 +209,8 @@ export function placeWidgetsWithoutWrap(
   topRow: number,
   fillWidgetLength: number,
   isMobile = false,
+  mainCanvasWidth: number,
+  columnSpace: number,
   totalHeight = 0,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   let widgets = { ...allWidgets };
@@ -198,11 +229,15 @@ export function placeWidgetsWithoutWrap(
       each.columns,
     );
     for (const widget of each.children) {
+      const minWidth = getMinPixelWidth(widget, mainCanvasWidth);
       const height = getWidgetHeight(widget, isMobile);
-      const width =
+      let width =
         widget.responsiveBehavior === ResponsiveBehavior.Fill
           ? fillWidgetLength
           : getWidgetWidth(widget, isMobile);
+      if (minWidth && width * columnSpace < minWidth) {
+        width = minWidth / columnSpace;
+      }
       if (!totalHeight) maxHeight = Math.max(maxHeight, height);
       const updatedWidget = setDimensions(
         widget,
@@ -219,6 +254,20 @@ export function placeWidgetsWithoutWrap(
         },
       };
       left += width;
+    }
+  }
+
+  // Trigger a position update for the widgets inside container widgets
+  for (const each of arr) {
+    for (const widget of each.children) {
+      if (widget.type === "CONTAINER_WIDGET" && widget.children?.length) {
+        widgets = updateWidgetPositions(
+          widgets,
+          widget.children[0],
+          isMobile,
+          mainCanvasWidth,
+        );
+      }
     }
   }
 
@@ -425,6 +474,8 @@ function updatePositionsForFlexWrap(
   topRow: number,
   fillWidgetLength: number,
   isMobile: boolean,
+  mainCanvasWidth: number,
+  columnSpace: number,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   let widgets = { ...allWidgets };
 
@@ -436,13 +487,22 @@ function updatePositionsForFlexWrap(
     // if there is only one alignment in this row, this implies that it may be wrapped.
     const payload =
       each.length === 1
-        ? placeWrappedWidgets(widgets, each[0], top, fillWidgetLength, isMobile)
+        ? placeWrappedWidgets(
+            widgets,
+            each[0],
+            top,
+            fillWidgetLength,
+            isMobile,
+            mainCanvasWidth,
+          )
         : placeWidgetsWithoutWrap(
             widgets,
             each,
             top,
             fillWidgetLength,
             isMobile,
+            mainCanvasWidth,
+            columnSpace,
           );
     widgets = payload.widgets;
     top += payload.height;
@@ -487,6 +547,7 @@ export function placeWrappedWidgets(
   topRow: number,
   fillWidgetLength: number,
   isMobile = false,
+  mainCanvasWidth: number,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   let widgets = { ...allWidgets };
 
@@ -503,6 +564,7 @@ export function placeWrappedWidgets(
       startRow,
       fillWidgetLength,
       isMobile,
+      mainCanvasWidth,
       height,
     );
     widgets = result.widgets;

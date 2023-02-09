@@ -12,7 +12,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { Toaster } from "design-system";
+import { Toaster } from "design-system-old";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
@@ -27,6 +27,7 @@ import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "sagas/WidgetBlueprintSagas";
 import {
+  getCanvasWidth,
   getCurrentAppPositioningType,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
@@ -94,7 +95,6 @@ export function* getCanvasSizeAfterWidgetMove(
     const newRows = calculateDropTargetRows(
       movedWidgetIds,
       movedWidgetsBottomRow,
-      canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
       occupiedSpacesByChildren,
       canvasWidgetId,
     );
@@ -326,12 +326,14 @@ function* moveWidgetsSaga(
        * then update the flex layers.
        */
       const isMobile: boolean = yield select(getIsMobile);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),
         updatedWidgets,
         canvasId,
         true,
         isMobile,
+        mainCanvasWidth,
       );
     }
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(

@@ -22,6 +22,7 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
+import org.apache.commons.collections.map.Flat3Map;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -36,6 +37,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import jakarta.validation.Validator;
+import reactor.util.function.Tuple2;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -261,17 +264,25 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      */
     @Override
     public Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application) {
-        return this.getForCurrentUser().flatMap(userData -> {
-            // set recently used workspace ids
-            userData.setRecentlyUsedWorkspaceIds(
-                    addIdToRecentList(userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10)
-            );
-            // set recently used application ids
-            userData.setRecentlyUsedAppIds(
-                    addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20)
-            );
-            return repository.save(userData);
-        });
+        return sessionUserService.getCurrentUser()
+                .zipWhen(this::getForUser)
+                .flatMap(tuple -> {
+                    final User user = tuple.getT1();
+                    final UserData userData = tuple.getT2();
+                    // set recently used workspace ids
+                    userData.setRecentlyUsedWorkspaceIds(
+                            addIdToRecentList(userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10)
+                    );
+                    // set recently used application ids
+                    userData.setRecentlyUsedAppIds(
+                            addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20)
+                    );
+                    return Mono.zip(
+                        analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
+                        repository.save(userData)
+                    );
+                })
+                .map(Tuple2::getT2);
     }
 
     @Override
@@ -330,4 +341,5 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList)
         );
     }
+
 }

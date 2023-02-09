@@ -4,6 +4,8 @@ import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 
 export const getCurrentUser = (state: AppState): User | undefined =>
   state.ui?.users?.currentUser;
+export const getCurrentUserLoading = (state: AppState): boolean =>
+  state.ui.users.loadingStates.fetchingUser;
 export const getUserAuthError = (state: AppState): string =>
   state.ui.users.error;
 export const getUsers = (state: AppState): User[] => state.ui.users.users;
