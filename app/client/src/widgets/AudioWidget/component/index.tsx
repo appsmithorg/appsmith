@@ -27,17 +27,6 @@ const ErrorContainer = styled.div`
   height: 100%;
 `;
 
-const Player = styled(ReactPlayer)`
-  .auto-layout && {
-    min-width: 70px;
-    height: 50px !important;
-  }
-
-  .mobile-view .auto-layout && {
-    height: 40px !important;
-  }
-`;
-
 export default function AudioComponent(props: AudioComponentProps) {
   const {
     controls,
@@ -54,7 +43,7 @@ export default function AudioComponent(props: AudioComponentProps) {
     url,
   } = props;
   return url ? (
-    <Player
+    <ReactPlayer
       config={{
         file: {
           attributes: {

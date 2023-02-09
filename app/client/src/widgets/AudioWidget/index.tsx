@@ -1,5 +1,6 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -28,12 +29,16 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
   },
   autoLayout: {
-    defaults: {
-      rows: 6,
-    },
-    mobile: {
-      rows: 4,
-    },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "70px",
+          };
+        },
+      },
+    ],
   },
 };
 
