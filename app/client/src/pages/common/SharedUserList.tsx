@@ -1,5 +1,4 @@
 import { Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
-import UserApi from "@appsmith/api/UserApi";
 import React, { useMemo } from "react";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
@@ -9,6 +8,7 @@ import { ScrollIndicator } from "design-system-old";
 import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -47,7 +47,7 @@ const ProfileImageListPopover = styled.ul`
   }
 
   &::-webkit-scrollbar {
-    width: 0px;
+    width: 0;
   }
 `;
 
@@ -95,7 +95,11 @@ export default function SharedUserList(props: any) {
         >
           <ProfileImage
             className="workspace-share-user-icons"
-            source={el.photoId ? `/api/v1/assets/${el.photoId}` : undefined}
+            source={
+              el.photoId
+                ? `/api/${USER_PHOTO_ASSET_URL}/${el.photoId}`
+                : undefined
+            }
             userName={el.name ? el.name : el.username}
           />
           <ProfileImagePopover>
@@ -123,7 +127,7 @@ export default function SharedUserList(props: any) {
                   className="workspace-share-user-icons"
                   source={
                     el.photoId
-                      ? `/api/${UserApi.photoURL}/${el.username}`
+                      ? `/api/${USER_PHOTO_ASSET_URL}/${el.photoId}`
                       : undefined
                   }
                   userName={el.name ? el.name : el.username}
