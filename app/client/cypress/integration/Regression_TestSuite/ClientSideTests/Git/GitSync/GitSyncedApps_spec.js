@@ -557,5 +557,5 @@ describe("Git sync apps", function() {
   after(() => {
     //clean up
     _.gitSync.DeleteTestGithubRepo(repoName);
-  });  
+  });
 });
