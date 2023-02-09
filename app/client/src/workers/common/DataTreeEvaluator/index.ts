@@ -752,6 +752,7 @@ export default class DataTreeEvaluator {
               evalPropertyValue = this.getDynamicValue(
                 unEvalPropertyValue,
                 currentTree,
+                oldConfigTree,
                 resolvedFunctions,
                 evaluationSubstitutionType,
                 contextData,
@@ -834,6 +835,7 @@ export default class DataTreeEvaluator {
                   evalPropertyValue,
                   unEvalPropertyValue,
                   validationConfig,
+                  oldConfigTree,
                 );
               }
             }
@@ -952,6 +954,7 @@ export default class DataTreeEvaluator {
   getDynamicValue(
     dynamicBinding: string,
     data: DataTree,
+    configTree: ConfigTree,
     resolvedFunctions: Record<string, any>,
     evaluationSubstitutionType: EvaluationSubstitutionType,
     contextData?: EvaluateContext,
@@ -995,6 +998,7 @@ export default class DataTreeEvaluator {
               evalProps: this.evalProps,
               fullPropertyPath,
               dataTree: data,
+              configTree,
             });
           }
           // if there are any console outputs found from the evaluation, extract them and add them to the logs array
@@ -1066,6 +1070,7 @@ export default class DataTreeEvaluator {
             evalProps: this.evalProps,
             fullPropertyPath,
             dataTree: data,
+            configTree,
           });
         }
         return undefined;
@@ -1231,6 +1236,7 @@ export default class DataTreeEvaluator {
     evalPropertyValue: any,
     unEvalPropertyValue: string,
     validationConfig: ValidationConfig,
+    configTree: ConfigTree,
   ) {
     if (evalPropertyValue && validationConfig) {
       // runs VALIDATOR function and returns errors
@@ -1255,6 +1261,7 @@ export default class DataTreeEvaluator {
           evalProps: this.evalProps,
           fullPropertyPath,
           dataTree: currentTree,
+          configTree,
         });
       }
     }
@@ -1413,6 +1420,7 @@ export default class DataTreeEvaluator {
       evaluatedExecutionParams = this.getDynamicValue(
         `{{${JSON.stringify(executionParams)}}}`,
         this.evalTree,
+        this.oldConfigTree,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
       );
@@ -1429,6 +1437,7 @@ export default class DataTreeEvaluator {
       return this.getDynamicValue(
         `{{${replacedBinding}}}`,
         this.evalTree,
+        this.oldConfigTree,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"

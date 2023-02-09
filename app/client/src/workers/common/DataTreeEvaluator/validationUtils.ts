@@ -81,6 +81,7 @@ export function validateAndParseWidgetProperty({
       evalProps,
       fullPropertyPath,
       dataTree: currentTree,
+      configTree,
     });
   }
   set(
@@ -177,6 +178,7 @@ export function getValidatedTree(
               fullPath: true,
             }),
             dataTree: tree,
+            configTree,
           });
         }
       },

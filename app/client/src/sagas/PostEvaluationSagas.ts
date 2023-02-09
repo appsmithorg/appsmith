@@ -382,7 +382,10 @@ export function* updateTernDefinitions(
   if (!shouldUpdate) return;
   const start = performance.now();
   // remove private widgets from dataTree used for autocompletion
-  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
+    dataTree,
+    configTree,
+  );
   const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const { def, entityInfo } = dataTreeTypeDefCreator(
     treeWithoutPrivateWidgets,

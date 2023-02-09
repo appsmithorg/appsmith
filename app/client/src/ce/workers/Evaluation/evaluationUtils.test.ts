@@ -11,6 +11,7 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { PrivateWidgets } from "entities/DataTree/types";
 import {
@@ -48,7 +49,6 @@ import { Severity } from "entities/AppsmithConsole";
 jest.mock("loglevel");
 
 const BASE_WIDGET: DataTreeWidget = {
-  logBlackList: {},
   widgetId: "randomID",
   widgetName: "randomWidgetName",
   bottomRow: 0,
@@ -62,6 +62,14 @@ const BASE_WIDGET: DataTreeWidget = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  meta: {},
+};
+
+const BASE_WIDGET_CONFIG: WidgetEntityConfig = {
+  logBlackList: {},
+  widgetId: "randomID",
+  type: "SKELETON_WIDGET",
   bindingPaths: {},
   reactivePaths: {},
   triggerPaths: {},
@@ -70,7 +78,7 @@ const BASE_WIDGET: DataTreeWidget = {
   privateWidgets: {},
   propertyOverrideDependency: {},
   overridingPropertyPaths: {},
-  meta: {},
+  defaultMetaProps: [],
 };
 
 const testDataTree: Record<string, DataTreeWidget> = {
@@ -79,64 +87,32 @@ const testDataTree: Record<string, DataTreeWidget> = {
     widgetName: "Text1",
     text: "Label",
     type: "TEXT_WIDGET",
-    reactivePaths: {
-      text: EvaluationSubstitutionType.TEMPLATE,
-    },
-    validationPaths: {
-      text: { type: ValidationTypes.TEXT },
-    },
   },
   Text2: {
     ...BASE_WIDGET,
     widgetName: "Text2",
     text: "{{Text1.text}}",
-    dynamicBindingPathList: [{ key: "text" }],
     type: "TEXT_WIDGET",
-    reactivePaths: {
-      text: EvaluationSubstitutionType.TEMPLATE,
-    },
-    validationPaths: {
-      text: { type: ValidationTypes.TEXT },
-    },
   },
   Text3: {
     ...BASE_WIDGET,
     widgetName: "Text3",
     text: "{{Text1.text}}",
-    dynamicBindingPathList: [{ key: "text" }],
+
     type: "TEXT_WIDGET",
-    reactivePaths: {
-      text: EvaluationSubstitutionType.TEMPLATE,
-    },
-    validationPaths: {
-      text: { type: ValidationTypes.TEXT },
-    },
   },
   Text4: {
     ...BASE_WIDGET,
     widgetName: "Text4",
     text: "{{Text1.text}}",
-    dynamicBindingPathList: [{ key: "text" }],
     type: "TEXT_WIDGET",
-    reactivePaths: {
-      text: EvaluationSubstitutionType.TEMPLATE,
-    },
-    validationPaths: {
-      text: { type: ValidationTypes.TEXT },
-    },
   },
 
   List1: {
     ...BASE_WIDGET,
-    privateWidgets: {
-      Text2: true,
-    },
   },
   List2: {
     ...BASE_WIDGET,
-    privateWidgets: {
-      Text3: true,
-    },
   },
   Button1: {
     ...BASE_WIDGET,
@@ -146,6 +122,67 @@ const testDataTree: Record<string, DataTreeWidget> = {
         text: [],
       },
     },
+  },
+};
+
+const testConfigTree: ConfigTree = {
+  Text1: {
+    ...BASE_WIDGET_CONFIG,
+    type: "TEXT_WIDGET",
+    reactivePaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+  Text2: {
+    ...BASE_WIDGET_CONFIG,
+    type: "TEXT_WIDGET",
+    dynamicBindingPathList: [{ key: "text" }],
+    reactivePaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+  Text3: {
+    ...BASE_WIDGET_CONFIG,
+    dynamicBindingPathList: [{ key: "text" }],
+    reactivePaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+    type: "TEXT_WIDGET",
+  },
+  Text4: {
+    ...BASE_WIDGET_CONFIG,
+    dynamicBindingPathList: [{ key: "text" }],
+    type: "TEXT_WIDGET",
+    reactivePaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+  List1: {
+    ...BASE_WIDGET_CONFIG,
+    privateWidgets: {
+      Text2: true,
+    },
+  },
+  List2: {
+    ...BASE_WIDGET_CONFIG,
+    privateWidgets: {
+      Text3: true,
+    },
+  },
+  Button1: {
+    ...BASE_WIDGET_CONFIG,
   },
 };
 
@@ -216,6 +253,7 @@ describe("2. privateWidgets", () => {
 
     const actualPrivateWidgetsList = getAllPrivateWidgetsInDataTree(
       testDataTree,
+      testConfigTree,
     );
 
     expect(expectedPrivateWidgetsList).toStrictEqual(actualPrivateWidgetsList);
@@ -231,39 +269,20 @@ describe("2. privateWidgets", () => {
         widgetName: "Text1",
         text: "Label",
         type: "TEXT_WIDGET",
-        reactivePaths: {
-          text: EvaluationSubstitutionType.TEMPLATE,
-        },
-        validationPaths: {
-          text: { type: ValidationTypes.TEXT },
-        },
       },
 
       Text4: {
         ...BASE_WIDGET,
         widgetName: "Text4",
         text: "{{Text1.text}}",
-        dynamicBindingPathList: [{ key: "text" }],
         type: "TEXT_WIDGET",
-        reactivePaths: {
-          text: EvaluationSubstitutionType.TEMPLATE,
-        },
-        validationPaths: {
-          text: { type: ValidationTypes.TEXT },
-        },
       },
 
       List1: {
         ...BASE_WIDGET,
-        privateWidgets: {
-          Text2: true,
-        },
       },
       List2: {
         ...BASE_WIDGET,
-        privateWidgets: {
-          Text3: true,
-        },
       },
       Button1: {
         ...BASE_WIDGET,
@@ -278,6 +297,7 @@ describe("2. privateWidgets", () => {
 
     const actualDataTreeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
       testDataTree,
+      testConfigTree,
     );
 
     expect(expectedDataTreeWithoutPrivateWidgets).toStrictEqual(
@@ -827,6 +847,7 @@ describe("7. Test addErrorToEntityProperty method", () => {
       dataTree: dataTreeEvaluator.evalTree,
       evalProps: dataTreeEvaluator.evalProps,
       fullPropertyPath: "Api1.data",
+      configTree: dataTreeEvaluator.oldConfigTree,
     });
 
     expect(
