@@ -125,14 +125,6 @@ export const StyledSingleDropDown = styled(SingleDropDown)<
           props.hasError ? Colors.DANGER_SOLID : props.accentColor,
         )} !important;`};
     }
-
-    .auto-layout & {
-      min-height: 40px;
-    }
-
-    .mobile-view .auto-layout & {
-      min-height: 36px;
-    }
   }
 
   &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
@@ -230,10 +222,6 @@ export const DropdownContainer = styled.div<{
 }>`
   ${BlueprintCSSTransform}
   ${labelLayoutStyles}
-
-  .auto-layout & {
-    min-width: 120px;
-  }
 
   /**
     When the label is on the left it is not center aligned

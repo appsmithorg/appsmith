@@ -626,13 +626,9 @@ export const TreeSelectContainer = styled.div<{
 }>`
   ${labelLayoutStyles}
 
-  .auto-layout & {
-    min-width: 120px;
-  }
-
   /**
     When the label is on the left it is not center aligned
-    here set height to auto and not 100% because the input
+    here set height to auto and not 100% because the input 
     has fixed height and stretch the container.
   */
     ${({ labelPosition }) => {
@@ -1030,13 +1026,5 @@ export const InputContainer = styled.div<{
   & .rc-tree-select {
     ${({ labelPosition }) =>
       labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
-
-    .auto-layout & {
-      min-height: 40px;
-    }
-
-    .mobile-view .auto-layout & {
-      min-height: 36px;
-    }
   }
 `;
