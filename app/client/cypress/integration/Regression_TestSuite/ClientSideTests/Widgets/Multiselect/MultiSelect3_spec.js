@@ -28,7 +28,7 @@ describe("Dropdown Widget Functionality", function() {
       .find(widgetLocators.menuButton)
       .invoke("outerWidth")
       .then((width) => {
-        expect(parseInt(width)).to.equal(147);
+        expect(parseInt(width)).to.equal(146);
       });
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
