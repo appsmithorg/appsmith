@@ -11,6 +11,12 @@ import {
   LOGIC_FILTER,
   isPermitted,
 } from "@appsmith/utils/permissionHelpers";
+import {
+  OIDCOAuthURL,
+  KeycloakOAuthURL,
+  GoogleOAuthURL,
+  GithubOAuthURL,
+} from "@appsmith/constants/ApiConstants";
 const {
   disableLoginForm,
   enableGithubOAuth,
@@ -80,3 +86,14 @@ export const getDefaultAdminSettingsPath = ({
 
 export const showAdminSettings = (user?: User): boolean =>
   user?.adminSettingsVisible || false;
+
+export const getLoginUrl = (method: string): string => {
+  const urls: Record<string, string> = {
+    oidc: OIDCOAuthURL,
+    saml: KeycloakOAuthURL,
+    google: GoogleOAuthURL,
+    github: GithubOAuthURL,
+  };
+
+  return urls[method];
+};
