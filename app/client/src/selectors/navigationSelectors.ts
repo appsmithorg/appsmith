@@ -1,4 +1,8 @@
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeAppsmith,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
@@ -14,6 +18,7 @@ import { getActionChildrenNavData } from "utils/NavigationSelector/ActionChildre
 import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
 import { getJsChildrenNavData } from "utils/NavigationSelector/JsChildren";
+import { getAppsmithNavData } from "utils/NavigationSelector/AppsmithNavData";
 
 export type NavigationData = {
   name: string;
@@ -89,6 +94,9 @@ export const getEntitiesForNavigation = createSelector(
         result?.childNavData || {},
       );
     });
+    navigationData["appsmith"] = getAppsmithNavData(
+      dataTree.appsmith as DataTreeAppsmith,
+    );
     return navigationData;
   },
 );
