@@ -19,16 +19,6 @@ export function generateTree(
     const b: NodeSpace = spaceMap[B];
     //if both are of the same level and previous tree exists, check originalTops
     if (a.top === b.top && previousTree[a.id] && previousTree[b.id]) {
-      if (
-        previousTree[a.id].originalTopRow -
-          previousTree[b.id].originalTopRow ===
-        0
-      ) {
-        return (
-          previousTree[a.id].originalBottomRow -
-          previousTree[b.id].originalBottomRow
-        );
-      }
       return (
         previousTree[a.id].originalTopRow - previousTree[b.id].originalTopRow
       );

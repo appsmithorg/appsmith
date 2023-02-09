@@ -14,23 +14,23 @@ describe("Fixed Invisible widgets and auto height containers", () => {
   it("1. Divider should be below Button Widget in edit mode", () => {
     // This test checks for the height of the button widget and the filepicker widget
     // As well as the top value for the widgets below button and filepicker (divider and checkbox respectively)
-    cy.get(CommonLocators._widgetInCanvas("buttonwidget")).should(
+    cy.get(CommonLocators._widgetInDeployed("buttonwidget")).should(
       "have.css",
       "height",
       "230px",
     );
-    cy.get(CommonLocators._widgetInCanvas("filepickerwidgetv2")).should(
+    cy.get(CommonLocators._widgetInDeployed("filepickerwidgetv2")).should(
       "have.css",
       "height",
       "90px",
     );
 
-    cy.get(CommonLocators._widgetInCanvas("dividerwidget")).should(
+    cy.get(CommonLocators._widgetInDeployed("dividerwidget")).should(
       "have.css",
       "top",
       "246px",
     );
-    cy.get(CommonLocators._widgetInCanvas("checkboxwidget")).should(
+    cy.get(CommonLocators._widgetInDeployed("checkboxwidget")).should(
       "have.css",
       "top",
       "96px",
@@ -44,12 +44,12 @@ describe("Fixed Invisible widgets and auto height containers", () => {
     );
     AggregateHelper.GetNClick(CommonLocators._previewModeToggle("edit"));
 
-    cy.get(CommonLocators._widgetInCanvas("dividerwidget")).should(
+    cy.get(CommonLocators._widgetInDeployed("dividerwidget")).should(
       "have.css",
       "top",
       "16px",
     );
-    cy.get(CommonLocators._widgetInCanvas("checkboxwidget")).should(
+    cy.get(CommonLocators._widgetInDeployed("checkboxwidget")).should(
       "have.css",
       "top",
       "6px",
@@ -59,12 +59,12 @@ describe("Fixed Invisible widgets and auto height containers", () => {
   it("3. Divider should move up by the height of the button widget in view mode", () => {
     // This tests if the divider and checkbox widget move up by an appropriate amount in view mode.
     DeployMode.DeployApp();
-    cy.get(CommonLocators._widgetInCanvas("dividerwidget")).should(
+    cy.get(CommonLocators._widgetInDeployed("dividerwidget")).should(
       "have.css",
       "top",
       "16px",
     );
-    cy.get(CommonLocators._widgetInCanvas("checkboxwidget")).should(
+    cy.get(CommonLocators._widgetInDeployed("checkboxwidget")).should(
       "have.css",
       "top",
       "6px",
