@@ -47,6 +47,14 @@ export function PeekOverlayPopUpContent(
     PEEK_OVERLAY_DELAY,
   );
 
+  const getDataTypeHeader = (dataType: string) => {
+    if (props.dataType === "object") {
+      if (Array.isArray(props.data)) return "Array";
+      if (props.data === null) return "Null";
+    }
+    return dataType;
+  };
+
   return (
     <div
       className={`absolute ${zIndexLayers.PEEK_OVERLAY}`}
@@ -72,11 +80,7 @@ export function PeekOverlayPopUpContent(
           fontSize: "10px",
         }}
       >
-        {props.dataType === "object"
-          ? Array.isArray(props.data)
-            ? "array"
-            : "object"
-          : props.dataType}
+        {getDataTypeHeader(props.dataType)}
       </div>
       <MenuDivider style={{ margin: 0 }} />
       <div
@@ -86,7 +90,7 @@ export function PeekOverlayPopUpContent(
           fontSize: "10px",
         }}
       >
-        {props.dataType === "object" && (
+        {props.dataType === "object" && props.data !== null && (
           <JsonWrapper
             style={{
               minHeight: "20px",
@@ -100,8 +104,9 @@ export function PeekOverlayPopUpContent(
         {props.dataType === "function" && (
           <div>{(props.data as any).toString()}</div>
         )}
-        {props.dataType !== "object" && props.dataType !== "function" && (
-          <div>{(props.data as any)?.toString() ?? props.dataType}</div>
+        {((props.dataType !== "object" && props.dataType !== "function") ||
+          props.data === null) && (
+          <div>{(props.data as any)?.toString() ?? props.data ?? "null"}</div>
         )}
       </div>
     </div>
