@@ -578,8 +578,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 
     if (
       !hasManagePagePermission(currentPage?.userPermissions || []) &&
-      appMode === APP_MODE.EDIT &&
-      !isPreviewMode
+      appMode === APP_MODE.EDIT
     ) {
       yield validateResponse({
         status: 403,
