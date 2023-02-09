@@ -17,6 +17,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { DatePickerType, TimePrecision } from "../constants";
 import { DateFormatOptions } from "./constants";
 import derivedProperties from "./parseDerivedProperties";
+import { isAutoLayout } from "selectors/mainCanvasSelectors";
 
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
@@ -137,6 +138,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -353,6 +355,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",
