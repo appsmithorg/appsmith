@@ -3,7 +3,6 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { areArraysEqual } from "utils/AppsmithUtils";
 import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: WidgetDragResizeState = {
@@ -72,68 +71,17 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.isResizing = action.payload.isResizing;
   },
-  [ReduxActionTypes.SELECT_WIDGET]: (
+  [ReduxActionTypes.SET_SELECTED_WIDGETS]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }>,
+    action: ReduxAction<{ widgetIds: string[] }>,
   ) => {
-    if (action.payload.widgetId === MAIN_CONTAINER_WIDGET_ID) return;
-    if (action.payload.isMultiSelect) {
-      const widgetId = action.payload.widgetId || "";
-      const removeSelection = state.selectedWidgets.includes(widgetId);
-      if (removeSelection) {
-        state.selectedWidgets = state.selectedWidgets.filter(
-          (each) => each !== widgetId,
-        );
-      } else if (!!widgetId) {
-        state.selectedWidgets = [...state.selectedWidgets, widgetId];
-      }
-      if (state.selectedWidgets.length > 0) {
-        state.lastSelectedWidget = removeSelection ? "" : widgetId;
-      }
-    } else {
-      state.lastSelectedWidget = action.payload.widgetId;
-      if (!action.payload.widgetId) {
-        state.selectedWidgets = [];
-      } else if (
-        !areArraysEqual(state.selectedWidgets, [action.payload.widgetId])
-      ) {
-        state.selectedWidgets = [action.payload.widgetId];
-      }
-    }
+    state.selectedWidgets = action.payload.widgetIds;
   },
-  [ReduxActionTypes.DESELECT_WIDGETS]: (
+  [ReduxActionTypes.SET_LAST_SELECTED_WIDGET]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ widgetIds?: string[] }>,
+    action: ReduxAction<{ lastSelectedWidget: string }>,
   ) => {
-    const { widgetIds } = action.payload;
-    if (widgetIds) {
-      state.selectedWidgets = state.selectedWidgets.filter(
-        (each) => !widgetIds.includes(each),
-      );
-    }
-  },
-  [ReduxActionTypes.SELECT_MULTIPLE_WIDGETS]: (
-    state: WidgetDragResizeState,
-    action: ReduxAction<{ widgetIds?: string[] }>,
-  ) => {
-    const { widgetIds } = action.payload;
-    if (widgetIds && !areArraysEqual(widgetIds, state.selectedWidgets)) {
-      state.selectedWidgets = widgetIds || [];
-      if (widgetIds.length > 1) {
-        state.lastSelectedWidget = "";
-      } else {
-        state.lastSelectedWidget = widgetIds[0];
-      }
-    }
-  },
-  [ReduxActionTypes.SELECT_WIDGETS]: (
-    state: WidgetDragResizeState,
-    action: ReduxAction<{ widgetIds?: string[] }>,
-  ) => {
-    const { widgetIds } = action.payload;
-    if (widgetIds && !areArraysEqual(widgetIds, state.selectedWidgets)) {
-      state.selectedWidgets = [...state.selectedWidgets, ...widgetIds];
-    }
+    state.lastSelectedWidget = action.payload.lastSelectedWidget;
   },
   [ReduxActionTypes.FOCUS_WIDGET]: (
     state: WidgetDragResizeState,
@@ -141,7 +89,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.focusedWidget = action.payload.widgetId;
   },
-  [ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTORY]: (
+  [ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTRY]: (
     state: WidgetDragResizeState,
     action: ReduxAction<string[]>,
   ) => {

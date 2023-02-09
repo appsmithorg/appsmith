@@ -50,6 +50,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.features,
     config.properties.loadingProperties,
     config.properties.stylesheetConfig,
+    config.autoLayout,
   );
   configureWidget(config);
 };
@@ -71,7 +72,6 @@ export const configureWidget = (config: WidgetConfiguration) => {
   const _config = {
     ...config.defaults,
     ...features,
-    autoLayout: config.autoLayout,
     searchTags: config.searchTags,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,

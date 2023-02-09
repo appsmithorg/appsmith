@@ -23,7 +23,7 @@ import { InputTypes, NumberInputStepButtonPosition } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
@@ -79,10 +79,6 @@ const InputComponentWrapper = styled((props) => (
   isMultiline?: boolean;
 }>`
   ${labelLayoutStyles}
-
-  .auto-layout & {
-    min-width: 60px;
-  }
 
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
   .${Classes.INPUT_GROUP} {
@@ -371,16 +367,6 @@ const TextInputWrapper = styled.div<{
   border-radius: ${({ borderRadius }) => borderRadius} !important;
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   min-height: 32px;
-
-  .auto-layout && {
-    min-height: 40px;
-    flex: 0 40px;
-  }
-
-  .mobile-view .auto-layout && {
-    min-height: 36px;
-    flex: 0 36px;
-  }
 
   &:hover {
     border-color: ${({ disabled, hasError }) => {

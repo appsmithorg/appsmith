@@ -1,9 +1,9 @@
+import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
-import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
+import { HighlightInfo } from "./autoLayoutTypes";
 import { getWidgetHeight } from "./flexWidgetUtils";
 import {
   deriveHighlightsFromLayers,
@@ -47,12 +47,13 @@ describe("test HighlightUtils methods", () => {
         "1",
         99,
       );
+      // ToDo(Preet): These numbers have to be more of a config to make more sense of them.
       expect(highlights.length).toEqual(3);
       expect(highlights[0].isVertical).toBeFalsy;
       expect(highlights[0].width).toEqual(33);
       expect(highlights[0].height).toEqual(4);
-      expect(highlights[1].posX).toEqual(33);
-      expect(highlights[2].posX).toEqual(66);
+      expect(highlights[1].posX).toEqual(35);
+      expect(highlights[2].posX).toEqual(68);
     });
     it("should add horizontal heights before every layer and below the last layer", () => {
       const widgets = {
@@ -457,7 +458,7 @@ describe("test HighlightUtils methods", () => {
           FLEXBOX_PADDING,
       );
       expect(result.highlights[1].height).toEqual(60);
-      expect(result.highlights[2].posX).toEqual(636);
+      expect(result.highlights[2].posX).toEqual(634);
       expect(result.highlights[2].posY).toEqual(
         widgets["3"].mobileTopRow * widgets["3"].parentRowSpace +
           FLEXBOX_PADDING,

@@ -50,7 +50,7 @@ export function* logLatestLintPropertyErrors({
         text: createMessage(JS_OBJECT_BODY_INVALID),
         messages: lintErrorMessagesInPath,
         source: {
-          id: path,
+          id: entity.actionId,
           name: entityName,
           type: ENTITY_TYPE.JSACTION,
           propertyPath,
@@ -58,6 +58,7 @@ export function* logLatestLintPropertyErrors({
       },
     });
   }
+
   AppsmithConsole.addErrors(errorsToAdd);
   AppsmithConsole.deleteErrors(errorsToRemove);
 }

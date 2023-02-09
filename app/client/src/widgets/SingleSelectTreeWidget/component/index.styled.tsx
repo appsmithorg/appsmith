@@ -9,7 +9,11 @@ import {
   SELECT_DEFAULT_HEIGHT,
 } from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
-import { Icon, labelLayoutStyles, LABEL_CONTAINER_CLASS } from "design-system";
+import {
+  Icon,
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "design-system-old";
 import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`

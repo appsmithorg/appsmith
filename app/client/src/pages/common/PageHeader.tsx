@@ -23,7 +23,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-hamburger.svg";
 import MobileSideBar from "./MobileSidebar";
 import { Indices } from "constants/Layers";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 
@@ -99,6 +99,7 @@ type PageHeaderProps = {
   user?: User;
   hideShadow?: boolean;
   showSeparator?: boolean;
+  hideEditProfileLink?: boolean;
 };
 
 export function PageHeader(props: PageHeaderProps) {
@@ -196,6 +197,7 @@ export function PageHeader(props: PageHeaderProps) {
             />
           ) : (
             <ProfileDropdown
+              hideEditProfileLink={props.hideEditProfileLink}
               name={user.name}
               photoId={user?.photoId}
               userName={user.username}

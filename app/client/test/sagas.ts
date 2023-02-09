@@ -57,7 +57,6 @@ export const sagasToRunForTests = [
   utilSagas,
   saaSPaneSagas,
   globalSearchSagas,
-  recentEntitiesSagas,
   websocketSagas,
   debuggerSagas,
   watchJSActionSagas,

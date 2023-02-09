@@ -3,7 +3,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
 import styled, { useTheme } from "styled-components";
 import { Colors } from "constants/Colors";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import {
   createMessage,
   ENTITY_MORE_ACTIONS_TOOLTIP,

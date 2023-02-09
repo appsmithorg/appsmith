@@ -9,7 +9,7 @@ import {
   NotificationBanner,
   NotificationBannerProps,
   NotificationVariant,
-} from "design-system";
+} from "design-system-old";
 
 const NotificationContainer = styled.div`
   margin-top: 16px;

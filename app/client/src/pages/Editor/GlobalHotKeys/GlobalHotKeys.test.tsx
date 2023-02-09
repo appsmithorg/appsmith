@@ -7,12 +7,12 @@ import {
 } from "@appsmith/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
-import { StyledToastContainer } from "design-system";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { StyledToastContainer } from "design-system-old";
 import { MemoryRouter } from "react-router-dom";
-import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import * as utilities from "selectors/editorSelectors";
+import * as sagaSelectors from "sagas/selectors";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as utilities from "selectors/editorSelectors";
 import store, { runSagaMiddleware } from "store";
 import {
   buildChildren,
@@ -32,6 +32,7 @@ import {
 import { MockCanvas } from "test/testMockedWidgets";
 import { act, fireEvent, render, waitFor } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import MainContainer from "../MainContainer";
 import GlobalHotKeys from "./GlobalHotKeys";
 
@@ -59,6 +60,7 @@ describe("Canvas Hot Keys", () => {
     useMockDsl(dsl);
     return <MainContainer />;
   }
+
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
     const mockGenerator = function*() {
@@ -440,6 +442,7 @@ describe("Cut/Copy/Paste hotkey", () => {
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
+      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
     const artBoard: any = await component.queryByTestId("t--canvas-artboard");
     // deselect all other widgets
@@ -457,6 +460,7 @@ describe("Cut/Copy/Paste hotkey", () => {
 
     let selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
+    jest.spyOn(sagaSelectors, "getWidgetMetaProps").mockReturnValue({});
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,
@@ -478,7 +482,6 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
     await component.findByTestId("t--selection-box");
-
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,

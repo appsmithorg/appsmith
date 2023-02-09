@@ -1,7 +1,7 @@
 @import "~normalize.css";
 @import "~@blueprintjs/core/lib/css/blueprint.css";
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
-@import "~design-system/build/css/design-system.css";
+@import "~design-system-old/build/css/design-system-old.css";
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
@@ -110,7 +110,13 @@ div.bp3-popover-arrow {
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
 }
+.widget-name-popper{
+  box-shadow: none !important;
+}
 
+.widget-name-popper > .bp3-popover2-content{
+  border-radius: 4px !important;
+}
 .bp3-overlay-backdrop {
   background-color: rgba(16, 22, 26, 0.7) !important;
 }

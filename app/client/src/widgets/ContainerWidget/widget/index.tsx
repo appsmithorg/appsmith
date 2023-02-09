@@ -17,8 +17,8 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { Positioning } from "utils/autoLayout/constants";
 import { Stylesheet } from "entities/AppTheming";
+import { Positioning } from "utils/autoLayout/constants";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 
 export class ContainerWidget extends BaseWidget<
@@ -224,8 +224,13 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    //ToDo: Ashok Need a better way of doing this.
+    const useAutoLayout = this.props.positioning
+      ? this.props.positioning !== Positioning.Fixed
+      : false;
+    const shouldScroll = props.shouldScrollContents && !useAutoLayout;
     return (
-      <ContainerComponent {...props} shouldScrollContents={false}>
+      <ContainerComponent {...props} shouldScrollContents={shouldScroll}>
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}
