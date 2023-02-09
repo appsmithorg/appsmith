@@ -4,6 +4,7 @@ import applicationLocators from "../../../../locators/Applications.json";
 import signupPageLocators from "../../../../locators/SignupPage.json";
 import loginPageLocators from "../../../../locators/LoginPage.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
@@ -72,9 +73,19 @@ describe("Fork application across workspaces", function() {
       }
 
       cy.PublishtheApp();
+      agHelper.Sleep(1000);
       cy.get("button:contains('Share')")
         .first()
         .click({ force: true });
+      agHelper.Sleep(1000);
+      cy.get("body").then(($ele) => {
+        if ($ele.find(homePage.enablePublicAccess).length <= 0) {
+          cy.contains("Retry").click();
+          cy.get("button:contains('Share')")
+            .first()
+            .click({ force: true });
+        }
+      });
       cy.enablePublicAccess();
 
       cy.url().then((url) => {
