@@ -25,7 +25,7 @@ export const stringToJS = (string: string): string => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return jsSnippets[index];
       } else {
-        return `${segment}`;
+        return `'${segment}'`;
       }
     })
     .join(" + ");
@@ -64,7 +64,7 @@ export const argsStringToArray = (funcArgs: string): string[] => {
 export const modalSetter = (changeValue: any, currentValue: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
-  const requiredValue = stringToJS(currentValue);
+  const requiredValue = getCodeFromMoustache(currentValue);
   try {
     return setModalName(requiredValue, changeValue, self.evaluationVersion);
   } catch (e) {
@@ -76,7 +76,7 @@ export const modalSetter = (changeValue: any, currentValue: string) => {
 export const modalGetter = (value: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
-  const requiredValue = stringToJS(value);
+  const requiredValue = getCodeFromMoustache(value);
   return getModalName(requiredValue, self.evaluationVersion);
 };
 
@@ -85,8 +85,8 @@ export const objectSetter = (
   currentValue: string,
   argNum: number,
 ): string => {
-  const requiredValue = stringToJS(currentValue);
-  const changeValueWithoutBraces = stringToJS(changeValue);
+  const requiredValue = getCodeFromMoustache(currentValue);
+  const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
   try {
     return setObjectAtPosition(
       requiredValue,
@@ -105,8 +105,10 @@ export const textSetter = (
   currentValue: string,
   argNum: number,
 ): string => {
-  const requiredValue = getCodeFromMoustache(currentValue);
-  const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
+  const requiredValue = stringToJS(currentValue);
+  const changeValueWithoutBraces = getCodeFromMoustache(
+    stringToJS(changeValue),
+  );
   let requiredChangeValue;
   if (changeValue.indexOf("{{") === -1) {
     // raw string values
@@ -197,8 +199,8 @@ export const callBackFieldSetter = (
   currentValue: string,
   argNum: number,
 ): string => {
-  const requiredValue = stringToJS(currentValue);
-  const requiredChangeValue = stringToJS(changeValue) || "() => {}";
+  const requiredValue = getCodeFromMoustache(currentValue);
+  const requiredChangeValue = getCodeFromMoustache(changeValue) || "() => {}";
   try {
     return `{{${setCallbackFunctionField(
       requiredValue,
@@ -213,7 +215,7 @@ export const callBackFieldSetter = (
 };
 
 export const callBackFieldGetter = (value: string, argNumber = 0) => {
-  const requiredValue = stringToJS(value);
+  const requiredValue = getCodeFromMoustache(value);
   const funcExpr = getFuncExpressionAtPosition(
     requiredValue,
     argNumber,
@@ -286,7 +288,7 @@ export function codeToAction(
   fieldOptions: TreeDropdownOption[],
   multipleActions = true,
 ): ActionTree {
-  const jsCode = stringToJS(code);
+  const jsCode = getCodeFromMoustache(code);
 
   const selectedOption = getSelectedFieldFromValue(jsCode, fieldOptions);
 

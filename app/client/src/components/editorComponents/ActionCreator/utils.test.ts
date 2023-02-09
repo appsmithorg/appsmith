@@ -19,7 +19,7 @@ import {
   objectSetter,
 } from "./utils";
 
-describe.skip("Test argStringToArray", () => {
+describe("Test argStringToArray", () => {
   const cases = [
     { index: 0, input: "", expected: [""] },
     { index: 1, input: "'a'", expected: ["'a'"] },
@@ -91,7 +91,7 @@ describe.skip("Test argStringToArray", () => {
   );
 });
 
-describe.skip("Test stringToJS", () => {
+describe("Test stringToJS", () => {
   const cases = [
     { index: 1, input: "{{'a'}}", expected: "'a'" },
     { index: 2, input: "{{a}}", expected: "a" },
@@ -152,6 +152,21 @@ describe.skip("Test stringToJS", () => {
       input: "{{(a, b) => {return a + b}}}",
       expected: "(a, b) => {return a + b}",
     },
+    {
+      index: 20,
+      input: "{{Text1}}",
+      expected: "Text1",
+    },
+    {
+      index: 21,
+      input: "Hello {{Text1}}",
+      expected: "'Hello ' + Text1",
+    },
+    {
+      index: 22,
+      input: "Hello",
+      expected: "'Hello'",
+    },
   ];
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
     "test case %d",
@@ -162,7 +177,7 @@ describe.skip("Test stringToJS", () => {
   );
 });
 
-describe.skip("Test JSToString", () => {
+describe("Test JSToString", () => {
   const cases = [
     { index: 1, input: "'a'", expected: "a" },
     { index: 2, input: "a", expected: "{{a}}" },
@@ -390,7 +405,7 @@ describe("Test textSetter", () => {
   });
 });
 
-describe.skip("Test textGetter", () => {
+describe("Test textGetter", () => {
   const cases = [
     {
       index: 0,
@@ -504,7 +519,7 @@ describe.skip("Test textGetter", () => {
   );
 });
 
-describe.skip("Test enumTypeSetter", () => {
+describe("Test enumTypeSetter", () => {
   const cases = [
     {
       index: 0,
@@ -554,7 +569,7 @@ describe.skip("Test enumTypeSetter", () => {
   });
 });
 
-describe.skip("Test enumTypeGetter", () => {
+describe("Test enumTypeGetter", () => {
   const cases = [
     {
       index: 0,
@@ -620,7 +635,7 @@ describe("Test objectSetter", () => {
   });
 });
 
-describe.skip("Test isValueValidURL", () => {
+describe("Test isValueValidURL", () => {
   const cases = [
     {
       index: 1,
@@ -671,9 +686,3 @@ describe.skip("Test isValueValidURL", () => {
     },
   );
 });
-
-// describe("codeToAction", () => {
-//   it("should", () => {
-//     const fieldOptions: TreeDropdownOption[] = ;
-//   });
-// });

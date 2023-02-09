@@ -174,8 +174,6 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     const changeValueAstWithComments = klona(attachCommentsToAst(changeValueAst, changedValueCommentArray));
     const currentValueAstWithComments = klona(attachCommentsToAst(ast, currentValueCommentArray));
 
-    console.log(changeValueAstWithComments);
-
     const changeValueNodeFound = findNodeAt(changeValueAstWithComments, 0, undefined, (type) => type === "Program");
 
     if (changeValueNodeFound) {

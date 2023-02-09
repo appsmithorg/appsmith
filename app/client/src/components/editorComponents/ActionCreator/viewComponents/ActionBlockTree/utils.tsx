@@ -21,7 +21,7 @@ import { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
 import { getFunctionName } from "@shared/ast";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
-import { getCodeFromMoustache, JSToString, stringToJS } from "../../utils";
+import { getCodeFromMoustache } from "../../utils";
 import { ApiMethodIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
@@ -89,7 +89,7 @@ function getIconForAction(
 
     case AppsmithFunction.runAPI:
       const functionName = getFunctionName(
-        stringToJS(code),
+        getCodeFromMoustache(code),
         self.evaluationVersion,
       );
       const apiName = functionName.split(".")[0];
@@ -142,10 +142,16 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
 
     case AppsmithFunction.runAPI:
     case AppsmithFunction.jsFunction:
-      return getFunctionName(stringToJS(code), self.evaluationVersion) + "()";
+      return (
+        getFunctionName(getCodeFromMoustache(code), self.evaluationVersion) +
+        "()"
+      );
 
     case AppsmithFunction.integration:
-      return getFunctionName(stringToJS(code), self.evaluationVersion);
+      return getFunctionName(
+        getCodeFromMoustache(code),
+        self.evaluationVersion,
+      );
 
     case AppsmithFunction.showModal:
       return (
@@ -174,8 +180,8 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
 
     case AppsmithFunction.setInterval:
       return (
-        stringToJS(FIELD_CONFIG[FieldType.DELAY_FIELD].getter(code)) + "ms" ||
-        "Add interval"
+        getCodeFromMoustache(FIELD_CONFIG[FieldType.DELAY_FIELD].getter(code)) +
+          "ms" || "Add interval"
       );
 
     case AppsmithFunction.clearInterval:
@@ -217,7 +223,7 @@ export function getActionInfo(
 
   const actionTypeLabel = FIELD_GROUP_CONFIG[actionType].label;
 
-  const action = getActionHeading(JSToString(code), actionType);
+  const action = getActionHeading(`{{${code}}}`, actionType);
 
   return { Icon, actionTypeLabel, action };
 }
