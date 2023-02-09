@@ -34,6 +34,8 @@ public class MongoPluginErrorMessages {
 
     public static final String UNSUPPORTED_OPERATION_GET_RAW_QUERY_ERROR_MSG = "Unsupported Operation : All mongo commands must implement getRawQuery.";
 
+    public static final String QUERY_INVALID_ERROR_MSG = "Query is not valid";
+
     /*
      ************************************************************************************************************************************************
                                         Error messages related to validation of datasource.

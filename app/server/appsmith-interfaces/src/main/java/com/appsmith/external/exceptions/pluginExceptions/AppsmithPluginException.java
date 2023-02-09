@@ -38,6 +38,7 @@ public class AppsmithPluginException extends BaseException {
 
     public String getTitle() { return this.error.getTitle(); }
 
+    @Override
     public String getErrorType() { return this.error.getErrorType(); }
 
     @Override
