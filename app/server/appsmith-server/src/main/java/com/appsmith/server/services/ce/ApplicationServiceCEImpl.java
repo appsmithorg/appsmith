@@ -813,7 +813,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                                 final Mono<Application> updateMono = this.update(applicationId, branchedApplication, branchName);
 
-                                if (!StringUtils.hasLength(oldAssetId)){
+                                if (!StringUtils.hasLength(oldAssetId)) {
                                     return updateMono;
                                 } else {
                                     return assetService.remove(oldAssetId).then(updateMono);
@@ -822,7 +822,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             });
 
                 });
+    }
 
+
+    @Override
+    public Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
+        return repository.findByNameAndWorkspaceId(applicationName, workspaceId, permission);
     }
 
     @Override
