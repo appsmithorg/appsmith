@@ -29,17 +29,18 @@ export const CONFIG = {
     animateLoading: true,
     responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
   },
-  widgetSize: [
-    {
-      viewportMinWidth: 0,
-      configuration: () => {
-        return {
-          minWidth: "74px",
-          minHeight: "40px",
-        };
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "74px",
+          };
+        },
       },
-    },
-  ],
+    ],
+  },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),

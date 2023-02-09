@@ -32,10 +32,6 @@ const SwitchComponentContainer = styled.div<{
   align-items: center;
   justify-content: stretch;
   ${BlueprintControlTransform}
-
-  .auto-layout & {
-    min-width: 74px;
-  }
 `;
 
 const SwitchLabel = styled.div<{
