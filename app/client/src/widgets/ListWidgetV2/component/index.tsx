@@ -1,5 +1,8 @@
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import React, { RefObject } from "react";
 import styled from "styled-components";
+
+import { scrollCSS } from "widgets/WidgetUtils";
 
 type ListComponentProps = React.PropsWithChildren<{
   backgroundColor: string;
@@ -7,17 +10,22 @@ type ListComponentProps = React.PropsWithChildren<{
   boxShadow?: string;
   componentRef: RefObject<HTMLDivElement>;
   height: number;
+  infiniteScroll?: boolean;
 }>;
 
-type StyledListContainerProps = Omit<ListComponentProps, "componentRef">;
+type StyledListContainerProps = Omit<
+  ListComponentProps,
+  "componentRef" | "height"
+>;
 
 const StyledListContainer = styled.div<StyledListContainerProps>`
-  height: ${(props) => props.height - 8}px;
+  height: 100%;
   width: 100%;
   position: relative;
   background: ${(props) => props.backgroundColor};
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => boxShadow};
+  overflow: hidden;
 `;
 
 export const ListComponentEmpty = styled.div<{
@@ -37,6 +45,14 @@ export const ListComponentEmpty = styled.div<{
   box-shadow: ${(props) => `0px 0px 0px 1px ${props.theme.borders[2].color}`};
 `;
 
+// This is to be improved for infiniteScroll.
+const ScrollableCanvasWrapper = styled.div<
+  Pick<ListComponentProps, "infiniteScroll" | "height">
+>`
+  ${({ infiniteScroll }) => (infiniteScroll ? scrollCSS : ``)}
+   height: ${(props) => props.height - WIDGET_PADDING * 2}px;
+`;
+
 function ListComponent(props: ListComponentProps) {
   const {
     backgroundColor,
@@ -44,6 +60,7 @@ function ListComponent(props: ListComponentProps) {
     boxShadow,
     componentRef,
     height,
+    infiniteScroll,
   } = props;
 
   return (
@@ -51,10 +68,11 @@ function ListComponent(props: ListComponentProps) {
       backgroundColor={backgroundColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
-      height={height}
       ref={componentRef}
     >
-      {props.children}
+      <ScrollableCanvasWrapper height={height} infiniteScroll={infiniteScroll}>
+        {props.children}
+      </ScrollableCanvasWrapper>
     </StyledListContainer>
   );
 }

@@ -966,6 +966,7 @@ class ListWidget extends BaseWidget<
   getPageView() {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const {
+      infiniteScroll,
       isLoading,
       parentColumnSpace,
       parentRowSpace,
@@ -1013,6 +1014,7 @@ class ListWidget extends BaseWidget<
         boxShadow={this.props.boxShadow}
         componentRef={this.componentRef}
         height={componentHeight}
+        infiniteScroll={infiniteScroll}
       >
         <MetaWidgetContextProvider
           batchUpdateWidgetProperty={this.overrideBatchUpdateWidgetProperty}
