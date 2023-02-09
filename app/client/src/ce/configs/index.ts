@@ -169,7 +169,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.fusioncharts.licenseKey,
     APPSMITH_FEATURE_CONFIGS.fusioncharts.licenseKey,
   );
-  const google = getConfig(ENV_CONFIG.google, APPSMITH_FEATURE_CONFIGS.google);
 
   const googleRecaptchaSiteKey = getConfig(
     ENV_CONFIG.googleRecaptchaSiteKey,
@@ -242,10 +241,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiKey: algoliaAPIKey.value || "dfde934d9bdc2e0b14830f1dd3cb240f",
       indexName: algoliaIndex.value || "omnibar_docusaurus_index",
       snippetIndex: algoliaSnippetIndex.value || "snippet",
-    },
-    google: {
-      enabled: google.enabled,
-      apiKey: google.value,
     },
     googleRecaptchaSiteKey: {
       enabled: googleRecaptchaSiteKey.enabled,

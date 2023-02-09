@@ -230,11 +230,11 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
         if (state != null && !state.isEmpty()) {
-            String[] stateArray = state.split(",");
+            String[] stateArray = state.split("@");
             for (String stateVar : stateArray) {
                 if (stateVar != null && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN)) {
                     // This is the origin of the request that we want to redirect to
-                    redirectUrl = stateVar.split("=", 2)[1];
+                    redirectUrl = stateVar.split("-", 2)[1];
                 }
             }
         }
