@@ -44,23 +44,19 @@ const StyledControlGroup = styled(ControlGroup)<{
 }>`
   ${labelLayoutStyles}
 
-  .auto-layout & {
-    min-width: 60px;
-  }
-
   /**
     When the label is on the left it is not center aligned
-    here set height to auto and not 100% because the input
+    here set height to auto and not 100% because the input 
     has fixed height and stretch the container.
   */
-  ${({ labelPosition }) => {
-    if (labelPosition === LabelPosition.Left) {
-      return `
+    ${({ labelPosition }) => {
+      if (labelPosition === LabelPosition.Left) {
+        return `
       height: auto !important;
       align-items: stretch;
       `;
-    }
-  }}
+      }
+    }}
 
   &&& {
     .${Classes.INPUT} {
@@ -149,14 +145,6 @@ export const DateInputWrapper = styled.div<{
     flex-grow: 0;
   }
   width: 100%;
-
-  .auto-layout & {
-    min-height: 40px;
-  }
-
-  .mobile-view .auto-layout & {
-    min-height: 36px;
-  }
 `;
 
 class DatePickerComponent extends React.Component<
@@ -396,7 +384,7 @@ class DatePickerComponent extends React.Component<
                 canEscapeKeyClose: true,
                 portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
                 onClose: this.props.onPopoverClosed,
-                /*
+                /* 
                   Conditional popover props are the popover props that should not be sent to
                   DateInput in any way if they are not applicable.
                   Here isOpen prop if sent in any way will interfere with the normal functionality
