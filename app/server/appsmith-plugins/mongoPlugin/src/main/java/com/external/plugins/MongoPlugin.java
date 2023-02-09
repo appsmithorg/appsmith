@@ -311,18 +311,24 @@ public class MongoPlugin extends BasePlugin {
                 log.info("Encountered null connection in MongoDB plugin. Reporting back.");
                 throw new StaleConnectionException();
             }
-
-            MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
-
-            final Map<String, Object> formData = actionConfiguration.getFormData();
-
-            String query = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
-            Bson command = Document.parse(query);
-
-            Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
+            Mono<Document> mongoOutputMono;
             ActionExecutionResult result = new ActionExecutionResult();
-            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null
-                    , null, null));
+            String query;
+            List<RequestParamDTO> requestParams;
+            try {
+                MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
+
+                final Map<String, Object> formData = actionConfiguration.getFormData();
+
+                query = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
+                Bson command = Document.parse(query);
+
+                mongoOutputMono = Mono.from(database.runCommand(command));
+                requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null
+                        , null, null));
+            } catch (Exception error) {
+                return Mono.error(new AppsmithPluginException(MongoPluginError.QUERY_EXECUTION_FAILED, MongoPluginErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error));
+            }
 
             return mongoOutputMono
                     .onErrorMap(
@@ -337,7 +343,7 @@ public class MongoPlugin extends BasePlugin {
                             error -> new AppsmithPluginException(
                                     error,
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    error.getErrorMessage()
+                                    MongoPluginErrorMessages.QUERY_INVALID_ERROR_MSG
                             )
                     )
                     /**

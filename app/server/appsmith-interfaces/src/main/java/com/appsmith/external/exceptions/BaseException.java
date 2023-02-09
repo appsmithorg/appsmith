@@ -35,4 +35,6 @@ public abstract class BaseException extends RuntimeException {
 
     public abstract String getDownstreamErrorCode();
 
+    public abstract String getErrorType();
+
 }

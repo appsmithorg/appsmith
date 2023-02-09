@@ -59,6 +59,7 @@ public class ActionExecutionResult {
         } else if (error instanceof BaseException) {
             this.statusCode = ((BaseException) error).getAppErrorCode();
             this.title = ((BaseException) error).getTitle();
+            this.errorType = ((BaseException) error).getErrorType();
         }
     }
 
