@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import ReactJson from "react-json-view";
 import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
 import { componentWillAppendToBody } from "react-append-to-body";
 import { MenuDivider } from "design-system-old";
+import { debounce } from "lodash";
 
 export type PeekOverlayStateProps = {
   name: string;
@@ -17,16 +18,33 @@ export const PeekOverlayPopUp = componentWillAppendToBody(
   PeekOverlayPopUpContent,
 );
 
+export const PEEK_OVERLAY_DELAY = 200;
+
 export function PeekOverlayPopUpContent(
   props: PeekOverlayStateProps & {
-    onMouseEnter: (event: React.MouseEvent) => void;
-    onMouseLeave: (event: React.MouseEvent) => void;
+    hidePeekOverlay: () => void;
   },
 ) {
+  useEffect(() => {
+    const callback = () => {
+      props.hidePeekOverlay();
+    };
+    window.addEventListener("wheel", callback);
+    return () => {
+      window.removeEventListener("wheel", callback);
+    };
+  }, []);
+
+  const debouncedHide = debounce(
+    () => props.hidePeekOverlay(),
+    PEEK_OVERLAY_DELAY,
+  );
+
   return (
     <div
-      onMouseEnter={props.onMouseEnter}
-      onMouseLeave={props.onMouseLeave}
+      onMouseEnter={() => debouncedHide.cancel()}
+      onMouseLeave={() => debouncedHide()}
+      onWheel={(ev) => ev.stopPropagation()}
       style={{
         position: "absolute",
         minHeight: "46px",

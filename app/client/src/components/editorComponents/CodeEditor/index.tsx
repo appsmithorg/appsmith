@@ -128,6 +128,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
   PeekOverlayPopUp,
   PeekOverlayStateProps,
+  PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
@@ -242,7 +243,6 @@ class CodeEditor extends Component<Props, State> {
   hinters: Hinter[] = [];
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
-  peekOverlayDelay = 200;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
 
   constructor(props: Props) {
@@ -409,7 +409,6 @@ class CodeEditor extends Component<Props, State> {
     }
     window.addEventListener("keydown", this.handleKeydown);
     window.addEventListener("keyup", this.handleKeyUp);
-    window.addEventListener("wheel", this.hidePeekOverlay);
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
@@ -529,11 +528,6 @@ class CodeEditor extends Component<Props, State> {
     });
   };
 
-  debouncedHidePeekOverlay = debounce(
-    () => this.hidePeekOverlay(),
-    this.peekOverlayDelay,
-  );
-
   hidePeekOverlay = () =>
     this.setState({
       peekOverlayProps: undefined,
@@ -541,7 +535,7 @@ class CodeEditor extends Component<Props, State> {
 
   debounceHandleMouseOver = debounce(
     (ev) => this.handleMouseOver(ev),
-    this.peekOverlayDelay,
+    PEEK_OVERLAY_DELAY,
   );
 
   handleMouseOver = (event: MouseEvent) => {
@@ -609,7 +603,6 @@ class CodeEditor extends Component<Props, State> {
 
     window.removeEventListener("keydown", this.handleKeydown);
     window.removeEventListener("keyup", this.handleKeyUp);
-    window.removeEventListener("wheel", this.hidePeekOverlay);
 
     // return if component unmounts before editor is created
     if (!this.editor) return;
@@ -1219,8 +1212,7 @@ class CodeEditor extends Component<Props, State> {
           >
             {this.state.peekOverlayProps && (
               <PeekOverlayPopUp
-                onMouseEnter={() => this.debouncedHidePeekOverlay.cancel()}
-                onMouseLeave={() => this.debouncedHidePeekOverlay()}
+                hidePeekOverlay={() => this.hidePeekOverlay()}
                 {...this.state.peekOverlayProps}
               />
             )}
