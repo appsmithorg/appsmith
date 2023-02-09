@@ -18,6 +18,7 @@ import {
 } from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { getCanvasWidth } from "selectors/editorSelectors";
 
 type LayoutUpdatePayload = {
   parentId: string;
@@ -51,11 +52,13 @@ function* addChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
     const { parentId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const isMobile: boolean = yield select(getIsMobile);
+    const mainCanvasWidth: number = yield select(getCanvasWidth);
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       wrapChildren,
       allWidgets,
       parentId,
       isMobile,
+      mainCanvasWidth,
     );
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("empty wrapper removal took", performance.now() - start, "ms");
@@ -81,11 +84,13 @@ export function* updateFillChildInfo(
     const { responsiveBehavior, widgetId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const isMobile: boolean = yield select(getIsMobile);
+    const mainCanvasWidth: number = yield select(getCanvasWidth);
     const updatedWidgets: CanvasWidgetsReduxState = updateFillChildStatus(
       allWidgets,
       widgetId,
       responsiveBehavior === ResponsiveBehavior.Fill,
       isMobile,
+      mainCanvasWidth,
     );
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("updating fill child info took", performance.now() - start, "ms");
@@ -111,9 +116,10 @@ export function* updateLayoutForMobileCheckpoint(
     const start = performance.now();
     const { canvasWidth, isMobile, parentId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const mainCanvasWidth: number = yield select(getCanvasWidth);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
       ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, canvasWidth)
-      : alterLayoutForDesktop(allWidgets, parentId);
+      : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug(
       "updating layout for mobile viewport took",
@@ -138,12 +144,18 @@ function* widgetViolatedMinDimensionsSaga(
 ) {
   const isMobile: boolean = yield select(getIsMobile);
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   const parentId = action.payload.parentId;
   if (processedParentIds.has(parentId)) return;
   processedParentIds.set(parentId, true);
   setTimeout(() => processedParentIds.delete(parentId), 1000);
-  const updatedWidgets = updateWidgetPositions(allWidgets, parentId, isMobile);
+  const updatedWidgets = updateWidgetPositions(
+    allWidgets,
+    parentId,
+    isMobile,
+    mainCanvasWidth,
+  );
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 

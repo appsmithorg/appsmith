@@ -1,5 +1,4 @@
-import { ReflowDirection } from "reflow/reflowTypes";
-import { HighlightInfo } from "./highlightUtils";
+import { HighlightInfo } from "./autoLayoutTypes";
 
 export interface Point {
   x: number;
@@ -10,29 +9,26 @@ export interface Point {
  * Select the closest highlight to the mouse position (in the direction of the).
  * @param highlights | HighlightInfo[] : all highlights for the current canvas.
  * @param e | any : mouse event.
- * @param moveDirection | ReflowDirection : direction of the drag.
  * @param val | Point : mouse coordinates.
  * @returns HighlightInfo | undefined
  */
 export const getHighlightPayload = (
   highlights: HighlightInfo[],
   e: any,
-  moveDirection?: ReflowDirection,
   val?: Point,
 ): HighlightInfo | undefined => {
   if (!highlights || !highlights.length) return;
 
   // Current mouse coordinates.
   const pos: Point = {
-    x: e?.offsetX || val?.x,
-    y: e?.offsetY || val?.y,
+    x: e ? e.offsetX || e.layerX : val?.x,
+    y: e ? e.offsetY || e.layerY : val?.y,
   };
-
   /**
    * Filter highlights that  span the current mouse position.
    */
   let filteredHighlights: HighlightInfo[] = [];
-  filteredHighlights = getViableDropPositions(highlights, pos, moveDirection);
+  filteredHighlights = getViableDropPositions(highlights, pos);
   if (!filteredHighlights || !filteredHighlights?.length) return;
 
   // Sort filtered highlights in ascending order of distance from mouse position.
@@ -40,7 +36,7 @@ export const getHighlightPayload = (
     return calculateDistance(a, pos) - calculateDistance(b, pos);
   });
 
-  // console.log("#### arr", arr, highlights, moveDirection);
+  // console.log("#### arr", arr, highlights);
 
   // Return the closest highlight.
   return arr[0];
@@ -50,15 +46,13 @@ export const getHighlightPayload = (
  * Filter highlights based on direction of drag.
  * @param arr | HighlightInfo[] : all highlights for the current canvas.
  * @param pos | Point : current mouse coordinates.
- * @param moveDirection | ReflowDirection : direction of the drag.
  * @returns HighlightInfo | undefined
  */
 function getViableDropPositions(
   arr: HighlightInfo[],
   pos: Point,
-  moveDirection?: ReflowDirection,
 ): HighlightInfo[] {
-  if (!moveDirection || !arr) return arr || [];
+  if (!arr) return arr || [];
   const DEFAULT_DROP_RANGE = 10;
   const verticalHighlights = arr.filter(
     (highlight: HighlightInfo) => highlight.isVertical,
@@ -81,8 +75,6 @@ function getViableDropPositions(
         selection.push(highlight);
   });
   const hasVerticalSelection = selection.length > 0;
-  const dropArea = localStorage.getItem("horizontalHighlightDropArea");
-  const zoneSize = dropArea ? parseFloat(dropArea) : 0;
   horizontalHighlights.forEach((highlight: HighlightInfo) => {
     if (pos.x >= highlight.posX && pos.x <= highlight.posX + highlight.width)
       if (
@@ -90,15 +82,13 @@ function getViableDropPositions(
           pos.y <=
             highlight.posY +
               (highlight.dropZone?.bottom !== undefined
-                ? highlight.dropZone?.bottom *
-                  (hasVerticalSelection ? zoneSize : 1)
+                ? highlight.dropZone?.bottom * (hasVerticalSelection ? 0.2 : 1)
                 : DEFAULT_DROP_RANGE)) ||
         (pos.y < highlight.posY &&
           pos.y >=
             highlight.posY -
               (highlight.dropZone?.top !== undefined
-                ? highlight.dropZone?.top *
-                  (hasVerticalSelection ? zoneSize + 0.1 : 1)
+                ? highlight.dropZone?.top * (hasVerticalSelection ? 0.3 : 1)
                 : DEFAULT_DROP_RANGE))
       )
         selection.push(highlight);

@@ -5,6 +5,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
 import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
 import {
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
@@ -34,6 +35,8 @@ import {
   defaultAutoLayoutWidgets,
   Positioning,
 } from "utils/autoLayout/constants";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -43,13 +46,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   ) {
     const { children, skipWidgetPropsHydration, type, widgetId } = props;
     const isPreviewMode = useSelector(previewModeSelector);
-
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
     );
+    const googleMapsApiKey = useSelector(getGoogleMapsApiKey);
     const renderMode = useSelector(getRenderMode);
     const evaluatedWidget = useSelector((state: AppState) =>
       getWidgetEvalValues(state, canvasWidget?.widgetName),
@@ -72,7 +75,31 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     if (!skipWidgetPropsHydration) {
       const canvasWidgetProps = (() => {
         if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-          return computeMainContainerWidget(canvasWidget, mainCanvasProps);
+          const computed = computeMainContainerWidget(
+            canvasWidget,
+            mainCanvasProps,
+          );
+          if (renderMode === RenderModes.CANVAS) {
+            return {
+              ...computed,
+              bottomRow: Math.max(
+                computed.minHeight,
+                computed.bottomRow +
+                  GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET *
+                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              ),
+            };
+          } else {
+            return {
+              ...computed,
+              bottomRow: Math.max(
+                CANVAS_DEFAULT_MIN_HEIGHT_PX,
+                computed.bottomRow +
+                  GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET *
+                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              ),
+            };
+          }
         }
 
         return evaluatedWidget
@@ -105,10 +132,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           props.noPad && props.dropDisabled && props.openParentPropertyPane;
 
         widgetProps.rightColumn = props.rightColumn;
-        if (widgetProps.bottomRow === undefined || isListWidgetCanvas) {
+        if (isListWidgetCanvas) {
           widgetProps.bottomRow = props.bottomRow;
           widgetProps.minHeight = props.minHeight;
         }
+
         widgetProps.shouldScrollContents = props.shouldScrollContents;
         widgetProps.canExtend = props.canExtend;
         widgetProps.parentId = props.parentId;
@@ -116,7 +144,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps.parentColumnSpace = props.parentColumnSpace;
         widgetProps.parentRowSpace = props.parentRowSpace;
         widgetProps.parentId = props.parentId;
-
         // Form Widget Props
         widgetProps.onReset = props.onReset;
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
@@ -136,6 +163,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }
     //merging with original props
     widgetProps = { ...props, ...widgetProps, renderMode };
+
+    // adding google maps api key to widget props (although meant for map widget only)
+    widgetProps.googleMapsApiKey = googleMapsApiKey;
 
     // isVisible prop defines whether to render a detached widget
     if (widgetProps.detachFromLayout && !widgetProps.isVisible) {

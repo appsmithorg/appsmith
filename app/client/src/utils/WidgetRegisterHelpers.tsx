@@ -72,10 +72,6 @@ export const configureWidget = (config: WidgetConfiguration) => {
   const _config = {
     ...config.defaults,
     ...features,
-    autoLayout: {
-      defaults: config.autoLayout?.defaults,
-      mobile: config.autoLayout?.mobile,
-    },
     searchTags: config.searchTags,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,

@@ -1,19 +1,16 @@
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
-import { ReflowDirection } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
 import { getCanvasWidth } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
-import {
-  deriveHighlightsFromLayers,
-  HighlightInfo,
-} from "utils/autoLayout/highlightUtils";
+import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import {
   getHighlightPayload,
   Point,
 } from "utils/autoLayout/highlightSelectionUtils";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
@@ -101,13 +98,9 @@ export const useAutoLayoutHighlights = ({
   /**
    * Highlight a drop position based on mouse position and move direction.
    * @param e | MouseMoveEvent
-   * @param moveDirection | ReflowDirection
    * @returns HighlightInfo | undefined
    */
-  const highlightDropPosition = (
-    e: any,
-    moveDirection: ReflowDirection,
-  ): HighlightInfo | undefined => {
+  const highlightDropPosition = (e: any): HighlightInfo | undefined => {
     if (!highlights || !highlights.length)
       highlights = deriveHighlightsFromLayers(
         allWidgets,
@@ -121,10 +114,9 @@ export const useAutoLayoutHighlights = ({
     const highlight: HighlightInfo | undefined = getHighlightPayload(
       highlights,
       e,
-      moveDirection,
     );
     if (!highlight) return;
-    // console.log("#### selection", highlight);
+
     lastActiveHighlight = highlight;
     return highlight;
   };
@@ -145,7 +137,6 @@ export const useAutoLayoutHighlights = ({
     const payload: HighlightInfo | undefined = getHighlightPayload(
       highlights,
       null,
-      undefined,
       val,
     );
     if (!payload) return;

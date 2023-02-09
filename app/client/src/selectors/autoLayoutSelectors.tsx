@@ -1,11 +1,14 @@
 import { AppState } from "ce/reducers";
-import {
-  FlexLayer,
-  LayerChild,
-} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
+import {
+  AlignmentColumnInfo,
+  FlexBoxAlignmentColumnInfo,
+  FlexLayer,
+  LayerChild,
+} from "utils/autoLayout/autoLayoutTypes";
+import { getAlignmentColumnInfo } from "utils/autoLayout/AutoLayoutUtils";
 import { getIsMobile } from "./mainCanvasSelectors";
 
 export const getFlexLayers = (parentId: string) => {
@@ -63,3 +66,30 @@ export const getParentOffsetTop = (widgetId: string) =>
         : parent.topRow;
     return top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
   });
+
+export const getAlignmentColumns = (widgetId: string, layerIndex: number) =>
+  createSelector(
+    getWidgets,
+    getIsMobile,
+    getFlexLayers(widgetId),
+    (widgets, isMobile, flexLayers): AlignmentColumnInfo => {
+      const layer: FlexLayer = flexLayers[layerIndex];
+      return getAlignmentColumnInfo(widgets, layer, isMobile);
+    },
+  );
+
+export const getColumnsForAllLayers = (widgetId: string) =>
+  createSelector(
+    getWidgets,
+    getIsMobile,
+    getFlexLayers(widgetId),
+    (widgets, isMobile, flexLayers): FlexBoxAlignmentColumnInfo => {
+      const res: { [key: number]: AlignmentColumnInfo } = {};
+      if (!flexLayers || !flexLayers.length) return res;
+      for (const [index, layer] of flexLayers.entries()) {
+        const info = getAlignmentColumnInfo(widgets, layer, isMobile);
+        res[index] = info;
+      }
+      return res;
+    },
+  );

@@ -4,9 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
+import { ReactComponent as DesktopIcon } from "assets/icons/ads/app-icons/monitor-alt.svg";
+import { ReactComponent as MultiDeviceIcon } from "assets/icons/ads/app-icons/monitor-smartphone-alt.svg";
 import { Colors } from "constants/Colors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Icon, IconName, IconSize, TooltipComponent } from "design-system-old";
+import { IconName, TooltipComponent } from "design-system-old";
 import {
   AppPositioningTypeConfig,
   AppPositioningTypes,
@@ -17,13 +19,15 @@ import {
 } from "selectors/editorSelectors";
 import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
-
 interface ApplicationPositionTypeConfigOption {
   name: string;
   type: AppPositioningTypes;
   icon?: IconName;
 }
-
+const IconObj: any = {
+  fluid: <MultiDeviceIcon />,
+  desktop: <DesktopIcon />,
+};
 export const AppsmithDefaultPositionType: AppPositioningTypeConfig = {
   type: AppPositioningTypes.FIXED,
 };
@@ -151,11 +155,9 @@ export function AppPositionTypeControl() {
                       ref={(input) => buttonRefs.push(input)}
                       tabIndex={index === focusedIndex ? 0 : -1}
                     >
-                      <Icon
-                        fillColor={Colors.BLACK}
-                        name={layoutOption.icon}
-                        size={layoutOption.iconSize || IconSize.MEDIUM}
-                      />
+                      <div style={{ width: "16px", height: "16px" }}>
+                        {IconObj[layoutOption.icon]}
+                      </div>
                     </button>
                   </TooltipComponent>
                 );

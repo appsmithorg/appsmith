@@ -259,6 +259,9 @@ $(if [[ $use_https == 1 ]]; then echo "
         proxy_set_header X-Forwarded-Host \$host;
         proxy_set_header Accept-Encoding '';
 
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+        add_header Content-Security-Policy \"frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}\";
+
         sub_filter_once off;
         location / {
             proxy_pass $frontend;
@@ -272,7 +275,6 @@ $(if [[ $use_https == 1 ]]; then echo "
             sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME-}';
             sub_filter __APPSMITH_ALGOLIA_API_KEY__ '${APPSMITH_ALGOLIA_API_KEY-}';
             sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL-}';
-            sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY-}';
             sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP-}';
             sub_filter __APPSMITH_SENTRY_RELEASE__ '${APPSMITH_SENTRY_RELEASE-}';
             sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ '${APPSMITH_SENTRY_ENVIRONMENT-}';

@@ -1,6 +1,5 @@
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { layoutConfigurations } from "constants/WidgetConstants";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
@@ -41,12 +40,6 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
-    defaults: {
-      rows: 8,
-    },
-    mobile: {
-      rows: 7,
-    },
     widgetSize: [
       {
         viewportMinWidth: 0,
@@ -54,15 +47,6 @@ export const CONFIG = {
           return {
             minWidth: "60px",
             minHeight: "70px",
-          };
-        },
-      },
-      {
-        viewportMinWidth: layoutConfigurations.MOBILE.maxWidth,
-        configuration: () => {
-          return {
-            minWidth: "60px",
-            minHeight: "80px",
           };
         },
       },

@@ -21,8 +21,6 @@ export type WidgetSizeConfig = {
 };
 
 export type AutoLayoutConfig = {
-  defaults: Record<string, string | number>;
-  mobile: Record<string, string | number>;
   widgetSize: Array<WidgetSizeConfig>;
 };
 
