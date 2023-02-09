@@ -2,6 +2,7 @@ import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import userLogs from "./UserLog";
+import { jsVariableUpdates } from "./JSObject/JSVariableUpdates";
 
 class FunctionDeterminer {
   private evalContext: EvalContext = {};
@@ -13,13 +14,18 @@ class FunctionDeterminer {
       IS_SYNC: true,
     };
 
+    jsVariableUpdates.disable();
+
     addDataTreeToContext({
       dataTree,
       EVAL_CONTEXT: evalContext,
       isTriggerBased: true,
     });
 
-    assignJSFunctionsToContext(evalContext, resolvedFunctions);
+    assignJSFunctionsToContext({
+      EVAL_CONTEXT: evalContext,
+      resolvedFunctions,
+    });
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -32,6 +38,7 @@ class FunctionDeterminer {
 
   close() {
     userLogs.enable();
+    jsVariableUpdates.enable();
     for (const entityName in this.evalContext) {
       if (this.evalContext.hasOwnProperty(entityName)) {
         // @ts-expect-error: Types are not available
