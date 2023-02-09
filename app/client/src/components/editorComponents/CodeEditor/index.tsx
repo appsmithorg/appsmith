@@ -549,11 +549,11 @@ class CodeEditor extends Component<Props, State> {
       if (peekableAttribute) {
         const paths = peekableAttribute.split(".");
         if (paths.length) {
-          const propertyAccessor = ["peekData", ...paths.slice(1)];
+          paths.splice(1, 0, "peekData");
           this.showPeekOverlay(
             peekableAttribute,
             tokenElementPosition,
-            _.get(this.props.entitiesForNavigation[paths[0]], propertyAccessor),
+            _.get(this.props.entitiesForNavigation, paths),
           );
         }
       }
