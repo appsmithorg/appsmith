@@ -14,7 +14,7 @@ describe("reduce long canvas height on widget operation", () => {
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 
     cy.document().then((doc) => {
-      const element = doc.querySelector("#div-selection-0");
+      const element = doc.querySelector(".appsmith_widget_0");
       const initialHeight = element.getBoundingClientRect().height;
       //delete widget
       cy.get("body").type(`{del}`);
