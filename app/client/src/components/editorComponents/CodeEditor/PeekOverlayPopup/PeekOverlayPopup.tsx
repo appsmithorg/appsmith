@@ -4,6 +4,7 @@ import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
 import { componentWillAppendToBody } from "react-append-to-body";
 import { MenuDivider } from "design-system-old";
 import { debounce } from "lodash";
+import { zIndexLayers } from "constants/CanvasEditorConstants";
 
 export type PeekOverlayStateProps = {
   name: string;
@@ -41,19 +42,18 @@ export function PeekOverlayPopUpContent(
 
   return (
     <div
+      className={`absolute ${zIndexLayers.PEEK_OVERLAY}`}
       onMouseEnter={() => debouncedHide.cancel()}
       onMouseLeave={() => debouncedHide()}
       onWheel={(ev) => ev.stopPropagation()}
       style={{
-        position: "absolute",
         minHeight: "46px",
         maxHeight: "152px", // +2 px to accomodate scroll bar without distortion
         width: "300px",
-        backgroundColor: "white",
-        boxShadow: "0px 0px 10px #0000001A",
+        backgroundColor: "var(--appsmith-color-black-0)",
+        boxShadow: "0px 0px 10px #0000001A", // color used from designs
         left: `${props.position.left + props.position.width - 300}px`,
         bottom: `calc(100vh - ${props.position.top}px)`,
-        zIndex: 3,
       }}
     >
       <div

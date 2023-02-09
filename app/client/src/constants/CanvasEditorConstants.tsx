@@ -22,5 +22,6 @@ export type WidgetSpace = {
 export const zIndexLayers = {
   PROPERTY_PANE: "z-[3]",
   ENTITY_EXPLORER: "z-[3]",
+  PEEK_OVERLAY: "z-[3]",
   RESIZER: "z-[4]",
 };
