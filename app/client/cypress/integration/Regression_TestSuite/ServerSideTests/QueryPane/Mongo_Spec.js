@@ -273,6 +273,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.xpath("//div[text()='Find']")
       .click()
       .wait(100); //wait for Find form to open
+
     cy.EvaluatFieldValue(formControls.mongoCollection).then((colData) => {
       let localcolData = colData.replace("{", "").replace("}", "");
       cy.log("Collection value is fieldData: " + localcolData);
