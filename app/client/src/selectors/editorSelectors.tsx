@@ -20,7 +20,6 @@ import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
-  WidgetType,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
@@ -35,9 +34,6 @@ import {
   getJSCollections,
 } from "selectors/entitiesSelector";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import WidgetFactory, {
-  NonSerialisableWidgetConfigs,
-} from "utils/WidgetFactory";
 import {
   buildChildWidgetTree,
   createCanvasWidget,
@@ -283,33 +279,6 @@ export const getCurrentPageName = createSelector(
       ?.pageName,
 );
 
-/**
- * This returns the number of rows which is not occupied by a Canvas Widget within
- * a parent container like widget of type widgetType
- * For example, the Tabs Widget takes 4 rows for the tabs
- * @param widgetType Type of widget
- * @param props Widget properties
- * @returns the offset in rows
- */
-export const getCanvasHeightOffset = (
-  widgetType: WidgetType,
-  props: WidgetProps,
-) => {
-  // Get the non serialisable configs for the widget type
-  const config:
-    | Record<NonSerialisableWidgetConfigs, unknown>
-    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
-  let offset = 0;
-  // If this widget has a registered canvasHeightOffset function
-  if (config?.canvasHeightOffset) {
-    // Run the function to get the offset value
-    offset = (config.canvasHeightOffset as (props: WidgetProps) => number)(
-      props,
-    );
-  }
-  return offset;
-};
-
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
   (widgetConfigs: WidgetConfigReducerState) => {
@@ -319,7 +288,6 @@ export const getWidgetCards = createSelector(
 
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
-        autoLayout,
         columns,
         detachFromLayout = false,
         displayName,
@@ -330,7 +298,6 @@ export const getWidgetCards = createSelector(
         type,
       } = config;
       return {
-        autoLayout,
         key,
         type,
         rows,

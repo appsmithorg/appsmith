@@ -1,15 +1,15 @@
 import { getAppsmithConfigs } from "@appsmith/configs";
-import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "./AnalyticsUtil";
-import { Property } from "api/ActionAPI";
-import _ from "lodash";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import * as log from "loglevel";
-import { AppIconCollection, AppIconName } from "design-system-old";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import * as Sentry from "@sentry/react";
+import { Property } from "api/ActionAPI";
+import { AppIconCollection, AppIconName } from "design-system-old";
+import _ from "lodash";
+import * as log from "loglevel";
 import { osName } from "react-device-detect";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import AnalyticsUtil from "./AnalyticsUtil";
 
 export const initializeAnalyticsAndTrackers = () => {
   const appsmithConfigs = getAppsmithConfigs();
@@ -442,8 +442,8 @@ export const isMacOs = () => {
  */
 export function areArraysEqual(arr1: string[], arr2: string[]) {
   if (arr1.length !== arr2.length) return false;
-
-  if (arr1.sort().join(",") === arr2.sort().join(",")) return true;
+  // Because the array is frozen in strict mode, you'll need to copy the array before sorting it
+  if ([...arr1].sort().join(",") === [...arr2].sort().join(",")) return true;
 
   return false;
 }

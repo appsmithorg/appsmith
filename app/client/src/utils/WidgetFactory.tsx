@@ -336,8 +336,6 @@ class WidgetFactory {
     const map = this.autoLayoutConfigMap.get(type);
     if (!map) {
       return {
-        defaults: this.defaultPropertiesMap.get(type) || {},
-        mobile: this.defaultPropertiesMap.get(type) || {},
         widgetSize: [],
       };
     }
