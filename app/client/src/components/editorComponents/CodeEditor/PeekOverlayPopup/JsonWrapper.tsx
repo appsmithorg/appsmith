@@ -45,6 +45,7 @@ export const JsonWrapper = styled.div`
   // font-sizes and alignments
   .pushed-content.object-container {
     .object-content {
+      padding-left: 4px !important;
       .variable-row {
         padding-top: 0 !important;
         padding-bottom: 0 !important;
@@ -59,7 +60,7 @@ export const JsonWrapper = styled.div`
       .object-key-val {
         padding-top: 0 !important;
         padding-bottom: 0 !important;
-        padding-left: 4px !important;
+        padding-left: 0 !important;
         border-left: 0 !important;
       }
     }
