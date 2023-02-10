@@ -44,7 +44,7 @@ export interface BinaryExpressionNode extends Node {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#identifier
-interface IdentifierNode extends Node {
+export interface IdentifierNode extends Node {
   type: NodeTypes.Identifier;
   name: string;
 }
@@ -127,6 +127,23 @@ export interface PropertyNode extends Node {
   kind: 'init' | 'get' | 'set';
 }
 
+export interface ExpressionStatement extends Node {
+  type: "ExpressionStatement";
+  expression: Expression;
+}
+
+export interface Program extends Node {
+  type: "Program";
+  body: [ Directive | Statement ];
+}
+
+export interface Statement extends Node {}
+
+export interface Directive extends ExpressionStatement {
+  expression: LiteralNode;
+  directive: string;
+}
+
 // Node with location details
 type NodeWithLocation<NodeType> = NodeType & {
   loc: SourceLocation;
@@ -193,6 +210,10 @@ export const isCallExpressionNode = (node: Node): node is CallExpressionNode => 
 
 export const isBlockStatementNode = (node: Node): node is BlockStatementNode => {
   return node.type === NodeTypes.BlockStatement;
+}
+
+export const isExpressionStatementNode = (node: Node): node is ExpressionStatement => {
+  return node.type === NodeTypes.ExpressionStatement;
 }
 
 export const isPropertyAFunctionNode = (

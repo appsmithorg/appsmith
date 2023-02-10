@@ -5,6 +5,7 @@ import {
   getFunctionBodyStatements,
   getFunctionName,
   getMainAction,
+  getThenCatchBlocksFromQuery,
 } from "./index";
 
 describe("getFuncExpressionAtPosition", () => {
@@ -177,3 +178,48 @@ describe("getFunctionName", () => {
     expect(result).toEqual("showAlert");
   });
 });
+
+describe("getThenCatchBlocksFromQuery", () => {
+  it ("should return then/catch callbacks appropriately", () => {
+    const value = "Api1.run().then(() => { a() }).catch(() => { b() });";
+
+    const result = getThenCatchBlocksFromQuery(value, 2);
+
+    expect(JSON.stringify(result)).toEqual(JSON.stringify({
+      "catch": "() => {\n  b();\n}",
+      "then": "() => {\n  a();\n}"
+    }))
+  });
+
+  it ("should return then/catch callbacks appropriately", () => {
+    const value = "Api1.run().catch(() => { a() }).then(() => { b() });";
+
+    const result = getThenCatchBlocksFromQuery(value, 2);
+
+    expect(JSON.stringify(result)).toEqual(JSON.stringify({
+      then: `() => {\n  b();\n}`,
+      catch: `() => {\n  a();\n}`
+    }))
+  });
+
+  it ("should return then callback appropriately", () => {
+    const value = "Api1.run().then(() => { a() });";
+
+    const result = getThenCatchBlocksFromQuery(value, 2);
+
+    expect(JSON.stringify(result)).toEqual(JSON.stringify({
+      then: `() => {\n  a();\n}`,
+    }))
+  });
+
+  it ("should return catch callback appropriately", () => {
+    const value = "Api1.run().catch(() => { a() });";
+
+    const result = getThenCatchBlocksFromQuery(value, 2);
+
+    expect(JSON.stringify(result)).toEqual(JSON.stringify({
+      catch: `() => {\n  a();\n}`,
+    }))
+
+  });
+})

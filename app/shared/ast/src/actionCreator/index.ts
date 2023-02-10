@@ -8,12 +8,12 @@ import {
     LiteralNode,
     wrapCode,
     CallExpressionNode,
-    isBinaryExpressionNode,
     BinaryExpressionNode,
-    isBlockStatementNode, BlockStatementNode,
+    BlockStatementNode,
+    IdentifierNode, ExpressionStatement, isExpressionStatementNode, Program,
 } from "../index";
 import {sanitizeScript} from "../utils";
-import {ancestor, findNodeAt, simple} from "acorn-walk";
+import {findNodeAt, simple} from "acorn-walk";
 import {Node, Comment} from "acorn";
 import {NodeTypes} from "../constants";
 import {generate} from "astring";
@@ -196,7 +196,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
                 start: 0,
                 end: 2,
             };
-        }   
+        }
 
         // @ts-ignore
         if(node.arguments[argNum]) {
@@ -206,7 +206,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
             // @ts-ignore
             node.arguments.push(requiredNode);
         }
-        
+
         changedValue = generate(currentValueAstWithComments, {comments: true}).trim();
 
     }
@@ -470,7 +470,7 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
                     // If argument doesn't exist, return empty string
                     requiredArgument = "";
                 }
-    
+
             }
         },
     });
@@ -626,9 +626,9 @@ export function getFunctionBodyStatements(
         const astWithComments = attachCommentsToAst(ast, commentArray);
 
         const mainBody = astWithComments.body[0];
-    
+
         let statementsBody = [];
-    
+
         switch(mainBody.type) {
             case NodeTypes.ExpressionStatement:
                 statementsBody = mainBody.expression.body.body;
@@ -637,12 +637,12 @@ export function getFunctionBodyStatements(
                 statementsBody = mainBody.body.body;
                 break;
         }
-    
+
         return statementsBody.map((node: Node) => generate(node, {comments: true}).trim());
     } catch (error) {
         return [];
     }
-}  
+}
 
 export function getMainAction(value: string, evaluationVersion: number): string {
     let ast: Node = { end: 0, start: 0, type: "" };
@@ -707,4 +707,44 @@ export function getFunctionName(value: string, evaluationVersion: number): strin
     });
 
     return functionName;
+}
+
+// this function extracts the then/catch blocks when query is in this form
+// Api1.run(() => {}, () => {}, {}).then(() => {}).catch(() => {}), or
+// Api1.run(() => {}, () => {}, {}).then(() => {}), or
+// Api1.run(() => {}, () => {}, {}).catch(() => {}), or
+export function getThenCatchBlocksFromQuery(value: string, evaluationVersion: number) {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    let firstBlock, firstBlockType, secondBlock, secondBlockType;
+    let returnValue;
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+    } catch (error) {
+        return value;
+    }
+
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+    const changeValueNodeFound = findNodeAt(astWithComments, 0, undefined, (type) => type === "Program");
+
+    // @ts-ignore
+    const requiredNode = changeValueNodeFound && changeValueNodeFound.node.body[0];
+    firstBlock = ((requiredNode as ExpressionStatement).expression as CallExpressionNode).arguments[0];
+    firstBlockType = ((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name;
+    returnValue = {
+        [firstBlockType]: `${generate(firstBlock)}`,
+    };
+
+    if (value.indexOf("then") >= 0 && value.indexOf("catch") >= 0) {
+        secondBlock = ((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).object as CallExpressionNode).arguments[0];
+        secondBlockType = ((((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).object as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name;
+        returnValue = { ...returnValue, [secondBlockType]: `${generate(secondBlock)}`};
+    }
+
+    return returnValue;
 }
