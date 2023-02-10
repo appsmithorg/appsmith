@@ -106,12 +106,12 @@ export function saveResolvedFunctionsAndJSUpdates(
                 true,
               );
               if (!!result) {
-                let params: Array<{ key: string; value: unknown }> = [];
+                let params: Array<{ name: string; value: unknown }> = [];
 
                 if (parsedElement.arguments) {
                   params = parsedElement.arguments.map(
                     ({ defaultValue, paramName }) => ({
-                      key: paramName,
+                      name: paramName,
                       value: defaultValue,
                     }),
                   );

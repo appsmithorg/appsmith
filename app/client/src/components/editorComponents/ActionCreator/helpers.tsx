@@ -258,7 +258,7 @@ function getJsFunctionExecutionFields(
         field: FieldType.ARGUMENT_KEY_VALUE_FIELD,
         getParentValue,
         value,
-        label: argsProps[index] && argsProps[index].name,
+        label: index.name,
         index: index,
       });
     }
