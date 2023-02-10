@@ -1,7 +1,7 @@
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectAllPages } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
@@ -25,6 +25,7 @@ import {
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
+import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 
 export enum AppSettingsTabs {
   General,
@@ -59,6 +60,7 @@ const ThemeContentWrapper = styled.div`
 function AppSettings() {
   const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
+  const dispatch = useDispatch();
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
     type: context?.type || AppSettingsTabs.General,
@@ -78,6 +80,17 @@ function AppSettings() {
       });
     }
   }, [selectedTab.page?.pageId, pages]);
+
+  useEffect(() => {
+    dispatch(
+      updateAppSettingsPaneSelectedTabAction({
+        isOpen: true,
+        context: {
+          type: selectedTab.type,
+        },
+      }),
+    );
+  }, [selectedTab]);
 
   const SectionHeadersConfig: SectionHeaderProps[] = [
     {

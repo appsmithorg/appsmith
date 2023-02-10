@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
 import WidgetFactory from "utils/WidgetFactory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
@@ -12,21 +11,7 @@ import {
   getSidebarWidth,
 } from "selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-
-const PageViewContainer = styled.div<{
-  hasPinnedSidebar: boolean;
-  sidebarWidth: number;
-}>`
-  ${({ hasPinnedSidebar, sidebarWidth }) =>
-    hasPinnedSidebar ? `margin-left: ${sidebarWidth}px;` : ""};
-`;
-
-const PageView = styled.div<{ width: number }>`
-  height: 100%;
-  position: relative;
-  width: ${(props) => props.width}px;
-  margin: 0 auto;
-`;
+import { PageView, PageViewContainer } from "./AppPage.styled";
 
 type AppPageProps = {
   appName?: string;

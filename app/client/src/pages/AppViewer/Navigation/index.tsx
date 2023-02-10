@@ -1,11 +1,8 @@
 import React, { useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
-import {
-  ApplicationPayload,
-  Page,
-} from "@appsmith/constants/ReduxActionConstants";
-import { connect, useSelector } from "react-redux";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import {
   getCurrentPageId,
@@ -24,22 +21,9 @@ import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
 import TopHeader from "./components/TopHeader";
 import Sidebar from "./Sidebar";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 
-type NavigationProps = {
-  currentApplicationDetails?: ApplicationPayload;
-  pages: Page[];
-  currentWorkspaceId: string;
-  currentUser?: User;
-  lightTheme: Theme;
-};
-
-export function Navigation(props: NavigationProps) {
-  const {
-    currentApplicationDetails,
-    currentUser,
-    currentWorkspaceId,
-    pages,
-  } = props;
+export function Navigation() {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
@@ -48,6 +32,15 @@ export function Navigation(props: NavigationProps) {
   const headerRef = useRef<HTMLDivElement>(null);
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
+  const currentWorkspaceId: string = useSelector(getCurrentWorkspaceId);
+  const currentUser: User | undefined = useSelector(getCurrentUser);
+  const lightTheme: Theme = useSelector((state: AppState) =>
+    getThemeDetails(state, ThemeMode.LIGHT),
+  );
+  const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
+    getCurrentApplication,
+  );
+  const pages = useSelector(getViewModePageList);
 
   const renderNavigation = () => {
     if (
@@ -79,7 +72,7 @@ export function Navigation(props: NavigationProps) {
   if (hideHeader) return <HtmlTitle />;
 
   return (
-    <ThemeProvider theme={props.lightTheme}>
+    <ThemeProvider theme={lightTheme}>
       <div ref={headerRef}>
         {/* Since the Backend doesn't have navigationSetting field by default
         and we are creating the default values only when any nav settings via the
@@ -88,6 +81,7 @@ export function Navigation(props: NavigationProps) {
         {currentApplicationDetails?.navigationSetting?.showNavbar !== false &&
           renderNavigation()}
 
+        {/* Mobile Sidebar */}
         <PageMenu
           application={currentApplicationDetails}
           headerRef={headerRef}
@@ -103,12 +97,4 @@ export function Navigation(props: NavigationProps) {
   );
 }
 
-const mapStateToProps = (state: AppState): NavigationProps => ({
-  pages: getViewModePageList(state),
-  currentApplicationDetails: state.ui.applications.currentApplication,
-  currentWorkspaceId: getCurrentWorkspaceId(state),
-  currentUser: getCurrentUser(state),
-  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
-});
-
-export default connect(mapStateToProps)(Navigation);
+export default Navigation;
