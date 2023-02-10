@@ -10,7 +10,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
-describe("List v2 - Primary Key property", () => {
+describe("List v2 - Data Identifier property", () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -24,7 +24,7 @@ describe("List v2 - Primary Key property", () => {
 
     cy.openPropertyPane("listwidgetv2");
 
-    cy.get(`${propertyControl}-primarykey`)
+    cy.get(`${propertyControl}-dataidentifier`)
       .should("exist")
       .contains("No selection.");
   });
@@ -33,8 +33,8 @@ describe("List v2 - Primary Key property", () => {
     const keys = ["id", "name", "img"];
     cy.openPropertyPane("listwidgetv2");
 
-    // clicking on the primary key dropdown
-    cy.get(`${propertyControl}-primarykey`)
+    // clicking on the data identifier dropdown
+    cy.get(`${propertyControl}-dataidentifier`)
       .find(".bp3-popover-target")
       .last()
       .click({ force: true });
@@ -58,8 +58,8 @@ describe("List v2 - Primary Key property", () => {
   it("3. on selection of key from dropdown, it should show same number of rows", () => {
     cy.openPropertyPane("listwidgetv2");
 
-    // clicking on the primary key dropdown
-    cy.get(`${propertyControl}-primarykey`)
+    // clicking on the data identifier dropdown
+    cy.get(`${propertyControl}-dataidentifier`)
       .find(".bp3-popover-target")
       .last()
       .click({ force: true });
@@ -75,11 +75,11 @@ describe("List v2 - Primary Key property", () => {
   });
 
   it("4. enabling the JS mode, it should prefill with currentItem", () => {
-    cy.get(`${propertyControl}-primarykey`)
+    cy.get(`${propertyControl}-dataidentifier`)
       .find(".t--js-toggle")
       .click({ force: true });
 
-    cy.get(`${propertyControl}-primarykey`)
+    cy.get(`${propertyControl}-dataidentifier`)
       .find(".CodeMirror .CodeMirror-code")
       .contains(`{{ currentItem["id"] }}`);
   });
@@ -87,12 +87,12 @@ describe("List v2 - Primary Key property", () => {
   it("5. when given composite key, should produce a valid array", () => {
     const keys = ["001_Blue_0_ABC", "002_Green_1_ABC", "003_Red_2_ABC"];
 
-    cy.get(`${propertyControl}-primarykey`)
+    cy.get(`${propertyControl}-dataidentifier`)
       .find(".t--js-toggle")
       .click({ force: true });
 
     cy.testJsontext(
-      "primarykey",
+      "dataidentifier",
       "{{currentItem.id + '_' + currentItem.name + '_' + currentIndex }}_ABC",
     );
 
@@ -103,13 +103,13 @@ describe("List v2 - Primary Key property", () => {
     });
   });
 
-  it("6. with large data set and primary key set, the rows should render", () => {
+  it("6. with large data set and data identifier set, the rows should render", () => {
     cy.addDsl(simpleListWithLargeDataDSL);
 
     cy.openPropertyPane("listwidgetv2");
 
-    // clicking on the primary key dropdown
-    cy.get(`${propertyControl}-primarykey`)
+    // clicking on the data identifier dropdown
+    cy.get(`${propertyControl}-dataidentifier`)
       .find(".bp3-popover-target")
       .last()
       .click({ force: true });
@@ -129,11 +129,11 @@ describe("List v2 - Primary Key property", () => {
     cy.get(widgetsPage.containerWidget).should("have.length", 2);
   });
 
-  it("7. non unique primary key should throw error", () => {
+  it("7. non unique data identifier should throw error", () => {
     cy.openPropertyPane("listwidgetv2");
 
-    // clicking on the primary key dropdown
-    cy.get(`${propertyControl}-primarykey`)
+    // clicking on the data identifier dropdown
+    cy.get(`${propertyControl}-dataidentifier`)
       .find(".bp3-popover-target")
       .last()
       .click({ force: true });
@@ -152,7 +152,7 @@ describe("List v2 - Primary Key property", () => {
     cy.get(".debugger-list").contains("The value at primaryKeys is invalid");
   });
 
-  it("8. pagination should work for non unique primary key", () => {
+  it("8. pagination should work for non unique data identifier", () => {
     cy.get(".rc-pagination")
       .find("a")
       .contains("2")

@@ -82,7 +82,8 @@ describe("List widget v2; TriggeredRow, SelectedRow", () => {
 
   it("2. Select a row and validate data", () => {
     // Select the First Row in Page 1
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+    cy.get(widgetSelector("List1"))
+      .find(containerWidgetSelector)
       .first()
       .click({ force: true });
 
