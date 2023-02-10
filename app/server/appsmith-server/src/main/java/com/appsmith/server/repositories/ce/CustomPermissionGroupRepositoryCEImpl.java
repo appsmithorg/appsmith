@@ -8,6 +8,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.CacheableRepositoryUtil;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -25,8 +26,11 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<PermissionGroup>
         implements CustomPermissionGroupRepositoryCE {
 
-    public CustomPermissionGroupRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    private final CacheableRepositoryUtil cacheableRepositoryUtil;
+
+    public CustomPermissionGroupRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper, CacheableRepositoryUtil cacheableRepositoryUtil) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.cacheableRepositoryUtil = cacheableRepositoryUtil;
     }
 
     @Override
@@ -60,6 +64,6 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
-        return cacheableRepositoryHelper.evictAllPermissionGroupRelatedDetailsForUser(email, tenantId);
+        return cacheableRepositoryUtil.evictAllPermissionGroupRelatedDetailsForUser(email, tenantId);
     }
 }

@@ -10,6 +10,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.CacheableRepositoryUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -175,7 +176,7 @@ public class MigrationHelperMethods {
 
     public static void evictPermissionCacheForUsers(Set<String> userIds,
                                                     MongoTemplate mongoTemplate,
-                                                    CacheableRepositoryHelper cacheableRepositoryHelper) {
+                                                    CacheableRepositoryUtil cacheableRepositoryUtil) {
 
         if (userIds == null || userIds.isEmpty()) {
             // Nothing to do here.
@@ -187,7 +188,7 @@ public class MigrationHelperMethods {
             User user = mongoTemplate.findOne(query, User.class);
             if (user != null) {
                 // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
-                cacheableRepositoryHelper.evictAllPermissionGroupRelatedDetailsForUser(user.getEmail(), user.getTenantId())
+                cacheableRepositoryUtil.evictAllPermissionGroupRelatedDetailsForUser(user.getEmail(), user.getTenantId())
                         .block();
             }
         });

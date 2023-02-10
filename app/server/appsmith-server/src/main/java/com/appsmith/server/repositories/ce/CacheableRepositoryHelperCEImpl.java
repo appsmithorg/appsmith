@@ -162,8 +162,4 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 });
     }
 
-    @Override
-    public Mono<Void> evictAllPermissionGroupRelatedDetailsForUser(String email, String tenantId) {
-        return this.evictPermissionGroupsUser(email, tenantId);
-    }
 }

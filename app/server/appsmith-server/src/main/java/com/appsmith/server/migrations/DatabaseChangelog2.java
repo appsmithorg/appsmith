@@ -52,6 +52,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.CacheableRepositoryUtil;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.WorkspaceService;
@@ -2281,10 +2282,10 @@ public class DatabaseChangelog2 {
      * This ensures that any permission changes for super users happen once all other migrations are completed
      *
      * @param mongoTemplate
-     * @param cacheableRepositoryHelper
+     * @param cacheableRepositoryUtil
      */
     @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
-    public void updateSuperUsers(MongoTemplate mongoTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public void updateSuperUsers(MongoTemplate mongoTemplate, CacheableRepositoryUtil cacheableRepositoryUtil) {
         // Read the admin emails from the environment and update the super users accordingly
         String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
 
@@ -2325,7 +2326,7 @@ public class DatabaseChangelog2 {
 
         Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
-        evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, cacheableRepositoryHelper);
+        evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, cacheableRepositoryUtil);
 
         Update update = new Update().set(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), userIds);
         mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
@@ -2431,7 +2432,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "035", id = "migrate-public-apps-single-pg", author = "")
-    public void migratePublicAppsSinglePg(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public void migratePublicAppsSinglePg(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, CacheableRepositoryUtil cacheableRepositoryUtil) {
 
         Query anonymousUserPermissionConfig = new Query();
         anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
@@ -2546,7 +2547,7 @@ public class DatabaseChangelog2 {
         userQuery.addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
                 .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
         User anonymousUser = mongoTemplate.findOne(userQuery, User.class);
-        evictPermissionCacheForUsers(Set.of(anonymousUser.getId()), mongoTemplate, cacheableRepositoryHelper);
+        evictPermissionCacheForUsers(Set.of(anonymousUser.getId()), mongoTemplate, cacheableRepositoryUtil);
     }
 
     @ChangeSet(order = "036", id = "add-graphql-plugin", author = "")

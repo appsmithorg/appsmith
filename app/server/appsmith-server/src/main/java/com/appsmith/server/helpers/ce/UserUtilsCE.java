@@ -9,6 +9,7 @@ import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.CacheableRepositoryUtil;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.solutions.PermissionGroupPermission;
@@ -40,15 +41,18 @@ public class UserUtilsCE {
     private final PermissionGroupRepository permissionGroupRepository;
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
+    private final CacheableRepositoryUtil cacheableRepositoryUtil;
     private final PermissionGroupPermission permissionGroupPermission;
 
     public UserUtilsCE(ConfigRepository configRepository,
                        PermissionGroupRepository permissionGroupRepository,
                        CacheableRepositoryHelper cacheableRepositoryHelper,
+                       CacheableRepositoryUtil cacheableRepositoryUtil,
                        PermissionGroupPermission permissionGroupPermission) {
         this.configRepository = configRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+        this.cacheableRepositoryUtil = cacheableRepositoryUtil;
         this.permissionGroupPermission = permissionGroupPermission;
     }
 
@@ -83,7 +87,7 @@ public class UserUtilsCE {
                 })
                 .then(Mono.just(users))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(user -> cacheableRepositoryHelper.evictAllPermissionGroupRelatedDetailsForUser(user.getEmail(), user.getTenantId()))
+                .flatMap(user -> cacheableRepositoryUtil.evictAllPermissionGroupRelatedDetailsForUser(user.getEmail(), user.getTenantId()))
                 .then(Mono.just(Boolean.TRUE));
     }
 
@@ -98,7 +102,7 @@ public class UserUtilsCE {
                 })
                 .then(Mono.just(users))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(user -> cacheableRepositoryHelper.evictAllPermissionGroupRelatedDetailsForUser(user.getEmail(), user.getTenantId()))
+                .flatMap(user -> cacheableRepositoryUtil.evictAllPermissionGroupRelatedDetailsForUser(user.getEmail(), user.getTenantId()))
                 .then(Mono.just(Boolean.TRUE));
     }
 
