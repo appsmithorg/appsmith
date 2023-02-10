@@ -116,11 +116,7 @@ import {
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import {
-  DataTree,
-  ConfigTree,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
@@ -785,7 +781,7 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
       resetWidgetMetaProperty(
         childId,
         childWidget,
-        evaluatedWidgetConfig as WidgetEntityConfig,
+        // evaluatedWidgetConfig as WidgetEntityConfig,
       ),
     );
   }

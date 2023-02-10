@@ -14,11 +14,7 @@ import { getType, Types } from "utils/TypeHelpers";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
-import {
-  ConfigTree,
-  DataTree,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export default function* resetWidgetActionSaga(
@@ -50,7 +46,7 @@ export default function* resetWidgetActionSaga(
       resetWidgetMetaProperty(
         widget.widgetId,
         evaluatedEntity,
-        evaluatedEntityConfig as WidgetEntityConfig,
+        // evaluatedEntityConfig as WidgetEntityConfig,
       ),
     );
     if (payload.resetChildren) {

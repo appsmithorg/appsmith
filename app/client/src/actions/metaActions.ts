@@ -34,20 +34,20 @@ export const updateWidgetMetaPropAndEval = (
 export type ResetWidgetMetaPayload = {
   widgetId: string;
   evaluatedWidget: DataTreeWidget | undefined;
-  evaluatedWidgetConfig: DataTreeEntityConfig | undefined;
+  // evaluatedWidgetConfig: DataTreeEntityConfig | undefined;
 };
 
 export const resetWidgetMetaProperty = (
   widgetId: string,
   evaluatedWidget: DataTreeWidget | undefined,
-  evaluatedEntityConfig: WidgetEntityConfig | undefined,
+  // evaluatedEntityConfig: WidgetEntityConfig | undefined,
 ): BatchAction<ResetWidgetMetaPayload> => {
   return batchAction({
     type: ReduxActionTypes.RESET_WIDGET_META,
     payload: {
       widgetId,
       evaluatedWidget,
-      evaluatedEntityConfig,
+      // evaluatedEntityConfig,
     },
     postEvalActions: [{ type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED }],
   });
