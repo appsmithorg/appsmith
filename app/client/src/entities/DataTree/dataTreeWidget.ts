@@ -238,7 +238,7 @@ export const generateDataTreeWidget = (
   dataTreeWidget["meta"] = meta;
 
   return {
-    unEvalEntity: dataTreeWidget,
+    unEvalEntity: { ...dataTreeWidget, type: widget.type },
     configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
   };
 };
