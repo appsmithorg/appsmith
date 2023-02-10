@@ -145,6 +145,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       yield call(setWidgetAncestry, parentId, allWidgets);
     }
     if (!areArraysEqual([...newSelection], [...selectedWidgets])) {
+      debugger;
       yield call(appendSelectedWidgetToUrlSaga, newSelection, invokedBy);
     }
   } catch (error) {
@@ -184,6 +185,7 @@ function* appendSelectedWidgetToUrlSaga(
         persistExistingParams: true,
       });
   if (currentURL !== newUrl) {
+    debugger;
     history.push(newUrl, { invokedBy });
   }
 }
