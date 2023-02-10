@@ -163,6 +163,9 @@ const addMarksForChildren = (
             // @ts-ignore
             attributes: {
               [PEEKABLE_ATTRIBUTE]: childLink.name,
+              [PEEKABLE_CH_START]: token.start,
+              [PEEKABLE_CH_END]: token.end,
+              [PEEKABLE_LINE]: lineNo,
             },
             atomic: false,
             title: childLink.name,
