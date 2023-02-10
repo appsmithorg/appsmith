@@ -246,6 +246,7 @@ function ErrorLogItem(props: LogItemProps) {
             <Icon
               className={`${Classes.ICON} debugger-toggle`}
               clickable={collapsable}
+              data-cy="t--debugger-toggle"
               fillColor={get(theme, "colors.debugger.collapseIcon")}
               name={"expand-more"}
               onClick={() => setIsOpen(!isOpen)}
@@ -265,7 +266,8 @@ function ErrorLogItem(props: LogItemProps) {
         ) && (
           <div className="debugger-description">
             <span
-              className="debugger-label t--debugger-log-message"
+              className="debugger-label"
+              data-cy="t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}
             >
               {props.pluginErrorDetails
