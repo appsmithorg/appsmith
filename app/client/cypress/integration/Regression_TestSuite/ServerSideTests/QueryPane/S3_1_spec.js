@@ -55,7 +55,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.typeValueNValidate("AutoTest", formControls.s3BucketName);
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
-      cy.log(response.body.data);
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(
         response.body.data.pluginErrorDetails.downstreamErrorMessage,
