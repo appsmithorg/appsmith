@@ -16,6 +16,7 @@ import {
 } from "widgets/MenuButtonWidget/constants";
 import { ColumnTypes } from "../constants";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import { generateReactKey } from "widgets/WidgetUtils";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -112,6 +113,7 @@ export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
 export type ImageSize = keyof typeof ImageSizes;
 
 export interface ReactTableFilter {
+  id: string;
   column: string;
   operator: Operator;
   condition: Condition;
@@ -526,3 +528,10 @@ export const POPOVER_ITEMS_TEXT_MAP = {
 
 export const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 export const MENU_CONTENT_CLASS = ".menu-content";
+export const DEFAULT_FILTER = {
+  id: generateReactKey(),
+  column: "",
+  operator: OperatorTypes.OR,
+  value: "",
+  condition: "",
+};

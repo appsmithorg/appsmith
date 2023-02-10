@@ -35,9 +35,6 @@ public class ApplicationPageServiceTest {
     WorkspaceService workspaceService;
 
     @Autowired
-    CommentService commentService;
-
-    @Autowired
     ApplicationRepository applicationRepository;
 
     @Autowired
