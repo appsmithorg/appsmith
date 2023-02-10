@@ -32,6 +32,8 @@ export function PeekOverlayPopUpContent(
     hidePeekOverlay: () => void;
   },
 ) {
+  const CONTAINER_MAX_HEIGHT_PX = 252;
+
   useEffect(() => {
     const callback = () => {
       props.hidePeekOverlay();
@@ -63,12 +65,18 @@ export function PeekOverlayPopUpContent(
       onWheel={(ev) => ev.stopPropagation()}
       style={{
         minHeight: "46px",
-        maxHeight: "152px", // +2 px to accomodate scroll bar without distortion
+        maxHeight: `${CONTAINER_MAX_HEIGHT_PX}px`,
         width: "300px",
         backgroundColor: "var(--appsmith-color-black-0)",
         boxShadow: "0px 0px 10px #0000001A", // color used from designs
         left: `${props.position.left + props.position.width - 300}px`,
-        bottom: `calc(100vh - ${props.position.top}px)`,
+        ...(props.position.top >= CONTAINER_MAX_HEIGHT_PX
+          ? {
+              bottom: `calc(100vh - ${props.position.top}px)`,
+            }
+          : {
+              top: `${props.position.bottom}px`,
+            }),
       }}
     >
       <div
@@ -94,7 +102,7 @@ export function PeekOverlayPopUpContent(
           <JsonWrapper
             style={{
               minHeight: "20px",
-              maxHeight: "125px",
+              maxHeight: "225px",
               overflowY: "auto",
             }}
           >
