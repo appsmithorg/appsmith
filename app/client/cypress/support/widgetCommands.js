@@ -1272,6 +1272,24 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("openPropertyPaneFromModal", (widgetType) => {
+  const selector = `.t--draggable-${widgetType}`;
+  cy.wait(500);
+  cy.get(selector)
+    .first()
+    .trigger("mouseover", { force: true })
+    .wait(500);
+  cy.get(`${selector}:first-of-type`)
+    .first()
+    .click({ force: true })
+    .wait(500);
+  cy.get(".t--widget-propertypane-toggle > .t--widget-name")
+    .last()
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
   if (widgetType === "List1Copy") {
     cy.SearchEntityandOpen(widgetType);
