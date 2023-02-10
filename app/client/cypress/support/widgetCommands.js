@@ -1778,10 +1778,6 @@ Cypress.Commands.add(
           rightOrder: observedRightOrder,
         } = tableWidgetOrder;
         if (direction === "left") {
-          console.log("observedLeftOrder = ", {
-            tableWidgetOrder,
-            columnOrderKey,
-          });
           expect(expectedOrder).to.be.deep.equal(observedLeftOrder);
         }
         if (direction === "right") {
