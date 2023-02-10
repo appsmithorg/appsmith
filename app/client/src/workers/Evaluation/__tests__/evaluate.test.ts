@@ -71,7 +71,7 @@ describe("evaluateSync", () => {
         {
           errorMessage: {
             name: "ReferenceError",
-            text: "wrongJS is not defined",
+            message: "wrongJS is not defined",
           },
           errorType: "PARSE",
           raw: `
@@ -94,7 +94,7 @@ describe("evaluateSync", () => {
         {
           errorMessage: {
             name: "TypeError",
-            text: "{}.map is not a function",
+            message: "{}.map is not a function",
           },
           errorType: "PARSE",
           raw: `
@@ -125,7 +125,7 @@ describe("evaluateSync", () => {
         {
           errorMessage: {
             name: "ReferenceError",
-            text: "setImmediate is not defined",
+            message: "setImmediate is not defined",
           },
           errorType: "PARSE",
           raw: `
@@ -219,7 +219,7 @@ describe("evaluateAsync", () => {
         {
           errorMessage: {
             name: "ReferenceError",
-            text: expect.stringContaining("randomKeyword is not defined"),
+            message: "randomKeyword is not defined",
           },
           errorType: "PARSE",
           originalBinding: expect.stringContaining("Promise"),

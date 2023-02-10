@@ -86,7 +86,7 @@ const logCyclicDependecyErrors = (
             {
               message: {
                 name: "CyclicDependencyError",
-                text: !!error.message ? error.message : error.errorType,
+                message: !!error.message ? error.message : error.errorType,
               },
               type: PLATFORM_ERROR.PLUGIN_EXECUTION,
             },

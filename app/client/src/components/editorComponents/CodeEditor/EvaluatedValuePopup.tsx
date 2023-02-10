@@ -30,7 +30,7 @@ import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
-import { ErrorMessage, EvaluationError } from "utils/DynamicBindingUtils";
+import { EvaluationError } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
@@ -473,12 +473,10 @@ function PopoverContent(props: PopoverContentProps) {
     );
   }, [openExpectedDataType, openExpectedExample, openEvaluatedValue]);
 
-  const getErrorMessage = (error: ErrorMessage) => {
+  const getErrorMessage = (error: Error) => {
     return error
-      ? error.name
-        ? `${error.name}: ${error.text}`
-        : error.text
-      : `ValidationError: This value does not evaluate to type "${expected?.type}".`;
+      ? error.message
+      : `This value does not evaluate to type "${expected?.type}".`;
   };
   return (
     <ContentWrapper

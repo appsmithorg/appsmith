@@ -32,7 +32,7 @@ function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value does not evaluate to type: string or number",
+          message: "This value does not evaluate to type: string or number",
         },
       ],
     };
@@ -46,7 +46,7 @@ function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          text: "This value does not evaluate to type: string or number",
+          message: "This value does not evaluate to type: string or number",
         },
       ],
     };

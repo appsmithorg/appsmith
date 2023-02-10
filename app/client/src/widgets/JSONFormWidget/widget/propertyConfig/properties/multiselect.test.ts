@@ -9,7 +9,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: undefined,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -26,7 +26,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: null,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -43,7 +43,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: undefined,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -60,7 +60,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: ["green", "red"],
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -77,7 +77,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: ["green", "red"],
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -94,7 +94,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: ["green", "red"],
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -130,7 +130,7 @@ describe(".defaultOptionValueValidation", () => {
           value: "red",
         },
       ],
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -152,7 +152,7 @@ describe(".defaultOptionValueValidation", () => {
           messages: [
             {
               name: "TypeError",
-              text:
+              message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
           ],
@@ -166,7 +166,7 @@ describe(".defaultOptionValueValidation", () => {
           messages: [
             {
               name: "TypeError",
-              text:
+              message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
           ],
@@ -180,7 +180,7 @@ describe(".defaultOptionValueValidation", () => {
           messages: [
             {
               name: "TypeError",
-              text:
+              message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
           ],
@@ -194,7 +194,7 @@ describe(".defaultOptionValueValidation", () => {
           messages: [
             {
               name: "TypeError",
-              text:
+              message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
           ],
@@ -208,7 +208,7 @@ describe(".defaultOptionValueValidation", () => {
           messages: [
             {
               name: "ValidationError",
-              text: "value must be unique. Duplicate values found",
+              message: "value must be unique. Duplicate values found",
             },
           ],
         },
@@ -230,7 +230,7 @@ describe(".defaultOptionValueValidation", () => {
           messages: [
             {
               name: "ValidationError",
-              text: "value must be unique. Duplicate values found",
+              message: "value must be unique. Duplicate values found",
             },
           ],
         },
@@ -250,7 +250,7 @@ describe(".defaultOptionValueValidation", () => {
           messages: [
             {
               name: "TypeError",
-              text:
+              message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
           ],
@@ -270,7 +270,7 @@ describe(".defaultOptionValueValidation", () => {
           messages: [
             {
               name: "TypeError",
-              text:
+              message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
           ],

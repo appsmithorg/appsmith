@@ -40,13 +40,13 @@ export function defaultValueValidation(
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = {
     name: "TypeError",
-    text: "This value must be string",
+    message: "This value must be string",
   };
   const NUMBER_ERROR_MESSAGE = {
     name: "TypeError",
-    text: "This value must be number",
+    message: "This value must be number",
   };
-  const EMPTY_ERROR_MESSAGE = { name: "", text: "" };
+  const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
   if (_.isObject(value)) {
     return {
       isValid: false,

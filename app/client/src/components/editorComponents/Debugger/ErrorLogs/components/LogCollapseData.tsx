@@ -12,7 +12,7 @@ const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
       ? " -20px"
       : " 4px"};
-  padding-left: 78px;
+  padding-left: 83px;
 `;
 
 type StyledCollapseProps = PropsWithChildren<{
@@ -80,16 +80,21 @@ export default function LogCollapseData(props: any) {
           </MessageInfo>
           <MessageInfo>
             {props.pluginErrorDetails.downstreamErrorMessage && (
-              <LogAdditionalInfo
-                text={
-                  props.pluginErrorDetails.downstreamErrorCode
-                    ? props.pluginErrorDetails.downstreamErrorCode
-                    : "Downstream Error"
-                }
-                width="90px"
-              />
+              <>
+                <LogAdditionalInfo
+                  datacy="t--debugger-downStreamErrorCode"
+                  text={
+                    props.pluginErrorDetails.downstreamErrorCode
+                      ? props.pluginErrorDetails.downstreamErrorCode
+                      : "Downstream Error"
+                  }
+                  width="90px"
+                />
+                <span data-cy="t--debugger-downStreamErrorMsg">
+                  {props.pluginErrorDetails.downstreamErrorMessage}
+                </span>
+              </>
             )}
-            <span>{props.pluginErrorDetails.downstreamErrorMessage}</span>
           </MessageInfo>
         </MessageWrapper>
       )}

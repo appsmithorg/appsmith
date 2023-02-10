@@ -232,16 +232,21 @@ function ErrorLogItem(props: LogItemProps) {
             name={props.icon}
             size={IconSize.SMALL}
           />
-          <LogTimeStamp
-            logType={props.logType}
-            messages={props.messages}
-            severity={props.severity}
-            timestamp={props.timestamp}
-          />
+
+          {props.logType &&
+            props.logType !== LOG_TYPE.LINT_ERROR &&
+            props.messages &&
+            props.messages[0].message.name !== "SyntaxError" && (
+              <LogTimeStamp
+                severity={props.severity}
+                timestamp={props.timestamp}
+              />
+            )}
           {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
             <Icon
               className={`${Classes.ICON} debugger-toggle`}
               clickable={collapsable}
+              data-cy="t--debugger-toggle"
               fillColor={get(theme, "colors.debugger.collapseIcon")}
               name={"expand-more"}
               onClick={() => setIsOpen(!isOpen)}
@@ -261,19 +266,20 @@ function ErrorLogItem(props: LogItemProps) {
         ) && (
           <div className="debugger-description">
             <span
-              className="debugger-label t--debugger-log-message"
+              className="debugger-label"
+              data-cy="t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}
             >
               {props.pluginErrorDetails
                 ? props.pluginErrorDetails.title
-                : props.messages && props.messages[0].message.text}
+                : props.messages && props.messages[0].message.message}
             </span>
           </div>
         )}
         {props.messages && props.messages[0].lineNumber && (
           <LogAdditionalInfo
             text={`Ln ${
-              props.messages[0].lineNumber < 10
+              props.messages[0].lineNumber < 9
                 ? "0" + (props.messages[0].lineNumber + 1)
                 : props.messages[0].lineNumber + 1
             }`}
@@ -281,11 +287,12 @@ function ErrorLogItem(props: LogItemProps) {
           />
         )}
         {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
-          props.severity === Severity.ERROR && (
+          props.severity === Severity.ERROR &&
+          props.logType !== LOG_TYPE.LINT_ERROR && (
             <ContextWrapper onClick={(e) => e.stopPropagation()}>
               <ContextualMenu
                 entity={props.source}
-                error={{ message: { name: "", text: "" } }}
+                error={{ message: { name: "", message: "" } }}
               >
                 <TooltipComponent
                   content={

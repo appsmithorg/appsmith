@@ -428,7 +428,7 @@ export function* handleExecuteJSFunctionSaga(data: {
             {
               message: {
                 name: (error as Error).name,
-                text: (error as Error).message,
+                message: (error as Error).message,
               },
               type: PLATFORM_ERROR.PLUGIN_EXECUTION,
             },

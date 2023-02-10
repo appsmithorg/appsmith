@@ -29,7 +29,7 @@ export function selectedTabValidation(
     isValid: value === "" ? true : tabNames.includes(value as string),
     parsed: value,
     messages: [
-      { name: "ValidationError", text: `Tab name ${value} does not exist` },
+      { name: "ValidationError", message: `Tab name ${value} does not exist` },
     ],
   };
 }
