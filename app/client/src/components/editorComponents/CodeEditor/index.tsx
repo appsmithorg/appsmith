@@ -58,6 +58,10 @@ import {
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
   PEEKABLE_ATTRIBUTE,
+  PEEKABLE_CH_END,
+  PEEKABLE_CH_START,
+  PEEKABLE_LINE,
+  PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
@@ -225,7 +229,11 @@ type State = {
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
   ctrlPressed: boolean;
-  peekOverlayProps: PeekOverlayStateProps | undefined;
+  peekOverlayProps:
+    | (PeekOverlayStateProps & {
+        marker?: CodeMirror.TextMarker;
+      })
+    | undefined;
   isDynamic: boolean;
 };
 
@@ -518,24 +526,44 @@ class CodeEditor extends Component<Props, State> {
 
   showPeekOverlay = (
     peekableAttribute: string,
-    tokenElementPosition: DOMRect,
+    tokenElement: Element,
     dataToShow: unknown,
   ) => {
+    const tokenElementPosition = tokenElement.getBoundingClientRect();
+    const line = tokenElement.getAttribute(PEEKABLE_LINE),
+      chStart = tokenElement.getAttribute(PEEKABLE_CH_START),
+      chEnd = tokenElement.getAttribute(PEEKABLE_CH_END);
+
+    this.state.peekOverlayProps?.marker?.clear();
+    let marker: CodeMirror.TextMarker | undefined;
+    if (line && chStart && chEnd) {
+      marker = this.editor.markText(
+        { ch: Number(chStart), line: Number(line) },
+        { ch: Number(chEnd), line: Number(line) },
+        {
+          className: PEEK_STYLE_PERSIST_CLASS,
+        },
+      );
+    }
+
     this.setState({
       peekOverlayProps: {
         name: peekableAttribute ?? "",
         position: tokenElementPosition,
         textWidth: tokenElementPosition.width,
+        marker,
         data: dataToShow,
         dataType: typeof dataToShow,
       },
     });
   };
 
-  hidePeekOverlay = () =>
+  hidePeekOverlay = () => {
+    this.state.peekOverlayProps?.marker?.clear();
     this.setState({
       peekOverlayProps: undefined,
     });
+  };
 
   debounceHandleMouseOver = debounce(
     (ev) => this.handleMouseOver(ev),
@@ -548,7 +576,6 @@ class CodeEditor extends Component<Props, State> {
       event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
     ) {
       const tokenElement = event.target;
-      const tokenElementPosition = tokenElement.getBoundingClientRect();
       const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
       if (peekableAttribute) {
         const paths = peekableAttribute.split(".");
@@ -556,7 +583,7 @@ class CodeEditor extends Component<Props, State> {
           paths.splice(1, 0, "peekData");
           this.showPeekOverlay(
             peekableAttribute,
-            tokenElementPosition,
+            tokenElement,
             _.get(this.props.entitiesForNavigation, paths),
           );
         }

@@ -51,6 +51,10 @@ const hasReference = (token: CodeMirror.Token) => {
 
 export const PEEKABLE_CLASSNAME = "peekaboo";
 export const PEEKABLE_ATTRIBUTE = "peek-data";
+export const PEEKABLE_LINE = "peek-line";
+export const PEEKABLE_CH_START = "peek-ch-start";
+export const PEEKABLE_CH_END = "peek-ch-end";
+export const PEEK_STYLE_PERSIST_CLASS = "peek-style-persist";
 
 export const entityMarker: MarkHelper = (
   editor: CodeMirror.Editor,
@@ -96,6 +100,9 @@ export const entityMarker: MarkHelper = (
               // @ts-ignore
               attributes: {
                 [PEEKABLE_ATTRIBUTE]: data.name,
+                [PEEKABLE_CH_START]: token.start,
+                [PEEKABLE_CH_END]: token.end,
+                [PEEKABLE_LINE]: lineNo,
               },
               atomic: false,
               title: data.name,

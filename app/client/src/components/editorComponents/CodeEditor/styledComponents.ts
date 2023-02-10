@@ -6,7 +6,11 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { NAVIGATION_CLASSNAME, PEEKABLE_CLASSNAME } from "./markHelpers";
+import {
+  NAVIGATION_CLASSNAME,
+  PEEKABLE_CLASSNAME,
+  PEEK_STYLE_PERSIST_CLASS,
+} from "./markHelpers";
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -165,7 +169,7 @@ export const EditorWrapper = styled.div<{
       font-weight: 700;
     }
     
-    .${PEEKABLE_CLASSNAME}:hover {
+    .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
       background-color:	#F4FFDE;
     }
 
