@@ -70,6 +70,11 @@ export const JsonWrapper = styled.div`
   .rjv-function-container {
     pointer-events: none;
     font-weight: normal !important;
+    > span:first-child:before {
+      // In prod build, for some reason react-json-viewer
+      // misses adding this opening braces for function
+      content: "(";
+    }
     .function-collapsed {
       font-weight: normal !important;
       span:nth-child(1) {
