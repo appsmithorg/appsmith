@@ -154,7 +154,8 @@ public enum AppsmithError {
     SCHEMA_MISMATCH_ERROR(500, 5022, "Looks like you skipped some required update(s), please go back to the mandatory upgrade path {0}, or refer to {1} for more info", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     SCHEMA_VERSION_NOT_FOUND_ERROR(500, 5023, "Could not find mandatory instance schema version config. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     SERVER_NOT_READY(500, 5024, "Appsmith server is not ready. Please try again in some time.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
-    SESSION_BAD_STATE(500, 5025, "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null)
+    SESSION_BAD_STATE(500, 5025, "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    INVALID_LICENSE_KEY_ENTERED(400, 5026, "The license key entered is invalid. Please try again.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null)
     ;
 
     private final Integer httpErrorCode;
