@@ -598,7 +598,7 @@ function* runActionSaga(
       return;
     }
     log.error(e);
-    error = e as Error;
+    error = { name: (e as Error).name, message: (e as Error).message };
   }
 
   // Error should be readable error if present.
@@ -678,7 +678,7 @@ function* runActionSaga(
     yield put({
       type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
       payload: {
-        error: appsmithConsoleErrorMessageList[0],
+        error: appsmithConsoleErrorMessageList[0].message,
         id: reduxAction.payload.id,
       },
     });
