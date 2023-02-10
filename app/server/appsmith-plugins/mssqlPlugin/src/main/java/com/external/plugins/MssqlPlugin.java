@@ -19,6 +19,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
@@ -589,7 +590,7 @@ public class MssqlPlugin extends BasePlugin {
                     .append(";");
         }
 
-        urlBuilder.append("encrypt=false");
+        addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
 
         hikariConfig.setJdbcUrl(urlBuilder.toString());
 
@@ -600,6 +601,42 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         return hikariDatasource;
+    }
+
+    private static void addSslOptionsToUrlBuilder(DatasourceConfiguration datasourceConfiguration,
+                                                  StringBuilder urlBuilder) throws AppsmithPluginException {
+        /*
+         * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+         */
+        if (datasourceConfiguration.getConnection() == null
+                || datasourceConfiguration.getConnection().getSsl() == null
+                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                            "Please reach out to Appsmith customer support to resolve this.");
+        }
+
+        /*
+         * - By default, the driver configures SSL in the no verify mode.
+         */
+        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+        switch (sslAuthType) {
+            case DISABLE:
+                urlBuilder.append("encrypt=false;");
+
+                break;
+            case NO_VERIFY:
+                urlBuilder.append("encrypt=true;");
+                urlBuilder.append("trustServerCertificate=true;");
+
+                break;
+            default:
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                " Appsmith customer support to resolve this.");
+        }
     }
 
     /**
