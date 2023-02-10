@@ -83,7 +83,6 @@ class DropDownControl extends BaseControl<Props> {
 
   render() {
     const styles = {
-      width: "280px",
       ...("customStyles" in this.props &&
       typeof this.props.customStyles === "object"
         ? this.props.customStyles
@@ -100,7 +99,7 @@ class DropDownControl extends BaseControl<Props> {
         <Field
           component={renderDropdown}
           name={this.props.configProperty}
-          props={{ ...this.props, width: styles.width }}
+          props={{ ...this.props, width: styles.width || "280px" }}
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
       </DropdownSelect>
