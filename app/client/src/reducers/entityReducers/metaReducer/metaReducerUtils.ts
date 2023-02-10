@@ -1,7 +1,4 @@
-import {
-  DataTreeWidget,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
 import { WidgetMetaState } from ".";
 import { PropertyOverrideDependency } from "entities/DataTree/types";
