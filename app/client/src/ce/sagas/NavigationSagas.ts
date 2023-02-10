@@ -1,4 +1,4 @@
-import { call, fork, put, select } from "redux-saga/effects";
+import { fork, put, select } from "redux-saga/effects";
 import { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
@@ -82,7 +82,6 @@ function* setSelectedWidgetsSaga() {
       lastSelectedWidget = widgets[widgets.length - 1];
     }
   }
-  debugger;
   yield put(setSelectedWidgets(widgets));
   yield put(setLastSelectedWidget(lastSelectedWidget));
 }
