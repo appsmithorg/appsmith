@@ -6,7 +6,7 @@ export function jsVariableProxyHandler(
   path: string,
 ) {
   return {
-    get: function(target: any, prop: string, receiver: any): any {
+    get: function(target: any, prop: string): any {
       const value = target[prop];
 
       if (prop === "__isProxy") return true;
@@ -31,7 +31,7 @@ export function jsVariableProxyHandler(
         );
       }
 
-      return Reflect.get(target, prop, receiver);
+      return target[prop];
     },
     set: function(target: any, prop: string, value: unknown, rec: any) {
       updateTracker({
@@ -64,7 +64,7 @@ class JSProxy {
 
     if (typeof jsObject === "object") {
       proxiedJSObject = new Proxy(
-        Object.assign({}, jsObject, varState),
+        Object.assign({}, varState),
         jsVariableProxyHandler(addPatch, jsObjectName),
       );
     }

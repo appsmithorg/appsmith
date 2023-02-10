@@ -9,6 +9,7 @@ import {
   getEvalErrorPath,
   getEvalValuePath,
   isChildPropertyPath,
+  isDynamicValue,
   isPathADynamicBinding,
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
@@ -61,7 +62,6 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluateSync, {
   EvalResult,
   EvaluateContext,
@@ -1465,7 +1465,3 @@ export default class DataTreeEvaluator {
     this.userLogs = [];
   }
 }
-
-// TODO cryptic comment below. Dont know if we still need this. Duplicate function
-// referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
-const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
