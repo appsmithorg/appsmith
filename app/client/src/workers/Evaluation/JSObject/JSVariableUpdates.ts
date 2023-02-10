@@ -46,6 +46,7 @@ class JSVariableUpdates {
 export const jsVariableUpdates = new JSVariableUpdates();
 
 export function filterPatches(patches: Patch[]) {
+  // store exact path to diff
   const modifiedVariablesSet = new Set<string>();
   for (const patch of patches) {
     const [jsObjectName, varName] = patch.path.split(".");

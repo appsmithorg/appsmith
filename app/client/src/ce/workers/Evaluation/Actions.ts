@@ -192,6 +192,11 @@ function setEntityToEvalContext(
       case ENTITY_TYPE.JSACTION: {
         const varState = jsObjectCollection.getCurrentVariableState(entityName);
         if (varState) {
+          if (self.ALLOW_SYNC) {
+            EVAL_CONTEXT[entityName] = varState;
+            return;
+          }
+
           EVAL_CONTEXT[entityName] = jsVarProxy.fromJSObject(
             entity as DataTreeJSAction,
             entityName,
@@ -202,7 +207,6 @@ function setEntityToEvalContext(
       }
     }
   }
-
   EVAL_CONTEXT[entityName] = entity;
 }
 
