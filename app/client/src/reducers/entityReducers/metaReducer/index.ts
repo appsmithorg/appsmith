@@ -100,7 +100,7 @@ export const metaReducer = createReducer(initialState, {
     state: MetaState,
     action: ReduxAction<ResetWidgetMetaPayload>,
   ) => {
-    const { evaluatedWidget, evaluatedWidgetConfig, widgetId } = action.payload;
+    const { evaluatedWidget, widgetId } = action.payload;
 
     if (widgetId in state) {
       // only reset widgets whose meta properties were changed.
