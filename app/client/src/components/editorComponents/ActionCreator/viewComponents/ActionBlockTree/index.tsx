@@ -40,7 +40,8 @@ export const ActionBlockTree: React.FC<Props> = ({
   onMouseEnter,
   onMouseLeave,
 }) => {
-  const [showCallbacks, setShowCallbacks] = useState(true);
+  const [callbacksExpanded, setCallbacksExpanded] = useState(true);
+  const [actionExpanded, setActionExpanded] = useState(false);
   const { actionType, code, errorCallbacks, successCallbacks } = actionTree;
   const { action, actionTypeLabel, Icon: MainActionIcon } = getActionInfo(
     code,
@@ -59,6 +60,8 @@ export const ActionBlockTree: React.FC<Props> = ({
     AppsmithFunction.runAPI,
     AppsmithFunction.integration,
   ].includes(actionType as any);
+
+  const showCallbacks = selected || actionExpanded;
 
   const callbackBlocks: CallbackBlock[] = [
     {
@@ -100,32 +103,32 @@ export const ActionBlockTree: React.FC<Props> = ({
     [selectedCallbackBlock, actionTree],
   );
 
+  const handleClick = () => {
+    onClick();
+    setActionExpanded(true);
+  };
+
   return (
     <div
       className="flex flex-col"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div
-        className={clsx(
-          "flex flex-col",
-          // selected && "border-[1px] border-gray-200",
-        )}
-      >
+      <div className={clsx("flex flex-col")}>
         <ActionBlock
           action={action}
           actionTypeLabel={actionTypeLabel}
           // We don't have to show the action count if the action is selected
-          actionsCount={selected ? 0 : callBacksLength}
+          actionsCount={showCallbacks ? 0 : callBacksLength}
           icon={MainActionIcon}
-          onClick={onClick}
+          onClick={handleClick}
           selected={selected && !selectedCallbackBlock}
-          variant={selected ? "mainBlock" : "hoverBorder"}
+          variant={showCallbacks ? "mainBlock" : "hoverBorder"}
         />
-        {areCallbacksApplicable && selected ? (
+        {areCallbacksApplicable && showCallbacks ? (
           <button
             className="flex justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent"
-            onClick={() => setShowCallbacks((prev) => !prev)}
+            onClick={() => setCallbacksExpanded((prev) => !prev)}
           >
             <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300">
               Callbacks
@@ -136,14 +139,14 @@ export const ActionBlockTree: React.FC<Props> = ({
               </span>
               <Icon
                 fillColor="var(--ads-color-gray-700)"
-                name={showCallbacks ? "expand-less" : "expand-more"}
+                name={callbacksExpanded ? "expand-less" : "expand-more"}
                 size="extraLarge"
               />
             </div>
           </button>
         ) : null}
       </div>
-      {showCallbacks && selected && areCallbacksApplicable ? (
+      {callbacksExpanded && showCallbacks && areCallbacksApplicable ? (
         <TreeStructure>
           <ul className="tree flex flex-col gap-0">
             {callbackBlocks.map(
