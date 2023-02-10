@@ -28,7 +28,8 @@ export const ActionBlock: React.FC<ActionBlockProps> = ({
     case "mainBlock":
       className = clsx(
         className,
-        "border-[1px] border-gray-200 border-b-transparent",
+        "border-[1px] border-gray-200",
+        selected && "border-b-transparent",
       );
       break;
 

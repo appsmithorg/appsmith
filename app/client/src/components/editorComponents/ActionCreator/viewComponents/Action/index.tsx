@@ -104,10 +104,12 @@ export const Action: React.FC<Props> = ({
   };
 
   const handleBlockSelection = (block: SelectedActionBlock) => {
+    setOpen(true);
     setSelectedCallbackBlock(block);
   };
 
   const addSuccessAction = useCallback(() => {
+    setOpen(true);
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
       newActionTree.successCallbacks.push({
@@ -127,6 +129,7 @@ export const Action: React.FC<Props> = ({
   }, []);
 
   const addErrorAction = useCallback(() => {
+    setOpen(true);
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
       newActionTree.errorCallbacks.push({
