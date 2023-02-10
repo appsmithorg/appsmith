@@ -13,7 +13,7 @@ const addStickyModifierClass = (
   columns: ReactTableColumnProps[],
   cellIndex: number,
 ) => {
-  return columns[cellIndex].sticky &&
+  return columns[cellIndex]?.sticky &&
     cellIndex !== 0 &&
     columns[cellIndex - 1].sticky === StickyType.RIGHT &&
     columns[cellIndex - 1].isHidden
