@@ -70,6 +70,16 @@ Note that this command doesn't set any username or password on the database so w
 
 MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
 
+###Convert a Standalone to a Replica Set
+- Upgrade the MongoDB version to 4.4 or higher if it’s 4.2 or lower (https://www.mongodb.com/docs/manual/release-notes/4.4/#std-label-4.4-upgrade)
+- Close the mongoDB instance running in your local
+- Start the mongoDB in replica set mode and initiate the replica set
+    - mongod --port 27017 --dbpath <path/to/db> --replSet <replica-set-name> && mongo --eval “rs.initiate()”
+- One can use following commands to check replica set status: 
+    - mongo appsmith
+    - rs.status()
+- By this time you should have the mongo running with replica set 
+
 ### Setting up a local Redis instance
 
 The following command will start a Redis docker instance locally:
@@ -102,7 +112,7 @@ cp envs/dev.env.example .env
 
 This command creates a `.env` file in the `app/server` folder. All run scripts pick up environment configuration from this file.
 
-5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
+5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis. And make sure to update the replica set name with correct value in the mongo connection string. 
 
 6. Run the following command to create the final JAR for the Appsmith server:
 
