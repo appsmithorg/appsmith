@@ -581,7 +581,7 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
     codeMirrorInput.focus();
     cy.wait(200);
     codeMirrorInput.setValue(value);
-    cy.wait(1000); //time for value to set
+    cy.wait(500); //time for value to set
   });
 });
 
@@ -1724,4 +1724,12 @@ Cypress.Commands.add("checkMaxDefaultValue", (endp, value) => {
       cy.log(someText);
       expect(someText).to.equal(value);
     });
+});
+
+Cypress.Commands.add("findAndExpandEvaluatedTypeTitle", () => {
+  cy.get(commonlocators.evaluatedTypeTitle)
+    .first()
+    .next()
+    .find("span")
+    .click();
 });

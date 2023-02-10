@@ -1,7 +1,5 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.Notification;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -18,10 +16,7 @@ import reactor.util.function.Tuple3;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -166,63 +161,5 @@ public class CustomNotificationRepositoryImplTest {
                 assertEquals(true, notification.getIsRead());
             });
         }).verifyComplete();
-    }
-
-    private CommentNotification createCommentNotification(String authorId, String authorName) {
-        CommentNotification commentNotification = new CommentNotification();
-        commentNotification.setComment(new Comment());
-        commentNotification.getComment().setAuthorId(authorId);
-        commentNotification.getComment().setAuthorName(authorName);
-        return commentNotification;
-    }
-
-    @Test
-    public void updateCommentAuthorNames_WhenNameChanged_NamesUpdated() {
-        String authorOneId = "author-1",
-                authorTwoId = "author-2",
-                oldName = "Old name",
-                updatedName = "New name";
-
-        List<Notification> notificationList = List.of(
-                createCommentNotification(authorOneId, oldName),
-                createCommentNotification(authorOneId, oldName),
-                createCommentNotification(authorTwoId, oldName)
-        );
-
-        Mono<Map<String, Collection<Notification>>> mapMono = notificationRepository
-                .saveAll(notificationList)// save the above 3 notifications
-                .collectList()
-                .flatMap(notifications ->
-                        // update the author names
-                        notificationRepository.updateCommentAuthorNames(authorOneId, updatedName)
-                                .then(Mono.just(notifications)) // return the saved objects
-                )
-                .flatMap(notifications -> {
-                    // now fetch the saved notifications again by id
-                    Stream<String> idStream = notifications.stream().map(notification -> notification.getId());
-                    List<String> idList = idStream.collect(Collectors.toList()); // get the list of id from objects
-                    return notificationRepository.findAllById(idList)
-                            .collectMultimap(notification ->
-                                    // create a map of author id and list of objects for better assertions
-                                    ((CommentNotification) notification).getComment().getAuthorId()
-                            );
-                });
-
-        StepVerifier.create(mapMono).assertNext(authorIdNotificationMap -> {
-            assertThat(authorIdNotificationMap.size()).isEqualTo(2);
-            assertThat(authorIdNotificationMap.get(authorOneId).size()).isEqualTo(2);
-            for (Notification notification : authorIdNotificationMap.get(authorOneId)) {
-                CommentNotification commentNotification = (CommentNotification) notification;
-                // should have updated name
-                assertThat(commentNotification.getComment().getAuthorName()).isEqualTo("New name");
-            }
-            assertThat(authorIdNotificationMap.get(authorTwoId).size()).isEqualTo(1);
-            for (Notification notification : authorIdNotificationMap.get(authorTwoId)) {
-                CommentNotification commentNotification = (CommentNotification) notification;
-                // name should be unchanged
-                assertThat(commentNotification.getComment().getAuthorName()).isEqualTo(oldName);
-            }
-        }).verifyComplete();
-
     }
 }

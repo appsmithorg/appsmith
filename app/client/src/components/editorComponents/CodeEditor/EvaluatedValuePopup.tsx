@@ -68,9 +68,9 @@ type PopupTheme = Record<EditorTheme, ThemeConfig>;
 
 const THEMES: PopupTheme = {
   [EditorTheme.LIGHT]: {
-    backgroundColor: "#EBEBEB",
+    backgroundColor: "#F8F8F8",
     textColor: "#4B4848",
-    editorBackground: "#FAFAFA",
+    editorBackground: "#FFFFFF",
     editorColor: "#1E242B",
   },
   [EditorTheme.DARK]: {
@@ -92,8 +92,11 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   background-color: ${(props) => THEMES[props.colorTheme].backgroundColor};
   color: ${(props) => THEMES[props.colorTheme].textColor};
   padding: 10px;
-  box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+  // box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+  box-shadow: 0px 4px 8px -2px rgba(0, 0, 0, 0.1),
+    0px 2px 4px -2px rgba(0, 0, 0, 0.06);
   border-radius: 0px;
+  pointer-events: all;
 `;
 
 const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
@@ -121,6 +124,7 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
       display: flex;
     }
   }
+  border: 1px solid #b3b3b3;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -133,7 +137,11 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   word-break: break-all;
 `;
 
-const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
+const TypeText = styled.pre<{
+  colorTheme: EditorTheme;
+  padded?: boolean;
+  addBorder?: boolean;
+}>`
   padding: ${(props) => (props.padded ? "8px" : 0)};
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
@@ -141,6 +149,7 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
   margin: 5px 0;
   -ms-overflow-style: none;
   white-space: pre-wrap;
+  ${(props) => props?.addBorder && "border: 1px solid #b3b3b3;"}
 `;
 
 const ErrorText = styled.p`
@@ -148,12 +157,13 @@ const ErrorText = styled.p`
   padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[5]}px;
   border-radius: 0px;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 19px;
   letter-spacing: -0.24px;
   background-color: rgba(226, 44, 44, 0.08);
   border: 1.2px solid ${(props) => props.theme.colors.errorMessage};
   color: ${(props) => props.theme.colors.errorMessage};
+  margin-top: 15px;
 `;
 
 const StyledIcon = styled(Icon)`
@@ -165,9 +175,17 @@ const StyledIcon = styled(Icon)`
 
 const StyledTitle = styled.p`
   margin: 8px 0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  cursor: pointer;
+`;
+
+const StyledTitleName = styled.p`
+  margin: 8px 0;
   font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 12px;
   cursor: pointer;
 `;
 
@@ -211,6 +229,8 @@ interface Props {
   entity?: FieldEntityInformation;
   popperZIndex?: Indices;
   dataTreePath?: string;
+  evaluatedPopUpLabel?: string;
+  editorRef?: React.RefObject<HTMLDivElement>;
 }
 
 interface PopoverContentProps {
@@ -226,6 +246,8 @@ interface PopoverContentProps {
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
   dataTreePath?: string;
+  evaluatedPopUpLabel?: string;
+  editorRef?: React.RefObject<HTMLDivElement>;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -485,6 +507,13 @@ function PopoverContent(props: PopoverContentProps) {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
+      {props?.entity && props.entity?.entityName && (
+        <StyledTitleName>
+          {props?.evaluatedPopUpLabel
+            ? props?.evaluatedPopUpLabel
+            : props?.entity?.entityName}
+        </StyledTitleName>
+      )}
       {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
@@ -507,7 +536,12 @@ function PopoverContent(props: PopoverContentProps) {
             <CollapseToggle isOpen={openExpectedDataType} />
           </StyledTitle>
           <Collapse isOpen={openExpectedDataType}>
-            <TypeText colorTheme={props.theme} padded ref={typeTextRef}>
+            <TypeText
+              addBorder
+              colorTheme={props.theme}
+              padded
+              ref={typeTextRef}
+            >
               {props.expected.type}
             </TypeText>
           </Collapse>
@@ -548,6 +582,8 @@ function PopoverContent(props: PopoverContentProps) {
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
   const [timeoutId, setTimeoutId] = useState(0);
+  const [position, setPosition] = useState(undefined);
+  const [isDragging, setIsDragging] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
@@ -564,16 +600,25 @@ function EvaluatedValuePopup(props: Props) {
   return (
     <Wrapper ref={wrapperRef}>
       <Popper
-        isOpen={props.isOpen || contentHovered}
+        customParent={document.body}
+        editorRef={props?.editorRef}
+        isDraggable
+        isDragging={isDragging}
+        isOpen={props.isOpen || contentHovered || isDragging}
         modifiers={modifiers}
         placement={placement}
+        position={position}
+        setIsDragging={setIsDragging}
+        setPosition={setPosition}
         targetNode={wrapperRef.current || undefined}
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
           dataTreePath={props.dataTreePath}
+          editorRef={props?.editorRef}
           entity={props.entity}
           errors={props.errors}
+          evaluatedPopUpLabel={props?.evaluatedPopUpLabel}
           evaluatedValue={props.evaluatedValue}
           expected={props.expected}
           hasError={props.hasError}
