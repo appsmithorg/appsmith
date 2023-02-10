@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { StyledText } from "./index.styled";
-import { createTypographyStyles, fontFamilyTypes } from "./utils";
+import { fontFamilyTypes } from "../../utils/typography";
 
 export type TextProps = {
   children: React.ReactNode;
@@ -17,29 +17,13 @@ export type TextProps = {
   lineGap?: number;
 };
 
-export const Text = React.forwardRef<HTMLDivElement, TextProps>(
+export const Text = React.forwardRef<HTMLParagraphElement, TextProps>(
   (props, ref) => {
-    const {
-      capHeight = 10,
-      children,
-      fontFamily,
-      lineGap = 8,
-      textAlign = "center",
-      ...rest
-    } = props;
-
-    const typographyStyles = useMemo(() => {
-      return createTypographyStyles({ fontFamily, capHeight, lineGap });
-    }, [fontFamily, capHeight, lineGap]);
+    const { children, ...rest } = props;
 
     return (
-      <StyledText
-        ref={ref}
-        textAlign={textAlign}
-        {...rest}
-        style={typographyStyles}
-      >
-        {children}
+      <StyledText ref={ref} {...rest}>
+        <span>{children}</span>
       </StyledText>
     );
   },

@@ -5,7 +5,7 @@ import {
   calulateHoverColor,
   darkenColor,
   parseColor,
-} from "components/wds/utils/color";
+} from "components/wds/utils/colors";
 
 /**
  * This function is used to create tokens for widgets
@@ -29,7 +29,8 @@ export const createTokens = css`
       accentColor,
     );
     const lightAcctentActiveColor = darkenColor(lightAccentHoverColor, 0.03);
-    const darkAccentColor = darkenColor(color);
+    const onAccentBorderColor = darkenColor(color, 0.1);
+    const onAccentLightBorderColor = lightenColor(color, 0.98);
 
     return css`
       --wds-v2-color-bg-accent: ${accentColor};
@@ -43,8 +44,8 @@ export const createTokens = css`
       --wds-v2-color-text-onaccent: ${complementaryAccentColor};
 
       --wds-v2-color-border-accent: ${accentColor};
-      --wds-vs-color-border-accent-dark: ${darkAccentColor};
-      --wds-vs-color-border-accent-light: ${lightAccentHoverColor};
+      --wds-vs-color-border-onaccent: ${onAccentBorderColor};
+      --wds-vs-color-border-onaccent-light: ${onAccentLightBorderColor};
 
       --wds-v2-shadow: ${boxShadow};
       --wds-v2-radii: ${borderRadius};

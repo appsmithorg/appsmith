@@ -6,6 +6,7 @@ import { PortalStyles } from "./portals";
 import { DialogStyles } from "./dialogs";
 import { CodemirrorHintStyles } from "./CodemirrorHintStyles";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { FontStackStyles } from "./fontStack";
 
 export default function GlobalStyles() {
   return (
@@ -16,6 +17,7 @@ export default function GlobalStyles() {
       <UppyStyles />
       <CodemirrorHintStyles editorTheme={EditorTheme.LIGHT} />
       <DialogStyles />
+      <FontStackStyles />
     </>
   );
 }

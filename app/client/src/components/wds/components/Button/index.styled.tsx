@@ -6,93 +6,8 @@ import {
   calulateHoverColor,
   darkenColor,
   parseColor,
-} from "components/wds/utils/color";
+} from "components/wds/utils/colors";
 import { ButtonProps } from "./Button";
-
-/**
- * variant styles
- *
- * variant = "filled" | "outline" | "link" | "subtle" | "white" | "light"
- */
-
-const variantStyles = css`
-  ${({ variant }: Pick<ButtonProps, "accentColor" | "variant">) => {
-    switch (variant) {
-      case "filled":
-        return css`
-          background-color: var(--wds-v2-color-bg-accent);
-          color: var(--wds-v2-color-text-onaccent);
-          border-width: 1px;
-          border-color: transparent;
-
-          &:not([data-disabled]):hover {
-            background-color: var(--wds-v2-color-bg-accent-hover);
-          }
-
-          &:not([data-disabled]):active {
-            background-color: var(--wds-v2-color-bg-accent-active);
-          }
-        `;
-      case "outline":
-        return css`
-          border-width: 1px;
-          background-color: transparent;
-          color: var(--wds-v2-color-text-accent);
-          border-color: var(--wds-v2-color-border-accent);
-
-          &:not([data-disabled]):hover {
-            background-color: var(--wds-v2-color-bg-accent-light-hover);
-          }
-
-          &:not([data-disabled]):active {
-            background-color: var(--wds-v2-color-bg-accent-light-active);
-          }
-
-          &:hover:disabled {
-            background-color: transparent;
-          }
-        `;
-      case "link":
-        return css`
-          color: var(--wds-v2-color-text-accent);
-          box-shadow: none;
-
-          &:not([data-disabled]):hover {
-            text-decoration: underline;
-          }
-        `;
-      case "light":
-        return css`
-          background: var(--wds-v2-color-bg-accent-light);
-          border-color: transparent;
-          color: var(--wds-v2-color-text-accent);
-          border-width: 0;
-
-          &:not([data-disabled]):hover {
-            background: var(--wds-v2-color-bg-accent-light-hover);
-          }
-
-          &:not([data-disabled]):active {
-            background: var(--wds-v2-color-bg-accent-light-active);
-          }
-        `;
-      case "subtle":
-        return css`
-          border-color: transparent;
-          color: var(--wds-v2-color-text-accent);
-          border-width: 0;
-
-          &:not([data-disabled]):hover {
-            background: var(--wds-v2-color-bg-accent-light-hover);
-          }
-
-          &:not([data-disabled]):active {
-            background: var(--wds-v2-color-bg-accent-light-active);
-          }
-        `;
-    }
-  }}
-`;
 
 /**
  * creates locally scoped css variables to be used in variants styles
@@ -107,10 +22,9 @@ export const variantTokens = css`
     const lightAccentColor = lightenColor(color);
     const accentActiveColor = darkenColor(accentHoverColor);
     const lightAccentHoverColor = calulateHoverColor(lightAccentColor);
-    const complementaryAccentColor = getComplementaryGrayscaleColor(
-      accentColor,
-    );
-    const darkAccentColor = darkenColor(color);
+    const textColor = getComplementaryGrayscaleColor(accentColor);
+    const onAccentBorderColor = darkenColor(color, 0.1);
+    const onAccentLightBorderColor = lightenColor(color, 0.98);
     const lightAcctentActiveColor = darkenColor(lightAccentHoverColor, 0.03);
 
     return css`
@@ -122,11 +36,11 @@ export const variantTokens = css`
       --wds-v2-color-bg-accent-light-hover: ${lightAccentHoverColor};
 
       --wds-v2-color-text-accent: ${accentColor};
-      --wds-v2-color-text-onaccent: ${complementaryAccentColor};
+      --wds-v2-color-text-onaccent: ${textColor};
 
       --wds-v2-color-border-accent: ${accentColor};
-      --wds-vs-color-border-accent-dark: ${darkAccentColor};
-      --wds-vs-color-border-accent-light: ${lightAccentHoverColor};
+      --wds-vs-color-border-onaccent: ${onAccentBorderColor};
+      --wds-vs-color-border-onaccent-light: ${onAccentLightBorderColor};
     `;
   }}
 `;
@@ -155,21 +69,91 @@ export const StyledButton = styled.button<ButtonProps>`
     pointer-events: none;
   }
 
-  & [data-component="leadingIcon"] {
-    grid-area: leadingIcon;
-  }
-
-  & [data-component="trailingIcon"] {
-    grid-area: trailingIcon;
-  }
-
   & [data-component="text"] {
-    grid-area: text;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    width: 100%;
+
+    span {
+      display: block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
   }
 
+  ${variantTokens}
+
+  /**
+  * ----------------------------------------------------------------------------
+  * variants
+  * ----------------------------------------------------------------------------
+  */
+  &[data-variant="filled"] {
+    background-color: var(--wds-v2-color-bg-accent);
+    color: var(--wds-v2-color-text-onaccent);
+    border-color: transparent;
+
+    &:hover {
+      background-color: var(--wds-v2-color-bg-accent-hover);
+    }
+
+    &:active {
+      background-color: var(--wds-v2-color-bg-accent-active);
+    }
+  }
+
+  &[data-variant="outline"] {
+    border-width: 1px;
+    background-color: transparent;
+    color: var(--wds-v2-color-text-accent);
+    border-color: var(--wds-v2-color-border-accent);
+
+    &:hover {
+      background-color: var(--wds-v2-color-bg-accent-light-hover);
+    }
+
+    &:active {
+      background-color: var(--wds-v2-color-bg-accent-light-active);
+    }
+
+    &:hover:disabled {
+      background-color: transparent;
+    }
+  }
+
+  &[data-variant="light"] {
+    background: var(--wds-v2-color-bg-accent-light);
+    border-color: transparent;
+    color: var(--wds-v2-color-text-accent);
+    border-width: 0;
+
+    &:hover {
+      background: var(--wds-v2-color-bg-accent-light-hover);
+    }
+
+    &:active {
+      background: var(--wds-v2-color-bg-accent-light-active);
+    }
+  }
+
+  &[data-variant="subtle"] {
+    border-color: transparent;
+    color: var(--wds-v2-color-text-accent);
+    border-width: 0;
+
+    &:hover {
+      background: var(--wds-v2-color-bg-accent-light-hover);
+    }
+
+    &:active {
+      background: var(--wds-v2-color-bg-accent-light-active);
+    }
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * psudo states
+  * ----------------------------------------------------------------------------
+  */
   /* // we don't use :focus-visible because not all browsers (safari) have it yet */
   &:focus {
     outline: none;
@@ -185,16 +169,13 @@ export const StyledButton = styled.button<ButtonProps>`
     text-decoration: none;
   }
 
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.8;
+  &:is([data-disabled]),
+  &:is(:disabled) {
     pointer-events: none;
-    background: var(--wds-v2-color-bg-action-disabled);
-    color: var(--wds-v2-color-text-action-disabled);
+    background: var(--wds-v2-color-bg-disabled);
+    color: var(--wds-v2-color-text-disabled);
     box-shadow: none;
-    border-width: 0;
+    background-image: none;
+    border-color: transparent;
   }
-
-  ${variantTokens}
-  ${variantStyles}
 `;

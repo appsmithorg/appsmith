@@ -1,19 +1,13 @@
 import React from "react";
-import LoaderIcon from "remixicon-react/Loader2FillIcon";
+
+import { StyledSpinner } from "./index.styled";
 
 type IconProps = {
   className?: string;
 };
 
 const Spinner = (props: IconProps) => {
-  const { className, ...rest } = props;
-
-  return (
-    <LoaderIcon
-      className={`h-5 w-5 fill-current animate-spin ${className}`}
-      {...rest}
-    />
-  );
+  return <StyledSpinner {...props} />;
 };
 
 export { Spinner };

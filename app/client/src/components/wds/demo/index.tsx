@@ -5,13 +5,11 @@ import {
   borderRadiusOptions,
   boxShadowOptions,
 } from "constants/ThemeConstants";
-import CloseLineIcon from "remixicon-react/CloseLineIcon";
+import TextShowcase from "./Text";
 import ButtonShowcase from "./Button";
 import ButtonGroupShowcase from "./ButtonGroup";
 import { createTokens } from "../utils/createTokens";
-import { Checkbox } from "../components/Checkbox/Checkbox";
-import TextShowcase from "./Text";
-import { createTypographyStyles } from "../components/Text/utils";
+import CloseLineIcon from "remixicon-react/CloseLineIcon";
 
 type StyledWrapperProps = {
   borderRadius: CSSProperties["borderRadius"];

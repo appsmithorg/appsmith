@@ -12,7 +12,6 @@ const TextShowcase = (props: Props) => {
     controls: [
       ["input", "content", "This is a text"],
       ["input", "color", ""],
-      ["input", "capHeight", "12"],
       ["select", "textAlign", "left", ["left", "center", "right"]],
       ["select", "fontStyle", "normal", ["normal", "italic"]],
       [
@@ -30,9 +29,7 @@ const TextShowcase = (props: Props) => {
 
   return (
     <Showcase settings={controls} title="Text">
-      <Text capHeight={Number(capHeight)} {...rest} fontFamily="notoSans">
-        {content}
-      </Text>
+      <Text {...rest}>{content}</Text>
     </Showcase>
   );
 };

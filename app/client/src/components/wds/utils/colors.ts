@@ -1,7 +1,7 @@
 import Color from "colorjs.io";
 
 /**
- * returns black or white based on the constrast of the color compare to white
+ * returns black or white based on the constrast of the color compared to white
  * using APCA algorithm
  *
  * @param color

@@ -26,4 +26,4 @@ export const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
   },
 );
 
-ButtonGroup.displayName = "@mantine/core/ButtonGroup";
+ButtonGroup.displayName = "ButtonGroup";

@@ -1,4 +1,5 @@
 :root {
-  --wds-v2-color-bg-action-disabled: var(--wds-v2-color-gray-100);
-  --wds-v2-color-text-action-disabled: var(--wds-v2-color-gray-400);
+  --wds-v2-color-bg-disabled: var(--wds-v2-color-gray-100);
+  --wds-v2-color-text-disabled: var(--wds-v2-color-gray-400);
+  --wds-v2-color-border-disabled: var(--wds-v2-color-gray-100);
 }
