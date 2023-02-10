@@ -1,14 +1,14 @@
-import React, { useContext, memo, useMemo } from "react";
+import React, { memo, useContext, useMemo } from "react";
 import {
   WidgetOperations,
-  WidgetRowCols,
   WidgetProps,
+  WidgetRowCols,
 } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import {
-  UIElementSize,
   computeFinalRowCols,
   computeRowCols,
+  UIElementSize,
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
@@ -18,18 +18,18 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import Resizable from "resizable/resizenreflow";
-import { omit, get } from "lodash";
+import { get, omit } from "lodash";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
-  VisibilityContainer,
+  BottomHandleStyles,
+  BottomLeftHandleStyles,
+  BottomRightHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
-  BottomHandleStyles,
   TopLeftHandleStyles,
   TopRightHandleStyles,
-  BottomLeftHandleStyles,
-  BottomRightHandleStyles,
+  VisibilityContainer,
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -40,8 +40,16 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
-import { getParentToOpenSelector } from "selectors/widgetSelectors";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  getParentToOpenSelector,
+  isCurrentWidgetFocused,
+  isCurrentWidgetLastSelected,
+  isMultiSelectedWidget,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -60,15 +68,15 @@ export const ResizableComponent = memo(function ResizableComponent(
   const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+  // Check if current widget is in the list of selected widgets
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  // Check if current widget is the last selected widget
+  const isLastSelected = useSelector(
+    isCurrentWidgetLastSelected(props.widgetId),
   );
-  const selectedWidgets = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
-  );
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  // Check if current widget is one of multiple selected widgets
+  const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
 
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
@@ -79,11 +87,10 @@ export const ResizableComponent = memo(function ResizableComponent(
   const parentWidgetToSelect = useSelector(
     getParentToOpenSelector(props.widgetId),
   );
-
-  const isWidgetFocused =
-    focusedWidget === props.widgetId ||
-    selectedWidget === props.widgetId ||
-    selectedWidgets.includes(props.widgetId);
+  const isParentWidgetSelected = useSelector(
+    isCurrentWidgetLastSelected(parentWidgetToSelect?.widgetId || ""),
+  );
+  const isWidgetFocused = isFocused || isLastSelected || isSelected;
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
@@ -106,8 +113,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       width: newDimensions.width - dimensions.width,
     };
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
-    let canResizeHorizontally = true,
-      canResizeVertically = true;
+    let canResizeVertically = true;
+    let canResizeHorizontally = true;
 
     // this is required for list widget so that template have no collision
     if (props.ignoreCollision)
@@ -131,7 +138,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     ) {
       canResizeVertically = false;
     }
-
     const resizedPositions = {
       id: props.widgetId,
       left: newRowCols.leftColumn,
@@ -139,6 +145,12 @@ export const ResizableComponent = memo(function ResizableComponent(
       bottom: newRowCols.bottomRow,
       right: newRowCols.rightColumn,
     };
+
+    if (isAutoHeightEnabledForWidget(props)) {
+      canResizeVertically = false;
+      resizedPositions.top = props.topRow;
+      resizedPositions.bottom = props.bottomRow;
+    }
 
     // Check if new row cols are occupied by sibling widgets
     return {
@@ -186,19 +198,19 @@ export const ResizableComponent = memo(function ResizableComponent(
     // Tell the Canvas to put the focus back to this widget
     // By setting the focus, we enable the control buttons on the widget
     selectWidget &&
-      selectedWidget !== props.widgetId &&
+      !isLastSelected &&
       parentWidgetToSelect?.widgetId !== props.widgetId &&
-      selectWidget(props.widgetId);
+      selectWidget(SelectionRequestType.One, [props.widgetId]);
 
     if (parentWidgetToSelect) {
       selectWidget &&
-        selectedWidget !== parentWidgetToSelect.widgetId &&
-        selectWidget(parentWidgetToSelect.widgetId);
+        !isParentWidgetSelected &&
+        selectWidget(SelectionRequestType.One, [parentWidgetToSelect.widgetId]);
       focusWidget(parentWidgetToSelect.widgetId);
     } else {
       selectWidget &&
-        selectedWidget !== props.widgetId &&
-        selectWidget(props.widgetId);
+        !isLastSelected &&
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
     }
     // Property pane closes after a resize/drag
     showPropertyPane && showPropertyPane();
@@ -215,8 +227,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   const handleResizeStart = () => {
     setIsResizing && !isResizing && setIsResizing(true);
     selectWidget &&
-      selectedWidget !== props.widgetId &&
-      selectWidget(props.widgetId);
+      !isLastSelected &&
+      selectWidget(SelectionRequestType.One, [props.widgetId]);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
@@ -245,10 +257,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode;
-  const isMultiSelectedWidget =
-    selectedWidgets &&
-    selectedWidgets.length > 1 &&
-    selectedWidgets.includes(props.widgetId);
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const gridProps = {
@@ -271,23 +279,43 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
+  const snapGrid = useMemo(
+    () => ({
+      x: props.parentColumnSpace,
+      y: props.parentRowSpace,
+    }),
+    [props.parentColumnSpace, props.parentRowSpace],
+  );
+
+  const isVerticalResizeEnabled = useMemo(() => {
+    return !isAutoHeightEnabledForWidget(props) && isEnabled;
+  }, [props, isAutoHeightEnabledForWidget, isEnabled]);
+
+  const fixedHeight =
+    isAutoHeightEnabledForWidget(props, true) ||
+    !isAutoHeightEnabledForWidget(props) ||
+    !props.isCanvas;
+
   return (
     <Resizable
-      allowResize={!isMultiSelectedWidget}
+      allowResize={!isMultiSelected}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enable={isEnabled}
+      enableHorizontalResize={isEnabled}
+      enableVerticalResize={isVerticalResizeEnabled}
+      fixedHeight={fixedHeight}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
+      maxDynamicHeight={props.maxDynamicHeight}
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}
       parentId={props.parentId}
-      snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      snapGrid={snapGrid}
       updateBottomRow={updateBottomRow}
-      widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.
+      widgetId={props.widgetId}
       zWidgetId={props.widgetId}
       zWidgetType={props.type}
     >

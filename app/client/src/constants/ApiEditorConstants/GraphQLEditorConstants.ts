@@ -7,8 +7,6 @@ import {
   POST_BODY_FORMAT_OPTIONS,
 } from "./CommonApiConstants";
 
-export const GRAPHQL_PLUGIN_PACKAGE_NAME = "graphql-plugin";
-
 export const GRAPHQL_HTTP_METHOD_OPTIONS = [
   {
     value: HTTP_METHOD.GET,
@@ -66,7 +64,7 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
       value: "",
     },
     {
-      /* 
+      /*
         Pagination data having structure : GRAPHQL_PAGINATION_TYPE
       */
       value: {},

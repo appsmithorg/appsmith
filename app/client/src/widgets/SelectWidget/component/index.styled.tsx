@@ -1,16 +1,17 @@
+import { PropsWithChildren } from "react";
 import { Classes, ControlGroup } from "@blueprintjs/core";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 
 import { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
-import {
-  BlueprintCSSTransform,
-  createGlobalStyle,
-} from "constants/DefaultTheme";
+import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import { isEmptyOrNill } from "../../../utils/helpers";
 import { LabelPosition, LABEL_MARGIN_OLD_SELECT } from "components/constants";
-import { labelLayoutStyles, LABEL_CONTAINER_CLASS } from "design-system";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "widgets/components/LabelWithTooltip";
 import { lightenColor } from "widgets/WidgetUtils";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 
@@ -19,9 +20,9 @@ export const StyledDiv = styled.div`
 `;
 
 export const StyledControlGroup = styled(ControlGroup)<{
-  compactMode: boolean;
-  labelPosition?: LabelPosition;
-  isDisabled?: boolean;
+  $compactMode: boolean;
+  $labelPosition?: LabelPosition;
+  $isDisabled?: boolean;
 }>`
   &&& > {
     span {
@@ -38,12 +39,12 @@ export const StyledControlGroup = styled(ControlGroup)<{
           fill: var(--wds-color-icon);
 
           path {
-            fill: ${({ isDisabled }) =>
-              isDisabled
+            fill: ${({ $isDisabled }) =>
+              $isDisabled
                 ? "var(--wds-color-icon-disabled)"
                 : "var(--wds-color-icon)"};
-            stroke: ${({ isDisabled }) =>
-              isDisabled
+            stroke: ${({ $isDisabled }) =>
+              $isDisabled
                 ? "var(--wds-color-icon-disabled)"
                 : "var(--wds-color-icon)"} !important;
           }
@@ -58,8 +59,8 @@ export const StyledControlGroup = styled(ControlGroup)<{
           height: 20px;
 
           path {
-            fill: ${({ isDisabled }) =>
-              isDisabled
+            fill: ${({ $isDisabled }) =>
+              $isDisabled
                 ? "var(--wds-color-icon-disabled)"
                 : "var(--wds-color-icon)"};
           }
@@ -69,15 +70,19 @@ export const StyledControlGroup = styled(ControlGroup)<{
   }
 `;
 
-const SingleDropDown = Select.ofType<DropdownOption>();
-export const StyledSingleDropDown = styled(SingleDropDown)<{
+type StyledSingleDropDownProps = PropsWithChildren<{
   value: string;
   isValid: boolean;
   hasError?: boolean;
   borderRadius: string;
   boxShadow?: string;
   accentColor?: string;
-}>`
+}>;
+
+const SingleDropDown = Select.ofType<DropdownOption>();
+export const StyledSingleDropDown = styled(SingleDropDown)<
+  StyledSingleDropDownProps
+>`
   div {
     flex: 1 1 auto;
   }
@@ -217,6 +222,21 @@ export const DropdownContainer = styled.div<{
 }>`
   ${BlueprintCSSTransform}
   ${labelLayoutStyles}
+
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+    ${({ labelPosition }) => {
+      if (labelPosition === LabelPosition.Left) {
+        return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+      }
+    }}
+
   & .${LABEL_CONTAINER_CLASS} {
     label {
       ${({ labelPosition }) => {

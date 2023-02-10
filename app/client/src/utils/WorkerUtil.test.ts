@@ -1,9 +1,15 @@
 import { GracefulWorkerService } from "./WorkerUtil";
 import { channel, runSaga } from "redux-saga";
-import WebpackWorker from "worker-loader!";
 
 const MessageType = "message";
-class MockWorker implements WebpackWorker {
+interface extraWorkerProperties {
+  callback: CallableFunction;
+  noop: CallableFunction;
+  delayMilliSeconds: number;
+  running: boolean;
+}
+type WorkerClass = Worker & extraWorkerProperties;
+class MockWorkerClass implements WorkerClass {
   // Implement interface
   onmessage: any;
   onmessageerror: any;
@@ -14,12 +20,12 @@ class MockWorker implements WebpackWorker {
   noop: CallableFunction;
   messages: Array<any>;
   delayMilliSeconds: number;
-  static instance: MockWorker | undefined;
+  instance: WorkerClass | undefined;
   responses: Set<number>;
   running: boolean;
 
-  static resetInstance() {
-    MockWorker.instance = undefined;
+  resetInstance() {
+    this.instance = undefined;
   }
 
   constructor() {
@@ -29,7 +35,7 @@ class MockWorker implements WebpackWorker {
     this.messages = [];
     this.delayMilliSeconds = 0;
     this.responses = new Set<number>();
-    MockWorker.instance = this;
+    this.instance = this;
     this.running = true;
   }
 
@@ -50,12 +56,15 @@ class MockWorker implements WebpackWorker {
     this.messages.push(message);
     const counter = setTimeout(() => {
       const response = {
-        requestId: message.requestId,
-        responseData: message.requestData,
+        messageId: message.messageId,
+        messageType: "RESPONSE",
+        body: { data: message.body.data },
       };
       this.sendEvent({ data: response });
+      // @ts-expect-error: setTimeout return type mismatch
       this.responses.delete(counter);
     }, this.delayMilliSeconds);
+    // @ts-expect-error: setTimeout return type mismatch
     this.responses.add(counter);
   }
 
@@ -76,13 +85,8 @@ class MockWorker implements WebpackWorker {
 }
 
 describe("GracefulWorkerService", () => {
-  beforeEach(() => {
-    MockWorker.resetInstance();
-    // Assert we don't have an instance from before
-    expect(MockWorker.instance).toBeUndefined();
-  });
-
   test("Worker should start", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
 
     // wait for worker to start
@@ -95,6 +99,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Independent requests should respond independently irrespective of order", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     await runSaga({}, w.start);
     const message1 = { tree: "hello" };
@@ -110,6 +115,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Request should wait for ready", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     const message = { hello: "world" };
     // Send a request before starting
@@ -121,6 +127,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Worker should wait to drain in-flight requests before shutdown", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     const message = { hello: "world" };
     await runSaga({}, w.start);
@@ -146,7 +153,8 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Worker restart should work", async () => {
-    const w = new GracefulWorkerService(MockWorker);
+    const MockWorker = new MockWorkerClass();
+    let w = new GracefulWorkerService(MockWorker);
     const message1 = { tree: "hello" };
     await runSaga({}, w.start);
 
@@ -165,18 +173,21 @@ describe("GracefulWorkerService", () => {
     expect(oldInstance.running).toEqual(false);
 
     // Send a message to the new worker before starting it
+    const newMockWorker = new MockWorkerClass();
+    w = new GracefulWorkerService(newMockWorker);
     const message2 = { tree: "world" };
     const result2 = await runSaga({}, w.request, "test", message2);
 
     await runSaga({}, w.start);
 
     // We should have a new instance of the worker
-    expect(MockWorker.instance).not.toEqual(oldInstance);
+    expect(newMockWorker.instance).not.toEqual(oldInstance);
     // The new worker should get the correct message
     expect(await result2.toPromise()).toEqual(message2);
   });
 
   test("Cancelling saga before starting up should not crash", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     const message = { tree: "hello" };
 
@@ -190,6 +201,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Cancelled saga should clean up", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     const message = { tree: "hello" };
     await runSaga({}, w.start);
@@ -208,128 +220,5 @@ describe("GracefulWorkerService", () => {
     // wait for shutdown
     await shutdown.toPromise();
     expect(await task.toPromise()).not.toEqual(message);
-  });
-
-  test("duplex request starter", async () => {
-    const w = new GracefulWorkerService(MockWorker);
-    await runSaga({}, w.start);
-    // Need this to work with eslint
-    if (MockWorker.instance === undefined) {
-      expect(MockWorker.instance).toBeDefined();
-      return;
-    }
-    const requestData = { message: "Hello" };
-    const method = "duplex_test";
-    MockWorker.instance.postMessage = jest.fn();
-    const duplexRequest = await runSaga(
-      {},
-      w.duplexRequest,
-      method,
-      requestData,
-    );
-    const handlers = await duplexRequest.toPromise();
-    expect(handlers).toHaveProperty("requestChannel");
-    expect(handlers).toHaveProperty("responseChannel");
-    expect(MockWorker.instance.postMessage).toBeCalledWith({
-      method,
-      requestData,
-      requestId: expect.stringContaining(method),
-    });
-  });
-
-  test("duplex request channel handler", async () => {
-    const w = new GracefulWorkerService(MockWorker);
-    await runSaga({}, w.start);
-    const mockChannel = (name = "mock") => ({
-      name,
-      take: jest.fn(),
-      put: jest.fn(),
-      flush: jest.fn(),
-      close: jest.fn(),
-    });
-    const workerChannel = channel();
-    const mockRequestChannel = mockChannel("request");
-    const mockResponseChannel = mockChannel("response");
-    runSaga(
-      {},
-      // @ts-expect-error: type mismatch
-      w.duplexRequestHandler,
-      workerChannel,
-      mockRequestChannel,
-      mockResponseChannel,
-    );
-
-    let randomRequestCount = Math.floor(Math.random() * 10);
-
-    for (randomRequestCount; randomRequestCount > 0; randomRequestCount--) {
-      workerChannel.put({
-        responseData: {
-          test: randomRequestCount,
-        },
-      });
-      expect(mockRequestChannel.put).toBeCalledWith({
-        requestData: {
-          test: randomRequestCount,
-        },
-      });
-    }
-
-    workerChannel.put({
-      responseData: {
-        finished: true,
-      },
-    });
-
-    expect(mockResponseChannel.put).toBeCalledWith({ finished: true });
-
-    expect(mockRequestChannel.close).toBeCalled();
-  });
-
-  test("duplex response channel handler", async () => {
-    const w = new GracefulWorkerService(MockWorker);
-    await runSaga({}, w.start);
-
-    // Need this to work with eslint
-    if (MockWorker.instance === undefined) {
-      expect(MockWorker.instance).toBeDefined();
-      return;
-    }
-    const mockChannel = (name = "mock") => ({
-      name,
-      take: jest.fn(),
-      put: jest.fn(),
-      flush: jest.fn(),
-      close: jest.fn(),
-    });
-    const mockWorkerChannel = mockChannel("worker");
-    const responseChannel = channel();
-    const workerRequestId = "testID";
-    runSaga(
-      {},
-      // @ts-expect-error: type mismatch
-      w.duplexResponseHandler,
-      workerRequestId,
-      mockWorkerChannel,
-      responseChannel,
-    );
-    MockWorker.instance.postMessage = jest.fn();
-
-    let randomRequestCount = Math.floor(Math.random() * 10);
-
-    for (randomRequestCount; randomRequestCount > 0; randomRequestCount--) {
-      responseChannel.put({
-        test: randomRequestCount,
-      });
-      expect(MockWorker.instance.postMessage).toBeCalledWith({
-        test: randomRequestCount,
-        requestId: workerRequestId,
-      });
-    }
-
-    responseChannel.put({
-      finished: true,
-    });
-
-    expect(mockWorkerChannel.close).toBeCalled();
   });
 });

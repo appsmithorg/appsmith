@@ -18,9 +18,7 @@ import {
   ButtonVariantTypes,
   ButtonPlacement,
 } from "components/constants";
-import { ThemeProp } from "components/ads/common";
 import styled, { createGlobalStyle } from "styled-components";
-import { Colors } from "constants/Colors";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -31,6 +29,7 @@ import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import { ThemeProp } from "widgets/constants";
 
 // Utility functions
 interface ButtonData {
@@ -183,7 +182,8 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   padding: 0px 10px;
 
   &:hover,
-  &:active {
+  &:active,
+  &:focus {
     ${buttonHoverActiveStyles}
   }
 
@@ -208,7 +208,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
       }
     }
 
-
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
@@ -228,10 +227,13 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
 
     &:disabled {
       cursor: not-allowed;
-      border: 1px solid ${Colors.ALTO2} !important;
-      background: ${theme.colors.button.disabled.bgColor} !important;
+      border: ${buttonVariant === ButtonVariantTypes.SECONDARY &&
+        "1px solid var(--wds-color-border-disabled)"} !important;
+      background: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
+        "var(--wds-color-bg-disabled)"} !important;
+
       span {
-        color: ${theme.colors.button.disabled.textColor} !important;
+        color: var(--wds-color-text-disabled) !important;
       }
     }
 
@@ -267,7 +269,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
     backgroundColor
       ? `
       background-color: ${backgroundColor} !important;
-      &:hover {
+      &:hover, &:focus {
         background-color: ${darkenHover(backgroundColor)} !important;
       }
       &:active {
@@ -276,7 +278,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   `
       : `
     background: none !important
-      &:hover {
+      &:hover, &:focus {
         background-color: ${tinycolor(
           theme.colors.button.primary.primary.textColor,
         )
@@ -346,25 +348,22 @@ function PopoverContent(props: PopoverContentProps) {
       onClick,
       textColor,
     } = menuItem;
-    if (iconAlign === Alignment.RIGHT) {
-      return (
-        <BaseMenuItem
-          backgroundColor={backgroundColor}
-          disabled={isDisabled}
-          key={id}
-          labelElement={<Icon color={iconColor} icon={iconName} />}
-          onClick={() => onItemClicked(onClick, buttonId)}
-          text={label}
-          textColor={textColor}
-        />
-      );
-    }
+
     return (
       <BaseMenuItem
         backgroundColor={backgroundColor}
         disabled={isDisabled}
-        icon={<Icon color={iconColor} icon={iconName} />}
+        icon={
+          iconAlign !== Alignment.RIGHT && iconName ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : null
+        }
         key={id}
+        labelElement={
+          iconAlign === Alignment.RIGHT && iconName ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : null
+        }
         onClick={() => onItemClicked(onClick, buttonId)}
         text={label}
         textColor={textColor}
@@ -398,6 +397,7 @@ class ButtonGroupComponent extends React.Component<
       };
     });
 
+    // @ts-expect-error: setTimeout return type mismatch
     this.timer = setTimeout(() => {
       this.setState(() => {
         return {
@@ -548,7 +548,7 @@ class ButtonGroupComponent extends React.Component<
         {items.map((button) => {
           const isLoading = button.id === loadedBtnId;
           const isButtonDisabled =
-            button.isDisabled || isDisabled || !!loadedBtnId;
+            button.isDisabled || isDisabled || !!loadedBtnId || isLoading;
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
 
@@ -600,7 +600,7 @@ class ButtonGroupComponent extends React.Component<
                         placement={button.placement}
                       >
                         {isLoading ? (
-                          <Spinner size={20} />
+                          <Spinner size={18} />
                         ) : (
                           <>
                             {button.iconName && <Icon icon={button.iconName} />}
@@ -646,7 +646,7 @@ class ButtonGroupComponent extends React.Component<
                   placement={button.placement}
                 >
                   {isLoading ? (
-                    <Spinner size={20} />
+                    <Spinner size={18} />
                   ) : (
                     <>
                       {button.iconName && <Icon icon={button.iconName} />}

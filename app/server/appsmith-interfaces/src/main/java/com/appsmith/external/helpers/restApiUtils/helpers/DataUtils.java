@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 public class DataUtils {
 
-    public  static String FIELD_API_CONTENT_TYPE = "apiContentType";
+    public static String FIELD_API_CONTENT_TYPE = "apiContentType";
 
     private final ObjectMapper objectMapper;
 
@@ -75,6 +75,8 @@ public class DataUtils {
                 return BodyInserters.fromValue(formData);
             case MediaType.MULTIPART_FORM_DATA_VALUE:
                 return parseMultipartFileData((List<Property>) body);
+            case MediaType.TEXT_PLAIN_VALUE:
+                return BodyInserters.fromValue((String) body);
             default:
                 return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
         }
@@ -194,12 +196,6 @@ public class DataUtils {
                                         }
                                     } catch (JsonProcessingException e) {
                                         bodyBuilder.part(key, value);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                        throw new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                                "Unable to parse content. Expected to receive an array or object of multipart data"
-                                        );
                                     }
                                 } else {
                                     bodyBuilder.part(key, property.getValue());
@@ -290,7 +286,7 @@ public class DataUtils {
     }
 
     public Object getRequestBodyObject(ActionConfiguration actionConfiguration, String reqContentType,
-                                              boolean encodeParamsToggle, HttpMethod httpMethod) {
+                                       boolean encodeParamsToggle, HttpMethod httpMethod) {
         // We initialize this object to an empty string because body can never be empty
         // Based on the content-type, this Object may be of type MultiValueMap or String
         Object requestBodyObj = "";

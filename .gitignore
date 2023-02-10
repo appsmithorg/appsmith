@@ -1,8 +1,6 @@
 .DS_Store
-.idea
 *.iml
 .env
-.vscode/*
 
 app/client/cypress.env.json
 stacks
@@ -21,3 +19,21 @@ deploy/ansible/appsmith_playbook/inventory
 app/client/perf/traces/*
 .history
 stacks
+
+# helm dependencies
+deploy/helm/charts
+
+# yalc files
+## This is for integrating design-system changes during development
+app/client/.yalc/
+app/client/yalc.lock
+
+# editor related
+.vscode/*
+.idea
+.fleet/*
+app/client/.fleet/*
+
+# Observability related local storage
+utils/observability/tempo-data/*
+

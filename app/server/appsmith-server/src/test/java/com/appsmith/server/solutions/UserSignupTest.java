@@ -13,20 +13,20 @@ import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class UserSignupTest {
     @MockBean
     private UserService userService;
@@ -63,7 +63,7 @@ public class UserSignupTest {
 
     private UserSignup userSignup;
 
-    @Before
+    @BeforeEach
     public void setup() {
         userSignup = new UserSignupImpl(userService, userDataService, captchaService, authenticationSuccessHandler,
                 configService, analyticsService, envManager, commonConfig, userUtils);

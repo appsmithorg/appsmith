@@ -1,60 +1,54 @@
-import React, { ReactNode, useRef, useEffect, RefObject } from "react";
-import styled, { css } from "styled-components";
-import tinycolor from "tinycolor2";
-import { invisible } from "constants/DefaultTheme";
-import { Color } from "constants/Colors";
+import React, {
+  MouseEventHandler,
+  PropsWithChildren,
+  ReactNode,
+  RefObject,
+  useEffect,
+  useRef,
+} from "react";
+import styled from "styled-components";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
 import WidgetStyleContainer, {
   WidgetStyleContainerProps,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { pick } from "lodash";
-import { ComponentProps } from "widgets/BaseComponent";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-
-const scrollContents = css`
-  overflow-y: auto;
-`;
+import tinycolor from "tinycolor2";
+import { WidgetType } from "utils/WidgetFactory";
+import { scrollCSS } from "widgets/WidgetUtils";
 
 const StyledContainerComponent = styled.div<
-  ContainerComponentProps & {
-    ref: RefObject<HTMLDivElement>;
-  }
+  Omit<ContainerWrapperProps, "widgetId">
 >`
   height: 100%;
   width: 100%;
-  background: ${(props) => props.backgroundColor};
+  overflow: hidden;
+  ${(props) => (props.shouldScrollContents ? scrollCSS : ``)}
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
-  position: relative;
-  ${(props) => (!props.isVisible ? invisible : "")};
-  box-shadow: ${(props) =>
-    props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
-  border-radius: ${({ borderRadius }) => borderRadius};
 
-  ${(props) =>
-    props.shouldScrollContents === true
-      ? scrollContents
-      : props.shouldScrollContents === false
-      ? css`
-          overflow: hidden;
-        `
-      : ""}
-
+  background: ${(props) => props.backgroundColor};
   &:hover {
-    z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
-    cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
-    background: ${(props) => {
+    background-color: ${(props) => {
       return props.onClickCapture && props.backgroundColor
         ? tinycolor(props.backgroundColor)
             .darken(5)
             .toString()
         : props.backgroundColor;
     }};
+    z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
+    cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
   }
 `;
 
-function ContainerComponentWrapper(props: ContainerComponentProps) {
-  const containerStyle = props.containerStyle || "card";
+interface ContainerWrapperProps {
+  onClickCapture?: MouseEventHandler<HTMLDivElement>;
+  resizeDisabled?: boolean;
+  shouldScrollContents?: boolean;
+  backgroundColor?: string;
+  widgetId: string;
+  type: WidgetType;
+}
+function ContainerComponentWrapper(
+  props: PropsWithChildren<ContainerWrapperProps>,
+) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!props.shouldScrollContents) {
@@ -71,14 +65,18 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
   }, [props.shouldScrollContents]);
   return (
     <StyledContainerComponent
-      {...props}
-      className={`${
-        props.shouldScrollContents ? getCanvasClassName() : ""
-      } ${generateClassName(props.widgetId)}`}
-      containerStyle={containerStyle}
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
       // getCanvasClassName is used to add a scrollable parent.
+      backgroundColor={props.backgroundColor}
+      className={`${
+        props.shouldScrollContents ? getCanvasClassName() : ""
+      } ${generateClassName(props.widgetId)} container-with-scrollbar`}
+      onClickCapture={props.onClickCapture}
       ref={containerRef}
+      resizeDisabled={props.resizeDisabled}
+      shouldScrollContents={!!props.shouldScrollContents}
+      tabIndex={props.shouldScrollContents ? undefined : 0}
+      type={props.type}
     >
       {props.children}
     </StyledContainerComponent>
@@ -86,39 +84,55 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
 }
 
 function ContainerComponent(props: ContainerComponentProps) {
-  useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);
-  return props.widgetId === MAIN_CONTAINER_WIDGET_ID ? (
-    <ContainerComponentWrapper {...props} />
-  ) : (
+  if (props.detachFromLayout) {
+    return (
+      <ContainerComponentWrapper
+        onClickCapture={props.onClickCapture}
+        resizeDisabled={props.resizeDisabled}
+        shouldScrollContents={props.shouldScrollContents}
+        type={props.type}
+        widgetId={props.widgetId}
+      >
+        {props.children}
+      </ContainerComponentWrapper>
+    );
+  }
+  return (
     <WidgetStyleContainer
-      {...pick(props, [
-        "widgetId",
-        "containerStyle",
-        "backgroundColor",
-        "borderColor",
-        "borderWidth",
-        "borderRadius",
-        "boxShadow",
-      ])}
+      backgroundColor={props.backgroundColor}
+      borderColor={props.borderColor}
+      borderRadius={props.borderRadius}
+      borderWidth={props.borderWidth}
+      boxShadow={props.boxShadow}
+      className="style-container"
+      containerStyle={props.containerStyle}
+      widgetId={props.widgetId}
     >
-      <ContainerComponentWrapper {...props} />
+      <ContainerComponentWrapper
+        backgroundColor={props.backgroundColor}
+        onClickCapture={props.onClickCapture}
+        resizeDisabled={props.resizeDisabled}
+        shouldScrollContents={props.shouldScrollContents}
+        type={props.type}
+        widgetId={props.widgetId}
+      >
+        {props.children}
+      </ContainerComponentWrapper>
     </WidgetStyleContainer>
   );
 }
 
 export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 
-export interface ContainerComponentProps
-  extends ComponentProps,
-    WidgetStyleContainerProps {
+export interface ContainerComponentProps extends WidgetStyleContainerProps {
   children?: ReactNode;
-  className?: string;
-  backgroundColor?: Color;
   shouldScrollContents?: boolean;
   resizeDisabled?: boolean;
-  selected?: boolean;
-  focused?: boolean;
-  minHeight?: number;
+  detachFromLayout?: boolean;
+  onClickCapture?: MouseEventHandler<HTMLDivElement>;
+  backgroundColor?: string;
+  type: WidgetType;
+  noScroll?: boolean;
 }
 
 export default ContainerComponent;

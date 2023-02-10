@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QUserData;
@@ -22,6 +21,7 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
+import org.apache.commons.collections.map.Flat3Map;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -35,7 +35,9 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
+import reactor.util.function.Tuple2;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -204,7 +206,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         final Mono<String> prevAssetIdMono = getForCurrentUser()
                 .map(userData -> ObjectUtils.defaultIfNull(userData.getProfilePhotoAssetId(), ""));
 
-        final Mono<Asset> uploaderMono = assetService.upload(filePart, MAX_PROFILE_PHOTO_SIZE_KB, true);
+        final Mono<Asset> uploaderMono = assetService.upload(List.of(filePart), MAX_PROFILE_PHOTO_SIZE_KB, true);
 
         return Mono.zip(prevAssetIdMono, uploaderMono)
                 .flatMap(tuple -> {
@@ -212,11 +214,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                     final Asset uploadedAsset = tuple.getT2();
                     final UserData updates = new UserData();
                     updates.setProfilePhotoAssetId(uploadedAsset.getId());
-                    final Mono<UserData> updateMono = updateForCurrentUser(updates).map(userData -> {
-                        userChangedHandler.publish(userData.getUserId(), uploadedAsset.getId());
-                        return userData;
-                    });
-                    if (StringUtils.isEmpty(oldAssetId)) {
+                    final Mono<UserData> updateMono = updateForCurrentUser(updates);
+                    if (!StringUtils.hasLength(oldAssetId)) {
                         return updateMono;
                     } else {
                         return assetService.remove(oldAssetId).then(updateMono);
@@ -230,7 +229,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .flatMap(userData -> {
                     String profilePhotoAssetId = userData.getProfilePhotoAssetId();
                     userData.setProfilePhotoAssetId(null);
-                    userChangedHandler.publish(userData.getUserId(), null);
                     return repository.save(userData).thenReturn(profilePhotoAssetId);
                 })
                 .flatMap(assetService::remove);
@@ -261,17 +259,25 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      */
     @Override
     public Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application) {
-        return this.getForCurrentUser().flatMap(userData -> {
-            // set recently used workspace ids
-            userData.setRecentlyUsedWorkspaceIds(
-                    addIdToRecentList(userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10)
-            );
-            // set recently used application ids
-            userData.setRecentlyUsedAppIds(
-                    addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20)
-            );
-            return repository.save(userData);
-        });
+        return sessionUserService.getCurrentUser()
+                .zipWhen(this::getForUser)
+                .flatMap(tuple -> {
+                    final User user = tuple.getT1();
+                    final UserData userData = tuple.getT2();
+                    // set recently used workspace ids
+                    userData.setRecentlyUsedWorkspaceIds(
+                            addIdToRecentList(userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10)
+                    );
+                    // set recently used application ids
+                    userData.setRecentlyUsedAppIds(
+                            addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20)
+                    );
+                    return Mono.zip(
+                        analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
+                        repository.save(userData)
+                    );
+                })
+                .map(Tuple2::getT2);
     }
 
     @Override
@@ -307,17 +313,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         return featureFlagService.getAllFeatureFlagsForUser();
     }
 
-    @Override
-    public Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState) {
-        if (commentOnboardingState != CommentOnboardingState.SKIPPED && commentOnboardingState != CommentOnboardingState.ONBOARDED) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, QUserData.userData.commentOnboardingState));
-        }
-        return this.getForCurrentUser().flatMap(userData -> {
-            userData.setCommentOnboardingState(commentOnboardingState);
-            return repository.save(userData);
-        });
-    }
-
     /**
      * Removes provided workspace id and all other application id under that workspace from the user data
      *
@@ -330,4 +325,5 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList)
         );
     }
+
 }

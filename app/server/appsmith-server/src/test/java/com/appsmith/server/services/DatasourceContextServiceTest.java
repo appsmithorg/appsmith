@@ -8,35 +8,40 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.bson.types.ObjectId;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 public class DatasourceContextServiceTest {
@@ -47,11 +52,17 @@ public class DatasourceContextServiceTest {
     @Autowired
     WorkspaceRepository workspaceRepository;
 
-    @Autowired
+    @SpyBean
     PluginService pluginService;
 
     @Autowired
     DatasourceService datasourceService;
+
+    @SpyBean
+    DatasourceRepository datasourceRepository;
+
+    @SpyBean
+    NewActionRepository newActionRepository;
 
     @Autowired
     UserService userService;
@@ -59,11 +70,63 @@ public class DatasourceContextServiceTest {
     @Autowired
     WorkspaceService workspaceService;
 
+    @Autowired
+    DatasourcePermission datasourcePermission;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
     @SpyBean
     DatasourceContextServiceImpl datasourceContextService;
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDatasourceCache_afterDatasourceDeleted_doesNotReturnOldConnection() {
+        // Never require the datasource connectin to be stale
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
+
+        MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
+        MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
+        /* Return two different connection objects if `datasourceCreate` method is called twice */
+        doReturn(Mono.just("connection_1")).doReturn(Mono.just("connection_2")).when(spyMockPluginExecutor).datasourceCreate(any());
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(spyMockPluginExecutor));
+
+        Datasource datasource = new Datasource();
+        datasource.setId("id1");
+        datasource.setPluginId("mockPluginId");
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+        datasource.setWorkspaceId("workspaceId");
+
+        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasource.getId(), null);
+
+        Object monitor = new Object();
+        // Create one instance of datasource connection
+        Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasource,
+                                                                                                            spyMockPluginExecutor, monitor, datasourceContextIdentifier);
+
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getDeletePermission());
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getExecutePermission());
+        doReturn(Mono.just(new Plugin())).when(pluginService).findById("mockPlugin");
+        doReturn(Mono.just(0L)).when(newActionRepository).countByDatasourceId("id1");
+        doReturn(Mono.just(datasource)).when(datasourceRepository).archiveById("id1");
+
+        // Now delete the datasource and check if the cache retains the same instance of connection
+        Mono<DatasourceContext<?>> dsContextMono2 = datasourceService.archiveById("id1")
+                .flatMap(deleted -> datasourceContextService.getCachedDatasourceContextMono(datasource,
+                                                                                            spyMockPluginExecutor, monitor, datasourceContextIdentifier));
+
+        StepVerifier.create(dsContextMono1)
+                .assertNext(dsContext1 -> {
+                    assertEquals("connection_1", dsContext1.getConnection());
+                })
+                .verifyComplete();
+
+        StepVerifier.create(dsContextMono2)
+                .assertNext(dsContext1 -> {
+                    assertEquals("connection_2", dsContext1.getConnection());
+                })
+                .verifyComplete();
+    }
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -74,7 +137,7 @@ public class DatasourceContextServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTOTest");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -106,9 +169,9 @@ public class DatasourceContextServiceTest {
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
-                    Assert.assertEquals(password, authentication.getPassword());
+                    assertEquals(password, authentication.getPassword());
                     DBAuth encryptedAuthentication = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
-                    Assert.assertEquals(encryptionService.encryptString(password), encryptedAuthentication.getPassword());
+                    assertEquals(password, encryptionService.decryptString(encryptedAuthentication.getPassword()));
                 })
                 .verifyComplete();
     }
@@ -123,7 +186,7 @@ public class DatasourceContextServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTONullPassword");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -151,9 +214,9 @@ public class DatasourceContextServiceTest {
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
-                    Assert.assertNull(authentication.getPassword());
+                    assertNull(authentication.getPassword());
                     DBAuth encryptedAuthentication = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
-                    Assert.assertNull(encryptedAuthentication.getPassword());
+                    assertNull(encryptedAuthentication.getPassword());
                 })
                 .verifyComplete();
     }
@@ -165,7 +228,7 @@ public class DatasourceContextServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testCachedDatasourceCreate() {
-        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any());
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
 
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
@@ -173,24 +236,22 @@ public class DatasourceContextServiceTest {
         doReturn(Mono.just("connection_1")).doReturn(Mono.just("connection_2")).when(spyMockPluginExecutor).datasourceCreate(any());
 
         Datasource datasource = new Datasource();
-        datasource.setId("id1");
+        datasource.setId("id2");
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
+        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasource.getId(), "envId");
+
         Object monitor = new Object();
-        Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasource,
-                spyMockPluginExecutor, monitor);
-        Mono<DatasourceContext<?>> dsContextMono2 = datasourceContextService.getCachedDatasourceContextMono(datasource,
-                spyMockPluginExecutor, monitor);
-        Mono<Tuple2<DatasourceContext, DatasourceContext<?>>> zipMono = Mono.zip(dsContextMono1, dsContextMono2);
-        StepVerifier.create(zipMono)
-                .assertNext(tuple -> {
-                    DatasourceContext<?> dsContext1 = tuple.getT1();
-                    DatasourceContext<?> dsContext2 = tuple.getT2();
-                    /* They can only be equal if the `datasourceCreate` method was called only once */
-                    assertEquals(dsContext1.getConnection(), dsContext2.getConnection());
-                    assertEquals("connection_1", dsContext1.getConnection());
-                })
-                .verifyComplete();
+        DatasourceContext<?> dsContext1 = (DatasourceContext<?>) datasourceContextService
+                .getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, datasourceContextIdentifier)
+                .block();
+        DatasourceContext<?> dsContext2 = (DatasourceContext<?>) datasourceContextService
+                .getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, datasourceContextIdentifier)
+                .block();
+
+        /* They can only be equal if the `datasourceCreate` method was called only once */
+        assertEquals(dsContext1.getConnection(), dsContext2.getConnection());
+        assertEquals("connection_1", dsContext1.getConnection());
     }
 
     /**
@@ -213,7 +274,7 @@ public class DatasourceContextServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("testDatasourceCreate_withUpdatableConnection_recreatesConnectionAlways");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -240,18 +301,45 @@ public class DatasourceContextServiceTest {
 
         assert createdDatasource != null;
 
+        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(createdDatasource.getId(), "envId");
+
         Object monitor = new Object();
         final DatasourceContext<?> dsc1 = (DatasourceContext) datasourceContextService.getCachedDatasourceContextMono(createdDatasource,
-                spyMockPluginExecutor, monitor).block();
+                                                                                                                      spyMockPluginExecutor, monitor, datasourceContextIdentifier).block();
         assertNotNull(dsc1);
         assertTrue(dsc1.getConnection() instanceof UpdatableConnection);
         assertTrue(((UpdatableConnection) dsc1.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof DBAuth);
 
 
         final DatasourceContext<?> dsc2 = (DatasourceContext) datasourceContextService.getCachedDatasourceContextMono(createdDatasource,
-                spyMockPluginExecutor, monitor).block();
+                                                                                                                      spyMockPluginExecutor, monitor, datasourceContextIdentifier).block();
         assertNotNull(dsc2);
         assertTrue(dsc2.getConnection() instanceof UpdatableConnection);
         assertTrue(((UpdatableConnection) dsc2.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof BasicAuth);
+    }
+
+    @Test
+    public void verifyDsMapKeyEquality() {
+        String dsId = new ObjectId().toHexString();
+        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(dsId, null);
+        DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(dsId, null);
+        assertEquals(keyObj,keyObj1);
+    }
+
+    @Test
+    public void verifyDsMapKeyNotEqual() {
+        String dsId = new ObjectId().toHexString();
+        String dsId1 = new ObjectId().toHexString();
+        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(dsId, null);
+        DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(dsId1, null);
+        assertNotEquals(keyObj,keyObj1);
+    }
+
+    @Test
+    public void verifyDsMapKeyNotEqualWhenBothDatasourceIdNull() {
+        String envId = new ObjectId().toHexString();
+        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(null, envId);
+        DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(null, envId);
+        assertNotEquals(keyObj, keyObj1);
     }
 }

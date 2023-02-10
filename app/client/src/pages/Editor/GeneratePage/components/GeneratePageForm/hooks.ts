@@ -7,7 +7,7 @@ import {
   executeDatasourceQuery,
   executeDatasourceQuerySuccessPayload,
 } from "actions/datasourceActions";
-import { DropdownOption } from "design-system";
+import { DropdownOption } from "design-system-old";
 import { useDispatch } from "react-redux";
 
 export const FAKE_DATASOURCE_OPTION = {
@@ -355,6 +355,7 @@ export const useSheetColumnHeaders = () => {
     (error: string) => {
       setIsFetchingColumnHeaderList(false);
       setErrorFetchingColumnHeaderList(error);
+      setColumnHeaderList([]);
     },
     [setErrorFetchingColumnHeaderList, setIsFetchingColumnHeaderList],
   );
@@ -396,6 +397,7 @@ export const useSheetColumnHeaders = () => {
         parameters: {
           sheetName: params.sheetName,
           sheetUrl: params.selectedSpreadsheetUrl,
+          tableHeaderIndex: params.tableHeaderIndex,
         },
         pluginId: params.pluginId,
         requestType: "COLUMNS_SELECTOR",

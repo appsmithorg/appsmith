@@ -1,7 +1,6 @@
 import React from "react";
-import styled from "constants/DefaultTheme";
-import { Classes } from "components/ads/common";
-import { Icon, IconSize, Text, TextType } from "design-system";
+import styled from "styled-components";
+import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
@@ -15,6 +14,8 @@ import {
   NOT_PUSHED_YET,
   TRY_TO_PULL,
 } from "@appsmith/constants/messages";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import { changeInfoSinceLastCommit } from "../utils";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -54,6 +55,7 @@ export enum Kind {
   JS_OBJECT = "JS_OBJECT",
   PAGE = "PAGE",
   QUERY = "QUERY",
+  JS_LIB = "JS_LIB",
 }
 
 type GitStatusProps = {
@@ -105,6 +107,13 @@ const STATUS_MAP: GitStatusMap = {
     iconName: "query",
     hasValue: (status?.modifiedQueries || 0) > 0,
   }),
+  [Kind.JS_LIB]: (status: GitStatusData) => ({
+    message: `${status?.modifiedJSLibs || 0} ${
+      (status?.modifiedJSLibs || 0) <= 1 ? "library" : "libraries"
+    } modified`,
+    iconName: "package",
+    hasValue: (status?.modifiedJSLibs || 0) > 0,
+  }),
 };
 
 function behindCommitMessage(status: GitStatusData) {
@@ -148,6 +157,7 @@ const defaultStatus: GitStatusData = {
   modifiedDatasources: 0,
   modifiedJSObjects: 0,
   modifiedPages: 0,
+  modifiedJSLibs: 0,
   modifiedQueries: 0,
   remoteBranch: "",
 };
@@ -167,6 +177,7 @@ export function gitChangeListData(
     Kind.DATA_SOURCE,
     Kind.AHEAD_COMMIT,
     Kind.BEHIND_COMMIT,
+    Kind.JS_LIB,
   ];
   return changeKind
     .map((type: Kind) => STATUS_MAP[type](status))
@@ -175,15 +186,13 @@ export function gitChangeListData(
     .filter((s) => !!s);
 }
 
-export default function GitChangesList({
-  isAutoUpdate,
-}: {
-  isAutoUpdate: boolean;
-}) {
+export default function GitChangesList() {
   const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
   const loading = useSelector(getIsFetchingGitStatus);
   const changes = gitChangeListData(status);
-  if (isAutoUpdate) {
+  const currentApplication = useSelector(getCurrentApplication);
+  const { isAutoUpdate } = changeInfoSinceLastCommit(currentApplication);
+  if (isAutoUpdate && !status.isClean) {
     changes.push(
       <Change
         hasValue={isAutoUpdate}

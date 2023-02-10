@@ -1,13 +1,16 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
-import com.appsmith.server.constants.FieldName;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.PluginType;
-import com.appsmith.server.exceptions.AppsmithError;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,6 +46,11 @@ public class ActionCollectionDTO {
 
     // This field will only be populated if this collection is bound to one plugin (eg: JS)
     String pluginId;
+
+    //this attribute carries error messages while processing the actionCollection
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    List<ErrorDTO> errorReports;
 
     PluginType pluginType;
 
@@ -89,6 +97,10 @@ public class ActionCollectionDTO {
     @JsonIgnore
     DefaultResources defaultResources;
 
+    // Instead of storing the entire action object, we only populate this field while interacting with the client side
+    @Transient
+    Set<String> userPermissions = Set.of();
+
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
         if (this.workspaceId == null) {
@@ -113,6 +125,7 @@ public class ActionCollectionDTO {
         this.setId(actionCollection.getId());
         this.setApplicationId(actionCollection.getApplicationId());
         this.setWorkspaceId(actionCollection.getWorkspaceId());
+        this.setUserPermissions(actionCollection.userPermissions);
         copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
     }
 

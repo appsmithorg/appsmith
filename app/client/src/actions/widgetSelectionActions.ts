@@ -2,73 +2,52 @@ import {
   ReduxActionTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
-export const selectWidgetAction = (
-  widgetId?: string,
-  isMultiSelect?: boolean,
-): ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }> => ({
-  type: ReduxActionTypes.SELECT_WIDGET,
-  payload: { widgetId, isMultiSelect },
-});
+export type WidgetSelectionRequestPayload = {
+  selectionRequestType: SelectionRequestType;
+  payload?: string[];
+};
 
-export const selectWidgetInitAction = (
-  widgetId?: string,
-  isMultiSelect?: boolean,
-): ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }> => ({
+export type WidgetSelectionRequest = (
+  selectionRequestType: SelectionRequestType,
+  payload?: string[],
+) => ReduxAction<WidgetSelectionRequestPayload>;
+
+// Use to select a widget programmatically via platform action
+export const selectWidgetInitAction: WidgetSelectionRequest = (
+  selectionRequestType,
+  payload,
+) => ({
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
-  payload: { widgetId, isMultiSelect },
+  payload: { selectionRequestType, payload },
 });
 
-export const deselectAllInitAction = () => {
+// To be used to collect selected widget state from url and set on state
+export const setSelectedWidgets = (widgetIds: string[]) => {
   return {
-    type: ReduxActionTypes.DESELECT_MULTIPLE_WIDGETS_INIT,
-  };
-};
-
-export const selectMultipleWidgetsAction = (
-  widgetIds?: string[],
-): ReduxAction<{ widgetIds?: string[] }> => {
-  return {
-    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
+    type: ReduxActionTypes.SET_SELECTED_WIDGETS,
     payload: { widgetIds },
   };
 };
 
-export const silentAddSelectionsAction = (
-  widgetIds?: string[],
-): ReduxAction<{ widgetIds?: string[] }> => {
+export const setLastSelectedWidget = (widgetId: string) => {
   return {
-    type: ReduxActionTypes.SELECT_WIDGETS,
-    payload: { widgetIds },
+    type: ReduxActionTypes.SET_LAST_SELECTED_WIDGET,
+    payload: { lastSelectedWidget: widgetId },
   };
 };
 
-export const deselectMultipleWidgetsAction = (
-  widgetIds?: string[],
-): ReduxAction<{ widgetIds?: string[] }> => {
+export const setSelectedWidgetAncestry = (widgetIds: string[]) => {
   return {
-    type: ReduxActionTypes.DESELECT_WIDGETS,
-    payload: { widgetIds },
+    type: ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTRY,
+    payload: widgetIds,
   };
 };
 
-export const selectAllWidgetsInCanvasInitAction = () => {
+export const appendSelectedWidgetToUrl = (selectedWidgets: string[]) => {
   return {
-    type: ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
+    type: ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
+    payload: { selectedWidgets },
   };
 };
-
-export const selectMultipleWidgetsInitAction = (widgetIds: string[]) => {
-  return {
-    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
-    payload: { widgetIds },
-  };
-};
-
-export const shiftSelectWidgetsEntityExplorerInitAction = (
-  widgetId: string,
-  siblingWidgets: string[],
-): ReduxAction<{ widgetId: string; siblingWidgets: string[] }> => ({
-  type: ReduxActionTypes.SHIFT_SELECT_WIDGET_INIT,
-  payload: { widgetId, siblingWidgets },
-});

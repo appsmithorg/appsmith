@@ -3,8 +3,6 @@
 
 <head>
   <meta charset="utf-8" />
-  <link rel="shortcut icon"
-    href="https://res.cloudinary.com/dwpfockn8/image/upload/v1597920848/favicons/favicon-orange_pxfmdc.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Appsmith</title>
   <style>
@@ -13,7 +11,7 @@
       left: 0;
       top: 0;
       height: 4px;
-      background: #D36500;
+      background: #D7D7D7;
       transition: all ease-in 0.3s;
     }
   </style>
@@ -48,7 +46,6 @@
     }
 
   </script>
-  <script src="/logger.js"></script>
 </head>
 
 <body class="appsmith-light-theme">
@@ -100,17 +97,10 @@
         return window.localStorage.setItem(key, value);
       }
     };
-
     window.addEventListener("DOMContentLoaded", (event) => {
       document.getElementById("loader").style.width = "50vw";
     });
-    window.addEventListener("load", (event) => {
 
-      document.getElementById("loader").style.width = "100vw";
-      setTimeout(() => {
-        document.getElementById("loader").style.opacity = 0;
-      });
-    });
     const registerPageServiceWorker = () => {
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
@@ -164,7 +154,6 @@
         indexName: parseConfig("__APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__"),
       },
       logLevel: CONFIG_LOG_LEVEL_INDEX > -1 ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX] : LOG_LEVELS[1],
-      google: parseConfig("__APPSMITH_GOOGLE_MAPS_API_KEY__"),
       cloudHosting: CLOUD_HOSTING,
       enableTNCPP: parseConfig("__APPSMITH_TNC_PP__"),
       appVersion: {
@@ -175,7 +164,8 @@
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
       cloudServicesBaseUrl: parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__") || "https://cs.appsmith.com",
       googleRecaptchaSiteKey: parseConfig("__APPSMITH_RECAPTCHA_SITE_KEY__"),
-      hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__")
+      hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
+      disableIframeWidgetSandbox: parseConfig("__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__"),
     };
   </script>
 </body>

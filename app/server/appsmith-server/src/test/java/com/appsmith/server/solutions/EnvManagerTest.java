@@ -15,30 +15,33 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class EnvManagerTest {
     @MockBean
@@ -71,9 +74,15 @@ public class EnvManagerTest {
     @MockBean
     private UserUtils userUtils;
 
+    @MockBean
+    private TenantService tenantService;
+
+    @MockBean
+    private ObjectMapper objectMapper;
+
     EnvManager envManager;
 
-    @Before
+    @BeforeEach
     public void setup() {
         envManager = new EnvManagerImpl(sessionUserService,
                 userService,
@@ -88,7 +97,9 @@ public class EnvManagerTest {
                 fileUtils,
                 permissionGroupService,
                 configService,
-                userUtils);
+                userUtils,
+                tenantService,
+                objectMapper);
     }
 
     @Test
@@ -208,18 +219,6 @@ public class EnvManagerTest {
 
     }
 
-    public void parseTest() {
-
-        assertThat(envManager.parseToMap(
-                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'"
-        )).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "APPSMITH_MONGODB_URI", "'first value'",
-                "APPSMITH_REDIS_URL", "'second value'",
-                "APPSMITH_INSTANCE_NAME", "'third value'"
-        ));
-
-    }
-
     @Test
     public void parseEmptyValues() {
 
@@ -253,6 +252,16 @@ public class EnvManagerTest {
     }
 
     @Test
+    public void parseTestWithEscapes() {
+        assertThat(envManager.parseToMap(
+                "APPSMITH_ALLOWED_FRAME_ANCESTORS=\"'\"'none'\"'\"\nAPPSMITH_REDIS_URL='second\" value'\n"
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "APPSMITH_ALLOWED_FRAME_ANCESTORS", "'none'",
+                "APPSMITH_REDIS_URL", "second\" value"
+        ));
+    }
+
+    @Test
     public void disallowedVariable() {
         final String content = "APPSMITH_MONGODB_URI=first value\nDISALLOWED_NASTY_STUFF=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value";
 
@@ -264,7 +273,7 @@ public class EnvManagerTest {
                 )
         ))
                 .matches(value -> value instanceof AppsmithException
-                        && AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) value).getError()));
+                        && AppsmithError.GENERIC_BAD_REQUEST.equals(((AppsmithException) value).getError()));
     }
 
     @Test
@@ -283,6 +292,25 @@ public class EnvManagerTest {
                 "",
                 "APPSMITH_INSTANCE_NAME='third value'",
                 "APPSMITH_DISABLE_TELEMETRY=false"
+        );
+    }
+
+    @Test
+    public void setValueWithQuotes() {
+        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
+
+        assertThat(envManager.transformEnvContent(
+                content,
+                Map.of(
+                        "APPSMITH_MONGODB_URI", "'just quotes'",
+                        "APPSMITH_DISABLE_TELEMETRY", "some quotes 'inside' it"
+                )
+        )).containsExactly(
+                "APPSMITH_MONGODB_URI=\"'\"'just quotes'\"'\"",
+                "APPSMITH_REDIS_URL='quoted value'",
+                "",
+                "APPSMITH_INSTANCE_NAME='third value'",
+                "APPSMITH_DISABLE_TELEMETRY='some quotes '\"'\"'inside'\"'\"' it'"
         );
     }
 
@@ -312,7 +340,7 @@ public class EnvManagerTest {
         Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
 
         // create a temp file for docker env
-        File file = File.createTempFile( "envmanager-test-docker-file", "env");
+        File file = File.createTempFile("envmanager-test-docker-file", "env");
         file.deleteOnExit();
 
         Mockito.when(commonConfig.getEnvFilePath()).thenReturn(file.getAbsolutePath());
@@ -344,4 +372,26 @@ public class EnvManagerTest {
                 .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
                 .verify();
     }
+
+	@Test
+	public void setEnv_AndGetAll() {
+		EnvManager envManagerInner = Mockito.mock(EnvManagerImpl.class);
+
+		Map<String, String> envs = new HashMap<>();
+		envs.put("APPSMITH_MONGODB_URI", "mongo-url");
+		envs.put("APPSMITH_DISABLE_TELEMETRY", "");
+
+		Mockito.when(envManagerInner.getAll()).thenReturn(Mono.just(envs));
+		Mockito.when(envManagerInner.getAllNonEmpty()).thenCallRealMethod();
+
+
+		Mono<Map<String, String>> envMono = envManagerInner.getAllNonEmpty();
+
+		StepVerifier.create(envMono)
+			.assertNext(map -> {
+				assertThat(map).hasSize(1);
+				assertThat(map.containsKey("APPSMITH_DISABLE_TELEMETRY")).isFalse();
+			})
+			.verifyComplete();
+	}
 }

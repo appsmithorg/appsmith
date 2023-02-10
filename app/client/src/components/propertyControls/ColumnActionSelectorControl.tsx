@@ -1,20 +1,20 @@
 import React from "react";
+import styled from "styled-components";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
-import styled from "constants/DefaultTheme";
-import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
-import { ActionCreator } from "components/editorComponents/ActionCreator";
-import { Size, Category } from "design-system";
+import ActionCreator from "components/editorComponents/ActionCreator";
+import { Size, Category } from "design-system-old";
+
 export interface ColumnAction {
   label?: string;
   id: string;
   dynamicTrigger: string;
 }
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
+const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
   padding: 5px 0px;
   position: absolute;
   right: 0px;
@@ -80,7 +80,7 @@ class ColumnActionSelectorControl extends BaseControl<
           })}
 
         <StyledPropertyPaneButton
-          category={Category.tertiary}
+          category={Category.secondary}
           icon="plus"
           onClick={this.addColumnAction}
           size={Size.medium}

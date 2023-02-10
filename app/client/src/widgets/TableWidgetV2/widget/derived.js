@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
@@ -27,6 +25,20 @@ export default {
     }
 
     const rows = props.filteredTableData || props.processedTableData || [];
+
+    const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+
     let selectedRow;
 
     /*
@@ -46,8 +58,11 @@ export default {
       });
     }
 
-    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
-
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
     return _.omit(selectedRow, keysToBeOmitted);
   },
   //
@@ -60,6 +75,18 @@ export default {
     }
 
     const rows = props.filteredTableData || props.processedTableData || [];
+    const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
     let triggeredRow;
 
     /*
@@ -80,8 +107,11 @@ export default {
       });
     }
 
-    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
-
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
     return _.omit(triggeredRow, keysToBeOmitted);
   },
   //
@@ -100,8 +130,23 @@ export default {
     }
 
     const rows = props.filteredTableData || props.processedTableData || [];
-    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
-
+    const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
     return indices.map((index) => _.omit(rows[index], keysToBeOmitted));
   },
   //
@@ -241,11 +286,7 @@ export default {
             try {
               computedValues = JSON.parse(column.computedValue);
             } catch (e) {
-              console.error(
-                e,
-                "Error parsing column computedValue: ",
-                column.computedValue,
-              );
+              /* do nothing */
             }
           } else if (_.isArray(column.computedValue)) {
             computedValues = column.computedValue;
@@ -403,8 +444,10 @@ export default {
         try {
           const _a = a.toString().toLowerCase();
           const _b = b.toString().toLowerCase();
-
-          return _a.length === _a.lastIndexOf(_b) + _b.length;
+          return (
+            _a.lastIndexOf(_b) >= 0 &&
+            _a.length === _a.lastIndexOf(_b) + _b.length
+          );
         } catch (e) {
           return false;
         }
@@ -507,8 +550,72 @@ export default {
     return finalTableData;
   },
   //
+  getUpdatedRow: (props, moment, _) => {
+    let index = -1;
+    const parsedUpdatedRowIndex = parseInt(props.updatedRowIndex);
+
+    if (!_.isNaN(parsedUpdatedRowIndex)) {
+      index = parsedUpdatedRowIndex;
+    }
+
+    const rows = props.filteredTableData || props.processedTableData || [];
+    const primaryColumns = props.primaryColumns;
+    let updatedRow;
+
+    if (index > -1) {
+      const row = rows.find((row) => row.__originalIndex__ === index);
+      updatedRow = { ...row };
+    } else {
+      /*
+       *  If updatedRowIndex is not a valid index, updatedRow should
+       *  have proper row structure with empty string values
+       */
+      updatedRow = {};
+      if (rows && rows[0]) {
+        Object.keys(rows[0]).forEach((key) => {
+          updatedRow[key] = "";
+        });
+      }
+    }
+
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
+    return _.omit(updatedRow, keysToBeOmitted);
+  },
+  //
   getUpdatedRows: (props, moment, _) => {
-    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
+    const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
     /*
      * case 1. If transientTableData is not empty, return aray of updated row.
      * case 2. If transientTableData is empty, return empty array
@@ -591,6 +698,140 @@ export default {
       return Math.max(props.pageNo - 1, 0) * pageSize;
     }
     return 0;
+  },
+  //
+  getEditableCellValidity: (props, moment, _) => {
+    if (
+      (!props.editableCell.column && !props.isAddRowInProgress) ||
+      !props.primaryColumns
+    ) {
+      return {};
+    }
+
+    const createRegex = (regex) => {
+      if (!regex) {
+        return new RegExp("//");
+      }
+
+      /*
+       * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
+       * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
+       */
+      const regexParts = regex.match(/(\/?)(.+)\\1([a-z]*)/i);
+      let parsedRegex;
+
+      if (!regexParts) {
+        parsedRegex = new RegExp(regex);
+      } else {
+        /*
+         * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
+         */
+        if (
+          regexParts[3] &&
+          !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])
+        ) {
+          parsedRegex = RegExp(regex);
+        } else {
+          /*
+           * if we have a regex flags, use it to form regexp
+           */
+          parsedRegex = new RegExp(regexParts[2], regexParts[3]);
+        }
+      }
+
+      return parsedRegex;
+    };
+
+    let editableColumns = [];
+    const validatableColumns = ["text", "number"];
+
+    if (props.isAddRowInProgress) {
+      Object.values(props.primaryColumns)
+        .filter(
+          (column) =>
+            column.isEditable && validatableColumns.includes(column.columnType),
+        )
+        .forEach((column) => {
+          editableColumns.push([column, props.newRow[column.alias]]);
+        });
+    } else {
+      const editedColumn = Object.values(props.primaryColumns).find(
+        (column) => column.alias === props.editableCell.column,
+      );
+
+      if (validatableColumns.includes(editedColumn.columnType)) {
+        editableColumns.push([editedColumn, props.editableCell.value]);
+      }
+    }
+
+    const validationMap = {};
+
+    editableColumns.forEach((validationObj) => {
+      const editedColumn = validationObj[0];
+      const value = validationObj[1];
+
+      if (editedColumn && editedColumn.validation) {
+        const validation = editedColumn.validation;
+
+        /* General validations */
+        if (
+          !validation.isColumnEditableCellRequired &&
+          (value === "" || _.isNil(value))
+        ) {
+          validationMap[editedColumn.alias] = true;
+          return;
+        } else if (
+          (!_.isNil(validation.isColumnEditableCellValid) &&
+            !validation.isColumnEditableCellValid) ||
+          (validation.regex && !createRegex(validation.regex).test(value)) ||
+          (validation.isColumnEditableCellRequired &&
+            (value === "" || _.isNil(value)))
+        ) {
+          validationMap[editedColumn.alias] = false;
+          return;
+        }
+
+        /* Column type related validations */
+        switch (editedColumn.columnType) {
+          case "number":
+            if (
+              !_.isNil(validation.min) &&
+              validation.min !== "" &&
+              validation.min > value
+            ) {
+              validationMap[editedColumn.alias] = false;
+              return;
+            }
+
+            if (
+              !_.isNil(validation.max) &&
+              validation.max !== "" &&
+              validation.max < value
+            ) {
+              validationMap[editedColumn.alias] = false;
+              return;
+            }
+            break;
+        }
+      }
+
+      validationMap[editedColumn.alias] = true;
+    });
+
+    return validationMap;
+  },
+  //
+  getTableHeaders: (props, moment, _) => {
+    const columns = props.primaryColumns
+      ? Object.values(props.primaryColumns)
+      : [];
+    return columns
+      .sort((a, b) => a.index - b.index)
+      .map((column) => ({
+        id: column?.id,
+        label: column?.label,
+        isVisible: column?.isVisible,
+      }));
   },
   //
 };

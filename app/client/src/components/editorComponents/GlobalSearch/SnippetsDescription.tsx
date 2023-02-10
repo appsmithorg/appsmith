@@ -5,7 +5,6 @@ import SyntaxHighlighter from "react-syntax-highlighter/dist/cjs/prism-light";
 import sql from "react-syntax-highlighter/dist/cjs/languages/prism/sql";
 import { prism } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { TabbedViewContainer } from "pages/Editor/APIEditor/CommonEditorForm";
-import { TabComponent } from "components/ads/Tabs";
 import {
   EditorModes,
   EditorSize,
@@ -13,7 +12,7 @@ import {
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
 import CodeEditor from "../CodeEditor";
-import { Button, Size } from "design-system";
+import { Button, Size, TabComponent } from "design-system-old";
 import {
   evaluateArgument,
   evaluateSnippet,
@@ -22,7 +21,7 @@ import {
   setGlobalSearchFilterContext,
   unsetEvaluatedArgument,
 } from "actions/globalSearchActions";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
@@ -37,11 +36,9 @@ import {
   SNIPPET_INSERT,
 } from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { getTypographyByKey, Toaster, Variant } from "design-system-old";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import { Layers } from "constants/Layers";
 
@@ -87,7 +84,7 @@ const SnippetContainer = styled.div`
   }
   .snippet-title {
     color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
-    ${(props) => getTypographyByKey(props, "h3")}
+    ${getTypographyByKey("h3")}
     font-size: 1.5rem;
     line-height: 1.5rem;
     display: flex;
@@ -101,17 +98,17 @@ const SnippetContainer = styled.div`
   }
   .snippet-desc {
     color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${getTypographyByKey("p1")}
     margin: 10px 0;
   }
   .snippet-group {
     margin: 5px 0;
     .header {
-      ${(props) => getTypographyByKey(props, "p1")}
+      ${getTypographyByKey("p1")}
       font-weight: 500;
     }
     .content {
-      ${(props) => getTypographyByKey(props, "p1")}
+      ${getTypographyByKey("p1")}
     }
     .argument {
       display: flex;

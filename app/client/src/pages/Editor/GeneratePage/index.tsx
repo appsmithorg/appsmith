@@ -1,10 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import PageContent from "./components/PageContent";
-import { getTypographyByKey } from "../../../constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { Icon } from "@blueprintjs/core";
-import { Text, TextType } from "design-system";
+import { getTypographyByKey, Text, TextType } from "design-system-old";
 
 const Container = styled.div`
   display: flex;
@@ -32,7 +31,7 @@ const Heading = styled.h1`
 `;
 
 const SubHeading = styled.p`
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   margin: 20px 0px;
   color: ${Colors.BLACK};
   text-align: center;

@@ -7,13 +7,14 @@ import {
 } from "@appsmith/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
-import { StyledToastContainer } from "components/ads/Toast";
+import { StyledToastContainer } from "design-system-old";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { MemoryRouter } from "react-router-dom";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as utilities from "selectors/editorSelectors";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
-import store from "store";
+import * as sagaSelectors from "sagas/selectors";
+import store, { runSagaMiddleware } from "store";
 import {
   buildChildren,
   widgetCanvasFactory,
@@ -43,6 +44,10 @@ jest.mock("constants/routes", () => {
 });
 
 describe("Canvas Hot Keys", () => {
+  beforeAll(() => {
+    runSagaMiddleware();
+  });
+
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
   const spyGetChildWidgets = jest.spyOn(utilities, "getChildWidgets");
@@ -55,6 +60,7 @@ describe("Canvas Hot Keys", () => {
     useMockDsl(dsl);
     return <MainContainer />;
   }
+
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
     const mockGenerator = function*() {
@@ -453,6 +459,7 @@ describe("Cut/Copy/Paste hotkey", () => {
 
     let selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
+    jest.spyOn(sagaSelectors, "getWidgetMetaProps").mockReturnValue({});
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,

@@ -3,9 +3,8 @@ package com.appsmith.external.helpers;
 import com.appsmith.external.helpers.restApiUtils.helpers.DataUtils;
 import com.appsmith.external.models.Property;
 import org.assertj.core.api.Assertions;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.codec.ByteArrayEncoder;
 import org.springframework.core.codec.ByteBufferEncoder;
 import org.springframework.core.codec.CharSequenceEncoder;
@@ -35,8 +34,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DataUtilsTest {
 
@@ -47,7 +48,7 @@ public class DataUtilsTest {
     private Map<String, Object> hints;
 
 
-    @Before
+    @BeforeEach
     public void createContext() {
         final List<HttpMessageWriter<?>> messageWriters = new ArrayList<>();
         messageWriters.add(new EncoderHttpMessageWriter<>(new ByteBufferEncoder()));
@@ -81,7 +82,7 @@ public class DataUtilsTest {
         this.hints = new HashMap<>();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         dataUtils = new DataUtils();
     }
@@ -121,14 +122,14 @@ public class DataUtilsTest {
                     dataBuffer.read(resultBytes);
                     DataBufferUtils.release(dataBuffer);
                     String content = new String(resultBytes, StandardCharsets.UTF_8);
-                    Assert.assertTrue(content.contains(
+                    assertTrue(content.contains(
                             "Content-Disposition: form-data; name=\"nullType\"\r\n" +
                                     "Content-Type: text/plain;charset=UTF-8\r\n" +
                                     "Content-Length: 8\r\n" +
                                     "\r\n" +
                                     "textData"));
-                    Assert.assertTrue(content.contains("Content-Type: text/plain"));
-                    Assert.assertTrue(content.contains(
+                    assertTrue(content.contains("Content-Type: text/plain"));
+                    assertTrue(content.contains(
                             "Content-Disposition: form-data; name=\"textType\"\r\n" +
                                     "Content-Length: 8\r\n" +
                                     "\r\n" +
@@ -157,7 +158,7 @@ public class DataUtilsTest {
                     dataBuffer.read(resultBytes);
                     DataBufferUtils.release(dataBuffer);
                     String content = new String(resultBytes, StandardCharsets.UTF_8);
-                    Assert.assertTrue(content.contains(
+                    assertTrue(content.contains(
                             "Content-Disposition: form-data; name=\"fileType\"; filename=\"test.json\"\r\n" +
                                     "Content-Type: application/json\r\n" +
                                     "\r\n" +
@@ -186,13 +187,13 @@ public class DataUtilsTest {
                     dataBuffer.read(resultBytes);
                     DataBufferUtils.release(dataBuffer);
                     String content = new String(resultBytes, StandardCharsets.UTF_8);
-                    Assert.assertTrue(content.contains(
+                    assertTrue(content.contains(
                             "Content-Disposition: form-data; name=\"fileType\"; filename=\"test1.json\"\r\n" +
                                     "Content-Type: application/json\r\n" +
                                     "\r\n" +
                                     "{}"));
 
-                    Assert.assertTrue(content.contains(
+                    assertTrue(content.contains(
                             "Content-Disposition: form-data; name=\"fileType\"; filename=\"test2.json\"\r\n" +
                                     "Content-Type: application/json\r\n" +
                                     "\r\n" +
@@ -254,7 +255,7 @@ public class DataUtilsTest {
                     DataBufferUtils.release(dataBuffer);
                     String content = new String(resultBytes, StandardCharsets.UTF_8);
                     // Expect to not have any part
-                    Assert.assertFalse(content.contains("Content-Disposition: form-data"));
+                    assertFalse(content.contains("Content-Disposition: form-data"));
                 })
                 .expectComplete()
                 .verify();

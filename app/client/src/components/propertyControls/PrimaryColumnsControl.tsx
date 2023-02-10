@@ -6,10 +6,9 @@ import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { Indices } from "constants/Layers";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { Size, Category } from "design-system";
+import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -26,10 +25,10 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { DraggableListCard } from "components/ads/DraggableListCard";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -165,14 +164,15 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     return (
       <TabsWrapper>
         <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
-          <DroppableComponent
+          <DraggableListControl
             deleteOption={this.deleteOption}
             fixedHeight={370}
             focusedIndex={this.state.focusedIndex}
             itemHeight={45}
             items={draggableComponentColumns}
             onEdit={this.onEdit}
-            renderComponent={(props) =>
+            propertyPath={this.props.dataTreePath}
+            renderComponent={(props: any) =>
               DraggableListCard({
                 ...props,
                 isDelete: false,
@@ -187,7 +187,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
         </EvaluatedValuePopupWrapper>
 
         <AddColumnButton
-          category={Category.tertiary}
+          category={Category.secondary}
           className="t--add-column-btn"
           icon="plus"
           onClick={this.addNewColumn}
@@ -367,15 +367,11 @@ class EvaluatedValuePopupWrapperClass extends Component<
       [],
     ) as EvaluationError[];
 
-    const filteredLintErrors = errors.filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
-      isInvalid: filteredLintErrors.length > 0,
-      errors: filteredLintErrors,
+      isInvalid: errors.length > 0,
+      errors,
       pathEvaluatedValue,
     };
   };

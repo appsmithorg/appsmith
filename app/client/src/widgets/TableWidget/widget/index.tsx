@@ -53,6 +53,7 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -72,6 +73,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        menuButton: {
+          menuColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        iconButton: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+      },
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

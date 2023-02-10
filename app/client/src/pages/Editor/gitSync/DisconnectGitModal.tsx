@@ -1,32 +1,29 @@
 import React, { useCallback, useState } from "react";
-import Dialog from "components/ads/DialogComponent";
 import {
   getDisconnectDocUrl,
   getDisconnectingGitApplication,
   getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  disconnectGit,
-  setIsDisconnectGitModalOpen,
-} from "actions/gitSyncActions";
+import { revokeGit, setIsDisconnectGitModalOpen } from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
   Button,
   Category,
+  DialogComponent as Dialog,
   Icon,
   IconSize,
   Size,
   Text,
   TextInput,
   TextType,
-} from "design-system";
+  Variant,
+} from "design-system-old";
 
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import InfoWrapper from "./components/InfoWrapper";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 import {
   APPLICATION_NAME,
   createMessage,
@@ -39,7 +36,7 @@ import {
 import Link from "./components/Link";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
-import { Variant } from "components/ads";
+import { Theme } from "constants/DefaultTheme";
 
 const StyledDialog = styled(Dialog)`
   && .bp3-dialog-body {
@@ -86,8 +83,8 @@ function DisconnectGitModal() {
 
   const onDisconnectGit = useCallback(() => {
     setIsRevoking(true);
-    dispatch(disconnectGit());
-  }, [dispatch, disconnectGit]);
+    dispatch(revokeGit());
+  }, [dispatch, revokeGit]);
 
   const theme = useTheme() as Theme;
 

@@ -7,7 +7,7 @@ import {
   getConflictFoundDocUrlDeploy,
   getIsGitErrorPopupVisible,
 } from "selectors/gitSyncSelectors";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 
 import {
   createMessage,
@@ -19,6 +19,7 @@ import { get } from "lodash";
 
 import ConflictInfo from "../components/ConflictInfo";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { Theme } from "constants/DefaultTheme";
 
 const StyledGitErrorPopup = styled.div`
   & {
@@ -51,7 +52,7 @@ const StyledGitErrorPopup = styled.div`
 
 function Header({ closePopup }: { closePopup: () => void }) {
   const title = createMessage(CONFLICTS_FOUND_WHILE_PULLING_CHANGES);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <div

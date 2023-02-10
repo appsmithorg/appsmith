@@ -1,7 +1,8 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import { TextInput } from "design-system";
+import { TextInput } from "design-system-old";
+import { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { InputType } from "components/constants";
@@ -9,7 +10,9 @@ import {
   Field,
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
+  formValueSelector,
 } from "redux-form";
+import { connect } from "react-redux";
 
 export const StyledInfo = styled.span`
   font-weight: normal;
@@ -19,41 +22,36 @@ export const StyledInfo = styled.span`
   margin-left: 1px;
 `;
 
-export function InputText(props: {
-  label: string;
-  value: string;
-  isValid: boolean;
-  subtitle?: string;
-  validationMessage?: string;
-  placeholder?: string;
-  dataType?: string;
-  isRequired?: boolean;
-  name: string;
-  encrypted?: boolean;
-  disabled?: boolean;
-  customStyles?: Record<string, any>;
-}) {
-  const { dataType, disabled, name, placeholder } = props;
+const FieldWrapper = styled.div`
+  position: relative;
+  min-width: 380px;
+  max-width: 520px;
+`;
 
-  return (
-    <div data-cy={name} style={{ width: "35vw", ...props.customStyles }}>
-      <Field
-        component={renderComponent}
-        datatype={dataType}
-        disabled={disabled || false}
-        placeholder={placeholder}
-        {...props}
-        asyncControl
-      />
-    </div>
-  );
-}
+const SecretDisplayIndicator = styled.input`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0px var(--ads-spaces-6);
+  z-index: 1;
+  cursor: text;
+  border: none;
+  background: none;
+`;
+
+const PASSWORD_EXISTS_INDICATOR = "······";
 
 function renderComponent(
   props: {
     placeholder: string;
     dataType?: InputType;
     disabled?: boolean;
+    reference: any;
+    validator?: (value: string) => { isValid: boolean; message: string };
   } & {
     meta: Partial<WrappedFieldMetaProps>;
     input: Partial<WrappedFieldInputProps>;
@@ -66,16 +64,67 @@ function renderComponent(
       name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
+      ref={props.reference}
       value={props.input.value}
       {...props.input}
+      validator={props.validator}
       width="100%"
     />
   );
 }
+
 class InputTextControl extends BaseControl<InputControlProps> {
+  fieldRef: any;
+
+  state = {
+    secretDisplayVisible: false,
+  };
+
+  constructor(props: InputControlProps) {
+    super(props);
+    this.fieldRef = React.createRef();
+  }
+
+  onClickSecretDisplayIndicator = () => {
+    if (!this.state.secretDisplayVisible) return;
+    this.setState({
+      secretDisplayVisible: false,
+    });
+
+    if (this.fieldRef.current) this.fieldRef.current?.focus();
+  };
+
+  checkForSecretOverlayIndicator = () => {
+    return (
+      this.props.dataType === "PASSWORD" &&
+      this.props.isSecretExistsPath &&
+      this.props.isSecretExistsData
+    );
+  };
+
+  onBlur = () => {
+    if (
+      this.checkForSecretOverlayIndicator() &&
+      this.fieldRef.current?.value?.length === 0
+    ) {
+      this.setState({
+        secretDisplayVisible: true,
+      });
+    }
+  };
+
+  componentDidMount() {
+    if (this.checkForSecretOverlayIndicator()) {
+      this.setState({
+        secretDisplayVisible: true,
+      });
+    }
+  }
+
   render() {
     const {
       configProperty,
+      customStyles,
       dataType,
       disabled,
       encrypted,
@@ -85,21 +134,38 @@ class InputTextControl extends BaseControl<InputControlProps> {
       propertyValue,
       subtitle,
       validationMessage,
+      validator,
     } = this.props;
 
     return (
-      <InputText
-        dataType={this.getType(dataType)}
-        disabled={disabled}
-        encrypted={encrypted}
-        isValid={isValid}
-        label={label}
-        name={configProperty}
-        placeholder={placeholderText}
-        subtitle={subtitle}
-        validationMessage={validationMessage}
-        value={propertyValue}
-      />
+      <FieldWrapper data-cy={configProperty} style={customStyles || {}}>
+        {this.state.secretDisplayVisible && (
+          <SecretDisplayIndicator
+            onClick={this.onClickSecretDisplayIndicator}
+            onFocus={this.onClickSecretDisplayIndicator}
+            type="password"
+            value={PASSWORD_EXISTS_INDICATOR}
+          />
+        )}
+        <Field
+          asyncControl
+          component={renderComponent}
+          dataType={this.getType(dataType)}
+          disabled={disabled || false}
+          encrypted={encrypted}
+          isValid={isValid}
+          label={label}
+          name={configProperty}
+          onBlur={this.onBlur}
+          onFocus={this.onClickSecretDisplayIndicator}
+          placeholder={this.state.secretDisplayVisible ? "" : placeholderText}
+          reference={this.fieldRef}
+          subtitle={subtitle}
+          validationMessage={validationMessage}
+          validator={validator}
+          value={propertyValue}
+        />
+      </FieldWrapper>
     );
   }
 
@@ -126,7 +192,6 @@ class InputTextControl extends BaseControl<InputControlProps> {
         return "text";
     }
   }
-
   getControlType(): ControlType {
     return "INPUT_TEXT";
   }
@@ -139,6 +204,19 @@ export interface InputControlProps extends ControlProps {
   subtitle?: string;
   encrypted?: boolean;
   disabled?: boolean;
+  validator?: (value: string) => { isValid: boolean; message: string };
+  isSecretExistsData?: boolean;
 }
 
-export default InputTextControl;
+const mapStateToProps = (state: AppState, props: InputControlProps) => {
+  const valueSelector = formValueSelector(props.formName);
+  let isSecretExistsData;
+  if (props.isSecretExistsPath) {
+    isSecretExistsData = valueSelector(state, props.isSecretExistsPath);
+  }
+  return {
+    isSecretExistsData,
+  };
+};
+
+export default connect(mapStateToProps)(InputTextControl);

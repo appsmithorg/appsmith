@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -7,7 +6,11 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {{name}}Component from "../component";
 
 class {{suffixed name}} extends BaseWidget<{{suffixed name}}Props, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
+    return [];
+  }
+
+  static getPropertyPaneStyleConfig() {
     return [];
   }
 

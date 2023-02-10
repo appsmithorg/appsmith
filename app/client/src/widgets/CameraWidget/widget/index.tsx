@@ -14,162 +14,9 @@ import {
   CameraModeTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            propertyName: "mode",
-            label: "Mode",
-            controlType: "DROP_DOWN",
-            helpText: "Whether a picture is taken or a video is recorded",
-            options: [
-              {
-                label: "Image",
-                value: "CAMERA",
-              },
-              {
-                label: "Video",
-                value: "VIDEO",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["CAMERA", "VIDEO"],
-              },
-            },
-          },
-          {
-            propertyName: "isDisabled",
-            label: "Disabled",
-            controlType: "SWITCH",
-            helpText: "Disables clicks to this widget",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            label: "Visible",
-            helpText: "Controls the visibility of the widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isMirrored",
-            label: "Mirrored",
-            helpText: "Show camera preview and get the screenshot mirrored",
-            controlType: "SWITCH",
-            dependencies: ["mode"],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText: "Triggers an action when the image is captured",
-            propertyName: "onImageCapture",
-            label: "OnImageCapture",
-            controlType: "ACTION_SELECTOR",
-            hidden: () => true,
-            dependencies: ["mode"],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "Triggers an action when the image is saved",
-            propertyName: "onImageSave",
-            label: "OnImageSave",
-            controlType: "ACTION_SELECTOR",
-            hidden: (props: CameraWidgetProps) =>
-              props.mode === CameraModeTypes.VIDEO,
-            dependencies: ["mode"],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "Triggers an action when the video recording get started",
-            propertyName: "onRecordingStart",
-            label: "OnRecordingStart",
-            controlType: "ACTION_SELECTOR",
-            hidden: () => true,
-            dependencies: ["mode"],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "Triggers an action when the video recording stops",
-            propertyName: "onRecordingStop",
-            label: "OnRecordingStop",
-            controlType: "ACTION_SELECTOR",
-            hidden: () => true,
-            dependencies: ["mode"],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "Triggers an action when the video recording is saved",
-            propertyName: "onVideoSave",
-            label: "OnVideoSave",
-            controlType: "ACTION_SELECTOR",
-            hidden: (props: CameraWidgetProps) =>
-              props.mode === CameraModeTypes.CAMERA,
-            dependencies: ["mode"],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-      {
-        sectionName: "Styles",
-        children: [
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ];
-  }
-
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -178,7 +25,8 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           {
             propertyName: "mode",
             label: "Mode",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             helpText: "Whether a picture is taken or a video is recorded",
             options: [
               {
@@ -348,6 +196,13 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       videoDataURL: undefined,
       videoRawBinary: undefined,
       isDirty: false,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
     };
   }
 

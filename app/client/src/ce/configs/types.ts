@@ -36,11 +36,6 @@ export interface AppsmithUIConfigs {
     snippetIndex: string;
   };
 
-  google: {
-    enabled: boolean;
-    apiKey: string;
-  };
-
   enableRapidAPI: boolean;
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
@@ -69,4 +64,5 @@ export interface AppsmithUIConfigs {
   };
   appsmithSupportEmail: string;
   hideWatermark: boolean;
+  disableIframeWidgetSandbox: boolean;
 }

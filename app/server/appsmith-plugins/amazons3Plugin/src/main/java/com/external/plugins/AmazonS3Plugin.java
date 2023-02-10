@@ -31,6 +31,8 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.UQIDataFilterParams;
@@ -68,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
@@ -117,9 +120,10 @@ public class AmazonS3Plugin extends BasePlugin {
 
     @Extension
     public static class S3PluginExecutor implements PluginExecutor<AmazonS3>, SmartSubstitutionInterface {
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
         private final FilterDataService filterDataService;
         private static final AmazonS3ErrorUtils amazonS3ErrorUtils;
+
         static {
             try {
                 amazonS3ErrorUtils = AmazonS3ErrorUtils.getInstance();
@@ -253,7 +257,8 @@ public class AmazonS3Plugin extends BasePlugin {
             }
             if (Boolean.TRUE.equals(usingFilePicker)) {
 
-                String encodedPayload = (String) multipartFormDataDTO.getData();
+                String encodedPayload = getEncodedPayloadFromMultipartDTO(multipartFormDataDTO);
+
                 /*
                  * - For files uploaded using Filepicker.xyz.base64, body format is "<content-type>;base64,<actual-
                  *   base64-encoded-payload>".
@@ -274,25 +279,17 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
             } else {
-                payload = ((String) multipartFormDataDTO.getData()).getBytes();
+                payload = getEncodedPayloadFromMultipartDTO(multipartFormDataDTO).getBytes();
             }
 
-            InputStream inputStream = new ByteArrayInputStream(payload);
-            TransferManager transferManager = TransferManagerBuilder.standard().withS3Client(connection).build();
-            final ObjectMetadata objectMetadata = new ObjectMetadata();
-            // Only add content type if the user has mentioned it in the body
-            if (multipartFormDataDTO.getType() != null) {
-                objectMetadata.setContentType(multipartFormDataDTO.getType());
-            }
-            transferManager.upload(bucketName, path, inputStream, objectMetadata).waitForUploadResult();
-
+            uploadFileInS3(payload, connection, multipartFormDataDTO, bucketName, path);
             ArrayList<String> listOfFiles = new ArrayList<>();
             listOfFiles.add(path);
             ArrayList<String> listOfUrls = getSignedUrls(connection, bucketName, listOfFiles, expiryDateTime);
             if (listOfUrls.size() != 1) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith has encountered an unexpected error when fetching url from AmazonS3 after file " +
+                        "Appsmith has encountered an unexpected error while fetching url from AmazonS3 after file " +
                                 "creation. Please reach out to Appsmith customer support to resolve this."
                 );
             }
@@ -311,7 +308,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                                  String body,
                                                  Boolean usingFilePicker,
                                                  Date expiryDateTime)
-                throws InterruptedException, AppsmithPluginException {
+                throws AppsmithPluginException {
 
 
             List<MultipartFormDataDTO> multipartFormDataDTOs;
@@ -332,7 +329,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 byte[] payload;
                 if (Boolean.TRUE.equals(usingFilePicker)) {
 
-                    String encodedPayload = (String) multipartFormDataDTO.getData();
+                    String encodedPayload = getEncodedPayloadFromMultipartDTO(multipartFormDataDTO);
                     /*
                      * - For files uploaded using Filepicker.xyz.base64, body format is "<content-type>;base64,<actual-
                      *   base64-encoded-payload>".
@@ -353,18 +350,11 @@ public class AmazonS3Plugin extends BasePlugin {
                         );
                     }
                 } else {
-                    payload = ((String) multipartFormDataDTO.getData()).getBytes();
+                    payload = getEncodedPayloadFromMultipartDTO(multipartFormDataDTO).getBytes();
                 }
 
-                InputStream inputStream = new ByteArrayInputStream(payload);
-                TransferManager transferManager = TransferManagerBuilder.standard().withS3Client(connection).build();
-                final ObjectMetadata objectMetadata = new ObjectMetadata();
-                // Only add content type if the user has mentioned it in the body
-                if (multipartFormDataDTO.getType() != null) {
-                    objectMetadata.setContentType(multipartFormDataDTO.getType());
-                }
                 try {
-                    transferManager.upload(bucketName, filePath, inputStream, objectMetadata).waitForUploadResult();
+                    uploadFileInS3(payload, connection, multipartFormDataDTO, bucketName, filePath);
                 } catch (InterruptedException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
@@ -430,7 +420,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 if (TRUE.equals(smartJsonSubstitution)) {
                     final String body = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, "");
                     // First extract all the bindings in order
-                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(body);
+                    List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(body);
                     // Replace all the bindings with a placeholder
                     String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(body, mustacheKeysInOrder);
 
@@ -487,7 +477,6 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
 
                         Map<String, Object> formData = actionConfiguration.getFormData();
-
                         String command = getDataValueSafelyFromFormData(formData, COMMAND, STRING_TYPE);
 
                         if (StringUtils.isNullOrEmpty(command)) {
@@ -554,7 +543,6 @@ public class AmazonS3Plugin extends BasePlugin {
                                     )
                             );
                         }
-
                         Object actionResult;
                         switch (s3Action) {
                             case LIST:
@@ -708,9 +696,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 actionResult = new HashMap<String, Object>();
                                 ((HashMap<String, Object>) actionResult).put("signedUrl", signedUrl);
                                 ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
-
-                                requestParams.add(new RequestParamDTO(CREATE_EXPIRY,
-                                        expiryDateTimeString, null, null, null));
+                                requestParams.add(new RequestParamDTO(CREATE_EXPIRY, expiryDateTimeString, null, null, null));
                                 requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, body, null, null, null));
                                 break;
                             }
@@ -819,6 +805,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         return Mono.just(actionResult);
                     })
+                    .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException())
                     .flatMap(obj -> obj)
                     .flatMap(result -> {
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
@@ -988,28 +975,17 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-
-            return datasourceCreate(datasourceConfiguration)
-                    .map(connection -> {
+        public Mono<DatasourceTestResult> testDatasource(AmazonS3 connection) {
+            return Mono.fromCallable(() -> {
                         /*
                          * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
                          *   object with wrong credentials does not throw any exception.
                          * - Hence, adding a listBuckets() method call to test the connection.
                          */
                         connection.listBuckets();
-
-                        try {
-                            connection.shutdown();
-                        } catch (Exception e) {
-                            log.debug("Error closing S3 connection that was made for testing.", e);
-                            return new DatasourceTestResult(e.getMessage());
-                        }
-
                         return new DatasourceTestResult();
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error))))
-                    .subscribeOn(scheduler);
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error))));
         }
 
         /**
@@ -1038,6 +1014,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                     "Appsmith server has failed to fetch list of buckets from database. Please check if " +
                                             "the database credentials are valid and/or you have the required permissions."
                             );
+                        } catch (IllegalStateException s) {
+                            throw new StaleConnectionException();
                         }
 
                         return new DatasourceStructure(tableList);
@@ -1064,7 +1042,30 @@ public class AmazonS3Plugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+            Param param = (Param) args[0];
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null, param);
+        }
+
+        private String getEncodedPayloadFromMultipartDTO(MultipartFormDataDTO multipartFormDataDTO) {
+            String encodedPayload;
+            if (multipartFormDataDTO.getData() instanceof LinkedHashMap) {
+                encodedPayload = ((LinkedHashMap<?, ?>) multipartFormDataDTO.getData()).get("data").toString();
+            } else {
+                encodedPayload = (String) multipartFormDataDTO.getData();
+            }
+            return encodedPayload;
+        }
+
+        void uploadFileInS3(byte[] payload, AmazonS3 connection, MultipartFormDataDTO multipartFormDataDTO,
+                            String bucketName, String path) throws InterruptedException {
+            InputStream inputStream = new ByteArrayInputStream(payload);
+            TransferManager transferManager = TransferManagerBuilder.standard().withS3Client(connection).build();
+            final ObjectMetadata objectMetadata = new ObjectMetadata();
+            // Only add content type if the user has mentioned it in the body
+            if (multipartFormDataDTO.getType() != null) {
+                objectMetadata.setContentType(multipartFormDataDTO.getType());
+            }
+            transferManager.upload(bucketName, path, inputStream, objectMetadata).waitForUploadResult();
         }
 
     }

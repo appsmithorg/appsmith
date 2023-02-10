@@ -4,8 +4,10 @@ export class DeployMode {
   private locator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
 
+  _jsonFieldName = (fieldName: string) => `//p[text()='${fieldName}']`;
   _jsonFormFieldByName = (fieldName: string, input: boolean = true) =>
-    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']//${
+    this._jsonFieldName(fieldName) +
+    `/ancestor::div[@direction='column']//div[@data-testid='input-container']//${
       input ? "input" : "textarea"
     }`;
   _jsonFormRadioFieldByName = (fieldName: string) =>
@@ -46,7 +48,9 @@ export class DeployMode {
     this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
     toCheckFailureToast &&
-      this.agHelper.AssertElementAbsence(this.locator._specificToast("has failed")); //Validating bug - 14141 + 14252
+      this.agHelper.AssertElementAbsence(
+        this.locator._specificToast("has failed"),
+      ); //Validating bug - 14141 + 14252
     this.agHelper.Sleep(2000); //for Depoy page to settle!
   }
 
@@ -64,6 +68,7 @@ export class DeployMode {
     cy.get(this.locator._backToEditor).click();
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
+    this.agHelper.AssertElementVisible(this.locator._dropHere);//Assert if canvas is visible after Navigating back!
   }
 
   public EnterJSONInputValue(fieldName: string, value: string, index = 0) {

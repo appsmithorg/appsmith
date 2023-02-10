@@ -1,10 +1,10 @@
 import React, { RefObject, useEffect, useRef } from "react";
+import styled, { css } from "styled-components";
 import { Classes, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
-import styled, { Skin } from "constants/DefaultTheme";
-import { AnyStyledComponent, css } from "styled-components";
+import { Skin } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import {
@@ -13,10 +13,10 @@ import {
   InputWrapper,
   TextInput,
   TextInputProps,
-} from "design-system";
+} from "design-system-old";
 import { IconWrapper } from "constants/IconConstants";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
-import { Checkbox } from "design-system";
+import { Checkbox } from "design-system-old";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -126,6 +126,14 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
+
+  /*
+    We use this font family to show emoji flags
+    on windows devices
+  */
+  .left-icon-wrapper {
+    font-family: "Twemoji Country Flags";
+  }
 `;
 
 export const StyledMenu = styled(Menu)`
@@ -274,9 +282,7 @@ export const FieldWrapper = styled.div`
   width: 100%;
 `;
 
-export const StyledDragIcon = styled(
-  ControlIcons.DRAG_CONTROL as AnyStyledComponent,
-)`
+export const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL)`
   padding: 0;
   position: absolute;
   margin-right: 15px;
@@ -303,20 +309,6 @@ export const StyledPropertyPaneButton = styled(Button)`
   margin-left: auto;
   display: flex;
   justify-content: flex-end;
-  border: 1px solid ${Colors.GREY_8};
-
-  &,
-  &:active {
-    border: 1px solid ${Colors.GREY_8};
-    color: ${Colors.GREY_8};
-    background-color: transparent;
-  }
-
-  &:hover {
-    border: 1px solid ${Colors.GREY_8};
-    color: ${Colors.GREY_8};
-    background-color: ${Colors};
-  }
 
   &&& svg {
     width: 14px;
@@ -325,12 +317,6 @@ export const StyledPropertyPaneButton = styled(Button)`
       fill: ${Colors.GREY_8};
       stroke: ${Colors.GREY_8};
     }
-  }
-
-  &:disabled {
-    background-color: ${Colors.GREY_1};
-    color: var(--appsmith-color-black-400);
-    border-color: ${Colors.MERCURY};
   }
 `;
 
@@ -371,9 +357,7 @@ const CommonIconStyles = css`
   align-items: center;
 `;
 
-export const StyledEditIcon = styled(
-  ControlIcons.SETTINGS_CONTROL as AnyStyledComponent,
-)`
+export const StyledEditIcon = styled(ControlIcons.SETTINGS_CONTROL)`
   ${CommonIconStyles}
 
   && svg {
@@ -386,9 +370,7 @@ export const StyledEditIcon = styled(
   }
 `;
 
-export const StyledVisibleIcon = styled(
-  ControlIcons.SHOW_COLUMN as AnyStyledComponent,
-)`
+export const StyledVisibleIcon = styled(ControlIcons.SHOW_COLUMN)`
   ${CommonIconStyles}
 
   && svg {
@@ -401,9 +383,7 @@ export const StyledVisibleIcon = styled(
   }
 `;
 
-export const StyledHiddenIcon = styled(
-  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
-)`
+export const StyledHiddenIcon = styled(ControlIcons.HIDE_COLUMN)`
   ${CommonIconStyles}
 
   && svg {
@@ -416,9 +396,7 @@ export const StyledHiddenIcon = styled(
   }
 `;
 
-export const StyledDeleteIcon = styled(
-  FormIcons.DELETE_ICON as AnyStyledComponent,
-)`
+export const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
   ${CommonIconStyles}
 
   && svg {
@@ -432,7 +410,22 @@ export const StyledDeleteIcon = styled(
 `;
 
 export const StyledCheckbox = styled(Checkbox)<{ disabled?: boolean }>`
-  ${CommonIconStyles}
   cursor: ${(props) => (props.disabled ? "default" : "cursor")};
   width: 18px;
+  ${CommonIconStyles}
+`;
+
+export const StyledNavigateToFieldWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: auto;
+`;
+
+export const StyledDividerContainer = styled.div`
+  width: 1%;
+  margin-top: 9px;
+`;
+
+export const StyledNavigateToFieldsContainer = styled.div`
+  width: 95%;
 `;

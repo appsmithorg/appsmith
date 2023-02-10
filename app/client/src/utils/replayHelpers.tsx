@@ -11,7 +11,7 @@ import {
   shiftText,
 } from "./helpers";
 import localStorage from "./localStorage";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system-old";
 import {
   createMessage,
   WIDGET_ADDED,

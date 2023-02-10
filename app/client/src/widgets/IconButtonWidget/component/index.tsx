@@ -1,10 +1,9 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Button, Position } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import { ThemeProp } from "components/ads/common";
 import {
   RenderMode,
   RenderModes,
@@ -22,9 +21,9 @@ import {
   getCustomHoverColor,
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
-import { createGlobalStyle } from "constants/DefaultTheme";
 import Interweave from "interweave";
 import { Popover2 } from "@blueprintjs/popover2";
+import { ThemeProp } from "widgets/constants";
 
 const ToolTipWrapper = styled.div`
   height: 100%;
@@ -62,6 +61,7 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
   justify-content: center;
   width: 100%;
   height: 100%;
+  cursor: pointer;
 
   ${({ renderMode }) =>
     renderMode === RenderModes.CANVAS &&
@@ -107,6 +107,7 @@ export interface ButtonStyleProps {
   buttonVariant?: ButtonVariant;
   dimension?: number;
   hasOnClickAction?: boolean;
+  compactMode?: string;
 }
 
 export const StyledButton = styled((props) => (
@@ -118,16 +119,25 @@ export const StyledButton = styled((props) => (
       "boxShadow",
       "dimension",
       "hasOnClickAction",
+      "compactMode",
     ])}
   />
 ))<ThemeProp & ButtonStyleProps>`
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
-  min-height: 32px !important;
-  min-width: 32px !important;
+  min-height: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "24px" : "30px"};
+  min-width: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "24px" : "30px"};
+  font-size: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "12px" : "14px"};
+  line-height: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "24px" : "28px"};
 
-  ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
+
+
+  ${({ buttonColor, buttonVariant, compactMode, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
@@ -140,7 +150,7 @@ export const StyledButton = styled((props) => (
 
     ${
       hasOnClickAction
-        ? `&:hover:enabled, &:active:enabled {
+        ? `&:hover:enabled, &:active:enabled, &:focus:enabled {
         background: ${
           getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
             ? getCustomHoverColor(theme, buttonVariant, buttonColor)
@@ -155,17 +165,30 @@ export const StyledButton = styled((props) => (
     }
 
     &:disabled {
-      background-color: ${theme.colors.button.disabled.bgColor} !important;
-      color: ${theme.colors.button.disabled.textColor} !important;
+      background: ${
+        buttonVariant !== ButtonVariantTypes.TERTIARY
+          ? "var(--wds-color-bg-disabled)"
+          : "transparent"
+      } !important;
+      color: var(--wds-color-text-disabled) !important;
       pointer-events: none;
     }
 
     &&:disabled {
-      background-color: ${theme.colors.button.disabled.bgColor} !important;
-      border-color: ${theme.colors.button.disabled.bgColor} !important;
-      color: ${theme.colors.button.disabled.textColor} !important;
-      > span {
-        color: ${theme.colors.button.disabled.textColor} !important;
+      border: ${
+        buttonVariant === ButtonVariantTypes.SECONDARY
+          ? "1px solid var(--wds-color-border-disabled)"
+          : "none"
+      } !important;
+      background: ${
+        buttonVariant !== ButtonVariantTypes.TERTIARY
+          ? "var(--wds-color-bg-disabled)"
+          : "transparent"
+      } !important;
+      color: var(--wds-color-text-disabled) !important;
+
+      span {
+        color: var(--wds-color-text-disabled) !important;
       }
     }
 
@@ -199,8 +222,10 @@ export const StyledButton = styled((props) => (
     & > span > svg {
       height: 100%;
       width: 100%;
-      min-height: 16px;
-      min-width: 16px;
+      min-height:
+        ${compactMode === "SHORT" ? "14px" : "16px"};
+      min-width:
+        ${compactMode === "SHORT" ? "14px" : "16px"};
     }
   `}
 

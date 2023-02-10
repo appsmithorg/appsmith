@@ -20,6 +20,7 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { Stylesheet } from "entities/AppTheming";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -28,103 +29,6 @@ class ContainerWidget extends BaseWidget<
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
-  }
-
-  static getPropertyPaneConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Enables scrolling for content inside the widget",
-            propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-        ],
-      },
-      {
-        sectionName: "Styles",
-        children: [
-          {
-            helpText: "Use a html color name, HEX, RGB or RGBA value",
-            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            propertyName: "backgroundColor",
-            label: "Background Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "Use a html color name, HEX, RGB or RGBA value",
-            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            propertyName: "borderColor",
-            label: "Border Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "Enter value for border width",
-            propertyName: "borderWidth",
-            label: "Border Width",
-            placeholderText: "Enter value in px",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ];
   }
 
   static getPropertyPaneContentConfig() {
@@ -244,6 +148,13 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
@@ -298,7 +209,8 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    const snapRows = getCanvasSnapRows(props.bottomRow);
+
     return (
       <ContainerComponent {...props}>
         {props.type === "CANVAS_WIDGET" &&
@@ -321,14 +233,16 @@ class ContainerWidget extends BaseWidget<
                 snapRows={snapRows}
                 widgetId={props.widgetId}
               />
+
+              <WidgetsMultiSelectBox
+                {...this.getSnapSpaces()}
+                noContainerOffset={!!props.noContainerOffset}
+                widgetId={this.props.widgetId}
+                widgetType={this.props.type}
+              />
             </>
           )}
-        <WidgetsMultiSelectBox
-          {...this.getSnapSpaces()}
-          noContainerOffset={!!props.noContainerOffset}
-          widgetId={this.props.widgetId}
-          widgetType={this.props.type}
-        />
+
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

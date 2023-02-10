@@ -2,12 +2,11 @@ import { put } from "redux-saga/effects";
 import { APP_LEVEL_SOCKET_EVENTS } from "./socketEvents";
 
 import { collabSetAppEditors } from "actions/appCollabActions";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,
 } from "@appsmith/constants/messages";
-import { Variant } from "components/ads/common";
 import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
@@ -21,7 +20,7 @@ export default function* handleAppLevelSocketEvents(event: any) {
     // notification on release version
     case APP_LEVEL_SOCKET_EVENTS.RELEASE_VERSION_NOTIFICATION: {
       const { appVersion } = getAppsmithConfigs();
-      if (appVersion.id != event.payload[0]) {
+      if (appVersion.id && appVersion.id != event.payload[0]) {
         Toaster.show({
           text: createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST),
           variant: Variant.info,

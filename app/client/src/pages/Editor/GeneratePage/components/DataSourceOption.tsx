@@ -3,16 +3,16 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "selectors/entitiesSelector";
-import { Classes } from "components/ads/common";
 import {
+  Classes,
   DropdownOption,
   RenderDropdownOptionType,
   Text,
   TextType,
-} from "design-system";
+  TooltipComponent,
+} from "design-system-old";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
-import { TooltipComponent } from "design-system";
 
 // ---------- Helpers and constants ----------
 
@@ -53,8 +53,9 @@ const OptionWrapper = styled.div<{
     }
   }
 
-  &:hover {
-    background-color: ${Colors.Gallery};
+  &:hover,
+  &.highlight-option {
+    background-color: ${Colors.GALLERY_1};
 
     &&& svg {
       rect {
@@ -98,6 +99,7 @@ interface DataSourceOptionType extends RenderDropdownOptionType {
 function DataSourceOption({
   cypressSelector,
   extraProps,
+  isHighlighted,
   isSelectedNode,
   option: dropdownOption,
   optionClickHandler,
@@ -130,7 +132,9 @@ function DataSourceOption({
       }}
     >
       <OptionWrapper
-        className="t--dropdown-option"
+        className={`t--dropdown-option ${
+          isHighlighted ? "highlight-option" : ""
+        }`}
         data-cy={optionCypressSelector}
         disabled={isNotSupportedDatasource}
         key={(dropdownOption as DropdownOption).id}

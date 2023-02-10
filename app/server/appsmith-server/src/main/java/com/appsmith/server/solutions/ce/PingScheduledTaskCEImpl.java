@@ -30,7 +30,7 @@ import java.util.Map;
  */
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnExpression("!${is.cloud-hosted:false}")
+@ConditionalOnExpression("!${is.cloud-hosting:false}")
 public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final ConfigService configService;
@@ -89,7 +89,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 .headers(headers -> headers.setBasicAuth(ceKey, ""))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(Map.of(
-                        "userId", ipAddress,
+                        "userId", instanceId,
                         "context", Map.of("ip", ipAddress),
                         "properties", Map.of("instanceId", instanceId),
                         "event", "Instance Active"
@@ -130,7 +130,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             .headers(headers -> headers.setBasicAuth(ceKey, ""))
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(BodyInserters.fromValue(Map.of(
-                                    "userId", ipAddress,
+                                    "userId", statsData.getT1(),
                                     "context", Map.of("ip", ipAddress),
                                     "properties", Map.of(
                                             "instanceId", statsData.getT1(),

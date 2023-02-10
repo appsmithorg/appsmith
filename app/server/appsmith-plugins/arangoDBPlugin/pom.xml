@@ -16,10 +16,6 @@
     <name>arangodbPlugin</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>arangodb-plugin</plugin.id>
         <plugin.class>com.external.plugins.ArangoDBPlugin</plugin.class>
         <plugin.version>1.0-SNAPSHOT</plugin.version>
@@ -56,6 +52,10 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.testcontainers</groupId>
+                    <artifactId>testcontainers</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -107,18 +107,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <!-- Allow JUnit to access the test classes -->
-                    <argLine>
-                        --add-opens java.base/java.lang=ALL-UNNAMED
-                        --add-opens java.base/java.time=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED
-                    </argLine>
-                </configuration>
             </plugin>
         </plugins>
     </build>

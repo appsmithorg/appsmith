@@ -208,15 +208,19 @@ public class GraphQLPaginationUtils {
                 }
 
                 /**
-                 * This check ensures that during the very first run when the query does not have any cursor data the
-                 * cursor related variable does not get added. In this case since the cursor data is not available
-                 * the dynamic binding value returned by the client is "null" string. Some GraphQL severs are able to
-                 * handle the "null" string as cursor value but some are not e.g. GitHub's GraphQL endpoints are not
-                 * able to handle "null" as value. Hence, it is better to skip passing the variable and allow the
-                 * GraphQL servers to run the query without cursor value. The GraphQL servers against which we are
-                 * testing seem to handle the case well where the value is skipped.
+                 * The cursor being non-empty check ensures that during the very first run when the query does not have
+                 * any cursor data the cursor related variable does not get added. In this case since the cursor data
+                 * is not available the dynamic binding value returned by the client is "null" string. Some GraphQL
+                 * severs are able to handle the "null" string as cursor value but some are not e.g. GitHub's GraphQL
+                 * endpoints are not able to handle "null" as value. Hence, it is better to skip passing the variable
+                 * and allow the GraphQL servers to run the query without cursor value. The GraphQL servers against
+                 * which we are testing seem to handle the case well where the value is skipped.
+                 * The pagination field check ensures that when a query is run by clicking the run button as opposed
+                 * to clicking the next button on any paginated widget, then it only takes the limit value and not
+                 * the cursor value. This will make sure that the just clicking on the run button will not fetch
+                 * paginated results based on the cursor value.
                  */
-                if (!NULL_STRING.equals(nextCursorValue)) {
+                if (!NULL_STRING.equals(nextCursorValue) && PaginationField.NEXT.equals(executeActionDTO.getPaginationField())) {
                     queryVariablesJson.put(nextCursorVarName, nextCursorValue);
                 }
             }

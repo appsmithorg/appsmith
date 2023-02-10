@@ -28,8 +28,8 @@ import { getQueryParams } from "utils/URLUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
-import { executeFunction } from "./EvaluationsSaga";
-import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { executeJSFunction } from "./EvaluationsSaga";
+import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
   JSUpdate,
@@ -51,9 +51,8 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { PluginType } from "entities/Action";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system-old";
+import { PluginPackageName, PluginType } from "entities/Action";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
@@ -71,7 +70,6 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi, { FetchPageResponse } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "RouteBuilder";
@@ -82,14 +80,19 @@ import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
+import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
-function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
+function* handleCreateNewJsActionSaga(
+  action: ReduxAction<{ pageId: string; from: EventLocation }>,
+) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
-  const { pageId } = action.payload;
+  const { from, pageId } = action.payload;
   const pluginId: string = yield select(
     getPluginIdOfPackageName,
-    JS_PLUGIN_PACKAGE_NAME,
+    PluginPackageName.JS,
   );
   if (pageId && pluginId) {
     const jsActions: JSCollectionDataState = yield select(getJSCollections);
@@ -103,24 +106,27 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
     );
     yield put(
       createJSCollectionRequest({
-        name: newJSCollectionName,
-        pageId,
-        workspaceId,
-        pluginId,
-        body: body,
-        variables: [
-          {
-            name: "myVar1",
-            value: [],
-          },
-          {
-            name: "myVar2",
-            value: {},
-          },
-        ],
-        actions: actions,
-        applicationId,
-        pluginType: PluginType.JS,
+        from: from,
+        request: {
+          name: newJSCollectionName,
+          pageId,
+          workspaceId,
+          pluginId,
+          body: body,
+          variables: [
+            {
+              name: "myVar1",
+              value: [],
+            },
+            {
+              name: "myVar2",
+              value: {},
+            },
+          ],
+          actions: actions,
+          applicationId,
+          pluginType: PluginType.JS,
+        },
       }),
     );
   }
@@ -213,6 +219,12 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
         if (updateCollection) {
+          newActions.forEach((action) => {
+            AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
+              name: action.name,
+              jsObjectName: jsAction.name,
+            });
+          });
           yield call(updateJSCollection, {
             jsCollection: jsActionTobeUpdated,
             newActions: newActions,
@@ -274,7 +286,9 @@ function* updateJSCollection(data: {
           );
           // delete all execution error logs for deletedActions if present
           deletedActions.forEach((action) =>
-            AppsmithConsole.deleteError(`${jsCollection.id}-${action.id}`),
+            AppsmithConsole.deleteErrors([
+              { id: `${jsCollection.id}-${action.id}` },
+            ]),
           );
         }
 
@@ -343,9 +357,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
     }),
   );
-
   const isEntitySaving = yield select(getIsSavingEntity);
-
   /**
    * Only start executing when no entity in the application is saving
    * This ensures that execution doesn't get carried out on stale values
@@ -357,7 +369,7 @@ export function* handleExecuteJSFunctionSaga(data: {
 
   try {
     const { isDirty, result } = yield call(
-      executeFunction,
+      executeJSFunction,
       collectionName,
       action,
       collectionId,
@@ -365,7 +377,6 @@ export function* handleExecuteJSFunctionSaga(data: {
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
-        results: result,
         collectionId,
         actionId,
         isDirty,
@@ -380,34 +391,59 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
-    appMode === APP_MODE.EDIT &&
-      !isDirty &&
+    // Function execution data in Async functions are handled by the JSProxy (see JSProxy.ts)
+    if (!action.actionConfiguration.isAsync) {
+      yield put({
+        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+        payload: {
+          [collectionId]: [
+            {
+              data: result,
+              collectionId,
+              actionId,
+            },
+          ],
+        },
+      });
+    }
+    const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
+    showSuccessToast &&
       Toaster.show({
         text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
         variant: Variant.success,
       });
   } catch (error) {
-    AppsmithConsole.addError({
-      id: actionId,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: createMessage(JS_EXECUTION_FAILURE),
-      source: {
-        type: ENTITY_TYPE.JSACTION,
-        name: collectionName + "." + action.name,
-        id: collectionId,
-      },
-      messages: [
-        {
-          message: (error as Error).message,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: createMessage(JS_EXECUTION_FAILURE),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: collectionName + "." + action.name,
+            id: collectionId,
+          },
+          messages: [
+            {
+              message: (error as Error).message,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            },
+          ],
         },
-      ],
-    });
+      },
+    ]);
     Toaster.show({
       text:
         (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
       variant: Variant.danger,
-      showDebugButton: true,
+      showDebugButton: {
+        component: DebugButton,
+        componentProps: {
+          className: "t--toast-debug-button",
+          source: "TOAST",
+        },
+      },
     });
   }
 }
@@ -417,9 +453,10 @@ export function* handleStartExecuteJSFunctionSaga(
     collectionName: string;
     action: JSAction;
     collectionId: string;
+    from: EventLocation;
   }>,
 ): any {
-  const { action, collectionId, collectionName } = data.payload;
+  const { action, collectionId, collectionName, from } = data.payload;
   const actionId = action.id;
   if (action.confirmBeforeExecute) {
     const modalPayload = {
@@ -438,6 +475,11 @@ export function* handleStartExecuteJSFunctionSaga(
       throw new UserCancelledActionExecutionError();
     }
   }
+  AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_RUN", {
+    name: action.name,
+    num_params: action.actionConfiguration?.jsArguments?.length,
+    from: from,
+  });
   yield call(handleExecuteJSFunctionSaga, {
     collectionName: collectionName,
     action: action,
@@ -463,6 +505,9 @@ function* handleUpdateJSCollectionBody(
       if (isValidResponse) {
         // @ts-expect-error: response is of type unknown
         yield put(updateJSCollectionBodySuccess({ data: response?.data }));
+        checkAndLogErrorsIfCyclicDependency(
+          (response.data as JSCollection).errorReports,
+        );
       }
     }
   } catch (error) {

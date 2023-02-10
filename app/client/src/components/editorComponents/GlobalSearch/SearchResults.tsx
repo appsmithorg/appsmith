@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import styled, { css } from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system-old";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -105,9 +105,9 @@ export const SearchItemContainer = styled.div<{
     }
   }
 
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "p1")};
+    ${getTypographyByKey("p1")};
   }
 `;
 
@@ -117,9 +117,9 @@ const ItemTitle = styled.div`
   justify-content: space-between;
   flex: 1;
   align-items: center;
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   font-w [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "p1")};
+    ${getTypographyByKey("p1")};
   }
 `;
 
@@ -352,17 +352,17 @@ const CategoryListItem = styled.div<{ isActiveItem: boolean }>`
     display: flex;
     flex-direction: column;
     .category-title {
-      ${(props) => getTypographyByKey(props, "h5")}
+      ${getTypographyByKey("h5")}
       color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
     }
     .category-desc {
-      ${(props) => getTypographyByKey(props, "p3")}
+      ${getTypographyByKey("p3")}
       color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
     }
   }
   .action-msg {
     color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${getTypographyByKey("p3")}
     flex-shrink: 0;
   }
 `;

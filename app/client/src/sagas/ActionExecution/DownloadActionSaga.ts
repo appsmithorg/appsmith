@@ -2,12 +2,23 @@ import { getType, Types } from "utils/TypeHelpers";
 import downloadjs from "downloadjs";
 import AppsmithConsole from "utils/AppsmithConsole";
 import Axios from "axios";
-import {
-  ActionTriggerType,
-  DownloadActionDescription,
-} from "entities/DataTree/actionTriggers";
+import { DownloadActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { isBase64String, isUrlString } from "./downloadActionUtils";
+import { isBlobUrl } from "utils/AppsmithUtils";
+
+function downloadBlobURL(url: string, name: string) {
+  const ele = document.createElement("a");
+  ele.href = url;
+  ele.download = name;
+  ele.style.display = "none";
+  document.body.appendChild(ele);
+  ele.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    document.body.removeChild(ele);
+  });
+}
 
 export default async function downloadSaga(
   action: DownloadActionDescription["payload"],
@@ -15,11 +26,18 @@ export default async function downloadSaga(
   const { data, name, type } = action;
   if (!name) {
     throw new ActionValidationError(
-      ActionTriggerType.DOWNLOAD,
+      "DOWNLOAD",
       "name",
       Types.STRING,
       getType(name),
     );
+  }
+  if (isBlobUrl(data)) {
+    downloadBlobURL(data, name);
+    AppsmithConsole.info({
+      text: `download('${data}', '${name}', '${type}') was triggered`,
+    });
+    return;
   }
   const dataType = getType(data);
   if (dataType === Types.ARRAY || dataType === Types.OBJECT) {

@@ -30,7 +30,7 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import { ScrollIndicator } from "design-system";
+import { ScrollIndicator } from "design-system-old";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 
@@ -115,6 +115,7 @@ export function Table(props: TableProps) {
     }
     props.handleResizeColumn(columnSizeMap);
   };
+  // I don't see the need to useMemo here.
   const data = React.useMemo(() => props.data, [props.data]);
   const columnString = JSON.stringify({
     columns: props.columns,

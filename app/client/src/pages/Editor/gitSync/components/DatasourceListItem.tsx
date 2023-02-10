@@ -1,4 +1,4 @@
-import { Icon, IconSize, Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
@@ -20,7 +20,6 @@ const ListItem = styled.div<{ disabled?: boolean }>`
   img {
     width: 24pxx;
     height: 22.5px;
-    margin-right: ${(props) => props.theme.spaces[3]}px;
   }
 `;
 

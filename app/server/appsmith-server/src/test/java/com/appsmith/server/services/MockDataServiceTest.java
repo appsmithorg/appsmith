@@ -16,10 +16,10 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -46,7 +46,7 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -94,7 +94,7 @@ public class MockDataServiceTest {
 
     PageDTO testPage = null;
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
 
@@ -103,7 +103,7 @@ public class MockDataServiceTest {
             Workspace toCreate = new Workspace();
             toCreate.setName("MockDataServiceTest");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
 
@@ -117,21 +117,17 @@ public class MockDataServiceTest {
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
     }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetMockDataSets() {
         StepVerifier
                 .create(mockDataService.getMockDataSet())
-                .assertNext( mockDataSets -> {
-                    assertThat(mockDataSets.getMockdbs().size()).isEqualTo(2);
-                    assertThat(mockDataSets.getMockdbs().stream().anyMatch(data -> {
-                        return data.getName().equals("movies") &&
-                                data.getPackageName().equals("mongo-plugin");
-                    }));
-                    assertThat(mockDataSets.getMockdbs().stream().anyMatch(data -> {
-                        return data.getName().equals("users") &&
-                                data.getPackageName().equals("postgres-plugin");
-                    }));
+                .assertNext(mockDataSets -> {
+                    assertThat(mockDataSets.getMockdbs()).hasSize(2);
+                    assertThat(mockDataSets.getMockdbs())
+                            .anyMatch(data -> data.getName().equals("Movies") && data.getPackageName().equals("mongo-plugin"))
+                            .anyMatch(data -> data.getName().equals("Users") && data.getPackageName().equals("postgres-plugin"));
                 })
                 .verifyComplete();
     }
@@ -146,7 +142,7 @@ public class MockDataServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("MockDataServiceTest testCreateMockDataSetsMongo");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
@@ -213,7 +209,6 @@ public class MockDataServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
 
-
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
@@ -278,7 +273,7 @@ public class MockDataServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("MockDataServiceTest testCreateMockDataSetsDuplicateName");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();

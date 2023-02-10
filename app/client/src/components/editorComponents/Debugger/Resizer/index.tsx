@@ -1,6 +1,7 @@
 import { Layers } from "constants/Layers";
 import React, { useState, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 export const ResizerCSS = css`
   width: 100%;
@@ -21,12 +22,30 @@ const Top = styled.div`
 type ResizerProps = {
   panelRef: RefObject<HTMLDivElement>;
   setContainerDimensions?: (height: number) => void;
+  onResizeComplete?: (height: number) => void;
   snapToHeight?: number;
   openResizer?: boolean;
+  initialHeight?: number;
 };
 
 function Resizer(props: ResizerProps) {
   const [mouseDown, setMouseDown] = useState(false);
+  const [height, setHeight] = useState(
+    props.initialHeight ||
+      props.panelRef.current?.getBoundingClientRect().height ||
+      ActionExecutionResizerHeight,
+  );
+
+  // On mount and update, set the initial height of the component
+  useEffect(() => {
+    if (!props.initialHeight) return;
+    const panel = props.panelRef.current;
+    if (!panel) return;
+    panel.style.height = `${props.initialHeight}px`;
+    if (height !== props.initialHeight) {
+      setHeight(props.initialHeight);
+    }
+  }, [props.initialHeight]);
 
   const handleResize = (movementY: number) => {
     const panel = props.panelRef.current;
@@ -44,9 +63,14 @@ function Resizer(props: ResizerProps) {
       updatedHeight > minHeight
     ) {
       panel.style.height = `${height - movementY}px`;
+      setHeight(height - movementY);
       props.setContainerDimensions &&
         props.setContainerDimensions(height - movementY);
     }
+  };
+
+  const handleResizeComplete = () => {
+    props.onResizeComplete && props.onResizeComplete(height);
   };
 
   useEffect(() => {
@@ -78,6 +102,8 @@ function Resizer(props: ResizerProps) {
 
     if (mouseDown) {
       window.addEventListener("mousemove", handleMouseMove);
+    } else {
+      handleResizeComplete();
     }
 
     return () => {

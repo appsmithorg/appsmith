@@ -7,7 +7,6 @@ export interface ICreateJSObjectOptions {
   shouldCreateNewJSObj: boolean;
   lineNumber?: number;
   prettify?: boolean;
-  toWriteAfterToastsDisappear?: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
@@ -16,7 +15,6 @@ const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   shouldCreateNewJSObj: true,
   lineNumber: 4,
   prettify: true,
-  toWriteAfterToastsDisappear: false,
 };
 
 export class JSEditor {
@@ -83,6 +81,7 @@ export class JSEditor {
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
+  _dialogInDeployView = "//div[@class='bp3-dialog-body']//*[contains(text(), '" + Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +"')]";
   _funcDropdown = ".t--formActionButtons div[role='listbox']";
   _funcDropdownOptions = ".ads-dropdown-options-wrapper div > span div";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
@@ -99,6 +98,20 @@ export class JSEditor {
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
+
+  // Pastes or types content into field
+  private HandleJsContentFilling(toPaste: boolean, JSCode: string, el: any) {
+    if (toPaste) {
+      //input.invoke("val", value);
+      this.agHelper.Paste(el, JSCode);
+    } else {
+      cy.get(el).type(JSCode, {
+        parseSpecialCharSequences: false,
+        delay: 40,
+        force: true,
+      });
+    }
+  }
   //#endregion
 
   //#region Page functions
@@ -119,7 +132,10 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.AssertContains("created successfully");
+    // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
+    //Checking JS object was created successfully
+    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
+
     this.agHelper.Sleep();
   }
 
@@ -134,7 +150,6 @@ export class JSEditor {
       prettify = true,
       shouldCreateNewJSObj,
       toRun,
-      toWriteAfterToastsDisappear = false,
     } = options;
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
@@ -143,45 +158,32 @@ export class JSEditor {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type(`${downKeys}  `);
+        .type(`${downKeys}  `)
+        .then((el: any) => {
+          this.HandleJsContentFilling(paste, JSCode, el);
+        });
     } else {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
-        .type("{backspace}", { force: true });
-      this.agHelper.AssertContains("Start object with export default");
-      //this.agHelper.AssertAutoSave();
+        .then((el: any) => {
+          this.HandleJsContentFilling(paste, JSCode, el);
+        });
     }
 
-    toWriteAfterToastsDisappear && this.agHelper.WaitUntilAllToastsDisappear();
-
-    cy.get(this.locator._codeMirrorTextArea)
-      .first()
-      .then((el: any) => {
-        if (paste) {
-          //input.invoke("val", value);
-          this.agHelper.Paste(el, JSCode);
-        } else {
-          cy.get(el).type(JSCode, {
-            parseSpecialCharSequences: false,
-            delay: 40,
-            force: true,
-          });
-        }
-      });
-
     this.agHelper.AssertAutoSave();
-    // Ample wait due to open bug # 10284
     if (prettify) {
       this.agHelper.ActionContextMenuWithInPane("Prettify Code");
       this.agHelper.AssertAutoSave();
     }
 
     if (toRun) {
+      // Wait for JSObject parsing to get complete
+      this.agHelper.Sleep(2000);
       //clicking 1 times & waits for 2 second for result to be populated!
       Cypress._.times(1, () => {
-        this.agHelper.GetNClick(this._runButton);
+        this.agHelper.GetNClick(this._runButton, 0, true);
         this.agHelper.Sleep(2000);
       });
       cy.get(this.locator._empty).should("not.exist");
@@ -209,7 +211,7 @@ export class JSEditor {
 
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
-    this.agHelper.Sleep();//for function to run
+    this.agHelper.Sleep(); //for function to run
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 

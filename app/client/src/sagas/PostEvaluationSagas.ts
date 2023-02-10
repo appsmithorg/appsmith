@@ -4,7 +4,7 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -13,21 +13,19 @@ import {
   isAction,
   isJSAction,
   isWidget,
-} from "workers/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   EvalError,
   EvalErrorTypes,
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -43,7 +41,7 @@ import { AppState } from "@appsmith/reducers";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import TernServer from "utils/autocomplete/TernServer";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
@@ -56,6 +54,8 @@ function logLatestEvalPropertyErrors(
   dataTree: DataTree,
   evaluationOrder: Array<string>,
 ) {
+  const errorsToAdd = [];
+  const errorsToDelete = [];
   const updatedDebuggerErrors: Record<string, Log> = {
     ...currentDebuggerErrors,
   };
@@ -69,7 +69,7 @@ function logLatestEvalPropertyErrors(
       if (entity.logBlackList && propertyPath in entity.logBlackList) {
         continue;
       }
-      let allEvalErrors: EvaluationError[] = get(
+      const allEvalErrors: EvaluationError[] = get(
         entity,
         getEvalErrorPath(evaluatedPath, {
           fullPath: false,
@@ -77,12 +77,6 @@ function logLatestEvalPropertyErrors(
         }),
         [],
       );
-
-      allEvalErrors = isJSAction(entity)
-        ? allEvalErrors
-        : allEvalErrors.filter(
-            (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
-          );
 
       const evaluatedValue = get(
         entity,
@@ -95,11 +89,7 @@ function logLatestEvalPropertyErrors(
       const evalWarnings: EvaluationError[] = [];
 
       for (const err of allEvalErrors) {
-        // Don't log lint warnings
-        if (
-          err.severity === Severity.WARNING &&
-          err.errorType !== PropertyEvaluationErrorType.LINT
-        ) {
+        if (err.severity === Severity.WARNING) {
           evalWarnings.push(err);
         }
         if (err.severity === Severity.ERROR) {
@@ -108,7 +98,7 @@ function logLatestEvalPropertyErrors(
       }
 
       const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
-      const nameField = isWidget(entity) ? entity.widgetName : entity.name;
+      const nameField = isWidget(entity) ? entity.widgetName : entityName;
       const entityType = isWidget(entity)
         ? ENTITY_TYPE.WIDGET
         : isAction(entity)
@@ -131,7 +121,6 @@ function logLatestEvalPropertyErrors(
         // if debugger has error and data tree has error -> update error
         // if debugger has error but data tree does not -> remove
         // if debugger or data tree does not have an error -> no change
-
         if (errors.length) {
           // TODO Rank and set the most critical error
           // const error = evalErrors[0];
@@ -157,8 +146,8 @@ function logLatestEvalPropertyErrors(
             !isJSAction(entity) ||
             (isJSAction(entity) && propertyPath === "body")
           ) {
-            AppsmithConsole.addError(
-              {
+            errorsToAdd.push({
+              payload: {
                 id: debuggerKey,
                 logType: isWarning
                   ? LOG_TYPE.EVAL_WARNING
@@ -180,15 +169,18 @@ function logLatestEvalPropertyErrors(
                 },
                 analytics: analyticsData,
               },
-              isWarning ? Severity.WARNING : Severity.ERROR,
-            );
+              severity: isWarning ? Severity.WARNING : Severity.ERROR,
+            });
           }
         } else if (debuggerKey in updatedDebuggerErrors) {
-          AppsmithConsole.deleteError(debuggerKey);
+          errorsToDelete.push({ id: debuggerKey });
         }
       }
     }
   }
+  // Add and delete errors from debugger
+  AppsmithConsole.addErrors(errorsToAdd);
+  AppsmithConsole.deleteErrors(errorsToDelete);
 }
 
 export function* evalErrorHandler(
@@ -285,7 +277,6 @@ export function* evalErrorHandler(
         break;
       }
       default: {
-        Sentry.captureException(error);
         log.debug(error);
       }
     }
@@ -293,7 +284,7 @@ export function* evalErrorHandler(
 }
 
 export function* logSuccessfulBindings(
-  unEvalTree: DataTree,
+  unEvalTree: UnEvalTree,
   dataTree: DataTree,
   evaluationOrder: string[],
   isCreateFirstTree: boolean,
@@ -325,10 +316,8 @@ export function* logSuccessfulBindings(
         getEvalErrorPath(evaluatedPath),
         [],
       ) as EvaluationError[];
-      const criticalErrors = errors.filter(
-        (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-      );
-      const hasErrors = criticalErrors.length > 0;
+
+      const hasErrors = errors.length > 0;
 
       if (isABinding && !hasErrors && !(propertyPath in logBlackList)) {
         AnalyticsUtil.logEvent("BINDING_SUCCESS", {
@@ -351,55 +340,38 @@ export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
 // is accurate
 export function* updateTernDefinitions(
   dataTree: DataTree,
-  updates?: DataTreeDiff[],
+  updates: DataTreeDiff[],
+  isCreateFirstTree: boolean,
+  jsData: Record<string, unknown> = {},
 ) {
-  let shouldUpdate: boolean;
-  // No updates, means it was a first Eval
-  if (!updates) {
-    shouldUpdate = true;
-  } else if (updates.length === 0) {
-    // update length is 0 means no significant updates
-    shouldUpdate = false;
-  } else {
-    // Only when new field is added or deleted, we want to re-create the def
-    shouldUpdate = some(updates, (update) => {
-      if (
-        update.event === DataTreeDiffEvent.NEW ||
-        update.event === DataTreeDiffEvent.DELETE
-      ) {
-        return true;
-      }
-
-      if (update.event === DataTreeDiffEvent.NOOP) {
-        const { entityName } = getEntityNameAndPropertyPath(
-          update.payload.propertyPath,
-        );
-        const entity = dataTree[entityName];
-        if (entity && isWidget(entity)) {
-          // if widget property name is modified then update tern def
-          return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
-        }
-      }
-
-      return false;
+  const shouldUpdate: boolean =
+    isCreateFirstTree ||
+    some(updates, (update) => {
+      if (update.event === DataTreeDiffEvent.NEW) return true;
+      if (update.event === DataTreeDiffEvent.DELETE) return true;
+      if (update.event === DataTreeDiffEvent.EDIT) return false;
+      const { entityName } = getEntityNameAndPropertyPath(
+        update.payload.propertyPath,
+      );
+      const entity = dataTree[entityName];
+      if (!entity || !isWidget(entity)) return false;
+      return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
     });
-  }
-  if (shouldUpdate) {
-    const start = performance.now();
-    // remove private widgets from dataTree used for autocompletion
-    const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
-      dataTree,
-    );
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    const { def, entityInfo } = dataTreeTypeDefCreator(
-      treeWithoutPrivateWidgets,
-      !!featureFlags.JS_EDITOR,
-    );
-    TernServer.updateDef("DATA_TREE", def, entityInfo);
-    const end = performance.now();
-    log.debug("Tern", { updates });
-    log.debug("Tern definitions updated took ", (end - start).toFixed(2));
-  }
+
+  if (!shouldUpdate) return;
+  const start = performance.now();
+  // remove private widgets from dataTree used for autocompletion
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+  const { def, entityInfo } = dataTreeTypeDefCreator(
+    treeWithoutPrivateWidgets,
+    !!featureFlags.JS_EDITOR,
+    jsData,
+  );
+  CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
+  const end = performance.now();
+  log.debug("Tern", { updates });
+  log.debug("Tern definitions updated took ", (end - start).toFixed(2));
 }
 
 export function* handleJSFunctionExecutionErrorLog(
@@ -409,23 +381,27 @@ export function* handleJSFunctionExecutionErrorLog(
   errors: any[],
 ) {
   errors.length
-    ? AppsmithConsole.addError({
-        id: `${collectionId}-${action.id}`,
-        logType: LOG_TYPE.EVAL_ERROR,
-        text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
-          action.name
-        }`,
-        messages: errors.map((error) => ({
-          message: error.errorMessage || error.message,
-          type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
-          subType: error.errorType,
-        })),
-        source: {
-          id: action.id,
-          name: `${collectionName}.${action.name}`,
-          type: ENTITY_TYPE.JSACTION,
-          propertyPath: `${collectionName}.${action.name}`,
+    ? AppsmithConsole.addErrors([
+        {
+          payload: {
+            id: `${collectionId}-${action.id}`,
+            logType: LOG_TYPE.EVAL_ERROR,
+            text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
+              action.name
+            }`,
+            messages: errors.map((error) => ({
+              message: error.errorMessage || error.message,
+              type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
+              subType: error.errorType,
+            })),
+            source: {
+              id: action.id,
+              name: `${collectionName}.${action.name}`,
+              type: ENTITY_TYPE.JSACTION,
+              propertyPath: `${collectionName}.${action.name}`,
+            },
+          },
         },
-      })
-    : AppsmithConsole.deleteError(`${collectionId}-${action.id}`);
+      ])
+    : AppsmithConsole.deleteErrors([{ id: `${collectionId}-${action.id}` }]);
 }

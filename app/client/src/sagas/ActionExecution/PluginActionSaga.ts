@@ -31,24 +31,25 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isArray, isString, set } from "lodash";
+import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
   ERROR_PLUGIN_ACTION_EXECUTE,
   ACTION_EXECUTION_CANCELLED,
+  ACTION_EXECUTION_FAILED,
 } from "@appsmith/constants/messages";
-import { Variant } from "components/ads/common";
 import {
   EventType,
+  LayoutOnLoadActionErrors,
   PageAction,
   RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
@@ -56,6 +57,7 @@ import {
   getCurrentPageId,
   getIsSavingEntity,
   getLayoutOnLoadActions,
+  getLayoutOnLoadIssues,
 } from "selectors/editorSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -78,10 +80,7 @@ import {
   CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import {
-  ActionTriggerType,
-  RunPluginActionDescription,
-} from "entities/DataTree/actionTriggers";
+import { RunPluginActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
@@ -97,18 +96,22 @@ import { JSCollection } from "entities/JSCollection";
 import {
   executeAppAction,
   TriggerMeta,
-} from "sagas/ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
-import { matchBasePath } from "pages/Editor/Explorer/helpers";
-import { isTrueObject, findDatatype } from "workers/evaluationUtils";
+import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
+import {
+  isTrueObject,
+  findDatatype,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
+import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -118,12 +121,9 @@ export const getActionTimeout = (
   state: AppState,
   actionId: string,
 ): number | undefined => {
-  const action = _.find(
-    state.entities.actions,
-    (a) => a.config.id === actionId,
-  );
+  const action = find(state.entities.actions, (a) => a.config.id === actionId);
   if (action) {
-    const timeout = _.get(
+    const timeout = get(
       action,
       "config.actionConfiguration.timeoutInMillisecond",
       DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
@@ -269,7 +269,7 @@ function* evaluateActionParams(
   executeActionRequest: ExecuteActionRequest,
   executionParams?: Record<string, any> | string,
 ) {
-  if (_.isNil(bindings) || bindings.length === 0) {
+  if (isNil(bindings) || bindings.length === 0) {
     formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
     return [];
   }
@@ -300,7 +300,10 @@ function* evaluateActionParams(
         );
         tempArr.push(newVal);
       }
-      executeActionRequest.paramProperties[`k${i}`] = "array";
+      //Adding array datatype along with the datatype of first element of the array
+      executeActionRequest.paramProperties[`k${i}`] = {
+        array: [arrDatatype[0]],
+      };
       value = tempArr;
     } else {
       // @ts-expect-error: Values can take many types
@@ -329,7 +332,7 @@ export default function* executePluginActionTriggerSaga(
   const { actionId, onError, onSuccess, params } = pluginAction;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
-      ActionTriggerType.RUN_PLUGIN_ACTION,
+      "RUN_PLUGIN_ACTION",
       "params",
       Types.OBJECT,
       getType(params),
@@ -381,28 +384,32 @@ export default function* executePluginActionTriggerSaga(
   const { isError, payload } = executePluginActionResponse;
 
   if (isError) {
-    AppsmithConsole.addError({
-      id: actionId,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: `Execution failed with status ${payload.statusCode}`,
-      source: {
-        type: ENTITY_TYPE.ACTION,
-        name: action.name,
-        id: actionId,
-      },
-      state: payload.request,
-      messages: [
-        {
-          // Need to stringify cause this gets rendered directly
-          // and rendering objects can crash the app
-          message: !isString(payload.body)
-            ? JSON.stringify(payload.body)
-            : payload.body,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-          subType: payload.errorType,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: `Execution failed with status ${payload.statusCode}`,
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: action.name,
+            id: actionId,
+          },
+          state: payload.request,
+          messages: [
+            {
+              // Need to stringify cause this gets rendered directly
+              // and rendering objects can crash the app
+              message: !isString(payload.body)
+                ? JSON.stringify(payload.body)
+                : payload.body,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+              subType: payload.errorType,
+            },
+          ],
         },
-      ],
-    });
+      },
+    ]);
     if (onError) {
       yield call(executeAppAction, {
         event: { type: eventType },
@@ -523,8 +530,8 @@ function* runActionSaga(
   if (isSaving || isDirty || isSavingEntity) {
     if (isDirty && !isSaving) {
       yield put(updateAction({ id: actionId }));
+      yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
-    yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   }
   const actionObject = shouldBeDefined<Action>(
     yield select(getAction, actionId),
@@ -624,20 +631,24 @@ function* runActionSaga(
       });
     }
 
-    AppsmithConsole.addError({
-      id: actionId,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: `Execution failed${
-        payload.statusCode ? ` with status ${payload.statusCode}` : ""
-      }`,
-      source: {
-        type: ENTITY_TYPE.ACTION,
-        name: actionObject.name,
-        id: actionId,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: `Execution failed${
+            payload.statusCode ? ` with status ${payload.statusCode}` : ""
+          }`,
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: actionObject.name,
+            id: actionId,
+          },
+          messages: appsmithConsoleErrorMessageList,
+          state: payload.request,
+        },
       },
-      messages: appsmithConsoleErrorMessageList,
-      state: payload.request,
-    });
+    ]);
 
     Toaster.show({
       text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
@@ -700,7 +711,9 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
       getJSCollection,
       collectionId,
     );
-    const jsAction = collection.actions.find((d) => d.id === pageAction.id);
+    const jsAction = collection.actions.find(
+      (action) => action.id === pageAction.id,
+    );
     if (!!jsAction) {
       if (jsAction.confirmBeforeExecute) {
         const modalPayload = {
@@ -718,7 +731,15 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          throw new UserCancelledActionExecutionError();
+          Toaster.show({
+            text: createMessage(
+              ACTION_EXECUTION_CANCELLED,
+              `${collection.name}.${jsAction.name}`,
+            ),
+            variant: Variant.danger,
+          });
+          // Don't proceed to executing the js function
+          return;
         }
       }
       const data = {
@@ -752,7 +773,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
     let payload = EMPTY_RESPONSE;
     let isError = true;
-    const error = `The action "${pageAction.name}" has failed.`;
+    let error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
     try {
       const executePluginActionResponse: ExecutePluginActionResponse = yield call(
         executePluginActionSaga,
@@ -762,27 +783,35 @@ function* executePageLoadAction(pageAction: PageAction) {
       isError = executePluginActionResponse.isError;
     } catch (e) {
       log.error(e);
+
+      if (e instanceof UserCancelledActionExecutionError) {
+        error = createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name);
+      }
     }
 
     if (isError) {
-      AppsmithConsole.addError({
-        id: pageAction.id,
-        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-        text: `Execution failed with status ${payload.statusCode}`,
-        source: {
-          type: ENTITY_TYPE.ACTION,
-          name: pageAction.name,
-          id: pageAction.id,
-        },
-        state: payload.request,
-        messages: [
-          {
-            message: error,
-            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-            subType: payload.errorType,
+      AppsmithConsole.addErrors([
+        {
+          payload: {
+            id: pageAction.id,
+            logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+            text: `Execution failed with status ${payload.statusCode}`,
+            source: {
+              type: ENTITY_TYPE.ACTION,
+              name: pageAction.name,
+              id: pageAction.id,
+            },
+            state: payload.request,
+            messages: [
+              {
+                message: error,
+                type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+                subType: payload.errorType,
+              },
+            ],
           },
-        ],
-      });
+        },
+      ]);
 
       yield put(
         executePluginActionError({
@@ -820,7 +849,13 @@ function* executePageLoadAction(pageAction: PageAction) {
 function* executePageLoadActionsSaga() {
   try {
     const pageActions: PageAction[][] = yield select(getLayoutOnLoadActions);
-    const actionCount = _.flatten(pageActions).length;
+    const layoutOnLoadActionErrors: LayoutOnLoadActionErrors[] = yield select(
+      getLayoutOnLoadIssues,
+    );
+    const actionCount = flatten(pageActions).length;
+
+    // when cyclical depedency issue is there,
+    // none of the page load actions would be executed
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
       { numActions: actionCount },
@@ -835,10 +870,10 @@ function* executePageLoadActionsSaga() {
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
-
     // We show errors in the debugger once onPageLoad actions
     // are executed
     yield put(hideDebuggerErrors(false));
+    checkAndLogErrorsIfCyclicDependency(layoutOnLoadActionErrors);
   } catch (e) {
     log.error(e);
 

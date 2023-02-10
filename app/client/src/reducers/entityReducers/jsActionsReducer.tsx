@@ -26,6 +26,22 @@ export interface PartialActionData {
   isExecuting: Record<string, boolean>;
 }
 
+export interface JSExecutionData {
+  data: unknown;
+  collectionId: string;
+  actionId: string;
+}
+
+export interface JSExecutionError {
+  isDirty: true;
+  actionId: string;
+  collectionId: string;
+}
+
+// Object of collectionIds to JSExecutionData[]
+export type BatchedJSExecutionData = Record<string, JSExecutionData[]>;
+export type BatchedJSExecutionErrors = Record<string, JSExecutionError[]>;
+
 const jsActionsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS]: (
     state: JSCollectionDataState,
@@ -292,7 +308,6 @@ const jsActionsReducer = createReducer(initialState, {
   [ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<{
-      results: any;
       collectionId: string;
       actionId: string;
       isDirty: boolean;
@@ -302,10 +317,6 @@ const jsActionsReducer = createReducer(initialState, {
       if (a.config.id === action.payload.collectionId) {
         return {
           ...a,
-          data: {
-            ...a.data,
-            [action.payload.actionId]: action.payload.results,
-          },
           isExecuting: {
             ...a.isExecuting,
             [action.payload.actionId]: false,
@@ -317,6 +328,46 @@ const jsActionsReducer = createReducer(initialState, {
         };
       }
       return a;
+    }),
+  [ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<BatchedJSExecutionData>,
+  ): JSCollectionDataState =>
+    state.map((jsCollectionData) => {
+      const collectionId = jsCollectionData.config.id;
+      if (action.payload.hasOwnProperty(collectionId)) {
+        let data = {
+          ...jsCollectionData.data,
+        };
+        action.payload[collectionId].forEach((item) => {
+          data = { ...data, [item.actionId]: item.data };
+        });
+        return {
+          ...jsCollectionData,
+          data,
+        };
+      }
+      return jsCollectionData;
+    }),
+  [ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_ERRORS]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<BatchedJSExecutionErrors>,
+  ): JSCollectionDataState =>
+    state.map((jsCollectionData) => {
+      const collectionId = jsCollectionData.config.id;
+      if (action.payload.hasOwnProperty(collectionId)) {
+        let isDirty = {
+          ...jsCollectionData.isDirty,
+        };
+        action.payload[collectionId].forEach(({ actionId }) => {
+          isDirty = { ...isDirty, [actionId]: true };
+        });
+        return {
+          ...jsCollectionData,
+          isDirty,
+        };
+      }
+      return jsCollectionData;
     }),
   [ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_SUCCESS]: (
     state: JSCollectionDataState,

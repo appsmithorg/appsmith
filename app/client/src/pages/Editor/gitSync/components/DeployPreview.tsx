@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { ReactComponent as CloudyIcon } from "assets/icons/ads/cloudy-line.svg";
 import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
   getApplicationLastDeployedAt,
@@ -13,7 +13,7 @@ import {
   LATEST_DP_SUBTITLE,
   LATEST_DP_TITLE,
 } from "@appsmith/constants/messages";
-import { Text, Case, TextType } from "design-system";
+import { Text, Case, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";

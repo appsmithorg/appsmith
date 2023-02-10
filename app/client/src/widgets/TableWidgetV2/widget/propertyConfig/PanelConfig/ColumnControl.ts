@@ -8,7 +8,6 @@ import { get } from "lodash";
 import {
   getBasePropertyPath,
   hideByColumnType,
-  SelectColumnOptionsValidations,
   showByColumnType,
   uniqueColumnAliasValidation,
   updateColumnLevelEditability,
@@ -16,7 +15,7 @@ import {
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
@@ -61,12 +60,20 @@ export default {
           value: ColumnTypes.TEXT,
         },
         {
+          label: "Switch",
+          value: ColumnTypes.SWITCH,
+        },
+        {
           label: "URL",
           value: ColumnTypes.URL,
         },
         {
           label: "Video",
           value: ColumnTypes.VIDEO,
+        },
+        {
+          label: "Select",
+          value: ColumnTypes.SELECT,
         },
       ],
       updateHook: composePropertyUpdateHook([
@@ -150,6 +157,8 @@ export default {
           ColumnTypes.VIDEO,
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
+          ColumnTypes.SWITCH,
+          ColumnTypes.SELECT,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
@@ -168,7 +177,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -186,7 +195,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -222,7 +231,7 @@ export default {
         updateInlineEditingOptionDropdownVisibilityHook,
       ]),
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -244,7 +253,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -267,7 +276,7 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -276,25 +285,6 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
-      },
-    },
-    {
-      propertyName: "selectOptions",
-      helpText: "Options to be shown on the select dropdown",
-      label: "Select Options",
-      controlType: "INPUT_TEXT",
-      isJSConvertible: false,
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.FUNCTION,
-        params: {
-          fnString: SelectColumnOptionsValidations.toString(),
-        },
-      },
-      isTriggerProperty: false,
-      dependencies: ["primaryColumns"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
       },
     },
     {
@@ -394,7 +384,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -522,7 +512,7 @@ export default {
       dependencies: ["primaryColumns", "columnType"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {

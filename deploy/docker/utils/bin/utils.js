@@ -2,6 +2,7 @@ const shell = require("shelljs");
 const fsPromises = require("fs/promises");
 const Constants = require("./constants");
 const childProcess = require("child_process");
+const { ConnectionString } = require("mongodb-connection-string-url");
 
 function showHelp() {
   console.log(
@@ -58,7 +59,7 @@ function execCommand(cmd, options) {
         return;
       }
       isPromiseDone = true;
-      log.error("Error running command", err);
+      console.error("Error running command", err);
       reject();
     });
   });
@@ -97,6 +98,38 @@ async function getLastBackupErrorMailSentInMilliSec() {
   }
 }
 
+async function getCurrentAppsmithVersion() {
+  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', { encoding: 'utf8' });
+  return content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
+}
+
+function preprocessMongoDBURI(uri /* string */) {
+  // Partially taken from <https://github.com/mongodb-js/mongosh/blob/8fde100d6d5ec711eb9565b85cb2e28e2da47c80/packages/arg-parser/src/uri-generator.ts#L248>
+  // If we don't add the `directConnection` parameter for non-SRV URIs, we'll see the problem at <https://github.com/appsmithorg/appsmith/issues/16104>.
+  const cs = new ConnectionString(uri);
+
+  const params = cs.searchParams;
+  params.set('appName', 'appsmithctl');
+
+  if (
+      !cs.isSRV
+      && !params.has('replicaSet')
+      && !params.has('directConnection')
+      && !params.has('loadBalanced')
+      && cs.hosts.length === 1
+  ) {
+    params.set('directConnection', 'true');
+  }
+
+  // For localhost connections, set a lower timeout to avoid hanging for too long.
+  // Taken from <https://github.com/mongodb-js/mongosh/blob/8fde100d6d5ec711eb9565b85cb2e28e2da47c80/packages/arg-parser/src/uri-generator.ts#L156>.
+  if (!params.has('serverSelectionTimeoutMS') && cs.hosts.every(host => ['localhost', '127.0.0.1'].includes(host.split(':')[0]))) {
+    params.set('serverSelectionTimeoutMS', '2000');
+  }
+
+  return cs.toString();
+}
+
 module.exports = {
   showHelp,
   start,
@@ -105,4 +138,6 @@ module.exports = {
   listLocalBackupFiles,
   updateLastBackupErrorMailSentInMilliSec,
   getLastBackupErrorMailSentInMilliSec,
+  getCurrentAppsmithVersion,
+  preprocessMongoDBURI,
 };

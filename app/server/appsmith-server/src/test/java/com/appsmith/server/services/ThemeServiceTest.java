@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.PermissionGroup;
@@ -16,14 +17,14 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -44,7 +45,7 @@ import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ThemeServiceTest {
 
     @Autowired
@@ -77,6 +78,9 @@ public class ThemeServiceTest {
     @Autowired
     private ThemeRepository themeRepository;
 
+    @Autowired
+    private UserAndAccessManagementService userAndAccessManagementService;
+
     Workspace workspace;
 
 
@@ -87,11 +91,6 @@ public class ThemeServiceTest {
         workspace.setName("Theme Service Test workspace");
         workspace.setUserRoles(new ArrayList<>());
         this.workspace = workspaceService.create(workspace).block();
-    }
-
-    @AfterEach
-    public void clear() {
-        workspaceService.archiveById(this.workspace.getId()).block();
     }
 
     private Application createApplication() {
@@ -122,7 +121,7 @@ public class ThemeServiceTest {
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
         inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
-        userService.inviteUsers(inviteUsersDTO, origin).block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
 
         // Remove api_user from the workspace
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
@@ -194,8 +193,26 @@ public class ThemeServiceTest {
         );
 
         StepVerifier.create(applicationThemesMono)
-                .expectError(AppsmithException.class)
+                .expectErrorMessage(
+                        AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, savedApplication.getId())
+                )
                 .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void getApplicationTheme_WhenNoThemeFoundWithId_DefaultThemeReturned() {
+        Application savedApplication = createApplication();
+        savedApplication.setPublishedModeThemeId("invalid-theme-id");
+        Mono<Theme> publishedThemeMono = applicationRepository.save(savedApplication).then(
+                themeService.getApplicationTheme(savedApplication.getId(), ApplicationMode.PUBLISHED, null)
+        );
+
+        StepVerifier.create(publishedThemeMono)
+                .assertNext(theme -> {
+                    assertThat(theme.getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+                })
+                .verifyComplete();
     }
 
     @WithUserDetails("api_user")
@@ -786,7 +803,7 @@ public class ThemeServiceTest {
                                 .thenReturn(savedApplication.getId())
                 )
                 .flatMap(applicationId ->
-                    applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
+                        applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
                 );
 
         StepVerifier.create(applicationMono).assertNext(app -> {

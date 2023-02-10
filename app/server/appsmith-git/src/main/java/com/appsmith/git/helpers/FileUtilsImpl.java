@@ -1,6 +1,6 @@
 package com.appsmith.git.helpers;
 
-import com.appsmith.external.converters.GsonISOStringToInstantConverter;
+import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.FileInterface;
@@ -52,6 +52,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.GitConstants.CUSTOM_JS_LIB_LIST;
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.constants.GitConstants.PAGE_LIST;
 import static com.appsmith.external.constants.GitConstants.ACTION_LIST;
@@ -59,6 +60,7 @@ import static com.appsmith.external.constants.GitConstants.ACTION_COLLECTION_LIS
 import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
+import static com.appsmith.git.constants.GitDirectories.JS_LIB_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 
@@ -82,45 +84,67 @@ public class FileUtilsImpl implements FileInterface {
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
     /**
-         Application will be stored in the following structure:
+     Application will be stored in the following structure:
 
-         For v1:
-         repo_name
-            application.json
-            metadata.json
-            datasource
-                datasource1Name.json
-                datasource2Name.json
-            queries (Only requirement here is the filename should be unique)
-                action1_page1
-                action2_page2
-            jsobjects (Only requirement here is the filename should be unique)
-                jsobject1_page1
-                jsobject2_page2
-            pages
-                 page1
-                 page2
+     For v1:
+     repo_name
+        application.json
+        metadata.json
+        datasource
+            datasource1Name.json
+            datasource2Name.json
+     queries (Only requirement here is the filename should be unique)
+        action1_page1
+        action2_page2
+     jsobjects (Only requirement here is the filename should be unique)
+        jsobject1_page1
+        jsobject2_page2
+     pages
+        page1
+        page2
 
-         For v2:
-         repo_name
-            application.json
-            metadata.json
-            theme
-                publishedTheme.json
-                editModeTheme.json
-            pages
-                page1
-                    canvas.json
-                    queries
-                        Query1.json
-                        Query2.json
-                    jsobjects
-                        JSObject1.json
-                page2
-                page3
-            datasources
-                datasource1.json
-                datasource2.json
+     For v2:
+     repo_name
+        application.json
+        metadata.json
+        theme
+        publishedTheme.json
+        editModeTheme.json
+     pages
+        page1
+            canvas.json
+            queries
+                Query1.json
+                Query2.json
+            jsobjects
+                JSObject1.json
+        page2
+        page3
+     datasources
+        datasource1.json
+        datasource2.json
+
+     For v3:
+     repo_name
+        application.json
+        metadata.json
+        theme
+        publishedTheme.json
+        editModeTheme.json
+     pages
+        page1
+            canvas.json
+            queries
+                Query1.json
+            jsobjects
+                JSObject1
+                    JSObject1.js
+                    Metadata.json
+     page2
+     page3
+     datasources
+         datasource1.json
+         datasource2.json
      */
 
 
@@ -152,7 +176,7 @@ public class FileUtilsImpl implements FileInterface {
                             .registerTypeAdapter(Double.class,  new GsonDoubleToLongConverter())
                             .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedConverter())
                             .registerTypeAdapter(Map.class, new GsonUnorderedToOrderedConverter())
-                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
+                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
                             .disableHtmlEscaping()
                             .setPrettyPrinting()
                             .create();
@@ -165,15 +189,15 @@ public class FileUtilsImpl implements FileInterface {
                     deleteDirectory(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY));
 
                     // Save application
-                    saveFile(applicationGitReference.getApplication(), baseRepo.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION), gson);
+                    saveResource(applicationGitReference.getApplication(), baseRepo.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION), gson);
 
                     // Save application metadata
                     JsonObject metadata = gson.fromJson(gson.toJson(applicationGitReference.getMetadata()), JsonObject.class);
                     metadata.addProperty(CommonConstants.FILE_FORMAT_VERSION, CommonConstants.fileFormatVersion);
-                    saveFile(metadata, baseRepo.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
+                    saveResource(metadata, baseRepo.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
 
                     // Save application theme
-                    saveFile(applicationGitReference.getTheme(), baseRepo.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION), gson);
+                    saveResource(applicationGitReference.getTheme(), baseRepo.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION), gson);
 
                     // Save pages
                     Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
@@ -185,12 +209,30 @@ public class FileUtilsImpl implements FileInterface {
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
-                            saveFile(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
+                            saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
                         }
                         validPages.add(pageName);
                     }
-
                     scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
+
+                    // Save JS Libs
+                    Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
+                    Set<Map.Entry<String, Object>> jsLibEntries = applicationGitReference.getJsLibraries().entrySet();
+                    Set<String> validJsLibs = new HashSet<>();
+                    jsLibEntries
+                            .forEach(jsLibEntry -> {
+                                String uidString = jsLibEntry.getKey();
+                                Boolean isResourceUpdated = updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString);
+                                String fileNameWithExtension =
+                                        uidString.replaceAll("/", "_") + CommonConstants.JSON_EXTENSION;
+                                Path jsLibSpecificFile =
+                                        jsLibDirectory.resolve(fileNameWithExtension);
+                                if (isResourceUpdated) {
+                                    saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
+                                }
+                                validJsLibs.add(fileNameWithExtension);
+                            });
+                    scanAndDeleteFileForDeletedResources(validJsLibs, jsLibDirectory);
 
                     // Create HashMap for valid actions and actionCollections
                     HashMap<String, Set<String>> validActionsMap = new HashMap<>();
@@ -219,7 +261,7 @@ public class FileUtilsImpl implements FileInterface {
                             }
                             validActionsMap.get(pageName).add(queryName + CommonConstants.JSON_EXTENSION);
                             if(Boolean.TRUE.equals(isResourceUpdated)) {
-                                saveFile(
+                                saveResource(
                                         resource.getValue(),
                                         pageSpecificDirectory.resolve(ACTION_DIRECTORY).resolve(queryName + CommonConstants.JSON_EXTENSION),
                                         gson
@@ -237,37 +279,42 @@ public class FileUtilsImpl implements FileInterface {
                     // Save JSObjects
                     for (Map.Entry<String, Object> resource : applicationGitReference.getActionCollections().entrySet()) {
                         // JSObjectName_pageName => nomenclature for the keys
-                        // TODO
-                        //  JSObjectName => for app level JSObjects, this is not implemented yet
+                        // TODO JSObjectName => for app level JSObjects, this is not implemented yet
                         String[] names = resource.getKey().split(NAME_SEPARATOR);
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             final String actionCollectionName = names[0];
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
+                            Path actionCollectionSpecificDirectory = pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY);
 
                             if(!validActionCollectionsMap.containsKey(pageName)) {
                                 validActionCollectionsMap.put(pageName, new HashSet<>());
                             }
-                            validActionCollectionsMap.get(pageName).add(actionCollectionName + CommonConstants.JSON_EXTENSION);
+                            validActionCollectionsMap.get(pageName).add(actionCollectionName);
                             Boolean isResourceUpdated = updatedResources.get(ACTION_COLLECTION_LIST).contains(resource.getKey());
                             if(Boolean.TRUE.equals(isResourceUpdated)) {
-                                saveFile(
+                                saveActionCollection(
                                         resource.getValue(),
-                                        pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY).resolve(actionCollectionName + CommonConstants.JSON_EXTENSION),
+                                        applicationGitReference.getActionCollectionBody().get(resource.getKey()),
+                                        actionCollectionName,
+                                        actionCollectionSpecificDirectory.resolve(actionCollectionName),
                                         gson
                                 );
+                                // Delete the resource from the old file structure v2
+                                deleteFile(actionCollectionSpecificDirectory.resolve(actionCollectionName + CommonConstants.JSON_EXTENSION));
                             }
                         }
                     }
 
+                    // Verify if the old files are deleted
                     validActionCollectionsMap.forEach((pageName, validActionCollectionNames) -> {
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                        scanAndDeleteFileForDeletedResources(validActionCollectionNames, pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY));
+                        scanAndDeleteDirectoryForDeletedResources(validActionCollectionNames, pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY));
                     });
 
                     // Save datasources ref
                     for (Map.Entry<String, Object> resource : applicationGitReference.getDatasources().entrySet()) {
-                        saveFile(resource.getValue(), baseRepo.resolve(DATASOURCE_DIRECTORY).resolve(resource.getKey() + CommonConstants.JSON_EXTENSION), gson);
+                        saveResource(resource.getValue(), baseRepo.resolve(DATASOURCE_DIRECTORY).resolve(resource.getKey() + CommonConstants.JSON_EXTENSION), gson);
                         validFileNames.add(resource.getKey() + CommonConstants.JSON_EXTENSION);
                     }
                     // Scan datasource directory and delete any unwanted files if present
@@ -287,17 +334,55 @@ public class FileUtilsImpl implements FileInterface {
      * @param gson
      * @return if the file operation is successful
      */
-    private boolean saveFile(Object sourceEntity, Path path, Gson gson) {
+    private boolean saveResource(Object sourceEntity, Path path, Gson gson) {
         try {
             Files.createDirectories(path.getParent());
-            try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-                gson.toJson(sourceEntity, fileWriter);
-                return true;
-            }
+            return writeToFile(sourceEntity, path, gson);
         } catch (IOException e) {
             log.debug(e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * This method is used to write actionCollection specific resource to file system. We write the data in two steps
+     * 1. Actual js code
+     * 2. Metadata of the actionCollection
+     * @param sourceEntity the metadata of the action collection
+     * @param body actual js code written by the user
+     * @param resourceName name of the action collection
+     * @param path file path where the resource will be stored
+     * @param gson
+     * @return if the file operation is successful
+     */
+    private boolean saveActionCollection(Object sourceEntity, String body, String resourceName, Path path, Gson gson) {
+        try {
+            Files.createDirectories(path);
+            // Write the js Object body to .js file to make conflict handling easier
+            Path bodyPath = path.resolve(resourceName + CommonConstants.JS_EXTENSION);
+            writeStringToFile(body, bodyPath);
+
+            // Write metadata for the jsObject
+            Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
+            return writeToFile(sourceEntity, metadataPath, gson);
+        } catch (IOException e) {
+            log.debug(e.getMessage());
+        }
+        return false;
+    }
+
+    private boolean writeStringToFile(String data, Path path) throws IOException {
+        try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            fileWriter.write(data);
+            return true;
+        }
+    }
+
+    private boolean writeToFile(Object sourceEntity, Path path, Gson gson) throws IOException {
+        try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            gson.toJson(sourceEntity, fileWriter);
+            return true;
+        }
     }
 
     /**
@@ -397,8 +482,8 @@ public class FileUtilsImpl implements FileInterface {
                     // Instance creator is required while de-serialising using Gson as key instance can't be invoked with
                     // no-args constructor
                     Gson gson = new GsonBuilder()
-                        .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
-                        .create();
+                            .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
+                            .create();
 
                     ApplicationGitReference applicationGitReference = fetchApplicationReference(baseRepoPath, gson);
                     processStopwatch.stopAndLogTimeInMillis();
@@ -502,6 +587,42 @@ public class FileUtilsImpl implements FileInterface {
         return resource;
     }
 
+    /**
+     * This method will read the content of the file as a plain text and does not apply the gson to json transformation
+     * @param filePath file path for files on which read operation will be performed
+     * @return content of the file in the path
+     */
+    private String readFileAsString(Path filePath) {
+        String data = "";
+        try {
+            data = FileUtils.readFileToString(filePath.toFile(), "UTF-8");
+        } catch (IOException e) {
+            log.error(" Error while reading the file from git repo {0} ", e.getMessage());
+        }
+        return data;
+    }
+
+    /**
+     * This method is to read the content for action and actionCollection or any nested resources which has the new structure - v3
+     * Where the user queries and the metadata is split into to different files
+     * @param directoryPath file path for files on which read operation will be performed
+     * @return resources stored in the directory
+     */
+    private Map<String, Object> readActionCollection(Path directoryPath, Gson gson, String keySuffix, Map<String, String> actionCollectionBodyMap) {
+        Map<String, Object> resource = new HashMap<>();
+        File directory = directoryPath.toFile();
+        if (directory.isDirectory()) {
+            for (File dirFile : Objects.requireNonNull(directory.listFiles())) {
+                String resourceName = dirFile.getName();
+                String body = readFileAsString(directoryPath.resolve(resourceName).resolve( resourceName + CommonConstants.JS_EXTENSION));
+                Object file = readFile(directoryPath.resolve(resourceName).resolve( CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
+                actionCollectionBodyMap.put(resourceName + keySuffix, body);
+                resource.put(resourceName + keySuffix, file);
+            }
+        }
+        return resource;
+    }
+
     private ApplicationGitReference fetchApplicationReference(Path baseRepoPath, Gson gson) {
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
         // Extract application metadata from the json
@@ -529,32 +650,49 @@ public class FileUtilsImpl implements FileInterface {
                 break;
 
             case 2:
-                // Extract pages and nested actions and actionCollections
-                File directory = pageDirectory.toFile();
-                Map<String, Object> pageMap = new HashMap<>();
-                Map<String, Object> actionMap = new HashMap<>();
-                Map<String, Object> actionCollectionMap = new HashMap<>();
-                // TODO same approach should be followed for modules(app level actions, actionCollections, widgets etc)
-                if (directory.isDirectory()) {
-                    // Loop through all the directories and nested directories inside the pages directory to extract
-                    // pages, actions and actionCollections from the JSON files
-                    for (File page : Objects.requireNonNull(directory.listFiles())) {
-                        pageMap.put(page.getName(), readFile(page.toPath().resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson));
-                        actionMap.putAll(readFiles(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName()));
-                        actionCollectionMap.putAll(readFiles(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName()));
-                    }
-                }
-                applicationGitReference.setActions(actionMap);
-                applicationGitReference.setActionCollections(actionCollectionMap);
-                applicationGitReference.setPages(pageMap);
-                // Extract datasources
-                applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, ""));
+            case 3:
+                updateGitApplicationReference(baseRepoPath, gson, applicationGitReference, pageDirectory, fileFormatVersion);
                 break;
 
             default:
         }
         applicationGitReference.setMetadata(metadata);
+
+        Path jsLibDirectory = baseRepoPath.resolve(JS_LIB_DIRECTORY);
+        Map<String, Object> jsLibrariesMap = readFiles(jsLibDirectory, gson, "");
+        applicationGitReference.setJsLibraries(jsLibrariesMap);
+
         return applicationGitReference;
+    }
+
+    private void updateGitApplicationReference(Path baseRepoPath, Gson gson, ApplicationGitReference applicationGitReference, Path pageDirectory, int fileFormatVersion) {
+        // Extract pages and nested actions and actionCollections
+        File directory = pageDirectory.toFile();
+        Map<String, Object> pageMap = new HashMap<>();
+        Map<String, Object> actionMap = new HashMap<>();
+        Map<String, Object> actionBodyMap = new HashMap<>();
+        Map<String, Object> actionCollectionMap = new HashMap<>();
+        Map<String, String> actionCollectionBodyMap = new HashMap<>();
+        // TODO same approach should be followed for modules(app level actions, actionCollections, widgets etc)
+        if (directory.isDirectory()) {
+            // Loop through all the directories and nested directories inside the pages directory to extract
+            // pages, actions and actionCollections from the JSON files
+            for (File page : Objects.requireNonNull(directory.listFiles())) {
+                pageMap.put(page.getName(), readFile(page.toPath().resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson));
+                actionMap.putAll(readFiles(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName()));
+                if (fileFormatVersion == 3) {
+                    actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
+                } else {
+                    actionCollectionMap.putAll(readFiles(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName()));
+                }
+            }
+        }
+        applicationGitReference.setActions(actionMap);
+        applicationGitReference.setActionCollections(actionCollectionMap);
+        applicationGitReference.setActionCollectionBody(actionCollectionBodyMap);
+        applicationGitReference.setPages(pageMap);
+        // Extract datasources
+        applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, ""));
     }
 
     private Integer getFileFormatVersion(Object metadata) {

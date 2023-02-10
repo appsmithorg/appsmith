@@ -5,7 +5,6 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
-// import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { Layers } from "constants/Layers";

@@ -19,9 +19,10 @@ public class DatasourceStructureSolutionImpl extends DatasourceStructureSolution
                                            PluginService pluginService,
                                            DatasourceContextService datasourceContextService,
                                            CustomDatasourceRepository datasourceRepository,
-                                           AuthenticationValidator authenticationValidator) {
+                                           AuthenticationValidator authenticationValidator,
+                                           DatasourcePermission datasourcePermission) {
 
         super(datasourceService, pluginExecutorHelper, pluginService, datasourceContextService, datasourceRepository,
-                authenticationValidator);
+                authenticationValidator, datasourcePermission);
     }
 }

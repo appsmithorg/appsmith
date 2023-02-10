@@ -13,11 +13,15 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <jjwt.version>0.11.5</jjwt.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
-            <version>0.7.0</version>
+            <version>0.8.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -40,23 +44,74 @@
         </dependency>
 
         <!-- Test Dependencies -->
+        <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- For junit5 parameterised test support -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Only required to run junit5 test from IDE -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
-            <version>3.3.5.RELEASE</version>
+            <version>${reactor-test.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.1.0</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>${mockito.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/mockwebserver3 -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver3</artifactId>
+            <version>${mockwebserver.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- We need this dependency only to ensure TestContainers work with JUnit5 -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit4-mock</artifactId>
+            <version>2.14.2.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>junit</artifactId>
+                    <groupId>junit</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
@@ -65,7 +120,6 @@
         <module>postgresPlugin</module>
         <module>restApiPlugin</module>
         <module>mongoPlugin</module>
-        <module>rapidApiPlugin</module>
         <module>mysqlPlugin</module>
         <module>elasticSearchPlugin</module>
         <module>dynamoPlugin</module>

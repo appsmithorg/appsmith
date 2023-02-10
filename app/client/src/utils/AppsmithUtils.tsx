@@ -5,7 +5,7 @@ import { Property } from "api/ActionAPI";
 import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
-import { AppIconCollection, AppIconName } from "design-system";
+import { AppIconCollection, AppIconName } from "design-system-old";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -19,6 +19,24 @@ export const initializeAnalyticsAndTrackers = () => {
       window.Sentry = Sentry;
       Sentry.init({
         ...appsmithConfigs.sentry,
+        beforeSend(event) {
+          if (
+            event.exception &&
+            Array.isArray(event.exception.values) &&
+            event.exception.values[0].value &&
+            event.exception.values[0].type === "ChunkLoadError"
+          ) {
+            // Only log ChunkLoadErrors after the 2 retires
+            if (
+              !event.exception.values[0].value.includes(
+                "failed after 2 retries",
+              )
+            ) {
+              return null;
+            }
+          }
+          return event;
+        },
         beforeBreadcrumb(breadcrumb) {
           if (
             breadcrumb.category === "console" &&
@@ -54,15 +72,33 @@ export const initializeAnalyticsAndTrackers = () => {
     if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
       if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
+        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
       } else if (appsmithConfigs.segment.ceKey) {
         // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
+        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
       }
     }
   } catch (e) {
     Sentry.captureException(e);
     log.error(e);
+  }
+};
+
+export const initializeSegmentWithoutTracking = () => {
+  const appsmithConfigs = getAppsmithConfigs();
+
+  if (appsmithConfigs.segment.apiKey) {
+    // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
+    return AnalyticsUtil.initializeSegmentWithoutTracking(
+      appsmithConfigs.segment.apiKey,
+    );
+  } else if (appsmithConfigs.segment.ceKey) {
+    // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+    return AnalyticsUtil.initializeSegmentWithoutTracking(
+      appsmithConfigs.segment.ceKey,
+    );
+  } else {
+    return Promise.resolve();
   }
 };
 

@@ -1,7 +1,6 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.server.domains.AbstractCommentDomain;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
@@ -9,7 +8,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -352,17 +351,4 @@ public class ResponseUtils {
         return application;
     }
 
-    public <T extends AbstractCommentDomain> T updatePageAndAppIdWithDefaultResourcesForComments(T resource) {
-        DefaultResources defaults = resource.getDefaultResources();
-        if (defaults != null) {
-            if(!StringUtils.isEmpty(defaults.getPageId())) {
-                resource.setPageId(defaults.getPageId());
-            }
-            if (!StringUtils.isEmpty(defaults.getApplicationId())) {
-                resource.setApplicationId(defaults.getApplicationId());
-            }
-            resource.setBranchName(defaults.getBranchName());
-        }
-        return resource;
-    }
 }

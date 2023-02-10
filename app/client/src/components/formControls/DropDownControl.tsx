@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
-import { Dropdown, DropdownOption } from "design-system";
+import { Dropdown, DropdownOption } from "design-system-old";
 import { ControlType } from "constants/PropertyControlConstants";
 import { get, isNil } from "lodash";
 import {
@@ -17,7 +17,7 @@ import {
   FormDataPaths,
   matchExact,
   MATCH_ACTION_CONFIG_PROPERTY,
-} from "workers/formEval";
+} from "workers/Evaluation/formEval";
 import { Action } from "entities/Action";
 
 const DropdownSelect = styled.div<{

@@ -1,8 +1,9 @@
+import { DataTreeWidget } from "./dataTreeFactory";
 import {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
   OverridingPropertyType,
-} from "./dataTreeFactory";
+} from "./types";
 
 type SetOverridingPropertyParams = {
   key: string;
@@ -56,4 +57,19 @@ export const setOverridingProperty = ({
   if (type === OverridingPropertyType.META && defaultPropertyName) {
     overridingPropertyPaths[defaultPropertyName].push(overridingPropertyKey);
   }
+};
+
+export const isMetaWidgetTemplate = (widget: DataTreeWidget) => {
+  return !!widget.siblingMetaWidgets;
+};
+
+export const isWidgetDefaultPropertyPath = (
+  widget: DataTreeWidget,
+  propertyPath: string,
+) => {
+  for (const property of Object.keys(widget.propertyOverrideDependency)) {
+    const overrideDependency = widget.propertyOverrideDependency[property];
+    if (overrideDependency.DEFAULT === propertyPath) return true;
+  }
+  return false;
 };

@@ -26,6 +26,7 @@ import {
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../SaaSEditor/constants";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -113,7 +114,9 @@ export const useOtherDatasourcesInWorkspace = () => {
     new Set(),
   );
   return allDatasources.filter(
-    (ds) => !datasourceIdsUsedInCurrentApplication.has(ds.id),
+    (ds) =>
+      !datasourceIdsUsedInCurrentApplication.has(ds.id) &&
+      ds.id !== TEMP_DATASOURCE_ID,
   );
 };
 

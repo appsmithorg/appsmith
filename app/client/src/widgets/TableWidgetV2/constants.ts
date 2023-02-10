@@ -17,8 +17,9 @@ import { ButtonVariant } from "components/constants";
 export type EditableCell = {
   column: string;
   index: number;
-  value: string;
+  value: string | number | null;
   initialValue: string;
+  inputValue: string;
 };
 
 export enum EditableCellActions {
@@ -32,7 +33,18 @@ export enum InlineEditingSaveOptions {
   CUSTOM = "CUSTOM",
 }
 
-export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
+interface AddNewRowProps {
+  isAddRowInProgress: boolean;
+  allowAddNewRow: boolean;
+  onAddNewRowSave: string;
+  onAddNewRowDiscard: string;
+  defaultNewRow: Record<string, unknown>;
+}
+export interface TableWidgetProps
+  extends WidgetProps,
+    WithMeta,
+    TableStyles,
+    AddNewRowProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
@@ -72,23 +84,27 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   transientTableData: {
     [key: string]: Record<string, string>;
   };
-  editableCell: EditableCell;
+  editableCell?: EditableCell;
   primaryColor: string;
   borderRadius: string;
   boxShadow?: string;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
+  variant?: TableVariant;
+  isEditableCellsValid: Record<string, boolean>;
+  selectColumnFilterText?: Record<string, string>;
+  isAddRowInProgress: boolean;
+  newRow: Record<string, unknown>;
+  firstEditableColumnIdByOrder: string;
 }
 
-export const getCurrentRowBinding = (
-  entityName: string,
-  userInput: string,
-  withBinding = true,
-) => {
-  let rowBinding = `${entityName}.sanatizedTableData.map((currentRow) => ( ${userInput}))`;
-  if (withBinding) rowBinding = `{{${rowBinding}}}`;
-  return rowBinding;
-};
+export enum TableVariantTypes {
+  DEFAULT = "DEFAULT",
+  VARIANT2 = "VARIANT2",
+  VARIANT3 = "VARIANT3",
+}
+
+export type TableVariant = keyof typeof TableVariantTypes;
 
 export const ORIGINAL_INDEX_KEY = "__originalIndex__";
 
@@ -111,6 +127,7 @@ export enum ColumnTypes {
   SELECT = "select",
   EDIT_ACTIONS = "editActions",
   CHECKBOX = "checkbox",
+  SWITCH = "switch",
 }
 
 export enum ReadOnlyColumnTypes {
@@ -121,7 +138,26 @@ export enum ReadOnlyColumnTypes {
   VIDEO = "video",
   DATE = "date",
   CHECKBOX = "checkbox",
+  SWITCH = "switch",
+  SELECT = "select",
 }
+
+export const ActionColumnTypes = [
+  ColumnTypes.BUTTON,
+  ColumnTypes.ICON_BUTTON,
+  ColumnTypes.MENU_BUTTON,
+  ColumnTypes.EDIT_ACTIONS,
+];
+
+export const FilterableColumnTypes = [
+  ColumnTypes.TEXT,
+  ColumnTypes.URL,
+  ColumnTypes.NUMBER,
+  ColumnTypes.DATE,
+  ColumnTypes.SELECT,
+  ColumnTypes.CHECKBOX,
+  ColumnTypes.SWITCH,
+];
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
 
@@ -133,7 +169,7 @@ export const DEFAULT_MENU_BUTTON_LABEL = "Open menu";
 
 export type TransientDataPayload = {
   [key: string]: string | number | boolean;
-  __original_index__: number;
+  __originalIndex__: number;
 };
 
 export type OnColumnEventArgs = {
@@ -143,6 +179,7 @@ export type OnColumnEventArgs = {
   triggerPropertyName: string;
   eventType: EventType;
   row?: Record<string, unknown>;
+  additionalData?: Record<string, unknown>;
 };
 
 export const ICON_NAMES = Object.keys(IconNames).map(
@@ -165,3 +202,11 @@ export enum DateInputFormat {
   EPOCH = "Epoch",
   MILLISECONDS = "Milliseconds",
 }
+
+export const defaultEditableCell = {
+  column: "",
+  index: -1,
+  inputValue: "",
+  value: "",
+  initialValue: "",
+};

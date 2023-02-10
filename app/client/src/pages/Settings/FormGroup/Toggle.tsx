@@ -6,8 +6,8 @@ import {
 } from "redux-form";
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
-import { FormTextFieldProps } from "components/ads/formFields/TextField";
-import { Toggle } from "design-system";
+import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import { Toggle } from "design-system-old";
 import { createMessage } from "@appsmith/constants/messages";
 
 const ToggleWrapper = styled.div`

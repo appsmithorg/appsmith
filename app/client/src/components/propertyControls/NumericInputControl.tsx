@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { Classes, INumericInputProps, NumericInput } from "@blueprintjs/core";
 
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { ThemeProp } from "components/ads/common";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { ThemeProp } from "widgets/constants";
 
 const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
   &&& {
@@ -60,6 +60,8 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
       max,
       min,
       minorStepSize,
+      onBlur,
+      onFocus,
       placeholderText,
       propertyValue,
       stepSize,
@@ -75,6 +77,8 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
         max={max}
         min={min}
         minorStepSize={minorStepSize}
+        onBlur={onBlur}
+        onFocus={onFocus}
         onKeyDown={this.handleKeydown}
         onValueChange={this.handleValueChange}
         placeholder={placeholderText}
@@ -106,6 +110,8 @@ export interface NumericInputControlProps extends ControlProps {
   majorStepSize?: number | null;
   placeholderText?: string;
   stepSize?: number;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export default NumericInputControl;

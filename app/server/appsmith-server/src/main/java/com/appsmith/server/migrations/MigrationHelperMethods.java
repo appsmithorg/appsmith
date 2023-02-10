@@ -1,17 +1,17 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
@@ -174,7 +174,7 @@ public class MigrationHelperMethods {
     }
 
     public static void evictPermissionCacheForUsers(Set<String> userIds,
-                                                    MongockTemplate mongockTemplate,
+                                                    MongoTemplate mongoTemplate,
                                                     CacheableRepositoryHelper cacheableRepositoryHelper) {
 
         if (userIds == null || userIds.isEmpty()) {
@@ -184,10 +184,12 @@ public class MigrationHelperMethods {
 
         userIds.forEach(userId -> {
             Query query = new Query(new Criteria(fieldName(QUser.user.id)).is(userId));
-            User user = mongockTemplate.findOne(query, User.class);
-            // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
-            cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
-                    .block();
+            User user = mongoTemplate.findOne(query, User.class);
+            if (user != null) {
+                // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
+                cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
+                        .block();
+            }
         });
     }
 }

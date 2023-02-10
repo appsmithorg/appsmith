@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system-old";
 
 export const SelectWrapper = styled.div<{ width: string }>`
   display: inline-block;
@@ -10,7 +10,7 @@ export const SelectWrapper = styled.div<{ width: string }>`
 
 export const Label = styled.p`
   flex: 1;
-  ${(props) => `${getTypographyByKey(props, "p1")}`};
+  ${getTypographyByKey("p1")};
   white-space: nowrap;
 `;
 

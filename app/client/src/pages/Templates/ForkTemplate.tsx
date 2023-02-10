@@ -1,6 +1,11 @@
 import React, { ReactNode, useState } from "react";
-import Dialog from "components/ads/DialogComponent";
-import { Button, Category, Dropdown, Size } from "design-system";
+import {
+  Button,
+  Category,
+  DialogComponent as Dialog,
+  Dropdown,
+  Size,
+} from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {
@@ -38,7 +43,7 @@ const StyledDialog = styled(Dialog)`
 `;
 
 interface ForkTemplateProps {
-  children: ReactNode;
+  children?: ReactNode;
   showForkModal: boolean;
   onClose: (e?: React.MouseEvent<HTMLElement>) => void;
   templateId: string;
@@ -59,46 +64,52 @@ function ForkTemplate({
   };
 
   return (
-    <StyledDialog
-      canOutsideClickClose={!isImportingTemplate}
-      headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
-      isOpen={showForkModal}
-      onClose={isImportingTemplate ? noop : onClose}
-      title={createMessage(CHOOSE_WHERE_TO_FORK)}
-      trigger={children}
-    >
-      <Dropdown
-        boundary="viewport"
-        dropdownMaxHeight={"200px"}
-        fillOptions
-        onSelect={(_value: string, dropdownOption: any) =>
-          setSelectedWorkspace(dropdownOption)
-        }
-        options={workspaceList}
-        placeholder={createMessage(SELECT_WORKSPACE)}
-        selected={selectedWorkspace}
-        showLabelOnly
-        width={"100%"}
-      />
-      <ButtonsWrapper>
-        <Button
-          category={Category.tertiary}
-          disabled={isImportingTemplate}
-          onClick={onClose}
-          size={Size.large}
-          tag="button"
-          text={createMessage(CANCEL)}
+    <>
+      {children}
+      <StyledDialog
+        canOutsideClickClose={!isImportingTemplate}
+        headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
+        isOpen={showForkModal}
+        onClose={isImportingTemplate ? noop : onClose}
+        title={createMessage(CHOOSE_WHERE_TO_FORK)}
+      >
+        <Dropdown
+          boundary="viewport"
+          dropdownMaxHeight={"200px"}
+          fillOptions
+          onSelect={(
+            _value: any,
+            dropdownOption: React.SetStateAction<{
+              label: string;
+              value: string;
+            }>,
+          ) => setSelectedWorkspace(dropdownOption)}
+          options={workspaceList}
+          placeholder={createMessage(SELECT_WORKSPACE)}
+          selected={selectedWorkspace}
+          showLabelOnly
+          width={"100%"}
         />
-        <Button
-          className="t--fork-template-button"
-          isLoading={isImportingTemplate}
-          onClick={onFork}
-          size={Size.large}
-          tag="button"
-          text={createMessage(FORK_TEMPLATE)}
-        />
-      </ButtonsWrapper>
-    </StyledDialog>
+        <ButtonsWrapper>
+          <Button
+            category={Category.secondary}
+            disabled={isImportingTemplate}
+            onClick={onClose}
+            size={Size.large}
+            tag="button"
+            text={createMessage(CANCEL)}
+          />
+          <Button
+            className="t--fork-template-button"
+            isLoading={isImportingTemplate}
+            onClick={onFork}
+            size={Size.large}
+            tag="button"
+            text={createMessage(FORK_TEMPLATE)}
+          />
+        </ButtonsWrapper>
+      </StyledDialog>
+    </>
   );
 }
 

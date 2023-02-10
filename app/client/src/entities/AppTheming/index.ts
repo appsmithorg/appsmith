@@ -1,7 +1,28 @@
-type Stylesheet = {
-  [key: string]: {
+type DefaultStylesheet = {
+  [key: string]: string | DefaultStylesheet;
+} & {
+  childStylesheet?: AppThemeStylesheet;
+};
+
+export type Stylesheet<T = void> = T extends void
+  ? DefaultStylesheet
+  : T & DefaultStylesheet;
+
+export type AppThemeStylesheet = {
+  [key: string]: Stylesheet;
+};
+
+export type ButtonStyles = {
+  resetButtonStyles: {
     [key: string]: string;
   };
+  submitButtonStyles: {
+    [key: string]: string;
+  };
+};
+
+export type ChildStylesheet = {
+  childStylesheet: AppThemeStylesheet;
 };
 
 export type AppTheme = {
@@ -35,23 +56,7 @@ export type AppTheme = {
     };
   };
   // styles for specific widgets
-  stylesheet: {
-    [key: string]: {
-      [key: string]:
-        | string
-        | Stylesheet
-        | {
-            [key: string]: string;
-          };
-      childStylesheet: Stylesheet;
-      resetButtonStyles: {
-        [key: string]: string;
-      };
-      submitButtonStyles: {
-        [key: string]: string;
-      };
-    };
-  };
+  stylesheet: AppThemeStylesheet;
   // current values for the theme
   properties: {
     colors: {

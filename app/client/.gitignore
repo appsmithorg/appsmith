@@ -46,3 +46,5 @@ build-storybook.log
 .eslintcache
 .vscode
 TODO
+
+/nginx

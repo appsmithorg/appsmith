@@ -6,7 +6,11 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import moment from "moment";
-import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import { UpdatePageResponse } from "api/PageApi";
 
 const initialState: EditorReduxState = {
   initialized: false,
@@ -28,6 +32,7 @@ const initialState: EditorReduxState = {
     updateWidgetNameError: false,
   },
   isSnipingMode: false,
+  snipModeBindTo: undefined,
   isPreviewMode: false,
   zoomLevel: 1,
 };
@@ -41,7 +46,7 @@ const editorReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: EditorReduxState,
-    action: ReduxAction<{ id: string; name: string }>,
+    action: ReduxAction<UpdatePageResponse>,
   ) => {
     if (action.payload.id === state.currentPageId) {
       return { ...state, currentPageName: action.payload.name };
@@ -116,6 +121,7 @@ const editorReducer = createReducer(initialState, {
       currentLayoutId,
       currentPageId,
       currentPageName,
+      layoutOnLoadActionErrors,
       pageActions,
       pageWidgetId,
     } = action.payload;
@@ -129,6 +135,7 @@ const editorReducer = createReducer(initialState, {
       currentApplicationId,
       currentPageId,
       pageActions,
+      layoutOnLoadActionErrors,
     };
   },
   [ReduxActionTypes.CLONE_PAGE_INIT]: (state: EditorReduxState) => {
@@ -178,11 +185,12 @@ const editorReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_SNIPING_MODE]: (
     state: EditorReduxState,
-    action: ReduxAction<boolean>,
+    action: ReduxAction<{ isActive: boolean; bindTo?: string }>,
   ) => {
     return {
       ...state,
-      isSnipingMode: action.payload,
+      isSnipingMode: action.payload.isActive,
+      snipModeBindTo: action.payload.bindTo,
     };
   },
   [ReduxActionTypes.SET_PREVIEW_MODE]: (
@@ -220,8 +228,10 @@ export interface EditorReduxState {
   lastUpdatedTime?: number;
   pageActions?: PageAction[][];
   isSnipingMode: boolean;
+  snipModeBindTo?: string;
   isPreviewMode: boolean;
   zoomLevel: number;
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
   loadingStates: {
     saving: boolean;
     savingError: boolean;

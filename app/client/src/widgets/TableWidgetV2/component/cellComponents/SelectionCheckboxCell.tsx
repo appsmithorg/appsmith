@@ -7,8 +7,8 @@ import { CheckboxState } from "../Constants";
 
 export const renderBodyCheckBoxCell = (
   isChecked: boolean,
-  accentColor: string,
-  borderRadius: string,
+  accentColor?: string,
+  borderRadius?: string,
 ) => (
   <CellCheckboxWrapper
     accentColor={accentColor}

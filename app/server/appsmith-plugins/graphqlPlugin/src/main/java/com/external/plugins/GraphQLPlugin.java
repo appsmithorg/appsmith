@@ -12,7 +12,9 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PaginationType;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
@@ -27,7 +29,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,12 +38,12 @@ import java.util.Set;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
 import static com.external.utils.GraphQLBodyUtils.PAGINATION_DATA_INDEX;
-import static com.external.utils.GraphQLDataTypeUtils.smartlyReplaceGraphQLQueryBodyPlaceholderWithValue;
-import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static com.external.utils.GraphQLBodyUtils.convertToGraphQLPOSTBodyFormat;
 import static com.external.utils.GraphQLBodyUtils.getGraphQLQueryParamsForBodyAndVariables;
 import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
+import static com.external.utils.GraphQLDataTypeUtils.smartlyReplaceGraphQLQueryBodyPlaceholderWithValue;
+import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -89,7 +90,7 @@ public class GraphQLPlugin extends BasePlugin {
             if (TRUE.equals(smartSubstitution)) {
                 /* Apply smart JSON substitution logic to mustache binding values in query variables */
                 if (!isBlank(variables)) {
-                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(variables);
+                    List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(variables);
                     // Replace all the bindings with a ? as expected in a prepared statement.
                     String updatedVariables = MustacheHelper.replaceMustacheWithPlaceholder(variables, mustacheKeysInOrder);
 
@@ -112,7 +113,7 @@ public class GraphQLPlugin extends BasePlugin {
                 /* Apply smart substitution logic to query body */
                 String query = actionConfiguration.getBody();
                 if (!isBlank(query)) {
-                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+                    List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
                     // Replace all the bindings with a ? as expected in a prepared statement.
                     String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(query, mustacheKeysInOrder);
 
@@ -186,19 +187,7 @@ public class GraphQLPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
-            try {
-                if (uriUtils.isHostDisallowed(uri)) {
-                    errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
-                    errorResult.setRequest(actionExecutionRequest);
-                    return Mono.just(errorResult);
-                }
-            } catch (UnknownHostException e) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Unknown host."));
-                errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult);
-            }
-
-            WebClient.Builder webClientBuilder = triggerUtils.getWebClientBuilder(actionConfiguration,
+            WebClient.Builder webClientBuilder = restAPIActivateUtils.getWebClientBuilder(actionConfiguration,
                     datasourceConfiguration);
 
             String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
@@ -250,8 +239,7 @@ public class GraphQLPlugin extends BasePlugin {
                         return Mono.error(e);
                     }
                 }
-            }
-            else if (HttpMethod.GET.equals(httpMethod)) {
+            } else if (HttpMethod.GET.equals(httpMethod)) {
                 /**
                  * When a GraphQL request is sent using GET method, the GraphQL body and variables are sent as part of
                  * query parameters in the URL.
@@ -259,8 +247,7 @@ public class GraphQLPlugin extends BasePlugin {
                  */
                 List<Property> additionalQueryParams = getGraphQLQueryParamsForBodyAndVariables(actionConfiguration);
                 uri = uriUtils.addQueryParamsToURI(uri, additionalQueryParams, encodeParamsToggle);
-            }
-            else {
+            } else {
                 /**
                  * Only POST and GET HTTP methods are supported by GraphQL specifications.
                  * Ref: https://graphql.org/learn/serving-over-http/
@@ -278,12 +265,12 @@ public class GraphQLPlugin extends BasePlugin {
             Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
                     encodeParamsToggle,
                     httpMethod);
-            WebClient client = triggerUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
+            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
-            Set<String> hintMessages = new HashSet<String>();
-            return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+            Set<String> hintMessages = new HashSet<>();
+            return restAPIActivateUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper,
                     hintMessages, errorResult, requestCaptureFilter);
         }
@@ -296,11 +283,11 @@ public class GraphQLPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             boolean isInputQueryBody = (boolean) args[0];
+            Param param = (Param) args[1];
             if (!isInputQueryBody) {
                 String queryVariables = (String) input;
-                return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(queryVariables, value, null, insertedParams, null);
-            }
-            else {
+                return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(queryVariables, value, null, insertedParams, null, param);
+            } else {
                 String queryBody = (String) input;
                 return smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(queryBody, value, insertedParams);
             }

@@ -1,15 +1,13 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
@@ -23,9 +21,8 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,7 +30,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -45,7 +42,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class AuthenticationServiceTest {
 

@@ -3,8 +3,15 @@ package com.external.plugins;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.DeleteObjectsResult;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.Base64;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -22,9 +29,8 @@ import com.external.plugins.constants.AmazonS3Action;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
@@ -74,17 +80,15 @@ import static com.external.utils.TemplateUtils.FILE_PICKER_MULTIPLE_FILES_DATA_E
 import static com.external.utils.TemplateUtils.LIST_FILES_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.LIST_OF_FILES_STRING;
 import static com.external.utils.TemplateUtils.READ_FILE_TEMPLATE_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 public class AmazonS3PluginTest {
@@ -96,7 +100,7 @@ public class AmazonS3PluginTest {
     @InjectMocks
     private AmazonS3Plugin amazonS3Plugin;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         accessKey   = "access_key";
         secretKey   = "secret_key";
@@ -162,7 +166,7 @@ public class AmazonS3PluginTest {
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    Assert.assertNotEquals(0, res.size());
+                    assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
                     assertTrue(errorList.get(0).contains("Mandatory parameter 'Secret Key' is empty"));
@@ -415,7 +419,9 @@ public class AmazonS3PluginTest {
     public void testSmartSubstitutionJSONBody() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("dynamicallyFoundFilePickerObject", "<html>Random\"Unescaped'String</html>")));
+        Param param = new Param("dynamicallyFoundFilePickerObject", "<html>Random\"Unescaped'String</html>");
+        param.setClientDataType(ClientDataType.OBJECT);
+        executeActionDTO.setParams(List.of(param));
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1261,6 +1267,27 @@ public class AmazonS3PluginTest {
     }
 
     @Test
+    public void testExecuteCommonForIllegalStateException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        ActionConfiguration mockActionConfiguration = mock(ActionConfiguration.class);
+        Mockito.when(mockActionConfiguration.getFormData()).thenCallRealMethod().thenThrow(new IllegalStateException());
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new AmazonS3Plugin.S3PluginExecutor());
+        Mono<ActionExecutionResult> resultMono = pluginExecutorMono
+                .flatMap(executor -> {
+                    return executor.executeParameterized(
+                            null,
+                            executeActionDTO,
+                            datasourceConfiguration,
+                            mockActionConfiguration);
+                });
+
+        StepVerifier.create(resultMono)
+                .verifyError(StaleConnectionException.class);
+    }
+
+    @Test
     public void testExecuteCommonForAmazonServiceException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String errorMessage =  "The version ID specified in the request does not match an existing version.";
         String errorCode = "NoSuchVersion";
@@ -1282,5 +1309,171 @@ public class AmazonS3PluginTest {
         ActionExecutionResult actionExecutionResult = invoke.block();
         assertEquals(actionExecutionResult.getReadableError(),errorCode+": "+errorMessage);
 
+    }
+
+    @Test
+    public void uploadsSingleFileWithFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "{\n" +
+                "\t\"type\":\"text/plain\",\n" +
+                "\t\"data\": \"data:text/plain;base64,SGVsbG8gV29ybGQhCg==\"\n" +
+                "}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals(((HashMap) result.getBody()).get("signedUrl"), signedURLS.get(0));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void uploadsMultipleFilesWithFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "[{\"data\":\"data:application/json;base64,ewogICAgIm1vc3QiOiAic2ltcGxlIgp9Cg==\",\"size\":25,\"dataFormat\":\"Base64\",\"name\":\"testfile.json\",\"id\":\"uppy-testfile/json-1e-application/json-25-1661283894345\",\"type\":\"application/json\"},{\"data\":\"data:text/plain;base64,SGVsbG8gV29ybGQhCg==\",\"size\":13,\"dataFormat\":\"Base64\",\"name\":\"testFile.txt\",\"id\":\"uppy-testfile/txt-1e-text/plain-13-1659676685242\",\"type\":\"text/plain\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url1");
+        signedURLS.add("https://example.signed.url2");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    ArrayList<String> x = (ArrayList<String>) ((HashMap) result.getBody()).get("signedUrls");
+                    assertEquals(x.size() , signedURLS.size());
+                    assertEquals(x.get(0), signedURLS.get(0));
+                    assertEquals(x.get(1), signedURLS.get(1));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void uploadsSingleFileWithoutFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "{\n" +
+                "   \"type\": \"text/json\",\n" +
+                "   \"data\": {\"data\":\"{\\n    \\\"most\\\": \\\"simple\\\"\\n}\\n\",\"size\":25,\"dataFormat\":\"Text\",\"name\":\"testfile.json\",\"id\":\"uppy-testfile/json-1e-application/json-25-1661283894345\",\"type\":\"application/json\"}\n" +
+                "}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals(((HashMap) result.getBody()).get("signedUrl"), signedURLS.get(0));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void uploadsMultipleFilesWithoutFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "[{\"data\":\"data:application/json;base64,ewogICAgIm1vc3QiOiAic2ltcGxlIgp9Cg==\",\"size\":25,\"dataFormat\":\"Base64\",\"name\":\"testfile.json\",\"id\":\"uppy-testfile/json-1e-application/json-25-1661283894345\",\"type\":\"application/json\"},{\"data\":\"data:text/plain;base64,SGVsbG8gV29ybGQhCg==\",\"size\":13,\"dataFormat\":\"Base64\",\"name\":\"testFile.txt\",\"id\":\"uppy-testfile/txt-1e-text/plain-13-1659676685242\",\"type\":\"text/plain\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url1");
+        signedURLS.add("https://example.signed.url2");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    ArrayList<String> x = (ArrayList<String>) ((HashMap) result.getBody()).get("signedUrls");
+                    assertEquals(x.size() , signedURLS.size());
+                    assertEquals(x.get(0), signedURLS.get(0));
+                    assertEquals(x.get(1), signedURLS.get(1));
+
+                })
+                .verifyComplete();
     }
 }

@@ -7,7 +7,7 @@ export function createMessage(
 
 /*
   For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
-  For cloud hosting, it displays "Appsmith v1.10.0". 
+  For cloud hosting, it displays "Appsmith v1.10.0".
   This is because Appsmith Cloud doesn't support business features yet.
  */
 export const APPSMITH_DISPLAY_VERSION = (
@@ -28,7 +28,7 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
 export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
-  `Default text length must be less than ${max} characters`;
+  `Default text length must be less than or equal to ${max} characters`;
 export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
   `Input text length must be less than ${max} characters`;
 export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
@@ -50,11 +50,9 @@ export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password between 6 and 42 characters`;
+  `Please provide a password between 6 and 256 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
-export const LOGIN_PAGE_SUBTITLE = () => `Use your workspace email`;
-export const LOGIN_PAGE_TITLE = () => `Sign in to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
 export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
@@ -65,7 +63,9 @@ export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
   `Reset Password`;
-export const NEW_TO_APPSMITH = () => `New to Appsmith?`;
+export const NEW_TO_APPSMITH = () => `Don't have an account?`;
+export const LOGIN_PAGE_TITLE = () => `Sign in`;
+export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
@@ -125,12 +125,17 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
+export const ERROR_403 = (entity: string, userEmail: string) =>
+  `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
-
+export const MAKE_APPLICATION_PUBLIC = () => "Make application public";
+export const MAKE_APPLICATION_PUBLIC_TOOLTIP = () =>
+  "A public app is accessible to anyone who can access your instance of appsmith";
+export const INVITE_TAB = () => "Invite";
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
-  `Invalid Email address(es) found`;
+  `Invalid email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
 
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
@@ -140,7 +145,7 @@ export const INVITE_USERS_ROLE_SELECT_LABEL = () => `Role`;
 export const INVITE_USERS_EMAIL_LIST_LABEL = () => `User emails`;
 export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_MESSAGE = () => `Invite users`;
-export const INVITE_USERS_PLACEHOLDER = () => `Enter email address`;
+export const INVITE_USERS_PLACEHOLDER = () => `Enter email address(es)`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () =>
   `The users have been invited successfully`;
@@ -172,6 +177,16 @@ export const ENABLE_TIME = () => `Enable Time`;
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
+
+export const EDITOR_HEADER = {
+  saving: () => "Saving",
+  saveFailed: () => "Save failed",
+  share: () => "SHARE",
+  previewTooltip: {
+    text: () => "Preview",
+    shortcut: () => "P",
+  },
+};
 
 // Homepage
 export const CREATE_NEW_APPLICATION = () => `Create new`;
@@ -258,10 +273,10 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
-export const EDIT_DATASOURCE = () => "Edit Datasource";
-export const SAVE_DATASOURCE = () => "Save Datasource";
+export const EDIT_DATASOURCE = () => "EDIT DATASOURCE";
+export const SAVE_DATASOURCE = () => "SAVE AS DATASOURCE";
 export const SAVE_DATASOURCE_MESSAGE = () =>
-  "Save API as datasource to setup authentication";
+  "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
   "Edit Datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
@@ -313,6 +328,9 @@ export const OAUTH_AUTHORIZATION_FAILED =
 export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
 export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
+export const GSHEET_AUTHORIZATION_ERROR =
+  "Data source is not authorized, please authorize to continue.";
+
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
@@ -327,7 +345,7 @@ export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
   "Create a new Query, API or JS Object";
-export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
+export const HELPBAR_PLACEHOLDER = () => "Search";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
 export const WIDGET_BIND_HELP = () =>
@@ -335,7 +353,22 @@ export const WIDGET_BIND_HELP = () =>
 
 export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
+// error pages
+export const PAGE_NOT_FOUND_TITLE = () => "404";
 export const PAGE_NOT_FOUND = () => "Page not found";
+export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
+export const PAGE_SERVER_UNAVAILABLE_TITLE = () =>
+  "Appsmith server is unavailable";
+export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
+  "Please try again later";
+export const PAGE_SERVER_TIMEOUT_ERROR_CODE = () => "504";
+export const PAGE_SERVER_TIMEOUT_TITLE = () =>
+  "Appsmith server is taking too long to respond";
+export const PAGE_SERVER_TIMEOUT_DESCRIPTION = () =>
+  `Please retry after some time`;
+export const PAGE_CLIENT_ERROR_TITLE = () => "Whoops something went wrong!";
+export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
+  "This is embarrassing, please contact Appsmith support for help";
 
 // comments
 export const POST = () => "Post";
@@ -390,15 +423,18 @@ export const SHOW_MESSAGE = () => `Show message`;
 export const OPEN_MODAL = () => `Open modal`;
 export const CLOSE_MODAL = () => `Close modal`;
 export const STORE_VALUE = () => `Store value`;
+export const REMOVE_VALUE = () => `Remove value`;
+export const CLEAR_STORE = () => `Clear store`;
 export const DOWNLOAD = () => `Download`;
 export const COPY_TO_CLIPBOARD = () => `Copy to clipboard`;
 export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
-export const GET_GEO_LOCATION = () => `Get geolocation`;
-export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
-export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
+export const GET_GEO_LOCATION = () => `Get Geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
+export const POST_MESSAGE = () => `Post message`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
@@ -407,8 +443,6 @@ export const ERROR_JS_ACTION_COPY_FAIL = (actionName: string) =>
   `Error while copying ${actionName}`;
 export const JS_ACTION_DELETE_SUCCESS = (actionName: string) =>
   `${actionName} deleted successfully`;
-export const JS_ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} created successfully`;
 export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} moved to page ${pageName} successfully`;
 export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
@@ -424,6 +458,8 @@ export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>
   `Start object with export default`;
+export const ACTION_EXECUTION_FAILED = (actionName: string) =>
+  `The action "${actionName}" has failed.`;
 export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
 export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
@@ -454,7 +490,8 @@ export const IMPORT_APPLICATION_MODAL_LABEL = () =>
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
 export const UPLOADING_JSON = () => "Uploading JSON file";
 export const UPLOADING_APPLICATION = () => "Uploading application";
-export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
+export const IMPORT_APP_FROM_GIT_TITLE = () =>
+  "Import from Git repository (Beta)";
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
@@ -519,10 +556,7 @@ export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
 
 export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
-export const GENERATE_PAGE_ACTION_TITLE = () => "Generate from a data table";
-
-export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
-  "Start with a simple CRUD UI and customize it";
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate Page With Data";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
@@ -642,7 +676,7 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
-  "git@example.com:user/repo.git";
+  "git@example.com:user/repository.git";
 export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
@@ -675,14 +709,14 @@ export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
   ${methodName} authentication method is enabled
 `;
 
-export const DISCONNECT_EXISTING_REPOSITORIES = () =>
-  "Disconnect existing repositories";
-export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+export const REVOKE_EXISTING_REPOSITORIES = () =>
+  "Revoke Existing Repositories";
+export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories, you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact Support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
   `Hey there, thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repositories you require and why? We'll get back to you in a short while.`;
-export const REPOSITORY_LIMIT_REACHED = () => "Repository limit reached";
+export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
 export const APPLICATION_IMPORT_SUCCESS = (username: string) =>
@@ -693,9 +727,9 @@ export const NONE_REVERSIBLE_MESSAGE = () =>
   "This action is non-reversible. Please proceed with caution.";
 export const CONTACT_SUPPORT_TO_UPGRADE = () =>
   "Please contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
-export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
-  "Disconnecting your repository might cause the application to break.";
-export const DISCONNECT_GIT = () => "Revoke access";
+export const REVOKE_CAUSE_APPLICATION_BREAK = () =>
+  "Revoking your repository might cause the application to break.";
+export const REVOKE_GIT = () => "Revoke access";
 export const DISCONNECT = () => "DISCONNECT";
 export const REVOKE = () => "REVOKE";
 export const REVOKE_ACCESS = () => "REVOKE ACCESS";
@@ -706,8 +740,8 @@ export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
   `Type “${name}” in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
-export const OPEN_REPO = () => "OPEN REPO";
-export const CONNECTING_REPO = () => "Connecting to Git repo";
+export const OPEN_REPO = () => "OPEN REPOSITORY";
+export const CONNECTING_REPO = () => "Connecting to Git repository";
 export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
 export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
@@ -777,9 +811,9 @@ export const DELETE_BRANCH_WARNING_DEFAULT = (defaultBranchName: string) =>
 
 // GIT ERRORS begin
 export const ERROR_GIT_AUTH_FAIL = () =>
-  "Please make sure that regenerated SSH key is added and has write access to the repo.";
+  "Please make sure that regenerated SSH key is added and has write access to the repository.";
 export const ERROR_GIT_INVALID_REMOTE = () =>
-  "Remote repo doesn't exist or is unreachable.";
+  "Either the remote repository doesn't exist or is unreachable.";
 // GIT ERRORS end
 
 // JS Snippets
@@ -829,7 +863,8 @@ export const ONBOARDING_CHECKLIST_BANNER_HEADER = () =>
 export const ONBOARDING_CHECKLIST_BANNER_BODY = () =>
   "You can carry on here, or explore the homepage to see how your projects are stored.";
 export const ONBOARDING_CHECKLIST_BANNER_BUTTON = () => "Explore homepage";
-
+export const ONBOARDING_SKIPPED_FIRST_TIME_USER = () =>
+  "Skipped onboarding tour";
 export const ONBOARDING_CHECKLIST_HEADER = () => "👋 Welcome to Appsmith!";
 export const ONBOARDING_CHECKLIST_BODY = () =>
   "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
@@ -1021,6 +1056,54 @@ export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
+
+// Audit logs begin
+export const AUDIT_LOGS = () => "Audit Logs";
+export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
+
+// Audit logs Upgrade page begin
+export const INTRODUCING = (featureName: string) =>
+  `Introducing ${featureName}`;
+export const AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING = () =>
+  "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.";
+export const SECURITY_AND_COMPLIANCE = () => "Security & Compliance";
+export const SECURITY_AND_COMPLIANCE_DETAIL1 = () =>
+  "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.";
+export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>
+  "Exports to popular compliance tools coming soon";
+export const DEBUGGING = () => "Debugging";
+export const DEBUGGING_DETAIL1 = () =>
+  "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.";
+export const INCIDENT_MANAGEMENT = () => "Incident Management";
+export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
+  "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
+export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
+export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
+  `The ${featureName} feature is exclusive to workspaces on the Business Plan`;
+// Audit logs Upgrade page end
+// Audit logs end
+
+// Access control upgrade page begin
+export const GRANULAR_ACCESS_CONTROL_FOR_TEAMS = () =>
+  "Granular Access Controls for teams";
+export const ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING = () =>
+  "Control all permissions for all resources in your apps in a workspace. Manage permissions granularly by attributes. Use permissions and user groups to easily define access levels.";
+export const SECURITY_APPS_LEAST_PRIVILEGE = () =>
+  "Secure apps by the least privilege needed";
+export const SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1 = () =>
+  `Create roles by the least privilege needed as defaults, <span>e.g.: View only</span>, assign them to users in groups, <span>e.g.: Marketing</span>, and modify for special access, <span>e.g.: Content creators_Execute queries</span>`;
+export const PREVENT_ACCIDENTAL_DAMAGE = () =>
+  "Prevent accidental damage to data";
+export const PREVENT_ACCIDENTAL_DAMAGE_DETAIL1 = () =>
+  `Assign edit and delete permissions to an entire group, then modify granularly so non-native users of your data don’t drop a table or bulk-delete streaming data records before you can say, “Retrieve”.`;
+export const RESTRICT_PUBLIC_EXPOSURE = () =>
+  "Restrict public exposure of sensitive data";
+export const RESTRICT_PUBLIC_EXPOSURE_DETAIL1 = () =>
+  "Proactively disallow groups of non-admin or non-super-admin users from publicly sharing your app or exporting app data out of your environment, domain, and security perimeters.";
+export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
+  "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business edition.";
+// Access control upgrade page end
+
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
@@ -1043,6 +1126,8 @@ export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No Properties found based on your search";
+export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
+  "Search for controls, labels etc";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1050,7 +1135,7 @@ export const API_PANE_NO_BODY = () => "This request does not have a body";
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
-export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
+export const ADD_QUERY_JS_TOOLTIP = () => "Add a new query / JS Object";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -1060,6 +1145,8 @@ export const DELETE_WORKSPACE_SUCCESSFUL = () =>
   "Workspace deleted successfully";
 // theming
 export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
+export const SET_DEFAULT_SELECTED_THEME = (name: string) =>
+  `Applied the ${name} theme, since custom theme was not found`;
 export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
 export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
 export const DELETE_APP_THEME_WARNING = () =>
@@ -1070,6 +1157,8 @@ export const APP_THEME_BETA_CARD_CONTENT = () =>
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
+export const UPGRADE_TO_EE_FEATURE = (feature: string) =>
+  `Hello, I would like to upgrade and start using the ${feature} feature.`;
 export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
 export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
@@ -1077,6 +1166,42 @@ export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
 export const DANGER_ZONE = () => "Danger Zone";
 export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
+
+// Branding
+export const ADMIN_BRANDING_SETTINGS_TITLE = () =>
+  "Custom branding for your workspaces";
+export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
+  "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business plan.";
+export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
+  `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
+export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
+  `Uploaded file must be less than 2MB`;
+export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
+  `Logo should  be atleast 256px in height`;
+export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
+  `Uploaded file must be in .SVG .PNG, and .JPG formats`;
+export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
+  `.SVG, .PNG, or .JPG only • Max 2MB`;
+export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
+  `Uploaded file must have a max size of 32X32 pixels`;
+export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
+  `Uploaded file must be less than 2MB`;
+export const ADMIN_BRANDING_FAVICON_FORMAT_ERROR = () =>
+  `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
+export const ADMIN_BRANDING_FAVICON_REQUIREMENT = () =>
+  `.ICO, .PNG, or .JPG only • Max 32X32`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY = () =>
+  `Used on buttons, links, and other interactive elements.`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_BACKGROUND = () =>
+  `Used as background color for the auth pages`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_HOVER = () =>
+  `Used as hover color for the button.`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_FONT = () =>
+  `Used as text color for the buttons.`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED = () =>
+  `Used as background color for disabled buttons.`;
+export const ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE = () =>
+  `I would like to enable Custom Branding for my workspace and am interested in Appsmith Business.`;
 
 // Guided tour
 // -- STEPS ---
@@ -1151,10 +1276,14 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
+export const CONFIRM_CONTEXT_DELETING = () => "Deleting";
 export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
+export const CONTEXT_SETTINGS = () => "Settings";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
+export const PAGE = () => "Page";
+export const PAGES = () => "Pages";
 
 // Entity explorer
 export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
@@ -1174,7 +1303,7 @@ export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
 export const SELECT_WORKSPACE = () => "Select Workspace";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
-export const FORK_THIS_TEMPLATE = () => "Fork this template";
+export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
@@ -1187,14 +1316,24 @@ export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
 export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
-export const INDUSTRY = () => "Industry";
+export const INDUSTRY = () => "Use Case";
 export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
-export const WIDGET_USED = () => "Widgets Used";
+export const WIDGET_USED = () => "Widgets";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
 export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
 export const FILTERS = () => "FILTERS";
+export const TEMPLATE_CARD_TITLE = () => "Start from a template";
+export const TEMPLATE_CARD_DESCRIPTION = () =>
+  "Create app from template by selecting pages";
+export const FILTER_SELECTALL = () => "Select all";
+export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
+export const FORKING_TEMPLATE = () => "Setting up the template";
+export const FETCHING_TEMPLATES = () => "Loading template details";
+export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
+
+export const TEMPLATES_BACK_BUTTON = () => "BACK TO TEMPLATES";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
@@ -1225,4 +1364,142 @@ export const CLEAN_URL_UPDATE = {
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
 
-export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+export const MEMBERS_TAB_TITLE = (
+  length: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `Users (${length})`;
+
+export const CREATE_PAGE = () => "New Blank Page";
+export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
+export const GENERATE_PAGE = () => "Generate page from data table";
+export const GENERATE_PAGE_DESCRIPTION = () =>
+  "Start app with a simple CRUD UI and customize it";
+export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
+export const INVALID_URL = () =>
+  "Please enter a valid URL, for example, https://example.com";
+export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
+  `Unsaved changes will be lost if you exit this page, save the changes before exiting.`;
+
+export const APP_SETTINGS_PANE_HEADER = () => "Settings";
+export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
+
+export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
+export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
+  "App name, icon and share";
+export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
+export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
+  "App name cannot be empty";
+export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
+  "Only alphanumeric or '-()' are allowed";
+export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App Icon";
+
+export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
+export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme Settings";
+export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
+  "Set theme, color and font";
+
+export const PAGE_SETTINGS_SECTION_HEADER = () => "Page settings";
+export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "Settings";
+export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
+export const PAGE_SETTINGS_NAME_EMPTY_MESSAGE = () =>
+  "Page name cannot be empty";
+export const PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
+  "Only alphanumeric or '-' are allowed";
+export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
+export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
+export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
+export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
+  "your app URL to new readable format to change this";
+export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
+export const PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP = () =>
+  "Show or hide the page in the appsmith navbar in view mode";
+export const PAGE_SETTINGS_SET_AS_HOMEPAGE = () => "Set as home page";
+export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
+  "This is the current home page, you can change this by setting another page as the home page";
+export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
+  "Set this page as your home page. This will override your previously set home page.";
+export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
+  `${name} is already being used.`;
+
+export const IN_APP_EMBED_SETTING = {
+  applicationUrl: () => "application url",
+  allowEmbeddingLabel: () => "Embedding enabled",
+  allowEmbeddingTooltip: () =>
+    "This app can be embedded in all domains, including malicious ones",
+  copy: () => "Copy",
+  copied: () => "Copied",
+  limitEmbeddingLabel: () => "Embedding restricted",
+  limitEmbeddingTooltip: () => "This app can be embedded in approved URLs only",
+  disableEmbeddingLabel: () => "Embedding disabled",
+  disableEmbeddingTooltip: () =>
+    "This app cannot be embedded anywhere on the Internet",
+  embed: () => "Embed",
+  embedSnippetTitle: () => "Copy embed code",
+  change: () => "Change",
+  copiedEmbedCode: () => "Embed code copied to clipboard",
+  embedSize: () => "Embed size",
+  previewEmbeddedApp: () => "PREVIEW EMBEDDED APP",
+  sectionHeader: () => "Share & Embed",
+  sectionContentHeader: () => "Share",
+  sectionHeaderDesc: () => "Make public, embed properties",
+  showNavigationBar: () => "Show navigation bar",
+};
+
+export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
+export const NEW_API_BUTTON_TEXT = () => "New API";
+export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
+export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
+export const SAVE_BUTTON_TEXT = () => "SAVE";
+export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
+export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
+
+// Alert options and labels for showMessage types
+export const ALERT_STYLE_OPTIONS = [
+  { label: "Info", value: "'info'", id: "info" },
+  {
+    label: "Success",
+    value: "'success'",
+    id: "success",
+  },
+  { label: "Error", value: "'error'", id: "error" },
+  { label: "Warning", value: "'warning'", id: "warning" },
+];
+
+export const customJSLibraryMessages = {
+  ADD_JS_LIBRARY: () => "Add JS Libraries",
+  REC_LIBRARY: () => "Recommended Libraries",
+  INSTALLATION_SUCCESSFUL: (accessor: string) =>
+    `Installation Successful. You can access the library via ${accessor}`,
+  INSTALLATION_FAILED: () => "Installation failed",
+  INSTALLED_ALREADY: (accessor: string) =>
+    `This library is already installed. You could access it via ${accessor}.`,
+  UNINSTALL_FAILED: (name: string) =>
+    `Couldn't uninstall ${name}. Please try again after sometime.`,
+  UNINSTALL_SUCCESS: (accessor: string) =>
+    `${accessor} is uninstalled successfully.`,
+  LEARN_MORE_DESC: () => "Learn more about Custom JS Libraries",
+  UNSUPPORTED_LIB: () => `Library is unsupported`,
+  UNSUPPORTED_LIB_DESC: () =>
+    `Unfortunately, this library cannot be supported due to platform limitations. Please try installing a different library.`,
+  LEARN_MORE: () => `Learn more`,
+  REPORT_ISSUE: () => `Report issue`,
+  AUTOCOMPLETE_FAILED: (name: string) =>
+    `Code completion for ${name} will not work.`,
+  CLIENT_LOAD_FAILED: (url: string) => `Failed to load the script at ${url}.`,
+  LIB_OVERRIDE_ERROR: (
+    name: string,
+  ) => `The library ${name} is already installed.
+  If you are trying to install a different version, uninstall the library first.`,
+  DEFS_FAILED_ERROR: (name: string) =>
+    `Failed to generate autocomplete definitions for ${name}.`,
+  IMPORT_URL_ERROR: (url: string) =>
+    `The script at ${url} cannot be installed.`,
+  NAME_COLLISION_ERROR: (accessors: string) =>
+    `Name collision detected: ${accessors}`,
+};
+
+// Business Edition upgrade page
+export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
+  `Move to Business Edition${trailingChar ? trailingChar : ""}`;

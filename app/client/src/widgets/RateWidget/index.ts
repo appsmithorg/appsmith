@@ -3,6 +3,12 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 1,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "Rating",
   iconSVG: IconSVG,
@@ -20,6 +26,7 @@ export const CONFIG = {
     isRequired: false,
     isAllowHalf: false,
     isDisabled: false,
+    isReadOnly: false,
     tooltips: ["Terrible", "Bad", "Neutral", "Good", "Great"],
     widgetName: "Rating",
   },
@@ -30,6 +37,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

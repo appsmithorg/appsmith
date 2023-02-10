@@ -1,6 +1,6 @@
 import React from "react";
-import ActionCards from "./ActionCards";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
+
 import GeneratePageForm from "./GeneratePageForm/GeneratePageForm";
 
 const Container = styled.div`
@@ -11,11 +11,9 @@ const Container = styled.div`
 `;
 
 function PageContent() {
-  const pathname = window.location.pathname;
-  const hasFormRoute = pathname.includes("/form");
   return (
     <Container>
-      {!hasFormRoute ? <ActionCards /> : <GeneratePageForm />}
+      <GeneratePageForm />
     </Container>
   );
 }

@@ -16,7 +16,7 @@ import {
   TextType,
   Icon,
   IconSize,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 
 const Row = styled.div`
@@ -59,7 +59,7 @@ export default function ConflictInfo({
       </InfoWrapper>
       <Row>
         <OpenRepoButton
-          category={Category.tertiary}
+          category={Category.secondary}
           className="t--commit-button"
           href={browserSupportedRemoteUrl}
           size={Size.large}

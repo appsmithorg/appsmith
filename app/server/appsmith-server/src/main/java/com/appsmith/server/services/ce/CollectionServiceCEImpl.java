@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CollectionRepository;
@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;

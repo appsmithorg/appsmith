@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import Editor from "components/editorComponents/CodeEditor";
 
@@ -7,32 +7,7 @@ import {
   HighlighedCodeContainer,
   LazyEditorWrapper,
 } from "./index.layout";
-
-/**
- * Shimming request idle callback as it is not avaialble in Safari browser.
- * If unavailable, then use a timeout to process callback on a separate thread.
- */
-(window as any).requestIdleCallback =
-  (window as any).requestIdleCallback ||
-  function(
-    cb: (arg0: { didTimeout: boolean; timeRemaining: () => number }) => void,
-  ) {
-    const start = Date.now();
-    return setTimeout(function() {
-      cb({
-        didTimeout: false,
-        timeRemaining: function() {
-          return Math.max(0, 50 - (Date.now() - start));
-        },
-      });
-    }, 1);
-  };
-
-(window as any).cancelIdleCallback =
-  (window as any).cancelIdleCallback ||
-  function(id: number) {
-    clearTimeout(id);
-  };
+import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
 
 /**
  * A wrapper to lazily render CodeEditor component.
@@ -45,15 +20,29 @@ import {
  */
 function CodeEditor(props: any) {
   const [showEditor, setEditorVisibility] = useState<boolean>(false);
+  const [isFocused, setEditorFocused] = useState<boolean>(false);
   const [containsCode, setContainsCode] = useState<boolean>(false);
   const [containsObject, setContainsObject] = useState<boolean>(false);
   const [isPlaceholder, setIsPlaceholder] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
+  const wrapperRef = useRef<HTMLDivElement>(null);
   let handle: number;
   const handleFocus = (): void => {
     (window as any).cancelIdleCallback(handle);
+    setEditorFocused(true);
     setEditorVisibility(true);
   };
+
+  useEffect(() => {
+    if (showEditor && isFocused && wrapperRef.current) {
+      const editor = wrapperRef.current.querySelector(
+        ".CodeEditorTarget",
+      ) as HTMLElement | null;
+      if (editor) {
+        editor.focus();
+      }
+    }
+  }, [isFocused, showEditor, wrapperRef.current]);
 
   useEffect(() => {
     // Check if input value contains code
@@ -88,29 +77,36 @@ function CodeEditor(props: any) {
       handle = (window as any).requestIdleCallback(
         () => setEditorVisibility(true),
         {
-          // if callback hasn't executed in 1500 ms, then trigger it urgently
-          timeout: 1500,
+          timeout: REQUEST_IDLE_CALLBACK_TIMEOUT.highPriority,
         },
       );
     }
     lazyLoadEditor();
     return () => handle && (window as any).cancelIdleCallback(handle);
-  }, []);
+  }, [isFocused]);
 
-  return showEditor ? (
-    <Editor {...props} />
-  ) : (
-    <LazyEditorWrapper>
-      <ContentWrapper containsCode={containsCode} isPlaceholder={isPlaceholder}>
-        <HighlighedCodeContainer
+  return (
+    <LazyEditorWrapper ref={wrapperRef}>
+      {showEditor ? (
+        <Editor {...props} />
+      ) : (
+        <ContentWrapper
           containsCode={containsCode}
-          containsObject={containsObject}
           isPlaceholder={isPlaceholder}
-          onMouseEnter={handleFocus}
         >
-          <pre>{text}</pre>
-        </HighlighedCodeContainer>
-      </ContentWrapper>
+          <HighlighedCodeContainer
+            className={"LazyCodeEditor"}
+            containsCode={containsCode}
+            containsObject={containsObject}
+            isPlaceholder={isPlaceholder}
+            onFocus={handleFocus}
+            onMouseEnter={handleFocus}
+            tabIndex={0}
+          >
+            <pre>{text}</pre>
+          </HighlighedCodeContainer>
+        </ContentWrapper>
+      )}
     </LazyEditorWrapper>
   );
 }

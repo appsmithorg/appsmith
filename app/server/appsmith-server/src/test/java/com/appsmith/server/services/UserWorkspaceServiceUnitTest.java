@@ -1,96 +1,68 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.helpers.PolicyUtils;
-import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import reactor.core.publisher.Flux;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
-import javax.validation.Validator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@DirtiesContext
+@Slf4j
 public class UserWorkspaceServiceUnitTest {
-
-    @MockBean PluginRepository pluginRepository;
-    @MockBean SessionUserService sessionUserService;
-    @MockBean UserRepository userRepository;
-    @MockBean RoleGraph roleGraph;
-    @MockBean AssetRepository assetRepository;
-    @MockBean AssetService assetService;
-    @MockBean Scheduler scheduler;
-    @MockBean MongoConverter mongoConverter;
-    @MockBean ReactiveMongoTemplate reactiveMongoTemplate;
-    @MockBean WorkspaceRepository workspaceRepository;
-    @MockBean Validator validator;
-    @MockBean AnalyticsService analyticsService;
-    @MockBean ApplicationRepository applicationRepository;
-    @MockBean UserDataRepository userDataRepository;
-    @MockBean EmailSender emailSender;
-    @MockBean UserDataService userDataService;
-
-    @MockBean PermissionGroupService permissionGroupService;
-
-    @MockBean PolicyUtils policyUtils;
-
-    @MockBean UserService userService;
-
-    @MockBean TenantService tenantService;
-
-    UserWorkspaceService userWorkspaceService;
+    @Autowired UserDataRepository userDataRepository;
+    @Autowired UserDataService userDataService;
+    @Autowired WorkspaceService workspaceService;
+    @Autowired PermissionGroupRepository permissionGroupRepository;
+    @Autowired UserWorkspaceService userWorkspaceService;
 
     ModelMapper modelMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         modelMapper = new ModelMapper();
-        userWorkspaceService = new UserWorkspaceServiceImpl(sessionUserService, workspaceRepository, userRepository,
-            userDataRepository, policyUtils, emailSender, userDataService, permissionGroupService, tenantService);
     }
 
-   @Test
-   public void whenMapPermissionGroup_thenConvertsToPermissionGroupInfoDTO() {
-       PermissionGroup permissionGroup = new PermissionGroup();
-       permissionGroup.setName("Test");
-       permissionGroup.setId("123");
-       permissionGroup.setDescription("Test");
-       PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
-       Assert.assertEquals(permissionGroup.getName(), permissionGroupInfoDTO.getName());
-       Assert.assertEquals(permissionGroup.getId(), permissionGroupInfoDTO.getId());
-       Assert.assertEquals(permissionGroup.getDescription(), permissionGroupInfoDTO.getDescription());
-   }
+    @Test
+    public void whenMapPermissionGroup_thenConvertsToPermissionGroupInfoDTO() {
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("Test");
+        permissionGroup.setId("123");
+        permissionGroup.setDescription("Test");
+        PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
+        assertEquals(permissionGroup.getName(), permissionGroupInfoDTO.getName());
+        assertEquals(permissionGroup.getId(), permissionGroupInfoDTO.getId());
+        assertEquals(permissionGroup.getDescription(), permissionGroupInfoDTO.getDescription());
+    }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void getWorkspaceMembers_WhenRoleIsNull_ReturnsEmptyList() {
         // create a workspace object
         Workspace testWorkspace = new Workspace();
@@ -99,19 +71,25 @@ public class UserWorkspaceServiceUnitTest {
         testWorkspace.setWebsite("https://test.com");
         testWorkspace.setId("test-org-id");
 
-        // mock repository methods so that they return the objects we've created
-        Mockito.when(workspaceRepository.findById("test-org-id", READ_WORKSPACES))
-                .thenReturn(Mono.just(testWorkspace));
-        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUPS)))
-                .thenReturn(Flux.empty());
-        Mockito.when(userRepository.findAllById(ArgumentMatchers.<Iterable<String>>any()))
-                .thenReturn(Flux.empty());
+        /**
+         * Removing the Default Workspace ID from auto-created permission groups
+         * so that while fetching the Users and Groups, we should get empty list.
+         */
+        Workspace createdWorkspace = workspaceService.create(testWorkspace).block();
+        List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
+                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .flatMap(permissionGroup -> {
+                    permissionGroup.setDefaultWorkspaceId(null);
+                    return permissionGroupRepository.save(permissionGroup);
+                })
+                .collectList()
+                .block();
 
-        Mono<List<UserAndPermissionGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
+        Mono<List<WorkspaceMemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
         StepVerifier
                 .create(workspaceMembers)
                 .assertNext(userAndGroupDTOs -> {
-                    Assert.assertEquals(0, userAndGroupDTOs.size());
+                    assertEquals(0, userAndGroupDTOs.size());
                 })
                 .verifyComplete();
     }
@@ -119,18 +97,70 @@ public class UserWorkspaceServiceUnitTest {
     @Test
     public void getWorkspaceMembers_WhenNoOrgFound_ThrowsException() {
         String sampleWorkspaceId = "test-org-id";
-        // mock repository methods so that they return the objects we've created
-        Mockito.when(workspaceRepository.findById(sampleWorkspaceId, READ_WORKSPACES))
-                .thenReturn(Mono.empty());
-        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUPS)))
-                .thenReturn(Flux.empty());
-        Mockito.when(userRepository.findAllById(ArgumentMatchers.<Iterable<String>>any()))
-                .thenReturn(Flux.empty());
-
-        Mono<List<UserAndPermissionGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
+        Mono<List<WorkspaceMemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
         StepVerifier
                 .create(workspaceMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleWorkspaceId))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getWorkspaceMembers_WhenUserHasProfilePhotoForOneWorkspace_ProfilePhotoIncluded() {
+        // create workspace
+        Workspace workspace = new Workspace();
+        workspace.setName("workspace_" + UUID.randomUUID());
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace);
+
+        Mono<List<WorkspaceMemberInfoDTO>> listMono = userDataService.getForCurrentUser().flatMap(userData -> {
+                    userData.setProfilePhotoAssetId("sample-photo-id");
+                    return userDataRepository.save(userData);
+                }).then(workspaceMono)
+                .flatMap(createdWorkspace -> userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId()));
+
+        StepVerifier.create(listMono).assertNext(workspaceMemberInfoDTOS -> {
+            assertThat(workspaceMemberInfoDTOS.size()).isEqualTo(1);
+            assertThat(workspaceMemberInfoDTOS.get(0).getPhotoId()).isEqualTo("sample-photo-id");
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getWorkspaceMembers_WhenUserHasProfilePhotoForMultipleWorkspace_ProfilePhotoIncluded() {
+        // create workspace
+        Workspace firstWorkspace = new Workspace();
+        firstWorkspace.setName("first-workspace-" + UUID.randomUUID());
+
+        Workspace secondWorkspace = new Workspace();
+        secondWorkspace.setName("second-workspace-" + UUID.randomUUID());
+
+        Mono<Tuple2<Workspace, Workspace>> createWorkspacesMono = Mono.zip(
+                workspaceService.create(firstWorkspace),
+                workspaceService.create(secondWorkspace)
+        );
+
+        Mono<Map<String, List<WorkspaceMemberInfoDTO>>> mapMono = userDataService.getForCurrentUser()
+                .flatMap(userData -> {
+                    userData.setProfilePhotoAssetId("sample-photo-id");
+                    return userDataRepository.save(userData);
+                })
+                .then(createWorkspacesMono)
+                .flatMap(workspaces -> {
+                    Set<String> createdIds = Set.of(
+                            Objects.requireNonNull(workspaces.getT1().getId()),
+                            Objects.requireNonNull(workspaces.getT2().getId())
+                    );
+                    return userWorkspaceService.getWorkspaceMembers(createdIds);
+                });
+
+        StepVerifier.create(mapMono).assertNext(workspaceMemberInfoDTOSMap -> {
+            assertThat(workspaceMemberInfoDTOSMap.size()).isEqualTo(2); // should have 2 entries for 2 workspaces
+            workspaceMemberInfoDTOSMap.values().forEach(workspaceMemberInfoDTOS -> {
+                // should have one entry for the creator member only, get that
+                WorkspaceMemberInfoDTO workspaceMemberInfoDTO = workspaceMemberInfoDTOS.get(0);
+                // we already set profile photo for the current user, check it exists in response
+                assertThat(workspaceMemberInfoDTO.getPhotoId()).isEqualTo("sample-photo-id");
+            });
+        }).verifyComplete();
     }
 }

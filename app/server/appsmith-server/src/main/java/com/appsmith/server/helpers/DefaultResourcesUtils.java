@@ -5,7 +5,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import org.apache.commons.lang3.StringUtils;

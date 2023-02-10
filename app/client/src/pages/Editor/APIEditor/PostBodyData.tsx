@@ -18,11 +18,10 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { MultiSwitch } from "design-system";
+import { Classes, MultiSwitch } from "design-system-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { Classes } from "components/ads/common";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 
 const PostBodyContainer = styled.div`
@@ -87,6 +86,7 @@ function PostBodyData(props: Props) {
           <DynamicTextField
             border={CodeEditorBorder.ALL_SIDE}
             dataTreePath={`${dataTreePath}.body`}
+            evaluatedPopUpLabel={"Body"}
             expected={expectedPostBody}
             mode={EditorModes.JSON_WITH_BINDING}
             name="actionConfiguration.body"
@@ -166,9 +166,10 @@ const mapDispatchToProps = (dispatch: any) => ({
 export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
+  // Defaults to NONE when extraformData is empty
   const displayFormat = extraFormData["displayFormat"] || {
-    label: POST_BODY_FORMAT_OPTIONS.RAW,
-    value: POST_BODY_FORMAT_OPTIONS.RAW,
+    label: POST_BODY_FORMAT_OPTIONS.NONE,
+    value: POST_BODY_FORMAT_OPTIONS.NONE,
   };
   return {
     displayFormat,

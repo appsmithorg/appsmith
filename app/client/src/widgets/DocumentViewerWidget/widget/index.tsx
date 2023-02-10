@@ -5,7 +5,7 @@ import {
   ValidationTypes,
   ValidationResponse,
 } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -64,58 +64,6 @@ class DocumentViewerWidget extends BaseWidget<
   DocumentViewerWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            helpText:
-              "Document url for preview. for URL, supported extensions are txt, pdf, docx, ppt, pptx, xlsx. ppt is currently not supported by base64.",
-            propertyName: "docUrl",
-            label: "Document Link",
-            controlType: "INPUT_TEXT",
-            placeholderText: "URL / Base64",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: documentUrlValidation,
-                expected: {
-                  type: "URL / Base64",
-                  example: "https://www.example.com",
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
-          },
-          {
-            helpText: "Controls visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-    ];
-  }
-
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -123,7 +71,7 @@ class DocumentViewerWidget extends BaseWidget<
         children: [
           {
             helpText:
-              "Document url for preview. for URL, supported extensions are txt, pdf, docx, ppt, pptx, xlsx. ppt is currently not supported by base64.",
+              "Preview document URL supports txt, pdf, docx, ppt, pptx, xlsx file formats, but base64 ppt/pptx are not supported.",
             propertyName: "docUrl",
             label: "Document Link",
             controlType: "INPUT_TEXT",

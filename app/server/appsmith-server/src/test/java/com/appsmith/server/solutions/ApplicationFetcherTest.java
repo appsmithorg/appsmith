@@ -1,16 +1,5 @@
 package com.appsmith.server.solutions;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.UUID;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringRunner;
-
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
@@ -18,12 +7,21 @@ import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.WorkspaceService;
-
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ApplicationFetcherTest {
 
     @Autowired

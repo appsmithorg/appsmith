@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import Table from "./Table";
 import {
+  AddNewRowActions,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
@@ -9,7 +10,7 @@ import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
-import { ColumnTypes, EditableCell } from "../constants";
+import { ColumnTypes, EditableCell, TableVariant } from "../constants";
 import { useCallback } from "react";
 
 export interface ColumnMenuOptionProps {
@@ -81,16 +82,37 @@ interface ReactTableComponentProps {
   isSortable?: boolean;
   accentColor: string;
   borderRadius: string;
-  boxShadow?: string;
+  boxShadow: string;
+  borderColor?: string;
+  borderWidth?: number;
+  variant?: TableVariant;
+  isEditableCellsValid?: Record<string, boolean>;
+  primaryColumnId?: string;
+  isAddRowInProgress: boolean;
+  allowAddNewRow: boolean;
+  onAddNewRow: () => void;
+  onAddNewRowAction: (
+    type: AddNewRowActions,
+    onActionComplete: () => void,
+  ) => void;
+  allowRowSelection: boolean;
+  allowSorting: boolean;
+  disabledAddNewRowSave: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
   const {
+    allowAddNewRow,
+    allowRowSelection,
+    allowSorting,
     applyFilter,
+    borderColor,
+    borderWidth,
     columns,
     columnWidthMap,
     compactMode,
     delimiter,
+    disabledAddNewRowSave,
     disableDrag,
     editableCell,
     editMode,
@@ -98,6 +120,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleReorderColumn,
     handleResizeColumn,
     height,
+    isAddRowInProgress,
     isLoading,
     isSortable,
     isVisibleDownload,
@@ -106,12 +129,15 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     isVisibleSearch,
     multiRowSelection,
     nextPageClick,
+    onAddNewRow,
+    onAddNewRowAction,
     onBulkEditDiscard,
     onBulkEditSave,
     onRowClick,
     pageNo,
     pageSize,
     prevPageClick,
+    primaryColumnId,
     searchKey,
     searchTableData,
     selectAllRow,
@@ -124,6 +150,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     triggerRowSelection,
     unSelectAllRow,
     updatePageNo,
+    variant,
     widgetId,
     widgetName,
     width,
@@ -222,16 +249,18 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   }, [props.columns.map((column) => column.alias).toString()]);
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
-    if (columnIndex === -1) {
-      _sortTableColumn("", asc);
-    } else {
-      const column = columns[columnIndex];
-      const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
-      if (
-        columnType !== ColumnTypes.IMAGE &&
-        columnType !== ColumnTypes.VIDEO
-      ) {
-        _sortTableColumn(column.alias, asc);
+    if (allowSorting) {
+      if (columnIndex === -1) {
+        _sortTableColumn("", asc);
+      } else {
+        const column = columns[columnIndex];
+        const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+        if (
+          columnType !== ColumnTypes.IMAGE &&
+          columnType !== ColumnTypes.VIDEO
+        ) {
+          _sortTableColumn(column.alias, asc);
+        }
       }
     }
   };
@@ -240,17 +269,21 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     original: Record<string, unknown>;
     index: number;
   }) => {
-    onRowClick(row.original, row.index);
+    if (allowRowSelection) {
+      onRowClick(row.original, row.index);
+    }
   };
 
   const toggleAllRowSelect = (
     isSelect: boolean,
     pageData: Row<Record<string, unknown>>[],
   ) => {
-    if (isSelect) {
-      selectAllRow(pageData);
-    } else {
-      unSelectAllRow(pageData);
+    if (allowRowSelection) {
+      if (isSelect) {
+        selectAllRow(pageData);
+      } else {
+        unSelectAllRow(pageData);
+      }
     }
   };
 
@@ -264,8 +297,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   return (
     <Table
       accentColor={props.accentColor}
+      allowAddNewRow={allowAddNewRow}
       applyFilter={applyFilter}
+      borderColor={borderColor}
       borderRadius={props.borderRadius}
+      borderWidth={borderWidth}
       boxShadow={props.boxShadow}
       columnWidthMap={columnWidthMap}
       columns={columns}
@@ -273,12 +309,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       data={tableData}
       delimiter={delimiter}
       disableDrag={memoziedDisableDrag}
+      disabledAddNewRowSave={disabledAddNewRowSave}
       editMode={editMode}
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
       filters={filters}
       handleResizeColumn={handleResizeColumn}
       height={height}
+      isAddRowInProgress={isAddRowInProgress}
       isLoading={isLoading}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
@@ -287,11 +325,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       isVisibleSearch={isVisibleSearch}
       multiRowSelection={multiRowSelection}
       nextPageClick={nextPageClick}
+      onAddNewRow={onAddNewRow}
+      onAddNewRowAction={onAddNewRowAction}
       onBulkEditDiscard={onBulkEditDiscard}
       onBulkEditSave={onBulkEditSave}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
+      primaryColumnId={primaryColumnId}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -303,6 +344,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
       updatePageNo={updatePageNo}
+      variant={variant}
       widgetId={widgetId}
       widgetName={widgetName}
       width={width}
@@ -346,12 +388,22 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.width === next.width &&
     prev.borderRadius === next.borderRadius &&
     prev.boxShadow === next.boxShadow &&
+    prev.borderWidth === next.borderWidth &&
+    prev.borderColor === next.borderColor &&
     prev.accentColor === next.accentColor &&
     equal(prev.columnWidthMap, next.columnWidthMap) &&
     equal(prev.tableData, next.tableData) &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
-    JSON.stringify(prev.editableCell) === JSON.stringify(next.editableCell)
+    equal(prev.editableCell, next.editableCell) &&
+    prev.variant === next.variant &&
+    prev.primaryColumnId === next.primaryColumnId &&
+    equal(prev.isEditableCellsValid, next.isEditableCellsValid) &&
+    prev.isAddRowInProgress === next.isAddRowInProgress &&
+    prev.allowAddNewRow === next.allowAddNewRow &&
+    prev.allowRowSelection === next.allowRowSelection &&
+    prev.allowSorting === next.allowSorting &&
+    prev.disabledAddNewRowSave === next.disabledAddNewRowSave
   );
 });

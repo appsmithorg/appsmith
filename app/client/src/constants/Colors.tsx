@@ -78,7 +78,7 @@ export const Colors = {
   WATUSI: "#FFE0D2",
   GRAY: "#858282",
   GRAY2: "#939090",
-  DOVE_GRAY2: "#716E6E",
+  DOVE_GRAY2: "#716e6e",
   ATHENS_GRAY_DARKER: "#F8F9FA",
   POMEGRANATE: "#F44336",
   POMEGRANATE2: "#F22B2B",
@@ -111,6 +111,7 @@ export const Colors = {
 
   WARNING_SOLID: "#FEB811",
   WARNING_SOLID_HOVER: "#EFA903",
+  WARNING_DEBUGGER_GROUPING_BADGE: "#EAD592",
   WARNING_ORANGE: "#FFF8E2",
   WARNING_OUTLINE_HOVER: "#FFFAE9",
   WARNING_GHOST_HOVER: "#FBEED0",
@@ -182,9 +183,12 @@ export const Colors = {
   BROWN: "#864C17",
 
   GRAY_50: "#F8F8F8",
+  GRAY_100: "#F1F1F1",
   GRAY_200: "#E7E7E7",
+  GRAY_300: "#D7D7D7",
   GRAY_400: "#B3B3B3",
   GRAY_500: "#939393",
+  GRAY_600: "#6B6B6B",
   GRAY_700: "#575757",
   GRAY_800: "#393939",
   GRAY_900: "#101828",
@@ -203,6 +207,7 @@ export const Colors = {
   /* RED colors */
   RED_50: "#FFEAEC",
   RED_100: "#FFCACE",
+  RED_150: "#F1B6B6",
   RED_200: "#F09493",
   RED_300: "#E56A69",
   RED_400: "#EE4643",
@@ -221,6 +226,10 @@ export const Colors = {
   ENTERPRISE_LIGHT: "#E8F5FA",
 
   NOTIFICATION_BANNER_ERROR_TEXT: "#C91818",
+
+  CTA_PURPLE: "#5E5DC1",
+
+  APPSMITH_BEIGE: "#faf5ed",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

@@ -1,25 +1,24 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { connect } from "react-redux";
+import React, { useCallback, useEffect, useState } from "react";
+import { connect, useSelector } from "react-redux";
 import styled from "styled-components";
-import { createDatasourceFromForm } from "actions/datasourceActions";
+import {
+  createDatasourceFromForm,
+  createTempDatasourceFromForm,
+} from "actions/datasourceActions";
 import { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
-import { Plugin } from "api/PluginApi";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/URLUtils";
-import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
-import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
-import { GRAPHQL_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/GraphQLEditorConstants";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -142,6 +141,7 @@ type ApiHomeScreenProps = {
   createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
+  createTempDatasourceFromForm: (data: any) => void;
 };
 
 type Props = ApiHomeScreenProps;
@@ -176,11 +176,11 @@ function NewApiScreen(props: Props) {
         pluginName: authApiPlugin.name,
         pluginPackageName: authApiPlugin.packageName,
       });
-      props.createDatasourceFromForm({
+      props.createTempDatasourceFromForm({
         pluginId: authApiPlugin.id,
       });
     }
-  }, [authApiPlugin, props.createDatasourceFromForm]);
+  }, [authApiPlugin, props.createTempDatasourceFromForm]);
 
   const handleCreateNew = (source: string) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
@@ -191,8 +191,8 @@ function NewApiScreen(props: Props) {
         pageId,
         "API_PANE",
         source === API_ACTION.CREATE_NEW_GRAPHQL_API
-          ? GRAPHQL_PLUGIN_PACKAGE_NAME
-          : REST_PLUGIN_PACKAGE_NAME,
+          ? PluginPackageName.GRAPHQL
+          : PluginPackageName.REST_API,
       );
     }
   };
@@ -241,7 +241,10 @@ function NewApiScreen(props: Props) {
         break;
       }
       case API_ACTION.CREATE_DATASOURCE_FORM: {
-        props.createDatasourceFromForm({ pluginId: params.pluginId });
+        props.createTempDatasourceFromForm({
+          pluginId: params.pluginId,
+          type: params.type,
+        });
         break;
       }
       case API_ACTION.AUTH_API: {
@@ -254,7 +257,7 @@ function NewApiScreen(props: Props) {
 
   // Api plugins with Graphql
   const API_PLUGINS = plugins.filter(
-    (p) => p.packageName === GRAPHQL_PLUGIN_PACKAGE_NAME,
+    (p) => p.packageName === PluginPackageName.GRAPHQL,
   );
 
   plugins.forEach((p) => {
@@ -278,7 +281,7 @@ function NewApiScreen(props: Props) {
                 src={PlusLogo}
               />
             </div>
-            <p className="textBtn">Create new API</p>
+            <p className="textBtn">REST API</p>
           </CardContentWrapper>
           {isCreating && <Spinner className="cta" size={25} />}
         </ApiCard>
@@ -310,7 +313,7 @@ function NewApiScreen(props: Props) {
                   src={authApiPlugin.iconLocation}
                 />
               </div>
-              <p className="textBtn">Authenticated API</p>
+              <p className="t--plugin-name textBtn">Authenticated API</p>
             </CardContentWrapper>
           </ApiCard>
         )}
@@ -326,7 +329,7 @@ function NewApiScreen(props: Props) {
                 src={PlusLogo}
               />
             </div>
-            <p className="textBtn">Create new GraphQL API</p>
+            <p className="textBtn">GraphQL API</p>
           </CardContentWrapper>
         </ApiCard>
         {API_PLUGINS.map((p) => (
@@ -369,6 +372,7 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = {
   createNewApiAction,
   createDatasourceFromForm,
+  createTempDatasourceFromForm,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewApiScreen);

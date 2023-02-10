@@ -5,6 +5,7 @@
     "prompts": "^2.4.2"
   },
   "scripts": {
-    "verify": "yarn install && node --experimental-modules verify-shared-dep.js"
+    "verify": "yarn install && node --experimental-modules verify-shared-dep.js",
+    "test:unit": "node --experimental-modules run-tests.js"
   }
 }

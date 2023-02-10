@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.dtos.DslActionDTO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +11,6 @@ import java.util.TreeSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CompareDslActionDTOTest {
-
 
     @Test
     public void convert_whenEmptyActionIdSet_elementsDoesNotMaintainOrder() {

@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { TooltipComponent as Tooltip } from "design-system";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import {
   FormLabel,
   FormInputHelperText,
@@ -18,6 +18,15 @@ import { FormIcons } from "icons/FormIcons";
 import { FormControlProps } from "./FormControl";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { AppState } from "@appsmith/reducers";
+import {
+  getPropertyControlFocusElement,
+  shouldFocusOnPropertyControl,
+} from "utils/editorContextUtils";
+import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
+import { setFocusableInputField } from "actions/editorContextActions";
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -40,6 +49,15 @@ const RequiredFieldWrapper = styled.span`
   color: var(--appsmith-color-red-500);
 `;
 
+// TODO: replace condition with props.config.dataType === "TOGGLE"
+// label and form element is rendered side by side for CHECKBOX and SWITCH
+const FormConfigWrapper = styled.div<{ controlType: string }>`
+  display: ${(props) =>
+    props.controlType === "CHECKBOX" || props.controlType === "SWITCH"
+      ? "flex"
+      : "block"};
+`;
+
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
   configErrors: EvaluationError[];
@@ -50,7 +68,48 @@ interface FormConfigProps extends FormControlProps {
 // props.children will render the form element
 export default function FormConfig(props: FormConfigProps) {
   let top, bottom;
+  const controlRef = useRef<HTMLDivElement | null>(null);
+  const dispatch = useDispatch();
+  const entityInfo = identifyEntityFromPath(
+    window.location.pathname,
+    window.location.hash,
+  );
 
+  const handleOnFocus = () => {
+    if (props.config.configProperty) {
+      // Need an additional identifier to trigger another render when configProperty
+      // are same for two different entitites
+      dispatch(
+        setFocusableInputField(
+          `${entityInfo.id}.${props.config.configProperty}`,
+        ),
+      );
+    }
+  };
+
+  const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
+    getIsInputFieldFocused(
+      state,
+      `${entityInfo.id}.${props.config.configProperty}`,
+    ),
+  );
+
+  useEffect(() => {
+    if (shouldFocusPropertyPath) {
+      setTimeout(() => {
+        if (shouldFocusOnPropertyControl(controlRef.current)) {
+          const focusableElement = getPropertyControlFocusElement(
+            controlRef.current,
+          );
+          focusableElement?.scrollIntoView({
+            block: "center",
+            behavior: "smooth",
+          });
+          focusableElement?.focus();
+        }
+      }, 0);
+    }
+  }, [shouldFocusPropertyPath]);
   if (props.multipleConfig?.length) {
     top = (
       <div style={{ display: "flex" }}>
@@ -77,16 +136,10 @@ export default function FormConfig(props: FormConfigProps) {
 
   return (
     <div>
-      <div
-        style={{
-          // TODO: replace condition with props.config.dataType === "TOGGLE"
-          // label and form element is rendered side by side for CHECKBOX and SWITCH
-          display:
-            props.config.controlType === "SWITCH" ||
-            props.config.controlType === "CHECKBOX"
-              ? "flex"
-              : "block",
-        }}
+      <FormConfigWrapper
+        controlType={props.config.controlType}
+        onFocus={handleOnFocus}
+        ref={controlRef}
       >
         {props.config.controlType === "CHECKBOX" ? (
           <>
@@ -107,7 +160,7 @@ export default function FormConfig(props: FormConfigProps) {
             {props.children}
           </>
         )}
-      </div>
+      </FormConfigWrapper>
       {renderFormConfigBottom({
         config: props.config,
         configErrors: props.configErrors,
@@ -131,7 +184,7 @@ function renderFormConfigTop(props: {
     urlText,
   } = { ...props.config };
   return (
-    <React.Fragment key={props.config.label}>
+    <div className="form-config-top" key={props.config.label}>
       {!nestedFormControl && // if the form control is a nested form control hide its label
         (label?.length > 0 || encrypted || tooltipText || subtitle) && (
           <>
@@ -190,7 +243,7 @@ function renderFormConfigTop(props: {
           {urlText}
         </FormInputAnchor>
       )}
-    </React.Fragment>
+    </div>
   );
 }
 

@@ -1,20 +1,48 @@
 import { setupServer } from "msw/node";
 import { handlers } from "./__mocks__/apiHandlers";
+import "../src/polyfills/requestIdleCallback";
+
 export const server = setupServer(...handlers);
 
 window.scrollTo = jest.fn();
 Element.prototype.scrollIntoView = jest.fn();
 Element.prototype.scrollBy = jest.fn();
-const mockObserveFn = () => {
-  return {
-    observe: jest.fn(),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
-  };
-};
 
-window.IntersectionObserver = jest.fn().mockImplementation(mockObserveFn);
-window.ResizeObserver = jest.fn().mockImplementation(mockObserveFn);
+beforeAll(() => {
+  window.IntersectionObserver = jest
+    .fn()
+    .mockImplementation((fn: (entry: any) => any) => {
+      return {
+        observe: () => {
+          fn([
+            {
+              isIntersecting: true,
+              boundingClientRect: {
+                top: 64,
+                left: 293,
+              },
+              intersectionRect: {
+                width: 1296,
+                height: 424,
+                top: 64,
+                left: 293,
+              },
+            },
+          ]);
+        },
+        unobserve: jest.fn(),
+        disconnect: jest.fn(),
+      };
+    });
+
+  window.ResizeObserver = jest.fn().mockImplementation(() => {
+    return {
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    };
+  });
+});
 
 // establish API mocking before all tests
 beforeAll(() => server.listen());
@@ -43,3 +71,19 @@ document.createRange = () => {
 
 // jest events doesnt seem to be handling scrollTo
 Element.prototype.scrollTo = () => {};
+
+class WorkerStub {
+  url: string;
+  onmessage: CallableFunction;
+  constructor(stringUrl: string) {
+    this.url = stringUrl;
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    this.onmessage = () => {};
+  }
+
+  postMessage(msg) {
+    this.onmessage(msg);
+  }
+}
+
+window.Worker = WorkerStub as any;

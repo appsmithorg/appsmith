@@ -25,8 +25,9 @@ import { getCanvasClassName } from "utils/generators";
 import { AppState } from "@appsmith/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Colors } from "constants/Colors";
 import { closeTableFilterPane } from "actions/widgetActions";
+import { Colors } from "constants/Colors";
+import { scrollCSS } from "widgets/WidgetUtils";
 
 const Container = styled.div<{
   width?: number;
@@ -39,8 +40,6 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
-  backgroundColor: string;
-  borderRadius: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -78,22 +77,27 @@ const Container = styled.div<{
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
-        background: ${({ backgroundColor }) =>
-          `${backgroundColor || Colors.WHITE}`};
-        border-radius: ${({ borderRadius }) => borderRadius};
       }
     }
   }
 `;
-const Content = styled.div<{
-  height?: number;
-  scroll: boolean;
-  ref: RefObject<HTMLDivElement>;
-}>`
-  overflow-y: ${(props) => (props.scroll ? "visible" : "hidden")};
+const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;
   width: 100%;
   height: 100%;
+  ${scrollCSS}
+  ${(props) => (!props.$scroll ? `overflow: hidden;` : ``)}
+`;
+
+const Wrapper = styled.div<{
+  $background?: string;
+  $borderRadius?: string;
+}>`
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: ${({ $background }) => `${$background || Colors.WHITE}`};
+  border-radius: ${({ $borderRadius }) => $borderRadius};
 `;
 
 const ComponentContainer = styled.div<{
@@ -131,8 +135,10 @@ export type ModalComponentProps = {
   minSize?: number;
   widgetId: string;
   widgetName: string;
-  backgroundColor: string;
-  borderRadius: string;
+  isDynamicHeightEnabled: boolean;
+  background?: string;
+  borderRadius?: string;
+  settingsComponent?: ReactNode;
 };
 
 /* eslint-disable react/display-name */
@@ -170,6 +176,7 @@ export default function ModalComponent(props: ModalComponentProps) {
     setTimeout(() => {
       setModalPosition("unset");
     }, 100);
+
     return () => {
       // handle modal close events when this component unmounts
       // will be called in all cases :-
@@ -220,6 +227,10 @@ export default function ModalComponent(props: ModalComponentProps) {
     });
   };
 
+  const isVerticalResizeEnabled = useMemo(() => {
+    return !props.isDynamicHeightEnabled && enableResize;
+  }, [props.isDynamicHeightEnabled, enableResize]);
+
   const getResizableContent = () => {
     //id for Content is required for Copy Paste inside the modal
     return (
@@ -227,7 +238,8 @@ export default function ModalComponent(props: ModalComponentProps) {
         allowResize
         componentHeight={props.height || 0}
         componentWidth={props.width || 0}
-        enable={enableResize}
+        enableHorizontalResize={enableResize}
+        enableVerticalResize={isVerticalResizeEnabled}
         handles={handles}
         isColliding={() => false}
         onStart={onResizeStart}
@@ -237,14 +249,24 @@ export default function ModalComponent(props: ModalComponentProps) {
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}
       >
-        <Content
-          className={`${getCanvasClassName()} ${props.className}`}
-          id={props.widgetId}
-          ref={modalContentRef}
-          scroll={props.scrollContents}
+        {props.settingsComponent}
+        <Wrapper
+          $background={props.background}
+          $borderRadius={props.borderRadius}
+          data-cy="modal-wrapper"
         >
-          {props.children}
-        </Content>
+          <Content
+            $scroll={!!props.scrollContents}
+            className={`${getCanvasClassName()} ${
+              props.className
+            } scroll-parent`}
+            id={props.widgetId}
+            ref={modalContentRef}
+            tabIndex={0}
+          >
+            {props.children}
+          </Content>
+        </Wrapper>
       </Resizable>
     );
   };
@@ -262,8 +284,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         usePortal={false}
       >
         <Container
-          backgroundColor={props.backgroundColor}
-          borderRadius={props.borderRadius}
           bottom={props.bottom}
           height={props.height}
           isEditMode={props.isEditMode}

@@ -1,7 +1,6 @@
 import React from "react";
 import UserApi, { SendTestEmailPayload } from "@appsmith/api/UserApi";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -24,6 +23,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
+import { getCurrentTenant } from "ce/actions/tenantActions";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -41,6 +41,14 @@ export function* FetchAdminSettingsSaga() {
         cloudHosting,
       ),
     };
+
+    // Converting empty values to boolean false
+    Object.keys(settings).forEach((key) => {
+      if ((settings[key] as string).trim() === "") {
+        settings[key] = false;
+      }
+    });
+
     yield put({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
       payload: settings,
@@ -58,9 +66,13 @@ export function* FetchAdminSettingsErrorSaga() {
 }
 
 export function* SaveAdminSettingsSaga(
-  action: ReduxAction<Record<string, string>>,
+  action: ReduxAction<{
+    settings: Record<string, any>;
+    needsRestart: boolean;
+  }>,
 ) {
-  const settings = action.payload;
+  const { needsRestart = true, settings } = action.payload;
+
   try {
     const response: ApiResponse = yield call(
       UserApi.saveAdminSettings,
@@ -76,13 +88,19 @@ export function* SaveAdminSettingsSaga(
       yield put({
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
       });
+
+      yield put(getCurrentTenant());
+
       yield put({
         type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
         payload: settings,
       });
-      yield put({
-        type: ReduxActionTypes.RESTART_SERVER_POLL,
-      });
+
+      if (needsRestart) {
+        yield put({
+          type: ReduxActionTypes.RESTART_SERVER_POLL,
+        });
+      }
     } else {
       yield put({
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_ERROR,

@@ -29,6 +29,7 @@ export class PropertyPane {
   private _copyWidget = "button.t--copy-widget";
   _deleteWidget = "button.t--delete-widget";
   private _changeThemeBtn = ".t--change-theme-btn";
+  private _contentTabBtn = "li:contains('CONTENT')";
   private _styleTabBtn = "li:contains('STYLE')";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
@@ -36,6 +37,18 @@ export class PropertyPane {
     "']//ancestor::div[@class= 'space-y-1 group']";
   private _jsonFieldConfigList =
     "//div[contains(@class, 't--property-control-fieldconfiguration group')]//div[contains(@class, 'content')]/div//input";
+  private _tableEditColumnButton = ".t--edit-column-btn";
+  private _tableColumnSettings = (column: string) =>
+    `[data-rbd-draggable-id='${column}'] ${this._tableEditColumnButton}`;
+  private _sectionCollapse = (section: string) =>
+    `.t--property-pane-section-collapse-${section}`;
+  private _sectionCollapseWithTag = (section: string, tab: string) =>
+    `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`;
+  private _propertyControl = (property: string) =>
+    `.t--property-control-${property}`;
+  _propertyPaneSearchInputWrapper = ".t--property-pane-search-input-wrapper";
+  _propertyPaneSearchInput = `${this._propertyPaneSearchInputWrapper} input`;
+  _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
@@ -45,7 +58,8 @@ export class PropertyPane {
   _colorRing = ".border-2";
   _colorInput = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div//input";
-  //_colorInputField = (option: string) => "//h3[text()='" + option + " Color']//parent::div";
+  _colorInputField = (option: string) =>
+    "//h3[text()='" + option + " Color']//parent::div";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -93,7 +107,15 @@ export class PropertyPane {
       this.agHelper.GetNClick(this._colorPickerV2Popover);
       this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
     } else {
-      this.agHelper.GetElement(this._colorInput(type)).clear();
+      this.agHelper
+        .GetElement(this._colorInput(type))
+        .clear()
+        .wait(200);
+      this.agHelper.TypeText(this._colorInput(type), colorIndex);
+      this.agHelper
+        .GetElement(this._colorInput(type))
+        .clear()
+        .wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
       //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
     }
@@ -119,13 +141,16 @@ export class PropertyPane {
     cy.get("@fieldNames").each(($filedName: any) => {
       field = $filedName;
       this.agHelper.GetNClick(this._fieldConfig(field as string));
+      this.agHelper.Sleep(200);
+      this.RemoveText("Default Value", false);
       this.agHelper
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
           placeHolderText = "{{sourceData." + $propName + "}}";
           this.UpdatePropertyFieldValue("Placeholder", placeHolderText, false);
         });
-      this.RemoveText("Default Value", false);
+      cy.focused().blur();
+      //this.RemoveText("Default Value", false);
       //this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
@@ -144,15 +169,34 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public moveToStyleTab() {
-    cy.get(this._styleTabBtn).first().click({force:true})
-  }
-  
-  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endpoint))
+  public moveToContentTab() {
+    cy.get(this._contentTabBtn)
       .first()
-      .scrollIntoView()
-      .click();
+      .click({ force: true });
+  }
+
+  public moveToStyleTab() {
+    cy.get(this._styleTabBtn)
+      .first()
+      .click({ force: true });
+  }
+
+  public SelectPropertiesDropDown(
+    endpoint: string,
+    dropdownOption: string,
+    action: "Action" | "Page" = "Action",
+    index = 0,
+  ) {
+    if (action == "Action")
+      this.agHelper.GetNClick(
+        this.locator._selectPropDropdown(endpoint),
+        index,
+      );
+    else
+      this.agHelper.GetNClick(
+        this.locator._selectPropPageDropdown(endpoint),
+        index,
+      );
     cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
@@ -180,6 +224,45 @@ export class PropertyPane {
     toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
 
+  public ValidatePropertyFieldValue(
+    propFieldName: string,
+    valueToValidate: string,
+  ) {
+    cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
+      ($field: any) => {
+        this.agHelper.ValidateCodeEditorContent($field, valueToValidate);
+      },
+    );
+    return cy.wrap(valueToValidate);
+  }
+
+  public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
+    let val: any;
+    if (fieldName) {
+      cy.xpath(this.locator._existingFieldValueByName(fieldName))
+        .eq(0)
+        .click();
+      val = cy.get(fieldName).then(($field) => {
+        cy.wrap($field)
+          .find(".CodeMirror-code span")
+          .first()
+          .invoke("text");
+      });
+    } else {
+      cy.xpath(this.locator._codeMirrorCode).click();
+      val = cy
+        .xpath(
+          "//div[@class='CodeMirror-code']//span[contains(@class,'cm-m-javascript')]",
+        )
+        .then(($field) => {
+          cy.wrap($field).invoke("text");
+        });
+    }
+    this.agHelper.Sleep(); //Increasing wait time to evaluate non-undefined values
+    if (currentValue) expect(val).to.eq(currentValue);
+    return val;
+  }
+
   public RemoveText(endp: string, toVerifySave = true) {
     cy.get(
       this.locator._propertyControl +
@@ -188,6 +271,7 @@ export class PropertyPane {
         this.locator._codeMirrorTextArea,
     )
       .first()
+      .scrollIntoView()
       .focus()
       .type(this.selectAllJSObjectContentShortcut)
       .type("{backspace}", { force: true });
@@ -219,6 +303,21 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
 
+  public ToggleCommentInTextField(endp: string) {
+    cy.get(
+      this.locator._propertyControl +
+        endp.replace(/ +/g, "").toLowerCase() +
+        " " +
+        this.locator._codeMirrorTextArea,
+    )
+      .first()
+      .then((el: any) => {
+        cy.get(el).type(this.agHelper.isMac ? "{meta}/" : "{ctrl}/");
+      });
+
+    this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
+  }
+
   public EnterJSContext(
     endp: string,
     value: string,
@@ -243,5 +342,39 @@ export class PropertyPane {
     else this.TypeTextIntoField(endp, value);
 
     this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
+  }
+
+  public OpenTableColumnSettings(column: string) {
+    this.agHelper.GetNClick(this._tableColumnSettings(column));
+  }
+
+  public Search(query: string) {
+    cy.get(this._propertyPaneSearchInput)
+      .first()
+      .then((el: any) => {
+        cy.get(el).clear();
+        if (query) cy.get(el).type(query, { force: true });
+      });
+  }
+
+  public ToggleSection(section: string) {
+    this.agHelper.GetNClick(this._sectionCollapse(section));
+  }
+
+  public AssertSearchInputValue(value: string) {
+    this.agHelper.AssertText(this._propertyPaneSearchInput, "val", value);
+  }
+
+  // Checks if the property exists in search results
+  public AssertIfPropertyOrSectionExists(
+    section: string,
+    tab: "CONTENT" | "STYLE",
+    property?: string,
+  ) {
+    this.agHelper.AssertElementExist(
+      this._sectionCollapseWithTag(section, tab),
+    );
+    if (property)
+      this.agHelper.AssertElementExist(this._propertyControl(property));
   }
 }

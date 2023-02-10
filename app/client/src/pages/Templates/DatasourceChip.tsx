@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system-old";
 import React from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
@@ -20,7 +20,7 @@ const StyledDatasourceChip = styled.div`
   }
   span {
     margin-left: ${(props) => props.theme.spaces[2]}px;
-    ${(props) => getTypographyByKey(props, "h6")}
+    ${getTypographyByKey("h6")}
     letter-spacing: -0.221538px;
     color: var(--appsmith-color-black-900);
   }

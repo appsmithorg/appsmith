@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import Entity from "./Entity";
 
 const ECContainer = styled.div`
@@ -39,16 +39,19 @@ const ECAddButton = styled.div`
 
 export function EmptyComponent(props: {
   mainText: string;
-  addBtnText: string;
-  addFunction: () => void;
+  addBtnText?: string;
+  addFunction?: () => void;
 }) {
+  const showAddCta = props.addFunction && props.addBtnText;
   return (
     <ECContainer>
       <ECMainText>{props.mainText}</ECMainText>
-      <ECAddButton onClick={props.addFunction}>
-        <Icon fillColor={Colors.CHARCOAL} name="plus" />
-        {props.addBtnText}
-      </ECAddButton>
+      {showAddCta && (
+        <ECAddButton onClick={props.addFunction}>
+          <Icon fillColor={Colors.CHARCOAL} name="plus" />
+          {props.addBtnText && props.addBtnText}
+        </ECAddButton>
+      )}
     </ECContainer>
   );
 }

@@ -1,10 +1,10 @@
+import { useSelector } from "react-redux";
 import {
   enableGuidedTour,
   toggleShowDeviationDialog,
   toggleShowEndTourDialog,
 } from "actions/onboardingActions";
-import { Button, Category, Size } from "design-system";
-import DialogComponent from "components/ads/DialogComponent";
+import { Button, Category, DialogComponent, Size } from "design-system-old";
 import {
   CANCEL_DIALOG,
   createMessage,
@@ -17,7 +17,6 @@ import {
   showDeviatingDialogSelector,
   showEndTourDialogSelector,
 } from "selectors/onboardingSelectors";
-import { useSelector } from "store";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 

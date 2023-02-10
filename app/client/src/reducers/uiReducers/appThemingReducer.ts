@@ -33,7 +33,7 @@ const initialState: AppThemingState = {
     created_at: "",
     config: {
       colors: {
-        backgroundColor: "#f6f6f6",
+        backgroundColor: "#F8FAFC",
         primaryColor: "",
         secondaryColor: "",
       },
@@ -43,7 +43,7 @@ const initialState: AppThemingState = {
     },
     properties: {
       colors: {
-        backgroundColor: "#f6f6f6",
+        backgroundColor: "#F8FAFC",
         primaryColor: "",
         secondaryColor: "",
       },

@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -33,6 +34,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission);
+    }
+
+    @Override
+    public Flux<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
+        Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
+        return queryAll(List.of(applicationIdCriteria), permission);
     }
 
     @Override
@@ -58,7 +65,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             layoutsKey = fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.layouts);
 
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriterion = where (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
+            Criteria deletedCriterion = where(fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
             criteria.add(deletedCriterion);
         }
         layoutsIdKey = layoutsKey + "." + fieldName(QLayout.layout.id);
@@ -79,7 +86,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriterion = where (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
+            Criteria deletedCriterion = where(fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
             criteria.add(deletedCriterion);
         }
 
@@ -99,7 +106,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriteria = where (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
+            Criteria deletedCriteria = where(fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
             criteria.add(deletedCriteria);
         }
 
@@ -107,11 +114,29 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findAllByIds(List<String> ids, AclPermission aclPermission) {
-        Criteria idsCriterion = where("id")
-                .in(ids);
+    public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
+        ArrayList<String> includedFields = new ArrayList<>(List.of(
+                FieldName.APPLICATION_ID,
+                FieldName.DEFAULT_RESOURCES,
+                "unpublishedPage.name",
+                "unpublishedPage.icon",
+                "unpublishedPage.isHidden",
+                "unpublishedPage.slug",
+                "unpublishedPage.customSlug",
+                "publishedPage.name",
+                "publishedPage.icon",
+                "publishedPage.isHidden",
+                "publishedPage.slug",
+                "publishedPage.customSlug"
+        ));
 
-        return queryAll(List.of(idsCriterion), aclPermission);
+        Criteria idsCriterion = where("id").in(ids);
+
+        return this.queryAll(
+                new ArrayList<>(List.of(idsCriterion)),
+                includedFields,
+                aclPermission,
+                null);
     }
 
     private Criteria getNameCriterion(String name, Boolean viewMode) {

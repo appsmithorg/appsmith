@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, PropsWithChildren } from "react";
 import styled from "styled-components";
 import { Text } from "@blueprintjs/core";
 
@@ -35,6 +35,7 @@ export type JSONFormComponentProps<TValues = any> = {
   fieldLimitExceeded: boolean;
   fixedFooter: boolean;
   getFormData: () => TValues;
+  fixMessageHeight: boolean;
   isWidgetMounting: boolean;
   isSubmitting: boolean;
   onFormValidityUpdate: (isValid: boolean) => void;
@@ -64,51 +65,72 @@ const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
   overflow-y: auto;
 `;
 
-const MessageStateWrapper = styled.div`
+const MessageStateWrapper = styled.div<{ $fixHeight: boolean }>`
   align-items: center;
   display: flex;
-  height: 100%;
+  ${(props) => (props.$fixHeight ? "height: 303px" : "height: 100%")};
   justify-content: center;
 `;
 
-const Message = styled(Text)`
+type MessageProps = PropsWithChildren<{
+  $fixHeight: boolean;
+}>;
+
+const Message = styled(Text)<MessageProps>`
   font-size: ${TEXT_SIZES.HEADING3};
-  left: 50%;
-  position: absolute;
   text-align: center;
+  width: 100%;
+  left: 50%;
+  ${(props) =>
+    !props.$fixHeight
+      ? `position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 100%;
+  `
+      : ""}
 `;
 
-function InfoMessage({ children }: { children: React.ReactNode }) {
+function InfoMessage({
+  children,
+  fixHeight,
+}: {
+  children: React.ReactNode;
+  fixHeight: boolean;
+}) {
   return (
-    <MessageStateWrapper>
-      <Message>{children}</Message>
+    <MessageStateWrapper $fixHeight={fixHeight}>
+      <Message $fixHeight={fixHeight}>{children}</Message>
     </MessageStateWrapper>
   );
 }
 
-function JSONFormComponent<TValues>({
-  backgroundColor,
-  executeAction,
-  fieldLimitExceeded,
-  getFormData,
-  isSubmitting,
-  isWidgetMounting,
-  onFormValidityUpdate,
-  registerResetObserver,
-  renderMode,
-  resetButtonLabel,
-  schema,
-  setMetaInternalFieldState,
-  submitButtonLabel,
-  unregisterResetObserver,
-  updateFormData,
-  updateWidgetMetaProperty,
-  updateWidgetProperty,
-  ...rest
-}: JSONFormComponentProps<TValues>) {
+function JSONFormComponent<TValues>(
+  {
+    backgroundColor,
+    executeAction,
+    fieldLimitExceeded,
+    fixMessageHeight,
+    getFormData,
+    isSubmitting,
+    isWidgetMounting,
+    onFormValidityUpdate,
+    registerResetObserver,
+    renderMode,
+    resetButtonLabel,
+    schema,
+    setMetaInternalFieldState,
+    submitButtonLabel,
+    unregisterResetObserver,
+    updateFormData,
+    updateWidgetMetaProperty,
+    updateWidgetProperty,
+    ...rest
+  }: JSONFormComponentProps<TValues>,
+  ref:
+    | ((instance: HTMLDivElement | null) => void)
+    | React.MutableRefObject<HTMLDivElement | null>
+    | null,
+) {
   const isSchemaEmpty = isEmpty(schema);
   const styleProps = pick(rest, [
     "borderColor",
@@ -138,7 +160,7 @@ function JSONFormComponent<TValues>({
   const renderComponent = (() => {
     if (fieldLimitExceeded) {
       return (
-        <InfoMessage>
+        <InfoMessage fixHeight={fixMessageHeight}>
           Source data exceeds {MAX_ALLOWED_FIELDS} fields.&nbsp;
           {renderMode === RenderModes.PAGE
             ? "Please contact your developer for more information"
@@ -148,7 +170,7 @@ function JSONFormComponent<TValues>({
     }
     if (isSchemaEmpty) {
       return (
-        <InfoMessage>
+        <InfoMessage fixHeight={fixMessageHeight}>
           Connect data or paste JSON to add items to this form.
         </InfoMessage>
       );
@@ -179,6 +201,7 @@ function JSONFormComponent<TValues>({
           isWidgetMounting={isWidgetMounting}
           onFormValidityUpdate={onFormValidityUpdate}
           onSubmit={rest.onSubmit}
+          ref={ref}
           registerResetObserver={registerResetObserver}
           resetButtonLabel={resetButtonLabel}
           resetButtonStyles={rest.resetButtonStyles}
@@ -199,4 +222,4 @@ function JSONFormComponent<TValues>({
   );
 }
 
-export default React.memo(JSONFormComponent);
+export default React.memo(React.forwardRef(JSONFormComponent));

@@ -149,8 +149,20 @@ import { WidgetConfiguration } from "widgets/constants";
 import TableWidgetV2, {
   CONFIG as TABLE_WIDGET_CONFIG_V2,
 } from "widgets/TableWidgetV2";
+import NumberSliderWidget, {
+  CONFIG as NUMBER_SLIDER_WIDGET_CONFIG,
+} from "widgets/NumberSliderWidget";
+import RangeSliderWidget, {
+  CONFIG as RANGE_SLIDER_WIDGET_CONFIG,
+} from "widgets/RangeSliderWidget";
+import CategorySliderWidget, {
+  CONFIG as CATEGORY_SLIDER_WIDGET_CONFIG,
+} from "widgets/CategorySliderWidget";
+import CodeScannerWidget, {
+  CONFIG as CODE_SCANNER_WIDGET_CONFIG,
+} from "widgets/CodeScannerWidget";
 
-export const ALL_WIDGETS_AND_CONFIG = [
+export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
   [SkeletonWidget, SKELETON_WIDGET_CONFIG],
   [ContainerWidget, CONTAINER_WIDGET_CONFIG],
@@ -196,6 +208,10 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
   [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
   [TableWidgetV2, TABLE_WIDGET_CONFIG_V2],
+  [NumberSliderWidget, NUMBER_SLIDER_WIDGET_CONFIG],
+  [RangeSliderWidget, RANGE_SLIDER_WIDGET_CONFIG],
+  [CategorySliderWidget, CATEGORY_SLIDER_WIDGET_CONFIG],
+  [CodeScannerWidget, CODE_SCANNER_WIDGET_CONFIG],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],

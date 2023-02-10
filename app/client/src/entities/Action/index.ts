@@ -1,6 +1,7 @@
 import { EmbeddedRestDatasource } from "entities/Datasource";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import _ from "lodash";
+import { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import { Plugin } from "api/PluginApi";
 
 export enum PluginType {
@@ -14,6 +15,17 @@ export enum PluginType {
 // more can be added subsequently.
 export enum PluginName {
   MONGO = "MongoDB",
+}
+
+export enum PluginPackageName {
+  POSTGRES = "postgres-plugin",
+  MONGO = "mongo-plugin",
+  S3 = "amazons3-plugin",
+  GOOGLE_SHEETS = "google-sheets-plugin",
+  FIRESTORE = "firestore-plugin",
+  REST_API = "restapi-plugin",
+  GRAPHQL = "graphql-plugin",
+  JS = "js-plugin",
 }
 
 export enum PaginationType {
@@ -96,6 +108,7 @@ export const isStoredDatasource = (val: any): val is StoredDatasource => {
 };
 export interface StoredDatasource {
   id: string;
+  pluginId?: string;
 }
 
 export interface BaseAction {
@@ -114,6 +127,8 @@ export interface BaseAction {
   confirmBeforeExecute?: boolean;
   eventData?: any;
   messages: string[];
+  userPermissions?: string[];
+  errorReports?: Array<LayoutOnLoadActionErrors>;
 }
 
 interface BaseApiAction extends BaseAction {
@@ -193,9 +208,9 @@ export function isSaaSAction(action: Action): action is SaaSAction {
 }
 
 export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
-  return plugins.find((p) => p.packageName === "graphql-plugin");
+  return plugins.find((p) => p.packageName === PluginPackageName.GRAPHQL);
 }
 
 export function isGraphqlPlugin(plugin: Plugin | undefined) {
-  return plugin?.packageName === "graphql-plugin";
+  return plugin?.packageName === PluginPackageName.GRAPHQL;
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -22,6 +22,7 @@ const IconContainer = styled.div`
   //width: 100%;
   height: 30px;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   cursor: pointer;
   padding-left: 16px;

@@ -1,23 +1,16 @@
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
-import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
+import {
+  getBasePropertyPath,
+  showByColumnType,
+  hideByColumnType,
+  getColumnPath,
+} from "../../propertyUtils";
 
 export default {
   sectionName: "Events",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    if (
-      !hideByColumnType(
-        props,
-        propertyPath,
-        [
-          ColumnTypes.BUTTON,
-          ColumnTypes.ICON_BUTTON,
-          ColumnTypes.IMAGE,
-          ColumnTypes.EDIT_ACTIONS,
-        ],
-        true,
-      )
-    ) {
+    if (showByColumnType(props, propertyPath, [ColumnTypes.IMAGE], true)) {
       return false;
     } else {
       const columnType = get(props, `${propertyPath}.columnType`, "");
@@ -26,41 +19,20 @@ export default {
         !(
           columnType === ColumnTypes.TEXT ||
           columnType === ColumnTypes.NUMBER ||
-          columnType === ColumnTypes.CHECKBOX
+          columnType === ColumnTypes.CHECKBOX ||
+          columnType === ColumnTypes.SWITCH ||
+          columnType === ColumnTypes.SELECT ||
+          columnType === ColumnTypes.DATE
         ) || !isEditable
       );
     }
   },
   children: [
-    // Button, iconButton onClick
-    {
-      helpText: "Triggers an action when the button is clicked",
-      propertyName: "onClick",
-      label: "onClick",
-      controlType: "ACTION_SELECTOR",
-      additionalAutoComplete: (props: TableWidgetProps) => ({
-        currentRow: Object.assign(
-          {},
-          ...Object.keys(props.primaryColumns).map((key) => ({
-            [key]: "",
-          })),
-        ),
-      }),
-      isJSConvertible: true,
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      isTriggerProperty: true,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.BUTTON,
-          ColumnTypes.ICON_BUTTON,
-        ]);
-      },
-    },
     // Image onClick
     {
       propertyName: "onClick",
       label: "onClick",
+      helpText: "Triggers an action when user clicks on an image",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -75,6 +47,8 @@ export default {
     {
       propertyName: "onSubmit",
       label: "onSubmit",
+      helpText:
+        "Triggers an action when the user presses enter or clicks outside the input box",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -94,6 +68,7 @@ export default {
     {
       propertyName: "onOptionChange",
       label: "onOptionChange",
+      helpText: "Triggers an action when user changes an option",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -108,7 +83,21 @@ export default {
     },
     {
       propertyName: "onCheckChange",
+      label: "onChange",
+      helpText: "Triggers an action when the check state is changed",
+      controlType: "ACTION_SELECTOR",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.SWITCH]);
+      },
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onCheckChange",
       label: "onCheckChange",
+      helpText: "Triggers an action when the check state is changed",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
@@ -119,32 +108,46 @@ export default {
       isTriggerProperty: true,
     },
     {
-      propertyName: "onSave",
-      label: "onSave",
-      controlType: "ACTION_SELECTOR",
+      propertyName: "onFilterUpdate",
+      helpText: "Trigger an action on change of filterText",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== ColumnTypes.EDIT_ACTIONS;
+        const isEditable = get(props, `${baseProperty}.isEditable`, "");
+        const serverSideFiltering = get(
+          props,
+          `${baseProperty}.serverSideFiltering`,
+          false,
+        );
+        return (
+          columnType !== ColumnTypes.SELECT ||
+          !isEditable ||
+          !serverSideFiltering
+        );
       },
       dependencies: ["primaryColumns"],
+      label: "onFilterUpdate",
+      controlType: "ACTION_SELECTOR",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      additionalAutoComplete: () => ({
+        filterText: "",
+      }),
     },
     {
-      propertyName: "onDiscard",
-      label: "onDiscard",
+      propertyName: "onDateSelected",
+      label: "onDateSelected",
+      helpText: "Triggers an action when a date is selected in the calendar",
       controlType: "ACTION_SELECTOR",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== ColumnTypes.EDIT_ACTIONS;
-      },
-      dependencies: ["primaryColumns"],
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      dependencies: ["primaryColumns"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const path = getColumnPath(propertyPath);
+        return hideByColumnType(props, path, [ColumnTypes.DATE], true);
+      },
     },
   ],
 };

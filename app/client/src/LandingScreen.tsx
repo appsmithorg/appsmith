@@ -6,7 +6,7 @@ import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { Redirect } from "react-router";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
 import PageLoadingBar from "pages/common/PageLoadingBar";
-import ServerUnavailable from "pages/common/ServerUnavailable";
+import ServerUnavailable from "pages/common/ErrorPages/ServerUnavailable";
 
 type Props = {
   user?: User;

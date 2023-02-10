@@ -2,10 +2,10 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
@@ -42,7 +42,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -92,16 +93,16 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Autowired
     public PluginServiceCEImpl(Scheduler scheduler,
-                             Validator validator,
-                             MongoConverter mongoConverter,
-                             ReactiveMongoTemplate reactiveMongoTemplate,
-                             PluginRepository repository,
-                             AnalyticsService analyticsService,
-                             WorkspaceService workspaceService,
-                             PluginManager pluginManager,
-                             ReactiveRedisTemplate<String, String> reactiveTemplate,
-                             ChannelTopic topic,
-                             ObjectMapper objectMapper) {
+                               Validator validator,
+                               MongoConverter mongoConverter,
+                               ReactiveMongoTemplate reactiveMongoTemplate,
+                               PluginRepository repository,
+                               AnalyticsService analyticsService,
+                               WorkspaceService workspaceService,
+                               PluginManager pluginManager,
+                               ReactiveRedisTemplate<String, String> reactiveTemplate,
+                               ChannelTopic topic,
+                               ObjectMapper objectMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
@@ -133,6 +134,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
                     List<String> pluginIds = org.getPlugins()
                             .stream()
+                            .filter(plugin -> plugin.getDeleted() == false)
                             .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
                     Query query = new Query();
@@ -468,7 +470,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
         if (!templateCache.containsKey(pluginId)) {
             final Mono<Map<String, String>> mono = Mono.fromSupplier(() -> loadTemplatesFromPlugin(plugin))
-                    .onErrorReturn(FileNotFoundException.class, Collections.emptyMap())
+                    .onErrorResume(throwable -> throwable.getCause() instanceof FileNotFoundException, throwable -> Mono.just(Collections.emptyMap()))
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             templateCache.remove(pluginId)

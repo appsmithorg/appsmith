@@ -23,6 +23,7 @@ export interface DatasourceAuthentication {
   bearerToken?: string;
   authenticationStatus?: string;
   authenticationType?: string;
+  secretExists?: Record<string, boolean>;
 }
 
 export interface DatasourceColumns {
@@ -62,6 +63,8 @@ interface BaseDatasource {
   workspaceId: string;
   isValid: boolean;
   isConfigured?: boolean;
+  userPermissions?: string[];
+  isDeleting?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (

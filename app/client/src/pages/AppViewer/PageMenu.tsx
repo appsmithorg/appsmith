@@ -19,17 +19,18 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { trimQueryString } from "utils/helpers";
-import { inviteModalLinks } from "@appsmith/constants/forms";
 import {
   createMessage,
   INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
@@ -118,9 +119,11 @@ export function PageMenu(props: AppViewerHeaderProps) {
                 bgColor: "transparent",
               }}
               isOpen={showAppInviteUsersDialog}
-              links={inviteModalLinks}
-              message={createMessage(INVITE_USERS_MESSAGE)}
-              placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
+              message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
+              placeholder={createMessage(
+                INVITE_USERS_PLACEHOLDER,
+                cloudHosting,
+              )}
               title={application.name}
               trigger={
                 <Button
@@ -137,7 +140,9 @@ export function PageMenu(props: AppViewerHeaderProps) {
               workspaceId={workspaceID}
             />
           )}
-          <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
+          {isOpen && (
+            <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
+          )}
           {!hideWatermark && (
             <a
               className="flex hover:no-underline"

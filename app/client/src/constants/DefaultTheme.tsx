@@ -1,5 +1,4 @@
-import * as styledComponents from "styled-components";
-import { ThemedStyledComponentsModule } from "styled-components";
+import { css } from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
@@ -11,22 +10,6 @@ import { typography, Typography, TypographyKeys } from "./typography";
 
 import { LabelPosition } from "components/constants";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
-
-const themedStyled = {
-  default: styledComponents.default,
-  css: styledComponents.css,
-  createGlobalStyle: styledComponents.createGlobalStyle,
-  keyframes: styledComponents.keyframes,
-  ThemeProvider: styledComponents.ThemeProvider,
-} as ThemedStyledComponentsModule<Theme>;
-
-const {
-  createGlobalStyle,
-  css,
-  default: styled,
-  keyframes,
-  ThemeProvider,
-} = themedStyled;
 
 export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
@@ -105,10 +88,9 @@ export const BlueprintControlTransform = css`
         border: 1px solid var(--wds-color-border-disabled) !important;
       }
 
-      &:hover {
-        & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
-          border: 1px solid ${Colors.GREY_6} !important;
-        }
+      &:hover input:not(:checked):not(:disabled) ~ .bp3-control-indicator,
+      & input:not(:checked):not(:disabled):focus ~ .bp3-control-indicator {
+        border: 1px solid var(--wds-color-bg-disabled-strong) !important;
       }
     }
 
@@ -137,11 +119,10 @@ export const BlueprintControlTransform = css`
         }
       }
 
-      &:hover {
-        & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
-          background: var(--wds-color-bg-strong-hover);
-          border: 1px solid var(--wds-color-border-hover) !important;
-        }
+      &:hover input:not(:checked):not(:disabled) ~ .bp3-control-indicator,
+      input:not(:checked):not(:disabled):focus ~ .bp3-control-indicator {
+        background: var(--wds-color-bg-strong-hover);
+        border: 1px solid var(--wds-color-border-hover) !important;
       }
     }
 
@@ -322,16 +303,16 @@ export const BlueprintRadioSwitchGroupTransform = css<{
   width: 100%;
   height: 100%;
 
-  ${({ alignment, inline, optionCount }) => `
-    display: ${
-      inline ? "inline-flex" : alignment === Alignment.RIGHT ? "block" : "flex"
-    };
+  ${({ inline, optionCount }) => `
+  display: ${inline ? "inline-flex" : "flex"};
     flex-direction: ${inline ? "row" : "column"};
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
     justify-content: ${
       optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`
     };
+    gap: 10px;
+    flex-grow: 1;
   `}
 
   ${BlueprintControlTransform};
@@ -342,42 +323,17 @@ export const BlueprintRadioSwitchGroupTransform = css<{
       }
       return "flex";
     }};
+    width: ${({ alignment, inline }) => {
+      if (alignment === Alignment.RIGHT) {
+        return inline ? "auto" : "100%";
+      }
+      return "auto";
+    }};
     align-items: center;
     border: 1px solid transparent;
     color: ${Colors.GREY_10};
     line-height: 16px;
-    min-height: ${({ alignment }) =>
-      alignment === Alignment.RIGHT ? 23 : 30}px;
-    margin-top: ${({ alignment }) => (alignment === Alignment.RIGHT ? 7 : 0)}px;
 
-    margin-bottom: ${({
-      alignment,
-      height,
-      inline,
-      labelPosition,
-      optionCount,
-    }) => {
-      if (
-        alignment === Alignment.RIGHT &&
-        !inline &&
-        optionCount > 1 &&
-        height
-      ) {
-        return Math.max(
-          (height -
-            (labelPosition === LabelPosition.Left ? 0 : 35) -
-            optionCount * 31) /
-            (optionCount - 1),
-          8,
-        );
-      } else {
-        return 0;
-      }
-    }}px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
     .bp3-control-indicator {
       margin-top: 0;
       border: 1px solid ${Colors.GREY_5};
@@ -442,6 +398,7 @@ export type Theme = {
   headerHeight: string;
   smallHeaderHeight: string;
   bottomBarHeight: string;
+  pageTabsHeight: string;
   integrationsPageUnusableHeight: string;
   backBanner: string;
   homePage: any;
@@ -449,7 +406,6 @@ export type Theme = {
   canvasBottomPadding: number;
   navbarMenuHeight: string;
   navbarMenuLineHeight: string;
-  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -1345,9 +1301,6 @@ type ColorType = {
     highlightTextColor: string;
     textColor: string;
   };
-  pagesEditor: {
-    iconColor: string;
-  };
   numberedStep: {
     line: string;
   };
@@ -1408,10 +1361,6 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
-};
-
-const pagesEditor = {
-  iconColor: "#A2A6A8",
 };
 
 const toggleMode = {
@@ -2149,7 +2098,6 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],
@@ -2177,9 +2125,9 @@ export const light: ColorType = {
   globalSearch: {
     ...globalSearch,
     helpBarBackground: "#F0F0F0",
-    helpBarText: "#A9A7A7",
+    helpBarText: Colors.GRAY_400,
     helpButtonBackground: "#F0F0F0",
-    helpIcon: "#939090",
+    helpIcon: Colors.GRAY_700,
   },
   navigationMenu: {
     contentActive: "#090707",
@@ -2194,7 +2142,7 @@ export const light: ColorType = {
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
-    background: lightShades[0],
+    background: lightShades[11],
     deployToolTipText: lightShades[8],
     deployToolTipBackground: "#FFF",
     shareBtnHighlight: "#F86A2B",
@@ -2783,7 +2731,6 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],
@@ -2820,7 +2767,7 @@ export const theme: Theme = {
       darkText: lightShades[0],
     },
     appBackground: "#EDEDED",
-    artboard: "#F6F6F6",
+    artboard: "#F8FAFC",
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
@@ -2933,8 +2880,9 @@ export const theme: Theme = {
     sidebar: 256,
   },
   headerHeight: "48px",
-  smallHeaderHeight: "32px",
+  smallHeaderHeight: "40px",
   bottomBarHeight: "34px",
+  pageTabsHeight: "32px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
@@ -2996,7 +2944,6 @@ export const theme: Theme = {
   },
   pageContentWidth: 1224,
   tabPanelHeight: 34,
-  actionsBottomTabInitialHeight: "40%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,
@@ -3061,7 +3008,3 @@ export const theme: Theme = {
     linkBg: lightShades[2],
   },
 };
-
-export { css, createGlobalStyle, keyframes, ThemeProvider };
-
-export default styled;

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ButtonTab, ButtonTabOption } from "design-system";
+import { ButtonGroup, ButtonGroupOption } from "design-system-old";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -22,7 +22,7 @@ const ControlContainer = styled.div`
 
 export interface LabelAlignmentOptionsControlProps extends ControlProps {
   propertyValue?: Alignment;
-  options: ButtonTabOption[];
+  options: ButtonGroupOption[];
   defaultValue: Alignment;
 }
 
@@ -52,7 +52,7 @@ class LabelAlignmentOptionsControl extends BaseControl<
 
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
-      e.detail.component === "ButtonTab" &&
+      e.detail.component === "ButtonGroup" &&
       e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
@@ -70,7 +70,7 @@ class LabelAlignmentOptionsControl extends BaseControl<
     const { options, propertyValue } = this.props;
     return (
       <ControlContainer>
-        <ButtonTab
+        <ButtonGroup
           options={options}
           ref={this.componentRef}
           selectButton={this.handleAlign}

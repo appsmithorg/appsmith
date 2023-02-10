@@ -1,6 +1,6 @@
 import { precacheAndRoute } from "workbox-precaching";
 import { clientsClaim, setCacheNameDetails, skipWaiting } from "workbox-core";
-import { registerRoute } from "workbox-routing";
+import { registerRoute, Route } from "workbox-routing";
 import {
   CacheFirst,
   NetworkOnly,
@@ -64,6 +64,8 @@ registerRoute(
   }),
 );
 
-registerRoute(({ url }) => {
-  return url.pathname.includes("index.html");
-}, new NetworkOnly());
+registerRoute(
+  new Route(({ request, sameOrigin }) => {
+    return sameOrigin && request.destination === "document";
+  }, new NetworkOnly()),
+);

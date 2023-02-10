@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitProfile;
@@ -13,10 +12,9 @@ import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.UserChangedHandler;
 import org.assertj.core.api.AssertionsForClassTypes;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +28,7 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,9 +41,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 public class UserDataServiceTest {
@@ -78,7 +76,7 @@ public class UserDataServiceTest {
 
     private static final String DEFAULT_GIT_PROFILE = "default";
 
-    @Before
+    @BeforeEach
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
     }
@@ -130,7 +128,7 @@ public class UserDataServiceTest {
         Mono<Tuple2<UserData, Asset>> loadProfileImageMono = userDataService.getForUserEmail("api_user")
                 .flatMap(userData -> {
                     Mono<UserData> userDataMono = Mono.just(userData);
-                    if(StringUtils.isEmpty(userData.getProfilePhotoAssetId())) {
+                    if (StringUtils.isEmpty(userData.getProfilePhotoAssetId())) {
                         return userDataMono.zipWith(Mono.just(new Asset()));
                     } else {
                         return userDataMono.zipWith(assetRepository.findById(userData.getProfilePhotoAssetId()));
@@ -212,8 +210,8 @@ public class UserDataServiceTest {
         }).then(userDataService.updateLastUsedAppAndWorkspaceList(application));
 
         StepVerifier.create(saveMono).assertNext(userData -> {
-            Assert.assertEquals(1, userData.getRecentlyUsedWorkspaceIds().size());
-            Assert.assertEquals(sampleWorkspaceId, userData.getRecentlyUsedWorkspaceIds().get(0));
+            assertEquals(1, userData.getRecentlyUsedWorkspaceIds().size());
+            assertEquals(sampleWorkspaceId, userData.getRecentlyUsedWorkspaceIds().get(0));
         }).verifyComplete();
     }
 
@@ -233,8 +231,8 @@ public class UserDataServiceTest {
         });
 
         StepVerifier.create(resultMono).assertNext(userData -> {
-            Assert.assertEquals(3, userData.getRecentlyUsedWorkspaceIds().size());
-            Assert.assertEquals("sample-org-id", userData.getRecentlyUsedWorkspaceIds().get(0));
+            assertEquals(3, userData.getRecentlyUsedWorkspaceIds().size());
+            assertEquals("sample-org-id", userData.getRecentlyUsedWorkspaceIds().get(0));
         }).verifyComplete();
     }
 
@@ -246,13 +244,13 @@ public class UserDataServiceTest {
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of 12 org ids to the current user
             userData.setRecentlyUsedWorkspaceIds(new ArrayList<>());
-            for(int i = 1; i <= 12; i++) {
+            for (int i = 1; i <= 12; i++) {
                 userData.getRecentlyUsedWorkspaceIds().add("org-" + i);
             }
 
             // Set an initial list of 22 app ids to the current user.
             userData.setRecentlyUsedAppIds(new ArrayList<>());
-            for(int i = 1; i <= 22; i++) {
+            for (int i = 1; i <= 22; i++) {
                 userData.getRecentlyUsedAppIds().add("app-" + i);
             }
             return userDataRepository.save(userData);
@@ -287,8 +285,8 @@ public class UserDataServiceTest {
         }).then(userDataService.addTemplateIdToLastUsedList("123456"));
 
         StepVerifier.create(saveMono).assertNext(userData -> {
-            Assert.assertEquals(1, userData.getRecentlyUsedTemplateIds().size());
-            Assert.assertEquals("123456", userData.getRecentlyUsedTemplateIds().get(0));
+            assertEquals(1, userData.getRecentlyUsedTemplateIds().size());
+            assertEquals("123456", userData.getRecentlyUsedTemplateIds().get(0));
         }).verifyComplete();
     }
 
@@ -306,9 +304,9 @@ public class UserDataServiceTest {
         });
 
         StepVerifier.create(resultMono).assertNext(userData -> {
-            Assert.assertEquals(2, userData.getRecentlyUsedTemplateIds().size());
-            Assert.assertEquals("456", userData.getRecentlyUsedTemplateIds().get(0));
-            Assert.assertEquals("123", userData.getRecentlyUsedTemplateIds().get(1));
+            assertEquals(2, userData.getRecentlyUsedTemplateIds().size());
+            assertEquals("456", userData.getRecentlyUsedTemplateIds().get(0));
+            assertEquals("123", userData.getRecentlyUsedTemplateIds().get(1));
         }).verifyComplete();
     }
 
@@ -320,7 +318,7 @@ public class UserDataServiceTest {
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of 12 template ids to the current user
             userData.setRecentlyUsedTemplateIds(new ArrayList<>());
-            for(int i = 1; i <= 12; i++) {
+            for (int i = 1; i <= 12; i++) {
                 userData.getRecentlyUsedTemplateIds().add("template-" + i);
             }
             return userDataRepository.save(userData);
@@ -360,9 +358,6 @@ public class UserDataServiceTest {
                 .assertNext(objects -> {
                     assertThat(objects.getT1().getProfilePhotoAssetId()).isNull();
                     assertThat(objects.getT2().getId()).isNull();
-                    Mockito.verify(userChangedHandler, Mockito.times(1)).publish(
-                            objects.getT1().getUserId(), null
-                    );
                 })
                 .verifyComplete();
     }
@@ -383,39 +378,6 @@ public class UserDataServiceTest {
         Mono<UserData> userDataMono = userDataService.saveProfilePhoto(mockFilePart);
         StepVerifier.create(userDataMono).assertNext(userData -> {
             assertThat(userData.getProfilePhotoAssetId()).isNotNull();
-            Mockito.verify(userChangedHandler, Mockito.times(1)).publish(anyString(), anyString());
-        }).verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void setCommentState_WhenParamIsInvalid_ThrowsException() {
-        StepVerifier.create(userDataService.setCommentState(null))
-                .expectError(AppsmithException.class)
-                .verify();
-        StepVerifier.create(userDataService.setCommentState(CommentOnboardingState.COMMENTED))
-                .expectError(AppsmithException.class)
-                .verify();
-        StepVerifier.create(userDataService.setCommentState(CommentOnboardingState.RESOLVED))
-                .expectError(AppsmithException.class)
-                .verify();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void setCommentState_WhenParamIsValid_StateIsSet() {
-        Mono<UserData> userDataMono1 = userDataService.setCommentState(CommentOnboardingState.SKIPPED).flatMap(userData ->
-                userDataService.getForCurrentUser()
-        );
-        StepVerifier.create(userDataMono1).assertNext(userData -> {
-            assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.SKIPPED);
-        }).verifyComplete();
-
-        Mono<UserData> userDataMono2 = userDataService.setCommentState(CommentOnboardingState.ONBOARDED).flatMap(userData ->
-                userDataService.getForCurrentUser()
-        );
-        StepVerifier.create(userDataMono2).assertNext(userData -> {
-            assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.ONBOARDED);
         }).verifyComplete();
     }
 

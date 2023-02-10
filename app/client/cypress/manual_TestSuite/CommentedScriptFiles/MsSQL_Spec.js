@@ -40,11 +40,11 @@
 //     // cy.wait("@saveDataSourceStub").should(
 //     //   "have.nested.property",
 //     //   "response.body.responseMeta.status",
-//     //   200,
+//     //   201,
 //     // );
 
 //     //Verify page after save clicked
-//     cy.get("@createDatasource").then((httpResponse) => {
+//     cy.get("@saveDatasource").then((httpResponse) => {
 //       datasourceName = httpResponse.response.body.data.name;
 //     });
 

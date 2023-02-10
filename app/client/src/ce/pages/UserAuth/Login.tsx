@@ -29,24 +29,18 @@ import {
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   NEW_TO_APPSMITH,
   createMessage,
+  LOGIN_PAGE_SUBTITLE,
 } from "@appsmith/constants/messages";
-import FormMessage from "components/ads/formFields/FormMessage";
-import FormGroup from "components/ads/formFields/FormGroup";
-import FormTextField from "components/ads/formFields/TextField";
-import { Button, Size } from "design-system";
+import { Button, FormGroup, FormMessage, Size } from "design-system-old";
+import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "pages/UserAuth/helpers";
-import { withTheme } from "styled-components";
-import { Theme } from "constants/DefaultTheme";
 
 import {
   SpacedSubmitForm,
   FormActions,
-  AuthCardHeader,
-  AuthCardNavLink,
-  SignUpLinkSection,
   ForgotPasswordLink,
 } from "pages/UserAuth/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -57,6 +51,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
+import Container from "pages/UserAuth/Container";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
@@ -82,9 +77,7 @@ const validate = (values: LoginFormValues, props: ValidateProps) => {
 
 type LoginFormProps = {
   emailValue: string;
-} & InjectedFormProps<LoginFormValues, { emailValue: string }> & {
-    theme: Theme;
-  };
+} & InjectedFormProps<LoginFormValues, { emailValue: string }>;
 
 type ValidateProps = {
   isPasswordFieldDirty?: boolean;
@@ -99,6 +92,9 @@ export function Login(props: LoginFormProps) {
   const location = useLocation();
   const socialLoginList = ThirdPartyLoginRegistry.get();
   const queryParams = new URLSearchParams(location.search);
+  const invalidCredsForgotPasswordLinkText = createMessage(
+    LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+  );
   let showError = false;
   let errorMessage = "";
   const currentUser = useSelector(getCurrentUser);
@@ -123,23 +119,24 @@ export function Login(props: LoginFormProps) {
     forgotPasswordURL += `?email=${props.emailValue}`;
   }
 
+  const footerSection = !disableLoginForm && (
+    <div className="px-2 py-4 text-base text-center border-b">
+      {createMessage(NEW_TO_APPSMITH)}
+      <Link
+        className="t--sign-up  ml-2 text-[color:var(--ads-color-brand)] hover:text-[color:var(--ads-color-brand)] t--signup-link"
+        to={signupURL}
+      >
+        {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
+      </Link>
+    </div>
+  );
+
   return (
-    <>
-      <AuthCardHeader>
-        <h1>{createMessage(LOGIN_PAGE_TITLE)}</h1>
-      </AuthCardHeader>
-      {!disableLoginForm && (
-        <SignUpLinkSection>
-          {createMessage(NEW_TO_APPSMITH)}
-          <AuthCardNavLink
-            className="t--sign-up"
-            style={{ marginLeft: props.theme.spaces[3] }}
-            to={signupURL}
-          >
-            {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
-          </AuthCardNavLink>
-        </SignUpLinkSection>
-      )}
+    <Container
+      footer={footerSection}
+      subtitle={createMessage(LOGIN_PAGE_SUBTITLE)}
+      title={createMessage(LOGIN_PAGE_TITLE)}
+    >
       {showError && (
         <FormMessage
           actions={
@@ -147,15 +144,18 @@ export function Login(props: LoginFormProps) {
               ? []
               : [
                   {
-                    url: FORGOT_PASSWORD_URL,
-                    text: createMessage(
-                      LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+                    linkElement: (
+                      <Link to={FORGOT_PASSWORD_URL}>
+                        {invalidCredsForgotPasswordLinkText}
+                      </Link>
                     ),
+                    text: invalidCredsForgotPasswordLinkText,
                     intent: "success",
                   },
                 ]
           }
           intent="danger"
+          linkAs={Link}
           message={
             !!errorMessage && errorMessage !== "true"
               ? errorMessage
@@ -219,7 +219,7 @@ export function Login(props: LoginFormProps) {
           </ForgotPasswordLink>
         </>
       )}
-    </>
+    </Container>
   );
 }
 
@@ -235,5 +235,5 @@ export default connect((state) => ({
     validate,
     touchOnBlur: false,
     form: LOGIN_FORM_NAME,
-  })(withTheme(Login)),
+  })(Login),
 );

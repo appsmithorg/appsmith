@@ -15,7 +15,7 @@ import {
   ActionUpdateDependency,
 } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { dateFormatOptions } from "../widget/propertyConfig/properties/date";
+import { dateFormatOptions } from "widgets/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { Colors } from "constants/Colors";
@@ -202,6 +202,7 @@ function DateField({
         inputRef={inputRef}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
+        isRequired={schemaItem.isRequired}
         labelText=""
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}

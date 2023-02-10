@@ -27,10 +27,9 @@ import {
   DISCARD_SUCCESS,
   DISCARDING_AND_PULLING_CHANGES,
   DISCONNECT,
-  DISCONNECT_CAUSE_APPLICATION_BREAK,
-  DISCONNECT_EXISTING_REPOSITORIES,
-  DISCONNECT_EXISTING_REPOSITORIES_INFO,
-  DISCONNECT_GIT,
+  REVOKE_CAUSE_APPLICATION_BREAK,
+  REVOKE_EXISTING_REPOSITORIES_INFO,
+  REVOKE_GIT,
   ERROR_GIT_AUTH_FAIL,
   ERROR_GIT_INVALID_REMOTE,
   ERROR_WHILE_PULLING_CHANGES,
@@ -69,6 +68,7 @@ import {
   REPOSITORY_LIMIT_REACHED,
   REPOSITORY_LIMIT_REACHED_INFO,
   RETRY,
+  REVOKE_EXISTING_REPOSITORIES,
   SELECT_BRANCH_TO_MERGE,
   SSH_KEY,
   SUBMIT,
@@ -76,6 +76,18 @@ import {
   UPLOADING_APPLICATION,
   UPLOADING_JSON,
   USE_DEFAULT_CONFIGURATION,
+  AUDIT_LOGS,
+  INTRODUCING,
+  AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING,
+  SECURITY_AND_COMPLIANCE,
+  SECURITY_AND_COMPLIANCE_DETAIL1,
+  SECURITY_AND_COMPLIANCE_DETAIL2,
+  DEBUGGING,
+  DEBUGGING_DETAIL1,
+  INCIDENT_MANAGEMENT,
+  INCIDENT_MANAGEMENT_DETAIL1,
+  AVAILABLE_ON_BUSINESS,
+  EXCLUSIVE_TO_BUSINESS,
 } from "./messages";
 
 describe("messages", () => {
@@ -144,7 +156,7 @@ describe("messages without input", () => {
     },
     {
       key: "REMOTE_URL_INPUT_PLACEHOLDER",
-      value: "git@example.com:user/repo.git",
+      value: "git@example.com:user/repository.git",
     },
     { key: "COPIED_SSH_KEY", value: "Copied SSH key" },
     {
@@ -195,18 +207,18 @@ describe("messages without input", () => {
         "Your current branch has uncommitted changes. Please commit them before proceeding to merge.",
     },
     {
-      key: "DISCONNECT_EXISTING_REPOSITORIES",
-      value: "Disconnect existing repositories",
+      key: "REVOKE_EXISTING_REPOSITORIES",
+      value: "Revoke Existing Repositories",
     },
     {
-      key: "DISCONNECT_EXISTING_REPOSITORIES_INFO",
+      key: "REVOKE_EXISTING_REPOSITORIES_INFO",
       value:
         "To make space for newer repositories, you can remove existing repositories.",
     },
     { key: "CONTACT_SUPPORT", value: "Contact Support" },
     {
       key: "REPOSITORY_LIMIT_REACHED",
-      value: "Repository limit reached",
+      value: "Repository Limit Reached",
     },
     {
       key: "REPOSITORY_LIMIT_REACHED_INFO",
@@ -223,11 +235,10 @@ describe("messages without input", () => {
         "Please contact support to upgrade. You can add unlimited private repositories in upgraded plan.",
     },
     {
-      key: "DISCONNECT_CAUSE_APPLICATION_BREAK",
-      value:
-        "Disconnecting your repository might cause the application to break.",
+      key: "REVOKE_CAUSE_APPLICATION_BREAK",
+      value: "Revoking your repository might cause the application to break.",
     },
-    { key: "DISCONNECT_GIT", value: "Revoke access" },
+    { key: "REVOKE_GIT", value: "Revoke access" },
     {
       key: "DISCONNECT",
       value: "DISCONNECT",
@@ -262,11 +273,11 @@ describe("messages without input", () => {
     {
       key: "ERROR_GIT_AUTH_FAIL",
       value:
-        "Please make sure that regenerated SSH key is added and has write access to the repo.",
+        "Please make sure that regenerated SSH key is added and has write access to the repository.",
     },
     {
       key: "ERROR_GIT_INVALID_REMOTE",
-      value: "Remote repo doesn't exist or is unreachable.",
+      value: "Either the remote repository doesn't exist or is unreachable.",
     },
     {
       key: "CHANGES_ONLY_USER",
@@ -351,10 +362,10 @@ describe("messages without input", () => {
     DISCARD_CHANGES_WARNING,
     DISCARD_SUCCESS,
     DISCONNECT,
-    DISCONNECT_CAUSE_APPLICATION_BREAK,
-    DISCONNECT_EXISTING_REPOSITORIES,
-    DISCONNECT_EXISTING_REPOSITORIES_INFO,
-    DISCONNECT_GIT,
+    REVOKE_CAUSE_APPLICATION_BREAK,
+    REVOKE_EXISTING_REPOSITORIES,
+    REVOKE_EXISTING_REPOSITORIES_INFO,
+    REVOKE_GIT,
     ERROR_GIT_AUTH_FAIL,
     ERROR_GIT_INVALID_REMOTE,
     ERROR_WHILE_PULLING_CHANGES,
@@ -417,5 +428,45 @@ describe("messages with input values", () => {
     expect(createMessage(REGENERATE_SSH_KEY, "ECDSA", 256)).toEqual(
       "Regenerate ECDSA 256 key",
     );
+  });
+});
+
+describe("Audit logs messages", () => {
+  it("without input strings match successfully", () => {
+    const input = [
+      AUDIT_LOGS,
+      AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING,
+      SECURITY_AND_COMPLIANCE,
+      SECURITY_AND_COMPLIANCE_DETAIL1,
+      SECURITY_AND_COMPLIANCE_DETAIL2,
+      DEBUGGING,
+      DEBUGGING_DETAIL1,
+      INCIDENT_MANAGEMENT,
+      INCIDENT_MANAGEMENT_DETAIL1,
+      AVAILABLE_ON_BUSINESS,
+    ];
+    const expected = [
+      "Audit Logs",
+      "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.",
+      "Security & Compliance",
+      "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.",
+      "Exports to popular compliance tools coming soon",
+      "Debugging",
+      "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.",
+      "Incident Management",
+      "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.",
+      "Available on a business plan only",
+    ];
+    const actual = input.map((f) => createMessage(f));
+    expect(actual).toEqual(expected);
+  });
+  it("with input strings match successfully", () => {
+    const input = [INTRODUCING, EXCLUSIVE_TO_BUSINESS];
+    const expected = [
+      `Introducing XYZ`,
+      `The XYZ feature is exclusive to workspaces on the Business Plan`,
+    ];
+    const actual = input.map((f) => createMessage(f, "XYZ"));
+    expect(actual).toEqual(expected);
   });
 });

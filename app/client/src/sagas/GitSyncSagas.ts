@@ -6,13 +6,14 @@ import {
   ReduxActionWithCallbacks,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
-  all,
+  actionChannel,
   call,
+  fork,
   put,
   select,
-  takeLatest,
-  throttle,
+  take,
 } from "redux-saga/effects";
+import { TakeableChannel } from "@redux-saga/core";
 import GitSyncAPI, {
   MergeBranchPayload,
   MergeStatusPayload,
@@ -49,6 +50,7 @@ import {
   getSSHKeyPairSuccess,
   GetSSHKeyResponseData,
   gitPullSuccess,
+  importAppViaGitStatusReset,
   importAppViaGitSuccess,
   mergeBranchSuccess,
   setIsDisconnectGitModalOpen,
@@ -63,8 +65,7 @@ import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 import { ApiResponse } from "api/ApiResponses";
 import { GitConfig, GitSyncModalTab } from "entities/GitSync";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system-old";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
@@ -89,7 +90,7 @@ import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { Workspace } from "constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "RouteBuilder";
@@ -146,6 +147,14 @@ function* commitToGitRepoSaga(
         });
       }
       yield put(fetchGitStatusInit());
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
+        payload: {
+          error: response?.responseMeta?.error,
+          show: true,
+        },
+      });
     }
   } catch (error) {
     const isRepoLimitReachedError: boolean = yield call(
@@ -159,9 +168,13 @@ function* commitToGitRepoSaga(
         type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
         payload: {
           error: response?.responseMeta?.error,
-          show: false,
+          show: true,
         },
       });
+      yield put({
+        type: ReduxActionTypes.FETCH_GIT_STATUS_INIT,
+      });
+      // yield call(fetchGitStatusSaga);
     } else {
       throw error;
     }
@@ -624,7 +637,7 @@ function* disconnectGitSaga() {
       name: string;
     } = yield select(getDisconnectingGitApplication);
     const currentApplicationId: string = yield select(getCurrentApplicationId);
-    response = yield GitSyncAPI.disconnectGit({
+    response = yield GitSyncAPI.revokeGit({
       applicationId: application.id,
     });
     const isValidResponse: boolean = yield validateResponse(
@@ -642,11 +655,15 @@ function* disconnectGitSaga() {
         payload: { id: "", name: "" },
       });
       yield put(setIsDisconnectGitModalOpen(false));
+      yield put(importAppViaGitStatusReset());
       yield put(
         setIsGitSyncModalOpen({
           isOpen: false,
         }),
       );
+      yield put({
+        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+      });
 
       // while disconnecting another application, i.e. not the current one
       if (currentApplicationId !== application.id) {
@@ -862,66 +879,74 @@ function* discardChanges() {
     if (isValidResponse) {
       yield put(discardChangesSuccess(response.data));
       // const applicationId: string = response.data.id;
-      const pageId: string = response.data.pages.filter(
-        (page: any) => page.isDefault,
-      )[0].id;
+      const pageId: string =
+        response.data?.pages?.find((page: any) => page.isDefault)?.id || "";
       localStorage.setItem("GIT_DISCARD_CHANGES", "success");
       const branch = response.data.gitApplicationMetadata.branchName;
       window.open(builderURL({ pageId, branch }), "_self");
+    } else {
+      yield put(
+        discardChangesFailure({
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        }),
+      );
+      localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
     }
   } catch (error) {
-    yield put(discardChangesFailure({ error }));
+    yield put(discardChangesFailure({ error, show: true }));
     localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
   }
 }
 
+const gitRequestActions: Record<
+  typeof ReduxActionTypes[keyof typeof ReduxActionTypes],
+  (...args: any[]) => any
+> = {
+  [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: commitToGitRepoSaga,
+  [ReduxActionTypes.CONNECT_TO_GIT_INIT]: connectToGitSaga,
+  [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: fetchGlobalGitConfig,
+  [ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT]: updateGlobalGitConfig,
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_INIT]: switchBranch,
+  [ReduxActionTypes.FETCH_BRANCHES_INIT]: fetchBranches,
+  [ReduxActionTypes.CREATE_NEW_BRANCH_INIT]: createNewBranch,
+  [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT]: fetchLocalGitConfig,
+  [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT]: updateLocalGitConfig,
+  [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,
+  [ReduxActionTypes.MERGE_BRANCH_INIT]: mergeBranchSaga,
+  [ReduxActionTypes.FETCH_MERGE_STATUS_INIT]: fetchMergeStatusSaga,
+  [ReduxActionTypes.GIT_PULL_INIT]: gitPullSaga,
+  [ReduxActionTypes.SHOW_CONNECT_GIT_MODAL]: showConnectGitModal,
+  [ReduxActionTypes.REVOKE_GIT]: disconnectGitSaga,
+  [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT]: importAppFromGitSaga,
+  [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT]: generateSSHKeyPairSaga,
+  [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
+  [ReduxActionTypes.DELETE_BRANCH_INIT]: deleteBranch,
+  [ReduxActionTypes.GIT_DISCARD_CHANGES]: discardChanges,
+};
+
+/**
+ * All git actions on the server are behind a lock,
+ * that means that only one action can be performed at once.
+ *
+ * To follow the same principle, we will queue all actions from the client
+ * as well and only perform one action at a time.
+ *
+ * This will ensure that client is not running parallel requests to the server for git
+ * */
+function* watchGitRequests() {
+  const gitActionChannel: TakeableChannel<unknown> = yield actionChannel(
+    Object.keys(gitRequestActions),
+  );
+
+  while (true) {
+    const { type, ...args }: ReduxAction<unknown> = yield take(
+      gitActionChannel,
+    );
+    yield call(gitRequestActions[type], { type, ...args });
+  }
+}
+
 export default function* gitSyncSagas() {
-  yield all([
-    takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
-    takeLatest(ReduxActionTypes.CONNECT_TO_GIT_INIT, connectToGitSaga),
-    takeLatest(
-      ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT,
-      fetchGlobalGitConfig,
-    ),
-    takeLatest(
-      ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT,
-      updateGlobalGitConfig,
-    ),
-    takeLatest(ReduxActionTypes.SWITCH_GIT_BRANCH_INIT, switchBranch),
-    throttle(5 * 1000, ReduxActionTypes.FETCH_BRANCHES_INIT, fetchBranches),
-    takeLatest(ReduxActionTypes.CREATE_NEW_BRANCH_INIT, createNewBranch),
-    takeLatest(
-      ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT,
-      fetchLocalGitConfig,
-    ),
-    takeLatest(
-      ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT,
-      updateLocalGitConfig,
-    ),
-    throttle(
-      5 * 1000,
-      ReduxActionTypes.FETCH_GIT_STATUS_INIT,
-      fetchGitStatusSaga,
-    ),
-    takeLatest(ReduxActionTypes.MERGE_BRANCH_INIT, mergeBranchSaga),
-    throttle(
-      5 * 1000,
-      ReduxActionTypes.FETCH_MERGE_STATUS_INIT,
-      fetchMergeStatusSaga,
-    ),
-    takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
-    takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
-    takeLatest(ReduxActionTypes.DISCONNECT_GIT, disconnectGitSaga),
-    takeLatest(
-      ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT,
-      importAppFromGitSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
-      generateSSHKeyPairSaga,
-    ),
-    takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
-    takeLatest(ReduxActionTypes.DELETE_BRANCH_INIT, deleteBranch),
-    takeLatest(ReduxActionTypes.GIT_DISCARD_CHANGES, discardChanges),
-  ]);
+  yield fork(watchGitRequests);
 }

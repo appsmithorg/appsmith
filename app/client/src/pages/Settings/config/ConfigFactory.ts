@@ -39,6 +39,7 @@ export class ConfigFactory {
     }
 
     return {
+      icon: config.icon,
       title: config.title,
       slug: config.type,
       subText: config.subText,

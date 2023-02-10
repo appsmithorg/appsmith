@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
-import React, { memo, useEffect, useRef, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import React, { memo, useEffect, useMemo, useRef } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -9,16 +9,25 @@ import PerformanceTracker, {
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
-import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
-import { getAppThemingStack } from "selectors/appThemingSelectors";
 import equal from "fast-deep-equal";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
+import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
+import AppSettingsPane from "pages/Editor/AppSettingsPane";
+import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
+import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
+import { quickScrollToWidget } from "utils/helpers";
+import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 type Props = {
   width: number;
@@ -27,6 +36,8 @@ type Props = {
 };
 
 export const PropertyPaneSidebar = memo((props: Props) => {
+  const dispatch = useDispatch();
+
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
 
@@ -43,12 +54,15 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   );
 
   const isPreviewMode = useSelector(previewModeSelector);
-  const themingStack = useSelector(getAppThemingStack);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
+  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
+  const isSnipingMode = useSelector(snipingModeSelector);
+  const isMultiPane = useSelector(isMultiPaneActive);
+  const paneCount = useSelector(getPaneCount);
 
   //while dragging or resizing and
-  //the current selected WidgetId is not equal to previous widget Id,
+  //the current selected WidgetId is not equal to previous widget id,
   //then don't render PropertyPane
   const shouldNotRenderPane =
     isDraggingOrResizing &&
@@ -60,6 +74,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
   const selectedWidgets = useSelector(selectedWidgetsPresentInCanvas, equal);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
@@ -71,40 +86,53 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
 
+  useEffect(() => {
+    if (!isSnipingMode) {
+      //update url hash with the selectedWidget
+      dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
+      if (selectedWidgetIds.length === 1) {
+        quickScrollToWidget(selectedWidgetIds[0], canvasWidgets);
+      }
+    }
+  }, [selectedWidgetIds]);
+
   /**
    * renders the property pane:
-   * 1. if no widget is selected -> CanvasPropertyPane
-   * 2. if more than one widget is selected -> MultiWidgetPropertyPane
-   * 3. if user is dragging for selection -> CanvasPropertyPane
-   * 4. if only one widget is selected -> WidgetPropertyPane
+   * 1. if isAppSettingsPaneOpen -> AppSettingsPane
+   * 2. if no widget is selected -> CanvasPropertyPane
+   * 3. if more than one widget is selected -> MultiWidgetPropertyPane
+   * 4. if user is dragging for selection -> CanvasPropertyPane
+   * 5. if only one widget is selected -> WidgetPropertyPane
    */
   const propertyPane = useMemo(() => {
     switch (true) {
+      case isAppSettingsPaneOpen:
+        return <AppSettingsPane />;
       case selectedWidgets.length > 1:
         return <MultiSelectPropertyPane />;
       case selectedWidgets.length === 1:
-        if (shouldNotRenderPane)
-          return (
-            <CanvasPropertyPane skipThemeEditor={!keepThemeWhileDragging} />
-          );
+        if (shouldNotRenderPane) return <CanvasPropertyPane />;
         else return <WidgetPropertyPane />;
-      case themingStack.length > 0:
-        return <ThemePropertyPane />;
       case selectedWidgets.length === 0:
         return <CanvasPropertyPane />;
       default:
         return <CanvasPropertyPane />;
     }
   }, [
+    isAppSettingsPaneOpen,
     selectedWidgets.length,
     isDraggingForSelection,
     shouldNotRenderPane,
-    themingStack.join(","),
     keepThemeWhileDragging,
   ]);
+  const showResizer = isAppSettingsPaneOpen
+    ? false
+    : isMultiPane
+    ? paneCount === PaneLayoutOptions.THREE_PANE
+    : true;
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       {/* PROPERTY PANE */}
       <div
         className={classNames({
@@ -114,23 +142,33 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         })}
         ref={sidebarRef}
       >
-        {/* RESIZOR */}
-        <div
-          className={`absolute top-0 left-0 w-2 h-full -ml-1 group  cursor-ew-resize ${tailwindLayers.resizer}`}
-          onMouseDown={onMouseDown}
-          onTouchEnd={onMouseUp}
-          onTouchStart={onTouchStart}
-        >
+        {/* RESIZER */}
+        {showResizer && (
           <div
-            className={classNames({
-              "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
-              "bg-gray-300": resizing,
-            })}
-          />
-        </div>
+            className={`absolute top-0 left-0 w-2 h-full -ml-1 group  cursor-ew-resize ${tailwindLayers.resizer}`}
+            onMouseDown={onMouseDown}
+            onTouchEnd={onMouseUp}
+            onTouchStart={onTouchStart}
+          >
+            <div
+              className={classNames({
+                "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
+                "bg-gray-300": resizing,
+              })}
+            />
+          </div>
+        )}
         <div
-          className="h-full p-0 overflow-y-auto min-w-72 max-w-104"
-          style={{ width: props.width }}
+          className={classNames({
+            "h-full p-0 overflow-y-auto min-w-72": true,
+            "max-w-104": !isAppSettingsPaneOpen,
+            "transition-all duration-100": !resizing,
+          })}
+          style={{
+            width: isAppSettingsPaneOpen
+              ? APP_SETTINGS_PANE_WIDTH
+              : props.width,
+          }}
         >
           {propertyPane}
         </div>

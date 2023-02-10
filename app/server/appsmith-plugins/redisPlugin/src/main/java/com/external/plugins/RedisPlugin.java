@@ -56,7 +56,7 @@ public class RedisPlugin extends BasePlugin {
     @Extension
     public static class RedisPluginExecutor implements PluginExecutor<JedisPool> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(JedisPool jedisPool,
@@ -64,7 +64,7 @@ public class RedisPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
 
             String query = actionConfiguration.getBody();
-            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null
                     , null, null));
 
             Jedis jedis = jedisPool.getResource();
@@ -110,7 +110,7 @@ public class RedisPlugin extends BasePlugin {
                     })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
-                    .onErrorResume(error  -> {
+                    .onErrorResume(error -> {
                         error.printStackTrace();
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
@@ -143,9 +143,9 @@ public class RedisPlugin extends BasePlugin {
          * - This method removes the outermost quotes - single or double quotes - so that end users don't have to do
          * it via javascript on the UI editor.
          * - Some example inputs and outputs:
-         *  o "my val" -> my val
-         *  o 'my val' -> my val
-         *  o '{"key": "val"}' -> {"key": "val"}
+         * o "my val" -> my val
+         * o 'my val' -> my val
+         * o '{"key": "val"}' -> {"key": "val"}
          */
         private Object removeQuotes(Object result) {
             if (result instanceof String) {
@@ -235,12 +235,11 @@ public class RedisPlugin extends BasePlugin {
         public Mono<JedisPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.fromCallable(() -> {
                         final JedisPoolConfig poolConfig = buildPoolConfig();
-                        int timeout = (int)Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
+                        int timeout = (int) Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
                         URI uri = RedisURIUtils.getURI(datasourceConfiguration);
                         JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
-                        return Mono.just(jedisPool);
+                        return jedisPool;
                     })
-                    .flatMap(obj -> obj)
                     .subscribeOn(scheduler);
         }
 
@@ -331,19 +330,12 @@ public class RedisPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-
-            return Mono.fromCallable(() ->
-                            datasourceCreate(datasourceConfiguration)
-                                    .map(jedisPool -> {
-                                        Jedis jedis = jedisPool.getResource();
-                                        verifyPing(jedis).block();
-                                        datasourceDestroy(jedisPool);
-                                        return new DatasourceTestResult();
-                                    })
-                                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage()))))
-                    .flatMap(obj -> obj)
-                    .subscribeOn(scheduler);
+        public Mono<DatasourceTestResult> testDatasource(JedisPool connection) {
+            return Mono.fromCallable(() -> {
+                        Jedis jedis = connection.getResource();
+                        return verifyPing(jedis);
+                    })
+                    .thenReturn(new DatasourceTestResult());
         }
 
     }

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Text } from "design-system";
+import { Text } from "design-system-old";
 
 export const TooltipWrapper = styled.div`
   display: flex;

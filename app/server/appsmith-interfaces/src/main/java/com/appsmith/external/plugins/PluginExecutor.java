@@ -1,6 +1,7 @@
 package com.appsmith.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -11,9 +12,12 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
+import io.micrometer.observation.ObservationRegistry;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
@@ -22,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_PLUGIN_EXECUTION;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 
 public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
@@ -82,12 +87,44 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
     /**
      * This function tests the datasource by executing a test query or hitting the endpoint to check the correctness
-     * of the values provided in the datasource configuration
+     * of the values provided in the datasource configuration.
+     * The default implementation for this will inherently create a datasource, use the connection to test it,
+     * and then destroy the datasource connection as well.
+     * If any plugin needs to do this differently, please directly override this method.
+     * Otherwise, it is recommended to only ever override the overloaded {@link #testDatasource(C)} )} method that uses the connection.
      *
-     * @param datasourceConfiguration
-     * @return
+     * @param datasourceConfiguration : The datasource configuration as seen on the UI at that point of time
+     * @return The test result for this datasource. The result is expected to contain error messages if the test has failed.
      */
-    Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration);
+    default Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+        return this.datasourceCreate(datasourceConfiguration)
+                .flatMap(connection -> {
+                    return this.testDatasource(connection)
+                            .doFinally(signal -> this.datasourceDestroy(connection));
+                })
+                .onErrorResume(error -> {
+                    // We always expect to have an error object, but the error object may not be well-formed
+                    final String errorMessage = error.getMessage() == null
+                            ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
+                            : error.getMessage();
+                    return Mono.just(new DatasourceTestResult(errorMessage));
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    /**
+     * This function is responsible for the actual testing for a particular plugin.
+     * In case just establishing a connection is all it takes to test a plugin,
+     * this method can be completely ignored by the plugin.
+     *
+     * @param connection : The connection object created for a plugin using {@link #datasourceCreate(DatasourceConfiguration)}
+     * @return The test result for this plugin datasource.
+     * In case of errors, the plugin may directly throw an error signal,
+     * or handle it internally and capture the error message within the datasource test result.
+     */
+    default Mono<DatasourceTestResult> testDatasource(C connection) {
+        return Mono.just(new DatasourceTestResult());
+    }
 
     /**
      * This function fetches the structure of the tables/collections in the datasource. It's used to make query creation
@@ -135,6 +172,17 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
                                                              ActionConfiguration actionConfiguration) {
         prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
         return this.execute(connection, datasourceConfiguration, actionConfiguration);
+    }
+
+    default Mono<ActionExecutionResult> executeParameterizedWithMetrics(C connection,
+                                                                        ExecuteActionDTO executeActionDTO,
+                                                                        DatasourceConfiguration datasourceConfiguration,
+                                                                        ActionConfiguration actionConfiguration,
+                                                                        ObservationRegistry observationRegistry) {
+        return this.executeParameterized(connection, executeActionDTO, datasourceConfiguration, actionConfiguration)
+                .tag("plugin", this.getClass().getName())
+                .name(ACTION_EXECUTION_PLUGIN_EXECUTION)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -186,7 +234,7 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * defined by user. Each plugin must override this method to provide their plugin specific hint messages - since
      * the configuration related constraints can only be meaningfully interpreted by the respective plugins for which
      * they are defined. Otherwise, this default implementation will be used.
-     *
+     * <p>
      * It generates two set of hint messages - one for action configuration and another for the datasource
      * configuration. The datasource related hint messages are meant to be displayed on the datasource configuration
      * page and the action related hint messages are meant to be displayed on the query editor page.
@@ -196,7 +244,7 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @return A tuple of datasource and action configuration related hint messages.
      */
     default Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
-                                                                        DatasourceConfiguration datasourceConfiguration) {
+                                                                   DatasourceConfiguration datasourceConfiguration) {
         Set<String> datasourceHintMessages = new HashSet<>();
         Set<String> actionHintMessages = new HashSet<>();
 
@@ -213,9 +261,10 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * This method coverts a plugin's form data to its native query. Currently, it is meant to help users
      * switch easily from form based input to raw input mode by providing a readily available translation of the form
      * data to raw query. It stores its result at the following two keys:
-     *   o formToNativeQuery.status: success / error
-     *   o formToNativeQuery.data: translated raw query if status is success or error message if status is error.
+     * o formToNativeQuery.status: success / error
+     * o formToNativeQuery.data: translated raw query if status is success or error message if status is error.
      * Each plugin must override this method to provide their own translation logic.
+     *
      * @param actionConfiguration
      * @return modified actionConfiguration object after setting the two keys mentioned above in `formData`.
      */

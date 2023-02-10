@@ -1,18 +1,17 @@
 import classNames from "classnames";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { useMemo, useCallback } from "react";
 
 import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
-import { useSelector } from "store";
 import { Colors } from "constants/Colors";
 import {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
-import { TooltipComponent, Icon, IconName, IconSize } from "design-system";
+import { TooltipComponent, Icon, IconName, IconSize } from "design-system-old";
 import { updateApplicationLayout } from "actions/applicationActions";
 
 interface AppsmithLayoutConfigOption {
@@ -112,7 +111,7 @@ export function MainContainerLayoutControl() {
   };
 
   return (
-    <div className="space-y-2 t--layout-control-wrapper">
+    <div className="pb-6 space-y-2 t--layout-control-wrapper">
       <div
         className="flex justify-around"
         onBlur={() => setFocusedIndex(selectedIndex)}
