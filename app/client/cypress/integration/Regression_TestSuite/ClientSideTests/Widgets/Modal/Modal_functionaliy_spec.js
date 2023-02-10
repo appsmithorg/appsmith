@@ -1,8 +1,8 @@
-const dsl = require("../../../../fixtures/ModalDsl.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
-const widgets = require("../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const dsl = require("../../../../../fixtures/ModalDsl.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const explorer = require("../../../../../locators/explorerlocators.json");
+const widgets = require("../../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer;
 
