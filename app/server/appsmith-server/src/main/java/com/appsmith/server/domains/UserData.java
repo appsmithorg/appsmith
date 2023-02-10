@@ -2,7 +2,6 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.constants.CommentOnboardingState;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,8 +51,6 @@ public class UserData extends BaseDomain {
     // list of application ids that were recently accessed by the user
     private List<String> recentlyUsedAppIds;
 
-    // last state related to comment feature on-boarding
-    private CommentOnboardingState commentOnboardingState;
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
