@@ -161,5 +161,4 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                     return defaultTenantId;
                 });
     }
-
 }
