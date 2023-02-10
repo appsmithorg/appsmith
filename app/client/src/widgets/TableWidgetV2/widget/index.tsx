@@ -27,8 +27,8 @@ import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 import {
   ReactTableFilter,
-  OperatorTypes,
   AddNewRowActions,
+  DEFAULT_FILTER,
 } from "../component/Constants";
 import {
   ActionColumnTypes,
@@ -94,14 +94,6 @@ import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
 );
-const defaultFilter = [
-  {
-    column: "",
-    operator: OperatorTypes.OR,
-    value: "",
-    condition: "",
-  },
-];
 
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
@@ -628,7 +620,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           this.updateColumnProperties(newTableColumns);
         }
 
-        this.props.updateWidgetMetaProperty("filters", defaultFilter);
+        this.props.updateWidgetMetaProperty("filters", [DEFAULT_FILTER]);
       }
     }
 
@@ -819,7 +811,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("filters", filters);
 
     // Reset Page only when a filter is added
-    if (!isEmpty(xorWith(filters, defaultFilter, equal))) {
+    if (!isEmpty(xorWith(filters, [DEFAULT_FILTER], equal))) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
   };
