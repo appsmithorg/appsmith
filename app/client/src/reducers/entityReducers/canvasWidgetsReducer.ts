@@ -128,7 +128,10 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     const canvasWidgetHeightsToUpdate: Record<
       string,
       number
-    > = getCanvasWidgetHeightsToUpdate(Object.keys(action.payload), state);
+    > = getCanvasWidgetHeightsToUpdate(
+      Object.keys(action.payload.widgetsToUpdate),
+      state,
+    );
     for (const widgetId in canvasWidgetHeightsToUpdate) {
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
     }
