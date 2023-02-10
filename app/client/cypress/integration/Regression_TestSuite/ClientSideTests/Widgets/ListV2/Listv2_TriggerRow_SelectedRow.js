@@ -44,7 +44,9 @@ describe("List widget v2; TriggeredRow, SelectedRow", () => {
 
   it("1. Setup necessary data and widgets", () => {
     cy.openPropertyPane("listwidgetv2");
+    cy.testJsontextclear("items");
     cy.testJsontext("items", JSON.stringify(data));
+
     cy.wait("@updateLayout");
 
     // Update widgets with right data and confirm
