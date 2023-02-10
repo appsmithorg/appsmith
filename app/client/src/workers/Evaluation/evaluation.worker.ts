@@ -4,6 +4,7 @@ import { WorkerErrorTypes } from "@appsmith/workers/common/types";
 import { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 import { syncHandlerMap, asyncHandlerMap } from "./handlers";
 import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
+import { evaluateAsync } from "./evaluate";
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function syncRequestMessageListener(
@@ -40,13 +41,24 @@ async function asyncRequestMessageListener(
   respond(messageId, data, end - start);
 }
 
-function respond(messageId: string, data: unknown, timeTaken: number) {
+type AsyncEvalResponse = Awaited<ReturnType<typeof evaluateAsync>>;
+type Data = AsyncEvalResponse | unknown;
+
+function respond(messageId: string, data: Data, timeTaken: number) {
   try {
-    const __data = JSON.parse(JSON.stringify(data));
+    const responseData = data;
+    if (
+      typeof data === "object" &&
+      "result" in (data as AsyncEvalResponse) &&
+      (data as AsyncEvalResponse).result.__isProxy
+    ) {
+      // @ts-expect-error: need to fix type
+      responseData.result = (data as AsyncEvalResponse).result.__originalValue;
+    }
     sendMessage.call(self, {
       messageId,
       messageType: MessageType.RESPONSE,
-      body: { data: __data, timeTaken },
+      body: { data: responseData, timeTaken },
     });
   } catch (e) {
     console.error(e);
