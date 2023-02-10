@@ -82,6 +82,7 @@ export default function LogCollapseData(props: any) {
             {props.pluginErrorDetails.downstreamErrorMessage && (
               <>
                 <LogAdditionalInfo
+                  datacy="t--debugger-downStreamErrorCode"
                   text={
                     props.pluginErrorDetails.downstreamErrorCode
                       ? props.pluginErrorDetails.downstreamErrorCode
