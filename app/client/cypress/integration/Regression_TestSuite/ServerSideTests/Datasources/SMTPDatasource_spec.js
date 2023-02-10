@@ -78,7 +78,7 @@ describe("SMTP datasource test cases using ted", function() {
       .closest("div")
       .click();
     cy.wait("@postExecute").then(({ response }) => {
-      expect(response.body.data.statusCode).to.eq("5005");
+      expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
       expect(response.body.data.body).to.contain(
         "Couldn't find a valid sender address. Please check your action configuration",
       );

@@ -14,6 +14,12 @@ export const Wrapper = styled.div<{ width: string }>`
 export default function LogAdditionalInfo(props: {
   text: string;
   width: string;
+  datacy?: string;
 }) {
-  return <Wrapper width={props.width}>{`[${props.text}]`}</Wrapper>;
+  return (
+    <Wrapper
+      data-cy={props.datacy}
+      width={props.width}
+    >{`[${props.text}]`}</Wrapper>
+  );
 }

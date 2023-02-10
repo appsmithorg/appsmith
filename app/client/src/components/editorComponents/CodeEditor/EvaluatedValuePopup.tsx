@@ -475,10 +475,8 @@ function PopoverContent(props: PopoverContentProps) {
 
   const getErrorMessage = (error: Error) => {
     return error
-      ? error.name
-        ? `${error.name}: ${error.message}`
-        : error.message
-      : `ValidationError: This value does not evaluate to type "${expected?.type}".`;
+      ? error.message
+      : `This value does not evaluate to type "${expected?.type}".`;
   };
   return (
     <ContentWrapper
