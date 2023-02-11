@@ -27,7 +27,6 @@ import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
-import tinycolor from "tinycolor2";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
@@ -552,10 +551,7 @@ const ColorPickerComponent = React.forwardRef(
             autoFocus={props.autoFocus}
             inputRef={inputGroupRef}
             leftIcon={
-              <LeftIcon
-                color={tinycolor(color).toString()}
-                handleInputClick={handleInputClick}
-              />
+              <LeftIcon color={color} handleInputClick={handleInputClick} />
             }
             onChange={handleChangeColor}
             onClick={handleInputClick}

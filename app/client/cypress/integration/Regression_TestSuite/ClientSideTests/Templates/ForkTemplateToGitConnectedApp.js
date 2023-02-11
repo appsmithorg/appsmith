@@ -4,7 +4,7 @@ import widgetLocators from "../../../../locators/Widgets.json";
 let repoName;
 let appId;
 let branchName = "test/template";
-const jsObject = "JSObject1";
+const jsObject = "Utils";
 const homePage = require("../../../../locators/HomePage");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -32,15 +32,11 @@ describe("Fork a template to the current app", () => {
     );
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.xpath(
-      "//div[text()='Meeting Scheduler']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Slack Bot']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
+      .wait(500)
       .click();
     cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
       errorMsg: "Setting Templates did not finish even after 75 seconds",
@@ -71,16 +67,16 @@ describe("Fork a template to the current app", () => {
       _.ee.AddNewPage();
       _.ee.AddNewPage("add-page-from-template");
       cy.get(template.templateDialogBox).should("be.visible");
-      cy.xpath("//div[text()='Slack Bot']").click();
+      cy.xpath("//div[text()='Marketing Dashboard']").click();
       cy.wait(10000); // for templates page to load fully
-      // cy.xpath(template.selectAllPages)
-      //   .next()
-      //   .click();
-      // cy.wait(1000);
-      // cy.xpath("//span[text()='SEARCH']")
-      //   .parent()
-      //   .next()
-      //   .click();
+      cy.xpath(template.selectAllPages)
+        .next()
+        .click();
+      cy.wait(1000);
+      cy.xpath("//span[text()='SEND MESSAGES']")
+        .parent()
+        .next()
+        .click();
       // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
       cy.get(template.templateViewForkButton).click();
       cy.wait(5000);

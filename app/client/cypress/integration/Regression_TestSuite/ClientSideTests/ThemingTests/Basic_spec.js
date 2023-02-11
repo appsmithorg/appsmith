@@ -6,7 +6,6 @@ const dsl = require("../../../../fixtures/replay.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const ee = ObjectsRegistry.EntityExplorer,
-  canvasHelper = ObjectsRegistry.CanvasHelper,
   appSettings = ObjectsRegistry.AppSettings;
 
 const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
@@ -66,7 +65,7 @@ describe("App Theming funtionality", function() {
     appSettings.ClosePane();
 
     // drop a button & container widget and click on body
-    canvasHelper.OpenWidgetPane();
+    cy.get(explorer.widgetSwitchId).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();
@@ -216,7 +215,7 @@ describe("App Theming funtionality", function() {
   });
 
   it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
-    canvasHelper.OpenWidgetPane();
+    cy.get(explorer.widgetSwitchId).click();
     cy.dragAndDropToCanvas("iconbuttonwidget", { x: 200, y: 300 });
     cy.assertPageSave();
     cy.get("canvas")
@@ -788,7 +787,7 @@ describe("App Theming funtionality", function() {
   });
 
   it("9. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
-    canvasHelper.OpenWidgetPane();
+    cy.get(explorer.widgetSwitchId).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.assertPageSave();
     cy.moveToStyleTab();
@@ -870,18 +869,19 @@ describe("App Theming funtionality", function() {
     cy.PublishtheApp();
 
     //Verify Background color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should(
-        "have.css",
-        "background-color",
-        "rgb(134, 239, 172)", //rgb(134, 239, 172)
-      ); //new widget with its own color
+    cy.get(".t--widget-buttonwidget:nth-child(4) button").should(
+      "have.css",
+      "background-color",
+      "rgb(134, 239, 172)", //rgb(134, 239, 172)
+    ); //new widget with its own color
 
     ////old widgets still conforming to theme color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "background-color", "rgb(126, 34, 206)");
+    cy.get(".t--widget-buttonwidget:nth-child(2) button").should(
+      "have.css",
+      "background-color",
+      "rgb(126, 34, 206)",
+    );
+
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
@@ -915,6 +915,7 @@ describe("App Theming funtionality", function() {
       .wait(1000);
 
     //Resetting back to theme
+    ee.NavigateToSwitcher("explorer");
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button2");
     cy.moveToStyleTab();
@@ -1018,6 +1019,7 @@ describe("App Theming funtionality", function() {
       .wait(2000);
 
     //Change individual widget properties for Button1
+    ee.NavigateToSwitcher("explorer");
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button1");
     cy.moveToStyleTab();
@@ -1110,14 +1112,16 @@ describe("App Theming funtionality", function() {
     cy.PublishtheApp();
 
     //Verify Background color
-    cy.get(widgetsPage.widgetBtn)
+    cy.get(".t--widget-buttonwidget:nth-child(2) button")
       .eq(0)
       .should("have.css", "background-color", "rgb(252, 165, 165)"); //new widget with its own color
 
     ////old widgets still conforming to theme color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "background-color", "rgb(239, 68, 68)");
+    cy.get(".t--widget-buttonwidget:nth-child(4) button").should(
+      "have.css",
+      "background-color",
+      "rgb(239, 68, 68)",
+    );
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
@@ -1155,6 +1159,7 @@ describe("App Theming funtionality", function() {
       .wait(1000);
 
     //Resetting back to theme
+    ee.NavigateToSwitcher("explorer");
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button1");
     cy.moveToStyleTab();
