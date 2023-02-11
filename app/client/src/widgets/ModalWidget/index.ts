@@ -10,9 +10,9 @@ import {
   BlueprintOperationTypes,
   FlattenedWidgetProps,
 } from "widgets/constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -20,12 +20,19 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  features: {
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
+  },
   searchTags: ["dialog", "popup", "notification"],
   defaults: {
     rows: 24,
     columns: 24,
     width: 456,
     height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
+    minDynamicHeight: 24,
     canEscapeKeyClose: true,
     animateLoading: true,
     // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
@@ -53,13 +60,13 @@ export const CONFIG = {
               view: [
                 {
                   type: "ICON_BUTTON_WIDGET",
-                  position: { left: 56, top: 1 },
+                  position: { left: 58, top: 0 },
                   size: {
                     rows: 4,
-                    cols: 8,
+                    cols: 6,
                   },
                   props: {
-                    buttonColor: Colors.OXFORD_BLUE,
+                    buttonColor: Colors.GREY_7,
                     buttonVariant: ButtonVariantTypes.TERTIARY,
                     borderRadius: ButtonBorderRadiusTypes.SHARP,
                     iconName: IconNames.CROSS,
@@ -76,15 +83,15 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Modal Title",
-                    fontSize: THEMEING_TEXT_SIZES.lg,
+                    fontSize: "1.25rem",
                     version: 1,
                   },
                 },
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 32,
-                    top: 16,
+                    left: 31,
+                    top: 18,
                   },
                   size: {
                     rows: 4,
@@ -100,8 +107,8 @@ export const CONFIG = {
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 48,
-                    top: 16,
+                    left: 47,
+                    top: 18,
                   },
                   size: {
                     rows: 4,
@@ -177,6 +184,9 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

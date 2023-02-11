@@ -2,8 +2,7 @@ import React from "react";
 import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
-import { createGlobalStyle } from "constants/DefaultTheme";
-import Icon from "components/ads/Icon";
+import { createGlobalStyle } from "styled-components";
 import {
   LabelPosition,
   LABEL_MARGIN_OLD_SELECT,
@@ -11,9 +10,10 @@ import {
 } from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 import {
+  Icon,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "design-system-old";
 import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
@@ -196,10 +196,10 @@ ${({ dropDownWidth, id }) => `
     height: 14px;
     direction: ltr;
     background-color: transparent;
-    border: 1px solid ${Colors.GREY_3};
+    border: 1px solid var(--wds-color-border);
     border-radius: 100%;
     border-collapse: separate;
-    transition: all .3s;
+    transition: none;
     flex-shrink: 0;
   }
 }
@@ -408,7 +408,7 @@ ${({ dropDownWidth, id }) => `
 
 
 .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox-input:focus+.rc-tree-select-tree-checkbox-inner {
-  border-color: ${({ accentColor }) => accentColor} !important;
+  border-color: var(--wds-color-border-hover) !important;
  }
  .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
    border-color: ${({ accentColor }) => accentColor} !important;
@@ -531,16 +531,29 @@ ${({ dropDownWidth, id }) => `
 	color: #767676;
 	cursor: not-allowed;
 }
-.rc-tree-select-tree-treenode-active,
 .rc-tree-select-tree-treenode-selected
 {
 	background: ${({ accentColor }) => lightenColor(accentColor)};
+
+  &:hover {
+    background: ${({ accentColor }) =>
+      lightenColor(accentColor, "0.90")} !important;
+  }
+
+
+}
+.rc-tree-select-tree-treenode-selected.rc-tree-select-tree-treenode-active {
+  background: ${({ accentColor }) =>
+    lightenColor(accentColor, "0.90")} !important;
+}
+.rc-tree-select-tree-treenode-active {
+  background: var(--wds-color-bg-focus) !important;
 }
 .rc-tree-select-tree-treenode:hover {
-	background: ${({ accentColor }) => lightenColor(accentColor)};
+	background: var(--wds-color-bg-hover);
 
   .rc-tree-select-tree-iconEle {
-    border-color: ${({ accentColor }) => accentColor} !important;;
+    border-color: var(--wds-color-border-hover) !important;
   }
 }
 .rc-tree-select-tree-node-selected {
@@ -549,7 +562,7 @@ ${({ dropDownWidth, id }) => `
 	opacity: 1;
 
   .rc-tree-select-tree-title {
-    color: ${Colors.GREY_10};
+    color: var(--wds-color-text);
   }
 
   .rc-tree-select-tree-icon__customize {
@@ -586,7 +599,7 @@ ${({ dropDownWidth, id }) => `
 	display: inline-block;
   margin-left: 10px;
   font-size: 14px !important;
-  color: ${Colors.GREY_8};
+  color: var(--wds-color-text);
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -600,10 +613,10 @@ ${({ dropDownWidth, id }) => `
 	display: inline-block;
 }
 
-  }
 `;
 
 export const TreeSelectContainer = styled.div<{
+  allowClear?: boolean;
   compactMode: boolean;
   isValid: boolean;
   labelPosition?: LabelPosition;
@@ -612,6 +625,21 @@ export const TreeSelectContainer = styled.div<{
   accentColor: string;
 }>`
   ${labelLayoutStyles}
+
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+    ${({ labelPosition }) => {
+      if (labelPosition === LabelPosition.Left) {
+        return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+      }
+    }}
+
   & .${LABEL_CONTAINER_CLASS} {
     label {
       ${({ labelPosition }) => {
@@ -640,7 +668,7 @@ export const TreeSelectContainer = styled.div<{
       transition: all 0.3s;
       flex: 1;
       overflow: hidden;
-      color: ${Colors.GREY_6};
+      color: var(--wds-color-text-light);
       white-space: nowrap;
       text-overflow: ellipsis;
       pointer-events: none;
@@ -662,18 +690,28 @@ export const TreeSelectContainer = styled.div<{
     cursor: not-allowed;
     input {
       cursor: not-allowed;
-      background-color: ${Colors.GREY_1} !important;
+      background-color: var(--wds-color-bg-disabled) !important;
     }
     .rc-tree-select-selector {
-      border: 1.2px solid ${Colors.GREY_3} !important;
-      background-color: ${Colors.GREY_1} !important;
+      border: 1px solid var(--wds-color-border-disabled) !important;
+      background-color: var(--wds-color-bg-disabled) !important;
 
       .rc-tree-select-selection-search input {
-        background-color: ${Colors.GREY_1}; // color fix for mozilla
+        background-color: var(--wds-color-bg-disabled) // color fix for mozilla
       }
       .rc-tree-select-selection-item {
-        color: ${Colors.GREY_7};
-        background-color: ${Colors.GREY_1};
+        color: var(--wds-color-text-disabled);
+        background-color: var(--wds-color-bg-disabled) !important;
+      }
+    }
+
+    .rc-tree-select-selection-placeholder {
+      color: var(--wds-color-text-disabled-light);
+    }
+
+    & .dropdown-icon {
+      svg path {
+        fill: var(--wds-color-icon-disabled) !important;
       }
     }
   }
@@ -697,7 +735,10 @@ export const TreeSelectContainer = styled.div<{
     &:hover {
       .rc-tree-select-selector {
         border: 1.2px solid
-          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
+        ${(props) =>
+          props.isValid
+            ? "var(--wds-color-border-hover)"
+            : "var(--wds-color-border-danger-hover)"};
       }
     }
   }
@@ -706,9 +747,12 @@ export const TreeSelectContainer = styled.div<{
     flex-wrap: wrap;
     padding-right: 42px;
     border: 1px solid
-      ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+      ${(props) =>
+        props.isValid
+          ? "var(--wds-color-border)"
+          : "var(--wds-color-border-danger)"};
     box-sizing: border-box;
-    background: ${Colors.WHITE};
+    background: var(--wds-color-bg);
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     overflow: hidden;
@@ -747,7 +791,10 @@ export const TreeSelectContainer = styled.div<{
       white-space: nowrap;
       text-overflow: ellipsis;
       font-size: 14px;
-      width: calc(100% - 40px);
+      ${(props) =>
+        props.allowClear
+          ? `width: calc(100% - 58px)`
+          : `width: calc(100% - 40px)`}
     }
   }
   .rc-tree-select-multiple {
@@ -855,18 +902,13 @@ export const TreeSelectContainer = styled.div<{
       height: 100%;
       display: flex;
       align-items: center;
-      z-index: -1;
       .rc-tree-select-clear-icon {
         font-size: 18px;
         font-weight: bold;
       }
     }
   }
-  .rc-tree-select-allow-clear.rc-tree-select-focused {
-    .rc-tree-select-clear {
-      z-index: 1;
-    }
-  }
+
   .rc-tree-select-show-arrow.rc-tree-select-multiple {
     .rc-tree-select-selector {
       padding-right: 20px;
@@ -897,9 +939,17 @@ export const TreeSelectContainer = styled.div<{
 
       & .clear-icon {
         width: 16px;
+        margin-right: 8px;
+
         svg {
           width: 16px;
           height: 16px;
+
+          fill: var(--wds-color-icon);
+
+          path {
+            fill: var(--wds-color-icon);
+          }
         }
       }
     }
@@ -918,8 +968,12 @@ export const TreeSelectContainer = styled.div<{
         svg {
           width: 20px;
           height: 20px;
+          path {
+            fill: var(--wds-color-icon);
+          }
         }
-      fill: ${Colors.SLATE_GRAY};
+      fill: var(--wds-color-icon);
+      }
     }
     .rc-tree-select-arrow-icon {
       &::after {
@@ -944,7 +998,6 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
-
 `;
 export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {

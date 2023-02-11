@@ -14,76 +14,22 @@ import {
 import ButtonGroupComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
 import { getStylesheetValue } from "./helpers";
+import { Stylesheet } from "entities/AppTheming";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
-        children: [
-          {
-            helpText: "Controls widget orientation",
-            propertyName: "orientation",
-            label: "Orientation",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Horizontal",
-                value: "horizontal",
-              },
-              {
-                label: "Vertical",
-                value: "vertical",
-              },
-            ],
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isDisabled",
-            label: "Disabled",
-            controlType: "SWITCH",
-            helpText: "Disables clicks to this widget",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Buttons",
+        sectionName: "Data",
         children: [
           {
             helpText: "Group Buttons",
             propertyName: "groupButtons",
             controlType: "GROUP_BUTTONS",
-            label: "",
+            label: "Buttons",
             isBindProperty: false,
             isTriggerProperty: false,
             dependencies: ["childStylesheet"],
@@ -103,24 +49,15 @@ class ButtonGroupWidget extends BaseWidget<
                   },
                 ];
               },
-              children: [
+              contentChildren: [
                 {
-                  sectionName: "General",
+                  sectionName: "Data",
                   children: [
-                    {
-                      propertyName: "label",
-                      helpText: "Sets the label of a menu item",
-                      label: "Label",
-                      controlType: "INPUT_TEXT",
-                      placeholderText: "Enter label",
-                      isBindProperty: true,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
-                    },
                     {
                       propertyName: "buttonType",
                       label: "Button Type",
-                      controlType: "DROP_DOWN",
+                      controlType: "ICON_TABS",
+                      fullWidth: true,
                       helpText: "Sets button type",
                       options: [
                         {
@@ -143,15 +80,195 @@ class ButtonGroupWidget extends BaseWidget<
                       },
                     },
                     {
-                      propertyName: "isDisabled",
-                      helpText: "Disables input to the widget",
-                      label: "Disabled",
-                      controlType: "SWITCH",
-                      isJSConvertible: true,
+                      hidden: (
+                        props: ButtonGroupWidgetProps,
+                        propertyPath: string,
+                      ) => {
+                        const buttonType = get(
+                          props,
+                          `${propertyPath.split(".", 2).join(".")}.buttonType`,
+                          "",
+                        );
+                        return buttonType !== "MENU";
+                      },
+                      dependencies: ["groupButtons"],
+                      helpText: "Menu Items",
+                      propertyName: "menuItems",
+                      controlType: "MENU_ITEMS",
+                      label: "Menu Items",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                      panelConfig: {
+                        editableTitle: true,
+                        titlePropertyName: "label",
+                        panelIdPropertyName: "id",
+                        updateHook: (
+                          props: any,
+                          propertyPath: string,
+                          propertyValue: string,
+                        ) => {
+                          return [
+                            {
+                              propertyPath,
+                              propertyValue,
+                            },
+                          ];
+                        },
+                        contentChildren: [
+                          {
+                            sectionName: "Label",
+                            children: [
+                              {
+                                propertyName: "label",
+                                helpText: "Sets the label of a menu item",
+                                label: "Text",
+                                controlType: "INPUT_TEXT",
+                                placeholderText: "Enter label",
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                            ],
+                          },
+                          {
+                            sectionName: "General",
+                            children: [
+                              {
+                                propertyName: "isVisible",
+                                helpText:
+                                  "Controls the visibility of menu item",
+                                label: "Visible",
+                                controlType: "SWITCH",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: {
+                                  type: ValidationTypes.BOOLEAN,
+                                },
+                              },
+                              {
+                                propertyName: "isDisabled",
+                                helpText: "Disables menu item",
+                                label: "Disabled",
+                                controlType: "SWITCH",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: {
+                                  type: ValidationTypes.BOOLEAN,
+                                },
+                              },
+                            ],
+                          },
+                          {
+                            sectionName: "Events",
+                            children: [
+                              {
+                                helpText:
+                                  "Triggers an action when the menu item is clicked",
+                                propertyName: "onClick",
+                                label: "onClick",
+                                controlType: "ACTION_SELECTOR",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: true,
+                              },
+                            ],
+                          },
+                        ],
+                        styleChildren: [
+                          {
+                            sectionName: "Icon",
+                            children: [
+                              {
+                                propertyName: "iconName",
+                                label: "Icon",
+                                helpText:
+                                  "Sets the icon to be used for a menu item",
+                                controlType: "ICON_SELECT",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                              {
+                                propertyName: "iconAlign",
+                                label: "Position",
+                                helpText:
+                                  "Sets the icon alignment of a menu item",
+                                controlType: "ICON_TABS",
+                                fullWidth: true,
+                                options: [
+                                  {
+                                    icon: "VERTICAL_LEFT",
+                                    value: "left",
+                                  },
+                                  {
+                                    icon: "VERTICAL_RIGHT",
+                                    value: "right",
+                                  },
+                                ],
+                                isBindProperty: false,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                            ],
+                          },
+                          {
+                            sectionName: "Color",
+                            children: [
+                              {
+                                propertyName: "backgroundColor",
+                                helpText:
+                                  "Sets the background color of a menu item",
+                                label: "Background Color",
+                                controlType: "COLOR_PICKER",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                              {
+                                propertyName: "iconColor",
+                                helpText: "Sets the icon color of a menu item",
+                                label: "Icon Color",
+                                controlType: "COLOR_PICKER",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
+                              },
+                              {
+                                propertyName: "textColor",
+                                helpText: "Sets the text color of a menu item",
+                                label: "Text Color",
+                                controlType: "COLOR_PICKER",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Label",
+                  children: [
+                    {
+                      propertyName: "label",
+                      helpText: "Sets the label of a menu item",
+                      label: "Text",
+                      controlType: "INPUT_TEXT",
+                      placeholderText: "Enter label",
                       isBindProperty: true,
                       isTriggerProperty: false,
-                      validation: { type: ValidationTypes.BOOLEAN },
+                      validation: { type: ValidationTypes.TEXT },
                     },
+                  ],
+                },
+                {
+                  sectionName: "General",
+                  children: [
                     {
                       propertyName: "isVisible",
                       helpText: "Controls the visibility of the widget",
@@ -162,16 +279,74 @@ class ButtonGroupWidget extends BaseWidget<
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.BOOLEAN },
                     },
+                    {
+                      propertyName: "isDisabled",
+                      helpText: "Disables input to the widget",
+                      label: "Disabled",
+                      controlType: "SWITCH",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.BOOLEAN },
+                    },
                   ],
                 },
                 {
-                  sectionName: "Icon Options",
+                  sectionName: "Events",
+                  hidden: (
+                    props: ButtonGroupWidgetProps,
+                    propertyPath: string,
+                  ) => {
+                    const buttonType = get(
+                      props,
+                      `${propertyPath}.buttonType`,
+                      "",
+                    );
+                    return buttonType === "MENU";
+                  },
+                  children: [
+                    {
+                      helpText: "Triggers an action when the button is clicked",
+                      propertyName: "onClick",
+                      label: "onClick",
+                      controlType: "ACTION_SELECTOR",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: true,
+                    },
+                  ],
+                },
+              ],
+              styleChildren: [
+                {
+                  sectionName: "Icon",
                   children: [
                     {
                       propertyName: "iconName",
                       label: "Icon",
                       helpText: "Sets the icon to be used for a button",
                       controlType: "ICON_SELECT",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                    {
+                      propertyName: "iconAlign",
+                      label: "Position",
+                      helpText: "Sets the icon alignment of a button",
+                      controlType: "ICON_TABS",
+                      fullWidth: true,
+                      options: [
+                        {
+                          icon: "VERTICAL_LEFT",
+                          value: "left",
+                        },
+                        {
+                          icon: "VERTICAL_RIGHT",
+                          value: "right",
+                        },
+                      ],
                       isBindProperty: false,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
@@ -211,217 +386,10 @@ class ButtonGroupWidget extends BaseWidget<
                         },
                       },
                     },
-                    {
-                      propertyName: "iconAlign",
-                      label: "Icon alignment",
-                      helpText: "Sets the icon alignment of a button",
-                      controlType: "ICON_TABS",
-                      options: [
-                        {
-                          icon: "VERTICAL_LEFT",
-                          value: "left",
-                        },
-                        {
-                          icon: "VERTICAL_RIGHT",
-                          value: "right",
-                        },
-                      ],
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
-                    },
                   ],
                 },
                 {
-                  sectionName: "Menu Items",
-                  hidden: (
-                    props: ButtonGroupWidgetProps,
-                    propertyPath: string,
-                  ) => {
-                    const buttonType = get(
-                      props,
-                      `${propertyPath}.buttonType`,
-                      "",
-                    );
-                    return buttonType !== "MENU";
-                  },
-                  children: [
-                    {
-                      helpText: "Menu Items",
-                      propertyName: "menuItems",
-                      controlType: "MENU_ITEMS",
-                      label: "",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                      panelConfig: {
-                        editableTitle: true,
-                        titlePropertyName: "label",
-                        panelIdPropertyName: "id",
-                        updateHook: (
-                          props: any,
-                          propertyPath: string,
-                          propertyValue: string,
-                        ) => {
-                          return [
-                            {
-                              propertyPath,
-                              propertyValue,
-                            },
-                          ];
-                        },
-                        children: [
-                          {
-                            sectionName: "General",
-                            children: [
-                              {
-                                propertyName: "label",
-                                helpText: "Sets the label of a menu item",
-                                label: "Label",
-                                controlType: "INPUT_TEXT",
-                                placeholderText: "Enter label",
-                                isBindProperty: true,
-                                isTriggerProperty: false,
-                                validation: { type: ValidationTypes.TEXT },
-                              },
-
-                              {
-                                propertyName: "isDisabled",
-                                helpText: "Disables menu item",
-                                label: "Disabled",
-                                controlType: "SWITCH",
-                                isJSConvertible: true,
-                                isBindProperty: true,
-                                isTriggerProperty: false,
-                                validation: { type: ValidationTypes.BOOLEAN },
-                              },
-                              {
-                                propertyName: "isVisible",
-                                helpText:
-                                  "Controls the visibility of menu item",
-                                label: "Visible",
-                                controlType: "SWITCH",
-                                isJSConvertible: true,
-                                isBindProperty: true,
-                                isTriggerProperty: false,
-                                validation: { type: ValidationTypes.BOOLEAN },
-                              },
-                            ],
-                          },
-                          {
-                            sectionName: "Icon Options",
-                            children: [
-                              {
-                                propertyName: "iconName",
-                                label: "Icon",
-                                helpText:
-                                  "Sets the icon to be used for a menu item",
-                                controlType: "ICON_SELECT",
-                                isBindProperty: false,
-                                isTriggerProperty: false,
-                                validation: { type: ValidationTypes.TEXT },
-                              },
-
-                              {
-                                propertyName: "iconAlign",
-                                label: "Icon alignment",
-                                helpText:
-                                  "Sets the icon alignment of a menu item",
-                                controlType: "ICON_TABS",
-                                options: [
-                                  {
-                                    icon: "VERTICAL_LEFT",
-                                    value: "left",
-                                  },
-                                  {
-                                    icon: "VERTICAL_RIGHT",
-                                    value: "right",
-                                  },
-                                ],
-                                isBindProperty: false,
-                                isTriggerProperty: false,
-                                validation: { type: ValidationTypes.TEXT },
-                              },
-                            ],
-                          },
-                          {
-                            sectionName: "Events",
-                            children: [
-                              {
-                                helpText:
-                                  "Triggers an action when the menu item is clicked",
-                                propertyName: "onClick",
-                                label: "onClick",
-                                controlType: "ACTION_SELECTOR",
-                                isJSConvertible: true,
-                                isBindProperty: true,
-                                isTriggerProperty: true,
-                              },
-                            ],
-                          },
-                          {
-                            sectionName: "Style",
-                            children: [
-                              {
-                                propertyName: "iconColor",
-                                helpText: "Sets the icon color of a menu item",
-                                label: "Icon color",
-                                controlType: "COLOR_PICKER",
-                                isBindProperty: false,
-                                isTriggerProperty: false,
-                              },
-                              {
-                                propertyName: "backgroundColor",
-                                helpText:
-                                  "Sets the background color of a menu item",
-                                label: "Background color",
-                                controlType: "COLOR_PICKER",
-                                isJSConvertible: true,
-                                isBindProperty: true,
-                                isTriggerProperty: false,
-                                validation: { type: ValidationTypes.TEXT },
-                              },
-                              {
-                                propertyName: "textColor",
-                                helpText: "Sets the text color of a menu item",
-                                label: "Text color",
-                                controlType: "COLOR_PICKER",
-                                isBindProperty: false,
-                                isTriggerProperty: false,
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-                {
-                  sectionName: "Events",
-                  hidden: (
-                    props: ButtonGroupWidgetProps,
-                    propertyPath: string,
-                  ) => {
-                    const buttonType = get(
-                      props,
-                      `${propertyPath}.buttonType`,
-                      "",
-                    );
-                    return buttonType === "MENU";
-                  },
-                  children: [
-                    {
-                      helpText: "Triggers an action when the button is clicked",
-                      propertyName: "onClick",
-                      label: "onClick",
-                      controlType: "ACTION_SELECTOR",
-                      isJSConvertible: true,
-                      isBindProperty: true,
-                      isTriggerProperty: true,
-                    },
-                  ],
-                },
-                {
-                  sectionName: "Styles",
+                  sectionName: "Color",
                   children: [
                     {
                       getStylesheetValue,
@@ -442,12 +410,54 @@ class ButtonGroupWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables clicks to this widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "General",
         children: [
           {
             propertyName: "buttonVariant",
             label: "Button Variant",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             helpText: "Sets the variant of the button",
             options: [
               {
@@ -479,6 +489,31 @@ class ButtonGroupWidget extends BaseWidget<
             },
           },
           {
+            helpText: "Controls widget orientation",
+            propertyName: "orientation",
+            label: "Orientation",
+            controlType: "ICON_TABS",
+            fullWidth: true,
+            options: [
+              {
+                label: "Horizontal",
+                value: "horizontal",
+              },
+              {
+                label: "Vertical",
+                value: "vertical",
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
+          {
             propertyName: "borderRadius",
             label: "Border Radius",
             helpText:
@@ -505,13 +540,26 @@ class ButtonGroupWidget extends BaseWidget<
     ];
   }
 
-  handleClick = (onClick: string | undefined): void => {
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        },
+      },
+    };
+  }
+
+  handleClick = (onClick: string | undefined, callback: () => void): void => {
     if (onClick) {
       super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: onClick,
         event: {
           type: EventType.ON_CLICK,
+          callback,
         },
       });
     }

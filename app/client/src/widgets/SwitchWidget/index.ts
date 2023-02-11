@@ -4,6 +4,12 @@ import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 1,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "Switch",
   iconSVG: IconSVG,
@@ -26,6 +32,9 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

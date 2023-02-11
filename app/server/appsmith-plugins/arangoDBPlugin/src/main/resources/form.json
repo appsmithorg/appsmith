@@ -27,7 +27,7 @@
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Database name",
-          "initialValue": "default"
+          "initialValue": "_system"
         }
       ]
     },

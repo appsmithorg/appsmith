@@ -17,16 +17,17 @@
       "fetchOptionsConditionally": true,
       "alternateViewTypes": ["json"],
       "conditionals": {
-        "enable": "{{!!actionConfiguration.formData.sheetUrl.data && !!actionConfiguration.formData.sheetName.data}}",
+        "enable": "{{!!actionConfiguration.formData.sheetUrl.data && !!actionConfiguration.formData.sheetName.data && !!actionConfiguration.formData.tableHeaderIndex.data}}",
         "fetchDynamicValues": {
-          "condition": "{{!!actionConfiguration.formData.sheetUrl.data && !!actionConfiguration.formData.sheetName.data}}",
+          "condition": "{{!!actionConfiguration.formData.sheetUrl.data && !!actionConfiguration.formData.sheetName.data && !!actionConfiguration.formData.tableHeaderIndex.data}}",
           "config": {
             "params": {
               "requestType": "COLUMNS_SELECTOR",
               "displayType": "DROP_DOWN",
               "parameters": {
                 "sheetUrl": "{{actionConfiguration.formData.sheetUrl.data}}",
-                "sheetName": "{{actionConfiguration.formData.sheetName.data}}"
+                "sheetName": "{{actionConfiguration.formData.sheetName.data}}",
+                "tableHeaderIndex": "{{actionConfiguration.formData.tableHeaderIndex.data}}"
               }
             }
           }

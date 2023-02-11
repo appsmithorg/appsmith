@@ -71,6 +71,7 @@
   "input2": "(//div[@class='bp3-input-group']//input)[1]",
   "input3": "(//div[@class='bp3-input-group']//input)[2]",
   "videoUrl": "https://www.youtube.com/watch?v=S5musXykVs0",
+  "videoUrl2": "https://assets.appsmith.com/widgets/bird.mp4",
   "audioUrl": "https://assets.appsmith.com/widgets/birds_chirping.mp3",
   "TablePagination": [
     {
@@ -143,5 +144,26 @@
   "v2Key": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
   "v3Key": "6LcnzQgfAAAAAMwMlQLppqx7STvZ6pZJoDMXti8k",
   "invalidKey": "abc123",
-  "errorMsg": "Google Re-Captcha token generation failed! Please check the Re-captcha site key."
+  "errorMsg": "Google Re-Captcha token generation failed! Please check the Re-captcha site key.",
+  "treeTextBindingValue": "{{TreeSelect1.selectedOptionValue}}",
+  "multiSelectTextBindingValue": "{{MultiSelect1.selectedOptionValues}}",
+  "tabBindingValue": "{{Tabs1.selectedTab}}",
+  "tableBindingValue": "{{Table1.selectedRow.step}}",
+  "switchGroupBindingValue": "{{SwitchGroup1.selectedValues}}",
+  "switchBindingValue": "{{Switch1.selectedValue}}",
+  "selectBindingValue": "{{Select1.selectedOptionValue}}",
+  "currencyBindingValue": "{{CurrencyInput1.value}}",
+  "multitreeselectBindingValue": "{{MultiTreeSelect1.selectedOptionValues}}",
+  "radiogroupselectBindingValue": "{{RadioGroup1.selectedOptionValue}}",
+  "listBindingValue": "{{List1.selectedItem.id}}",
+  "ratingBindingValue": "{{Rating1.value}}",
+  "checkboxGroupBindingValue": "{{CheckboxGroup1.selectedValues}}",
+  "checkboxBindingValue": "{{Checkbox1.isChecked}}",
+  "audioRecorderBindingValue": "{{AudioRecorder1.isVisible}}",
+  "audioBindingValue": "{{Audio1.autoPlay}}",
+  "phoneBindingValue": "{{PhoneInput1.value}}",
+  "fileBindingValue": "{{FilePicker1.isDirty}}",
+  "UPGRADEUSERNAME": "arslan+upgrade160@appsmith.com",
+  "UPGRADEPASSWORD": "Test@123",
+  "APPURL": "http://localhost:8081/app/app1/page1-63d38854252ca15b7ec9fabb"
 }

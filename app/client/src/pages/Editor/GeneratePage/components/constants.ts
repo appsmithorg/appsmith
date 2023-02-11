@@ -1,5 +1,6 @@
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "design-system-old";
 import { DatasourceTable } from "entities/Datasource";
+import { PluginPackageName } from "entities/Action";
 
 export type DropdownOptions = Array<DropdownOption>;
 
@@ -7,28 +8,21 @@ export interface DatasourceTableDropdownOption extends DropdownOption {
   data: DatasourceTable;
 }
 
-export const PLUGIN_PACKAGE_NAME = {
-  MONGO_DB: "mongo-plugin",
-  S3: "amazons3-plugin",
-  GOOGLE_SHEETS: "google-sheets-plugin",
-  FIRESTORE: "firestore-plugin",
-};
-
 export const PluginFormInputFieldMap: Record<
   string,
   { DATASOURCE: string; TABLE: string; COLUMN: string }
 > = {
-  [PLUGIN_PACKAGE_NAME.MONGO_DB]: {
+  [PluginPackageName.MONGO]: {
     DATASOURCE: "MongoDB",
     TABLE: "collection",
     COLUMN: "field",
   },
-  [PLUGIN_PACKAGE_NAME.S3]: {
+  [PluginPackageName.S3]: {
     DATASOURCE: "S3",
     TABLE: "bucket",
     COLUMN: "keys",
   },
-  [PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS]: {
+  [PluginPackageName.GOOGLE_SHEETS]: {
     DATASOURCE: "Google Sheets",
     TABLE: "spreadsheet",
     COLUMN: "keys",

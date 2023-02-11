@@ -87,6 +87,34 @@ export default [
           },
         ],
       },
+      {
+        label: "Query Variables",
+        configProperty: "actionConfiguration.pluginSpecifiedTemplates[1].value",
+        controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+        evaluationSubstitutionType: "SMART_SUBSTITUTE",
+        hidden: {
+          path: "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          comparison: "EQUALS",
+          value: false,
+        },
+      },
+      {
+        label: "Query Variables",
+        configProperty: "actionConfiguration.pluginSpecifiedTemplates[1].value",
+        controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+        evaluationSubstitutionType: "TEMPLATE",
+        hidden: {
+          path: "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          comparison: "EQUALS",
+          value: true,
+        },
+      },
+      {
+        label: "Pagination",
+        configProperty: "actionConfiguration.pluginSpecifiedTemplates[2].value",
+        controlType: "E_GRAPHQL_PAGINATION",
+        evaluationSubstitutionType: "SMART_SUBSTITUTE",
+      },
     ],
   },
 ];

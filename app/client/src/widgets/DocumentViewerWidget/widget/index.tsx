@@ -5,7 +5,7 @@ import {
   ValidationTypes,
   ValidationResponse,
 } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -64,14 +64,14 @@ class DocumentViewerWidget extends BaseWidget<
   DocumentViewerWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             helpText:
-              "Document url for preview. for URL, supported extensions are txt, pdf, docx, ppt, pptx, xlsx. ppt is currently not supported by base64.",
+              "Preview document URL supports txt, pdf, docx, ppt, pptx, xlsx file formats, but base64 ppt/pptx are not supported.",
             propertyName: "docUrl",
             label: "Document Link",
             controlType: "INPUT_TEXT",
@@ -90,6 +90,11 @@ class DocumentViewerWidget extends BaseWidget<
               },
             },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             helpText: "Controls visibility of the widget",
             propertyName: "isVisible",

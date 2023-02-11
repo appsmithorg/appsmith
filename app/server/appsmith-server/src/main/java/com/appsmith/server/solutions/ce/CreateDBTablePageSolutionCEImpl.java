@@ -1,9 +1,11 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.converters.GsonISOStringToInstantConverter;
+import com.appsmith.external.converters.HttpMethodConverter;
+import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
@@ -11,7 +13,6 @@ import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
@@ -19,7 +20,6 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
@@ -37,6 +37,9 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +48,7 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 import reactor.core.publisher.Flux;
@@ -64,9 +68,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-
 
 @RequiredArgsConstructor
 @Slf4j
@@ -82,6 +83,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final SessionUserService sessionUserService;
     private final ResponseUtils responseUtils;
     private final PluginExecutorHelper pluginExecutorHelper;
+    private final DatasourcePermission datasourcePermission;
+    private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -130,6 +134,12 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     // Pattern to match all words in the text
     private static final Pattern WORD_PATTERN = Pattern.compile("\\w+");
+
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
+            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
+            .registerTypeAdapter(HttpMethod.class, new HttpMethodConverter())
+            .create();
 
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
@@ -181,7 +191,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         Mono<NewPage> pageMono = getOrCreatePage(defaultApplicationId, defaultPageId, tableName, branchName);
 
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
                 )
@@ -342,7 +352,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     }
 
                     log.debug("Going to update layout for page {} and layout {}", savedPageId, layoutId);
-                    return layoutActionService.updateLayout(savedPageId, layoutId, layout)
+                    return layoutActionService.updateLayout(savedPageId, page.getApplicationId(), layoutId, layout)
                             .then(Mono.zip(
                                     Mono.just(datasource),
                                     Mono.just(templateActionList),
@@ -408,7 +418,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
         log.debug("Fetching page from application {}, defaultPageId {}, branchName {}", defaultApplicationId, defaultPageId, branchName);
         if (defaultPageId != null) {
-            return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+            return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
                     )
@@ -421,8 +431,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     });
         }
 
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                .flatMapMany(childApplicationId -> newPageService.findByApplicationId(childApplicationId, MANAGE_PAGES, false))
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .flatMapMany(childApplicationId -> newPageService.findByApplicationId(childApplicationId, pagePermission.getEditPermission(), false))
                 .collectList()
                 .flatMap(pages -> {
                     // Avoid duplicating page names
@@ -450,7 +460,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     page.setDefaultResources(defaultResources);
                     return applicationPageService.createPage(page);
                 })
-                .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), MANAGE_PAGES));
+                .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), pagePermission.getEditPermission()));
     }
 
     /**
@@ -493,11 +503,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 new DefaultResourceLoader().getResource(filePath).getInputStream(),
                 Charset.defaultCharset()
         );
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        Gson gson = gsonBuilder
-                .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
-                .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
-                .create();
+
         ApplicationJson applicationJson = gson.fromJson(jsonContent, ApplicationJson.class);
         return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
     }
@@ -597,7 +603,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
                                 return actionDTO;
                             })
-                            .flatMap(layoutActionService::createSingleAction);
+                            .flatMap(action -> layoutActionService.createSingleAction(action, Boolean.FALSE));
                 });
     }
 
@@ -1053,7 +1059,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private Mono<CRUDPageResponseDTO> sendGenerateCRUDPageAnalyticsEvent(CRUDPageResponseDTO crudPage, Datasource datasource, String pluginName) {
         PageDTO page = crudPage.getPage();
         return sessionUserService.getCurrentUser()
-                .map(currentUser -> {
+                .flatMap(currentUser -> {
                     try {
                         final Map<String, Object> data = Map.of(
                                 "applicationId", page.getApplicationId(),
@@ -1063,13 +1069,13 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 "datasourceId", datasource.getId(),
                                 "organizationId", datasource.getWorkspaceId()
                         );
-                        analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data);
+                        return analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data)
+                                .thenReturn(crudPage);
                     } catch (Exception e) {
                         log.warn("Error sending generate CRUD DB table page data point", e);
                     }
-                    return crudPage;
+                    return Mono.just(crudPage);
                 });
     }
-
 
 }

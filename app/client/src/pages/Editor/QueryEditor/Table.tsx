@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { withTheme } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { FixedSizeList } from "react-window";
 import { useTable, useBlockLayout } from "react-table";
 
@@ -12,13 +12,12 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 // We need to decouple the platform stuff from the widget stuff
 import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
-import { Theme } from "constants/DefaultTheme";
 import { isArray, uniqueId } from "lodash";
+import { Theme } from "constants/DefaultTheme";
 
 interface TableProps {
   data: Record<string, any>[];
   tableBodyHeight?: number;
-  theme: Theme;
 }
 
 const TABLE_SIZES = {
@@ -198,7 +197,19 @@ const renderCell = (props: any) => {
   );
 };
 
+// The function will return the scrollbar width that needs to be added
+// in the table body width, when scrollbar is shown the width should be > 0,
+// when scrollbar is not shown, width should be 0
+export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
+  return !!tableBodyEle && tableBodyEle.scrollHeight > tableBodyEle.clientHeight
+    ? scrollBarW
+    : 0;
+};
+
 function Table(props: TableProps) {
+  const theme = useTheme() as Theme;
+  const tableBodyRef = React.useRef<HTMLElement>();
+
   const data = React.useMemo(() => {
     const emptyString = "";
     /* Check for length greater than 0 of rows returned from the query for mappings keys */
@@ -231,12 +242,15 @@ function Table(props: TableProps) {
     return [];
   }, [data]);
 
+  const responseTypePanelHeight = 24;
+
   const tableBodyHeightComputed =
     (props.tableBodyHeight || window.innerHeight) -
     TABLE_SIZES.COLUMN_HEADER_HEIGHT -
-    props.theme.tabPanelHeight -
+    theme.tabPanelHeight -
     TABLE_SIZES.SCROLL_SIZE -
-    2 * props.theme.spaces[5]; //top and bottom padding
+    responseTypePanelHeight -
+    2 * theme.spaces[4]; //top and bottom padding
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -262,7 +276,9 @@ function Table(props: TableProps) {
     useBlockLayout,
   );
 
-  const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
+  const tableBodyEle = tableBodyRef?.current;
+  const scrollBarW = React.useMemo(() => scrollbarWidth(), []);
+  const scrollBarSize = getScrollBarWidth(tableBodyEle, scrollBarW);
 
   const RenderRow = React.useCallback(
     ({ index, style }) => {
@@ -338,6 +354,7 @@ function Table(props: TableProps) {
                 height={tableBodyHeightComputed || window.innerHeight}
                 itemCount={rows.length}
                 itemSize={35}
+                outerRef={tableBodyRef}
                 width={totalColumnsWidth + scrollBarSize}
               >
                 {RenderRow}
@@ -350,4 +367,4 @@ function Table(props: TableProps) {
   );
 }
 
-export default withTheme(Table);
+export default Table;

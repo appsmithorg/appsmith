@@ -10,11 +10,12 @@ import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import { EntityClassNames } from ".";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import CollapseToggle from "./CollapseToggle";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div<{ step: number }>`
   &&&& {
@@ -140,6 +141,10 @@ export const EntityProperty = memo((props: any) => {
   const isString = typeof props.value === "string";
 
   const copyBindingToClipboard = () => {
+    AnalyticsUtil.logEvent("BINDING_COPIED", {
+      entityType: props.entityType,
+      codeText,
+    });
     write(codeText);
   };
 

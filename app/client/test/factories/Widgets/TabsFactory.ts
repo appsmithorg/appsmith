@@ -141,5 +141,5 @@ export const TabsFactory = Factory.Sync.makeFactory<WidgetProps>({
   widgetName: Factory.each((i) => `Tabs${i + 1}`),
   widgetId: generateReactKey(),
   renderMode: "CANVAS",
-  version: 1,
+  version: 3,
 });

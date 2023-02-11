@@ -24,9 +24,15 @@ const validUrls = [
   "ssh://host.xz/~/path/to/repo.git",
   "git@ssh.dev.azure.com:v3/something/other/thing",
   "git@ssh.dev.azure.com:v3/something/other/thing.git",
+  "git@ssh.dev.azure.com:v3/something/other/(thing).git",
+  "git@ssh.dev.azure.com:v3/(((something)/(other)/(thing).git",
+  "git@abcd.org:org__v3/(((something)/(other)/(thing).git",
+  "git@gitlab-abcd.test.org:org__org/repoName.git",
+  "git@gitlab__abcd.test.org:org__org/repoName.git",
 ];
 
 const invalidUrls = [
+  "git@ssh.dev.azure.(com):v3/(((something)/(other)/(thing).git",
   "git@ssh.dev.azure.com:v3/something/other/thing/",
   "gitclonegit://a@b:c/d.git",
   "https://github.com/user/project.git",

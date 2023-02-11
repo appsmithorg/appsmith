@@ -8,10 +8,7 @@ import React, {
   useMemo,
 } from "react";
 import Select, { SelectProps } from "rc-select";
-import {
-  DefaultValueType,
-  LabelValueType,
-} from "rc-select/lib/interface/generator";
+import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import MenuItemCheckBox, {
   DropdownStyles,
   MultiSelectContainer,
@@ -19,14 +16,14 @@ import MenuItemCheckBox, {
   InputContainer,
 } from "./index.styled";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
-import Icon from "components/ads/Icon";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { Icon } from "design-system-old";
 import useDropdown from "widgets/useDropdown";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
@@ -40,8 +37,8 @@ export interface MultiSelectProps
     >
   > {
   mode?: "multiple" | "tags";
-  value: LabelValueType[];
-  onChange: (value: DefaultValueType) => void;
+  value: LabelInValueType[];
+  onChange: (value: DraftValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
   dropDownWidth: number;
@@ -54,6 +51,7 @@ export interface MultiSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  labelTooltip?: string;
   isValid: boolean;
   allowSelectAll?: boolean;
   filterText?: string;
@@ -64,7 +62,10 @@ export interface MultiSelectProps
   accentColor?: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
+  onDropdownOpen?: () => void;
+  onDropdownClose?: () => void;
   renderMode?: RenderMode;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
@@ -79,6 +80,7 @@ function MultiSelectComponent({
   dropdownStyle,
   dropDownWidth,
   filterText,
+  isDynamicHeightEnabled,
   isFilterable,
   isValid,
   labelAlignment,
@@ -87,12 +89,13 @@ function MultiSelectComponent({
   labelText,
   labelTextColor,
   labelTextSize,
+  labelTooltip,
   labelWidth,
   loading,
-  onBlur,
   onChange,
+  onDropdownClose,
+  onDropdownOpen,
   onFilterChange,
-  onFocus,
   options,
   placeholder,
   renderMode,
@@ -120,6 +123,8 @@ function MultiSelectComponent({
   } = useDropdown({
     inputRef,
     renderMode,
+    onDropdownOpen,
+    onDropdownClose,
   });
 
   // SelectAll if all options are in Value
@@ -178,9 +183,9 @@ function MultiSelectComponent({
   const handleSelectAll = () => {
     if (!isSelectAll) {
       // Get all options
-      const allOption: LabelValueType[] = filteredOptions.map(
+      const allOption: LabelInValueType[] = filteredOptions.map(
         ({ label, value }) => ({
-          value,
+          value: value || "",
           label,
         }),
       );
@@ -305,9 +310,12 @@ function MultiSelectComponent({
           className={`multiselect-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="multiselect-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
           ref={labelRef}
@@ -343,10 +351,8 @@ function MultiSelectComponent({
           menuItemSelectedIcon={menuItemSelectedIcon}
           mode="multiple"
           notFoundContent="No Results Found"
-          onBlur={onBlur}
           onChange={onChange}
           onDropdownVisibleChange={onDropdownVisibleChange}
-          onFocus={onFocus}
           open={isOpen}
           options={filteredOptions}
           placeholder={placeholder || "select option(s)"}

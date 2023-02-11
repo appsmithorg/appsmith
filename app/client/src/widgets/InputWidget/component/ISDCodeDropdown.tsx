@@ -1,7 +1,6 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Dropdown, DropdownOption, Icon, IconSize } from "design-system-old";
 import { countryToFlag } from "./utilities";
 import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes";
 import { Colors } from "constants/Colors";

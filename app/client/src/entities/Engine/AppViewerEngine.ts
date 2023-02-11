@@ -2,7 +2,6 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   fetchAllPageEntityCompletion,
@@ -16,14 +15,19 @@ import {
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AppEngine, { AppEnginePayload } from ".";
+import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
+import {
+  waitForSegmentInit,
+  waitForFetchUserSuccess,
+} from "ce/sagas/userSagas";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -41,7 +45,6 @@ export default class AppViewerEngine extends AppEngine {
   }
 
   *completeChore() {
-    yield put(fetchCommentThreadsInit());
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
@@ -69,32 +72,46 @@ export default class AppViewerEngine extends AppEngine {
   }
 
   *loadAppEntities(toLoadPageId: string, applicationId: string): any {
+    const initActionsCalls: any = [
+      fetchActionsForView({ applicationId }),
+      fetchJSCollectionsForView({ applicationId }),
+      fetchSelectedAppThemeAction(applicationId),
+      fetchAppThemesAction(applicationId),
+      fetchPublishedPage(toLoadPageId, true, true),
+    ];
+
+    const successActionEffects = [
+      ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
+      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
+      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+      fetchPublishedPageSuccess().type,
+    ];
+    const failureActionEffects = [
+      ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+      ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+      ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
+      ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
+      ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
+    ];
+
+    initActionsCalls.push(fetchJSLibraries(applicationId));
+    successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
+    failureActionEffects.push(ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED);
+
     const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
-      [
-        fetchActionsForView({ applicationId }),
-        fetchJSCollectionsForView({ applicationId }),
-        fetchSelectedAppThemeAction(applicationId),
-        fetchAppThemesAction(applicationId),
-        fetchPublishedPage(toLoadPageId, true, true),
-      ],
-      [
-        ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
-        ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
-        ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-        ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-        fetchPublishedPageSuccess().type,
-      ],
-      [
-        ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
-        ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
-        ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
-        ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
-        ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
-      ],
+      initActionsCalls,
+      successActionEffects,
+      failureActionEffects,
     );
 
-    if (!resultOfPrimaryCalls) return;
+    if (!resultOfPrimaryCalls)
+      throw new ActionsNotFoundError(
+        `Unable to fetch actions for the application: ${applicationId}`,
+      );
 
+    yield call(waitForFetchUserSuccess);
+    yield call(waitForSegmentInit, true);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 }

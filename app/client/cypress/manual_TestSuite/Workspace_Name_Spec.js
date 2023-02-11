@@ -37,24 +37,24 @@ describe("Checking for error message on Workspace Name ", function() {
   });
   it("User must not be able to add empty workspace name", function() {
     // Navigate to home Page
-    // Click on the "Create Organisation" button
-    // Ensure "Organisation Name" field is empty
+    // Click on the "Create Workspace" button
+    // Ensure "Workspace Name" field is empty
     // Ensure "Submit" is inactive
   });
 
   it("Cancel creating an Workspace when the Workspace name is empty", function() {
     // Navigate to home Page
-    // Click on the "Create Organisation" button
-    // Ensure "Organisation Name" field is empty
+    // Click on the "Create Workspace" button
+    // Ensure "Workspace Name" field is empty
     // Click on "Cancel" option
-    // Observe the organisation is not created
+    // Observe the workspace is not created
   });
 
   it("Cancel creating an Workspace when the Workspace name is dually filled", function() {
     // Navigate to home Page
-    // Click on the "Create Organisation" button
-    // Ensure "Organisation Name" field is enterd respectively
+    // Click on the "Create Workspace" button
+    // Ensure "Workspace Name" field is enterd respectively
     // Click on "Cancel" option
-    // Observe the organisation is not created
+    // Observe the workspace is not created
   });
 });

@@ -22,7 +22,6 @@ import { updateCanvasWithDSL } from "sagas/PageSagas";
 import {
   copyActionError,
   copyActionSuccess,
-  createActionRequest,
   createActionSuccess,
   deleteActionSuccess,
   fetchActionsForPage,
@@ -44,28 +43,24 @@ import {
   Action,
   ActionViewMode,
   isAPIAction,
+  PluginPackageName,
   PluginType,
   SlashCommand,
   SlashCommandPayload,
 } from "entities/Action";
-import {
-  ActionData,
-  ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getDatasources,
   getEditorConfig,
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-  getDatasources,
-  getActions,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system-old";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -77,7 +72,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
-import { merge, get } from "lodash";
+import { get, merge } from "lodash";
 import {
   fixActionPayloadForMongoQuery,
   getConfigInitialValues,
@@ -85,13 +80,11 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { createNewApiAction } from "actions/apiPaneActions";
 import {
-  createNewApiName,
-  createNewQueryName,
-  getQueryParams,
-} from "utils/AppsmithUtils";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+  createNewApiAction,
+  createNewQueryAction,
+} from "actions/apiPaneActions";
+import { getQueryParams } from "utils/URLUtils";
 import {
   setGlobalSearchCategory,
   setGlobalSearchFilterContext,
@@ -117,7 +110,8 @@ import {
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "RouteBuilder";
-import { PLUGIN_PACKAGE_MONGO } from "constants/QueryEditorConstants";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -324,7 +318,7 @@ export function* updateActionSaga(
 
     /* NOTE: This  is fix for a missing command config */
     const plugin: Plugin | undefined = yield select(getPlugin, action.pluginId);
-    if (action && plugin && plugin.packageName === PLUGIN_PACKAGE_MONGO) {
+    if (action && plugin && plugin.packageName === PluginPackageName.MONGO) {
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
@@ -332,6 +326,7 @@ export function* updateActionSaga(
       // @ts-expect-error: Types are not available
       action,
     );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageName: string = yield select(
@@ -363,6 +358,9 @@ export function* updateActionSaga(
       );
 
       yield put(updateActionSuccess({ data: response.data }));
+      checkAndLogErrorsIfCyclicDependency(
+        (response.data as Action).errorReports,
+      );
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -639,13 +637,10 @@ function* bindDataOnCanvasSaga(
   }>,
 ) {
   const { pageId, queryId } = action.payload;
+  yield put(setSnipingModeAction({ isActive: true, bindTo: queryId }));
   history.push(
     builderURL({
       pageId,
-      params: {
-        isSnipingMode: "true",
-        bindTo: queryId,
-      },
     }),
   );
 }
@@ -686,7 +681,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 }
 
 export function* setActionPropertySaga(
-  action: ReduxAction<SetActionPropertyPayload>,
+  action: EvaluationReduxAction<SetActionPropertyPayload>,
 ) {
   const { actionId, propertyName, skipSave, value } = action.payload;
   if (!actionId) return;
@@ -722,7 +717,12 @@ export function* setActionPropertySaga(
   );
   yield all(
     Object.keys(effects).map((field) =>
-      put(updateActionProperty({ id: actionId, field, value: effects[field] })),
+      put(
+        updateActionProperty(
+          { id: actionId, field, value: effects[field] },
+          field === "dynamicBindingPathList" ? [] : action.postEvalActions,
+        ),
+      ),
     ),
   );
   if (propertyName === "executeOnLoad") {
@@ -944,36 +944,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.NEW_QUERY:
       const datasource = get(actionPayload, "payload.args.datasource");
-      const pluginId = get(datasource, "pluginId");
-      const plugin: Plugin = yield select(getPlugin, pluginId);
-      const actions: ActionDataState = yield select(getActions);
-      const pageActions = actions.filter(
-        (a: ActionData) => a.config.pageId === pageId,
-      );
-      const newQueryName =
-        plugin.type === PluginType.DB
-          ? createNewQueryName(actions, pageId)
-          : createNewApiName(pageActions, pageId);
-      const nextPayload: Partial<Action> = {
-        name: newQueryName,
-        pageId,
-        eventData: {
-          actionType: "Query",
-          from: "Quick-Commands",
-          dataSource: datasource.name,
-        },
-        pluginId: datasource.pluginId,
-        actionConfiguration: {},
-      };
-      if (plugin.type === "API") {
-        nextPayload.datasource = datasource;
-        nextPayload.actionConfiguration = DEFAULT_API_ACTION_CONFIG;
-      } else {
-        nextPayload.datasource = {
-          id: datasource.id,
-        };
-      }
-      yield put(createActionRequest(nextPayload));
+      yield put(createNewQueryAction(pageId, "QUICK_COMMANDS", datasource.id));
       // @ts-expect-error: QUERY is of type unknown
       const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       if (callback) callback(`{{${QUERY.payload.name}.data}}`);

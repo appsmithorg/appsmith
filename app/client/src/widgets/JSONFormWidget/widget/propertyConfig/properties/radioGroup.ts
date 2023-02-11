@@ -3,7 +3,7 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
 import {
@@ -49,71 +49,73 @@ function defaultOptionValidation(
 }
 
 const PROPERTIES = {
-  general: [
-    {
-      propertyName: "options",
-      helpText:
-        "Allows users to select from the given option(s). Values must be unique",
-      label: "Options",
-      controlType: "INPUT_TEXT",
-      placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.FUNCTION,
-        params: {
-          fn: optionsValidation,
-          expected: {
-            type: 'Array<{ "label": "string", "value": "string" | number}>',
-            example: `[{"label": "One", "value": "one"}]`,
-            autocompleteDataType: AutocompleteDataType.STRING,
+  content: {
+    data: [
+      {
+        propertyName: "options",
+        helpText:
+          "Allows users to select from the given option(s). Values must be unique",
+        label: "Options",
+        controlType: "INPUT_TEXT",
+        placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: optionsValidation,
+            expected: {
+              type: 'Array<{ "label": "string", "value": "string" | number}>',
+              example: `[{"label": "One", "value": "one"}]`,
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
           },
         },
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
+        dependencies: ["schema"],
       },
-      evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
-      dependencies: ["schema"],
-    },
-    {
-      propertyName: "defaultValue",
-      helpText: "Sets a default selected option",
-      label: "Default Selected Value",
-      placeholderText: "Y",
-      controlType: "JSON_FORM_COMPUTE_VALUE",
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.FUNCTION,
-        params: {
-          fn: defaultOptionValidation,
-          expected: {
-            type: `string |\nnumber (only works in mustache syntax)`,
-            example: `abc | {{1}}`,
-            autocompleteDataType: AutocompleteDataType.STRING,
+      {
+        propertyName: "defaultValue",
+        helpText: "Sets a default selected option",
+        label: "Default Selected Value",
+        placeholderText: "Y",
+        controlType: "JSON_FORM_COMPUTE_VALUE",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: defaultOptionValidation,
+            expected: {
+              type: `string |\nnumber (only works in mustache syntax)`,
+              example: `abc | {{1}}`,
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
           },
         },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
+        dependencies: ["schema", "sourceData"],
       },
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
-      dependencies: ["schema", "sourceData"],
-    },
-  ],
-  actions: [
-    {
-      propertyName: "onSelectionChange",
-      helpText: "Triggers an action when a user changes the selected option",
-      label: "onSelectionChange",
-      controlType: "ACTION_SELECTOR",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: true,
-      additionalAutoComplete: getAutocompleteProperties,
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
-      dependencies: ["schema", "sourceData"],
-    },
-  ],
+    ],
+    events: [
+      {
+        propertyName: "onSelectionChange",
+        helpText: "Triggers an action when a user changes the selected option",
+        label: "onSelectionChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: getAutocompleteProperties,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
+        dependencies: ["schema", "sourceData"],
+      },
+    ],
+  },
 };
 
 export default PROPERTIES;

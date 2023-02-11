@@ -25,18 +25,16 @@ import {
   UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import TextInput, { emailValidator } from "components/ads/TextInput";
+import { TextInput, emailValidator } from "design-system-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
-import Button, { Category, Size } from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { Text, TextType } from "design-system";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -48,7 +46,7 @@ import {
   setIsGitSyncModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   getGitConnectError,
   getGlobalGitConfig,
@@ -56,21 +54,28 @@ import {
   getIsFetchingLocalGitConfig,
   getIsImportingApplicationViaGit,
   getLocalGitConfig,
-  getRemoteUrlDocUrl,
   getTempRemoteUrl,
   getUseGlobalProfile,
 } from "selectors/gitSyncSelectors";
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
-import ScrollIndicator from "components/ads/ScrollIndicator";
-import DeployedKeyUI from "../components/DeployedKeyUI";
+import { ScrollIndicator } from "design-system-old";
+import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
-import { TooltipComponent } from "design-system";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { isValidGitRemoteUrl } from "../utils";
+import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
 
 export const UrlOptionContainer = styled.div`
@@ -166,7 +171,9 @@ function GitConnection({ isImport }: Props) {
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
-  const RepoUrlDocumentUrl = useSelector(getRemoteUrlDocUrl);
+  const RepoUrlDocumentUrl = isImport
+    ? GIT_DOC_URLs.import
+    : GIT_DOC_URLs.connect;
   const isImportingApplicationViaGit = useSelector(
     getIsImportingApplicationViaGit,
   );
@@ -235,9 +242,10 @@ function GitConnection({ isImport }: Props) {
     if (!SSHKeyPair && !isImport) {
       fetchSSHKeyPair();
     }
-  }, [SSHKeyPair, isImport]);
+  }, []);
 
   const stopShowingCopiedAfterDelay = () => {
+    // @ts-expect-error: setTimeout return type mismatch
     timerRef.current = setTimeout(() => {
       setShowCopied(false);
     }, 2000);
@@ -254,8 +262,8 @@ function GitConnection({ isImport }: Props) {
 
   const isAuthorInfoUpdated = useCallback(() => {
     return (
-      !isEqual(localGitConfig?.authorEmail, authorInfo.authorEmail) ||
-      !isEqual(localGitConfig?.authorName, authorInfo.authorName)
+      !equal(localGitConfig?.authorEmail, authorInfo.authorEmail) ||
+      !equal(localGitConfig?.authorName, authorInfo.authorName)
     );
   }, [authorInfo.authorEmail, authorInfo.authorName, localGitConfig]);
 
@@ -414,7 +422,7 @@ function GitConnection({ isImport }: Props) {
               className="t--learn-more-ssh-url"
               color={Colors.PRIMARY_ORANGE}
               hasIcon={false}
-              link={RepoUrlDocumentUrl || ""}
+              link={RepoUrlDocumentUrl}
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
                   source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
@@ -460,11 +468,19 @@ function GitConnection({ isImport }: Props) {
             <ButtonContainer topMargin={7}>
               <Button
                 category={Category.primary}
-                className="t--generate-deploy-key-button t--submit-repo-url-button"
+                className="t--generate-deploy-ssh-key-button t--submit-repo-url-button"
+                data-testid="t--generate-deploy-ssh-key-button"
                 disabled={!remoteUrl || isInvalidRemoteUrl}
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
                 onClick={() => {
-                  generateSSHKey();
+                  generateSSHKey(
+                    remoteUrl
+                      .toString()
+                      .toLocaleLowerCase()
+                      .includes("azure")
+                      ? "RSA"
+                      : "ECDSA",
+                  );
                   AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK");
                 }}
                 size={Size.large}
@@ -474,7 +490,7 @@ function GitConnection({ isImport }: Props) {
             </ButtonContainer>
           )
         ) : (
-          <DeployedKeyUI
+          <Keys
             SSHKeyPair={SSHKeyPair || ""}
             copyToClipboard={copyToClipboard}
             deployKeyDocUrl={deployKeyDocUrl}

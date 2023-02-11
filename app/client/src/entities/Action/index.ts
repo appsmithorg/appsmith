@@ -1,6 +1,8 @@
 import { EmbeddedRestDatasource } from "entities/Datasource";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import _ from "lodash";
+import { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
+import { Plugin } from "api/PluginApi";
 
 export enum PluginType {
   API = "API",
@@ -10,15 +12,44 @@ export enum PluginType {
   REMOTE = "REMOTE",
 }
 
+// more can be added subsequently.
+export enum PluginName {
+  MONGO = "MongoDB",
+}
+
+export enum PluginPackageName {
+  POSTGRES = "postgres-plugin",
+  MONGO = "mongo-plugin",
+  S3 = "amazons3-plugin",
+  GOOGLE_SHEETS = "google-sheets-plugin",
+  FIRESTORE = "firestore-plugin",
+  REST_API = "restapi-plugin",
+  GRAPHQL = "graphql-plugin",
+  JS = "js-plugin",
+}
+
 export enum PaginationType {
   NONE = "NONE",
   PAGE_NO = "PAGE_NO",
   URL = "URL",
+  CURSOR = "CURSOR",
 }
 
 export interface KeyValuePair {
   key?: string;
   value?: unknown;
+}
+
+export type LimitOffset = {
+  limit: Record<string, unknown>;
+  offset: Record<string, unknown>;
+};
+export interface SelfReferencingData {
+  limitBased?: LimitOffset;
+  curserBased?: {
+    previous?: LimitOffset;
+    next?: LimitOffset;
+  };
 }
 
 export interface ActionConfig {
@@ -28,6 +59,7 @@ export interface ActionConfig {
   pluginSpecifiedTemplates?: KeyValuePair[];
   path?: string;
   queryParameters?: KeyValuePair[];
+  selfReferencingData?: SelfReferencingData;
 }
 
 export interface ActionProvider {
@@ -61,6 +93,8 @@ export interface ApiActionConfig extends Omit<ActionConfig, "formData"> {
   queryParameters?: Property[];
   bodyFormData?: BodyFormData[];
   formData: Record<string, unknown>;
+  query?: string | null;
+  variable?: string | null;
 }
 
 export interface QueryActionConfig extends ActionConfig {
@@ -74,6 +108,7 @@ export const isStoredDatasource = (val: any): val is StoredDatasource => {
 };
 export interface StoredDatasource {
   id: string;
+  pluginId?: string;
 }
 
 export interface BaseAction {
@@ -92,6 +127,8 @@ export interface BaseAction {
   confirmBeforeExecute?: boolean;
   eventData?: any;
   messages: string[];
+  userPermissions?: string[];
+  errorReports?: Array<LayoutOnLoadActionErrors>;
 }
 
 interface BaseApiAction extends BaseAction {
@@ -129,6 +166,7 @@ export type RapidApiAction = ApiAction & {
 
 export interface QueryAction extends BaseAction {
   pluginType: PluginType.DB;
+  pluginName?: PluginName;
   actionConfiguration: QueryActionConfig;
   datasource: StoredDatasource;
 }
@@ -167,4 +205,12 @@ export function isQueryAction(action: Action): action is QueryAction {
 
 export function isSaaSAction(action: Action): action is SaaSAction {
   return action.pluginType === PluginType.SAAS;
+}
+
+export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
+  return plugins.find((p) => p.packageName === PluginPackageName.GRAPHQL);
+}
+
+export function isGraphqlPlugin(plugin: Plugin | undefined) {
+  return plugin?.packageName === PluginPackageName.GRAPHQL;
 }

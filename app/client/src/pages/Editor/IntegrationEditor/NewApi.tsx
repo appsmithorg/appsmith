@@ -1,21 +1,22 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { connect } from "react-redux";
+import React, { useCallback, useEffect, useState } from "react";
+import { connect, useSelector } from "react-redux";
 import styled from "styled-components";
-import { createDatasourceFromForm } from "actions/datasourceActions";
-import { AppState } from "reducers";
+import {
+  createDatasourceFromForm,
+  createTempDatasourceFromForm,
+} from "actions/datasourceActions";
+import { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
-import { Plugin } from "api/PluginApi";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
-import { getQueryParams } from "utils/AppsmithUtils";
-import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
-import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
 
@@ -123,7 +124,11 @@ const CardContentWrapper = styled.div`
 `;
 
 type ApiHomeScreenProps = {
-  createNewApiAction: (pageId: string, from: EventLocation) => void;
+  createNewApiAction: (
+    pageId: string,
+    from: EventLocation,
+    apiType?: string,
+  ) => void;
   history: {
     replace: (data: string) => void;
     push: (data: string) => void;
@@ -136,6 +141,7 @@ type ApiHomeScreenProps = {
   createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
+  createTempDatasourceFromForm: (data: any) => void;
 };
 
 type Props = ApiHomeScreenProps;
@@ -143,6 +149,7 @@ type Props = ApiHomeScreenProps;
 const API_ACTION = {
   IMPORT_CURL: "IMPORT_CURL",
   CREATE_NEW_API: "CREATE_NEW_API",
+  CREATE_NEW_GRAPHQL_API: "CREATE_NEW_GRAPHQL_API",
   CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
   AUTH_API: "AUTH_API",
 };
@@ -169,18 +176,24 @@ function NewApiScreen(props: Props) {
         pluginName: authApiPlugin.name,
         pluginPackageName: authApiPlugin.packageName,
       });
-      props.createDatasourceFromForm({
+      props.createTempDatasourceFromForm({
         pluginId: authApiPlugin.id,
       });
     }
-  }, [authApiPlugin, props.createDatasourceFromForm]);
+  }, [authApiPlugin, props.createTempDatasourceFromForm]);
 
-  const handleCreateNew = () => {
+  const handleCreateNew = (source: string) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-      source: "CREATE_NEW_API",
+      source,
     });
     if (pageId) {
-      createNewApiAction(pageId, "API_PANE");
+      createNewApiAction(
+        pageId,
+        "API_PANE",
+        source === API_ACTION.CREATE_NEW_GRAPHQL_API
+          ? PluginPackageName.GRAPHQL
+          : PluginPackageName.REST_API,
+      );
     }
   };
 
@@ -204,7 +217,8 @@ function NewApiScreen(props: Props) {
     }
     switch (actionType) {
       case API_ACTION.CREATE_NEW_API:
-        handleCreateNew();
+      case API_ACTION.CREATE_NEW_GRAPHQL_API:
+        handleCreateNew(actionType);
         break;
       case API_ACTION.IMPORT_CURL: {
         AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
@@ -227,7 +241,10 @@ function NewApiScreen(props: Props) {
         break;
       }
       case API_ACTION.CREATE_DATASOURCE_FORM: {
-        props.createDatasourceFromForm({ pluginId: params.pluginId });
+        props.createTempDatasourceFromForm({
+          pluginId: params.pluginId,
+          type: params.type,
+        });
         break;
       }
       case API_ACTION.AUTH_API: {
@@ -237,6 +254,17 @@ function NewApiScreen(props: Props) {
       default:
     }
   };
+
+  // Api plugins with Graphql
+  const API_PLUGINS = plugins.filter(
+    (p) => p.packageName === PluginPackageName.GRAPHQL,
+  );
+
+  plugins.forEach((p) => {
+    if (p.type === PluginType.SAAS || p.type === PluginType.REMOTE) {
+      API_PLUGINS.push(p);
+    }
+  });
 
   return (
     <StyledContainer>
@@ -253,7 +281,7 @@ function NewApiScreen(props: Props) {
                 src={PlusLogo}
               />
             </div>
-            <p className="textBtn">Create new API</p>
+            <p className="textBtn">REST API</p>
           </CardContentWrapper>
           {isCreating && <Spinner className="cta" size={25} />}
         </ApiCard>
@@ -285,44 +313,53 @@ function NewApiScreen(props: Props) {
                   src={authApiPlugin.iconLocation}
                 />
               </div>
-              <p className="textBtn">Authenticated API</p>
+              <p className="t--plugin-name textBtn">Authenticated API</p>
             </CardContentWrapper>
           </ApiCard>
         )}
-        {plugins
-          .filter(
-            (p) => p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
-          )
-          .map((p) => (
-            <ApiCard
-              className={`t--createBlankApi-${p.packageName}`}
-              key={p.id}
-              onClick={() => {
-                AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-                  pluginName: p.name,
-                  pluginPackageName: p.packageName,
-                });
-                handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
-                  pluginId: p.id,
-                });
-              }}
-            >
-              <CardContentWrapper>
-                <div className="content-icon-wrapper">
-                  <img
-                    alt={p.name}
-                    className={
-                      "content-icon saasImage t--saas-" +
-                      p.packageName +
-                      "-image"
-                    }
-                    src={p.iconLocation}
-                  />
-                </div>
-                <p className="t--plugin-name textBtn">{p.name}</p>
-              </CardContentWrapper>
-            </ApiCard>
-          ))}
+        <ApiCard
+          className="t--createBlankApiGraphqlCard"
+          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
+        >
+          <CardContentWrapper>
+            <div className="content-icon-wrapper">
+              <img
+                alt="New"
+                className="curlImage t--plusImage content-icon"
+                src={PlusLogo}
+              />
+            </div>
+            <p className="textBtn">GraphQL API</p>
+          </CardContentWrapper>
+        </ApiCard>
+        {API_PLUGINS.map((p) => (
+          <ApiCard
+            className={`t--createBlankApi-${p.packageName}`}
+            key={p.id}
+            onClick={() => {
+              AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+                pluginName: p.name,
+                pluginPackageName: p.packageName,
+              });
+              handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
+                pluginId: p.id,
+              });
+            }}
+          >
+            <CardContentWrapper>
+              <div className="content-icon-wrapper">
+                <img
+                  alt={p.name}
+                  className={
+                    "content-icon saasImage t--saas-" + p.packageName + "-image"
+                  }
+                  src={p.iconLocation}
+                />
+              </div>
+              <p className="t--plugin-name textBtn">{p.name}</p>
+            </CardContentWrapper>
+          </ApiCard>
+        ))}
       </ApiCardsContainer>
     </StyledContainer>
   );
@@ -335,6 +372,7 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = {
   createNewApiAction,
   createDatasourceFromForm,
+  createTempDatasourceFromForm,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewApiScreen);

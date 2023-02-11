@@ -2,10 +2,9 @@ import { PositionedContainerProps } from "components/designSystems/appsmith/Posi
 import { Layers } from "constants/Layers";
 
 import { useMemo } from "react";
-import { AppState } from "reducers";
-
-import { getSelectedWidgets } from "selectors/ui";
-import { useSelector } from "store";
+import { AppState } from "@appsmith/reducers";
+import { isWidgetSelected } from "selectors/widgetSelectors";
+import { useSelector } from "react-redux";
 
 export const usePositionedContainerZIndex = (
   props: PositionedContainerProps,
@@ -14,9 +13,8 @@ export const usePositionedContainerZIndex = (
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const selectedWidgets = useSelector(getSelectedWidgets);
-  const isThisWidgetDragging =
-    isDragging && selectedWidgets.includes(props.widgetId);
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  const isThisWidgetDragging = isDragging && isSelected;
 
   const zIndex = useMemo(() => {
     if (isDragging) {
@@ -48,7 +46,7 @@ export const usePositionedContainerZIndex = (
   const zIndicesObj = useMemo(() => {
     const onHoverZIndex = isDragging ? zIndex : Layers.positionedWidget + 1;
     return { zIndex, onHoverZIndex };
-  }, [isDragging, zIndex]);
+  }, [isDragging, zIndex, Layers.positionedWidget]);
 
   return zIndicesObj;
 };

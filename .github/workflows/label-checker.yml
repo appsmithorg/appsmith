@@ -2,13 +2,14 @@
 name: Label Checker
 on:
   pull_request:
+    branches: [release]
     types:
       - opened
       - synchronize
       - reopened
       - labeled
       - unlabeled
-
+    
 jobs:
 
   check_labels:
@@ -18,5 +19,5 @@ jobs:
       - uses: docker://agilepathway/pull-request-label-checker:latest
         with:
           # Needs to have a Test Plan Approved label if not part of any of the pods below
-          any_of: Test Plan Approved,App Viewers Pod,User Education Pod,New Developers Pod,Team Managers Pod,UI Builders Pod,Performance,Release Promotion,CI,Design System Pod
+          any_of: Test Plan Approved,User Education Pod,DevOps Pod,Performance,CI,Release Promotion,skip-testPlan
           repo_token: ${{ secrets.GITHUB_TOKEN }}

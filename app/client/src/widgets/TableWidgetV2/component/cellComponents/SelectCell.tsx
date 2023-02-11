@@ -1,46 +1,108 @@
-/*
- * Select column type is not avialbe for user to choose
- * we're keeping this file for future usage
- */
-
 import React from "react";
-import { noop } from "lodash";
 import SelectComponent from "widgets/SelectWidget/component";
+import styled from "styled-components";
 import { DropdownOption } from "widgets/SelectWidget/constants";
-import { CellAlignment, TABLE_SIZES, VerticalAlignment } from "../Constants";
-import { getSelectColumnTypeOptions } from "widgets/TableWidgetV2/widget/utilities";
+import {
+  BaseCellComponentProps,
+  EDITABLE_CELL_PADDING_OFFSET,
+  TABLE_SIZES,
+} from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import styled from "constants/DefaultTheme";
-import AutoToolTipComponent from "./AutoToolTipComponent";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import { BasicCell } from "./BasicCell";
+import { useCallback } from "react";
 
-const StyledSelectComponent = styled(SelectComponent)`
-  width: 100%;
+const StyledSelectComponent = styled(SelectComponent)<{
+  accentColor: string;
+  height: number;
+  isNewRow: boolean;
+}>`
+  &&& {
+    width: ${(props) =>
+      props.isNewRow
+        ? `calc(100% - ${EDITABLE_CELL_PADDING_OFFSET}px)`
+        : "100%"};
+
+    .bp3-control-group {
+      height: ${(props) => {
+        return props.isNewRow
+          ? `${props.height - EDITABLE_CELL_PADDING_OFFSET}px`
+          : `${props.height}px`;
+      }};
+
+      & > :only-child {
+        border-radius: 0;
+      }
+
+      & button.bp3-button {
+        border-color: #fff;
+        padding: 0 9px;
+        min-height: ${(props) => {
+          return props.isNewRow
+            ? `${props.height - EDITABLE_CELL_PADDING_OFFSET}px`
+            : `${props.height}px`;
+        }};
+        border-radius: 3px;
+      }
+    }
+
+    .bp3-popover-target > div {
+      width: 100%;
+    }
+  }
 `;
 
-const StyledAutoToolTipComponent = styled(AutoToolTipComponent)`
-  width: 100%;
+const StyledCellWrapper = styled(CellWrapper)`
+  padding: 0px;
+  justify-content: center;
 `;
 
-type SelectProps = {
-  compactMode: string;
+type SelectProps = BaseCellComponentProps & {
+  alias: string;
+  accentColor: string;
+  autoOpen: boolean;
+  columnType: string;
   borderRadius: string;
-  options: string[];
-  isCellVisible: boolean;
-  onItemSelect: (value: string) => void;
+  options?: DropdownOption[];
+  onFilterChange: (
+    text: string,
+    rowIndex: number,
+    serverSideFiltering: boolean,
+    alias: string,
+    action?: string,
+  ) => void;
+  onItemSelect: (
+    value: string | number,
+    rowIndex: number,
+    column: string,
+    action?: string,
+  ) => void;
   value: string;
   width: number;
-  isHidden: boolean;
   isEditable: boolean;
   tableWidth: number;
   isCellEditable?: boolean;
-  allowCellWrapping?: boolean;
-  horizontalAlignment?: CellAlignment;
-  verticalAlignment?: VerticalAlignment;
-  textColor?: string;
-  fontStyle?: string;
-  cellBackground?: string;
-  textSize?: string;
+  isCellEditMode?: boolean;
+  disabledEditIcon: boolean;
+  hasUnsavedChanges?: boolean;
+  toggleCellEditMode: (
+    enable: boolean,
+    rowIndex: number,
+    alias: string,
+    value: string | number,
+    onSubmit?: string,
+    action?: EditableCellActions,
+  ) => void;
+  rowIndex: number;
+  isFilterable?: boolean;
+  serverSideFiltering?: boolean;
+  filterText?: string;
+  placeholderText?: string;
+  resetFilterTextOnClose?: boolean;
+  onOptionSelectActionString?: string;
+  onFilterChangeActionString?: string;
+  disabledEditIconMessage: string;
+  isNewRow: boolean;
 };
 
 /*
@@ -48,92 +110,159 @@ type SelectProps = {
  */
 export const SelectCell = (props: SelectProps) => {
   const {
+    accentColor,
+    alias,
     allowCellWrapping,
+    autoOpen,
     borderRadius,
     cellBackground,
+    columnType,
     compactMode,
+    disabledEditIcon,
+    disabledEditIconMessage,
+    filterText,
     fontStyle,
+    hasUnsavedChanges,
     horizontalAlignment,
+    isCellDisabled,
     isCellEditable,
+    isCellEditMode,
     isCellVisible,
     isEditable,
+    isFilterable = false,
     isHidden,
+    isNewRow,
+    onFilterChange,
+    onFilterChangeActionString,
     onItemSelect,
-    options,
+    onOptionSelectActionString,
+    options = [],
+    placeholderText,
+    resetFilterTextOnClose,
+    rowIndex,
+    serverSideFiltering = false,
     tableWidth,
     textColor,
     textSize,
+    toggleCellEditMode,
     value,
     verticalAlignment,
     width,
   } = props;
+  const onSelect = useCallback(
+    (option: DropdownOption) => {
+      onItemSelect(
+        option.value || "",
+        rowIndex,
+        alias,
+        onOptionSelectActionString,
+      );
+    },
+    [onItemSelect, rowIndex, alias, onOptionSelectActionString],
+  );
 
-  const onSelect = (option: DropdownOption) => {
-    onItemSelect(option.value || "");
-  };
+  const onFilter = useCallback(
+    (text: string) => {
+      onFilterChange(
+        text,
+        rowIndex,
+        serverSideFiltering,
+        alias,
+        onFilterChangeActionString,
+      );
+    },
+    [
+      onFilterChange,
+      rowIndex,
+      serverSideFiltering,
+      onFilterChangeActionString,
+      alias,
+    ],
+  );
 
-  const prepatedOptions = getSelectColumnTypeOptions(options) as Array<string>;
+  const onClose = useCallback(
+    () => toggleCellEditMode(false, rowIndex, alias, value),
+    [toggleCellEditMode, rowIndex, alias, value],
+  );
 
-  const optionsObject = (prepatedOptions || []).map((option) => ({
-    label: option,
-    value: option,
-  }));
+  const onClick = useCallback((e) => e.stopPropagation(), []);
 
-  const selectedIndex = prepatedOptions.indexOf(value);
+  const selectedIndex = (Array.isArray(options) ? options : [])
+    .filter((d: DropdownOption) => d)
+    .map((d: DropdownOption) => d.value)
+    .indexOf(value);
 
-  if (isEditable && isCellEditable) {
+  if (isEditable && isCellEditable && isCellEditMode) {
     return (
-      <CellWrapper
+      <StyledCellWrapper
         allowCellWrapping={allowCellWrapping}
         cellBackground={cellBackground}
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        onClick={onClick}
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
       >
         <StyledSelectComponent
+          accentColor={accentColor}
           borderRadius={borderRadius}
           compactMode
           dropDownWidth={width}
+          filterText={filterText}
           height={TABLE_SIZES[compactMode].ROW_HEIGHT}
-          isFilterable={false}
+          hideCancelIcon
+          isFilterable={isFilterable}
           isLoading={false}
+          isNewRow={isNewRow}
+          isOpen={autoOpen}
           isValid
           labelText=""
-          onFilterChange={noop}
+          onClose={onClose}
+          onFilterChange={onFilter}
           onOptionSelected={onSelect}
-          options={optionsObject}
+          options={options}
+          placeholder={placeholderText}
+          resetFilterTextOnClose={resetFilterTextOnClose}
           selectedIndex={selectedIndex}
-          serverSideFiltering={false}
+          serverSideFiltering={serverSideFiltering}
           value={value}
           widgetId={""}
           width={width}
         />
-      </CellWrapper>
+      </StyledCellWrapper>
     );
   } else {
+    const onEdit = () => toggleCellEditMode(true, rowIndex, alias, value);
+
     return (
-      <StyledAutoToolTipComponent
+      <BasicCell
+        accentColor={accentColor}
         allowCellWrapping={allowCellWrapping}
         cellBackground={cellBackground}
-        columnType={ColumnTypes.SELECT}
+        columnType={columnType}
         compactMode={compactMode}
+        disabledEditIcon={disabledEditIcon}
+        disabledEditIconMessage={disabledEditIconMessage}
         fontStyle={fontStyle}
+        hasUnsavedChanges={hasUnsavedChanges}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
+        isCellEditMode={isCellEditMode}
+        isCellEditable={isCellEditable}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        onEdit={onEdit}
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        title={!!value ? value.toString() : ""}
+        value={value}
         verticalAlignment={verticalAlignment}
-      >
-        {value}
-      </StyledAutoToolTipComponent>
+      />
     );
   }
 };

@@ -11,8 +11,8 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -40,25 +40,23 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 public class GitFileUtilsTest {
 
+    private static final Path localRepoPath = Path.of("localRepoPath");
+    private static final String filePath = "test_assets/ImportExportServiceTest/valid-application.json";
     @MockBean
     FileInterface fileInterface;
-
     @Autowired
     GitFileUtils gitFileUtils;
-
     @Autowired
     AnalyticsService analyticsService;
-
     @Autowired
     SessionUserService userService;
-
-    private static String filePath = "test_assets/ImportExportServiceTest/valid-application.json";
-    private static final Path localRepoPath = Path.of("localRepoPath");
+    @Autowired
+    Gson gson;
 
     private Mono<ApplicationJson> createAppJson(String filePath) {
         FilePart filePart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
@@ -82,7 +80,6 @@ public class GitFileUtilsTest {
 
         return stringifiedFile
                 .map(data -> {
-                    Gson gson = new Gson();
                     return gson.fromJson(data, ApplicationJson.class);
                 })
                 .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
@@ -187,7 +184,7 @@ public class GitFileUtilsTest {
         ApplicationJson validAppJson = createAppJson(filePath).block();
 
         Mockito.when(fileInterface.saveApplicationToGitRepo(Mockito.any(Path.class), Mockito.any(ApplicationGitReference.class), Mockito.anyString()))
-                .thenReturn(Mono.just(Path.of("orgId","appId", "repoName")));
+                .thenReturn(Mono.just(Path.of("orgId", "appId", "repoName")));
 
         Mono<Path> resultMono = gitFileUtils.saveApplicationToLocalRepo(Path.of("orgId/appId/repoName"), validAppJson, "gitFileTest");
 
@@ -242,8 +239,8 @@ public class GitFileUtilsTest {
                 .thenReturn(Mono.just(applicationReference));
 
         Mono<ApplicationJson> resultMono = gitFileUtils.reconstructApplicationJsonFromGitRepo(
-                "orgId", "appId", "repoName", "branch"
-        )
+                        "orgId", "appId", "repoName", "branch"
+                )
                 .cache();
 
         StepVerifier

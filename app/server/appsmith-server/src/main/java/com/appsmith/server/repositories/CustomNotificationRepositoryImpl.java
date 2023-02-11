@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 public class CustomNotificationRepositoryImpl extends CustomNotificationRepositoryCEImpl
         implements CustomNotificationRepository {
 
-    public CustomNotificationRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomNotificationRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

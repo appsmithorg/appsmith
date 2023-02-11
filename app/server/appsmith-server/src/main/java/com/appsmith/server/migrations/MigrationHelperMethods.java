@@ -1,13 +1,19 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.domains.QUser;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 public class MigrationHelperMethods {
     // Migration for deprecating archivedAt field in ActionDTO
@@ -62,7 +69,7 @@ public class MigrationHelperMethods {
         );
         // Reorder the pages based on edit mode page sequence
         List<String> pageOrderList;
-        if(!CollectionUtils.isNullOrEmpty(applicationJson.getPageOrder())) {
+        if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageOrder())) {
             pageOrderList = applicationJson.getPageOrder();
         } else {
             pageOrderList = applicationJson.getPageList()
@@ -71,7 +78,7 @@ public class MigrationHelperMethods {
                     .map(newPage -> newPage.getUnpublishedPage().getName())
                     .collect(Collectors.toList());
         }
-        for(String pageName : pageOrderList) {
+        for (String pageName : pageOrderList) {
             ApplicationPage unpublishedAppPage = new ApplicationPage();
             unpublishedAppPage.setId(pageName);
             unpublishedAppPage.setIsDefault(StringUtils.equals(pageName, applicationJson.getUnpublishedDefaultPageName()));
@@ -80,7 +87,7 @@ public class MigrationHelperMethods {
 
         // Reorder the pages based on view mode page sequence
         pageOrderList.clear();
-        if(!CollectionUtils.isNullOrEmpty(applicationJson.getPublishedPageOrder())) {
+        if (!CollectionUtils.isNullOrEmpty(applicationJson.getPublishedPageOrder())) {
             pageOrderList = applicationJson.getPublishedPageOrder();
         } else {
             pageOrderList = applicationJson.getPageList()
@@ -89,7 +96,7 @@ public class MigrationHelperMethods {
                     .map(newPage -> newPage.getPublishedPage().getName())
                     .collect(Collectors.toList());
         }
-        for(String pageName : pageOrderList) {
+        for (String pageName : pageOrderList) {
             ApplicationPage publishedAppPage = new ApplicationPage();
             publishedAppPage.setId(pageName);
             publishedAppPage.setIsDefault(StringUtils.equals(pageName, applicationJson.getPublishedDefaultPageName()));
@@ -136,7 +143,7 @@ public class MigrationHelperMethods {
     // Method to embed userSetOnLoad in imported actions as per modified serialization format where we are serialising
     // JsonIgnored fields to keep the relevant data with domain objects only
     public static void updateUserSetOnLoadAction(ApplicationJson applicationJson) {
-        Map<String, InvisibleActionFields> invisibleActionFieldsMap = applicationJson.getInvisibleActionFields() ;
+        Map<String, InvisibleActionFields> invisibleActionFieldsMap = applicationJson.getInvisibleActionFields();
         if (invisibleActionFieldsMap != null) {
             applicationJson.getActionList().parallelStream().forEach(newAction -> {
                 if (newAction.getUnpublishedAction() != null) {
@@ -164,5 +171,25 @@ public class MigrationHelperMethods {
                         }
                     });
         }
+    }
+
+    public static void evictPermissionCacheForUsers(Set<String> userIds,
+                                                    MongoTemplate mongoTemplate,
+                                                    CacheableRepositoryHelper cacheableRepositoryHelper) {
+
+        if (userIds == null || userIds.isEmpty()) {
+            // Nothing to do here.
+            return;
+        }
+
+        userIds.forEach(userId -> {
+            Query query = new Query(new Criteria(fieldName(QUser.user.id)).is(userId));
+            User user = mongoTemplate.findOne(query, User.class);
+            if (user != null) {
+                // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
+                cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
+                        .block();
+            }
+        });
     }
 }

@@ -1,5 +1,5 @@
 import { ApplicationVersion } from "actions/applicationActions";
-import { ApplicationPayload } from "ce/constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
 import { builderURL } from "RouteBuilder";

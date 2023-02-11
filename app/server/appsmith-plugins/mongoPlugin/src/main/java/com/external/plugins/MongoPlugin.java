@@ -2,10 +2,13 @@ package com.external.plugins;
 
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.PluginUtils;
@@ -18,6 +21,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
@@ -26,12 +30,12 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.constants.MongoSpecialDataTypes;
+import com.external.plugins.datatypes.MongoSpecificDataTypes;
 import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.ConnectionString;
-import com.mongodb.DBObjectCodecProvider;
 import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCommandException;
@@ -49,6 +53,8 @@ import org.bson.codecs.BsonTypeClassMap;
 import org.bson.codecs.BsonValueCodecProvider;
 import org.bson.codecs.DocumentCodec;
 import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.IterableCodecProvider;
+import org.bson.codecs.MapCodecProvider;
 import org.bson.codecs.ValueCodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -71,6 +77,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -107,6 +114,9 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.SUCCESS;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.utils.DatasourceUtils.KEY_PASSWORD;
+import static com.external.plugins.utils.DatasourceUtils.KEY_URI_DEFAULT_DBNAME;
+import static com.external.plugins.utils.DatasourceUtils.KEY_USERNAME;
 import static com.external.plugins.utils.DatasourceUtils.buildClientURI;
 import static com.external.plugins.utils.DatasourceUtils.buildURIFromExtractedInfo;
 import static com.external.plugins.utils.DatasourceUtils.extractInfoFromConnectionStringURI;
@@ -152,26 +162,28 @@ public class MongoPlugin extends BasePlugin {
     private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?://)(?:(.+):(.+)@)?([^/?]+)/?([^?]+)?\\??(.+)?$";
 
     /**
+     * We use this regex to identify the $regex attribute and the respective argument provided:
+     * e.g. {"code" : {$regex: value, $options: value}} / {"code" : {$regex: value}}
+     * capturing the value group for regex.
+     * e.g {"code" : {$regex: 8777}}, this whole substring will be matched and 8777 is captured for further processing.
+     */
+    private static final String mongo$regexWithNumberIdentifier = ".*\\{[\\s\\n]*\\$regex[\\s\\n]*:([\\s\\n]*(?:(?:\\\"[/]*)|(?:/[\\\"]*)|)[-]?[\\d]*\\.?[\\d]*(?:(?:[/]*\\\")|(?:[\\\"]*/)|)[\\s\\n]*)(?:,|\\})";
+
+    /**
      * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
      * e.g. "ObjectId(...)". Case for single quotes e.g. 'ObjectId(...)' is not added because the way client sends
      * back the data to the API server it would be extremely uncommon to encounter this case.
-     *
+     * <p>
      * In the given regex E is replaced by the name of special data types before doing the match / find operation.
      * e.g. E will be replaced with ObjectId to find the occurrence of "ObjectId(...)" pattern.
-     *
+     * <p>
      * Example: for "[\"ObjectId('xyz')\"]":
-     *   o group 1 will match "ObjectId(...)"
-     *   o group 2 will match ObjectId(...)
-     *   o group 3 will match 'xyz'
-     *   o group 4 will match xyz
+     * o group 1 will match "ObjectId(...)"
+     * o group 2 will match ObjectId(...)
+     * o group 3 will match 'xyz'
+     * o group 4 will match xyz
      */
     private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
-
-    private static final String KEY_USERNAME = "username";
-
-    private static final String KEY_PASSWORD = "password";
-
-    private static final String KEY_URI_DBNAME = "dbName";
 
     private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
@@ -192,15 +204,16 @@ public class MongoPlugin extends BasePlugin {
 
     private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
 
-    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(
-            asList(new ValueCodecProvider(),
-                    new BsonValueCodecProvider(),
-                    new DocumentCodecProvider(),
-                    new DBRefCodecProvider(),
-                    new DBObjectCodecProvider(),
-                    new BsonValueCodecProvider(),
-                    new GeoJsonCodecProvider(),
-                    new GridFSFileCodecProvider()));
+    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(Arrays.asList(
+            new ValueCodecProvider(),
+            new IterableCodecProvider(),
+            new BsonValueCodecProvider(),
+            new DocumentCodecProvider(),
+            new MapCodecProvider(),
+            new DBRefCodecProvider(),
+            new GeoJsonCodecProvider(),
+            new GridFSFileCodecProvider()
+    ));
 
     private static final BsonTypeClassMap DEFAULT_BSON_TYPE_CLASS_MAP = new org.bson.codecs.BsonTypeClassMap();
 
@@ -212,7 +225,7 @@ public class MongoPlugin extends BasePlugin {
     @Extension
     public static class MongoPluginExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -332,6 +345,15 @@ public class MongoPlugin extends BasePlugin {
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
+                    )
+                    /**
+                     * This is to catch the cases when Mongo connection pool closes for some reason and hence throws
+                     * IllegalStateException when query is run.
+                     * Ref: https://github.com/appsmithorg/appsmith/issues/15548
+                     */
+                    .onErrorMap(
+                            IllegalStateException.class,
+                            error -> new StaleConnectionException()
                     )
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.
@@ -556,7 +578,7 @@ public class MongoPlugin extends BasePlugin {
                                            List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {
 
             // First extract all the bindings in order
-            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(rawQuery);
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(rawQuery);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(rawQuery, mustacheKeysInOrder);
 
@@ -565,7 +587,69 @@ public class MongoPlugin extends BasePlugin {
                     params,
                     parameters);
 
+            updatedQuery = makeMongoRegexSubstitutionValid (updatedQuery);
+
             return updatedQuery;
+        }
+
+
+        private static StringBuilder makeValidForRegex(String value) {
+
+            StringBuilder valueSB = new StringBuilder(value.trim());
+
+            char quote = '\"';
+            char forwardSlash = '/';
+            if ( valueSB.charAt(0) != quote && valueSB.charAt(0) != forwardSlash) {
+                valueSB.insert(0, quote );
+                // adds quote at the end of the line
+                valueSB.append(quote);
+            }
+
+            return valueSB;
+        }
+
+        /**
+         * Smart Substitution Helper for mongo regex: Regex takes pattern as "<pattern>" or /<pattern>/,
+         * Rest are not illegal arguments to the $regex attribute in mongo.
+         * @Param: Smart substituted query string.
+         * @Returns: Updated query string.
+         */
+        private static String makeMongoRegexSubstitutionValid(String inputQuery) {
+
+            int startIndex = 0;
+            StringBuilder inputQuerySB = new StringBuilder();
+
+            Pattern mongo$regexIdentifierPattern = Pattern.compile(mongo$regexWithNumberIdentifier);
+            Matcher mongo$regexIdentifierMatcher = mongo$regexIdentifierPattern.matcher(inputQuery);
+
+            while (mongo$regexIdentifierMatcher.find()) {
+
+                StringBuilder valueSB;
+                try {
+                    valueSB = makeValidForRegex(mongo$regexIdentifierMatcher.group(1));
+
+                } catch(StringIndexOutOfBoundsException e) {
+                    // when the match group detected is of length zero this error is thrown;
+                    return inputQuery;
+                } catch (Exception e) {
+                    return inputQuery;
+                }
+
+
+                //groups are discovered in greedy manner hence it's sorted by default
+                // a sub-group within a big group could be due to the regex arguments provide by user hence will not parse that
+                if (startIndex > mongo$regexIdentifierMatcher.start()) {
+                    // the matcher walks greedily to find the pattern, if there is a group overlapping with other group means that it's a subquery, and it's not meant to be parsed.
+                    continue;
+                }
+                inputQuerySB.append(inputQuery.substring(startIndex, mongo$regexIdentifierMatcher.start(1)));
+                inputQuerySB.append(valueSB);
+                startIndex = mongo$regexIdentifierMatcher.end(1);
+            }
+
+            inputQuerySB.append(inputQuery.substring(startIndex));
+
+            return inputQuerySB.toString();
         }
 
         /**
@@ -628,7 +712,6 @@ public class MongoPlugin extends BasePlugin {
         }
 
 
-
         @Override
         public void datasourceDestroy(MongoClient mongoClient) {
             if (mongoClient != null) {
@@ -656,18 +739,23 @@ public class MongoPlugin extends BasePlugin {
                         if (extractedInfo == null) {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
-                        } else if (!isAuthenticated(authentication, mongoUri)) {
-                            String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
-                            properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
-                            authentication = (authentication == null) ? new DBAuth() : authentication;
-                            authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
-                            authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
-                            authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DBNAME));
-                            datasourceConfiguration.setAuthentication(authentication);
+                        } else {
+                            if (extractedInfo.get(KEY_URI_DEFAULT_DBNAME) == null) {
+                                invalids.add("Missing default database name.");
+                            }
+                            if (!isAuthenticated(authentication, mongoUri)) {
+                                String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
+                                properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
+                                authentication = (authentication == null) ? new DBAuth() : authentication;
+                                authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
+                                authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
+                                authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
+                                datasourceConfiguration.setAuthentication(authentication);
 
-                            // remove any default db set via form auto-fill via browser
-                            if (datasourceConfiguration.getConnection() != null) {
-                                datasourceConfiguration.getConnection().setDefaultDatabaseName(null);
+                                // remove any default db set via form auto-fill via browser
+                                if (datasourceConfiguration.getConnection() != null) {
+                                    datasourceConfiguration.getConnection().setDefaultDatabaseName(null);
+                                }
                             }
                         }
                     }
@@ -708,7 +796,7 @@ public class MongoPlugin extends BasePlugin {
                     }
 
                     if (!StringUtils.hasLength(authentication.getDatabaseName())) {
-                        invalids.add("Missing database name.");
+                        invalids.add("Missing default database name.");
                     }
 
                 }
@@ -807,6 +895,21 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .collectList()
                     .thenReturn(structure)
+                    /**
+                     * This is to catch the cases when Mongo connection pool closes for some reason and hence throws
+                     * IllegalStateException when query is run.
+                     * Ref: https://github.com/appsmithorg/appsmith/issues/15548
+                     */
+                    .onErrorMap(
+                            IllegalStateException.class,
+                            error -> new StaleConnectionException()
+                    )
+                    // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
+                    // database drops the connection which makes the client throw the following exception.
+                    .onErrorMap(
+                            MongoSocketWriteException.class,
+                            error -> new StaleConnectionException()
+                    )
                     .onErrorMap(
                             MongoCommandException.class,
                             error -> {
@@ -832,8 +935,9 @@ public class MongoPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            DataType dataType = stringToKnownMongoDBDataTypeConverter(value);
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value,dataType, insertedParams, this);
+            Param param = (Param) args[0];
+            DataType dataType = stringToKnownMongoDBDataTypeConverter(value, param.getClientDataType());
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, dataType, insertedParams, this, param);
         }
 
         /**
@@ -846,8 +950,9 @@ public class MongoPlugin extends BasePlugin {
          * @param replacement replacement value
          * @return identified data type of replacement value
          */
-        private DataType stringToKnownMongoDBDataTypeConverter(String replacement) {
-            DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        private DataType stringToKnownMongoDBDataTypeConverter(String replacement, ClientDataType clientDataType) {
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(clientDataType, replacement, MongoSpecificDataTypes.pluginSpecificTypes);
+            DataType dataType = appsmithType.type();
             if (dataType == DataType.STRING) {
                 for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
                     final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E",
@@ -877,6 +982,7 @@ public class MongoPlugin extends BasePlugin {
          * This method coverts Mongo plugin's form data to Mongo's native query. Currently, it is meant to help users
          * switch easily from form based input to raw input mode by providing a readily available translation of the
          * form data to raw query.
+         *
          * @return Mongo's native/raw query set at path `formData.formToNativeQuery.data`
          */
         @Override

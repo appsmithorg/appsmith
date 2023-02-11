@@ -36,11 +36,6 @@ export interface AppsmithUIConfigs {
     snippetIndex: string;
   };
 
-  google: {
-    enabled: boolean;
-    apiKey: string;
-  };
-
   enableRapidAPI: boolean;
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
@@ -56,10 +51,10 @@ export interface AppsmithUIConfigs {
   appVersion: {
     id: string;
     releaseDate: string;
+    edition: string;
   };
   intercomAppID: string;
   mailEnabled: boolean;
-  commentsTestModeEnabled: boolean;
 
   cloudServicesBaseUrl: string;
 
@@ -68,4 +63,6 @@ export interface AppsmithUIConfigs {
     apiKey: string;
   };
   appsmithSupportEmail: string;
+  hideWatermark: boolean;
+  disableIframeWidgetSandbox: boolean;
 }

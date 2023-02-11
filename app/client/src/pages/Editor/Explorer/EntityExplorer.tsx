@@ -9,12 +9,12 @@ import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
 import { NonIdealState, Classes } from "@blueprintjs/core";
-import JSDependencies from "./JSDependencies";
+import JSDependencies from "./Libraries";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system-old";
 
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";
@@ -30,6 +30,8 @@ import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -96,6 +98,12 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     }
   }, [isFirstTimeUserOnboardingEnabled, pageId]);
 
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+
+  useEffect(() => {
+    dispatch(fetchWorkspace(currentWorkspaceId));
+  }, [currentWorkspaceId]);
+
   /**
    * filter entitites
    */
@@ -113,7 +121,9 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
 
   return (
     <Wrapper
-      className={`relative overflow-y-auto ${isActive ? "" : "hidden"}`}
+      className={`t--entity-explorer-wrapper relative overflow-y-auto ${
+        isActive ? "" : "hidden"
+      }`}
       ref={explorerRef}
     >
       {/* SEARCH */}

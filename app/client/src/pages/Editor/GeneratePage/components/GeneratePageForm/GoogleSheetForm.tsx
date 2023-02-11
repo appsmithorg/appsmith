@@ -1,25 +1,31 @@
 import React, { useState, useEffect, ReactElement, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getEditorConfig } from "selectors/entitiesSelector";
-import { AppState } from "reducers/index";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { AppState } from "@appsmith/reducers";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
-import TextInput from "components/ads/TextInput";
 import { GeneratePagePayload } from "./types";
-import { TooltipComponent as Tooltip } from "design-system";
 import styled from "styled-components";
 import {
   UseSheetListReturn,
   UseSpreadSheetsReturn,
   UseSheetColumnHeadersReturn,
 } from "./hooks";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Dropdown,
+  DropdownOption,
+  FontWeight,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  TextInput,
+  TooltipComponent as Tooltip,
+} from "design-system-old";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { debounce } from "lodash";
-import { Text, TextType, FontWeight } from "design-system";
 import {
   createMessage,
   GEN_CRUD_TABLE_HEADER_LABEL,
@@ -66,7 +72,7 @@ const Row = styled.div`
 `;
 
 const ColumnName = styled.span`
-  ${(props) => `${getTypographyByKey(props, "p3")}`};
+  ${getTypographyByKey("p3")};
   color: ${Colors.GRAY};
   text-align: center;
   white-space: nowrap;
@@ -95,7 +101,7 @@ const TooltipWrapper = styled.div`
 `;
 
 const RowHeading = styled.p`
-  ${(props) => `${getTypographyByKey(props, "p1")}`};
+  ${getTypographyByKey("p1")};
   margin-right: 10px;
 `;
 
@@ -131,6 +137,7 @@ function GoogleSheetForm(props: Props) {
   const { fetchAllSpreadsheets } = spreadSheetsProps;
   const {
     columnHeaderList,
+    errorFetchingColumnHeaderList,
     fetchColumnHeaderList,
     isFetchingColumnHeaderList,
   } = sheetColumnsHeaderProps;
@@ -375,7 +382,10 @@ function GoogleSheetForm(props: Props) {
       {selectedSheet.value
         ? renderSubmitButton({
             onSubmit,
-            disabled: !columnHeaderList.length || isFetchingColumnHeaderList,
+            disabled:
+              !columnHeaderList.length ||
+              isFetchingColumnHeaderList ||
+              !!errorFetchingColumnHeaderList,
             isLoading: isFetchingColumnHeaderList,
           })
         : null}

@@ -1,4 +1,4 @@
-import { Alignment, Classes, Switch } from "@blueprintjs/core";
+import { Classes, Switch } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
@@ -7,6 +7,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidgetTypes } from "widgets/constants";
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
+import { darkenColor } from "widgets/WidgetUtils";
 
 export interface SwitchComponentProps extends ComponentProps {
   label: string;
@@ -20,6 +21,7 @@ export interface SwitchComponentProps extends ComponentProps {
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const SwitchComponentContainer = styled.div<{
@@ -34,15 +36,16 @@ const SwitchComponentContainer = styled.div<{
 
 const SwitchLabel = styled.div<{
   disabled?: boolean;
-  labelPosition: LabelPosition;
+  alignment: AlignWidgetTypes;
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   width: 100%;
   display: inline-block;
   vertical-align: top;
-  text-align: ${({ labelPosition }) => labelPosition.toLowerCase()};
+  text-align: ${({ alignment }) => alignment.toLowerCase()};
   ${({ disabled, labelStyle, labelTextColor, labelTextSize }) => `
   color: ${disabled ? Colors.GREY_8 : labelTextColor || "inherit"};
   font-size: ${labelTextSize ?? "inherit"};
@@ -51,36 +54,45 @@ const SwitchLabel = styled.div<{
     labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
   };
   `}
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
 `;
 
 export const StyledSwitch = styled(Switch)<{
-  accentColor: string;
+  $accentColor: string;
   inline?: boolean;
 }>`
   &.${Classes.CONTROL} {
-    margin: 0;
-  }
-
-  &.${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ accentColor }) => `${accentColor}`} !important;
-      border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
+      background: ${({ $accentColor }) => `${$accentColor}`} !important;
+      border: 1px solid ${({ $accentColor }) => `${$accentColor}`} !important;
+    }
+    margin: 0px;
+
+    &:hover input:checked:not(:disabled) ~ .bp3-control-indicator,
+    input:checked:not(:disabled):focus ~ .bp3-control-indicator {
+      background: ${({ $accentColor }) =>
+        `${darkenColor($accentColor)}`} !important;
+      border: 1px solid ${({ $accentColor }) =>
+        `${darkenColor($accentColor)}`} !important;
     }
   }
 
   &.${Classes.SWITCH} {
     ${({ inline }) => (!!inline ? "" : "width: 100%;")}
     & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ accentColor }) => `${accentColor}`} !important;
+      background: ${({ $accentColor }) => `${$accentColor}`} !important;
     }
   }
 `;
 
-export default function SwitchComponent({
+function SwitchComponent({
   accentColor,
-  alignWidget,
+  alignWidget = AlignWidgetTypes.LEFT,
   inputRef,
   isDisabled,
+  isDynamicHeightEnabled,
   isLoading,
   isSwitchedOn,
   label,
@@ -89,14 +101,14 @@ export default function SwitchComponent({
   labelTextColor,
   labelTextSize,
   onChange,
-}: SwitchComponentProps) {
+}: SwitchComponentProps): JSX.Element {
   const switchAlignClass =
-    alignWidget === AlignWidgetTypes.RIGHT ? Alignment.RIGHT : Alignment.LEFT;
+    labelPosition === LabelPosition.Right ? "left" : "right";
 
   return (
     <SwitchComponentContainer accentColor={accentColor}>
       <StyledSwitch
-        accentColor={accentColor}
+        $accentColor={accentColor}
         alignIndicator={switchAlignClass}
         checked={isSwitchedOn}
         className={
@@ -112,9 +124,10 @@ export default function SwitchComponent({
         inputRef={inputRef}
         labelElement={
           <SwitchLabel
+            alignment={alignWidget}
             className="t--switch-widget-label"
             disabled={isDisabled}
-            labelPosition={labelPosition}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
             labelStyle={labelStyle}
             labelTextColor={labelTextColor}
             labelTextSize={labelTextSize}
@@ -127,3 +140,5 @@ export default function SwitchComponent({
     </SwitchComponentContainer>
   );
 }
+
+export default SwitchComponent;

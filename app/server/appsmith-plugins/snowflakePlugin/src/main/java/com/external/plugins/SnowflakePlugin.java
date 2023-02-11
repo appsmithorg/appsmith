@@ -14,7 +14,6 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.StringUtils;
@@ -25,7 +24,6 @@ import reactor.core.scheduler.Schedulers;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -33,7 +31,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -41,17 +38,17 @@ import java.util.Set;
 import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
 import static com.external.utils.ValidationUtils.validateWarehouseDatabaseSchema;
 
+@Slf4j
 public class SnowflakePlugin extends BasePlugin {
 
     public SnowflakePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class SnowflakePluginExecutor implements PluginExecutor<Connection> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
@@ -90,7 +87,7 @@ public class SnowflakePlugin extends BasePlugin {
             try {
                 Class.forName("net.snowflake.client.jdbc.SnowflakeDriver");
             } catch (ClassNotFoundException ex) {
-                System.err.println("Driver not found");
+                log.debug("Driver not found");
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, ex.getMessage()));
             }
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -101,6 +98,8 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
             properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
             properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
+            /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
+            properties.setProperty("jdbc_query_result_format", "json");
 
             return Mono
                     .fromCallable(() -> {
@@ -108,7 +107,7 @@ public class SnowflakePlugin extends BasePlugin {
                         try {
                             conn = DriverManager.getConnection("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com", properties);
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            log.error("Exception caught when connecting to Snowflake endpoint: " + datasourceConfiguration.getUrl() + ". Cause: ", e);
                             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
                         }
                         if (conn == null) {
@@ -125,7 +124,7 @@ public class SnowflakePlugin extends BasePlugin {
                 try {
                     connection.close();
                 } catch (SQLException throwable) {
-                    throwable.printStackTrace();
+                    log.error("Exception caught when closing Snowflake connection. Cause: ", throwable);
                 }
             }
         }
@@ -179,30 +178,11 @@ public class SnowflakePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .flatMap(connection -> {
-                        if (connection != null) {
-                            try {
-                                Set<String> invalids = validateWarehouseDatabaseSchema(connection);
-                                if (!invalids.isEmpty()) {
-                                    return Mono.error(
-                                            new AppsmithPluginException(
-                                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                                    invalids.toArray()[0]
-                                            )
-                                    );
-                                }
-                                connection.close();
-                            } catch (SQLException throwable) {
-                                throwable.printStackTrace();
-                                return Mono.error(throwable);
-                            }
-                        }
-
-                        return Mono.just(new DatasourceTestResult());
+        public Mono<DatasourceTestResult> testDatasource(Connection connection) {
+            return Mono.fromCallable(() -> {
+                        return validateWarehouseDatabaseSchema(connection);
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+                    .map(DatasourceTestResult::new);
         }
 
         @Override
@@ -248,7 +228,7 @@ public class SnowflakePlugin extends BasePlugin {
                                 table.getKeys().sort(Comparator.naturalOrder());
                             }
                         } catch (SQLException throwable) {
-                            throwable.printStackTrace();
+                            log.error("Exception caught while fetching structure of Snowflake datasource. Cause: ", throwable);
                             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, throwable.getMessage());
                         }
                         return structure;

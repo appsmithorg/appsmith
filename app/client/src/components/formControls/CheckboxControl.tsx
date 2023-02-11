@@ -1,5 +1,5 @@
 import React from "react";
-import Checkbox from "components/ads/Checkbox";
+import { Checkbox } from "design-system-old";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import {
@@ -39,6 +39,7 @@ function renderComponent(props: renderComponentProps) {
 
   return (
     <StyledCheckbox
+      cypressSelector={props?.input?.name}
       isDefaultChecked={props?.input?.checked as boolean}
       {...props}
       info={undefined}

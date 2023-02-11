@@ -7,8 +7,10 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 import { LabelPosition } from "components/constants";
-import { TooltipComponent as Tooltip } from "design-system";
-import { LABEL_MAX_WIDTH_RATE } from "components/ads/LabelWithTooltip";
+import {
+  LABEL_MAX_WIDTH_RATE,
+  TooltipComponent as Tooltip,
+} from "design-system-old";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;

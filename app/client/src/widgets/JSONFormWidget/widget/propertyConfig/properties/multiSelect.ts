@@ -10,7 +10,7 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { JSONFormWidgetProps } from "../..";
 
 export function defaultOptionValueValidation(
@@ -232,6 +232,126 @@ const PROPERTIES = {
         ),
     },
   ],
+  content: {
+    data: [
+      {
+        propertyName: "defaultValue",
+        helpText: "Selects the option with value by default",
+        label: "Default Selected Values",
+        controlType: "JSON_FORM_COMPUTE_VALUE",
+        placeholderText: "[GREEN]",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: defaultOptionValueValidation,
+            expected: {
+              type: "Array of values",
+              example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
+              autocompleteDataType: AutocompleteDataType.ARRAY,
+            },
+          },
+        },
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        dependencies: ["schema", "sourceData"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
+      },
+    ],
+    general: [
+      {
+        propertyName: "placeholderText",
+        helpText: "Sets a Placeholder text",
+        label: "Placeholder",
+        controlType: "JSON_FORM_COMPUTE_VALUE",
+        placeholderText: "Search",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        dependencies: ["schema"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
+      },
+    ],
+    toggles: [
+      {
+        propertyName: "allowSelectAll",
+        helpText: "Controls the visibility of select all option in dropdown.",
+        label: "Allow Select All",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        dependencies: ["schema"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
+      },
+    ],
+    events: [
+      {
+        propertyName: "onOptionChange",
+        helpText: "Triggers an action when a user selects an option",
+        label: "onOptionChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: getAutocompleteProperties,
+        dependencies: ["schema"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
+      },
+    ],
+    searchAndFilters: [
+      {
+        propertyName: "isFilterable",
+        label: "Allow Searching",
+        helpText: "Makes the dropdown list filterable",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        dependencies: ["schema"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
+      },
+      {
+        propertyName: "serverSideFiltering",
+        helpText: "Enables server side filtering of the data",
+        label: "Server Side Filtering",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        validation: { type: ValidationTypes.BOOLEAN },
+        dependencies: ["schema"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
+      },
+      {
+        helpText: "Trigger an action on change of filterText",
+        propertyName: "onFilterUpdate",
+        label: "onFilterUpdate",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: getAutocompleteProperties,
+        dependencies: ["schema"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).compute(
+            (schemaItem) => {
+              if (schemaItem.fieldType !== FieldType.MULTISELECT) return true;
+              return !schemaItem.serverSideFiltering;
+            },
+          ),
+      },
+    ],
+  },
 };
 
 export default PROPERTIES;

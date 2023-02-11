@@ -4,16 +4,15 @@
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import {
-  CONTAINER_GRID_PADDING,
   CSSUnit,
-  CSSUnits,
+  GridDefaults,
   PositionType,
-  PositionTypes,
   RenderMode,
   RenderModes,
   WidgetType,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import React, { Component, ReactNode } from "react";
+import React, { Component, ReactNode, RefObject } from "react";
 import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
@@ -29,16 +28,28 @@ import {
   DataTreeEvaluationProps,
   EVAL_ERROR_PATH,
   EvaluationError,
-  PropertyEvaluationErrorType,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
-import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import {
+  getWidgetMaxAutoHeight,
+  getWidgetMinAutoHeight,
+  isAutoHeightEnabledForWidget,
+  shouldUpdateWidgetHeightAutomatically,
+} from "./WidgetUtils";
+import { CanvasWidgetStructure } from "./constants";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import Skeleton from "./Skeleton";
+import { Stylesheet } from "entities/AppTheming";
+import { CSSProperties } from "styled-components";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import AutoHeightOverlayContainer from "components/autoHeightOverlay";
+import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 /***
  * BaseWidget
@@ -64,6 +75,14 @@ abstract class BaseWidget<
     return [];
   }
 
+  static getPropertyPaneContentConfig(): PropertyPaneConfig[] {
+    return [];
+  }
+
+  static getPropertyPaneStyleConfig(): PropertyPaneConfig[] {
+    return [];
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }
@@ -71,9 +90,28 @@ abstract class BaseWidget<
   static getDefaultPropertiesMap(): Record<string, any> {
     return {};
   }
+
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {};
+  }
+
+  /**
+   * getLoadingProperties returns a list of regexp's used to specify bindingPaths,
+   * which can set the isLoading prop of the widget.
+   * When:
+   * 1. the path is bound to an action (API/Query)
+   * 2. the action is currently in-progress
+   *
+   * if undefined, all paths can set the isLoading state
+   * if empty array, no paths can set the isLoading state
+   */
+  static getLoadingProperties(): Array<RegExp> | undefined {
+    return;
   }
 
   /**
@@ -155,11 +193,67 @@ abstract class BaseWidget<
     if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
 
+  /*
+    This method calls the action to update widget height
+    We're not using `updateWidgetProperty`, because, the workflow differs
+    We will be computing properties of all widgets which are effected by
+    this change.
+    @param height number: Height of the widget's contents in pixels
+    @return void
+
+    TODO (abhinav): Make sure that this isn't called for scenarios which do not require it
+    This is for performance. We don't want unnecessary code to run
+  */
+  updateAutoHeight = (height: number): void => {
+    const paddedHeight =
+      Math.ceil(
+        Math.ceil(height + WIDGET_PADDING * 2) /
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      ) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+    const shouldUpdate = shouldUpdateWidgetHeightAutomatically(
+      paddedHeight,
+      this.props,
+    );
+    const { updateWidgetAutoHeight } = this.context;
+
+    if (updateWidgetAutoHeight) {
+      const { widgetId } = this.props;
+      shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
+    }
+  };
+
+  selectWidgetRequest = (
+    selectionRequestType: SelectionRequestType,
+    payload?: string[],
+  ) => {
+    const { selectWidgetRequest } = this.context;
+    if (selectWidgetRequest) {
+      selectWidgetRequest(selectionRequestType, payload);
+    }
+  };
+
   /* eslint-disable @typescript-eslint/no-empty-function */
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {}
+  componentDidUpdate(prevProps: T) {
+    if (
+      !this.props.deferRender &&
+      this.props.deferRender !== prevProps.deferRender
+    ) {
+      this.deferredComponentDidRender();
+    }
+  }
 
   componentDidMount(): void {}
+
+  /*
+   * With lazy rendering, skeleton loaders are rendered for below fold widgets.
+   * This Appsmith widget life cycle method that gets called when the actual widget
+   * component renders instead of the skeleton loader.
+   */
+  deferredComponentDidRender(): void {}
+
   /* eslint-enable @typescript-eslint/no-empty-function */
 
   getComponentDimensions = () => {
@@ -196,10 +290,7 @@ abstract class BaseWidget<
 
   getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
     return Object.values(evalErrors).reduce(
-      (prev, curr) =>
-        curr.filter(
-          (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-        ).length + prev,
+      (prev, curr) => curr.length + prev,
       0,
     );
   }, JSON.stringify);
@@ -216,10 +307,7 @@ abstract class BaseWidget<
    */
   makeResizable(content: ReactNode) {
     return (
-      <ResizableComponent
-        {...this.props}
-        paddingOffset={PositionedContainer.padding}
-      >
+      <ResizableComponent {...this.props} paddingOffset={WIDGET_PADDING}>
         {content}
       </ResizableComponent>
     );
@@ -262,6 +350,7 @@ abstract class BaseWidget<
   makeDraggable(content: ReactNode) {
     return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
   }
+
   /**
    * wraps the widget in a draggable component.
    * Note: widget drag can be disabled by setting `dragDisabled` prop to true
@@ -273,14 +362,24 @@ abstract class BaseWidget<
   }
 
   makePositioned(content: ReactNode) {
-    const style = this.getPositionStyle();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return (
       <PositionedContainer
+        componentHeight={componentHeight}
+        componentWidth={componentWidth}
         focused={this.props.focused}
+        isDisabled={this.props.isDisabled}
+        isVisible={this.props.isVisible}
+        leftColumn={this.props.leftColumn}
+        noContainerOffset={this.props.noContainerOffset}
+        parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
+        parentRowSpace={this.props.parentRowSpace}
+        ref={this.props.wrapperRef}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
-        style={style}
+        topRow={this.props.topRow}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
       >
@@ -293,48 +392,105 @@ abstract class BaseWidget<
     return <ErrorBoundary>{content}</ErrorBoundary>;
   }
 
-  /**
-   * These comments are rendered using position: absolute over the widget borders,
-   * they are not aware of the component structure.
-   * For additional component specific contexts, for eg.
-   * a comment bound to the scroll position or a specific section
-   * we would pass comments as props to the components
-   */
-  addOverlayComments(content: ReactNode) {
+  addAutoHeightOverlay(content: ReactNode, style?: CSSProperties) {
+    // required when the limits have to be updated
+    // simultaneosuly when they move together
+    // to maintain the undo/redo stack
+    const onBatchUpdate = ({
+      maxHeight,
+      minHeight,
+    }: {
+      maxHeight?: number;
+      minHeight?: number;
+    }) => {
+      const modifyObj: Record<string, unknown> = {};
+
+      if (maxHeight !== undefined) {
+        modifyObj["maxDynamicHeight"] = Math.floor(
+          maxHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      }
+
+      if (minHeight !== undefined) {
+        modifyObj["minDynamicHeight"] = Math.floor(
+          minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      }
+
+      this.batchUpdateWidgetProperty({
+        modify: modifyObj,
+        postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+      });
+      AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
+    };
+
+    const onMaxHeightSet = (maxHeight: number) => onBatchUpdate({ maxHeight });
+
+    const onMinHeightSet = (minHeight: number) => onBatchUpdate({ minHeight });
+
     return (
-      <OverlayCommentsWrapper
-        refId={this.props.widgetId}
-        widgetType={this.props.type}
-      >
+      <>
+        <AutoHeightOverlayContainer
+          {...this.props}
+          batchUpdate={onBatchUpdate}
+          maxDynamicHeight={getWidgetMaxAutoHeight(this.props)}
+          minDynamicHeight={getWidgetMinAutoHeight(this.props)}
+          onMaxHeightSet={onMaxHeightSet}
+          onMinHeightSet={onMinHeightSet}
+          style={style}
+        />
         {content}
-      </OverlayCommentsWrapper>
+      </>
     );
   }
 
-  addPreventInteractionOverlay(content: ReactNode) {
-    return (
-      <PreventInteractionsOverlay widgetType={this.props.type}>
-        {content}
-      </PreventInteractionsOverlay>
-    );
-  }
+  getWidgetComponent = () => {
+    const { renderMode, type } = this.props;
 
-  addPreviewModeWidget(content: ReactNode): React.ReactElement {
-    return (
-      <PreviewModeComponent isVisible={this.props.isVisible}>
-        {content}
-      </PreviewModeComponent>
-    );
-  }
+    /**
+     * The widget mount calls the withWidgetProps with the widgetId and type to fetch the
+     * widget props. During the computation of the props (in withWidgetProps) if the evaluated
+     * values are not present (which will not be during mount), the widget type is changed to
+     * SKELETON_WIDGET.
+     *
+     * Note:- This is done to retain the old rendering flow without any breaking changes.
+     * This could be refactored into not changing the widget type but to have a boolean flag.
+     */
+    if (type === "SKELETON_WIDGET" || this.props.deferRender) {
+      return <Skeleton />;
+    }
+
+    const content =
+      renderMode === RenderModes.CANVAS
+        ? this.getCanvasView()
+        : this.getPageView();
+
+    // This `if` code is responsible for the unmount of the widgets
+    // while toggling the dynamicHeight property
+    // Adding a check for the Modal Widget early
+    // to avoid deselect Modal in its unmount effect.
+    if (
+      isAutoHeightEnabledForWidget(this.props) &&
+      !this.props.isAutoGeneratedWidget && // To skip list widget's auto generated widgets
+      !this.props.detachFromLayout // To skip Modal widget issue #18697
+    ) {
+      return (
+        <AutoHeightContainerWrapper
+          onUpdateDynamicHeight={(height) => this.updateAutoHeight(height)}
+          widgetProps={this.props}
+        >
+          {content}
+        </AutoHeightContainerWrapper>
+      );
+    }
+    return this.addErrorBoundary(content);
+  };
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
-        content = this.getCanvasView();
-        content = this.addPreviewModeWidget(content);
-        content = this.addPreventInteractionOverlay(content);
-        content = this.addOverlayComments(content);
+        content = this.getWidgetComponent();
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
@@ -342,16 +498,17 @@ abstract class BaseWidget<
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
+          if (isAutoHeightEnabledForWidget(this.props, true)) {
+            content = this.addAutoHeightOverlay(content);
+          }
         }
+
         return content;
 
       // return this.getCanvasView();
       case RenderModes.PAGE:
-        content = this.getPageView();
+        content = this.getWidgetComponent();
         if (this.props.isVisible) {
-          content = this.addPreventInteractionOverlay(content);
-          content = this.addOverlayComments(content);
-          content = this.addErrorBoundary(content);
           if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
           }
@@ -366,8 +523,7 @@ abstract class BaseWidget<
   abstract getPageView(): ReactNode;
 
   getCanvasView(): ReactNode {
-    const content = this.getPageView();
-    return this.addErrorBoundary(content);
+    return this.getPageView();
   }
 
   // TODO(abhinav): Maybe make this a pure component to bailout from updating altogether.
@@ -378,27 +534,6 @@ abstract class BaseWidget<
       !shallowequal(nextProps, this.props) ||
       !shallowequal(nextState, this.state)
     );
-  }
-
-  /**
-   * generates styles that positions the widget
-   */
-  private getPositionStyle(): BaseStyle {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-    return {
-      positionType: PositionTypes.ABSOLUTE,
-      componentHeight,
-      componentWidth,
-      yPosition:
-        this.props.topRow * this.props.parentRowSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPosition:
-        this.props.leftColumn * this.props.parentColumnSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPositionUnit: CSSUnits.PIXEL,
-      yPositionUnit: CSSUnits.PIXEL,
-    };
   }
 
   // TODO(abhinav): These defaultProps seem unneccessary. Check it out.
@@ -431,7 +566,10 @@ export interface BaseStyle {
 
 export type WidgetState = Record<string, unknown>;
 
-export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
+export interface WidgetBuilder<
+  T extends CanvasWidgetStructure,
+  S extends WidgetState
+> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 
@@ -442,6 +580,7 @@ export interface WidgetBaseProps {
   parentId?: string;
   renderMode: RenderMode;
   version: number;
+  childWidgets?: DataTreeWidget[];
 }
 
 export type WidgetRowCols = {
@@ -450,6 +589,7 @@ export type WidgetRowCols = {
   topRow: number;
   bottomRow: number;
   minHeight?: number; // Required to reduce the size of CanvasWidgets.
+  height?: number;
 };
 
 export interface WidgetPositionProps extends WidgetRowCols {
@@ -463,24 +603,6 @@ export interface WidgetPositionProps extends WidgetRowCols {
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
 }
-
-export const WIDGET_STATIC_PROPS = {
-  leftColumn: true,
-  rightColumn: true,
-  topRow: true,
-  bottomRow: true,
-  minHeight: true,
-  parentColumnSpace: true,
-  parentRowSpace: true,
-  children: true,
-  type: true,
-  widgetId: true,
-  widgetName: true,
-  parentId: true,
-  renderMode: true,
-  detachFromLayout: true,
-  noContainerOffset: false,
-};
 
 export const WIDGET_DISPLAY_PROPS = {
   isVisible: true,
@@ -496,6 +618,8 @@ export interface WidgetDisplayProps {
   isDisabled?: boolean;
   backgroundColor?: string;
   animateLoading?: boolean;
+  deferRender?: boolean;
+  wrapperRef?: RefObject<HTMLDivElement>;
 }
 
 export interface WidgetDataProps
@@ -509,6 +633,7 @@ export interface WidgetProps
     DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
+
   [key: string]: any;
 }
 

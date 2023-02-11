@@ -9,7 +9,7 @@ import {
   forceShowContent,
   focusWidget,
 } from "actions/onboardingActions";
-import { IconName } from "components/ads/Icon";
+import { IconName } from "design-system-old";
 import { highlightSection, showIndicator } from "./utils";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";

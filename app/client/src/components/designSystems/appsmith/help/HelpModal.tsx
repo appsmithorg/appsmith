@@ -11,14 +11,14 @@ import { HelpIcons } from "icons/HelpIcons";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { LayersContext } from "constants/Layers";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import ModalComponent from "../ModalComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import bootIntercom from "utils/bootIntercom";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import {
   createMessage,
   HELP_RESOURCE_TOOLTIP,

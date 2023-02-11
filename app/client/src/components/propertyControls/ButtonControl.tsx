@@ -1,9 +1,9 @@
 import React from "react";
+import styled from "styled-components";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import styled from "constants/DefaultTheme";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import { Category, Size } from "components/ads/Button";
+import { Category, Size } from "design-system-old";
 
 export type OnButtonClickProps = {
   props: ControlProps;
@@ -58,7 +58,7 @@ class ButtonControl extends BaseControl<
 
     return (
       <StyledButton
-        category={Category.tertiary}
+        category={Category.secondary}
         disabled={isDisabled?.(widgetProperties)}
         isLoading={this.state.isLoading}
         onClick={this.onCTAClick}

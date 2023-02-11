@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 export enum AppThemingMode {
   APP_THEME_EDIT = "APP_THEME_EDIT",

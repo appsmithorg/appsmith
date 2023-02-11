@@ -104,6 +104,7 @@ const formToDatasourceAuthentication = (
       sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
       refreshTokenClientCredentialsLocation:
         authentication.refreshTokenClientCredentialsLocation,
+      useSelfSignedCert: authentication.useSelfSignedCert,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -132,6 +133,7 @@ const formToDatasourceAuthentication = (
         authenticationType: AuthType.basic,
         username: authentication.username,
         password: authentication.password,
+        secretExists: authentication.secretExists,
       };
       return basic;
     }
@@ -188,7 +190,8 @@ const datasourceToFormAuthentication = (
       isAuthorizationHeader: !!authentication.isAuthorizationHeader,
       audience: authentication.audience || "",
       resource: authentication.resource || "",
-      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
+      sendScopeWithRefreshToken:
+        authentication.sendScopeWithRefreshToken || false,
       refreshTokenClientCredentialsLocation:
         authentication.refreshTokenClientCredentialsLocation || "BODY",
     };
@@ -222,6 +225,7 @@ const datasourceToFormAuthentication = (
       authenticationType: AuthType.basic,
       username: authentication.username || "",
       password: authentication.password || "",
+      secretExists: authentication.secretExists,
     };
     return basic;
   }

@@ -6,6 +6,6 @@ package com.appsmith.server.constants;
 public class ConfigNames {
 
     // Disallow instantiation of this class.
-    private ConfigNames() {}
-
+    private ConfigNames() {
+    }
 }

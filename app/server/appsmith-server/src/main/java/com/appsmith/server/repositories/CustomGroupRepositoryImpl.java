@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 public class CustomGroupRepositoryImpl extends CustomGroupRepositoryCEImpl
         implements CustomGroupRepository {
 
-    public CustomGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

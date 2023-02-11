@@ -1,9 +1,12 @@
 package com.appsmith.server.configurations;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,8 +18,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import java.util.Set;
 public class CommonConfig {
 
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
+    public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
 
     @Value("${appsmith.instance.name:}")
     private String instanceName;
@@ -62,25 +64,35 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
+    private String rtsBaseDomain = "http://127.0.0.1:8091";
+
     private List<String> allowedDomains;
 
     @Bean
     public Scheduler scheduler() {
-        return Schedulers.newElastic(ELASTIC_THREAD_POOL_NAME);
+        return Schedulers.newBoundedElastic(
+                Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE,
+                Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE,
+                ELASTIC_THREAD_POOL_NAME);
     }
 
     @Bean
     public Validator validator() {
-        return Validation.buildDefaultValidatorFactory().getValidator();
+        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            return validatorFactory.getValidator();
+        }
     }
 
     @Bean
     public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return objectMapper;
+        return SerializationUtils.getDefaultObjectMapper();
+    }
+
+    @Bean
+    public Gson gsonInstance() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        SerializationUtils.typeAdapterRegistration().customize(gsonBuilder);
+        return gsonBuilder.create();
     }
 
     public List<String> getOauthAllowedDomains() {

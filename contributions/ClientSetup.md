@@ -120,6 +120,14 @@ This error occurs because the node version is not compatible with the app enviro
      "PASSWORD": "Enter password"
    }
    ```
+2. In order to run cypress tests which use datasources/rest api, you will need to have TED container running: (It bundles multiple services together along with fake data for testing)
+   ``` 
+   docker pull appsmith/test-event-driver
+   ```
+   ```
+   docker run --name appsmithted -d -p 2222:22 -p 5001:5001 -p 3306:3306 -p 28017:27017 -p 5432:5432 -p 25:25 -v `pwd`/git-server/keys:/git-server/keys -v `pwd`/git-server/repos:/git-server/repo appsmith/test-event-driver
+   ```
+   Note : You need to have client and server running locally to run TED
 
 1. run:
 

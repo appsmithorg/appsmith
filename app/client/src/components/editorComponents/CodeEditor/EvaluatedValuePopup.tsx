@@ -1,6 +1,7 @@
-import React, { memo, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
-import _ from "lodash";
+import { isObject, isString } from "lodash";
+import equal from "fast-deep-equal/es6";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
 import {
@@ -9,15 +10,23 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import {
+  ScrollIndicator,
+  Toaster,
+  TooltipComponent as Tooltip,
+  Variant,
+} from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { TooltipComponent as Tooltip } from "design-system";
-import { Toaster } from "components/ads/Toast";
-import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
+import {
+  Button,
+  Classes,
+  Collapse,
+  Icon,
+  IPopoverSharedProps,
+} from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
-import { IPopoverSharedProps } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
@@ -26,7 +35,10 @@ import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import { Indices, Layers } from "constants/Layers";
-import { Variant } from "components/ads/common";
+import { useDispatch, useSelector } from "react-redux";
+import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
+import { AppState } from "@appsmith/reducers";
+import { setEvalPopupState } from "actions/editorContextActions";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -36,6 +48,7 @@ const modifiers: IPopoverSharedProps["modifiers"] = {
   preventOverflow: {
     enabled: true,
     boundariesElement: "viewport",
+    padding: 38,
   },
 };
 const Wrapper = styled.div`
@@ -55,9 +68,9 @@ type PopupTheme = Record<EditorTheme, ThemeConfig>;
 
 const THEMES: PopupTheme = {
   [EditorTheme.LIGHT]: {
-    backgroundColor: "#EBEBEB",
+    backgroundColor: "#F8F8F8",
     textColor: "#4B4848",
-    editorBackground: "#FAFAFA",
+    editorBackground: "#FFFFFF",
     editorColor: "#1E242B",
   },
   [EditorTheme.DARK]: {
@@ -79,8 +92,11 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   background-color: ${(props) => THEMES[props.colorTheme].backgroundColor};
   color: ${(props) => THEMES[props.colorTheme].textColor};
   padding: 10px;
-  box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+  // box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+  box-shadow: 0px 4px 8px -2px rgba(0, 0, 0, 0.1),
+    0px 2px 4px -2px rgba(0, 0, 0, 0.06);
   border-radius: 0px;
+  pointer-events: all;
 `;
 
 const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
@@ -108,6 +124,7 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
       display: flex;
     }
   }
+  border: 1px solid #b3b3b3;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -120,7 +137,11 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   word-break: break-all;
 `;
 
-const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
+const TypeText = styled.pre<{
+  colorTheme: EditorTheme;
+  padded?: boolean;
+  addBorder?: boolean;
+}>`
   padding: ${(props) => (props.padded ? "8px" : 0)};
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
@@ -128,6 +149,7 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
   margin: 5px 0;
   -ms-overflow-style: none;
   white-space: pre-wrap;
+  ${(props) => props?.addBorder && "border: 1px solid #b3b3b3;"}
 `;
 
 const ErrorText = styled.p`
@@ -135,12 +157,13 @@ const ErrorText = styled.p`
   padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[5]}px;
   border-radius: 0px;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 19px;
   letter-spacing: -0.24px;
   background-color: rgba(226, 44, 44, 0.08);
   border: 1.2px solid ${(props) => props.theme.colors.errorMessage};
   color: ${(props) => props.theme.colors.errorMessage};
+  margin-top: 15px;
 `;
 
 const StyledIcon = styled(Icon)`
@@ -152,9 +175,17 @@ const StyledIcon = styled(Icon)`
 
 const StyledTitle = styled.p`
   margin: 8px 0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  cursor: pointer;
+`;
+
+const StyledTitleName = styled.p`
+  margin: 8px 0;
   font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 12px;
   cursor: pointer;
 `;
 
@@ -168,14 +199,17 @@ function CollapseToggle(props: { isOpen: boolean }) {
   );
 }
 
-function copyContent(content: any) {
-  const stringifiedContent = _.isString(content)
+function copyContent(
+  content: any,
+  onCopyContentText = `Evaluated value copied to clipboard`,
+) {
+  const stringifiedContent = isString(content)
     ? content
     : JSON.stringify(content, null, 2);
 
   copy(stringifiedContent);
   Toaster.show({
-    text: `Evaluated value copied to clipboard`,
+    text: onCopyContentText,
     variant: Variant.success,
   });
 }
@@ -194,6 +228,9 @@ interface Props {
   popperPlacement?: Placement;
   entity?: FieldEntityInformation;
   popperZIndex?: Indices;
+  dataTreePath?: string;
+  evaluatedPopUpLabel?: string;
+  editorRef?: React.RefObject<HTMLDivElement>;
 }
 
 interface PopoverContentProps {
@@ -208,6 +245,9 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
+  dataTreePath?: string;
+  evaluatedPopUpLabel?: string;
+  editorRef?: React.RefObject<HTMLDivElement>;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -260,17 +300,58 @@ export function PreparedStatementViewer(props: {
   );
 }
 
-export const CurrentValueViewer = memo(
-  function CurrentValueViewer(props: {
+export function CurrentValueViewer(props: {
+  theme: EditorTheme;
+  evaluatedValue: any;
+  hideLabel?: boolean;
+  preparedStatementViewer?: boolean;
+  /** @param {number} [collapseStringsAfterLength=20]
+   * This collapses the values visible in (say json) after these many characters and shows ellipsis.
+   */
+  collapseStringsAfterLength?: number;
+  /** @param {string} [onCopyContentText=`Evaluated value copied to clipboard`]
+   * This parameter contains the string that is shown when the evaluatedValue is copied.
+   */
+  onCopyContentText?: string;
+}) {
+  const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+  return (
+    <ControlledCurrentValueViewer
+      {...props}
+      openEvaluatedValue={openEvaluatedValue}
+      setOpenEvaluatedValue={(isOpen: boolean) => setOpenEvaluatedValue(isOpen)}
+    />
+  );
+}
+
+const ControlledCurrentValueViewer = memo(
+  function ControlledCurrentValueViewer(props: {
     theme: EditorTheme;
     evaluatedValue: any;
+    openEvaluatedValue: boolean;
+    setOpenEvaluatedValue?: (a: boolean) => void;
     hideLabel?: boolean;
     preparedStatementViewer?: boolean;
+    /** @param {number} [collapseStringsAfterLength=20]
+     * This collapses the values visible in (say json) after these many characters and shows ellipsis.
+     */
+    collapseStringsAfterLength?: number;
+    /** @param {string} [onCopyContentText=`Evaluated value copied to clipboard`]
+     * This parameter contains the string that is shown when the evaluatedValue is copied.
+     */
+    onCopyContentText?: string;
   }) {
+    /* Setting the default value for collapseStringsAfterLength to 20;
+       This ensures that earlier code that depends on the value keeps working.
+     */
+    const collapseStringsAfterLength = props.collapseStringsAfterLength || 20;
+    /* Setting the default value; ensuring that earlier code keeps working. */
+    const onCopyContentText =
+      props.onCopyContentText || `Evaluated value copied to clipboard`;
     const codeWrapperRef = React.createRef<HTMLPreElement>();
-    const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+    const { openEvaluatedValue, setOpenEvaluatedValue } = props;
     const toggleEvaluatedValue = () => {
-      setOpenEvaluatedValue(!openEvaluatedValue);
+      if (!!setOpenEvaluatedValue) setOpenEvaluatedValue(!openEvaluatedValue);
     };
     let content = (
       <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
@@ -280,7 +361,7 @@ export const CurrentValueViewer = memo(
     );
     if (props.evaluatedValue !== undefined) {
       if (
-        _.isObject(props.evaluatedValue) ||
+        isObject(props.evaluatedValue) ||
         Array.isArray(props.evaluatedValue)
       ) {
         if (props.preparedStatementViewer) {
@@ -304,7 +385,7 @@ export const CurrentValueViewer = memo(
               fontSize: "12px",
             },
             collapsed: 2,
-            collapseStringsAfterLength: 20,
+            collapseStringsAfterLength,
             shouldCollapse: (field: any) => {
               const index = field.name * 1;
               return index >= 2;
@@ -346,7 +427,9 @@ export const CurrentValueViewer = memo(
               <CopyIconWrapper
                 colorTheme={props.theme}
                 minimal
-                onClick={() => copyContent(props.evaluatedValue)}
+                onClick={() =>
+                  copyContent(props.evaluatedValue, onCopyContentText)
+                }
               >
                 <CopyIcon height={34} />
               </CopyIconWrapper>
@@ -360,20 +443,33 @@ export const CurrentValueViewer = memo(
     return (
       prevProps.theme === nextProps.theme &&
       prevProps.hideLabel === nextProps.hideLabel &&
+      prevProps.openEvaluatedValue === nextProps.openEvaluatedValue &&
       // Deep-compare evaluated values to ensure we only rerender
       // when the array actually changes
-      _.isEqual(prevProps.evaluatedValue, nextProps.evaluatedValue)
+      equal(prevProps.evaluatedValue, nextProps.evaluatedValue)
     );
   },
 );
 
 function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
-  const [openExpectedDataType, setOpenExpectedDataType] = useState(false);
+  const dispatch = useDispatch();
+  const popupContext = useSelector((state: AppState) =>
+    getEvaluatedPopupState(state, props.dataTreePath),
+  );
+  const [openExpectedDataType, setOpenExpectedDataType] = useState(
+    !!popupContext?.type,
+  );
+  const [openExpectedExample, setOpenExpectedExample] = useState(
+    !!popupContext?.example,
+  );
+  const [openEvaluatedValue, setOpenEvaluatedValue] = useState(
+    popupContext && popupContext.value !== undefined
+      ? popupContext.value
+      : true,
+  );
   const toggleExpectedDataType = () =>
     setOpenExpectedDataType(!openExpectedDataType);
-
-  const [openExpectedExample, setOpenExpectedExample] = useState(false);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
   const {
@@ -389,6 +485,16 @@ function PopoverContent(props: PopoverContentProps) {
     error = errors[0];
   }
 
+  useEffect(() => {
+    dispatch(
+      setEvalPopupState(props.dataTreePath, {
+        type: openExpectedDataType,
+        example: openExpectedExample,
+        value: openEvaluatedValue,
+      }),
+    );
+  }, [openExpectedDataType, openExpectedExample, openEvaluatedValue]);
+
   return (
     <ContentWrapper
       className="t--CodeEditor-evaluatedValue"
@@ -396,6 +502,13 @@ function PopoverContent(props: PopoverContentProps) {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
+      {props?.entity && props.entity?.entityName && (
+        <StyledTitleName>
+          {props?.evaluatedPopUpLabel
+            ? props?.evaluatedPopUpLabel
+            : props?.entity?.entityName}
+        </StyledTitleName>
+      )}
       {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
@@ -416,7 +529,12 @@ function PopoverContent(props: PopoverContentProps) {
             <CollapseToggle isOpen={openExpectedDataType} />
           </StyledTitle>
           <Collapse isOpen={openExpectedDataType}>
-            <TypeText colorTheme={props.theme} padded ref={typeTextRef}>
+            <TypeText
+              addBorder
+              colorTheme={props.theme}
+              padded
+              ref={typeTextRef}
+            >
               {props.expected.type}
             </TypeText>
           </Collapse>
@@ -440,9 +558,13 @@ function PopoverContent(props: PopoverContentProps) {
         </>
       )}
       {!props.hideEvaluatedValue && (
-        <CurrentValueViewer
+        <ControlledCurrentValueViewer
           evaluatedValue={props.evaluatedValue}
+          openEvaluatedValue={openEvaluatedValue}
           preparedStatementViewer={props.preparedStatementViewer}
+          setOpenEvaluatedValue={(isOpen: boolean) =>
+            setOpenEvaluatedValue(isOpen)
+          }
           theme={props.theme}
         />
       )}
@@ -453,6 +575,8 @@ function PopoverContent(props: PopoverContentProps) {
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
   const [timeoutId, setTimeoutId] = useState(0);
+  const [position, setPosition] = useState(undefined);
+  const [isDragging, setIsDragging] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
@@ -469,15 +593,25 @@ function EvaluatedValuePopup(props: Props) {
   return (
     <Wrapper ref={wrapperRef}>
       <Popper
-        isOpen={props.isOpen || contentHovered}
+        customParent={document.body}
+        editorRef={props?.editorRef}
+        isDraggable
+        isDragging={isDragging}
+        isOpen={props.isOpen || contentHovered || isDragging}
         modifiers={modifiers}
         placement={placement}
+        position={position}
+        setIsDragging={setIsDragging}
+        setPosition={setPosition}
         targetNode={wrapperRef.current || undefined}
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
+          dataTreePath={props.dataTreePath}
+          editorRef={props?.editorRef}
           entity={props.entity}
           errors={props.errors}
+          evaluatedPopUpLabel={props?.evaluatedPopUpLabel}
           evaluatedValue={props.evaluatedValue}
           expected={props.expected}
           hasError={props.hasError}
@@ -488,6 +622,7 @@ function EvaluatedValuePopup(props: Props) {
           }}
           onMouseLeave={() => {
             const id = setTimeout(() => setContentHovered(false), 500);
+            // @ts-expect-error: setTimeout return type mismatch
             setTimeoutId(id);
           }}
           preparedStatementViewer={

@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "design-system-old";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { DSEventDetail, DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
@@ -83,6 +83,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return (
       <StyledDropDownContainer ref={this.containerRef}>
         <StyledDropDown
+          closeOnSpace={false}
           dropdownHeight={this.props.dropdownHeight}
           dropdownMaxHeight="200px"
           enableSearch={this.props.enableSearch}
@@ -96,8 +97,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           options={options}
           placeholder={this.props.placeholderText}
           removeSelectedOption={this.onItemRemove}
+          searchAutoFocus
           searchPlaceholder={this.props.searchPlaceholderText}
           selected={defaultSelected}
+          showEmptyOptions
           showLabelOnly
           width="100%"
         />

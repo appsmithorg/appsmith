@@ -1,26 +1,32 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import Button, { Category, Size } from "components/ads/Button";
-import { Text, TextType } from "design-system";
+import {
+  Button,
+  Category,
+  DialogComponent as Dialog,
+  getTypographyByKey,
+  Size,
+  Text,
+  TextType,
+} from "design-system-old";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
 
-import Dialog from "components/ads/DialogComponent";
 import { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalReducer";
 import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
   GEN_CRUD_SUCCESS_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
-import ProgressiveImage, {
+import {
+  ProgressiveImage,
   Container as ProgressiveImageContainer,
-} from "components/ads/ProgressiveImage";
+} from "design-system-old";
 import SuccessTick from "pages/common/SuccessTick";
 
 type Props = {
@@ -32,7 +38,7 @@ const Heading = styled.div`
   color: ${Colors.CODE_GRAY};
   display: flex;
   justify-content: center;
-  ${(props) => getTypographyByKey(props, "h1")}
+  ${getTypographyByKey("h1")}
 `;
 
 const ActionButtonWrapper = styled.div`

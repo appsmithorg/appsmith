@@ -1,55 +1,43 @@
-import React, { useEffect } from "react";
-import styled, { css } from "styled-components";
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import { AppState } from "reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { PopoverPosition } from "@blueprintjs/core";
+import { AppState } from "@appsmith/reducers";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import CopyToClipBoard from "components/ads/CopyToClipBoard";
+import { Case, Icon, IconSize, TooltipComponent } from "design-system-old";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "../Applications/permissionHelpers";
-import WorkspaceInviteUsersForm, {
-  InviteButtonWidth,
-} from "./WorkspaceInviteUsersForm";
+} from "@appsmith/utils/permissionHelpers";
+import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Text, TextType } from "design-system";
-import Toggle from "components/ads/Toggle";
+import { Text, TextType, Toggle } from "design-system-old";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
+import useWorkspace from "utils/hooks/useWorkspace";
+import TooltipWrapper from "pages/Applications/EmbedSnippet/TooltipWrapper";
+import {
+  createMessage,
+  INVITE_USERS_PLACEHOLDER,
+  IN_APP_EMBED_SETTING,
+  MAKE_APPLICATION_PUBLIC,
+  MAKE_APPLICATION_PUBLIC_TOOLTIP,
+} from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
-const StyledCopyToClipBoard = styled(CopyToClipBoard)`
-  margin-bottom: 24px;
-`;
-
-const CommonTitleTextStyle = css`
-  color: ${Colors.CHARCOAL};
-  font-weight: normal;
-`;
-
-const Title = styled.div`
-  padding: 0 0 8px 0;
-  & > span[type="h5"] {
-    ${CommonTitleTextStyle}
-  }
-`;
-
-const ShareWithPublicOption = styled.div`
-  display: flex;
-  margin-bottom: 8px;
-  align-items: center;
-  justify-content: space-between;
-
-  & > span[type="h5"] {
-    ${CommonTitleTextStyle}
-    color: ${Colors.COD_GRAY};
-  }
-`;
+const { cloudHosting } = getAppsmithConfigs();
 
 const ShareToggle = styled.div`
   flex-basis: 46px;
   height: 23px;
+`;
+
+const BottomContainer = styled.div<{ canInviteToWorkspace?: boolean }>`
+  ${({ canInviteToWorkspace }) =>
+    canInviteToWorkspace ? `border-top: 1px solid ${Colors.GREY_200}` : ``};
 `;
 
 function AppInviteUsersForm(props: any) {
@@ -63,8 +51,9 @@ function AppInviteUsersForm(props: any) {
     isChangingViewAccess,
     isFetchingApplication,
   } = props;
-
-  const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const [isCopied, setIsCopied] = useState(false);
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const currentWorkspace = useWorkspace(currentWorkspaceId);
   const userWorkspacePermissions = currentWorkspace.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
   const canInviteToWorkspace = isPermitted(
@@ -75,6 +64,13 @@ function AppInviteUsersForm(props: any) {
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(appViewEndPoint);
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 3000);
+  };
 
   const appViewEndPoint = React.useMemo(() => {
     const url = viewerURL({
@@ -91,40 +87,78 @@ function AppInviteUsersForm(props: any) {
 
   return (
     <>
-      {canShareWithPublic && (
-        <ShareWithPublicOption>
-          <Text type={TextType.H5}>Make the application public</Text>
-          <ShareToggle className="t--share-public-toggle">
-            {currentApplicationDetails && (
-              <Toggle
-                disabled={isChangingViewAccess || isFetchingApplication}
-                isLoading={isChangingViewAccess || isFetchingApplication}
-                onToggle={() => {
-                  changeAppViewAccess(
-                    applicationId,
-                    !currentApplicationDetails.isPublic,
-                  );
-                }}
-                value={currentApplicationDetails.isPublic}
-              />
-            )}
-          </ShareToggle>
-        </ShareWithPublicOption>
-      )}
-      <Title>
-        <Text type={TextType.H5}>Get shareable link for this application</Text>
-      </Title>
-      <StyledCopyToClipBoard
-        btnWidth={InviteButtonWidth}
-        copyText={appViewEndPoint}
-      />
-
       {canInviteToWorkspace && (
         <WorkspaceInviteUsersForm
           isApplicationInvite
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
           workspaceId={props.workspaceId}
         />
       )}
+      <BottomContainer
+        canInviteToWorkspace={canInviteToWorkspace}
+        className={`flex space-between ${
+          canInviteToWorkspace ? "mt-6 pt-5" : ""
+        }`}
+      >
+        <div
+          className="flex gap-1.5 cursor-pointer"
+          data-cy={"copy-application-url"}
+          onClick={copyToClipboard}
+        >
+          <Icon
+            fillColor={Colors.GRAY_700}
+            name="links-line"
+            size={IconSize.XL}
+          />
+          <Text
+            case={Case.UPPERCASE}
+            className="self-center"
+            color={Colors.GRAY_700}
+            type={TextType.P4}
+          >{`${
+            isCopied
+              ? createMessage(IN_APP_EMBED_SETTING.copied)
+              : createMessage(IN_APP_EMBED_SETTING.copy)
+          } ${createMessage(IN_APP_EMBED_SETTING.applicationUrl)}`}</Text>
+        </div>
+        {canShareWithPublic && (
+          <div className="flex flex-1 items-center justify-end">
+            <Text color={Colors.GRAY_800} type={TextType.P1}>
+              {createMessage(MAKE_APPLICATION_PUBLIC)}
+            </Text>
+            <TooltipComponent
+              content={
+                <TooltipWrapper className="text-center">
+                  {createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
+                </TooltipWrapper>
+              }
+              position={PopoverPosition.TOP_RIGHT}
+            >
+              <Icon
+                className="pl-1"
+                fillColor={Colors.GRAY2}
+                name="question-fill"
+                size={IconSize.XL}
+              />
+            </TooltipComponent>
+            <ShareToggle className="ml-4 t--share-public-toggle">
+              {currentApplicationDetails && (
+                <Toggle
+                  disabled={isChangingViewAccess || isFetchingApplication}
+                  isLoading={isChangingViewAccess || isFetchingApplication}
+                  onToggle={() => {
+                    changeAppViewAccess(
+                      applicationId,
+                      !currentApplicationDetails.isPublic,
+                    );
+                  }}
+                  value={currentApplicationDetails.isPublic}
+                />
+              )}
+            </ShareToggle>
+          </div>
+        )}
+      </BottomContainer>
     </>
   );
 }
@@ -149,11 +183,6 @@ export default connect(
         },
       }),
     fetchCurrentWorkspace: (workspaceId: string) =>
-      dispatch({
-        type: ReduxActionTypes.FETCH_CURRENT_WORKSPACE,
-        payload: {
-          workspaceId,
-        },
-      }),
+      dispatch(fetchWorkspace(workspaceId)),
   }),
 )(AppInviteUsersForm);

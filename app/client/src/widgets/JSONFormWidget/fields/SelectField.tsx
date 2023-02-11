@@ -7,7 +7,11 @@ import FormContext from "../FormContext";
 import SelectComponent from "widgets/SelectWidget/component";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
-import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
+import {
+  ActionUpdateDependency,
+  BaseFieldComponentProps,
+  FieldComponentBaseProps,
+} from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
 import { isPrimitive } from "../helper";
@@ -144,6 +148,7 @@ function SelectField({
           event: {
             type: EventType.ON_OPTION_CHANGE,
           },
+          updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
     },
@@ -173,7 +178,7 @@ function SelectField({
           placeholder={schemaItem.placeholderText}
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
-          value={options[selectedOptionIndex]?.value}
+          value={options[selectedOptionIndex]?.value?.toString()}
           widgetId={fieldClassName}
           width={10}
         />

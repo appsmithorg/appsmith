@@ -12,29 +12,31 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import jakarta.mail.AuthenticationFailedException;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.NoSuchProviderException;
+import jakarta.mail.Part;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.mail.AuthenticationFailedException;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.NoSuchProviderException;
-import javax.mail.Part;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
@@ -43,6 +45,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+@Slf4j
 public class SmtpPlugin extends BasePlugin {
     private static final String BASE64_DELIMITER = ";base64,";
 
@@ -137,7 +140,7 @@ public class SmtpPlugin extends BasePlugin {
                 }
 
                 // Send the email now
-                System.out.println("Going to send the email");
+                log.debug("Going to send the email");
                 Transport.send(message);
 
                 result.setIsExecutionSuccess(true);
@@ -145,7 +148,7 @@ public class SmtpPlugin extends BasePlugin {
                 responseBody.put("message", "Sent the email successfully");
                 result.setBody(objectMapper.valueToTree(responseBody));
 
-                System.out.println("Sent the email successfully");
+                log.debug("Sent the email successfully");
             } catch (MessagingException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to send email because of error: " + e.getMessage()));
@@ -164,6 +167,7 @@ public class SmtpPlugin extends BasePlugin {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             Properties prop = new Properties();
+            prop.put("mail.transport.protocol", "smtp");
             prop.put("mail.smtp.auth", true);
             prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.host", endpoint.getHost());
@@ -185,7 +189,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Session session) {
-            System.out.println("Going to destroy email datasource");
+            log.debug("Going to destroy email datasource");
             try {
                 if (session != null && session.getTransport() != null) {
                     session.getTransport().close();
@@ -197,7 +201,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            System.out.println("Going to validate email datasource");
+            log.debug("Going to validate email datasource");
             Set<String> invalids = new HashSet<>();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -221,27 +225,27 @@ public class SmtpPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            System.out.println("Going to test email datasource");
-            Mono<Session> sessionMono = datasourceCreate(datasourceConfiguration);
-            return sessionMono.map(session -> {
-                Set<String> invalids = new HashSet<>();
-                try {
-                    Transport transport = session.getTransport();
-                    if (transport != null) {
-                        transport.connect();
-                    }
-                    return invalids;
-                } catch (NoSuchProviderException e) {
-                    invalids.add("Unable to create underlying SMTP protocol. Please contact support");
-                } catch (AuthenticationFailedException e) {
-                    invalids.add("Authentication failed with the SMTP server. Please check your username/password settings.");
-                } catch (MessagingException e) {
-                    e.printStackTrace();
-                    invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
-                }
-                return invalids;
-            }).map(DatasourceTestResult::new);
+        public Mono<DatasourceTestResult> testDatasource(Session connection) {
+            log.debug("Going to test email datasource");
+            return Mono.fromCallable(() -> {
+                        Set<String> invalids = new HashSet<>();
+                        try {
+                            Transport transport = connection.getTransport();
+                            if (transport != null) {
+                                transport.connect();
+                            }
+                            return invalids;
+                        } catch (NoSuchProviderException e) {
+                            invalids.add("Unable to create underlying SMTP protocol. Please contact support");
+                        } catch (AuthenticationFailedException e) {
+                            invalids.add("Authentication failed with the SMTP server. Please check your username/password settings.");
+                        } catch (MessagingException e) {
+                            log.debug(e.getMessage());
+                            invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
+                        }
+                        return invalids;
+                    })
+                    .map(DatasourceTestResult::new);
         }
 
     }

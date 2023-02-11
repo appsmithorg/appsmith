@@ -1,20 +1,17 @@
 import { createSelector } from "reselect";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   ApplicationsReduxState,
   creatingApplicationMap,
-} from "reducers/uiReducers/applicationsReducer";
+} from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   ApplicationPayload,
   WorkspaceDetails,
 } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
-import { Workspaces } from "constants/workspaceConstants";
+import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import { GitApplicationMetadata } from "api/ApplicationApi";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name"],
@@ -128,6 +125,12 @@ export const getIsFetchingApplications = createSelector(
     applications.isFetchingApplications,
 );
 
+export const getIsChangingViewAccess = createSelector(
+  getApplicationsState,
+  (applications: ApplicationsReduxState): boolean =>
+    applications.isChangingViewAccess,
+);
+
 export const getIsCreatingApplication = createSelector(
   getApplicationsState,
   (applications: ApplicationsReduxState): creatingApplicationMap =>
@@ -167,6 +170,9 @@ export const getIsImportingApplication = (state: AppState) =>
 export const getWorkspaceIdForImport = (state: AppState) =>
   state.ui.applications.workspaceIdForImport;
 
+export const getPageIdForImport = (state: AppState) =>
+  state.ui.applications.pageIdForImport;
+
 export const getImportedApplication = (state: AppState) =>
   state.ui.applications.importedApplication;
 
@@ -175,10 +181,7 @@ export const getWorkspaceCreateApplication = createSelector(
   getUserApplicationsWorkspaces,
   (userWorkspaces) => {
     return userWorkspaces.filter((userWorkspace) =>
-      isPermitted(
-        userWorkspace.workspace.userPermissions || [],
-        PERMISSION_TYPE.CREATE_APPLICATION,
-      ),
+      hasCreateNewAppPermission(userWorkspace.workspace.userPermissions ?? []),
     );
   },
 );

@@ -6,31 +6,11 @@ import DividerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
         sectionName: "General",
         children: [
-          {
-            helpText: "Controls widget orientation",
-            propertyName: "orientation",
-            label: "Orientation",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Horizontal",
-                value: "horizontal",
-              },
-              {
-                label: "Vertical",
-                value: "vertical",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
           {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
@@ -54,13 +34,59 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "General",
         children: [
+          {
+            helpText: "Controls widget orientation",
+            propertyName: "orientation",
+            label: "Direction",
+            controlType: "ICON_TABS",
+            fullWidth: true,
+            options: [
+              {
+                label: "Horizontal",
+                value: "horizontal",
+              },
+              {
+                label: "Vertical",
+                value: "vertical",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Stroke",
+        children: [
+          {
+            helpText: "Controls the stroke color of divider",
+            propertyName: "dividerColor",
+            label: "Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isJSConvertible: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
           {
             helpText: "Controls the style of the divider",
             propertyName: "strokeStyle",
-            label: "Dash Style",
+            label: "Style",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -90,32 +116,21 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           {
             helpText: "Controls the thickness of divider",
             propertyName: "thickness",
-            label: "Thickness (px)",
+            label: "Thickness",
             controlType: "INPUT_TEXT",
             placeholderText: "5",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: {
               type: ValidationTypes.NUMBER,
               params: { min: 0, default: 0 },
             },
           },
-          {
-            helpText: "Controls the stroke color of divider",
-            propertyName: "dividerColor",
-            label: "Divider Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: true,
-            isJSConvertible: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
-          },
+        ],
+      },
+      {
+        sectionName: "Cap",
+        children: [
           {
             helpText: "Controls the type of divider cap",
             propertyName: "capType",
@@ -159,6 +174,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             propertyName: "capSide",
             label: "Cap Position",
             controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 icon: "DIVIDER_CAP_LEFT",

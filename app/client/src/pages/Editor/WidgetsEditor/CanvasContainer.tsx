@@ -3,9 +3,11 @@ import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
   getIsFetchingPage,
-  getCanvasWidgetDsl,
   getViewModePageList,
   previewModeSelector,
+  getCanvasWidth,
+  showCanvasTopSectionSelector,
+  getCanvasScale,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -20,11 +22,14 @@ import {
   getAppThemeIsChanging,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
-import Spinner from "components/ads/Spinner";
+import { Spinner } from "design-system-old";
 import useGoogleFont from "utils/hooks/useGoogleFont";
-import { IconSize } from "components/ads/Icon";
+import { IconSize } from "design-system-old";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
+import equal from "fast-deep-equal/es6";
+import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 
 const Container = styled.section<{
   background: string;
@@ -34,6 +39,7 @@ const Container = styled.section<{
   overflow-x: auto;
   overflow-y: auto;
   background: ${({ background }) => background};
+
   &:before {
     position: absolute;
     top: 0;
@@ -48,7 +54,8 @@ function CanvasContainer() {
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
-  const widgets = useSelector(getCanvasWidgetDsl);
+  const canvasWidth = useSelector(getCanvasWidth);
+  const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -56,6 +63,8 @@ function CanvasContainer() {
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
+  const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
+  const canvasScale = useSelector(getCanvasScale);
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -68,19 +77,26 @@ function CanvasContainer() {
 
   const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
 
+  let node: ReactNode;
   const pageLoading = (
     <Centered>
       <Spinner />
     </Centered>
   );
-  let node: ReactNode;
 
   if (isPageInitializing) {
     node = pageLoading;
   }
 
-  if (!isPageInitializing && widgets) {
-    node = <Canvas dsl={widgets} pageId={params.pageId} />;
+  if (!isPageInitializing && widgetsStructure) {
+    node = (
+      <Canvas
+        canvasScale={canvasScale}
+        canvasWidth={canvasWidth}
+        pageId={params.pageId}
+        widgetsStructure={widgetsStructure}
+      />
+    );
   }
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
@@ -95,14 +111,20 @@ function CanvasContainer() {
       className={classNames({
         [`${getCanvasClassName()} scrollbar-thin`]: true,
         "mt-0": !shouldHaveTopMargin,
-        "mt-8": shouldHaveTopMargin,
+        "mt-4": showCanvasTopSection,
+        "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
       })}
+      id={"canvas-viewport"}
       key={currentPageId}
       style={{
         height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
         fontFamily: fontFamily,
       }}
     >
+      <WidgetGlobaStyles
+        fontFamily={selectedTheme.properties.fontFamily.appFont}
+        primaryColor={selectedTheme.properties.colors.primaryColor}
+      />
       {isAppThemeChanging && (
         <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
           <Spinner size={IconSize.XXL} />

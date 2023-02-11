@@ -10,20 +10,25 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import WidgetFactory from "utils/WidgetFactory";
-import { CurlIconV2, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import {
+  CurlIconV2,
+  JsFileIconV2,
+  GraphQLIconV2,
+} from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
-import { isMac, modText, shiftText } from "utils/helpers";
+import { isMacOrIOS, modText, shiftText } from "utils/helpers";
+import { FocusEntity } from "navigation/FocusEntity";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -32,9 +37,9 @@ export type SelectEvent =
   | null;
 
 export type RecentEntity = {
-  type: string;
+  type: FocusEntity;
   id: string;
-  params?: Record<string, string | undefined>;
+  pageId: string;
 };
 
 export enum SEARCH_CATEGORY_ID {
@@ -77,7 +82,7 @@ export const comboHelpText = {
   [SEARCH_CATEGORY_ID.INIT]: <>{modText()} K</>,
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
     <>
-      {modText()} {shiftText()} {isMac() ? "+" : "Plus"}
+      {modText()} {shiftText()} {isMacOrIOS() ? "+" : "Plus"}
     </>
   ),
 };
@@ -346,11 +351,20 @@ export const actionOperations: ActionOperation[] = [
       createNewApiAction(pageId, location),
   },
   {
+    title: "New Blank GraphQL API",
+    desc: "Create a new API",
+    icon: <GraphQLIconV2 />,
+    kind: SEARCH_ITEM_TYPES.actionOperation,
+    action: (pageId: string, location: EventLocation) =>
+      createNewApiAction(pageId, location, PluginPackageName.GRAPHQL),
+  },
+  {
     title: "New JS Object",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2,
-    action: (pageId: string) => createNewJSCollection(pageId),
+    action: (pageId: string, from: EventLocation) =>
+      createNewJSCollection(pageId, from),
   },
   {
     title: "New cURL Import",

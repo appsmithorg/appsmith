@@ -1,23 +1,33 @@
 import React, { useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  PanelConfig,
-  PropertyPaneConfig,
-  PropertyPaneControlConfig,
-  PropertyPaneSectionConfig,
-} from "constants/PropertyControlConstants";
-import { generatePropertyControl } from "./Generator";
+import { PanelConfig } from "constants/PropertyControlConstants";
+import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import PropertyPaneTitle from "../PropertyPaneTitle";
-import { BindingText } from "../APIEditor/Form";
-import QuestionIcon from "remixicon-react/QuestionLineIcon";
+import PropertyPaneTitle from "./PropertyPaneTitle";
+import { PropertyPaneTab } from "./PropertyPaneTab";
+import styled from "styled-components";
+import { updateConfigPaths, useSearchText } from "./helpers";
+import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
+import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
+import { unsetSelectedPropertyPanel } from "actions/propertyPaneActions";
+
+const PanelWrapper = styled.div`
+  margin-top: 44px;
+  display: flex;
+  flex-flow: column;
+`;
 
 function PanelHeader(props: PanelHeaderProps) {
+  const dispatch = useDispatch();
+  const onBackClick = () => {
+    dispatch(unsetSelectedPropertyPanel(props.parentPropertyPath));
+    props.closePanel();
+  };
   return (
     <div
       onClick={(e: any) => {
@@ -25,46 +35,15 @@ function PanelHeader(props: PanelHeaderProps) {
       }}
     >
       <PropertyPaneTitle
-        actions={[
-          {
-            tooltipContent: (
-              <div>
-                <span>You can connect data from your API by adding </span>
-                <BindingText>{`{{apiName.data}}`}</BindingText>
-                <span> to a widget property</span>
-              </div>
-            ),
-            icon: <QuestionIcon className="w-4 h-4 text-gray-500" />,
-            tooltipPosition: "bottom-right",
-          },
-        ]}
+        actions={[]}
         isPanelTitle
-        onBackClick={props.closePanel}
+        onBackClick={onBackClick}
         title={props.title}
         updatePropertyTitle={props.updatePropertyTitle}
       />
     </div>
   );
 }
-
-const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
-  return config.map((_childConfig) => {
-    const childConfig = Object.assign({}, _childConfig);
-    // TODO(abhinav): Figure out a better way to differentiate between section and control
-    if (
-      (childConfig as PropertyPaneSectionConfig).sectionName &&
-      childConfig.children
-    ) {
-      (childConfig as PropertyPaneSectionConfig).propertySectionPath = basePath;
-      childConfig.children = updateConfigPaths(childConfig.children, basePath);
-    } else {
-      (childConfig as PropertyPaneControlConfig).propertyName = `${basePath}.${
-        (childConfig as PropertyPaneControlConfig).propertyName
-      }`;
-    }
-    return childConfig;
-  });
-};
 
 export function PanelPropertiesEditor(
   props: PanelPropertiesEditorProps &
@@ -103,7 +82,7 @@ export function PanelPropertiesEditor(
   }, [widgetProperties, panelParentPropertyPath, panelProps, panelConfig]);
 
   const panelConfigs = useMemo(() => {
-    if (currentIndex !== undefined) {
+    if (currentIndex !== undefined && panelConfig.children) {
       let path: string | undefined = undefined;
       if (isString(currentIndex)) {
         path = `${panelParentPropertyPath}.${currentIndex}`;
@@ -114,6 +93,34 @@ export function PanelPropertiesEditor(
       return path ? updateConfigPaths(configChildren, path) : configChildren;
     }
   }, [currentIndex, panelConfig, panelParentPropertyPath]);
+
+  const panelConfigsWithStyleAndContent = useMemo(() => {
+    if (
+      currentIndex !== undefined &&
+      panelConfig.contentChildren &&
+      panelConfig.styleChildren
+    ) {
+      let path: string | undefined = undefined;
+      if (isString(currentIndex)) {
+        path = `${panelParentPropertyPath}.${currentIndex}`;
+      } else if (isNumber(currentIndex)) {
+        path = `${panelParentPropertyPath}[${currentIndex}]`;
+      }
+      const contentChildren = [...panelConfig.contentChildren];
+      const styleChildren = [...panelConfig.styleChildren];
+      const searchConfig = [...(panelConfig.searchConfig || [])];
+      return {
+        content: path
+          ? updateConfigPaths(contentChildren, path)
+          : contentChildren,
+        style: path ? updateConfigPaths(styleChildren, path) : styleChildren,
+        searchConfig: path
+          ? updateConfigPaths(searchConfig, path)
+          : searchConfig,
+      };
+    }
+  }, [currentIndex, panelConfig, panelParentPropertyPath]);
+
   const panel = useMemo(
     () => ({
       openPanel: props.openPanel,
@@ -123,10 +130,27 @@ export function PanelPropertiesEditor(
   );
 
   useEffect(() => {
-    if (panelProps.propPaneId !== widgetProperties.widgetId) {
+    if (panelProps.propPaneId !== widgetProperties?.widgetId) {
       props.closePanel();
     }
-  }, [widgetProperties.widgetId]);
+  }, [widgetProperties?.widgetId]);
+
+  const { searchText, setSearchText } = useSearchText("");
+
+  /**
+   * Analytics for property pane Search
+   */
+  useEffect(() => {
+    const searchPath = `${panelParentPropertyPath}.${
+      panelProps[panelConfig.panelIdPropertyName]
+    }`;
+    sendPropertyPaneSearchAnalytics({
+      widgetType: widgetProperties?.type,
+      searchText,
+      widgetName: widgetProperties?.widgetName,
+      searchPath,
+    });
+  }, [searchText]);
 
   if (!widgetProperties) return null;
   const updatePropertyTitle = (title: string) => {
@@ -156,24 +180,93 @@ export function PanelPropertiesEditor(
       }
     }
   };
+
+  const parentPropertyPath = `${
+    widgetProperties ? `${widgetProperties.widgetName}.` : ""
+  }${panelParentPropertyPath}`;
+
+  const panelPropertyPath = `${parentPropertyPath}.${
+    panelProps[panelConfig.titlePropertyName]
+  }`;
+
   return (
-    <div className="relative flex flex-col w-full pt-3 overflow-y-auto">
+    <div className="w-full overflow-y-scroll h-full">
       <PanelHeader
         closePanel={closePanel}
         isEditable={panelConfig.editableTitle}
+        parentPropertyPath={parentPropertyPath}
         propertyName={panelConfig.titlePropertyName}
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      <div className="p-3 pb-24 overflow-y-scroll">
-        {panelConfigs &&
-          generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-            id: widgetProperties.widgetId,
-            type: widgetProperties.type,
-            panel,
-            theme,
-          })}
-      </div>
+      {panelConfigsWithStyleAndContent?.content ||
+      panelConfigsWithStyleAndContent?.style ? (
+        <>
+          <PropertyPaneSearchInput isPanel onTextChange={setSearchText} />
+          {searchText.length > 0 ? (
+            <PanelWrapper>
+              <PropertyControlsGenerator
+                config={panelConfigsWithStyleAndContent.searchConfig}
+                id={widgetProperties.widgetId}
+                panel={panel}
+                panelPropertyPath={panelPropertyPath}
+                searchQuery={searchText}
+                theme={theme}
+                type={widgetProperties.type}
+              />
+            </PanelWrapper>
+          ) : (
+            <PropertyPaneTab
+              contentComponent={
+                panelConfigsWithStyleAndContent?.content.length > 0 ? (
+                  <PanelWrapper>
+                    <PropertyControlsGenerator
+                      config={panelConfigsWithStyleAndContent.content}
+                      id={widgetProperties.widgetId}
+                      isPanelProperty
+                      panel={panel}
+                      panelPropertyPath={panelPropertyPath}
+                      theme={theme}
+                      type={widgetProperties.type}
+                    />
+                  </PanelWrapper>
+                ) : null
+              }
+              isPanelProperty
+              panelPropertyPath={panelPropertyPath}
+              styleComponent={
+                panelConfigsWithStyleAndContent.style.length > 0 ? (
+                  <PanelWrapper>
+                    <PropertyControlsGenerator
+                      config={panelConfigsWithStyleAndContent.style}
+                      id={widgetProperties.widgetId}
+                      isPanelProperty
+                      panel={panel}
+                      panelPropertyPath={panelPropertyPath}
+                      theme={theme}
+                      type={widgetProperties.type}
+                    />
+                  </PanelWrapper>
+                ) : null
+              }
+            />
+          )}
+        </>
+      ) : (
+        panelConfigs && (
+          <PanelWrapper>
+            <PropertyControlsGenerator
+              config={panelConfigs}
+              id={widgetProperties.widgetId}
+              isPanelProperty
+              panel={panel}
+              panelPropertyPath={panelPropertyPath}
+              theme={theme}
+              type={widgetProperties.type}
+            />
+          </PanelWrapper>
+        )
+      )}
     </div>
   );
 }
@@ -192,6 +285,7 @@ interface PanelPropertiesEditorPanelProps {
 interface PanelHeaderProps {
   isEditable: boolean;
   widgetProperties?: WidgetProps;
+  parentPropertyPath: string;
   title: string;
   closePanel: () => void;
   propertyName: string;

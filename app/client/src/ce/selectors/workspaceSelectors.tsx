@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
-import { AppState } from "reducers";
-import { WorkspaceRole } from "constants/workspaceConstants";
+import { AppState } from "@appsmith/reducers";
+import { WorkspaceRole } from "@appsmith/constants/workspaceConstants";
 
 export const getRolesFromState = (state: AppState) => {
   return state.ui.workspaces.roles;
@@ -48,11 +48,11 @@ export const getRoles = createSelector(
 );
 
 export const getRolesForField = createSelector(getAllRoles, (roles?: any) => {
-  return Object.entries(roles).map((role) => {
+  return roles.map((role: any) => {
     return {
-      id: role[0],
-      name: role[0],
-      description: role[1],
+      id: role.id,
+      name: role.name,
+      description: role.description,
     };
   });
 });
@@ -63,10 +63,7 @@ export const getDefaultRole = createSelector(
     return roles?.find((role) => role.isDefault);
   },
 );
+
 export const getCurrentError = (state: AppState) => {
   return state.ui.errors.currentError;
-};
-
-export const getShowBrandingBadge = () => {
-  return true;
 };

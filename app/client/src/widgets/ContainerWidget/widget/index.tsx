@@ -1,24 +1,26 @@
 import React from "react";
 
-import ContainerComponent, { ContainerStyle } from "../component";
-import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import ContainerComponent, { ContainerStyle } from "../component";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
-import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { compact, map, sortBy } from "lodash";
+import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { Stylesheet } from "entities/AppTheming";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -29,7 +31,7 @@ class ContainerWidget extends BaseWidget<
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
 
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
         sectionName: "General",
@@ -45,6 +47,14 @@ class ContainerWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            helpText: "Enables scrolling for content inside the widget",
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "animateLoading",
             label: "Animate Loading",
             controlType: "SWITCH",
@@ -55,18 +65,15 @@ class ContainerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          {
-            helpText: "Enables scrolling for content inside the widget",
-            propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             helpText: "Use a html color name, HEX, RGB or RGBA value",
@@ -89,6 +96,11 @@ class ContainerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             helpText: "Enter value for border width",
             propertyName: "borderWidth",
@@ -136,6 +148,13 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
@@ -162,25 +181,21 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
-      return null;
-    }
+    const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
-    childWidgetData.rightColumn = componentWidth;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
+    childWidget.rightColumn = componentWidth;
+    childWidget.bottomRow = this.props.shouldScrollContents
+      ? childWidget.bottomRow
       : componentHeight;
-    childWidgetData.minHeight = componentHeight;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
+    childWidget.minHeight = componentHeight;
+    childWidget.shouldScrollContents = false;
+    childWidget.canExtend = this.props.shouldScrollContents;
 
-    childWidgetData.parentId = this.props.widgetId;
+    childWidget.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 
   renderChildren = () => {
@@ -194,36 +209,40 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    const snapRows = getCanvasSnapRows(props.bottomRow);
+
     return (
       <ContainerComponent {...props}>
-        {props.type === "CANVAS_WIDGET" && (
-          <>
-            <CanvasDraggingArena
-              {...this.getSnapSpaces()}
-              canExtend={props.canExtend}
-              dropDisabled={!!props.dropDisabled}
-              noPad={this.props.noPad}
-              parentId={props.parentId}
-              snapRows={snapRows}
-              widgetId={props.widgetId}
-            />
-            <CanvasSelectionArena
-              {...this.getSnapSpaces()}
-              canExtend={props.canExtend}
-              dropDisabled={!!props.dropDisabled}
-              parentId={props.parentId}
-              snapRows={snapRows}
-              widgetId={props.widgetId}
-            />
-          </>
-        )}
-        <WidgetsMultiSelectBox
-          {...this.getSnapSpaces()}
-          noContainerOffset={!!props.noContainerOffset}
-          widgetId={this.props.widgetId}
-          widgetType={this.props.type}
-        />
+        {props.type === "CANVAS_WIDGET" &&
+          props.renderMode === RenderModes.CANVAS && (
+            <>
+              <CanvasDraggingArena
+                {...this.getSnapSpaces()}
+                canExtend={props.canExtend}
+                dropDisabled={!!props.dropDisabled}
+                noPad={this.props.noPad}
+                parentId={props.parentId}
+                snapRows={snapRows}
+                widgetId={props.widgetId}
+              />
+              <CanvasSelectionArena
+                {...this.getSnapSpaces()}
+                canExtend={props.canExtend}
+                dropDisabled={!!props.dropDisabled}
+                parentId={props.parentId}
+                snapRows={snapRows}
+                widgetId={props.widgetId}
+              />
+
+              <WidgetsMultiSelectBox
+                {...this.getSnapSpaces()}
+                noContainerOffset={!!props.noContainerOffset}
+                widgetId={this.props.widgetId}
+                widgetType={this.props.type}
+              />
+            </>
+          )}
+
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

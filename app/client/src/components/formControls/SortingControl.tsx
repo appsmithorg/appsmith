@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import FormControl from "pages/Editor/FormControl";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system-old";
 import styled, { css } from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
@@ -200,7 +200,7 @@ function SortingComponent(props: any) {
               <CenteredIcon
                 cypressSelector={`t--sorting-delete-[${index}]`}
                 name="cross"
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   onDeletePressed(index);
                 }}

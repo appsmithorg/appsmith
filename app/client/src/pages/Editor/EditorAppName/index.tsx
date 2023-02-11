@@ -1,41 +1,40 @@
 import React, { useState, useCallback } from "react";
 
-import styled, { withTheme } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { Classes, Menu, Position } from "@blueprintjs/core";
 import { Classes as Popover2Classes, Popover2 } from "@blueprintjs/popover2";
 import { noop } from "lodash";
-
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
-import Icon, { IconSize } from "components/ads/Icon";
-import { SavingState } from "components/ads/EditableTextSubComponent";
-import { EditInteractionKind } from "components/ads/EditableText";
-import { CommonComponentProps, ThemeProp } from "components/ads/common";
-import { getTypographyByKey } from "constants/DefaultTheme";
-
+import {
+  CommonComponentProps,
+  EditInteractionKind,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  SavingState,
+  Toaster,
+  Variant,
+} from "design-system-old";
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
+import { Theme } from "constants/DefaultTheme";
 
-type EditorAppNameProps = CommonComponentProps &
-  ThemeProp & {
-    applicationId: string | undefined;
-    defaultValue: string;
-    placeholder?: string;
-    editInteractionKind: EditInteractionKind;
-    defaultSavingState: SavingState;
-    deploy: typeof noop;
-    onBlur?: (value: string) => void;
-    isEditingDefault?: boolean;
-    inputValidation?: (value: string) => string | boolean;
-    hideEditIcon?: boolean;
-    fill?: boolean;
-    isError?: boolean;
-    isNewApp: boolean;
-    currentDeployLink: string;
-    isPopoverOpen: boolean;
-    setIsPopoverOpen: typeof noop;
-  };
+type EditorAppNameProps = CommonComponentProps & {
+  applicationId: string | undefined;
+  defaultValue: string;
+  placeholder?: string;
+  editInteractionKind: EditInteractionKind;
+  defaultSavingState: SavingState;
+  onBlur?: (value: string) => void;
+  isEditingDefault?: boolean;
+  inputValidation?: (value: string) => string | boolean;
+  hideEditIcon?: boolean;
+  fill?: boolean;
+  isError?: boolean;
+  isNewApp: boolean;
+  isPopoverOpen: boolean;
+  setIsPopoverOpen: typeof noop;
+};
 
 const Container = styled.div<{ isPopoverOpen: boolean }>`
   display: flex;
@@ -68,7 +67,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
   }
   &&&& .${Classes.EDITABLE_TEXT_CONTENT}, &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     display: block;
-    ${(props) => getTypographyByKey(props, "h4")};
+    ${getTypographyByKey("h5")};
     line-height: ${(props) => props.theme.smallHeaderHeight} !important;
     padding: 0 ${(props) => props.theme.spaces[2]}px;
   }
@@ -87,7 +86,7 @@ const StyledMenu = styled(Menu)`
   background: ${(props) =>
     props.theme.colors.navigationMenu.backgroundInactive};
   color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   border-radius: 0;
   padding: 0;
 
@@ -129,15 +128,14 @@ const StyledMenu = styled(Menu)`
 
 export function EditorAppName(props: EditorAppNameProps) {
   const {
-    currentDeployLink,
     defaultSavingState,
     defaultValue,
-    deploy,
     isNewApp,
     isPopoverOpen,
     setIsPopoverOpen,
-    theme,
   } = props;
+
+  const theme = useTheme() as Theme;
 
   const [isEditingDefault, setIsEditingDefault] = useState(isNewApp);
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
@@ -187,9 +185,7 @@ export function EditorAppName(props: EditorAppNameProps) {
   }, []);
 
   const NavigationMenuData = GetNavigationMenuData({
-    currentDeployLink,
     editMode,
-    deploy,
     theme,
   });
 
@@ -236,7 +232,7 @@ export function EditorAppName(props: EditorAppNameProps) {
           <StyledIcon
             fillColor={theme.colors.navigationMenu.contentActive}
             name={isPopoverOpen ? "expand-less" : "down-arrow"}
-            size={IconSize.XXL}
+            size={IconSize.LARGE}
           />
         )}
       </Container>
@@ -244,4 +240,4 @@ export function EditorAppName(props: EditorAppNameProps) {
   ) : null;
 }
 
-export default withTheme(EditorAppName);
+export default EditorAppName;

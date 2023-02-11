@@ -7,7 +7,7 @@ import {
   PaginationItemWrapper,
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
-import SearchComponent from "components/designSystems/appsmith/SearchComponent";
+import { SearchComponent } from "design-system-old";
 import TableFilters from "./TableFilters";
 import {
   ReactTableColumnProps,

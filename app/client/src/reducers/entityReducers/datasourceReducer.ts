@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -9,12 +9,12 @@ import {
   DatasourceStructure,
   MockDatasource,
 } from "entities/Datasource";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export interface DatasourceDataState {
   list: Datasource[];
   loading: boolean;
   isTesting: boolean;
-  isDeleting: boolean;
   isListing: boolean; // fetching unconfigured datasource list
   fetchingDatasourceStructure: boolean;
   isRefreshingStructure: boolean;
@@ -24,13 +24,14 @@ export interface DatasourceDataState {
   executingDatasourceQuery: boolean;
   isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
   unconfiguredList: Datasource[];
+  isDatasourceBeingSaved: boolean;
+  isDatasourceBeingSavedFromPopup: boolean;
 }
 
 const initialState: DatasourceDataState = {
   list: [],
   loading: false,
   isTesting: false,
-  isDeleting: false,
   isListing: false,
   fetchingDatasourceStructure: false,
   isRefreshingStructure: false,
@@ -40,6 +41,8 @@ const initialState: DatasourceDataState = {
   executingDatasourceQuery: false,
   isReconnectingModalOpen: false,
   unconfiguredList: [],
+  isDatasourceBeingSaved: false,
+  isDatasourceBeingSavedFromPopup: false,
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -97,8 +100,20 @@ const datasourceReducer = createReducer(initialState, {
   [ReduxActionTypes.TEST_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, isTesting: true };
   },
-  [ReduxActionTypes.DELETE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
-    return { ...state, isDeleting: true };
+  [ReduxActionTypes.DELETE_DATASOURCE_INIT]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ) => {
+    return {
+      ...state,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, isDeleting: true };
+        }
+
+        return datasource;
+      }),
+    };
   },
   [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]: (
     state: DatasourceDataState,
@@ -204,7 +219,6 @@ const datasourceReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      isDeleting: false,
       list: state.list.filter(
         (datasource) => datasource.id !== action.payload.id,
       ),
@@ -212,10 +226,17 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DELETE_DATASOURCE_CANCELLED]: (
     state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
   ) => {
     return {
       ...state,
-      isDeleting: false,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, isDeleting: false };
+        }
+
+        return datasource;
+      }),
     };
   },
   [ReduxActionTypes.CREATE_DATASOURCE_SUCCESS]: (
@@ -226,6 +247,8 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       loading: false,
       list: state.list.concat(action.payload),
+      isDatasourceBeingSaved: false,
+      isDatasourceBeingSavedFromPopup: false,
     };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
@@ -266,6 +289,21 @@ const datasourceReducer = createReducer(initialState, {
       }),
     };
   },
+  [ReduxActionTypes.SAVE_DATASOURCE_NAME]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ id: string; name: string }>,
+  ) => {
+    const list = state.list.map((datasource) => {
+      if (datasource.id === action.payload.id) {
+        return { ...datasource, name: action.payload.name };
+      }
+      return datasource;
+    });
+    return {
+      ...state,
+      list: list,
+    };
+  },
   [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
@@ -286,12 +324,24 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       loading: false,
+      isDatasourceBeingSaved: false,
+      isDatasourceBeingSavedFromPopup: false,
     };
   },
   [ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR]: (
     state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
   ) => {
-    return { ...state, isDeleting: false };
+    return {
+      ...state,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, isDeleting: false };
+        }
+
+        return datasource;
+      }),
+    };
   },
   [ReduxActionErrorTypes.TEST_DATASOURCE_ERROR]: (
     state: DatasourceDataState,
@@ -377,6 +427,32 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       isListing: true,
       unconfiguredList: [],
+    };
+  },
+  [ReduxActionTypes.REMOVE_TEMP_DATASOURCE_SUCCESS]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      isDeleting: false,
+      list: state.list.filter(
+        (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
+      ),
+    };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_SAVE_ACTION_FLAG]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ isDSSaved: boolean }>,
+  ) => {
+    return { ...state, isDatasourceBeingSaved: action.payload.isDSSaved };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_SAVE_ACTION_FROM_POPUP_FLAG]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ isDSSavedFromPopup: boolean }>,
+  ) => {
+    return {
+      ...state,
+      isDatasourceBeingSavedFromPopup: action.payload.isDSSavedFromPopup,
     };
   },
 });

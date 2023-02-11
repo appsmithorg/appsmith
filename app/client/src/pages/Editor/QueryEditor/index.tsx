@@ -13,12 +13,12 @@ import {
   UpdateActionPropertyActionPayload,
   setActionProperty,
 } from "actions/pluginActionActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { Datasource } from "entities/Datasource";
 import {
@@ -30,25 +30,26 @@ import {
   getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { QueryAction, QueryActionConfig, SaaSAction } from "entities/Action";
+import { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { changeQuery } from "actions/queryPaneActions";
+import {
+  changeQuery,
+  setQueryPaneResponsePaneHeight,
+} from "actions/queryPaneActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  initFormEvaluations,
-  startFormEvaluations,
-} from "actions/evaluationActions";
+import { initFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "./helpers";
 import { diff, Diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { integrationEditorURL } from "RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { isArray, merge } from "lodash";
+import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
+import { ActionExecutionResizerHeight } from "../APIEditor/constants";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -64,14 +65,6 @@ type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   changeQueryPage: (queryId: string) => void;
-  runFormEvaluation: (
-    formId: string,
-    formData: QueryActionConfig,
-    datasourceId: string,
-    pluginId: string,
-    actionDiffPath?: string,
-    hasRouteChanged?: boolean,
-  ) => void;
   initFormEvaluation: (
     editorConfig: any,
     settingConfig: any,
@@ -87,6 +80,7 @@ type ReduxDispatchProps = {
     propertyName: string,
     value: string,
   ) => void;
+  setQueryPaneResponsePaneHeight: (height: number) => void;
 };
 
 type ReduxStateProps = {
@@ -165,6 +159,9 @@ class QueryEditor extends React.Component<Props> {
       dataSourceSize: dataSources.length,
     });
     this.props.runAction(this.props.actionId);
+
+    // reset response pane height back to original
+    this.props.setQueryPaneResponsePaneHeight(ActionExecutionResizerHeight);
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -173,28 +170,6 @@ class QueryEditor extends React.Component<Props> {
         PerformanceTransactionName.RUN_QUERY_CLICK,
       );
     }
-
-    const formDataDiff = diff(prevProps.formData, this.props.formData);
-
-    // actionDiffPath is the path of the form input which was changed by the user.
-    let actionDiffPath = "";
-    // hasRouteChanged tells us if the redux form state has changed (this usually happens when we route to another action.)
-    let hasRouteChanged = false;
-
-    // we compare the id of the formData, if the id's don't match, the formData has been changed, hence the route has changed.
-    if (prevProps?.formData?.id !== this.props?.formData?.id) {
-      hasRouteChanged = true;
-    }
-
-    if (
-      formDataDiff &&
-      !!formDataDiff[0] &&
-      "path" in formDataDiff[0] &&
-      isArray(formDataDiff[0].path)
-    ) {
-      actionDiffPath = formDataDiff[0].path.join(".");
-    }
-
     // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
     // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.
@@ -203,25 +178,6 @@ class QueryEditor extends React.Component<Props> {
       prevProps.pluginId !== this.props.pluginId
     ) {
       this.props.changeQueryPage(this.props.actionId);
-    }
-    // If statement to debounce and track changes in the formData to update evaluations
-    if (
-      this.props.uiComponent === UIComponentTypes.UQIDbEditorForm &&
-      !!this.props.formData &&
-      (!prevProps.formData ||
-        (this.props.formData.hasOwnProperty("actionConfiguration") &&
-          !!prevProps.formData &&
-          prevProps.formData.hasOwnProperty("actionConfiguration") &&
-          !!formDataDiff))
-    ) {
-      this.props.runFormEvaluation(
-        this.props.formData.id,
-        this.props.formData.actionConfiguration,
-        this.props.formData.datasource.id,
-        this.props.formData.pluginId,
-        actionDiffPath,
-        hasRouteChanged,
-      );
     }
   }
 
@@ -387,25 +343,6 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   changeQueryPage: (queryId: string) => {
     dispatch(changeQuery(queryId));
   },
-  runFormEvaluation: (
-    formId: string,
-    formData: QueryActionConfig,
-    datasourceId: string,
-    pluginId: string,
-    actionDiffPath?: string,
-    hasRouteChanged?: boolean,
-  ) => {
-    dispatch(
-      startFormEvaluations(
-        formId,
-        formData,
-        datasourceId,
-        pluginId,
-        actionDiffPath,
-        hasRouteChanged,
-      ),
-    );
-  },
   initFormEvaluation: (
     editorConfig: any,
     settingsConfig: any,
@@ -426,6 +363,9 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
     value: string,
   ) => {
     dispatch(setActionProperty({ actionId, propertyName, value }));
+  },
+  setQueryPaneResponsePaneHeight: (height) => {
+    dispatch(setQueryPaneResponsePaneHeight(height));
   },
 });
 

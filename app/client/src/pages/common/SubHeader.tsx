@@ -3,8 +3,7 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import _, { noop } from "lodash";
-import SearchInput, { SearchVariant } from "components/ads/SearchInput";
-import Button, { Size } from "components/ads/Button";
+import { Button, SearchInput, SearchVariant, Size } from "design-system-old";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
@@ -12,15 +11,18 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 const SubHeaderWrapper = styled.div<{
   isMobile?: boolean;
+  isBannerVisible?: boolean;
 }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
   display: flex;
   justify-content: space-between;
-
+  ${(props) =>
+    props.isBannerVisible
+      ? "margin-top: 96px"
+      : `margin-top: ${props.theme.spaces[11]}px`};
   background: ${(props) => props.theme.colors.homepageBackground};
   z-index: ${Indices.Layer9};
   margin-left: ${(props) => props.theme.spaces[4]}px;
-  margin-top: ${(props) => props.theme.spaces[11]}px;
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
   ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
 `;
@@ -53,6 +55,7 @@ type SubHeaderProps = {
     queryFn?: (keyword: string) => void;
     defaultValue?: string;
   };
+  isBannerVisible?: boolean;
 };
 
 export function ApplicationsSubHeader(props: SubHeaderProps) {
@@ -67,7 +70,10 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
   );
 
   return (
-    <SubHeaderWrapper isMobile={isMobile}>
+    <SubHeaderWrapper
+      isBannerVisible={props.isBannerVisible}
+      isMobile={isMobile}
+    >
       <SearchContainer>
         {props.search && (
           <ControlGroup>

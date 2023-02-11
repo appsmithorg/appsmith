@@ -9,13 +9,15 @@ import {
   FontStyleTypes,
   TextSize,
 } from "constants/WidgetConstants";
-import Icon, { IconSize } from "components/ads/Icon";
-import { isEqual, get } from "lodash";
+import { Icon, IconSize } from "design-system-old";
+import { get } from "lodash";
+import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Color, Colors } from "constants/Colors";
 import FontLoader from "./FontLoader";
 import { fontSizeUtility } from "widgets/WidgetUtils";
 import { OverflowTypes } from "../constants";
+import LinkFilter from "./filters/LinkFilter";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -94,7 +96,7 @@ const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
     props.backgroundColor ? props.backgroundColor : "transparent"};
 `;
 
-export const StyledText = styled(Text)<{
+type StyledTextProps = React.PropsWithChildren<{
   overflow: OverflowTypes;
   isTruncated: boolean;
   textAlign: string;
@@ -102,7 +104,9 @@ export const StyledText = styled(Text)<{
   textColor?: string;
   fontStyle?: string;
   fontSize?: TextSize;
-}>`
+}>;
+
+export const StyledText = styled(Text)<StyledTextProps>`
   height: ${(props) =>
     props.overflow === OverflowTypes.TRUNCATE
       ? `calc(100% - ${ELLIPSIS_HEIGHT}px)`
@@ -114,7 +118,10 @@ export const StyledText = styled(Text)<{
       ? "hidden"
       : "auto"};
   text-overflow: ellipsis;
-  text-align: ${(props) => props.textAlign.toLowerCase()};
+  && div {
+    display: block;
+    width: 100%;
+  }
   display: flex;
   width: 100%;
   justify-content: flex-start;
@@ -139,6 +146,7 @@ export const StyledText = styled(Text)<{
     width: 100%;
     line-height: 1.2;
     white-space: pre-wrap;
+    text-align: ${(props) => props.textAlign.toLowerCase()};
   }
 `;
 
@@ -188,6 +196,7 @@ const Content = styled.div<{
     fontSizeUtility(fontSize) || DEFAULT_FONT_SIZE};
 `;
 export interface TextComponentProps extends ComponentProps {
+  accentColor: string;
   text?: string;
   textAlign: TextAlign;
   ellipsize?: boolean;
@@ -242,7 +251,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   };
 
   componentDidUpdate = (prevProps: TextComponentProps) => {
-    if (!isEqual(prevProps, this.props)) {
+    if (!equal(prevProps, this.props)) {
       if (this.props.overflow === OverflowTypes.TRUNCATE) {
         const textRef = get(this.textRef, "current.textRef");
         if (textRef) {
@@ -268,6 +277,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   render() {
     const {
+      accentColor,
       backgroundColor,
       disableLink,
       ellipsize,
@@ -298,6 +308,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             >
               <Interweave
                 content={text}
+                filters={[new LinkFilter()]}
                 matchers={
                   disableLink
                     ? []
@@ -310,7 +321,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               <StyledIcon
                 backgroundColor={backgroundColor}
                 className="t--widget-textwidget-truncate"
-                fillColor={truncateButtonColor}
+                fillColor={truncateButtonColor || accentColor}
                 name="context-menu"
                 onClick={this.handleModelOpen}
                 size={IconSize.XXXL}
@@ -347,6 +358,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             >
               <Interweave
                 content={text}
+                filters={[new LinkFilter()]}
                 matchers={
                   disableLink
                     ? []

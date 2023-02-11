@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.PEMCertificate;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
@@ -19,12 +21,10 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -40,15 +40,15 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,7 +59,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -81,7 +81,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 public class ExamplesWorkspaceClonerTests {
@@ -167,7 +167,7 @@ public class ExamplesWorkspaceClonerTests {
                 .thenReturn(data);
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
@@ -404,7 +404,7 @@ public class ExamplesWorkspaceClonerTests {
                                 app.setName(originalName);
                                 return app;
                             })
-                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(workspaceId, Flux.fromArray(new Application[]{ app })))
+                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(workspaceId, Flux.fromArray(new Application[]{app})))
                             .then();
                     // Clone this application into the same workspace thrice.
                     return cloneMono
@@ -715,16 +715,17 @@ public class ExamplesWorkspaceClonerTests {
                 .flatMap(page -> {
                     newPageAction.setPageId(page.getId());
                     return applicationPageService.addPageToApplication(app, page, false)
-                            .then(layoutActionService.createSingleAction(newPageAction))
+                            .then(layoutActionService.createSingleAction(newPageAction, Boolean.FALSE))
                             .flatMap(savedAction -> layoutActionService.updateSingleAction(savedAction.getId(), savedAction))
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction))
                             .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
                 })
                 .map(tuple2 -> {
                     log.info("Created action and added page to app {}", tuple2);
                     return tuple2;
                 }).block();
-        layoutActionService.createSingleAction(action1).block();
-        layoutActionService.createSingleAction(action3).block();
+        layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
+        layoutActionService.createSingleAction(action3, Boolean.FALSE).block();
         layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
         final Mono<WorkspaceData> resultMono = examplesWorkspaceCloner.cloneWorkspaceForUser(
@@ -854,7 +855,6 @@ public class ExamplesWorkspaceClonerTests {
                     DatasourceConfiguration dc2 = new DatasourceConfiguration();
                     ds2.setDatasourceConfiguration(dc2);
                     dc2.setAuthentication(new OAuth2(
-
                             OAuth2.Type.CLIENT_CREDENTIALS,
                             true,
                             true,
@@ -872,7 +872,8 @@ public class ExamplesWorkspaceClonerTests {
                                     new Property("custom token param 2", "custom token param value 2")
                             ),
                             null,
-                            null
+                            null,
+                            false
                     ));
 
                     final Datasource ds3 = new Datasource();
@@ -918,9 +919,9 @@ public class ExamplesWorkspaceClonerTests {
                                 action3.setPluginId(installedPlugin.getId());
 
                                 return Mono.when(
-                                        layoutActionService.createSingleAction(action1),
-                                        layoutActionService.createSingleAction(action2),
-                                        layoutActionService.createSingleAction(action3)
+                                        layoutActionService.createSingleAction(action1, Boolean.FALSE),
+                                        layoutActionService.createSingleAction(action2, Boolean.FALSE),
+                                        layoutActionService.createSingleAction(action3, Boolean.FALSE)
                                 ).then(Mono.zip(
                                         workspaceService.create(targetOrg),
                                         Mono.just(app)
@@ -940,7 +941,7 @@ public class ExamplesWorkspaceClonerTests {
                                         })
                                         .flatMap(app -> examplesWorkspaceCloner.cloneApplications(
                                                 targetOrg1.getId(),
-                                                Flux.fromArray(new Application[]{ app })
+                                                Flux.fromArray(new Application[]{app})
                                         ))
                                         .then();
 

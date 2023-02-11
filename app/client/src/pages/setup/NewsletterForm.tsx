@@ -1,8 +1,7 @@
 import { noop } from "lodash";
 import React from "react";
 import styled from "styled-components";
-import Button, { Category, Size } from "components/ads/Button";
-import Toggle from "components/ads/Toggle";
+import { Button, Category, Toggle, Size } from "design-system-old";
 import {
   AllowToggle,
   AllowToggleLabel,

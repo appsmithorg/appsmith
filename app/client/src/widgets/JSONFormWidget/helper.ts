@@ -1,5 +1,5 @@
 import { isNil, isPlainObject, merge } from "lodash";
-import { LabelValueType } from "rc-select/lib/interface/generator";
+import { LabelInValueType } from "rc-select/lib/Select";
 
 import {
   isDynamicValue,
@@ -19,6 +19,8 @@ import {
 type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
   toId: keyof SchemaItem;
+  useSourceData?: boolean;
+  sourceData?: unknown;
 };
 
 /**
@@ -90,19 +92,33 @@ const convertObjectTypeToFormData = (
     const formData: Record<string, unknown> = {};
 
     Object.values(schema).forEach((schemaItem) => {
-      if (schemaItem.isVisible) {
-        const value = valueLookup(
+      if (!schemaItem.isVisible && !options.useSourceData) return;
+      let sourceData;
+      if (options.sourceData) {
+        sourceData = valueLookup(
+          options.sourceData as Record<string, unknown>,
+          schemaItem,
+          // sourceData lookup can only be done using originalIdentifier
+          // if sourceData lookup done using other id e.g. accessor or identify, the return
+          // value could be undefined.
+          "originalIdentifier",
+        );
+      }
+      const toKey = schemaItem[options.toId];
+      let value;
+      if (!schemaItem.isVisible) {
+        value = sourceData;
+      } else {
+        value = valueLookup(
           formValue as Record<string, unknown>,
           schemaItem,
           options.fromId,
         );
-        const toKey = schemaItem[options.toId];
-        formData[toKey] = convertSchemaItemToFormData(
-          schemaItem,
-          value,
-          options,
-        );
       }
+      formData[toKey] = convertSchemaItemToFormData(schemaItem, value, {
+        ...options,
+        sourceData,
+      });
     });
 
     return formData;
@@ -121,10 +137,12 @@ const convertArrayTypeToFormData = (
     const arraySchemaItem = schema[ARRAY_ITEM_KEY];
 
     formValues.forEach((formValue, index) => {
+      const sourceData = (options?.sourceData as unknown[])?.[index];
+
       formData[index] = convertSchemaItemToFormData(
         arraySchemaItem,
         formValue,
-        options,
+        { ...options, sourceData },
       );
     });
 
@@ -287,7 +305,7 @@ export function isPrimitive(val: unknown): val is number | string | boolean {
 
 export const validateOptions = (
   values: unknown,
-): values is LabelValueType["value"][] | LabelValueType[] => {
+): values is LabelInValueType["value"][] | LabelInValueType[] => {
   if (!Array.isArray(values)) return false;
 
   let hasPrimitive = false;

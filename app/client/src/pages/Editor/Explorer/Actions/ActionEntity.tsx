@@ -1,12 +1,12 @@
-import React, { useCallback, memo, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
+import { useSelector } from "react-redux";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { saveActionName } from "actions/pluginActionActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useSelector } from "store";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
@@ -14,6 +14,10 @@ import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import {
+  hasDeleteActionPermission,
+  hasManageActionPermission,
+} from "@appsmith/utils/permissionHelpers";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -47,7 +51,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
       url,
     });
-    url && history.push(url);
+    url && history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
       type: "QUERIES/APIs",
       fromUrl: location.pathname,
@@ -56,8 +60,16 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     });
   }, [url, location.pathname, action.name]);
 
+  const actionPermissions = action.userPermissions || [];
+
+  const canDeleteAction = hasDeleteActionPermission(actionPermissions);
+
+  const canManageAction = hasManageActionPermission(actionPermissions);
+
   const contextMenu = (
     <ActionEntityContextMenu
+      canDeleteAction={canDeleteAction}
+      canManageAction={canManageAction}
       className={EntityClassNames.CONTEXT_MENU}
       id={action.id}
       name={action.name}
@@ -68,6 +80,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     <Entity
       action={switchToAction}
       active={props.isActive}
+      canEditEntityName={canManageAction}
       className="action"
       contextMenu={contextMenu}
       entityId={action.id}

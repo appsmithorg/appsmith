@@ -8,6 +8,7 @@ import ProgressBarComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
 import { BarType } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class ProgressBarWidget extends BaseWidget<
   ProgressBarWidgetProps,
@@ -45,7 +46,6 @@ class ProgressBarWidget extends BaseWidget<
             placeholderText: "Enter progress value",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             defaultValue: 50,
             validation: {
               type: ValidationTypes.NUMBER,
@@ -60,10 +60,15 @@ class ProgressBarWidget extends BaseWidget<
             placeholderText: "Enter number of steps",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { min: 1, max: 100, default: 1, natural: true },
+              params: {
+                min: 1,
+                max: 100,
+                default: 1,
+                natural: true,
+                passThroughOnZero: false,
+              },
             },
             hidden: (props: ProgressBarWidgetProps) => {
               return props.barType !== BarType.DETERMINATE;
@@ -139,6 +144,13 @@ class ProgressBarWidget extends BaseWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      fillColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
   }
 
   getPageView() {

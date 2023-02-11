@@ -20,9 +20,11 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                                          PolicyUtils policyUtils,
                                          SessionUserService sessionUserService,
                                          AnalyticsService analyticsService,
-                                         ResponseUtils responseUtils) {
+                                         ResponseUtils responseUtils,
+                                         WorkspacePermission workspacePermission,
+                                         ApplicationPermission applicationPermission) {
 
         super(applicationService, workspaceService, examplesWorkspaceCloner, policyUtils, sessionUserService,
-                analyticsService, responseUtils);
+                analyticsService, responseUtils, workspacePermission, applicationPermission);
     }
 }

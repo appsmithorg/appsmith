@@ -1,23 +1,48 @@
-import ColumnControl from "./ColumnControl";
-import Styles from "./Styles";
-import ButtonProperties from "./ButtonProperties";
-import MenuItems from "./MenuItems";
 import Events from "./Events";
-import SaveButtonProperties from "./SaveButtonProperties";
-import DiscardButtonproperties from "./DiscardButtonproperties";
+import Data from "./Data";
+import General, { GeneralStyle } from "./General";
+import Basic from "./Basic";
+import SaveButtonProperties, {
+  saveButtonStyleConfig,
+} from "./SaveButtonProperties";
+import DiscardButtonproperties, {
+  discardButtonStyleConfig,
+} from "./DiscardButtonproperties";
+import Icon from "./Icon";
+import TextFormatting from "./TextFormatting";
+import Alignment from "./Alignment";
+import Color from "./Color";
+import BorderAndShadow from "./BorderAndShadow";
+import Validations from "./Validation";
+import Select from "./Select";
+import DateProperties from "./DateProperties";
+import { updateCustomColumnAliasOnLabelChange } from "../../propertyUtils";
 
 export default {
   editableTitle: true,
   titlePropertyName: "label",
   panelIdPropertyName: "id",
   dependencies: ["primaryColumns", "columnOrder"],
-  children: [
-    ColumnControl,
-    ButtonProperties,
+  contentChildren: [
+    Data,
+    Basic,
+    General,
+    Validations,
     SaveButtonProperties,
     DiscardButtonproperties,
-    MenuItems,
-    Styles,
+    Select,
     Events,
+    DateProperties,
   ],
+  styleChildren: [
+    GeneralStyle,
+    Icon,
+    Alignment,
+    TextFormatting,
+    Color,
+    saveButtonStyleConfig,
+    discardButtonStyleConfig,
+    BorderAndShadow,
+  ],
+  updateHook: updateCustomColumnAliasOnLabelChange,
 };

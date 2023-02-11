@@ -76,6 +76,7 @@
     {
       "id": 3,
       "sectionName": "SSL (optional)",
+      "hidden": true,
       "children": [
         {
           "label": "SSL Mode",

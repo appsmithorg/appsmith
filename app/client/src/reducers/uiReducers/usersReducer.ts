@@ -1,22 +1,18 @@
 import _ from "lodash";
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
-import {
-  CommentsOnboardingState,
-  DefaultCurrentUserDetails,
-  User,
-} from "constants/userConstants";
+import { DefaultCurrentUserDetails, User } from "constants/userConstants";
 import FeatureFlags from "entities/FeatureFlags";
 
 const initialState: UsersReduxState = {
   loadingStates: {
     fetchingUsers: false,
-    fetchingUser: false,
+    fetchingUser: true,
   },
   list: [],
   users: [],
@@ -120,6 +116,7 @@ const usersReducer = createReducer(initialState, {
   ) => ({
     ...initialState,
     error: action.payload.error,
+    loadingStates: { ...state.loadingStates, fetchingUser: false },
   }),
   [ReduxActionErrorTypes.FETCH_USER_ERROR]: (state: UsersReduxState) => ({
     ...state,
@@ -176,16 +173,6 @@ const usersReducer = createReducer(initialState, {
     featureFlag: {
       data: {},
       isFetched: true,
-    },
-  }),
-  [ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE]: (
-    state: UsersReduxState,
-    action: ReduxAction<CommentsOnboardingState>,
-  ) => ({
-    ...state,
-    currentUser: {
-      ...state.currentUser,
-      commentOnboardingState: action.payload,
     },
   }),
 });

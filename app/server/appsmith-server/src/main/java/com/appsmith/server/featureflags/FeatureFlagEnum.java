@@ -27,8 +27,15 @@ public enum FeatureFlagEnum {
     JS_EDITOR,
     LINTING,
     MULTIPLAYER,
-    GIT,
-    GIT_IMPORT,
     APP_TEMPLATE,
-    PROPERTY_PANE_GROUPING,
+    TEMPLATES_PHASE_2,
+    CONTEXT_SWITCHING,
+    DATASOURCE_ENVIRONMENTS,
+    AUTO_LAYOUT,
+    LIMITING_GOOGLE_SHEET_ACCESS,
+    LAZY_CANVAS_RENDERING,
+
+    // Put EE flags below this line, to avoid conflicts.
+    RBAC,
+    USAGE_AND_BILLING,
 }

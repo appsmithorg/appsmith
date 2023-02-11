@@ -1,13 +1,14 @@
 import React from "react";
-import Dropdown, {
+import {
+  Dropdown,
   DefaultDropDownValueNodeProps,
+  DropdownOption,
   DropdownWrapper,
   DropdownContainer as DropdownComponentContainer,
-} from "components/ads/Dropdown";
+} from "design-system-old";
 import { ReactComponent as ChevronDown } from "assets/icons/ads/chevron-down.svg";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
-import { DropdownOption } from "components/ads/Dropdown";
 import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
 
 const SelectedValueNodeContainer = styled.div`

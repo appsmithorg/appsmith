@@ -32,6 +32,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     private String email;
 
+    private String hashedEmail;
+
     //TODO: This is deprecated in favour of groups
     private Set<Role> roles;
 
@@ -79,7 +81,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonIgnore
     private String inviteToken;
 
-    @Transient
     Boolean isAnonymous = false;
 
     private String tenantId;

@@ -8,7 +8,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 export type DebouncedExecuteActionPayload = Omit<
   ExecuteTriggerPayload,

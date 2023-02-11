@@ -1,15 +1,28 @@
 import { ColumnProperties, TableStyles } from "../component/Constants";
-import { getCurrentRowBinding } from "../constants";
+import { ColumnTypes } from "../constants";
 import {
   escapeString,
   getAllTableColumnKeys,
+  getArrayPropertyValue,
+  getColumnType,
   getDerivedColumns,
   getOriginalRowIndex,
   getSelectRowIndex,
   getSelectRowIndices,
+  getSourceDataAndCaluclateKeysForEventAutoComplete,
   getTableStyles,
   reorderColumns,
 } from "./utilities";
+
+const getCurrentRowBinding = (
+  entityName: string,
+  userInput: string,
+  withBinding = true,
+) => {
+  let rowBinding = `${entityName}.processedTableData.map((currentRow, currentIndex) => ( ${userInput}))`;
+  if (withBinding) rowBinding = `{{${rowBinding}}}`;
+  return rowBinding;
+};
 
 describe("getOriginalRowIndex", () => {
   it("With no new data ", () => {
@@ -1808,5 +1821,521 @@ describe("reorderColumns", () => {
 
     const result = reorderColumns(MOCK_COLUMNS, columnOrder);
     expect(expected).toEqual(result);
+  });
+});
+
+describe("getColumnType", () => {
+  const tableData = [
+    {
+      id: 1,
+      gender: "female",
+      latitude: -45.7997,
+      longitude: null,
+      dob: null,
+      phone: null,
+      email: "bene@bene.bene",
+      image: "https://randomuser.me/api/portraits/med/women/39.jpg",
+      country: "Germany",
+      name: "Bene",
+      checked: true,
+    },
+    {
+      id: 2,
+      gender: "male",
+      latitude: "42.9756",
+      longitude: null,
+      dob: null,
+      phone: null,
+      email: "alice@example.com",
+      image: "https://randomuser.me/api/portraits/med/women/6.jpg",
+      country: "Netherlandss",
+      name: "AliceBggg11144",
+      checked: false,
+    },
+    {
+      id: 3,
+      gender: "female",
+      latitude: "-14.0884",
+      longitude: 27.0428,
+      dob: null,
+      phone: null,
+      email: null,
+      image: "https://randomuser.me/api/portraits/med/women/88.jpg",
+      country: "Norway",
+      name: null,
+      checked: true,
+    },
+    {
+      id: 4,
+      gender: "male",
+      latitude: "-88.0169",
+      longitude: "-118.7708",
+      dob: "1984-02-25T07:31:12.723Z",
+      phone: "594-620-3202",
+      email: "jack.frost@example.com",
+      image: "https://randomuser.me/api/portraits/med/men/52.jpg",
+      country: "Cornwall",
+      name: "Jack1",
+    },
+    {
+      id: 5,
+      gender: "female",
+      latitude: "73.6320",
+      longitude: "-167.3976",
+      dob: null,
+      phone: null,
+      email: "",
+      image: "https://randomuser.me/api/portraits/med/women/91.jpg",
+      country: "United Kingdom",
+      name: "Sue",
+      premium: false,
+    },
+    {
+      id: 6,
+      gender: "male",
+      latitude: "86.1891",
+      longitude: "-56.8442",
+      dob: "1959-02-20T02:42:20.579Z",
+      phone: "61521059",
+      email: "mohamad.persson@example.com",
+      image: "https://randomuser.me/api/portraits/med/men/58.jpg",
+      country: "Norway",
+      name: "Allih Persson",
+    },
+    {
+      id: 7,
+      gender: "male",
+      latitude: "-83.6654",
+      longitude: "87.6481",
+      dob: "1952-02-22T18:47:29.476Z",
+      phone: "(212)-051-1147",
+      email: "julia.armstrong@example.com",
+      image: "https://randomuser.me/api/portraits/med/women/30.jpg",
+      country: "United States",
+      name: "Julia Armstrong",
+    },
+    {
+      id: 8,
+      gender: "female",
+      latitude: "38.7394",
+      longitude: "-31.7919",
+      dob: "1955-10-07T11:31:49.823Z",
+      phone: "(817)-164-4040",
+      email: "shiva.duijf@example.com",
+      image: "https://randomuser.me/api/portraits/med/women/88.jpg",
+      country: "Netherlands",
+      name: "Shiva Duijf",
+    },
+    {
+      id: 9,
+      gender: "male",
+      latitude: "4.5623",
+      longitude: "9.0901",
+      dob: null,
+      phone: null,
+      email: null,
+      image: "https://randomuser.me/api/portraits/med/men/30.jpg",
+      country: "Norway",
+      name: null,
+    },
+    {
+      id: 10,
+      gender: "male",
+      latitude: "-49.4156",
+      longitude: "-132.3755",
+      dob: "1977-03-27T02:12:01.151Z",
+      phone: "212-355-8035",
+      email: "david.mackay@example.com",
+      image: "https://randomuser.me/api/portraits/med/men/73.jpg",
+      country: "Canada",
+      name: "David Mackay",
+    },
+  ];
+
+  it("returns NUMBER column type for number value", () => {
+    const result = getColumnType(tableData, "id");
+    expect(ColumnTypes.NUMBER).toEqual(result);
+  });
+
+  it("returns TEXT column type for empty columnKey", () => {
+    const result = getColumnType(tableData, "");
+    expect(ColumnTypes.TEXT).toEqual(result);
+  });
+
+  it("returns TEXT column type for string value", () => {
+    const result = getColumnType(tableData, "gender");
+    expect(ColumnTypes.TEXT).toEqual(result);
+  });
+
+  it("returns TEXT column type for string columnKey that does not exist in tableData", () => {
+    const result = getColumnType(tableData, "coordinates");
+    expect(ColumnTypes.TEXT).toEqual(result);
+  });
+
+  it("returns CHECKBOX column type for columnKey that has boolean columnValue", () => {
+    const result = getColumnType(tableData, "checked");
+    expect(ColumnTypes.CHECKBOX).toEqual(result);
+  });
+
+  it("returns proper column type for columnKey that has first few rows data as null", () => {
+    const result = getColumnType(tableData, "longitude");
+    expect(ColumnTypes.NUMBER).toEqual(result);
+  });
+
+  it("returns proper column type for columnKey that does not exist in the first few rows", () => {
+    const result = getColumnType(tableData, "premium");
+    expect(ColumnTypes.CHECKBOX).toEqual(result);
+  });
+
+  it("returns Date column type for valid Date field", () => {
+    const result = getColumnType(tableData, "dob");
+    expect(ColumnTypes.DATE).toEqual(result);
+  });
+});
+
+describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
+  it("Should test with valid values", () => {
+    const mockProps = {
+      type: "TABLE_WIDGET_V2",
+      widgetName: "Table1",
+      widgetId: "9oh3qyw84m",
+      primaryColumns: {
+        action: {
+          configureMenuItems: {
+            config: {
+              label:
+                "{{Table1.primaryColumns.action.sourceData.map((currentItem, currentIndex) => ( currentItem.))}}",
+            },
+          },
+        },
+      },
+      __evaluation__: {
+        errors: {
+          primaryColumns: [],
+        },
+        evaluatedValues: {
+          primaryColumns: {
+            step: {
+              index: 0,
+              width: 150,
+              id: "step",
+              originalId: "step",
+              alias: "step",
+              columnType: "text",
+              label: "step",
+              computedValue: ["#1", "#2", "#3"],
+              validation: {},
+              labelColor: "#FFFFFF",
+            },
+            action: {
+              index: 3,
+              width: 150,
+              id: "action",
+              originalId: "action",
+              alias: "action",
+              columnType: "menuButton",
+              label: "action",
+              computedValue: ["", "", ""],
+              labelColor: "#FFFFFF",
+              buttonLabel: ["Action", "Action", "Action"],
+              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+              menuItemsSource: "DYNAMIC",
+              menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+              sourceData: [
+                {
+                  gender: "male",
+                  name: "Victor",
+                  email: "victor.garrett@example.com",
+                },
+                {
+                  gender: "male",
+                  name: "Tobias",
+                  email: "tobias.hansen@example.com",
+                },
+                {
+                  gender: "female",
+                  name: "Jane",
+                  email: "jane.coleman@example.com",
+                },
+                {
+                  gender: "female",
+                  name: "Yaromira",
+                  email: "yaromira.manuylenko@example.com",
+                },
+                {
+                  gender: "male",
+                  name: "Andre",
+                  email: "andre.ortiz@example.com",
+                },
+              ],
+              configureMenuItems: {
+                label: "Configure Menu Items",
+                id: "config",
+                config: {
+                  id: "config",
+                  label: ["male", "male", "female", "female", "male"],
+                  isVisible: true,
+                  isDisabled: false,
+                  onClick: "",
+                  backgroundColor: ["red", "red", "tan", "tan", "red"],
+                  iconName: "add-row-top",
+                  iconAlign: "right",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
+    const expected = {
+      currentItem: {
+        name: "",
+        email: "",
+        gender: "",
+      },
+    };
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("Should test with empty sourceData", () => {
+    const mockProps = {
+      type: "TABLE_WIDGET_V2",
+      widgetName: "Table1",
+      widgetId: "9oh3qyw84m",
+      primaryColumns: {
+        action: {
+          configureMenuItems: {
+            config: {
+              label:
+                "{{Table1.primaryColumns.action.sourceData.map((currentItem, currentIndex) => ( currentItem.))}}",
+            },
+          },
+        },
+      },
+      __evaluation__: {
+        errors: {
+          primaryColumns: [],
+        },
+        evaluatedValues: {
+          primaryColumns: {
+            step: {
+              index: 0,
+              width: 150,
+              id: "step",
+              originalId: "step",
+              alias: "step",
+              columnType: "text",
+              label: "step",
+              computedValue: ["#1", "#2", "#3"],
+              validation: {},
+              labelColor: "#FFFFFF",
+            },
+            action: {
+              index: 3,
+              width: 150,
+              id: "action",
+              originalId: "action",
+              alias: "action",
+              columnType: "menuButton",
+              label: "action",
+              computedValue: ["", "", ""],
+              labelColor: "#FFFFFF",
+              buttonLabel: ["Action", "Action", "Action"],
+              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+              menuItemsSource: "DYNAMIC",
+              menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+              sourceData: [],
+              configureMenuItems: {
+                label: "Configure Menu Items",
+                id: "config",
+                config: {
+                  id: "config",
+                  label: ["male", "male", "female", "female", "male"],
+                  isVisible: true,
+                  isDisabled: false,
+                  onClick: "",
+                  backgroundColor: ["red", "red", "tan", "tan", "red"],
+                  iconName: "add-row-top",
+                  iconAlign: "right",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
+    const expected = { currentItem: {} };
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("Should test without sourceData", () => {
+    const mockProps = {
+      type: "TABLE_WIDGET_V2",
+      widgetName: "Table1",
+      widgetId: "9oh3qyw84m",
+      primaryColumns: {
+        action: {
+          configureMenuItems: {
+            config: {
+              label:
+                "{{Table1.primaryColumns.action.sourceData.map((currentItem, currentIndex) => ( currentItem.))}}",
+            },
+          },
+        },
+      },
+      __evaluation__: {
+        errors: {
+          primaryColumns: [],
+        },
+        evaluatedValues: {
+          primaryColumns: {
+            step: {
+              index: 0,
+              width: 150,
+              id: "step",
+              originalId: "step",
+              alias: "step",
+              columnType: "text",
+              label: "step",
+              computedValue: ["#1", "#2", "#3"],
+              validation: {},
+              labelColor: "#FFFFFF",
+            },
+            action: {
+              index: 3,
+              width: 150,
+              id: "action",
+              originalId: "action",
+              alias: "action",
+              columnType: "menuButton",
+              label: "action",
+              computedValue: ["", "", ""],
+              labelColor: "#FFFFFF",
+              buttonLabel: ["Action", "Action", "Action"],
+              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+              menuItemsSource: "DYNAMIC",
+              menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+              configureMenuItems: {
+                label: "Configure Menu Items",
+                id: "config",
+                config: {
+                  id: "config",
+                  label: ["male", "male", "female", "female", "male"],
+                  isVisible: true,
+                  isDisabled: false,
+                  onClick: "",
+                  backgroundColor: ["red", "red", "tan", "tan", "red"],
+                  iconName: "add-row-top",
+                  iconAlign: "right",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
+    const expected = { currentItem: {} };
+    expect(result).toStrictEqual(expected);
+  });
+});
+
+describe("getArrayPropertyValue", () => {
+  it("should test that it returns the same value when value is not of expected type", () => {
+    expect(getArrayPropertyValue("test", 1)).toEqual("test");
+    expect(getArrayPropertyValue(1, 1)).toEqual(1);
+  });
+
+  it("should test that it returns the same value when value is empty", () => {
+    expect(getArrayPropertyValue([], 1)).toEqual([]);
+  });
+
+  it("should test that it returns the correct value when value is just array of label values", () => {
+    expect(
+      getArrayPropertyValue([{ label: "test", value: "test" }], 1),
+    ).toEqual([{ label: "test", value: "test" }]);
+    expect(
+      getArrayPropertyValue(
+        [
+          { label: "test", value: "test" },
+          { label: "test1", value: "test1" },
+        ],
+        1,
+      ),
+    ).toEqual([
+      { label: "test", value: "test" },
+      { label: "test1", value: "test1" },
+    ]);
+  });
+
+  it("should test that it returns the correct value when value is an array of array of label values", () => {
+    expect(
+      getArrayPropertyValue(
+        [
+          [
+            {
+              label: "test1",
+              value: "test1",
+            },
+          ],
+          [
+            {
+              label: "test2",
+              value: "test2",
+            },
+          ],
+        ],
+        1,
+      ),
+    ).toEqual([
+      {
+        label: "test2",
+        value: "test2",
+      },
+    ]);
+
+    expect(
+      getArrayPropertyValue(
+        [
+          [
+            {
+              label: "test1",
+              value: "test1",
+            },
+            {
+              label: "test2",
+              value: "test2",
+            },
+          ],
+          [
+            {
+              label: "test3",
+              value: "test3",
+            },
+          ],
+        ],
+        0,
+      ),
+    ).toEqual([
+      {
+        label: "test1",
+        value: "test1",
+      },
+      {
+        label: "test2",
+        value: "test2",
+      },
+    ]);
   });
 });

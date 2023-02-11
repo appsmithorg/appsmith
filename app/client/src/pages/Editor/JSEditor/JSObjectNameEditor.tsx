@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { removeSpecialChars } from "utils/helpers";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { JSCollection } from "entities/JSCollection";
 import { Classes } from "@blueprintjs/core";
 import { saveJSObjectName } from "actions/jsActionActions";
@@ -54,6 +54,7 @@ type JSObjectNameEditorProps = {
     In future, when default component will be ads editable-text, then we can remove this prop.
   */
   page?: string;
+  disabled?: boolean;
 };
 
 const JSIconWrapper = styled.img`
@@ -108,6 +109,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
               defaultValue={
                 currentJSObjectConfig ? currentJSObjectConfig.name : ""
               }
+              disabled={props.disabled}
               editInteractionKind={EditInteractionKind.SINGLE}
               errorTooltipClass="t--action-name-edit-error"
               forceDefault={forceUpdate}

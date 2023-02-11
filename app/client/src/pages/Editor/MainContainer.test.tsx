@@ -1,26 +1,31 @@
+import { all } from "@redux-saga/core/effects";
+import { AppState } from "@appsmith/reducers";
+import lodash from "lodash";
 import React from "react";
+import { MemoryRouter } from "react-router-dom";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as utilities from "selectors/editorSelectors";
+import store from "store";
 import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { act, render, fireEvent } from "test/testUtils";
-import GlobalHotKeys from "./GlobalHotKeys";
-import { MemoryRouter } from "react-router-dom";
-import * as utilities from "selectors/editorSelectors";
-import store from "store";
 import { sagasToRunForTests } from "test/sagas";
-import { all } from "@redux-saga/core/effects";
 import {
   MockApplication,
+  mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
+  mockGetPagePermissions,
+  mockGetWidgetEvalValues,
   syntheticTestMouseEvent,
 } from "test/testCommon";
-import lodash from "lodash";
-import { getAbsolutePixels } from "utils/helpers";
-import { UpdatedMainContainer } from "test/testMockedWidgets";
-import { AppState } from "reducers";
+import { UpdatedEditor } from "test/testMockedWidgets";
+import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
+import { getAbsolutePixels } from "utils/helpers";
 import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
+import GlobalHotKeys from "./GlobalHotKeys";
 
 const renderNestedComponent = () => {
   const initialState = (store.getState() as unknown) as Partial<AppState>;
@@ -78,7 +83,7 @@ const renderNestedComponent = () => {
     >
       <MockApplication>
         <GlobalHotKeys>
-          <UpdatedMainContainer dsl={dsl} />
+          <UpdatedEditor dsl={dsl} />
         </GlobalHotKeys>
       </MockApplication>
     </MemoryRouter>,
@@ -89,6 +94,16 @@ const renderNestedComponent = () => {
 describe("Drag and Drop widgets into Main container", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+
+  jest
+    .spyOn(widgetRenderUtils, "createCanvasWidget")
+    .mockImplementation(mockCreateCanvasWidget);
+  jest
+    .spyOn(dataTreeSelectors, "getWidgetEvalValues")
+    .mockImplementation(mockGetWidgetEvalValues);
+  jest
+    .spyOn(utilities, "computeMainContainerWidget")
+    .mockImplementation((widget) => widget as any);
   jest
     .spyOn(useDynamicAppLayoutHook, "useDynamicAppLayout")
     .mockImplementation(() => true);
@@ -145,7 +160,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -245,7 +260,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -352,7 +367,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -451,6 +466,7 @@ describe("Drag and Drop widgets into Main container", () => {
       children,
     });
     dsl.bottomRow = 250;
+
     spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
 
@@ -460,7 +476,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -558,14 +574,16 @@ describe("Drag and Drop widgets into Main container", () => {
     });
     spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
-
+    jest
+      .spyOn(utilities, "getPagePermissions")
+      .mockImplementation(mockGetPagePermissions);
     const component = render(
       <MemoryRouter
         initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -673,7 +691,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,

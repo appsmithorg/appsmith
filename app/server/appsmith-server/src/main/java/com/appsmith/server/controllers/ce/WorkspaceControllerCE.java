@@ -2,8 +2,10 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.UserWorkspaceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +19,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 
 
 @RequestMapping(Url.WORKSPACE_URL)
@@ -36,27 +36,27 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
     }
 
     /**
-     * This function would be used to fetch all possible user roles at workspace level.
+     * This function would be used to fetch default permission groups of workspace, for which user has access to invite users.
      *
      * @return
      */
-    @GetMapping("/roles")
-    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForWorkspace(@RequestParam String workspaceId) {
-        return service.getUserRolesForWorkspace(workspaceId)
-                .map(permissions -> new ResponseDTO<>(HttpStatus.OK.value(), permissions, null));
+    @GetMapping("/{workspaceId}/permissionGroups")
+    public Mono<ResponseDTO<List<PermissionGroupInfoDTO>>> getPermissionGroupsForWorkspace(@PathVariable String workspaceId) {
+        return service.getPermissionGroupsForWorkspace(workspaceId)
+                .map(groupInfoList -> new ResponseDTO<>(HttpStatus.OK.value(), groupInfoList, null));
     }
 
     @GetMapping("/{workspaceId}/members")
-    public Mono<ResponseDTO<List<UserRole>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
-        return service.getWorkspaceMembers(workspaceId)
+    public Mono<ResponseDTO<List<WorkspaceMemberInfoDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
+        return userWorkspaceService.getWorkspaceMembers(workspaceId)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
-    @PutMapping("/{workspaceId}/role")
-    public Mono<ResponseDTO<UserRole>> updateRoleForMember(@RequestBody UserRole updatedUserRole,
-                                                           @PathVariable String workspaceId,
-                                                           @RequestHeader(name = "Origin", required = false) String originHeader) {
-        return userWorkspaceService.updateRoleForMember(workspaceId, updatedUserRole, originHeader)
+    @PutMapping("/{workspaceId}/permissionGroup")
+    public Mono<ResponseDTO<WorkspaceMemberInfoDTO>> updatePermissionGroupForMember(@RequestBody UpdatePermissionGroupDTO updatePermissionGroupDTO,
+                                                                                    @PathVariable String workspaceId,
+                                                                                    @RequestHeader(name = "Origin", required = false) String originHeader) {
+        return userWorkspaceService.updatePermissionGroupForMember(workspaceId, updatePermissionGroupDTO, originHeader)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 

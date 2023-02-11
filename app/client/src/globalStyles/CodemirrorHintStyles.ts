@@ -1,6 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system-old";
+import { Theme } from "constants/DefaultTheme";
 import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
@@ -51,7 +52,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     color: #716e6e;
     pointer-events: none !important;
     font-family: ${(props) => props.theme.fonts.text};
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${getTypographyByKey("p3")}
     font-weight: 600;
   }
 
@@ -61,7 +62,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     padding: 0 ${(props) => props.theme.spaces[3]}px !important;
     height: 25px;
     font-family: ${(props) => props.theme.fonts.text};
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${getTypographyByKey("p3")}
     &.CodeMirror-hint-active {
       .shortcut {
         color: #ffffff;
@@ -258,11 +259,11 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
     padding: 7px 12px;
     border-radius: 0;
-    
+
     &.${LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS}{
     transform: translate(-100%);
   }
-  
+
   }
   .CodeMirror-lint-message {
     margin-top: 5px;

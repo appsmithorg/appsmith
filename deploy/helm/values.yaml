@@ -1,3 +1,22 @@
+## Redis parameters
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  replica:
+    replicaCount: 1
+
+mongodb:
+  enabled: true
+  service:
+    nameOverride: appsmith-mongodb
+  auth:
+    rootUser: root
+    rootPassword: password
+  replicaCount: 2
+  architecture: "replicaset"
+  replicaSetName: rs0
+
 ## @section Global parameters
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
@@ -30,12 +49,21 @@ schedulerName: ""
 ## It can be set to RollingUpdate or Recreate by default.
 ##
 strategyType: RollingUpdate
+##
+## Init containers for redis & mongodb
+##
+initContainer: {}
+  # redis:
+  #   image: alpine
+  # mongodb:
+  #   image:  docker.io/bitnami/mongodb:4.4.11-debian-10-r12
 ## Image
 ##
 image:
   registry: index.docker.io
   repository: appsmith/appsmith-ce
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
+  pullSecrets: ""
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 ## ServiceAccount
@@ -54,6 +82,8 @@ serviceAccount:
   annotations: {}
 
 podAnnotations: {}
+
+podLabels: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -151,7 +181,7 @@ ingress:
   ## e.g:
   ## className: "nginx"
   ##
-  className: ""
+  className: "nginx"
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -268,3 +298,4 @@ applicationConfig:
   APPSMITH_ENCRYPTION_PASSWORD: ""
   APPSMITH_ENCRYPTION_SALT: ""
   APPSMITH_CUSTOM_DOMAIN: ""
+  APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"

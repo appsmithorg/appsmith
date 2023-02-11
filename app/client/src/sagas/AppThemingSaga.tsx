@@ -15,13 +15,13 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select } from "redux-saga/effects";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system-old";
 import {
   CHANGE_APP_THEME,
   createMessage,
   DELETE_APP_THEME,
   SAVE_APP_THEME,
+  SET_DEFAULT_SELECTED_THEME,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { undoAction, updateReplayEntity } from "actions/pageActions";
@@ -32,7 +32,6 @@ import { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
-import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import {
   batchUpdateMultipleWidgetProperties,
   UpdateWidgetPropertyPayload,
@@ -41,6 +40,16 @@ import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
 import { ApiResponse } from "api/ApiResponses";
 import { AppTheme } from "entities/AppTheming";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  getCurrentApplicationId,
+  selectApplicationVersion,
+} from "selectors/editorSelectors";
+import { find } from "lodash";
+import * as Sentry from "@sentry/react";
+import { Severity } from "@sentry/react";
+import { getAllPageIds } from "./selectors";
+import { SagaIterator } from "@redux-saga/types";
+import { AxiosPromise } from "axios";
 
 /**
  * init app theming
@@ -94,21 +103,41 @@ export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
 export function* fetchAppSelectedTheme(
   // eslint-disable-next-line
   action: ReduxAction<FetchSelectedAppThemeAction>,
-) {
+): SagaIterator | AxiosPromise {
   const { applicationId } = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
 
+  const pageIds = yield select(getAllPageIds);
+  const userDetails = yield select(getCurrentUser);
+  const applicationVersion = yield select(selectApplicationVersion);
   try {
     // eslint-disable-next-line
     const response: ApiResponse<AppTheme[]> = yield ThemingApi.fetchSelected(
       applicationId,
       mode,
     );
+    if (response?.data) {
+      yield put({
+        type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      Sentry.captureException("Unable to fetch the selected theme", {
+        level: Severity.Critical,
+        extra: {
+          pageIds,
+          applicationId,
+          applicationVersion,
+          userDetails,
+          themeResponse: response,
+        },
+      });
 
-    yield put({
-      type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: response.data,
-    });
+      // If the response.data is undefined then we set selectedTheme to default Theme
+      yield put({
+        type: ReduxActionTypes.SET_DEFAULT_SELECTED_THEME_INIT,
+      });
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
@@ -278,12 +307,8 @@ function* resetTheme() {
     const canvasWidgets: CanvasWidgetsReduxState = yield select(
       getCanvasWidgets,
     );
-    // @ts-expect-error: Type the StyleSheet
-    const themeStylesheet = yield select(getSelectedAppThemeStylesheet);
-
     const propertiesToUpdate: UpdateWidgetPropertyPayload[] = getPropertiesToUpdateForReset(
       canvasWidgets,
-      themeStylesheet,
     );
 
     if (propertiesToUpdate.length) {
@@ -292,6 +317,40 @@ function* resetTheme() {
   } catch (error) {}
 }
 
+/**
+ * sets the selectedTheme to default theme when Selected Theme API fails
+ */
+function* setDefaultSelectedThemeOnError() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  try {
+    // Fetch all system themes
+    const response: ApiResponse<AppTheme[]> = yield ThemingApi.fetchThemes(
+      applicationId,
+    );
+
+    // Gets default theme
+    const theme = find(response.data, { name: "Default" });
+
+    if (theme) {
+      // Update API call to set current theme to default
+      yield ThemingApi.changeTheme(applicationId, theme);
+      yield put({
+        type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+        payload: theme,
+      });
+      // shows toast
+      Toaster.show({
+        text: createMessage(SET_DEFAULT_SELECTED_THEME, theme.displayName),
+        variant: Variant.warning,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SET_DEFAULT_SELECTED_THEME_ERROR,
+      payload: { error },
+    });
+  }
+}
 export default function* appThemingSaga() {
   yield all([takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initAppTheming)]);
   yield all([
@@ -312,5 +371,9 @@ export default function* appThemingSaga() {
     takeLatest(ReduxActionTypes.SAVE_APP_THEME_INIT, saveSelectedTheme),
     takeLatest(ReduxActionTypes.DELETE_APP_THEME_INIT, deleteTheme),
     takeLatest(ReduxActionTypes.CLOSE_BETA_CARD_SHOWN, closeisBetaCardShown),
+    takeLatest(
+      ReduxActionTypes.SET_DEFAULT_SELECTED_THEME_INIT,
+      setDefaultSelectedThemeOnError,
+    ),
   ]);
 }

@@ -2,20 +2,24 @@ import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
-import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
-import { getSelectedWidget } from "selectors/ui";
+import { onApiEditor, onCanvas, onQueryEditor } from "../helpers";
+import { getLastSelectedWidget } from "selectors/ui";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
-import history from "utils/history";
+import {
+  isAction,
+  isJSAction,
+  isWidget,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import history, { NavigationMethod } from "utils/history";
 import { jsCollectionIdURL } from "RouteBuilder";
 import store from "store";
 import { PluginType } from "entities/Action";
@@ -24,40 +28,60 @@ export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
 
   if (filter) {
-    logs = logs.filter((log) => log.severity === filter);
+    logs = logs.filter(
+      (log) => log.severity === filter || log.category === filter,
+    );
   }
 
   if (query) {
     logs = logs.filter((log) => {
-      if (log.source?.name)
-        return (
-          log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
-        );
+      if (
+        !!log.source?.name &&
+        log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
+      )
+        return true;
+      if (log.text.toUpperCase().indexOf(query.toUpperCase()) !== -1)
+        return true;
+      if (
+        !!log.state &&
+        JSON.stringify(log.state)
+          .toUpperCase()
+          .indexOf(query.toUpperCase()) !== -1
+      )
+        return true;
     });
   }
-
   return logs;
 };
 
 export const usePagination = (data: Log[], itemsPerPage = 50) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedData, setPaginatedData] = useState<Log[]>([]);
-  const maxPage = Math.ceil(data.length / itemsPerPage);
+  const [maxPage, setMaxPage] = useState(1);
 
   useEffect(() => {
     const data = currentData();
     setPaginatedData(data);
-  }, [currentPage, data.length]);
+  }, [currentPage, data.length, data[data.length - 1]?.occurrenceCount]);
 
   const currentData = useCallback(() => {
-    const end = currentPage * itemsPerPage;
-    return data.slice(0, end);
+    const newMaxPage = Math.ceil(data.length / itemsPerPage);
+    setMaxPage(newMaxPage);
+
+    // Show the last itemsPerPage items
+    const start = Math.max(data.length - currentPage * itemsPerPage, 0);
+    const end = data.length;
+    return data.slice(start, end);
   }, [data]);
 
   const next = useCallback(() => {
+    const tempMaxPage = maxPage;
     setCurrentPage((currentPage) => {
-      const newCurrentPage = Math.min(currentPage + 1, maxPage);
-      return newCurrentPage <= 0 ? 1 : newCurrentPage;
+      const newCurrentPage = Math.max(
+        Math.min(currentPage + 1, tempMaxPage),
+        1,
+      );
+      return newCurrentPage;
     });
   }, []);
 
@@ -76,7 +100,7 @@ export const useSelectedEntity = () => {
     return null;
   });
 
-  const selectedWidget = useSelector(getSelectedWidget);
+  const selectedWidget = useSelector(getLastSelectedWidget);
   const widget = useSelector((state: AppState) => {
     if (onCanvas()) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
@@ -115,7 +139,12 @@ export const useEntityLink = () => {
       const entity = dataTree[name];
       if (!pageId) return;
       if (isWidget(entity)) {
-        navigateToWidget(entity.widgetId, entity.type, pageId || "");
+        navigateToWidget(
+          entity.widgetId,
+          entity.type,
+          pageId || "",
+          NavigationMethod.Debugger,
+        );
       } else if (isAction(entity)) {
         const actionConfig = getActionConfig(entity.pluginType);
         let plugin;

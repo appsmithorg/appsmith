@@ -1,18 +1,21 @@
-import React, { useMemo, useCallback, memo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { builderURL } from "RouteBuilder";
 import { useLocation } from "react-router";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { NavigationMethod } from "utils/history";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -22,11 +25,9 @@ const useWidget = (
   widgetId: string,
   widgetType: WidgetType,
   pageId: string,
-  widgetsInStep: string[],
-  parentModalId?: string,
 ) => {
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const lastSelectedWidget = useSelector(getSelectedWidget);
+  const lastSelectedWidget = useSelector(getLastSelectedWidget);
   const isWidgetSelected = selectedWidgets.includes(widgetId);
   const multipleWidgetsSelected = selectedWidgets.length > 1;
 
@@ -40,22 +41,13 @@ const useWidget = (
         widgetId,
         widgetType,
         pageId,
+        NavigationMethod.EntityExplorer,
         isWidgetSelected,
-        parentModalId,
         isMultiSelect,
         isShiftSelect,
-        widgetsInStep,
       );
     },
-    [
-      widgetId,
-      widgetType,
-      pageId,
-      isWidgetSelected,
-      parentModalId,
-      widgetsInStep,
-      navigateToWidget,
-    ],
+    [widgetId, widgetType, pageId, isWidgetSelected, navigateToWidget],
   );
 
   return {
@@ -86,20 +78,18 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const icon = <WidgetIcon type={props.widgetType} />;
   const location = useLocation();
 
-  const shouldExpand = widgetsToExpand.includes(props.widgetId);
+  const forceExpand = widgetsToExpand.includes(props.widgetId);
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canManagePages = hasManagePagePermission(pagePermissions);
 
   const {
     isWidgetSelected,
     lastSelectedWidget,
     multipleWidgetsSelected,
     navigateToWidget,
-  } = useWidget(
-    props.widgetId,
-    props.widgetType,
-    props.pageId,
-    props.widgetsInStep,
-    props.parentModalId,
-  );
+  } = useWidget(props.widgetId, props.widgetType, props.pageId);
 
   const { parentModalId, widgetId, widgetType } = props;
   /**
@@ -131,6 +121,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   const contextMenu = (
     <WidgetContextMenu
+      canManagePages={canManagePages}
       className={EntityClassNames.CONTEXT_MENU}
       pageId={props.pageId}
       widgetId={props.widgetId}
@@ -146,18 +137,20 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     <Entity
       action={switchWidget}
       active={isWidgetSelected}
+      canEditEntityName={canManagePages}
       className="widget"
       contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
+      forceExpand={forceExpand}
       highlight={lastSelectedWidget === props.widgetId}
       icon={icon}
       isDefaultExpanded={
-        shouldExpand ||
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }
       name={props.widgetName}
       searchKeyword={props.searchKeyword}
+      showAddButton={canManagePages}
       step={props.step}
       updateEntityName={updateWidgetName}
     >

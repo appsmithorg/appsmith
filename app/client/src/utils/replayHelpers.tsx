@@ -5,13 +5,13 @@ import scrollIntoView from "scroll-into-view-if-needed";
 import {
   modText,
   flashElementsById,
-  isMac,
+  isMacOrIOS,
   flashElement,
   hasClass,
   shiftText,
 } from "./helpers";
 import localStorage from "./localStorage";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system-old";
 import {
   createMessage,
   WIDGET_ADDED,
@@ -31,7 +31,7 @@ export const getReplayToastActionText = (replayType = "undo") => {
     case "undo":
       return <>UNDO ({modText()} Z) </>;
     case "redo":
-      return isMac() ? (
+      return isMacOrIOS() ? (
         <>
           REDO ({modText()} {shiftText()} Z){" "}
         </>

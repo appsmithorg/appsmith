@@ -6,20 +6,22 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -30,7 +32,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 public class ExampleApplicationsAreMarked {
@@ -50,10 +52,10 @@ public class ExampleApplicationsAreMarked {
     @Autowired
     private SessionUserService sessionUserService;
 
-    @MockBean
+    @SpyBean
     private ConfigService configService;
 
-    @MockBean
+    @SpyBean
     private InstanceConfig instanceConfig;
 
     @Test
@@ -71,9 +73,7 @@ public class ExampleApplicationsAreMarked {
 
                     assert workspace.getId() != null;
                     Mockito.when(configService.getTemplateWorkspaceId()).thenReturn(Mono.just(workspace.getId()));
-                    Mockito.doNothing().when(instanceConfig).onApplicationEvent(
-                            Mockito.any(ApplicationReadyEvent.class)
-                    );
+
                     // Create 4 applications inside the example workspace but only mark three applications as example
                     final Application app1 = new Application();
                     app1.setName("first application");

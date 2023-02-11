@@ -2,22 +2,24 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import ProfileImage from "pages/common/ProfileImage";
-import MenuItem from "components/ads/MenuItem";
-import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
+import { MenuItem } from "design-system-old";
 import {
-  getOnSelectAction,
   DropdownOnSelectActions,
+  getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
-  createMessage,
   ADMIN_SETTINGS,
+  APPSMITH_DISPLAY_VERSION,
+  createMessage,
   DOCUMENTATION,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
+import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 type MobileSideBarProps = {
   name: string;
@@ -96,7 +98,8 @@ const LeftPaneVersionData = styled.div`
 
 export default function MobileSideBar(props: MobileSideBarProps) {
   const user = useSelector(getCurrentUser);
-  const { appVersion } = getAppsmithConfigs();
+  const tenantPermissions = useSelector(getTenantPermissions);
+  const { appVersion, cloudHosting } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
 
   return (
@@ -117,11 +120,14 @@ export default function MobileSideBar(props: MobileSideBarProps) {
         <h4>ACCOUNT</h4>
         {user?.isSuperUser && user?.isConfigurable && (
           <StyledMenuItem
-            className={`t--admin-settings-menu`}
+            className="admin-settings-menu-option"
             icon="setting"
             onSelect={() => {
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+                path: getDefaultAdminSettingsPath({
+                  isSuperUser: user?.isSuperUser,
+                  tenantPermissions,
+                }),
               });
             }}
             text={createMessage(ADMIN_SETTINGS)}
@@ -155,7 +161,14 @@ export default function MobileSideBar(props: MobileSideBarProps) {
         />
       </Section>
       <LeftPaneVersionData>
-        <span>Appsmith {appVersion.id}</span>
+        <span>
+          {createMessage(
+            APPSMITH_DISPLAY_VERSION,
+            appVersion.edition,
+            appVersion.id,
+            cloudHosting,
+          )}
+        </span>
         {howMuchTimeBefore !== "" && (
           <span>Released {howMuchTimeBefore} ago</span>
         )}

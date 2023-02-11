@@ -15,7 +15,6 @@ import { Colors } from "constants/Colors";
 import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
-import { TEXT_SIZES } from "constants/WidgetConstants";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
@@ -57,6 +56,7 @@ type StyledFooterProps = {
 
 const BUTTON_WIDTH = 110;
 const FOOTER_BUTTON_GAP = 10;
+const TITLE_FONT_SIZE = "1.25rem";
 const FOOTER_DEFAULT_BG_COLOR = "#fff";
 const FOOTER_PADDING_TOP = FORM_PADDING_Y;
 const TITLE_MARGIN_BOTTOM = 16;
@@ -67,6 +67,7 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
     backgroundColor || FOOTER_DEFAULT_BG_COLOR};
   bottom: 0;
   display: flex;
+  gap: ${FOOTER_BUTTON_GAP}px;
   justify-content: flex-end;
   padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
   padding-top: ${FOOTER_PADDING_TOP}px;
@@ -82,15 +83,6 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
   && > div {
     width: ${BUTTON_WIDTH}px;
   }
-
-  && > button,
-  && > div {
-    margin-right: ${FOOTER_BUTTON_GAP}px;
-  }
-
-  & > button:last-of-type {
-    margin-right: 0;
-  }
 `;
 
 const StyledForm = styled.form<StyledFormProps>`
@@ -101,9 +93,11 @@ const StyledForm = styled.form<StyledFormProps>`
   overflow-y: ${({ scrollContents }) => (scrollContents ? "auto" : "hidden")};
 `;
 
-const StyledTitle = styled(Text)`
+const StyledTitle = styled(Text)<{
+  children?: React.ReactNode;
+}>`
   font-weight: bold;
-  font-size: ${TEXT_SIZES.HEADING1};
+  font-size: ${TITLE_FONT_SIZE};
   word-break: break-word;
   margin-bottom: ${TITLE_MARGIN_BOTTOM}px;
 `;
@@ -122,30 +116,36 @@ const RESET_OPTIONS = {
   keepErrors: true,
 };
 
-function Form<TValues = any>({
-  backgroundColor,
-  children,
-  disabledWhenInvalid,
-  fixedFooter,
-  getFormData,
-  hideFooter,
-  isSubmitting,
-  isWidgetMounting,
-  onFormValidityUpdate,
-  onSubmit,
-  registerResetObserver,
-  resetButtonLabel,
-  resetButtonStyles,
-  schema,
-  scrollContents,
-  showReset,
-  stretchBodyVertically,
-  submitButtonLabel,
-  submitButtonStyles,
-  title,
-  unregisterResetObserver,
-  updateFormData,
-}: FormProps<TValues>) {
+function Form<TValues = any>(
+  {
+    backgroundColor,
+    children,
+    disabledWhenInvalid,
+    fixedFooter,
+    getFormData,
+    hideFooter,
+    isSubmitting,
+    isWidgetMounting,
+    onFormValidityUpdate,
+    onSubmit,
+    registerResetObserver,
+    resetButtonLabel,
+    resetButtonStyles,
+    schema,
+    scrollContents,
+    showReset,
+    stretchBodyVertically,
+    submitButtonLabel,
+    submitButtonStyles,
+    title,
+    unregisterResetObserver,
+    updateFormData,
+  }: FormProps<TValues>,
+  ref:
+    | ((instance: HTMLDivElement | null) => void)
+    | React.MutableRefObject<HTMLDivElement | null>
+    | null,
+) {
   const valuesRef = useRef({});
   const methods = useForm();
   const { formState, reset, watch } = methods;
@@ -158,6 +158,7 @@ function Form<TValues = any>({
   >({
     activeClassName: FOOTER_SCROLL_ACTIVE_CLASS_NAME,
     fixedFooter,
+    ref: ref as React.MutableRefObject<HTMLDivElement>,
   });
 
   const onReset = (
@@ -229,6 +230,8 @@ function Form<TValues = any>({
          * race condition in ReactHookForm.
          */
         setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           reset(convertedFormData, RESET_OPTIONS);
         }, 0);
       }
@@ -264,7 +267,7 @@ function Form<TValues = any>({
     <FormProvider {...methods}>
       <StyledForm
         fixedFooter={fixedFooter}
-        ref={bodyRef}
+        ref={bodyRef as React.RefObject<HTMLFormElement>}
         scrollContents={scrollContents}
       >
         <StyledFormBody
@@ -306,4 +309,4 @@ function Form<TValues = any>({
   );
 }
 
-export default Form;
+export default React.forwardRef<HTMLDivElement, FormProps<any>>(Form);

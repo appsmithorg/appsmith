@@ -1,4 +1,7 @@
-import { ApplicationPayload, Page } from "ce/constants/ReduxActionConstants";
+import {
+  ApplicationPayload,
+  Page,
+} from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
 import { fillPathname, viewerURL } from "RouteBuilder";

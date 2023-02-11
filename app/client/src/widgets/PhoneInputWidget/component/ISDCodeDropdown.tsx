@@ -1,7 +1,6 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Dropdown, DropdownOption, Icon, IconSize } from "design-system-old";
 import { countryToFlag } from "./utilities";
 import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes_v2";
 import { Colors } from "constants/Colors";
@@ -25,32 +24,57 @@ const DropdownTriggerIconWrapper = styled.button<
   letter-spacing: -0.24px;
   color: #090707;
   cursor: pointer;
-  position: ${(props) => props.disabled && "absolute"};
+  position: relative;
   z-index: 2;
   pointer-events: ${(props) => !props.allowDialCodeChange && "none"};
-  ${(props) => (props.disabled ? `background-color: ${Colors.GREY_1};` : "")};
-  border-right: 1px solid ${Colors.GREY_3};
+  ${(props) =>
+    props.disabled ? `background-color: var(--wds-color-bg-disabled);` : ""};
+  border-right: 1px solid var(--wds-color-border);
   gap: 0.25rem;
   padding: 0 0.75rem;
   margin-right: 0.625rem;
 
+  &:disabled {
+    color: var(--wds-color-text-disabled);
+
+    .dropdown {
+      background: var(--wds-color-bg-disabled);
+
+      svg {
+        path {
+          fill: var(--wds-color-icon-disabled) !important;
+        }
+      }
+    }
+  }
+
   &:focus {
     background-color: ${Colors.GREY_1};
+
+    .dropdown {
+      background: ${Colors.GREY_1};
+    }
   }
 
   .dropdown {
     svg {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
 
       path {
-        fill: ${Colors.GREY_10} !important;
+        fill: var(--wds-color-icon) !important;
       }
     }
+  }
+
+  &:disabled {
+    border-right: 1px solid var(--wds-color-border-disabled);
+    background-color: var(--wds-color-bg-disabled);
   }
 `;
 
 const FlagWrapper = styled.span`
+  font-family: "Twemoji Country Flags";
   font-size: 20px;
   line-height: 19px;
 `;
@@ -59,6 +83,16 @@ const Code = styled.span``;
 
 const StyledIcon = styled(Icon)`
   margin-left: 2px;
+`;
+
+const StyledDropdown = styled(Dropdown)`
+  /*
+    We use this font family to show emoji flags
+    on windows devices
+  */
+  .left-icon-wrapper {
+    font-family: "Twemoji Country Flags";
+  }
 `;
 
 export const PopoverStyles = createGlobalStyle<{
@@ -91,17 +125,56 @@ export const PopoverStyles = createGlobalStyle<{
     .${props.portalClassName}  .${Classes.INPUT}:focus, .${
     props.portalClassName
   }  .${Classes.INPUT}:active {
-      box-shadow: 0px 0px 0px 3px ${lightenColor(props.accentColor)} !important;
+      box-shadow: 0px 0px 0px 2px ${lightenColor(props.accentColor)} !important;
       border: 1px solid ${props.accentColor} !important;
     }
 
-    .${props.portalClassName} .t--dropdown-option:hover,
+    .${props.portalClassName} .t--dropdown-option:hover {
+      background-color: var(--wds-color-bg-hover) !important;
+    }
+
     .${props.portalClassName} .t--dropdown-option.selected {
       background-color: ${lightenColor(props.accentColor)} !important;
     }
 
     .${props.portalClassName} .ads-dropdown-options-wrapper {
       border: 0px solid !important;
+      box-shadow: none !important;
+    }
+
+    .${props.portalClassName} .dropdown-search {
+      margin: 10px !important;
+      width: calc(100% - 20px);
+
+      input {
+        border: 1px solid var(--wds-color-border);
+        padding-left: 36px !important;
+        padding-right: 10px !important;
+      }
+
+      .bp3-icon-search {
+        left: 4px;
+        right: auto;
+      }
+
+      .bp3-input-group + div {
+        display: flex;
+        height: 100%;
+        top: 0;
+        right: 7px;
+        bottom: 0;
+        align-items: center;
+
+        svg {
+          position: relative;
+          top: 0;
+        }
+      }
+
+      input:hover {
+        border: 1px solid var(--wds-color-border-hover);
+        background: white;
+      }
     }
   `}
 `;
@@ -173,6 +246,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
       className={`t--input-country-code-change isd-change-dropdown-trigger ${
         !props.allowDialCodeChange ? "country-type-trigger" : ""
       }`}
+      data-tabbable={false}
       disabled={props.disabled}
       tabIndex={0}
       type="button"
@@ -195,7 +269,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   }
   return (
     <>
-      <Dropdown
+      <StyledDropdown
         closeOnSpace={false}
         containerClassName="country-type-filter"
         dropdownHeight="139px"
@@ -206,6 +280,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         optionWidth="340px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
+        portalContainer={document.getElementById("art-board") || undefined}
         searchAutoFocus
         searchPlaceholder="Search by ISD code or country"
         selected={props.selected}

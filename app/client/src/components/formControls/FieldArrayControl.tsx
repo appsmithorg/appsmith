@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
-import { Text, TextType } from "design-system";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
+import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
 import { ControlProps } from "./BaseControl";
@@ -89,7 +87,7 @@ function NestedComponents(props: any) {
               })}
               <CenteredIcon
                 name="delete"
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   props.fields.remove(index);
                 }}

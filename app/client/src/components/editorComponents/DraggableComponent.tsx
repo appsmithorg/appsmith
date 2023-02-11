@@ -1,20 +1,24 @@
 import React, { CSSProperties, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
-import { getColorWithOpacity } from "constants/DefaultTheme";
+import { AppState } from "@appsmith/reducers";
 import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import {
+  isCurrentWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
+import { getColorWithOpacity } from "constants/DefaultTheme";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -25,9 +29,10 @@ const DraggableWrapper = styled.div`
   cursor: grab;
 `;
 
+type DraggableComponentProps = WidgetProps;
+
 // Widget Boundaries which is shown to indicate the boundaries of the widget
 const WidgetBoundaries = styled.div`
-  transform: translate3d(-${WIDGET_PADDING + 1}px, -${WIDGET_PADDING + 1}px, 0);
   z-index: 0;
   width: calc(100% + ${WIDGET_PADDING - 2}px);
   height: calc(100% + ${WIDGET_PADDING - 2}px);
@@ -35,11 +40,10 @@ const WidgetBoundaries = styled.div`
   border: 1px dashed
     ${(props) => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
   pointer-events: none;
+  top: 0;
+  position: absolute;
+  left: 0;
 `;
-
-type DraggableComponentProps = WidgetProps;
-
-/* eslint-disable react/display-name */
 
 /**
  * can drag helper function for react-dnd hook
@@ -47,13 +51,14 @@ type DraggableComponentProps = WidgetProps;
  * @param isResizingOrDragging
  * @param isDraggingDisabled
  * @param props
+ * @param isSnipingMode
+ * @param isPreviewMode
  * @returns
  */
 export const canDrag = (
   isResizingOrDragging: boolean,
   isDraggingDisabled: boolean,
   props: any,
-  isCommentMode: boolean,
   isSnipingMode: boolean,
   isPreviewMode: boolean,
 ) => {
@@ -61,7 +66,6 @@ export const canDrag = (
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !props?.dragDisabled &&
-    !isCommentMode &&
     !isSnipingMode &&
     !isPreviewMode
   );
@@ -70,24 +74,17 @@ export const canDrag = (
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
-
-  const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
   const showTableFilterPane = useShowTableFilterPane();
-  const selectedWidgets = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
-  );
+
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
-  const isCurrentWidgetFocused = focusedWidget === props.widgetId;
-  const isCurrentWidgetSelected = selectedWidgets.includes(props.widgetId);
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
@@ -108,18 +105,19 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
-  const isCurrentWidgetDragging = isDragging && isCurrentWidgetSelected;
-  const isCurrentWidgetResizing = isResizing && isCurrentWidgetSelected;
+  const isCurrentWidgetDragging = isDragging && isSelected;
+  const isCurrentWidgetResizing = isResizing && isSelected;
+
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
     focusWidget &&
       !isResizingOrDragging &&
-      !isCurrentWidgetFocused &&
+      !isFocused &&
       !props.resizeDisabled &&
       focusWidget(props.widgetId);
     e.stopPropagation();
   };
-  const shouldRenderComponent = !(isCurrentWidgetSelected && isDragging);
+  const shouldRenderComponent = !(isSelected && isDragging);
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
     display: isCurrentWidgetDragging ? "none" : "block",
@@ -127,14 +125,8 @@ function DraggableComponent(props: DraggableComponentProps) {
   const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
     return {
       opacity: !isResizingOrDragging || isCurrentWidgetResizing ? 0 : 1,
-      position: "absolute",
-      transform: `translate(-50%, -50%)`,
-      top: "50%",
-      left: "50%",
     };
   }, [isResizingOrDragging, isCurrentWidgetResizing]);
-
-  const widgetBoundaries = <WidgetBoundaries style={dragBoundariesStyle} />;
 
   const classNameForTesting = `t--draggable-${props.type
     .split("_")
@@ -145,7 +137,6 @@ function DraggableComponent(props: DraggableComponentProps) {
     isResizingOrDragging,
     isDraggingDisabled,
     props,
-    isCommentMode,
     isSnipingMode,
     isPreviewMode,
   );
@@ -158,10 +149,10 @@ function DraggableComponent(props: DraggableComponentProps) {
     // allowDrag check is added as react jest test simulation is not respecting default behaviour
     // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
     if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
-      if (!isCurrentWidgetFocused) return;
+      if (!isFocused) return;
 
-      if (!isCurrentWidgetSelected) {
-        selectWidget(props.widgetId);
+      if (!isSelected) {
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
       const widgetHeight = props.bottomRow - props.topRow;
       const widgetWidth = props.rightColumn - props.leftColumn;
@@ -191,7 +182,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   return (
     <DraggableWrapper
       className={className}
-      data-testid={isCurrentWidgetSelected ? "t--selected" : ""}
+      data-testid={isSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
       onMouseOver={handleMouseOver}
@@ -199,7 +190,10 @@ function DraggableComponent(props: DraggableComponentProps) {
       style={dragWrapperStyle}
     >
       {shouldRenderComponent && props.children}
-      {widgetBoundaries}
+      <WidgetBoundaries
+        className={`widget-boundary-${props.widgetId}`}
+        style={dragBoundariesStyle}
+      />
     </DraggableWrapper>
   );
 }

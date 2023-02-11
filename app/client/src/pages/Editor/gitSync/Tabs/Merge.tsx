@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Caption, Space, Title } from "../components/StyledComponents";
-import Dropdown from "components/ads/Dropdown";
+import { Dropdown } from "design-system-old";
 
 import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
@@ -15,7 +15,6 @@ import {
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled, { useTheme } from "styled-components";
-import Button, { Size } from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import {
@@ -45,10 +44,10 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import { Text, Case, TextType } from "design-system";
+import { Button, Case, Size, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
   display: flex;
@@ -282,6 +281,7 @@ export default function Merge() {
         showMergeButton && (
           <Button
             className="t--git-merge-button"
+            data-testid="t--git-merge-button"
             disabled={mergeBtnDisabled}
             isLoading={isMerging}
             onClick={mergeHandler}

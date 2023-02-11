@@ -1,17 +1,18 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Datasource } from "entities/Datasource";
 import DatasourceCard from "./DatasourceCard";
-import { Text, TextType } from "design-system";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size, Text, TextType } from "design-system-old";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { keyBy } from "lodash";
 import {
   createMessage,
   EMPTY_ACTIVE_DATA_SOURCES,
 } from "@appsmith/constants/messages";
+import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -59,6 +60,14 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateDatasource = hasCreateDatasourcePermission(
+    userWorkspacePermissions,
+  );
+
   if (dataSources.length === 0) {
     return (
       <EmptyActiveDatasource>
@@ -66,6 +75,7 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
           {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
           <CreateButton
             category={Category.primary}
+            disabled={!canCreateDatasource}
             onClick={props.onCreateNew}
             size={Size.medium}
             tag="button"

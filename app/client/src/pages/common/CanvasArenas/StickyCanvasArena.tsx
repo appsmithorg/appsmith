@@ -1,6 +1,10 @@
-import styled from "constants/DefaultTheme";
 import React, { forwardRef, RefObject, useEffect, useRef } from "react";
+import styled from "styled-components";
+
 import ResizeObserver from "resize-observer-polyfill";
+import { useSelector } from "react-redux";
+import { getCanvasScale } from "selectors/editorSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 interface StickyCanvasArenaProps {
   showCanvas: boolean;
@@ -48,6 +52,9 @@ export const StickyCanvasArena = forwardRef(
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
 
+    const isMultiPane = useSelector(isMultiPaneActive);
+    const canvasScale = useSelector(getCanvasScale);
+
     const interSectionObserver = useRef(
       new IntersectionObserver((entries) => {
         entries.forEach(updateCanvasStylesIntersection);
@@ -58,10 +65,21 @@ export const StickyCanvasArena = forwardRef(
         observeSlider();
       }),
     );
+
     const { devicePixelRatio: scale = 1 } = window;
 
     const repositionSliderCanvas = (entry: IntersectionObserverEntry) => {
-      stickyCanvasRef.current.style.width = entry.intersectionRect.width + "px";
+      if (isMultiPane) {
+        stickyCanvasRef.current.style.width =
+          entry.intersectionRect.width / canvasScale + "px";
+        stickyCanvasRef.current.style.height =
+          entry.intersectionRect.height / canvasScale + "px";
+      } else {
+        stickyCanvasRef.current.style.width =
+          entry.intersectionRect.width + "px";
+        stickyCanvasRef.current.style.height =
+          entry.intersectionRect.height + "px";
+      }
       stickyCanvasRef.current.style.position = "absolute";
       const calculatedLeftOffset =
         entry.intersectionRect.left - entry.boundingClientRect.left;
@@ -69,15 +87,24 @@ export const StickyCanvasArena = forwardRef(
         entry.intersectionRect.top - entry.boundingClientRect.top;
       stickyCanvasRef.current.style.top = calculatedTopOffset + "px";
       stickyCanvasRef.current.style.left = calculatedLeftOffset + "px";
-      stickyCanvasRef.current.style.height =
-        entry.intersectionRect.height + "px";
     };
 
     const rescaleSliderCanvas = (entry: IntersectionObserverEntry) => {
-      stickyCanvasRef.current.height = entry.intersectionRect.height * scale;
-      stickyCanvasRef.current.width = entry.intersectionRect.width * scale;
-      const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
-      canvasCtx.scale(scale, scale);
+      const canvasCtx: CanvasRenderingContext2D = stickyCanvasRef.current.getContext(
+        "2d",
+      );
+      if (isMultiPane) {
+        stickyCanvasRef.current.height =
+          entry.intersectionRect.height * canvasScale;
+        stickyCanvasRef.current.width =
+          entry.intersectionRect.width * canvasScale;
+        canvasCtx.scale(canvasScale, canvasScale);
+        canvasCtx.transform(canvasScale, 0, 0, canvasScale, 0, 0);
+      } else {
+        stickyCanvasRef.current.height = entry.intersectionRect.height * scale;
+        stickyCanvasRef.current.width = entry.intersectionRect.width * scale;
+        canvasCtx.scale(scale, scale);
+      }
     };
 
     const updateCanvasStylesIntersection = (
@@ -96,12 +123,21 @@ export const StickyCanvasArena = forwardRef(
     };
     const observeSlider = () => {
       interSectionObserver.current.disconnect();
-      interSectionObserver.current.observe(slidingArenaRef.current);
+      if (slidingArenaRef && slidingArenaRef.current) {
+        interSectionObserver.current.observe(slidingArenaRef.current);
+      }
     };
 
     useEffect(() => {
       observeSlider();
-    }, [showCanvas, snapRows, canExtend, snapColSpace, snapRowSpace]);
+    }, [
+      showCanvas,
+      snapRows,
+      canExtend,
+      snapColSpace,
+      snapRowSpace,
+      canvasScale,
+    ]);
 
     useEffect(() => {
       let parentCanvas: Element | null;
@@ -114,7 +150,9 @@ export const StickyCanvasArena = forwardRef(
       return () => {
         parentCanvas?.removeEventListener("scroll", observeSlider);
         parentCanvas?.removeEventListener("mouseover", observeSlider);
-        resizeObserver.current.unobserve(slidingArenaRef.current);
+        if (slidingArenaRef && slidingArenaRef.current) {
+          resizeObserver.current.unobserve(slidingArenaRef.current);
+        }
       };
     }, []);
 
@@ -123,7 +161,12 @@ export const StickyCanvasArena = forwardRef(
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
       it will only be as big as its viewable area so maximum size would be less
   than screen width and height in all cases. */}
-        <canvas data-testid={canvasId} id={canvasId} ref={stickyCanvasRef} />
+        <canvas
+          data-sl="canvas-mq" // attribute to enable canvas on smartlook
+          data-testid={canvasId}
+          id={canvasId}
+          ref={stickyCanvasRef}
+        />
         <StyledCanvasSlider
           data-testid={id}
           id={id}

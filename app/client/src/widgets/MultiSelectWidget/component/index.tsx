@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Select, { SelectProps } from "rc-select";
-import { DefaultValueType } from "rc-select/lib/interface/generator";
+import { DraftValueType } from "rc-select/lib/Select";
 import {
   DropdownStyles,
   MultiSelectContainer,
@@ -13,13 +13,13 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system-old";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -34,7 +34,7 @@ export interface MultiSelectProps
   > {
   mode?: "multiple" | "tags";
   value: string[];
-  onChange: (value: DefaultValueType) => void;
+  onChange: (value: DraftValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
   dropDownWidth: number;
@@ -55,6 +55,7 @@ export interface MultiSelectProps
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -65,6 +66,7 @@ function MultiSelectComponent({
   disabled,
   dropdownStyle,
   dropDownWidth,
+  isDynamicHeightEnabled,
   isValid,
   labelAlignment,
   labelPosition,
@@ -114,7 +116,7 @@ function MultiSelectComponent({
 
   const handleSelectAll = () => {
     if (!isSelectAll) {
-      const allOption: string[] = options.map((option) => option.value);
+      const allOption = options.map((option) => option.value) as string[];
       onChange(allOption);
       return;
     }
@@ -187,6 +189,7 @@ function MultiSelectComponent({
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
           text={labelText}

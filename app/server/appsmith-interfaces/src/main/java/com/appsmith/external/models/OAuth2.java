@@ -76,6 +76,8 @@ public class OAuth2 extends AuthenticationDTO {
 
     String resource;
 
+    boolean useSelfSignedCert = false;
+
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {
             return scopeString;

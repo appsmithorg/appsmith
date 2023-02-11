@@ -1,9 +1,10 @@
 import React from "react";
+import { ThemeProvider } from "styled-components";
 import DividerWidget, { DividerWidgetProps } from "./";
 import configureStore from "redux-mock-store";
 import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
-import { ThemeProvider, theme, dark } from "constants/DefaultTheme";
+import { theme, dark } from "constants/DefaultTheme";
 
 jest.mock("react-dnd", () => ({
   useDrag: jest.fn().mockReturnValue([{ isDragging: false }, jest.fn()]),
@@ -23,14 +24,14 @@ describe("<DividerWidget />", () => {
       debugger: {
         errors: {},
       },
-      comments: {
-        dragPointerOffset: null,
-      },
       editor: {
         isPreviewMode: false,
       },
       widgetReflow: {
         enableReflow: true,
+      },
+      autoHeightUI: {
+        isAutoHeightWithLimitsChanging: false,
       },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },

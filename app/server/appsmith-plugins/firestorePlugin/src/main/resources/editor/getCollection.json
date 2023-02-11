@@ -1,50 +1,17 @@
 {
   "identifier": "GET_COLLECTION",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'GET_COLLECTION'}}"
   },
-  "children" : [
+  "children": [
     {
-      "label": "Collection/Document Path",
+      "label": "Collection Name",
       "configProperty": "actionConfiguration.formData.path.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,
       "initialValue": ""
-    },
-    {
-      "label": "Order By (JSON array of field names to order by)",
-      "configProperty": "actionConfiguration.formData.orderBy.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": false,
-      "initialValue": "",
-      "placeholderText": "[\"ascendingField\", \"-descendingField\", \"nestedObj.field\"]"
-    },
-    {
-      "label": "Start After",
-      "configProperty": "actionConfiguration.formData.next.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": false,
-      "initialValue": ""
-    },
-    {
-      "label": "End Before",
-      "configProperty": "actionConfiguration.formData.prev.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": false,
-      "initialValue": ""
-    },
-    {
-      "label": "Limit Documents",
-      "configProperty": "actionConfiguration.formData.limitDocuments.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": false,
-      "initialValue": "10"
     },
     {
       "label": "Where",
@@ -94,6 +61,41 @@
           "value": "ARRAY_CONTAINS_ANY"
         }
       ]
+    },
+    {
+      "label": "Order By",
+      "configProperty": "actionConfiguration.formData.orderBy.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": false,
+      "initialValue": "",
+      "placeholderText": "[\"ascKey\", \"-descKey\"]"
+    },
+    {
+      "label": "Start After",
+      "configProperty": "actionConfiguration.formData.next.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": false,
+      "initialValue": "",
+      "palceholderText": ""
+    },
+    {
+      "label": "End Before",
+      "configProperty": "actionConfiguration.formData.prev.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": false,
+      "initialValue": ""
+    },
+    {
+      "label": "Limit",
+      "configProperty": "actionConfiguration.formData.limitDocuments.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": false,
+      "palceholderText": "{{Table1.pageSize}}",
+      "initialValue": "10"
     }
   ]
 }

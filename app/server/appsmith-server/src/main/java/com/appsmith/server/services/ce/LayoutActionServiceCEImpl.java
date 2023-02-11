@@ -1,13 +1,16 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.PluginType;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Layout;
@@ -15,14 +18,11 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.dtos.RefactorActionNameDTO;
-import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -32,16 +32,15 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CollectionService;
+import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -52,6 +51,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,12 +62,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 import static java.util.stream.Collectors.toSet;
 
@@ -86,15 +84,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final CollectionService collectionService;
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
+    private final DatasourceService datasourceService;
+    private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
 
 
-    /*
-     * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
-     * `\\b(fetchUsers)\\b`. To achieve this the following strings preWord and postWord are declared here to be used
-     * at run time to create the regex pattern.
-     */
-    private final String preWord = "\\b(";
-    private final String postWord = ")\\b";
+    private final String layoutOnLoadActionErrorToastMessage = "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
 
 
     /**
@@ -103,10 +98,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action) {
         if (action.getCollectionId() == null) {
-            return this.createSingleAction(action);
+            return this.createSingleAction(action, Boolean.FALSE);
         }
 
-        return this.createSingleAction(action)
+        return this.createSingleAction(action, Boolean.FALSE)
                 .flatMap(savedAction -> collectionService.addSingleActionToCollection(action.getCollectionId(), savedAction));
     }
 
@@ -118,7 +113,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         //The change was not in CollectionId, just go ahead and update normally
         if (action.getCollectionId() == null) {
-            return this.updateSingleAction(id, action);
+            return this.updateSingleAction(id, action)
+                    .flatMap(updatedAction -> this.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
         } else if (action.getCollectionId().length() == 0) {
             //The Action has been removed from existing collection.
             return newActionService
@@ -128,7 +124,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     .flatMap(action1 -> {
                         log.debug("Action {} has been removed from its collection.", action1.getId());
                         action.setCollectionId(null);
-                        return this.updateSingleAction(id, action);
+                        return this.updateSingleAction(id, action)
+                                .flatMap(updatedAction -> this.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                     });
         } else {
             //If the code flow has reached this point, that means that the collectionId has been changed to another collection.
@@ -150,7 +147,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     })
                     .flatMap(action1 -> {
                         log.debug("Action {} removed from its previous collection and added to the new collection", action1.getId());
-                        return this.updateSingleAction(id, action);
+                        return this.updateSingleAction(id, action)
+                                .flatMap(updatedAction -> this.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                     });
         }
     }
@@ -162,7 +160,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         final String destinationPageId = actionMoveDTO.getDestinationPageId();
         action.setPageId(destinationPageId);
 
-        Mono<NewPage> destinationPageMono = newPageService.findById(destinationPageId, MANAGE_PAGES)
+        Mono<NewPage> destinationPageMono = newPageService.findById(destinationPageId, pagePermission.getActionCreatePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)));
 
         /*
@@ -191,7 +189,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .flatMap(savedAction ->
                         // fetch the unpublished source page
                         newPageService
-                                .findPageById(oldPageId, MANAGE_PAGES, false)
+                                .findPageById(oldPageId, pagePermission.getEditPermission(), false)
                                 .flatMap(page -> {
                                     if (page.getLayouts() == null) {
                                         return Mono.empty();
@@ -201,12 +199,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     return Flux.fromIterable(page.getLayouts())
                                             .flatMap(layout -> {
                                                 layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                                                return updateLayout(page.getId(), layout.getId(), layout);
+                                                return updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                             })
                                             .collect(toSet());
                                 })
                                 // fetch the unpublished destination page
-                                .then(newPageService.findPageById(actionMoveDTO.getDestinationPageId(), MANAGE_PAGES, false))
+                                .then(newPageService.findPageById(actionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission(), false))
                                 .flatMap(page -> {
                                     if (page.getLayouts() == null) {
                                         return Mono.empty();
@@ -216,7 +214,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     return Flux.fromIterable(page.getLayouts())
                                             .flatMap(layout -> {
                                                 layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                                                return updateLayout(page.getId(), layout.getId(), layout);
+                                                return updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                             })
                                             .collect(toSet());
                                 })
@@ -229,11 +227,11 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         // As client only have default page Id it will be sent under action and not the action.defaultResources
         Mono<String> toPageMono = newPageService
-                .findByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+                .findByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission())
                 .map(NewPage::getId);
 
         Mono<NewAction> branchedActionMono = newActionService
-                .findByBranchNameAndDefaultActionId(branchName, actionMoveDTO.getAction().getId(), MANAGE_ACTIONS);
+                .findByBranchNameAndDefaultActionId(branchName, actionMoveDTO.getAction().getId(), actionPermission.getEditPermission());
 
         return Mono.zip(toPageMono, branchedActionMono)
                 .flatMap(tuple -> {
@@ -247,264 +245,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return moveAction(actionMoveDTO);
                 })
                 .map(responseUtils::updateActionDTOWithDefaultResources);
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO) {
-        String pageId = refactorNameDTO.getPageId();
-        String layoutId = refactorNameDTO.getLayoutId();
-        String oldName = refactorNameDTO.getOldName();
-        String newName = refactorNameDTO.getNewName();
-        return isNameAllowed(pageId, layoutId, newName)
-                .flatMap(allowed -> {
-                    if (!allowed) {
-                        return Mono.error(new AppsmithException(AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
-                    }
-                    return refactorName(pageId, layoutId, oldName, newName);
-                });
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO, String branchName) {
-        if (StringUtils.isEmpty(branchName)) {
-            return refactorWidgetName(refactorNameDTO);
-        }
-
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, refactorNameDTO.getPageId(), MANAGE_PAGES)
-                .flatMap(branchedPage -> {
-                    refactorNameDTO.setPageId(branchedPage.getId());
-                    return refactorWidgetName(refactorNameDTO);
-                })
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO) {
-        String pageId = refactorActionNameDTO.getPageId();
-        String layoutId = refactorActionNameDTO.getLayoutId();
-        String oldName = refactorActionNameDTO.getOldName();
-        final String oldFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
-                oldName :
-                refactorActionNameDTO.getCollectionName() + "." + oldName;
-        String newName = refactorActionNameDTO.getNewName();
-        final String newFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
-                newName :
-                refactorActionNameDTO.getCollectionName() + "." + newName;
-        String actionId = refactorActionNameDTO.getActionId();
-        return Mono.just(newActionService.validateActionName(newName))
-                .flatMap(isValidName -> {
-                    if (!isValidName) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
-                    }
-                    return isNameAllowed(pageId, layoutId, newFullyQualifiedName);
-                })
-                .flatMap(allowed -> {
-                    if (!allowed) {
-                        return Mono.error(new AppsmithException(AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
-                    }
-                    return newActionService
-                            .findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS);
-                })
-                .flatMap(action -> {
-                    action.setName(newName);
-                    if (!StringUtils.isEmpty(refactorActionNameDTO.getCollectionName())) {
-                        action.setFullyQualifiedName(newFullyQualifiedName);
-                    }
-                    return newActionService.updateUnpublishedAction(actionId, action);
-                })
-                .then(refactorName(pageId, layoutId, oldFullyQualifiedName, newFullyQualifiedName));
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO, String branchName) {
-
-        String defaultActionId = refactorActionNameDTO.getActionId();
-        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
-                .flatMap(branchedAction -> {
-                    refactorActionNameDTO.setActionId(branchedAction.getId());
-                    refactorActionNameDTO.setPageId(branchedAction.getUnpublishedAction().getPageId());
-                    return refactorActionName(refactorActionNameDTO);
-                })
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
-    }
-
-    /**
-     * Assumption here is that the refactoring name provided is indeed unique and is fit to be replaced everywhere.
-     * <p>
-     * At this point, the user must have MANAGE_PAGES and MANAGE_ACTIONS permissions for page and action respectively
-     *
-     * @param pageId
-     * @param layoutId
-     * @param oldName
-     * @param newName
-     * @return
-     */
-    @Override
-    public Mono<LayoutDTO> refactorName(String pageId, String layoutId, String oldName, String newName) {
-        String regexPattern = preWord + oldName + postWord;
-        Pattern oldNamePattern = Pattern.compile(regexPattern);
-
-        Mono<PageDTO> updatePageMono = newPageService
-                // fetch the unpublished page
-                .findPageById(pageId, MANAGE_PAGES, false)
-                .flatMap(page -> {
-                    List<Layout> layouts = page.getLayouts();
-                    for (Layout layout : layouts) {
-                        if (layoutId.equals(layout.getId()) && layout.getDsl() != null) {
-                            final JsonNode dslNode = objectMapper.convertValue(layout.getDsl(), JsonNode.class);
-                            final JsonNode dslNodeAfterReplacement = this.replaceStringInJsonNode(dslNode, oldNamePattern, newName);
-                            layout.setDsl(objectMapper.convertValue(dslNodeAfterReplacement, JSONObject.class));
-
-                            // DSL has removed all the old names and replaced it with new name. If the change of name
-                            // was one of the mongoEscaped widgets, then update the names in the set as well
-                            Set<String> mongoEscapedWidgetNames = layout.getMongoEscapedWidgetNames();
-                            if (mongoEscapedWidgetNames != null && mongoEscapedWidgetNames.contains(oldName)) {
-                                mongoEscapedWidgetNames.remove(oldName);
-                                mongoEscapedWidgetNames.add(newName);
-                            }
-                            page.setLayouts(layouts);
-                            // Since the page has most probably changed, save the page and return.
-                            return newPageService.saveUnpublishedPage(page);
-                        }
-                    }
-                    // If we have reached here, the layout was not found and the page should be returned as is.
-                    return Mono.just(page);
-                });
-
-        Set<String> updatableCollectionIds = new HashSet<>();
-
-        Mono<Set<String>> updateActionsMono = newActionService
-                .findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
-                /*
-                 * Assuming that the datasource should not be dependent on the widget and hence not going through the same
-                 * to look for replacement pattern.
-                 */
-                .flatMap(newAction1 -> {
-                    final NewAction newAction = newAction1;
-                    // We need actionDTO to be populated with pluginType from NewAction
-                    // so that we can check for the JS path
-                    Mono<ActionDTO> actionMono = newActionService.generateActionByViewMode(newAction, false);
-                    return actionMono.flatMap(action -> {
-                        newAction.setUnpublishedAction(action);
-                        boolean actionUpdateRequired = false;
-                        ActionConfiguration actionConfiguration = action.getActionConfiguration();
-                        Set<String> jsonPathKeys = action.getJsonPathKeys();
-
-                        if (jsonPathKeys != null && !jsonPathKeys.isEmpty()) {
-                            // Since json path keys actually contain the entire inline js function instead of just the widget/action
-                            // name, we can not simply use the set.contains(obj) function. We need to iterate over all the keys
-                            // in the set and see if the old name is a substring of the json path key.
-                            for (String key : jsonPathKeys) {
-                                if (oldNamePattern.matcher(key).find()) {
-                                    actionUpdateRequired = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!actionUpdateRequired || actionConfiguration == null) {
-                            return Mono.just(newAction);
-                        }
-                        // if actionUpdateRequired is true AND actionConfiguration is not null
-                        if (action.getCollectionId() != null) {
-                            updatableCollectionIds.add(action.getCollectionId());
-                        }
-                        final JsonNode actionConfigurationNode = objectMapper.convertValue(actionConfiguration, JsonNode.class);
-                        final JsonNode actionConfigurationNodeAfterReplacement = replaceStringInJsonNode(actionConfigurationNode, oldNamePattern, newName);
-
-                        ActionConfiguration newActionConfiguration = objectMapper.convertValue(actionConfigurationNodeAfterReplacement, ActionConfiguration.class);
-                        action.setActionConfiguration(newActionConfiguration);
-                        NewAction newAction2 = newActionService.extractAndSetJsonPathKeys(newAction);
-                        return newActionService.save(newAction2);
-                    });
-
-                })
-                .map(savedAction -> savedAction.getUnpublishedAction().getName())
-                .collect(toSet())
-                .flatMap(updatedActions -> {
-                    // If these actions belonged to collections, update the collection body
-                    return Flux.fromIterable(updatableCollectionIds)
-                            .flatMap(collectionId -> actionCollectionService.findById(collectionId, MANAGE_ACTIONS))
-                            .flatMap(actionCollection -> {
-                                final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-                                Matcher matcher = oldNamePattern.matcher(unpublishedCollection.getBody());
-                                String newBodyAsString = matcher.replaceAll(newName);
-                                unpublishedCollection.setBody(newBodyAsString);
-                                return actionCollectionService.save(actionCollection);
-                            })
-                            .collectList()
-                            .thenReturn(updatedActions);
-                });
-
-        return Mono.zip(updateActionsMono, updatePageMono)
-                .flatMap(tuple -> {
-                    Set<String> updatedActionNames = tuple.getT1();
-                    PageDTO page = tuple.getT2();
-                    log.debug("Actions updated due to refactor name in page {} are : {}", pageId, updatedActionNames);
-                    List<Layout> layouts = page.getLayouts();
-                    for (Layout layout : layouts) {
-                        if (layoutId.equals(layout.getId())) {
-                            layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                            return updateLayout(page.getId(), layout.getId(), layout);
-                        }
-                    }
-                    return Mono.empty();
-                });
-    }
-
-    private JsonNode replaceStringInJsonNode(JsonNode jsonNode, Pattern oldNamePattern, String newName) {
-        // If this is a text node, perform replacement directly
-        if (jsonNode.isTextual()) {
-            Matcher matcher = oldNamePattern.matcher(jsonNode.asText());
-            String valueAfterReplacement = matcher.replaceAll(newName);
-            return new TextNode(valueAfterReplacement);
-        }
-
-        // TODO This is special handling for the list widget that has been added to allow refactoring of
-        //  just the default widgets inside the list. This is required because for the list, the widget names
-        //  exist as keys at the location List1.template(.Text1) [Ref #9281]
-        //  Ideally, we should avoid any non-structural elements as keys. This will be improved in list widget v2
-        if (jsonNode.has("type") && "LIST_WIDGET".equals(jsonNode.get("type").asText())) {
-            final JsonNode template = jsonNode.get("template");
-            JsonNode newJsonNode = null;
-            String fieldName = null;
-            final Iterator<String> templateIterator = template.fieldNames();
-            while (templateIterator.hasNext()) {
-                fieldName = templateIterator.next();
-
-                // For each element within template, check whether it would match the replacement pattern
-                final Matcher listWidgetTemplateKeyMatcher = oldNamePattern.matcher(fieldName);
-                if (listWidgetTemplateKeyMatcher.find()) {
-                    newJsonNode = template.get(fieldName);
-                    break;
-                }
-            }
-            if (newJsonNode != null) {
-                // If such a pattern is found, remove that element and attach it back with the new name
-                ((ObjectNode) template).remove(fieldName);
-                ((ObjectNode) template).set(newName, newJsonNode);
-            }
-        }
-        
-        final Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
-        // Go through each field to recursively operate on it
-        while (iterator.hasNext()) {
-            final Map.Entry<String, JsonNode> next = iterator.next();
-            final JsonNode value = next.getValue();
-            if (value.isArray()) {
-                // If this field is an array type, iterate through each element and perform replacement
-                final ArrayNode arrayNode = (ArrayNode) value;
-                final ArrayNode newArrayNode = objectMapper.createArrayNode();
-                arrayNode.forEach(x -> newArrayNode.add(replaceStringInJsonNode(x, oldNamePattern, newName)));
-                // Make this array node created from replaced values the new value
-                next.setValue(newArrayNode);
-            } else {
-                // This is either directly a text node or another json node
-                // In either case, recurse over the entire value to get the replaced value
-                next.setValue(replaceStringInJsonNode(value, oldNamePattern, newName));
-            }
-        }
-        return jsonNode;
     }
 
     /**
@@ -554,10 +294,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
                 boolean isLeafNode = false;
+                Object oldParent;
                 // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
                 while (fieldsIterator.hasNext()) {
+                    oldParent = parent;
                     String nextKey = fieldsIterator.next();
                     if (parent instanceof JSONObject) {
                         parent = ((JSONObject) parent).get(nextKey);
@@ -570,17 +312,17 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             } catch (IndexOutOfBoundsException e) {
                                 // The index being referred does not exist. Hence the path would not exist.
                                 throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                        widgetName, widgetId, fieldPath, pageId, layoutId, null);
+                                        widgetName, widgetId, fieldPath, pageId, layoutId, oldParent, nextKey, "Index out of bounds for list");
                             }
                         } else {
                             throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                    widgetName, widgetId, fieldPath, pageId, layoutId, null);
+                                    widgetName, widgetId, fieldPath, pageId, layoutId, oldParent, nextKey, "Child of list is not in an indexed path");
                         }
                     }
                     // After updating the parent, check for the types
                     if (parent == null) {
                         throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                widgetName, widgetId, fieldPath, pageId, layoutId, null);
+                                widgetName, widgetId, fieldPath, pageId, layoutId, oldParent, nextKey, "New element is null");
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
@@ -594,14 +336,14 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             try {
                                 String bindingAsString = objectMapper.writeValueAsString(parent);
                                 throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                        widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
+                                        widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString, nextKey, "Binding path has no mustache bindings");
                             } catch (JsonProcessingException e) {
                                 throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
                             }
                         }
 
                         // Stricter extraction of dynamic bindings
-                        Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                        Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream().map(token -> token.getValue()).collect(Collectors.toSet());
 
                         String completePath = widgetName + "." + fieldPath;
                         if (widgetDynamicBindingsMap.containsKey(completePath)) {
@@ -669,6 +411,23 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         Mono<Set<String>> actionNamesInPageMono = newActionService
                 .getUnpublishedActions(params)
+                .flatMap(
+                        actionDTO -> {
+                            /*
+                                This is unexpected. Every action inside a JS collection should have a collectionId.
+                                But there are a few documents found for plugin type JS inside newAction collection that don't have any collectionId.
+                                The reason could be due to the lack of transactional behaviour when multiple inserts/updates that take place
+                                during JS action creation. A detailed RCA is documented here
+                                https://www.notion.so/appsmith/RCA-JSObject-name-already-exists-Please-use-a-different-name-e09c407f0ddb4653bd3974f3703408e6
+                             */
+                            if (actionDTO.getPluginType().equals(PluginType.JS) && !StringUtils.hasLength(actionDTO.getCollectionId())) {
+                                log.debug("JS Action with Id: {} doesn't have any collection Id under pageId: {}", actionDTO.getId(), pageId);
+                                return Mono.empty();
+                            } else {
+                                return Mono.just(actionDTO);
+                            }
+                        }
+                )
                 .map(ActionDTO::getValidName)
                 .collect(toSet());
 
@@ -685,7 +444,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         if (!isFQN) {
             widgetNamesMono = newPageService
                     // fetch the unpublished page
-                    .findPageById(pageId, MANAGE_PAGES, false)
+                    .findPageById(pageId, pagePermission.getReadPermission(), false)
                     .flatMap(page -> {
                         List<Layout> layouts = page.getLayouts();
                         for (Layout layout : layouts) {
@@ -716,7 +475,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     if (widgetNames.contains(newName)) {
                         isAllowed = false;
                     }
-                    Set<String> collectionNames = tuple.getT2();
+                    Set<String> collectionNames = tuple.getT3();
                     if (collectionNames.contains(newName)) {
                         isAllowed = false;
                     }
@@ -739,32 +498,34 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      */
     @Override
     public Mono<ActionDTO> updateSingleAction(String id, ActionDTO action) {
-        Mono<ActionDTO> updateUnpublishedAction = newActionService
+        return newActionService
                 .updateUnpublishedAction(id, action)
                 .flatMap(newActionService::populateHintMessages)
                 .cache();
 
-        // First update the action
-        return updateUnpublishedAction
-                // Now update the page layout for any on load changes that may have occured.
-                .flatMap(savedAction -> updatePageLayoutsGivenAction(savedAction.getPageId()))
-                // Return back the updated action.
-                .then(updateUnpublishedAction);
     }
 
     @Override
     public Mono<ActionDTO> updateSingleActionWithBranchName(String defaultActionId, ActionDTO action, String branchName) {
-
+        String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
-        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
-                .map(responseUtils::updateActionDTOWithDefaultResources);
+                .flatMap(updatedAction -> this.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
+                .map(responseUtils::updateActionDTOWithDefaultResources)
+                .zipWith(newPageService.findPageById(pageId, pagePermission.getEditPermission(), false), (actionDTO, pageDTO) -> {
+                    // redundant check
+                    if (pageDTO.getLayouts().size() > 0) {
+                        actionDTO.setErrorReports(pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
+                    }
+                    return actionDTO;
+                });
     }
 
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
-        return newActionService.findById(id, MANAGE_ACTIONS)
+        return newActionService.findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .flatMap(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
@@ -775,7 +536,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     newAction.setUnpublishedAction(action);
 
                     return newActionService.save(newAction)
-                            .flatMap(savedAction -> updatePageLayoutsGivenAction(savedAction.getUnpublishedAction().getPageId())
+                            .flatMap(savedAction -> updatePageLayoutsByPageId(savedAction.getUnpublishedAction().getPageId())
                                     .then(newActionService.generateActionByViewMode(savedAction, false)));
 
                 });
@@ -783,7 +544,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad) {
-        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                 .flatMap(branchedAction -> setExecuteOnLoad(branchedAction.getId(), isExecuteOnLoad))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
@@ -795,7 +556,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
         return newActionService.deleteUnpublishedAction(id)
                 .flatMap(actionDTO -> Mono.zip(Mono.just(actionDTO),
-                        updatePageLayoutsGivenAction(actionDTO.getPageId())))
+                        updatePageLayoutsByPageId(actionDTO.getPageId())))
                 .flatMap(tuple -> {
                     ActionDTO actionDTO = tuple.getT1();
                     return Mono.just(actionDTO);
@@ -803,15 +564,16 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
-        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getDeletePermission())
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
-    private Mono<String> updatePageLayoutsGivenAction(String pageId) {
+    @Override
+    public Mono<String> updatePageLayoutsByPageId(String pageId) {
         return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page
-                .flatMap(id -> newPageService.findPageById(id, MANAGE_PAGES, false))
+                .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
                 .flatMapMany(page -> {
                     if (page.getLayouts() == null) {
                         return Mono.empty();
@@ -819,7 +581,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return Flux.fromIterable(page.getLayouts())
                             .flatMap(layout -> {
                                 layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                                return updateLayout(page.getId(), layout.getId(), layout);
+                                return updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                             });
                 })
                 .collectList()
@@ -840,13 +602,11 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             "appId", t2.getApplicationId(),
                             "pageId", pageId,
                             "layoutId", layoutId,
-                            "dsl", dsl.toJSONString(),
                             "isSuccessfulExecution", isSuccess,
                             "error", error == null ? "" : error.getMessage()
                     );
 
-                    analyticsService.sendEvent(AnalyticsEvents.UPDATE_LAYOUT.getEventName(), t1.getUsername(), data);
-                    return Mono.just(isSuccess);
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.UPDATE_LAYOUT, t2, data).thenReturn(isSuccess);
                 })
                 .onErrorResume(e -> {
                     log.warn("Error sending action execution data point", e);
@@ -856,7 +616,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     @Override
-    public Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout) {
+    public Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout) {
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
@@ -887,14 +647,33 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         List<String> messages = new ArrayList<>();
 
         AtomicReference<Boolean> validOnPageLoadActions = new AtomicReference<>(Boolean.TRUE);
-
-        Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
-                .onErrorResume(AppsmithException.class, error -> {
-                    log.info(error.getMessage());
-                    validOnPageLoadActions.set(FALSE);
-                    return Mono.just(new ArrayList<>());
+        Mono<Integer> evaluatedVersionMono = applicationService
+                .findById(applicationId)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
+                        FieldName.APPLICATION_ID, applicationId)))
+                .map(application -> {
+                    Integer evaluationVersion = application.getEvaluationVersion();
+                    if (evaluationVersion == null) {
+                        evaluationVersion = EVALUATION_VERSION;
+                    }
+                    return evaluationVersion;
                 });
+
+        // setting the layoutOnLoadActionActionErrors to empty to remove the existing errors before new DAG calculation.
+        layout.setLayoutOnLoadActionErrors(new ArrayList<>());
+
+        Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = evaluatedVersionMono
+                .flatMap(evaluatedVersion -> pageLoadActionsUtil
+                        .findAllOnLoadActions(pageId, evaluatedVersion, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
+                        .onErrorResume(AppsmithException.class, error -> {
+                            log.info(error.getMessage());
+                            validOnPageLoadActions.set(FALSE);
+                            layout.setLayoutOnLoadActionErrors(List.of(
+                                    new ErrorDTO(error.getAppErrorCode(),
+                                            layoutOnLoadActionErrorToastMessage,
+                                            error.getMessage())));
+                            return Mono.just(new ArrayList<>());
+                        }));
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
@@ -910,7 +689,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             .updateActionsExecuteOnLoad(flatmapPageLoadActions, pageId, actionUpdates, messages)
                             .thenReturn(allOnLoadActions);
                 })
-                .zipWith(newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
+                .zipWith(newPageService.findByIdAndLayoutsId(pageId, layoutId, pagePermission.getEditPermission(), false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
                 // Now update the page layout with the page load actions and the graph.
@@ -966,12 +745,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     @Override
-    public Mono<LayoutDTO> updateLayout(String defaultPageId, String layoutId, Layout layout, String branchName) {
+    public Mono<LayoutDTO> updateLayout(String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName) {
         if (StringUtils.isEmpty(branchName)) {
-            return updateLayout(defaultPageId, layoutId, layout);
+            return updateLayout(defaultPageId, defaultApplicationId, layoutId, layout);
         }
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
-                .flatMap(branchedPage -> updateLayout(branchedPage.getId(), layoutId, layout))
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+                .flatMap(branchedPage -> updateLayout(branchedPage.getId(), branchedPage.getApplicationId(), layoutId, layout))
                 .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
 
@@ -983,6 +762,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         layoutDTO.setDsl(layout.getDsl());
         layoutDTO.setScreen(layout.getScreen());
         layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
+        layoutDTO.setLayoutOnLoadActionErrors(layout.getLayoutOnLoadActionErrors());
         layoutDTO.setUserPermissions(layout.getUserPermissions());
 
         return layoutDTO;
@@ -1049,7 +829,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         DefaultResources defaultResources = new DefaultResources();
         defaultResources.setBranchName(branchName);
 
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, action.getPageId(), MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, action.getPageId(), pagePermission.getActionCreatePermission())
                 .flatMap(newPage -> {
                     // Update the page and application id with branched resource
                     action.setPageId(newPage.getId());
@@ -1062,19 +842,19 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         defaultResources.setCollectionId(action.getCollectionId());
                     }
                     action.setDefaultResources(defaultResources);
-                    return createSingleAction(action);
+                    return createSingleAction(action, Boolean.FALSE);
                 })
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
-    public Mono<ActionDTO> createSingleAction(ActionDTO action) {
+    public Mono<ActionDTO> createSingleAction(ActionDTO action, Boolean isJsAction) {
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
-        return createAction(action, eventContext);
+        return createAction(action, eventContext, isJsAction);
     }
 
     @Override
-    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext) {
+    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction) {
 
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -1096,8 +876,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         newAction.setPublishedAction(new ActionDTO());
         newAction.getPublishedAction().setDatasource(new Datasource());
 
+        // If the action is a JS action, then we don't need to validate the page. Fetch the page with read.
+        // Else fetch the page with create action permission to ensure that the user has the right to create an action
+        AclPermission aclPermission = isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
+
         Mono<NewPage> pageMono = newPageService
-                .findById(action.getPageId(), READ_PAGES)
+                .findById(action.getPageId(), aclPermission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .cache();
@@ -1172,7 +956,29 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     return Mono.just(newAction);
                 })
-                .flatMap(newActionService::validateAndSaveActionToRepository);
+                .flatMap(savedNewAction -> newActionService.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)))
+                .zipWith(Mono.defer(() -> {
+                    if (action.getDatasource() != null &&
+                            action.getDatasource().getId() != null) {
+                        return datasourceService.findById(action.getDatasource().getId());
+                    } else {
+                        return Mono.justOrEmpty(action.getDatasource());
+                    }
+                }))
+                .flatMap(zippedData -> {
+
+                    final Tuple2<ActionDTO, NewAction> zippedActions = zippedData.getT1();
+                    final Datasource datasource = zippedData.getT2();
+                    final NewAction newAction1 = zippedActions.getT2();
+                    final Datasource embeddedDatasource = newAction1.getUnpublishedAction().getDatasource();
+                    embeddedDatasource.setIsMock(datasource.getIsMock());
+                    embeddedDatasource.setIsTemplate(datasource.getIsTemplate());
+
+                    return analyticsService
+                            .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
+                            .thenReturn(zippedActions.getT1());
+
+                });
     }
 
 }

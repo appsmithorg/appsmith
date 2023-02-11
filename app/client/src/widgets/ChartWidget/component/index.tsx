@@ -1,4 +1,5 @@
-import _, { get } from "lodash";
+import { get } from "lodash";
+import equal from "fast-deep-equal/es6";
 import React from "react";
 import styled from "styled-components";
 
@@ -13,6 +14,7 @@ import {
   LabelOrientation,
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
 } from "../constants";
+import { getSeriesChartData } from "./utils";
 import log from "loglevel";
 import { Colors } from "constants/Colors";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
@@ -60,10 +62,10 @@ export interface ChartComponentProps {
   widgetId: string;
   xAxisName: string;
   yAxisName: string;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
   primaryColor?: string;
+  fontFamily?: string;
 }
 
 const CanvasContainer = styled.div<
@@ -74,7 +76,7 @@ const CanvasContainer = styled.div<
 
   height: 100%;
   width: 100%;
-  background: ${({ backgroundColor }) => `${backgroundColor || Colors.WHITE}`};
+  background: ${Colors.WHITE};
   overflow: hidden;
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
@@ -116,6 +118,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartData = () => {
     const chartData: AllChartData = this.props.chartData;
     const dataLength = Object.keys(chartData).length;
+    const chartType = this.props.chartType;
 
     // if datalength is zero, just pass a empty datum
     if (dataLength === 0) {
@@ -129,6 +132,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
     const firstKey = Object.keys(chartData)[0] as string;
     let data = get(chartData, `${firstKey}.data`, []) as ChartDataPoint[];
+    const color = chartData[firstKey] && chartData[firstKey].color;
 
     if (!Array.isArray(data)) {
       data = [];
@@ -147,6 +151,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       return {
         label: item.x,
         value: item.y,
+        color:
+          chartType === "PIE_CHART"
+            ? ""
+            : color
+            ? color
+            : this.props.primaryColor,
       };
     });
   };
@@ -189,28 +199,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
-  getSeriesChartData = (data: ChartDataPoint[], categories: string[]) => {
-    const dataMap: { [key: string]: string } = {};
-
-    // if not array or (is array and array length is zero)
-    if (!Array.isArray(data) || (Array.isArray(data) && data.length === 0)) {
-      return [
-        {
-          value: "",
-        },
-      ];
-    }
-    for (let index = 0; index < data.length; index++) {
-      const item: ChartDataPoint = data[index];
-      dataMap[item.x] = item.y;
-    }
-    return categories.map((category: string) => {
-      return {
-        value: dataMap[category] ? dataMap[category] : null,
-      };
-    });
-  };
-
   /**
    * creates dataset need by fusion chart  from widget object-data
    *
@@ -220,15 +208,20 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartDataset = (chartData: AllChartData) => {
     const categories: string[] = this.getChartCategoriesMultiSeries(chartData);
 
-    const dataset = Object.keys(chartData).map((key: string) => {
+    const dataset = Object.keys(chartData).map((key: string, index) => {
       const item = get(chartData, `${key}`);
 
       const seriesChartData: Array<Record<
         string,
         unknown
-      >> = this.getSeriesChartData(get(item, "data", []), categories);
+      >> = getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
+        color: item.color
+          ? item.color
+          : index === 0
+          ? this.props.primaryColor
+          : "",
         data: seriesChartData,
       };
     });
@@ -261,15 +254,74 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartConfig = () => {
+    const isSingleSeriesData = this.getDatalength() === 1 ? true : false;
+    const paletteColorConfig = isSingleSeriesData &&
+      this.props.chartType !== "PIE_CHART" && {
+        palettecolors: [this.props.primaryColor],
+      };
+
+    const fontFamily =
+      this.props.fontFamily === "System Default"
+        ? "inherit"
+        : this.props.fontFamily;
+
+    const canvasPadding =
+      this.props.chartType === "LINE_CHART"
+        ? {
+            canvasLeftPadding: "5",
+            canvasTopPadding: "0",
+            canvasRightPadding: "5",
+            canvasBottomPadding: "0",
+          }
+        : {
+            canvasPadding: "0",
+          };
+
     let config = {
       caption: this.props.chartName,
       xAxisName: this.props.xAxisName,
       yAxisName: this.props.yAxisName,
       theme: "fusion",
-      captionAlignment: "left",
-      captionHorizontalPadding: 10,
-      alignCaptionWithCanvas: 0,
-      bgColor: this.props.backgroundColor || Colors.WHITE,
+      alignCaptionWithCanvas: 1,
+
+      // Caption styling =======================
+      captionFontSize: "24",
+      captionAlignment: "center",
+      captionPadding: "20",
+      captionFontColor: Colors.THUNDER,
+
+      // legend position styling ==========
+      legendIconSides: "4",
+      legendIconBgAlpha: "100",
+      legendIconAlpha: "100",
+      legendItemFont: fontFamily,
+      legendPosition: "top",
+      valueFont: fontFamily,
+
+      // Canvas styles ========
+      ...canvasPadding,
+
+      // Chart styling =======
+      chartLeftMargin: "20",
+      chartTopMargin: "10",
+      chartRightMargin: "40",
+      chartBottomMargin: "10",
+
+      // Axis name styling ======
+      xAxisNameFontSize: "14",
+      labelFontSize: "12",
+      labelFontColor: Colors.DOVE_GRAY2,
+      xAxisNameFontColor: Colors.DOVE_GRAY2,
+
+      yAxisNameFontSize: "14",
+      yAxisValueFontSize: "12",
+      yAxisValueFontColor: Colors.DOVE_GRAY2,
+      yAxisNameFontColor: Colors.DOVE_GRAY2,
+
+      // Base configurations ======
+      baseFont: fontFamily,
+      ...paletteColorConfig,
+      bgColor: Colors.WHITE,
       setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
     };
 
@@ -315,12 +367,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       config = {
         ...config,
         dataSource: {
-          ...config.dataSource,
           chart: {
             ...config.dataSource.chart,
             caption: this.props.chartName || config.dataSource.chart.caption,
             setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
           },
+          ...config.dataSource,
         },
       };
     }
@@ -350,26 +402,19 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   // return series title name for in clicked data point
   getSeriesTitle = (data: any) => {
-    // custom chart have mentioned seriesName in dataSource
-    if (this.props.chartType === "CUSTOM_FUSION_CHART") {
-      // custom chart have mentioned seriesName in dataSource
-      return get(
-        this.props,
-        `customFusionChartConfig.dataSource.seriesName`,
-        "",
-      );
-    } else {
-      const dataLength = this.getDatalength();
-      // if pie chart or other chart have single dataset,
-      // get seriesName from chartData
-      if (dataLength <= 1 || this.props.chartType === "PIE_CHART") {
-        const chartData: AllChartData = this.props.chartData;
-        const firstKey = Object.keys(chartData)[0] as string;
-        return get(chartData, `${firstKey}.seriesName`, "");
-      }
-      // other charts return datasetName from clicked data point
-      return get(data, "datasetName", "");
+    const dataLength = this.getDatalength();
+    // if pie chart or other chart have single dataset,
+    // get seriesName from chartData
+    if (
+      (dataLength <= 1 || this.props.chartType === "PIE_CHART") &&
+      this.props.chartType !== "CUSTOM_FUSION_CHART"
+    ) {
+      const chartData: AllChartData = this.props.chartData;
+      const firstKey = Object.keys(chartData)[0] as string;
+      return get(chartData, `${firstKey}.seriesName`, "");
     }
+    // other charts return datasetName from clicked data point
+    return get(data, "datasetName", "");
   };
 
   createGraph = () => {
@@ -444,7 +489,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   }
 
   componentDidUpdate(prevProps: ChartComponentProps) {
-    if (!_.isEqual(prevProps, this.props)) {
+    if (!equal(prevProps, this.props)) {
       const chartType = this.getChartType();
       this.chartInstance.chartType(chartType);
       if (this.props.chartType === "CUSTOM_FUSION_CHART") {

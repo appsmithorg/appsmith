@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.util.WebClientUtils;
+import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -67,6 +70,12 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
         JsonNode bodyNode;
         try {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
+        } catch (IllegalArgumentException e) {
+            if (!StringUtils.hasLength(methodConfig.getRowObjects())) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
+            }
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
@@ -82,7 +91,7 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
 
     @Override
     public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
-        WebClient client = WebClient.builder()
+        WebClient client = WebClientUtils.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
         final RowsGetMethod rowsGetMethod = new RowsGetMethod(this.objectMapper);
@@ -236,10 +245,16 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
 
     private RowObject getRowObjectFromBody(JsonNode body) {
 
-        if (body.isArray() || body.isEmpty()) {
+        if (body.isArray()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected a row object.");
+                    ErrorMessages.EXPECTED_ROW_OBJECT_MESSAGE);
         }
+
+        if (body.isEmpty()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
+        }
+
         return new RowObject(this.objectMapper.convertValue(body, TypeFactory
                 .defaultInstance()
                 .constructMapType(LinkedHashMap.class, String.class, String.class)));

@@ -1,52 +1,15 @@
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
-import FormControlRegistry from "./formControl/FormControlRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
-import { LogLevelDesc } from "loglevel";
-import produce from "immer";
-import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
+import { AppIconCollection, AppIconName } from "design-system-old";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
-import localStorage from "utils/localStorage";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { osName } from "react-device-detect";
-
-export const createReducer = (
-  initialState: any,
-  handlers: { [type: string]: (state: any, action: any) => any },
-) => {
-  return function reducer(state = initialState, action: ReduxAction<any>) {
-    if (handlers.hasOwnProperty(action.type)) {
-      return handlers[action.type](state, action);
-    } else {
-      return state;
-    }
-  };
-};
-
-export const createImmerReducer = (
-  initialState: any,
-  handlers: { [type: string]: any },
-) => {
-  return function reducer(state = initialState, action: ReduxAction<any>) {
-    if (handlers.hasOwnProperty(action.type)) {
-      return produce(handlers[action.type])(state, action);
-    } else {
-      return state;
-    }
-  };
-};
-
-export const appInitializer = () => {
-  FormControlRegistry.registerFormControlBuilders();
-  const appsmithConfigs = getAppsmithConfigs();
-  log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
-};
 
 export const initializeAnalyticsAndTrackers = () => {
   const appsmithConfigs = getAppsmithConfigs();
@@ -56,6 +19,24 @@ export const initializeAnalyticsAndTrackers = () => {
       window.Sentry = Sentry;
       Sentry.init({
         ...appsmithConfigs.sentry,
+        beforeSend(event) {
+          if (
+            event.exception &&
+            Array.isArray(event.exception.values) &&
+            event.exception.values[0].value &&
+            event.exception.values[0].type === "ChunkLoadError"
+          ) {
+            // Only log ChunkLoadErrors after the 2 retires
+            if (
+              !event.exception.values[0].value.includes(
+                "failed after 2 retries",
+              )
+            ) {
+              return null;
+            }
+          }
+          return event;
+        },
         beforeBreadcrumb(breadcrumb) {
           if (
             breadcrumb.category === "console" &&
@@ -91,15 +72,33 @@ export const initializeAnalyticsAndTrackers = () => {
     if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
       if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
+        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
       } else if (appsmithConfigs.segment.ceKey) {
         // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
+        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
       }
     }
   } catch (e) {
     Sentry.captureException(e);
     log.error(e);
+  }
+};
+
+export const initializeSegmentWithoutTracking = () => {
+  const appsmithConfigs = getAppsmithConfigs();
+
+  if (appsmithConfigs.segment.apiKey) {
+    // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
+    return AnalyticsUtil.initializeSegmentWithoutTracking(
+      appsmithConfigs.segment.apiKey,
+    );
+  } else if (appsmithConfigs.segment.ceKey) {
+    // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+    return AnalyticsUtil.initializeSegmentWithoutTracking(
+      appsmithConfigs.segment.ceKey,
+    );
+  } else {
+    return Promise.resolve();
   }
 };
 
@@ -255,17 +254,6 @@ export const convertToString = (value: any): string => {
   return value.toString();
 };
 
-const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
-  let logLevel = configLevel;
-  if (localStorage && localStorage.getItem) {
-    const localStorageLevel = localStorage.getItem(
-      "logLevelOverride",
-    ) as LogLevelDesc;
-    if (localStorageLevel) logLevel = localStorageLevel;
-  }
-  return logLevel;
-};
-
 export const getInitialsAndColorCode = (
   fullName: any,
   colorPalette: string[],
@@ -327,29 +315,6 @@ export function hexToRgb(
         g: -1,
         b: -1,
       };
-}
-
-export function getQueryParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const keys = urlParams.keys();
-  let key = keys.next().value;
-  const queryParams: Record<string, string> = {};
-  while (key) {
-    queryParams[key] = urlParams.get(key) as string;
-    key = keys.next().value;
-  }
-  return queryParams;
-}
-
-export function convertObjectToQueryParams(object: any): string {
-  if (!_.isNil(object)) {
-    const paramArray: string[] = _.map(_.keys(object), (key) => {
-      return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
-    });
-    return "?" + _.join(paramArray, "&");
-  } else {
-    return "";
-  }
 }
 
 export const retryPromise = (
@@ -468,3 +433,17 @@ export const base64ToBlob = (
 export const isMacOs = () => {
   return osName === "Mac OS";
 };
+
+/**
+ * checks if array of strings are equal regardless of order
+ * @param arr1
+ * @param arr2
+ * @returns
+ */
+export function areArraysEqual(arr1: string[], arr2: string[]) {
+  if (arr1.length !== arr2.length) return false;
+
+  if (arr1.sort().join(",") === arr2.sort().join(",")) return true;
+
+  return false;
+}

@@ -23,9 +23,9 @@ import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.DISTINCT;
 import static com.external.plugins.constants.FieldName.DISTINCT_KEY;
 import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter

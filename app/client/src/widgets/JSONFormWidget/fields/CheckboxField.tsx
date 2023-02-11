@@ -9,6 +9,7 @@ import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { AlignWidget } from "widgets/constants";
 import {
+  ActionUpdateDependency,
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
@@ -95,6 +96,7 @@ function CheckboxField({
           event: {
             type: EventType.ON_CHECK_CHANGE,
           },
+          updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
     },
@@ -117,7 +119,6 @@ function CheckboxField({
           labelPosition={LabelPosition.Left}
           noContainerPadding
           onCheckChange={onCheckChange}
-          rowSpace={20}
           widgetId=""
         />
       </StyledCheckboxWrapper>

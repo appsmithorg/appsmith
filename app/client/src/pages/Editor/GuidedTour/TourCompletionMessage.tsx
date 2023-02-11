@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Rating from "react-rating";
-import Icon, { IconSize } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
+import {
+  Button,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  Size,
+} from "design-system-old";
 import {
   getPostWelcomeTourState,
   setPostWelcomeTourState,
 } from "utils/storage";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { useDispatch } from "react-redux";
 import { showPostCompletionMessage } from "actions/onboardingActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -20,7 +25,6 @@ import {
   RATING_TEXT,
   RATING_TITLE,
 } from "@appsmith/constants/messages";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
@@ -45,7 +49,7 @@ const Confetti = styled.span`
 
 const Title = styled.div`
   color: #000000;
-  ${(props) => getTypographyByKey(props, "h2")}
+  ${getTypographyByKey("h2")}
   font-weight: 600;
 `;
 
@@ -56,7 +60,7 @@ const Description = styled.div`
 `;
 
 const RatingText = styled.span`
-  ${(props) => getTypographyByKey(props, "h4")}
+  ${getTypographyByKey("h4")}
   color: #000000;
   padding-bottom: ${(props) => props.theme.spaces[2]}px;
   margin-right: ${(props) => props.theme.spaces[7]}px;

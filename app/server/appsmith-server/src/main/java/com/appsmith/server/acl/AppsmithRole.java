@@ -6,30 +6,47 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 
 @Getter
 public enum AppsmithRole {
     APPLICATION_ADMIN("Application Administrator", "", Set.of(MANAGE_APPLICATIONS)),
-    APPLICATION_VIEWER("Application Viewer", "",  Set.of(READ_APPLICATIONS)),
-    ORGANIZATION_ADMIN("Administrator", "Can modify all organization settings including editing applications, " +
-        "inviting other users to the organization and exporting applications from the organization",
-        Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS)),
-    ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications along with inviting other users to the organization",
-        Set.of(READ_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_READ_APPLICATIONS,
-            WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS)),
+    APPLICATION_VIEWER("Application Viewer", "", Set.of(READ_APPLICATIONS)),
+    ORGANIZATION_ADMIN(ADMINISTRATOR, WORKSPACE_ADMINISTRATOR_DESCRIPTION,
+            Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS, WORKSPACE_CREATE_APPLICATION, WORKSPACE_CREATE_DATASOURCE,
+                    WORKSPACE_DELETE_DATASOURCES, WORKSPACE_DELETE_APPLICATIONS, DELETE_WORKSPACES)),
+    ORGANIZATION_DEVELOPER(DEVELOPER, WORKSPACE_DEVELOPER_DESCRIPTION,
+            Set.of(READ_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_MANAGE_DATASOURCES, WORKSPACE_READ_APPLICATIONS,
+                    WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS, WORKSPACE_CREATE_APPLICATION, WORKSPACE_CREATE_DATASOURCE,
+                    WORKSPACE_DELETE_DATASOURCES, WORKSPACE_DELETE_APPLICATIONS)),
     ORGANIZATION_VIEWER(
-        "App Viewer",
-        "Can view applications and invite other users to view applications",
-        Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS)),
+            VIEWER,
+            WORKSPACE_VIEWER_DESCRIPTION,
+            Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS, WORKSPACE_EXECUTE_DATASOURCES)
+    ),
+    TENANT_ADMIN("", "", Set.of(MANAGE_TENANT)),
     ;
 
     private Set<AclPermission> permissions;

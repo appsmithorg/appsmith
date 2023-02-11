@@ -5,7 +5,12 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import store from "store";
 import { render } from "test/testUtils";
-import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
+import {
+  getUpdatedRoute,
+  isURLDeprecated,
+  matchPath_BuilderCustomSlug,
+  matchPath_ViewerSlug,
+} from "utils/helpers";
 import {
   fetchApplicationMockResponse,
   setMockApplication,
@@ -16,6 +21,8 @@ import {
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import { Icon, IconSize } from "design-system-old";
+import { Colors } from "constants/Colors";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -121,7 +128,16 @@ describe("URL slug names", () => {
         applicationVersion: 1,
       },
     });
-    const component = render(<ManualUpgrades />);
+    const component = render(
+      <ManualUpgrades showTooltip>
+        <Icon
+          className="t--upgrade"
+          fillColor={Colors.SCORPION}
+          name="upgrade"
+          size={IconSize.XXXL}
+        />
+      </ManualUpgrades>,
+    );
     expect(component.getByTestId("update-indicator")).toBeDefined();
   });
 
@@ -163,5 +179,29 @@ describe("URL slug names", () => {
         pageSlug: "page",
       }),
     ).toBe("/app/my-app/page-605c435a91dea93f0eaf91ba/edit");
+  });
+
+  it("getUpdatedRoute - handles pattern match overlap with slug url and custom slug url", () => {
+    // this path will match with VIEWER_PATH and BUILDER_CUSTOM_PATH
+    const customSlug_pathname =
+      "/app/custom-63c63d944ae4345e31af12a7/edit/saas/google-sheets-plugin/api/63c63d984ae4345e31af12e5";
+
+    // verify path match overlap
+    const matchBuilderCustomPath = matchPath_BuilderCustomSlug(
+      customSlug_pathname,
+    );
+    const matchViewerSlugPath = matchPath_ViewerSlug(customSlug_pathname);
+    expect(matchViewerSlugPath).not.toBeNull();
+    expect(matchBuilderCustomPath).not.toBeNull();
+
+    // verify proper url is returned regarless of match overlap
+    expect(
+      getUpdatedRoute(customSlug_pathname, {
+        applicationSlug: "gsheetreleasetesting-copy",
+        customSlug: "custom",
+        pageId: "63c63d944ae4345e31af12a7",
+        pageSlug: "basicpagination",
+      }),
+    ).toBe(customSlug_pathname);
   });
 });

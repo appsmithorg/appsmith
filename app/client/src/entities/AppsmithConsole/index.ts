@@ -14,6 +14,30 @@ export enum PLATFORM_ERROR {
   JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION",
 }
 
+export type Methods =
+  | "log"
+  | "debug"
+  | "info"
+  | "warn"
+  | "error"
+  | "table"
+  | "clear"
+  | "time"
+  | "timeEnd"
+  | "count"
+  | "assert";
+
+export type UserLogObject = { logObject: LogObject[]; source: SourceEntity };
+
+// Type of the log object
+export type LogObject = {
+  method: Methods | "result";
+  data: any[];
+  timestamp: string;
+  id: string;
+  severity: Severity;
+};
+
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
 
 export enum Severity {
@@ -49,12 +73,22 @@ export interface SourceEntity {
   propertyPath?: string;
 }
 
+export enum LOG_CATEGORY {
+  USER_GENERATED = "USER_GENERATED",
+  PLATFORM_GENERATED = "PLATFORM_GENERATED",
+}
+
 export interface LogActionPayload {
   // Log id, used for updating or deleting
   id?: string;
   // What is the log about. Is it a datasource update, widget update, eval error etc.
   logType?: LOG_TYPE;
+  // This is the preview of the log that the user sees.
   text: string;
+  // Number of times this log has been repeated
+  occurrenceCount?: number;
+  // Deconstructed data of the log, this includes the whole nested objects/arrays/strings etc.
+  logData?: any[];
   messages?: Array<Message>;
   // Time taken for the event to complete
   timeTaken?: string;
@@ -77,6 +111,8 @@ export interface Message {
 
 export interface Log extends LogActionPayload {
   severity: Severity;
+  // Is the log system generated or user generated
+  category: LOG_CATEGORY;
   // "when" did this event happen
   timestamp: string;
 }

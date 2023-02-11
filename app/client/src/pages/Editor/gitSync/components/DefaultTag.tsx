@@ -1,6 +1,6 @@
-import Button, { Category, Size } from "components/ads/Button";
 import React from "react";
 import styled from "styled-components";
+import { Button, Category, Size } from "design-system-old";
 
 const StyledButton = styled(Button)`
   display: inline-block;
@@ -12,7 +12,7 @@ const StyledButton = styled(Button)`
 export default function DefaultTag() {
   return (
     <StyledButton
-      category={Category.tertiary}
+      category={Category.secondary}
       data-testid="t--default-tag"
       disabled
       size={Size.xxs}

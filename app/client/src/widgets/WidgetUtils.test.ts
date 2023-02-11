@@ -3,20 +3,28 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
-import { TextSizes } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  TextSizes,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
 import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
+import { WidgetProps } from "./BaseWidget";
 import { rgbaMigrationConstantV56 } from "./constants";
 import {
   borderRadiusUtility,
   replaceRgbaMigrationConstant,
   boxShadowMigration,
   boxShadowUtility,
-  escapeSpecialChars,
   fontSizeUtility,
   lightenColor,
   composePropertyUpdateHook,
   sanitizeKey,
+  shouldUpdateWidgetHeightAutomatically,
+  isAutoHeightEnabledForWidget,
+  getWidgetMaxAutoHeight,
+  getWidgetMinAutoHeight,
 } from "./WidgetUtils";
 import {
   getCustomTextColor,
@@ -98,22 +106,22 @@ describe("validate widget utils button style functions", () => {
   // validate getCustomHoverColor function
   it("getCustomHoverColor - validate empty or undefined background color or variant", () => {
     // background color and variant is both are undefined
-    const expected = "#e6e6e6";
+    const expected = "hsl(0, 0%, 95%)";
     const result = getCustomHoverColor(theme);
     expect(result).toStrictEqual(expected);
 
     // variant is undefined
     const backgroundColor = "#03b365";
-    const expected1 = "#028149";
+    const expected1 = "hsl(153, 97%, 31%)";
     const result1 = getCustomHoverColor(theme, undefined, backgroundColor);
     expect(result1).toStrictEqual(expected1);
   });
 
   // validate getCustomHoverColor function
   it("getCustomHoverColor - validate hover color for different variant", () => {
-    const backgroundColor = "#03b365";
+    const backgroundColor = "hsl(153, 97% ,36%)";
     // variant : PRIMARY
-    const expected1 = "#028149";
+    const expected1 = "hsl(153, 97%, 31%)";
     const result1 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.PRIMARY,
@@ -123,12 +131,12 @@ describe("validate widget utils button style functions", () => {
     expect(result1).toStrictEqual(expected1);
 
     // variant : PRIMARY without background
-    const expected2 = "#e6e6e6";
+    const expected2 = "hsl(0, 0%, 95%)";
     const result2 = getCustomHoverColor(theme, ButtonVariantTypes.PRIMARY);
     expect(result2).toStrictEqual(expected2);
 
     // variant : SECONDARY
-    const expected3 = "#dcfeef";
+    const expected3 = "rgba(3, 181, 101, 0.1)";
     const result3 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.SECONDARY,
@@ -138,12 +146,12 @@ describe("validate widget utils button style functions", () => {
     expect(result3).toStrictEqual(expected3);
 
     // variant : SECONDARY without background
-    const expected4 = "#ededed";
+    const expected4 = "rgba(255, 255, 255, 0.1)";
     const result4 = getCustomHoverColor(theme, ButtonVariantTypes.SECONDARY);
     expect(result4).toStrictEqual(expected4);
 
     // variant : TERTIARY
-    const expected5 = "#dcfeef";
+    const expected5 = "rgba(3, 181, 101, 0.1)";
     const result5 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.TERTIARY,
@@ -152,18 +160,9 @@ describe("validate widget utils button style functions", () => {
     expect(result5).toStrictEqual(expected5);
 
     // variant : TERTIARY without background
-    const expected6 = "#ededed";
+    const expected6 = "rgba(255, 255, 255, 0.1)";
     const result6 = getCustomHoverColor(theme, ButtonVariantTypes.TERTIARY);
     expect(result6).toStrictEqual(expected6);
-  });
-
-  it("validate escaping special characters", () => {
-    const testString = `a\nb\nc
-hello! how are you?
-`;
-    const result = escapeSpecialChars(testString);
-    const expectedResult = "a\nb\nc\nhello! how are you?\n";
-    expect(result).toStrictEqual(expectedResult);
   });
 
   it("Check if the color is lightened with lightenColor utility", () => {
@@ -476,5 +475,224 @@ describe("composePropertyUpdateHook", () => {
     const expected = undefined;
 
     expect(composePropertyUpdateHook(input)(null, "", null)).toEqual(expected);
+  });
+});
+
+const DUMMY_WIDGET: WidgetProps = {
+  bottomRow: 0,
+  isLoading: false,
+  leftColumn: 0,
+  parentColumnSpace: 0,
+  parentRowSpace: 0,
+  renderMode: RenderModes.CANVAS,
+  rightColumn: 0,
+  topRow: 0,
+  type: "SKELETON_WIDGET",
+  version: 2,
+  widgetId: "",
+  widgetName: "",
+};
+describe("Auto Height Utils", () => {
+  it("should return true if withLimits is true and widget has AUTO_HEIGHT_WITH_LIMITS", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, true);
+    expect(result).toBe(true);
+  });
+  it("should return false if withLimits is true and widget has AUTO_HEIGHT", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, true);
+    expect(result).toBe(false);
+  });
+  it("should return true if withLimits is false and widget has AUTO_HEIGHT", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, false);
+    expect(result).toBe(true);
+  });
+
+  it("should return false withLimits is false and widget has FIXED", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "FIXED",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, false);
+    expect(result).toBe(false);
+  });
+  it("should return false withLimits is true and widget has FIXED", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "FIXED",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, true);
+    expect(result).toBe(false);
+  });
+  it("should return 9000 if widget has AUTO_HEIGHT", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT",
+      maxDynamicHeight: 20,
+    };
+
+    const result = getWidgetMaxAutoHeight(props);
+    expect(result).toBe(WidgetHeightLimits.MAX_HEIGHT_IN_ROWS);
+  });
+  it("should return 20 if widget has AUTO_HEIGHT_WITH_LIMITS", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      maxDynamicHeight: 20,
+    };
+
+    const result = getWidgetMaxAutoHeight(props);
+    expect(result).toBe(20);
+  });
+  it("should return 9000 if widget has AUTO_HEIGHT_WITH_LIMITS and maxDynamicHeight is undefined", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      maxDynamicHeight: undefined,
+    };
+
+    const result = getWidgetMaxAutoHeight(props);
+    expect(result).toBe(WidgetHeightLimits.MAX_HEIGHT_IN_ROWS);
+  });
+
+  it("should return undefined if widget is FIXED ", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "FIXED",
+      maxDynamicHeight: undefined,
+    };
+
+    const result = getWidgetMaxAutoHeight(props);
+    expect(result).toBeUndefined();
+  });
+
+  it("should return 20 if widget has AUTO_HEIGHT and props has 20", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT",
+      minDynamicHeight: 20,
+    };
+
+    const result = getWidgetMinAutoHeight(props);
+    expect(result).toBe(20);
+  });
+  it("should return 20 if widget has AUTO_HEIGHT_WITH_LIMITS", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: 20,
+    };
+
+    const result = getWidgetMinAutoHeight(props);
+    expect(result).toBe(20);
+  });
+  it("should return 4 if widget has AUTO_HEIGHT_WITH_LIMITS and minDynamicHeight is undefined", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: undefined,
+    };
+
+    const result = getWidgetMinAutoHeight(props);
+    expect(result).toBe(WidgetHeightLimits.MIN_HEIGHT_IN_ROWS);
+  });
+
+  it("should return undefined if widget is FIXED ", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "FIXED",
+      minDynamicHeight: undefined,
+    };
+
+    const result = getWidgetMinAutoHeight(props);
+    expect(result).toBeUndefined();
+  });
+});
+
+describe("Should Update Widget Height Automatically?", () => {
+  it("Multiple scenario tests", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: 19,
+      maxDynamicHeight: 40,
+      topRow: 20,
+      bottomRow: 40,
+    };
+
+    const inputs = [
+      600, // Is beyond max height of 40 rows,
+      560, // Is beyond max height of 40 rows
+      220, // Is within 20 and 40 rows limits
+      180, // Is below the min of 20 rows
+      200, // Is the same as current height
+      190, // Is exactly min value
+      400, // Is exactly max value
+      0, // Is below the min possible value
+      100, // Is below the min possible value
+    ];
+    const expected = [
+      true, // because currentHeight is not close to maxDynamicHeight
+      true, // because currentheight is not close to maxDynamicHeight
+      true,
+      true, // because we need to go as low as possible (minDynamicHeight)
+      true,
+      true,
+      true,
+      true, // because we need to go as low as possible (minDynamicHeight)
+      true, // because we need to go as low as possible (minDynamicHeight)
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = shouldUpdateWidgetHeightAutomatically(input, props);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+  it("When height is below min rows, should update, no matter the expectations", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: 19,
+      maxDynamicHeight: 40,
+      topRow: 20,
+      bottomRow: 25,
+    };
+
+    const input = 0;
+    const expected = true;
+
+    const result = shouldUpdateWidgetHeightAutomatically(input, props);
+    expect(result).toStrictEqual(expected);
+  });
+  it("When height is above max rows, should update, no matter the expectations", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: 19,
+      maxDynamicHeight: 40,
+      topRow: 20,
+      bottomRow: 65,
+    };
+
+    const input = 0;
+    const expected = true;
+
+    const result = shouldUpdateWidgetHeightAutomatically(input, props);
+    expect(result).toStrictEqual(expected);
   });
 });

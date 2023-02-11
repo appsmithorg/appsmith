@@ -11,7 +11,6 @@ export const STORAGE_KEYS: {
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   POST_WELCOME_TOUR: "PostWelcomeTour",
   RECENT_ENTITIES: "RecentEntities",
-  COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
   ENABLE_FIRST_TIME_USER_ONBOARDING: "ENABLE_FIRST_TIME_USER_ONBOARDING",
@@ -114,8 +113,7 @@ export const setPostWelcomeTourState = async (flag: boolean) => {
 
 export const getPostWelcomeTourState = async () => {
   try {
-    const onboardingState = await store.getItem(STORAGE_KEYS.POST_WELCOME_TOUR);
-    return onboardingState;
+    return await store.getItem(STORAGE_KEYS.POST_WELCOME_TOUR);
   } catch (error) {
     log.error("An error occurred when getting post welcome tour state", error);
   }

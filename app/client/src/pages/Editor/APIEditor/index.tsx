@@ -1,17 +1,16 @@
 import React from "react";
 import { connect } from "react-redux";
 import { submit } from "redux-form";
-import ApiEditorForm from "./Form";
+import RestApiEditorForm from "./RestAPIForm";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import { PaginationField } from "api/ActionAPI";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { RouteComponentProps } from "react-router";
 import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
 import _ from "lodash";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -22,7 +21,12 @@ import {
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
-import { Action, PaginationType, RapidApiAction } from "entities/Action";
+import {
+  Action,
+  PaginationType,
+  PluginPackageName,
+  RapidApiAction,
+} from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import styled, { CSSProperties } from "styled-components";
@@ -41,6 +45,7 @@ import {
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { saasEditorApiIdURL } from "RouteBuilder";
+import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -153,7 +158,7 @@ class ApiEditor extends React.Component<Props> {
 
   getPluginUiComponentOfName = (plugins: Plugin[]): string | undefined => {
     const plugin = plugins.find(
-      (plugin) => plugin.packageName === REST_PLUGIN_PACKAGE_NAME,
+      (plugin) => plugin.packageName === PluginPackageName.REST_API,
     );
     if (!plugin) return undefined;
     return plugin.uiComponent;
@@ -195,7 +200,7 @@ class ApiEditor extends React.Component<Props> {
     return (
       <div style={formStyles}>
         {formUiComponent === "ApiEditorForm" && (
-          <ApiEditorForm
+          <RestApiEditorForm
             apiName={this.props.apiName}
             appName={
               this.props.currentApplication
@@ -204,6 +209,24 @@ class ApiEditor extends React.Component<Props> {
             }
             isDeleting={isDeleting}
             isRunning={isRunning}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+            paginationType={paginationType}
+            pluginId={pluginId}
+            settingsConfig={this.props.settingsConfig}
+          />
+        )}
+        {formUiComponent === "GraphQLEditorForm" && (
+          <GraphQLEditorForm
+            apiName={this.props.apiName}
+            appName={
+              this.props.currentApplication
+                ? this.props.currentApplication.name
+                : ""
+            }
+            isDeleting={isDeleting}
+            isRunning={isRunning}
+            match={this.props.match}
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
             paginationType={paginationType}

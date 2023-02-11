@@ -45,7 +45,7 @@ Cypress.on("fail", (error) => {
 Cypress.env("MESSAGES", MESSAGES);
 
 before(function() {
-  //console.warn = () => {};
+  //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
   initLocalstorageRegistry();
   cy.startServerAndRoutes();
@@ -68,6 +68,16 @@ before(function() {
       cy.SignupFromAPI(
         Cypress.env("TESTUSERNAME2"),
         Cypress.env("TESTPASSWORD2"),
+      );
+      cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME3"),
+        Cypress.env("TESTPASSWORD3"),
+      );
+      cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME4"),
+        Cypress.env("TESTPASSWORD4"),
       );
       cy.LogOut();
     }
@@ -97,11 +107,18 @@ before(function() {
 });
 
 beforeEach(function() {
+  //cy.window().then((win) => (win.onbeforeunload = undefined));
+  if (!navigator.userAgent.includes("Cypress")) {
+    window.addEventListener("beforeunload", this.beforeunloadFunction);
+  }
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer
   cy.DeleteEntityStateLocalStorage();
+  cy.intercept("api/v1/admin/env", (req) => {
+    req.headers["origin"] = Cypress.config("baseUrl");
+  });
 });
 
 after(function() {
@@ -109,4 +126,9 @@ after(function() {
   cy.DeleteAppByApi();
   //-- LogOut Application---//
   cy.LogOut();
+
+  // Commenting until Upgrade Appsmith cases are fixed
+  // const tedUrl = "http://localhost:5001/v1/parent/cmd";
+  // cy.log("Start the appsmith container");
+  // cy.StartContainer(tedUrl, "appsmith"); // start the old container
 });

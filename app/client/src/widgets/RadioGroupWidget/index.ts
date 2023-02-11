@@ -8,13 +8,19 @@ export const CONFIG = {
   name: "Radio Group",
   iconSVG: IconSVG,
   needsMeta: true,
+  features: {
+    dynamicHeight: {
+      sectionIndex: 3,
+      active: true,
+    },
+  },
   searchTags: ["choice"],
   defaults: {
-    rows: 8,
+    rows: 6,
     columns: 20,
     animateLoading: true,
     label: "Label",
-    labelPosition: LabelPosition.Left,
+    labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelTextSize: "0.875rem",
     labelWidth: 5,
@@ -35,6 +41,9 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

@@ -21,6 +21,9 @@ spec:
       {{- end }}
       labels:
         {{- include "appsmith.selectorLabels" . | nindent 8 }}
+        {{- if .Values.podLabels }}
+        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- end }}
     spec:
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName | quote }}
@@ -40,6 +43,25 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+      {{- if .Values.redis.enabled }}
+      - name: redis-init-container
+      {{- if ((.Values.initContainer.redis).image) }}
+        image: {{ .Values.initContainer.redis.image }}
+      {{- else }}
+        image: "alpine"
+      {{- end }}
+        command: ['sh', '-c', "apk add redis; until redis-cli -h {{ include "appsmith.fullname" . }}-redis-master.{{.Release.Namespace}}.svc.cluster.local ping; do echo waiting for redis; sleep 2; done"]
+      {{- end }}
+      {{- if .Values.mongodb.enabled }}
+      - name: mongo-init-container
+      {{- if ((.Values.initContainer.mongodb).image) }}
+        image: {{ .Values.initContainer.mongodb.image }}
+      {{- else }}
+        image:  "docker.io/bitnami/mongodb:4.4.11-debian-10-r12"
+      {{- end }}
+        command: ['sh', '-c', "until mongo --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
+      {{- end }}
       containers:
         - name: {{ .Values.containerName }}
           securityContext:
@@ -56,13 +78,18 @@ spec:
             - name: supervisord
               containerPort: 9001
               protocol: TCP
+          startupProbe:
+            # The `livenessProbe` and `readinessProbe` will be disabled until the `startupProbe` is successful.
+            httpGet:
+              path: /
+              port: http
           livenessProbe:
             httpGet:
               path: /
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/v1/users/me
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -76,6 +103,10 @@ spec:
             - secretRef:
                 name: {{ .Values.secretName }}
             {{- end }}
+      {{- if .Values.image.pullSecrets}}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}
+      {{- end }}
       volumes:
   {{- if not .Values.persistence.enabled }}
       - name: data

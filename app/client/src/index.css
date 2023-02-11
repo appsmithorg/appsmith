@@ -1,9 +1,10 @@
 @import "~normalize.css";
 @import "~@blueprintjs/core/lib/css/blueprint.css";
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
-@import "~design-system/build/css/design-system.css";
+@import "~design-system-old/build/css/design-system-old.css";
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
+@import "theme/wds.css";
 
 body {
   margin: 0;
@@ -99,19 +100,6 @@ div.bp3-popover-arrow {
   border-radius: 0 !important;
 }
 
-/* rich text editor styles */
-.tox-tinymce {
-  border-color: #E7E7E7 !important;
-}
-
-.tox:not([dir=rtl]) .tox-toolbar__group:not(:last-of-type), .tox .tox-statusbar {
-  border-color: #E7E7E7 !important;
-}
-
-.tox .tox-toolbar__primary {
-  background: white !important;
-  border-bottom: 1px solid #E7E7E7 !important;
-}
 
 /* making both the Modal layer and the Dropdown layer */
 .bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
@@ -125,4 +113,8 @@ div.bp3-popover-arrow {
 
 .bp3-overlay-backdrop {
   background-color: rgba(16, 22, 26, 0.7) !important;
+}
+
+.bp3-overlay-zindex {
+  z-index: 20 !important;
 }

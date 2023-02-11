@@ -1,12 +1,13 @@
-import TernServer, {
+import CodemirrorTernService, {
   AutocompleteDataType,
   Completion,
   createCompletionHeader,
   DataTreeDefEntityInformation,
-} from "./TernServer";
+} from "./CodemirrorTernService";
 import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { AutocompleteSorter, ScoredCompletion } from "./AutocompleteSortRules";
 
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {
@@ -17,6 +18,7 @@ describe("Tern server", () => {
           doc: ({
             getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "{{Api.}}",
+            getValue: () => "{{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -28,6 +30,7 @@ describe("Tern server", () => {
           doc: ({
             getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "a{{Api.}}",
+            getValue: () => "a{{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -37,17 +40,32 @@ describe("Tern server", () => {
         input: {
           name: "test",
           doc: ({
-            getCursor: () => ({ ch: 2, line: 0 }),
-            getLine: () => "a{{Api.}}",
+            getCursor: () => ({ ch: 10, line: 0 }),
+            getLine: () => "a{{Api.}}bc",
+            getValue: () => "a{{Api.}}bc",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
-        expectedOutput: "{{Api.}}",
+        expectedOutput: "a{{Api.}}bc",
+      },
+      {
+        input: {
+          name: "test",
+          doc: ({
+            getCursor: () => ({ ch: 4, line: 0 }),
+            getLine: () => "a{{Api.}}",
+            getValue: () => "a{{Api.}}",
+          } as unknown) as CodeMirror.Doc,
+          changed: null,
+        },
+        expectedOutput: "Api.",
       },
     ];
 
     testCases.forEach((testCase) => {
-      const value = TernServer.getFocusedDynamicValue(testCase.input);
+      const { value } = CodemirrorTernService.getFocusedDocValueAndPos(
+        testCase.input,
+      );
       expect(value).toBe(testCase.expectedOutput);
     });
   });
@@ -61,6 +79,7 @@ describe("Tern server", () => {
             getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "{{Api.}}",
             somethingSelected: () => false,
+            getValue: () => "{{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -70,9 +89,10 @@ describe("Tern server", () => {
         input: {
           name: "test",
           doc: ({
-            getCursor: () => ({ ch: 0, line: 1 }),
+            getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "{{Api.}}",
             somethingSelected: () => false,
+            getValue: () => "{{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -82,25 +102,37 @@ describe("Tern server", () => {
         input: {
           name: "test",
           doc: ({
-            getCursor: () => ({ ch: 3, line: 1 }),
+            getCursor: () => ({ ch: 8, line: 0 }),
             getLine: () => "g {{Api.}}",
             somethingSelected: () => false,
+            getValue: () => "g {{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
-        expectedOutput: { ch: 1, line: 0 },
+        expectedOutput: { ch: 4, line: 0 },
+      },
+      {
+        input: {
+          name: "test",
+          doc: ({
+            getCursor: () => ({ ch: 7, line: 1 }),
+            getLine: () => "c{{Api.}}",
+            somethingSelected: () => false,
+            getValue: () => "ab\nc{{Api.}}",
+          } as unknown) as CodeMirror.Doc,
+          changed: null,
+        },
+        expectedOutput: { ch: 4, line: 0 },
       },
     ];
 
     testCases.forEach((testCase) => {
-      const request = TernServer.buildRequest(testCase.input, {});
-
+      const request = CodemirrorTernService.buildRequest(testCase.input, {});
       expect(request.query.end).toEqual(testCase.expectedOutput);
     });
   });
 
-  it(`Check whether the position is evaluated correctly for placing the selected
-      autocomplete value`, () => {
+  it(`Check whether the position is evaluated correctly for placing the selected autocomplete value`, () => {
     const testCases = [
       {
         input: {
@@ -111,6 +143,7 @@ describe("Tern server", () => {
               getCursor: () => ({ ch: 2, line: 0 }),
               getLine: () => "{{}}",
               somethingSelected: () => false,
+              getValue: () => "{{}}",
             } as unknown) as CodeMirror.Doc,
           },
           requestCallbackData: {
@@ -125,20 +158,21 @@ describe("Tern server", () => {
         input: {
           codeEditor: {
             value: "\n {{}}",
-            cursor: { ch: 3, line: 1 },
+            cursor: { ch: 3, line: 0 },
             doc: ({
-              getCursor: () => ({ ch: 3, line: 1 }),
+              getCursor: () => ({ ch: 3, line: 0 }),
               getLine: () => " {{}}",
               somethingSelected: () => false,
+              getValue: () => " {{}}",
             } as unknown) as CodeMirror.Doc,
           },
           requestCallbackData: {
             completions: [{ name: "Api1" }],
-            start: { ch: 2, line: 1 },
-            end: { ch: 6, line: 1 },
+            start: { ch: 0, line: 0 },
+            end: { ch: 4, line: 0 },
           },
         },
-        expectedOutput: { ch: 3, line: 1 },
+        expectedOutput: { ch: 3, line: 0 },
       },
     ];
 
@@ -153,12 +187,17 @@ describe("Tern server", () => {
         testCase.input.codeEditor.doc,
       );
 
-      const value: any = TernServer.requestCallback(
+      const mockAddFile = jest.fn();
+      CodemirrorTernService.server.addFile = mockAddFile;
+
+      const value: any = CodemirrorTernService.requestCallback(
         null,
         testCase.input.requestCallbackData,
         (MockCodemirrorEditor as unknown) as CodeMirror.Editor,
         () => null,
       );
+
+      expect(mockAddFile).toBeCalled();
 
       expect(value.from).toEqual(testCase.expectedOutput);
     });
@@ -196,8 +235,8 @@ describe("Tern server sorting", () => {
     subType: "TABLE_WIDGET_V2",
   });
 
-  const sameTypeCompletion: Completion = {
-    text: "sameType.selectedRow",
+  const priorityCompletion: Completion = {
+    text: "selectedRow",
     type: AutocompleteDataType.OBJECT,
     origin: "DATA_TREE",
     data: {
@@ -297,7 +336,7 @@ describe("Tern server sorting", () => {
 
   const completions = [
     sameEntityCompletion,
-    sameTypeCompletion,
+    priorityCompletion,
     contextCompletion,
     libCompletion,
     unknownCompletion,
@@ -309,18 +348,25 @@ describe("Tern server sorting", () => {
   ];
 
   it("shows best match results", () => {
-    TernServer.setEntityInformation({
+    CodemirrorTernService.setEntityInformation({
       entityName: "sameEntity",
       entityType: ENTITY_TYPE.WIDGET,
       expectedType: AutocompleteDataType.OBJECT,
     });
-    TernServer.defEntityInformation = defEntityInformation;
-    const sortedCompletions = TernServer.sortAndFilterCompletions(
+    CodemirrorTernService.defEntityInformation = defEntityInformation;
+    const sortedCompletions = AutocompleteSorter.sort(
       _.shuffle(completions),
-      true,
-      "",
+      {
+        entityName: "sameEntity",
+        entityType: ENTITY_TYPE.WIDGET,
+        expectedType: AutocompleteDataType.STRING,
+      },
+      {
+        type: ENTITY_TYPE.WIDGET,
+        subType: "TABLE_WIDGET",
+      },
     );
-    expect(sortedCompletions[0]).toStrictEqual(contextCompletion);
+    expect(sortedCompletions[1]).toStrictEqual(contextCompletion);
     expect(sortedCompletions).toEqual(
       expect.arrayContaining([
         createCompletionHeader("Best Match"),
@@ -329,8 +375,26 @@ describe("Tern server sorting", () => {
         dataTreeCompletion,
       ]),
     );
-    expect(sortedCompletions).toEqual(
-      expect.not.arrayContaining([diffTypeCompletion]),
-    );
+  });
+
+  it("tests score of completions", function() {
+    AutocompleteSorter.entityDefInfo = {
+      type: ENTITY_TYPE.WIDGET,
+      subType: "TABLE_WIDGET",
+    };
+    AutocompleteSorter.currentFieldInfo = {
+      entityName: "sameEntity",
+      entityType: ENTITY_TYPE.WIDGET,
+      expectedType: AutocompleteDataType.STRING,
+    };
+    //completion that matches type and is present in dataTree.
+    const scoredCompletion1 = new ScoredCompletion(dataTreeCompletion);
+    expect(scoredCompletion1.score).toEqual(2 ** 5 + 2 ** 4 + 2 ** 3);
+    //completion that belongs to the same entity.
+    const scoredCompletion2 = new ScoredCompletion(sameEntityCompletion);
+    expect(scoredCompletion2.score).toEqual(-Infinity);
+    //completion that is a priority.
+    const scoredCompletion3 = new ScoredCompletion(priorityCompletion);
+    expect(scoredCompletion3.score).toBe(2 ** 6 + 2 ** 4 + 2 ** 3);
   });
 });

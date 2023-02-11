@@ -1,19 +1,18 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
-import { connect } from "react-redux";
 import { debounce, difference, isEmpty, noop, merge } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
-import propertyConfig from "./propertyConfig";
-import { AppState } from "reducers";
+import { contentConfig, styleConfig } from "./propertyConfig";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
+  ActionUpdateDependency,
   FieldState,
   FieldThemeStylesheet,
   ROOT_SCHEMA_KEY,
@@ -28,6 +27,9 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
+import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -49,6 +51,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   scrollContents: boolean;
   showReset: boolean;
   sourceData?: Record<string, unknown>;
+  useSourceData?: boolean;
   submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
@@ -66,6 +69,10 @@ export type JSONFormWidgetState = {
   metaInternalFieldState: MetaInternalFieldState;
 };
 
+export type Action = ExecuteTriggerPayload & {
+  updateDependencyType?: ActionUpdateDependency;
+};
+
 const SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT = 400;
 
 class JSONFormWidget extends BaseWidget<
@@ -74,6 +81,7 @@ class JSONFormWidget extends BaseWidget<
 > {
   debouncedParseAndSaveFieldState: any;
   isWidgetMounting: boolean;
+  actionQueue: Action[];
 
   constructor(props: JSONFormWidgetProps) {
     super(props);
@@ -84,7 +92,9 @@ class JSONFormWidget extends BaseWidget<
     );
 
     this.isWidgetMounting = true;
+    this.actionQueue = [];
   }
+  formRef = React.createRef<HTMLDivElement>();
 
   state = {
     resetObserverCallback: noop,
@@ -92,8 +102,12 @@ class JSONFormWidget extends BaseWidget<
     metaInternalFieldState: {},
   };
 
-  static getPropertyPaneConfig() {
-    return propertyConfig;
+  static getPropertyPaneContentConfig() {
+    return contentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return styleConfig;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -111,14 +125,111 @@ class JSONFormWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig(): Stylesheet<ChildStylesheet & ButtonStyles> {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+
+      submitButtonStyles: {
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
+      },
+
+      resetButtonStyles: {
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
+      },
+
+      childStylesheet: {
+        ARRAY: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+          cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          cellBoxShadow: "none",
+        },
+        OBJECT: {
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+          cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          cellBoxShadow: "none",
+        },
+        CHECKBOX: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+        CURRENCY_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        DATEPICKER: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        EMAIL_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        MULTISELECT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        MULTILINE_TEXT_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        NUMBER_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        PASSWORD_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        PHONE_NUMBER_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        RADIO_GROUP: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          boxShadow: "none",
+        },
+        SELECT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        SWITCH: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          boxShadow: "none",
+        },
+        TEXT_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+      },
+    };
+  }
+
   static defaultProps = {};
 
   componentDidMount() {
     this.constructAndSaveSchemaIfRequired();
-    this.isWidgetMounting = false;
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (
       isEmpty(this.props.formData) &&
       isEmpty(this.props.fieldState) &&
@@ -127,11 +238,20 @@ class JSONFormWidget extends BaseWidget<
       this.state.resetObserverCallback(this.props.schema);
     }
 
+    if (prevProps.useSourceData !== this.props.useSourceData) {
+      const { formData } = this.props;
+      this.updateFormData(formData);
+    }
+
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,
     );
+  }
+
+  deferredComponentDidRender() {
+    this.isWidgetMounting = false;
   }
 
   computeDynamicPropertyPathList = (schema: Schema) => {
@@ -170,24 +290,27 @@ class JSONFormWidget extends BaseWidget<
     if (!this.props.autoGenerateForm)
       return {
         status: ComputedSchemaStatus.UNCHANGED,
-        schema: prevProps?.schema || {},
+        schema: this.props?.schema || {},
       };
 
-    const widget = this.props.canvasWidgets[
-      this.props.widgetId
-    ] as JSONFormWidgetProps;
     const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
 
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
       currSourceData,
-      prevSchema: widget.schema,
+      prevSchema: this.props?.schema,
       prevSourceData,
-      widgetName: widget.widgetName,
-      fieldThemeStylesheets: widget.childStylesheet,
+      widgetName: this.props.widgetName,
+      fieldThemeStylesheets: this.props.childStylesheet,
     });
-    const { dynamicPropertyPathList, schema, status } = computedSchema;
+    const {
+      dynamicPropertyPathList,
+      modifiedSchemaItems,
+      removedSchemaItems,
+      schema,
+      status,
+    } = computedSchema;
 
     if (
       status === ComputedSchemaStatus.LIMIT_EXCEEDED &&
@@ -195,9 +318,32 @@ class JSONFormWidget extends BaseWidget<
     ) {
       this.updateWidgetProperty("fieldLimitExceeded", true);
     } else if (status === ComputedSchemaStatus.UPDATED) {
-      this.batchUpdateWidgetProperty({
-        modify: { schema, dynamicPropertyPathList, fieldLimitExceeded: false },
-      });
+      const payload: BatchPropertyUpdatePayload = {
+        modify: {
+          dynamicPropertyPathList,
+          fieldLimitExceeded: false,
+        },
+      };
+
+      /**
+       * This means there was no schema before and the computeSchema returns a
+       * fresh schema than can be directly updated.
+       */
+      if (isEmpty(this.props?.schema)) {
+        payload.modify = {
+          ...payload.modify,
+          schema,
+        };
+      } else {
+        payload.modify = {
+          ...payload.modify,
+          ...modifiedSchemaItems,
+        };
+
+        payload.remove = removedSchemaItems;
+      }
+
+      this.batchUpdateWidgetProperty(payload);
     }
 
     return computedSchema;
@@ -205,16 +351,36 @@ class JSONFormWidget extends BaseWidget<
 
   updateFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
+    const { sourceData, useSourceData } = this.props;
     let formData = values;
 
     if (!skipConversion) {
       formData = convertSchemaItemToFormData(rootSchemaItem, values, {
         fromId: "identifier",
         toId: "accessor",
+        useSourceData,
+        sourceData,
       });
     }
 
     this.props.updateWidgetMetaProperty("formData", formData);
+
+    if (this.actionQueue.length) {
+      this.actionQueue.forEach(({ updateDependencyType, ...actionPayload }) => {
+        if (updateDependencyType === ActionUpdateDependency.FORM_DATA) {
+          const payload = this.applyGlobalContextToAction(actionPayload, {
+            formData,
+          });
+
+          super.executeAction(payload);
+        }
+      });
+
+      this.actionQueue = this.actionQueue.filter(
+        ({ updateDependencyType }) =>
+          updateDependencyType !== ActionUpdateDependency.FORM_DATA,
+      );
+    }
   };
 
   parseAndSaveFieldState = (
@@ -225,20 +391,8 @@ class JSONFormWidget extends BaseWidget<
     const fieldState = generateFieldState(schema, metaInternalFieldState);
     const action = klona(afterUpdateAction);
 
-    /**
-     * globalContext from the afterUpdateAction takes precedence as it may have a different
-     * fieldState value than the one returned from generateFieldState.
-     * */
-    if (action) {
-      action.globalContext = merge(
-        {
-          fieldState,
-        },
-        action?.globalContext,
-      );
-    }
-
-    const actionPayload = action && this.applyGlobalContextToAction(action);
+    const actionPayload =
+      action && this.applyGlobalContextToAction(action, { fieldState });
 
     if (!equal(fieldState, this.props.fieldState)) {
       this.props.updateWidgetMetaProperty(
@@ -275,7 +429,10 @@ class JSONFormWidget extends BaseWidget<
     });
   };
 
-  applyGlobalContextToAction = (actionPayload: ExecuteTriggerPayload) => {
+  applyGlobalContextToAction = (
+    actionPayload: ExecuteTriggerPayload,
+    context: Record<string, unknown> = {},
+  ) => {
     const payload = klona(actionPayload);
     const { globalContext } = payload;
 
@@ -290,16 +447,23 @@ class JSONFormWidget extends BaseWidget<
         fieldState: this.props.fieldState,
         sourceData: this.props.sourceData,
       },
+      context,
       globalContext,
     );
 
     return payload;
   };
 
-  onExecuteAction = (actionPayload: ExecuteTriggerPayload) => {
-    const payload = this.applyGlobalContextToAction(actionPayload);
+  onExecuteAction = (action: Action) => {
+    const { updateDependencyType, ...actionPayload } = action;
 
-    super.executeAction(payload);
+    if (!updateDependencyType) {
+      const payload = this.applyGlobalContextToAction(actionPayload);
+
+      super.executeAction(payload);
+    } else {
+      this.actionQueue.push(action);
+    }
   };
 
   onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
@@ -342,6 +506,7 @@ class JSONFormWidget extends BaseWidget<
   };
 
   getPageView() {
+    const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,
       // it would lead to severe performance degradation due to frequent
@@ -356,12 +521,14 @@ class JSONFormWidget extends BaseWidget<
         disabledWhenInvalid={this.props.disabledWhenInvalid}
         executeAction={this.onExecuteAction}
         fieldLimitExceeded={this.props.fieldLimitExceeded}
+        fixMessageHeight={isAutoHeightEnabled}
         fixedFooter={this.props.fixedFooter}
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
         isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
+        ref={this.formRef}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
         resetButtonLabel={this.props.resetButtonLabel}
@@ -387,10 +554,4 @@ class JSONFormWidget extends BaseWidget<
   }
 }
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    canvasWidgets: state.entities.canvasWidgets,
-  };
-};
-
-export default connect(mapStateToProps, null)(JSONFormWidget);
+export default JSONFormWidget;

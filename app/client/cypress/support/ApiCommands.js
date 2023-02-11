@@ -24,8 +24,10 @@ Cypress.Commands.add("enterDatasource", (datasource) => {
   cy.get(apiwidget.resourceUrl)
     .first()
     .click({ force: true })
-    .type(datasource, { parseSpecialCharSequences: false })
-    .type("{esc}}");
+    .type(datasource, { parseSpecialCharSequences: false });
+  //.type("{esc}}");
+  cy.wait(2000);
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
@@ -109,6 +111,10 @@ Cypress.Commands.add("EditApiNameFromExplorer", (apiname) => {
 Cypress.Commands.add("RunAPI", () => {
   cy.get(ApiEditor.ApiRunBtn).click({ force: true });
   cy.wait("@postExecute");
+});
+
+Cypress.Commands.add("RunAPIWithoutWaitingForResolution", () => {
+  cy.get(ApiEditor.ApiRunBtn).click({ force: true });
 });
 
 Cypress.Commands.add("SaveAndRunAPI", () => {

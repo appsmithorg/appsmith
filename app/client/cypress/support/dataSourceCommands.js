@@ -3,11 +3,14 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
+import { ObjectsRegistry } from "../support/Objects/Registry";
 const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const explorer = require("../locators/explorerlocators.json");
 const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
+const apiEditorLocators = require("../locators/ApiEditor");
+const dataSources = ObjectsRegistry.DataSources;
 
 const backgroundColorBlack = "rgb(0, 0, 0)";
 const backgroundColorGray1 = "rgb(250, 250, 250)";
@@ -20,23 +23,6 @@ export const initLocalstorage = () => {
     window.localStorage.setItem("updateDismissed", "true");
   });
 };
-
-Cypress.Commands.add("firestoreDatasourceForm", () => {
-  cy.get(datasourceEditor.datasourceConfigUrl).type(
-    datasourceFormData["database-url"],
-  );
-  cy.get(datasourceEditor.projectID).type(datasourceFormData["projectID"]);
-  cy.get(datasourceEditor.serviceAccCredential)
-    .clear()
-    .type(datasourceFormData["serviceAccCredentials"]);
-});
-
-Cypress.Commands.add("amazonDatasourceForm", () => {
-  cy.get(datasourceEditor.projectID).type(datasourceFormData["access_key"]);
-  cy.get(datasourceEditor.serviceAccCredential)
-    .clear()
-    .type(datasourceFormData["secret_key"]);
-});
 
 Cypress.Commands.add("testSaveDeleteDatasource", () => {
   // Instead of deleting the last datasource on the active datasources list,
@@ -55,13 +41,11 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
       cy.wait("@saveDatasource").should(
         "have.nested.property",
         "response.body.responseMeta.status",
-        200,
+        201,
       );
       // select datasource to be deleted by datasource title
-      cy.get(`${datasourceEditor.datasourceCard}`)
-        .contains(datasourceTitle)
-        .last()
-        .click();
+      cy.contains("EDIT").click();
+
       // delete datasource
       cy.get(".t--delete-datasource").click();
       cy.get(".t--delete-datasource")
@@ -108,7 +92,7 @@ Cypress.Commands.add("saveDatasource", () => {
     .then((xhr) => {
       cy.log(JSON.stringify(xhr.response.body));
     })
-    .should("have.nested.property", "response.body.responseMeta.status", 200);
+    .should("have.nested.property", "response.body.responseMeta.status", 201);
 });
 
 Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
@@ -134,7 +118,7 @@ Cypress.Commands.add(
     //cy.get(datasourceEditor["selConnectionType"]).click();
     //cy.contains(datasourceFormData["connection-type"]).click();
     //cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);//is optional hence removing
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor["databaseName"])
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
@@ -166,7 +150,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["postgres-username"],
     );
@@ -212,8 +196,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mysql-username"],
     );
@@ -238,8 +221,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mssql-username"],
     );
@@ -265,7 +247,7 @@ Cypress.Commands.add(
       .clear()
       .type(databaseName);
 
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["arango-username"],
     );
@@ -290,8 +272,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["redshift-username"],
     );
@@ -335,6 +316,7 @@ Cypress.Commands.add(
       .type(userMockDatabaseUsername);
   },
 );
+
 Cypress.Commands.add(
   "fillSMTPDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
@@ -352,7 +334,6 @@ Cypress.Commands.add(
 Cypress.Commands.add("createPostgresDatasource", () => {
   cy.NavigateToDatasourceEditor();
   cy.get(datasourceEditor.PostgreSQL).click();
-  //cy.getPluginFormsAndCreateDatasource();
   cy.fillPostgresDatasourceForm();
   cy.testSaveDatasource();
 });
@@ -426,11 +407,11 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
   //Click on Authenticated API
   cy.get(apiWidgetslocator.createAuthApiDatasource).click();
   //Verify weather Authenticated API is successfully created.
-  cy.wait("@createDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  // cy.wait("@saveDatasource").should(
+  //   "have.nested.property",
+  //   "response.body.responseMeta.status",
+  //   201,
+  // );
   cy.get(datasourceEditor.datasourceTitleLocator).click();
   cy.get(`${datasourceEditor.datasourceTitleLocator} input`)
     .clear()
@@ -472,9 +453,40 @@ Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
   );
 });
 
-Cypress.Commands.add("createMockDatasource", () => {
+Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {
+  cy.NavigateToDatasourceEditor();
+  //Click on Authenticated Graphql API
+  cy.get(apiEditorLocators.createGraphQLDatasource).click({ force: true });
+  //Verify weather Authenticated Graphql Datasource is successfully created.
+  cy.wait("@saveDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+
+  // Change the Graphql Datasource name
+  cy.get(".t--edit-datasource-name").click();
+  cy.get(".t--edit-datasource-name input")
+    .clear()
+    .type(datasourceName, { force: true })
+    .should("have.value", datasourceName)
+    .blur();
+
+  // Adding Graphql Url
+  cy.get("input[name='url']").type(datasourceFormData.graphqlApiUrl);
+
+  // save datasource
+  cy.get(".t--save-datasource").click({ force: true });
+  cy.wait("@saveDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+});
+
+Cypress.Commands.add("createMockDatasource", (datasourceName) => {
   cy.get(".t--mock-datasource")
-    .contains("Users")
+    .contains(datasourceName)
     .click();
 });
 

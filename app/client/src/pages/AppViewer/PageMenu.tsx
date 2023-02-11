@@ -19,11 +19,18 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
-import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { trimQueryString } from "utils/helpers";
+import {
+  createMessage,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
@@ -44,7 +51,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
   );
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
-  const showBrandingBadge = useSelector(getShowBrandingBadge);
+  const { hideWatermark } = getAppsmithConfigs();
 
   // hide menu on click outside
   useOnClickOutside(
@@ -91,11 +98,12 @@ export function PageMenu(props: AppViewerHeaderProps) {
           "-left-full": !isOpen,
           "left-0": isOpen,
         })}
+        ref={menuRef}
         style={{
           height: `calc(100% - ${headerHeight}px)`,
         }}
       >
-        <div className="flex-grow py-3 overflow-y-auto" ref={menuRef}>
+        <div className="flex-grow py-3 overflow-y-auto">
           {appPages.map((page) => (
             <PageNavLink key={page.pageId} page={page} query={query} />
           ))}
@@ -111,6 +119,11 @@ export function PageMenu(props: AppViewerHeaderProps) {
                 bgColor: "transparent",
               }}
               isOpen={showAppInviteUsersDialog}
+              message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
+              placeholder={createMessage(
+                INVITE_USERS_PLACEHOLDER,
+                cloudHosting,
+              )}
               title={application.name}
               trigger={
                 <Button
@@ -127,8 +140,19 @@ export function PageMenu(props: AppViewerHeaderProps) {
               workspaceId={workspaceID}
             />
           )}
-          <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
-          {showBrandingBadge && <BrandingBadge />}
+          {isOpen && (
+            <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
+          )}
+          {!hideWatermark && (
+            <a
+              className="flex hover:no-underline"
+              href="https://appsmith.com"
+              rel="noreferrer"
+              target="_blank"
+            >
+              <BrandingBadge />
+            </a>
+          )}
         </div>
       </div>
     </>

@@ -9,12 +9,12 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
-import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
@@ -27,7 +27,6 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -42,34 +41,28 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
-import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
+import static com.external.utils.RedshiftDatasourceUtils.createConnectionPool;
+import static com.external.utils.RedshiftDatasourceUtils.getConnectionFromConnectionPool;
 
-
+@Slf4j
 public class RedshiftPlugin extends BasePlugin {
-    static final String JDBC_DRIVER = "com.amazon.redshift.jdbc.Driver";
-    private static final String JDBC_PROTOCOL = "jdbc:redshift://";
-    private static final String USER = "user";
-    private static final String PASSWORD = "password";
-    private static final String SSL = "ssl";
-    private static final int VALIDITY_CHECK_TIMEOUT = 5; /* must be positive, otherwise may receive exception */
+    public static final String JDBC_DRIVER = "com.amazon.redshift.jdbc.Driver";
     private static final String DATE_COLUMN_TYPE_NAME = "date";
 
     public RedshiftPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
-    public static class RedshiftPluginExecutor implements PluginExecutor<Connection> {
+    public static class RedshiftPluginExecutor implements PluginExecutor<HikariDataSource> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +
@@ -131,10 +124,7 @@ public class RedshiftPlugin extends BasePlugin {
 
         private void checkResultSetValidity(ResultSet resultSet) throws AppsmithPluginException {
             if (resultSet == null) {
-                System.out.println(
-                        Thread.currentThread().getName() + ": " +
-                                "Redshift plugin: getRow: driver failed to fetch result: resultSet is null."
-                );
+                log.debug("Redshift plugin: getRow: driver failed to fetch result: resultSet is null.");
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "redshift driver failed to fetch result: resultSet is null."
@@ -152,12 +142,9 @@ public class RedshiftPlugin extends BasePlugin {
              *    ResultSetMetaData.
              */
             if (metaData == null) {
-                System.out.println(
-                        Thread.currentThread().getName() + ": " +
-                                "Redshift plugin: getRow: metaData is null. Ideally this is never supposed to " +
-                                "happen as the Redshift JDBC driver does a null check before passing this object. This means " +
-                                "that something has gone wrong while processing the query result."
-                );
+                log.debug("Redshift plugin: getRow: metaData is null. Ideally this is never supposed to " +
+                        "happen as the Redshift JDBC driver does a null check before passing this object. This means " +
+                        "that something has gone wrong while processing the query result.");
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "metaData is null. Ideally this is never supposed to happen as the Redshift JDBC driver " +
@@ -204,24 +191,13 @@ public class RedshiftPlugin extends BasePlugin {
             return row;
         }
 
-        /*
-         * 1. This method can throw SQLException via connection.isClosed() or connection.isValid(...)
-         * 2. StaleConnectionException thrown by this method needs to be propagated to upper layers so that a retry
-         *    can be triggered.
-         */
-        private void checkConnectionValidity(Connection connection) throws SQLException {
-            if (connection == null || connection.isClosed()) {
-                throw new StaleConnectionException();
-            }
-        }
-
         @Override
-        public Mono<ActionExecutionResult> execute(Connection connection,
+        public Mono<ActionExecutionResult> execute(HikariDataSource connectionPool,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
             String query = actionConfiguration.getBody();
-            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null
                     , null, null));
 
             if (query == null) {
@@ -234,78 +210,96 @@ public class RedshiftPlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                /*
-                 * 1. If there is any issue with checking connection validity then assume that the connection is stale.
-                 */
-                try {
-                    checkConnectionValidity(connection);
-                } catch (SQLException e) {
-                    return Mono.error(new StaleConnectionException());
-                }
-
-                List<Map<String, Object>> rowsList = new ArrayList<>(50);
-                final List<String> columnsList = new ArrayList<>();
-                Statement statement = null;
-                ResultSet resultSet = null;
-
-                try {
-                    statement = connection.createStatement();
-                    boolean isResultSet = statement.execute(query);
-
-                    if (isResultSet) {
-                        resultSet = statement.getResultSet();
-                        ResultSetMetaData metaData = resultSet.getMetaData();
-                        columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
-
-                        while (resultSet.next()) {
-                            Map<String, Object> row = getRow(resultSet);
-                            rowsList.add(row);
-                        }
-                    } else {
-                        rowsList.add(Map.of(
-                                "affectedRows",
-                                ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0))
-                        );
-
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
-                } finally {
-                    if (resultSet != null) {
+                        Connection connection = null;
                         try {
-                            resultSet.close();
-                        } catch (SQLException e) {
-                            log.warn("Error closing Redshift ResultSet", e);
-                        }
-                    }
+                            connection = getConnectionFromConnectionPool(connectionPool);
+                        } catch (SQLException | StaleConnectionException e) {
+                            e.printStackTrace();
 
-                    if (statement != null) {
+                            /**
+                             * When the user configured time limit for the query execution is over, and the query is still
+                             * queued in the connectionPool then InterruptedException is thrown as the execution thread is
+                             * prepared for termination. This exception is wrapped inside SQLException and hence needs to be
+                             * checked via getCause method. This exception does not indicate a Stale connection.
+                             */
+                            if (e.getCause() != null && e.getCause().getClass().equals(InterruptedException.class)) {
+                                return Mono.error(e);
+                            }
+
+                            // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                            // library throws SQLException in case the pool is closed or there is an issue initializing
+                            // the connection pool which can also be translated in our world to StaleConnectionException
+                            // and should then trigger the destruction and recreation of the pool.
+                            return Mono.error(new StaleConnectionException());
+                        }
+
+
+                        /**
+                         * Keeping this print statement post call to getConnectionFromConnectionPool because it checks for
+                         * stale connection pool.
+                         */
+                        printConnectionPoolStatus(connectionPool, false);
+
+                        List<Map<String, Object>> rowsList = new ArrayList<>(50);
+                        final List<String> columnsList = new ArrayList<>();
+                        Statement statement = null;
+                        ResultSet resultSet = null;
+
                         try {
-                            statement.close();
+                            statement = connection.createStatement();
+                            boolean isResultSet = statement.execute(query);
+
+                            if (isResultSet) {
+                                resultSet = statement.getResultSet();
+                                ResultSetMetaData metaData = resultSet.getMetaData();
+                                columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
+
+                                while (resultSet.next()) {
+                                    Map<String, Object> row = getRow(resultSet);
+                                    rowsList.add(row);
+                                }
+                            } else {
+                                rowsList.add(Map.of(
+                                        "affectedRows",
+                                        ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0))
+                                );
+
+                            }
                         } catch (SQLException e) {
-                            log.warn("Error closing Redshift Statement", e);
+                            e.printStackTrace();
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
+                        } finally {
+                            if (resultSet != null) {
+                                try {
+                                    resultSet.close();
+                                } catch (SQLException e) {
+                                    log.error("Error closing Redshift ResultSet", e);
+                                }
+                            }
+
+                            if (statement != null) {
+                                try {
+                                    statement.close();
+                                } catch (SQLException e) {
+                                    log.error("Error closing Redshift Statement", e);
+                                }
+                            }
+
+                            try {
+                                connection.close();
+                            } catch (SQLException e) {
+                                log.error("Error closing Redshift Connection", e);
+                            }
+
                         }
-                    }
 
-                    try {
-                        connection.close();
-                    } catch (SQLException e) {
-                        log.warn("Error closing Redshift Connection", e);
-                    }
-
-                }
-
-                ActionExecutionResult result = new ActionExecutionResult();
-                result.setBody(objectMapper.valueToTree(rowsList));
-                result.setMessages(populateHintMessages(columnsList));
-                result.setIsExecutionSuccess(true);
-                System.out.println(
-                        Thread.currentThread().getName() + ": " +
-                                "In RedshiftPlugin, got action execution result"
-                );
-                return Mono.just(result);
-            })
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setBody(objectMapper.valueToTree(rowsList));
+                        result.setMessages(populateHintMessages(columnsList));
+                        result.setIsExecutionSuccess(true);
+                        log.debug("In RedshiftPlugin, got action execution result");
+                        return Mono.just(result);
+                    })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
                     .onErrorMap(e -> {
@@ -337,6 +331,20 @@ public class RedshiftPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        public void printConnectionPoolStatus(HikariDataSource connectionPool, boolean isFetchingStructure) {
+            HikariPoolMXBean poolProxy = connectionPool.getHikariPoolMXBean();
+            int idleConnections = poolProxy.getIdleConnections();
+            int activeConnections = poolProxy.getActiveConnections();
+            int totalConnections = poolProxy.getTotalConnections();
+            int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+            log.debug(Thread.currentThread().getName() + (isFetchingStructure ? "Before fetching Redshift db" +
+                    " structure." : "Before executing Redshift query.") + " Hikari Pool stats : " +
+                    " active - " + activeConnections +
+                    ", idle - " + idleConnections +
+                    ", awaiting - " + threadsAwaitingConnection +
+                    ", total - " + totalConnections);
+        }
+
         private Set<String> populateHintMessages(List<String> columnNames) {
 
             Set<String> messages = new HashSet<>();
@@ -352,81 +360,26 @@ public class RedshiftPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading Redshift JDBC Driver class."));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading " +
+                        "Redshift JDBC Driver class."));
             }
 
-            String url;
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-
-            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-
-            final boolean isSslEnabled = configurationConnection != null
-                    && configurationConnection.getSsl() != null
-                    && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
-
-            Properties properties = new Properties();
-            properties.put(SSL, isSslEnabled);
-            if (authentication.getUsername() != null) {
-                properties.put(USER, authentication.getUsername());
-            }
-            if (authentication.getPassword() != null) {
-                properties.put(PASSWORD, authentication.getPassword());
-            }
-
-            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                url = datasourceConfiguration.getUrl();
-
-            } else {
-                StringBuilder urlBuilder = new StringBuilder(JDBC_PROTOCOL);
-                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    urlBuilder
-                            .append(endpoint.getHost())
-                            .append(':')
-                            .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5439L))
-                            .append('/');
-
-                    if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-                        urlBuilder.append(authentication.getDatabaseName());
-                    }
-                }
-                url = urlBuilder.toString();
-            }
-
-            return Mono.fromCallable(() -> {
-                try {
-                    System.out.println(Thread.currentThread().getName() + ": Connecting to Redshift db");
-                    Connection connection = DriverManager.getConnection(url, properties);
-                    connection.setReadOnly(
-                            configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
-                    return Mono.just(connection);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    e.getMessage()
-                            )
-                    );
-                }
-            })
-                    .flatMap(obj -> obj)
-                    .map(conn -> (Connection) conn)
+            return Mono
+                    .fromCallable(() -> {
+                        log.debug(Thread.currentThread().getName() + ": Connecting to Redshift db");
+                        return createConnectionPool(datasourceConfiguration);
+                    })
                     .subscribeOn(scheduler);
         }
 
         @Override
-        public void datasourceDestroy(Connection connection) {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(Thread.currentThread().getName() + ": Error closing Redshift Connection. " + e);
-                log.error("Error closing Redshift Connection.", e);
+        public void datasourceDestroy(HikariDataSource connectionPool) {
+            if (connectionPool != null) {
+                connectionPool.close();
             }
         }
 
@@ -470,23 +423,6 @@ public class RedshiftPlugin extends BasePlugin {
             }
 
             return invalids;
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .map(connection -> {
-                        try {
-                            if (connection != null) {
-                                connection.close();
-                            }
-                        } catch (SQLException e) {
-                            log.warn("Error closing Redshift connection that was made for testing.", e);
-                        }
-
-                        return new DatasourceTestResult();
-                    })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
         private void getTablesInfo(ResultSet columnsResultSet, Map<String, DatasourceStructure.Table> tablesByName)
@@ -630,75 +566,96 @@ public class RedshiftPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
-            /*
-             * 1. If there is any issue with checking connection validity then assume that the connection is stale.
-             */
-            try {
-                checkConnectionValidity(connection);
-            } catch (SQLException e) {
-                return Mono.error(new StaleConnectionException());
-            }
-
+        public Mono<DatasourceStructure> getStructure(HikariDataSource connectionPool,
+                                                      DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
             return Mono.fromSupplier(() -> {
-                // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
-                System.out.println(Thread.currentThread().getName() + ": Getting Redshift Db structure");
-                try (Statement statement = connection.createStatement()) {
+                        Connection connection = null;
+                        try {
+                            connection = getConnectionFromConnectionPool(connectionPool);
+                        } catch (SQLException | StaleConnectionException e) {
+                            e.printStackTrace();
 
-                    // Get tables' schema and fill up their columns.
-                    ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY);
-                    getTablesInfo(columnsResultSet, tablesByName);
+                            /**
+                             * When the user configured time limit for the query execution is over, and the query is still
+                             * queued in the connectionPool then InterruptedException is thrown as the execution thread is
+                             * prepared for termination. This exception is wrapped inside SQLException and hence needs to be
+                             * checked via getCause method. This exception does not indicate a Stale connection.
+                             */
+                            if (e.getCause() != null && e.getCause().getClass().equals(InterruptedException.class)) {
+                                return Mono.error(e);
+                            }
 
-                    // Get tables' primary key constraints and fill those up.
-                    ResultSet primaryKeyConstraintsResultSet = statement.executeQuery(KEYS_QUERY_PRIMARY_KEY);
-                    getKeysInfo(primaryKeyConstraintsResultSet, tablesByName, keyRegistry);
-
-                    // Get tables' foreign key constraints and fill those up.
-                    ResultSet foreignKeyConstraintsResultSet = statement.executeQuery(KEYS_QUERY_FOREIGN_KEY);
-                    getKeysInfo(foreignKeyConstraintsResultSet, tablesByName, keyRegistry);
-
-                    // Get templates for each table and put those in.
-                    getTemplates(tablesByName);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                    e.getMessage()
-                            )
-                    );
-                } catch (AppsmithPluginException e) {
-                    e.printStackTrace();
-                    return Mono.error(e);
-
-                } finally {
-                    try {
-                        connection.close();
-                    } catch (SQLException e) {
-                        log.warn("Error closing Redshift Connection", e);
-                    }
-
-                }
-
-                structure.setTables(new ArrayList<>(tablesByName.values()));
-
-                for (DatasourceStructure.Table table : structure.getTables()) {
-                    table.getKeys().sort(Comparator.naturalOrder());
-                }
-
-                return structure;
-            })
-                    .map(resultStructure -> (DatasourceStructure) resultStructure)
-                    .onErrorMap(e -> {
-                        if (!(e instanceof AppsmithPluginException)) {
-                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                            // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                            // library throws SQLException in case the pool is closed or there is an issue initializing
+                            // the connection pool which can also be translated in our world to StaleConnectionException
+                            // and should then trigger the destruction and recreation of the pool.
+                            return Mono.error(new StaleConnectionException());
                         }
 
-                        return e;
+                        /**
+                         * Keeping this print statement post call to getConnectionFromConnectionPool because it checks for
+                         * stale connection pool.
+                         */
+                        printConnectionPoolStatus(connectionPool, true);
+
+                        // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
+                        log.debug(Thread.currentThread().getName() + ": Getting Redshift Db structure");
+                        try (Statement statement = connection.createStatement()) {
+
+                            // Get tables' schema and fill up their columns.
+                            ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY);
+                            getTablesInfo(columnsResultSet, tablesByName);
+
+                            // Get tables' primary key constraints and fill those up.
+                            ResultSet primaryKeyConstraintsResultSet = statement.executeQuery(KEYS_QUERY_PRIMARY_KEY);
+                            getKeysInfo(primaryKeyConstraintsResultSet, tablesByName, keyRegistry);
+
+                            // Get tables' foreign key constraints and fill those up.
+                            ResultSet foreignKeyConstraintsResultSet = statement.executeQuery(KEYS_QUERY_FOREIGN_KEY);
+                            getKeysInfo(foreignKeyConstraintsResultSet, tablesByName, keyRegistry);
+
+                            // Get templates for each table and put those in.
+                            getTemplates(tablesByName);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            return Mono.error(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                            e.getMessage()
+                                    )
+                            );
+                        } catch (AppsmithPluginException e) {
+                            e.printStackTrace();
+                            return Mono.error(e);
+
+                        } finally {
+                            try {
+                                connection.close();
+                            } catch (SQLException e) {
+                                log.error("Error closing Redshift Connection", e);
+                            }
+
+                        }
+
+                        structure.setTables(new ArrayList<>(tablesByName.values()));
+
+                        for (DatasourceStructure.Table table : structure.getTables()) {
+                            table.getKeys().sort(Comparator.naturalOrder());
+                        }
+
+                        return structure;
+                    })
+                    .map(resultStructure -> (DatasourceStructure) resultStructure)
+                    .onErrorMap(e -> {
+                        if ((e instanceof AppsmithPluginException) || (e instanceof StaleConnectionException)) {
+                            return e;
+                        }
+
+                        return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
                     })
                     .subscribeOn(scheduler);
         }

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import MenuItem from "components/ads/MenuItem";
+import { MenuItem } from "design-system-old";
 import { Colors } from "constants/Colors";
 
 const DangerMenuItem = styled(MenuItem)`

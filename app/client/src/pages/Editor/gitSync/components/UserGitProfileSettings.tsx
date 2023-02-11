@@ -10,15 +10,18 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import TextInput, { emailValidator } from "components/ads/TextInput";
-import Checkbox from "components/ads/Checkbox";
+import {
+  Checkbox,
+  emailValidator,
+  getTypographyByKey,
+  TextInput,
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -51,7 +54,7 @@ const DefaultConfigContainer = styled.div`
 `;
 
 const SectionTitle = styled.span`
-  ${(props) => getTypographyByKey(props, "u1")};
+  ${getTypographyByKey("u1")};
   text-transform: uppercase;
   color: ${Colors.GRAY_900};
 `;
@@ -189,7 +192,9 @@ function UserGitProfileSettings({
             fill
             isLoading={isFetchingConfig}
             onBlur={() => setNameInputFocused(false)}
-            onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.NAME, value)}
+            onChange={(value: string) =>
+              changeHandler(AUTHOR_INFO_LABEL.NAME, value)
+            }
             onFocus={() => setNameInputFocused(true)}
             trimValue={false}
             value={authorInfo.authorName}
@@ -209,7 +214,9 @@ function UserGitProfileSettings({
             fill
             isLoading={isFetchingConfig}
             onBlur={() => setEmailInputFocused(false)}
-            onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)}
+            onChange={(value: string) =>
+              changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)
+            }
             onFocus={() => setEmailInputFocused(true)}
             value={authorInfo.authorEmail}
           />

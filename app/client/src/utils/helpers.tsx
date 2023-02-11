@@ -1,24 +1,22 @@
 import React from "react";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
 import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
+  DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
-  WINDOW_OBJECT_METHODS,
-  WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
-import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { get, set, isNil } from "lodash";
-import { Workspace } from "constants/workspaceConstants";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+import { get, set, isNil, has, uniq } from "lodash";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
-import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
+import { isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
@@ -32,6 +30,12 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { checkContainerScrollable } from "widgets/WidgetUtils";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -211,16 +215,78 @@ export const flashElementsById = (
     setTimeout(() => {
       const el = document.getElementById(id);
 
-      el?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "center",
-      });
-
       if (el) flashElement(el, flashTimeout, flashClass);
     }, timeout);
   });
 };
+
+/**
+ * Scrolls to the widget of WidgetId without any animantion.
+ * @param widgetId
+ * @param canvasWidgets
+ */
+export const quickScrollToWidget = (
+  widgetId: string,
+  canvasWidgets: CanvasWidgetsReduxState,
+) => {
+  if (!widgetId || widgetId === "") return;
+
+  setTimeout(() => {
+    const el = document.getElementById(widgetId);
+    const canvas = document.getElementById("canvas-viewport");
+
+    if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
+      const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);
+      if (scrollElement) {
+        scrollElement.scrollIntoView({
+          block: "center",
+          inline: "nearest",
+          behavior: "smooth",
+        });
+      }
+    }
+  }, 200);
+};
+
+// Checks if the element in a container is visible or not.
+// Can be used to decide if scroll is needed
+function isElementVisibleInContainer(
+  element: HTMLElement,
+  container: HTMLElement,
+) {
+  const elementRect = element.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  return (
+    ((elementRect.top > containerRect.top &&
+      elementRect.top < containerRect.bottom) ||
+      (elementRect.bottom < containerRect.bottom &&
+        elementRect.bottom > containerRect.top)) &&
+    ((elementRect.left > containerRect.left &&
+      elementRect.left < containerRect.right) ||
+      (elementRect.right < containerRect.right &&
+        elementRect.right > containerRect.left))
+  );
+}
+
+function getWidgetElementToScroll(
+  widgetId: string,
+  canvasWidgets: CanvasWidgetsReduxState,
+) {
+  const widget = canvasWidgets[widgetId];
+  const parentId = widget.parentId || "";
+  const containerId = getContainerIdForCanvas(parentId);
+  if (containerId === MAIN_CONTAINER_WIDGET_ID) {
+    return document.getElementById(widgetId);
+  }
+  const containerWidget = canvasWidgets[containerId] as ContainerWidgetProps<
+    WidgetProps
+  >;
+  if (checkContainerScrollable(containerWidget)) {
+    return document.getElementById(widgetId);
+  } else {
+    return document.getElementById(containerId);
+  }
+}
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
   // ensures that all special characters are disallowed
@@ -235,10 +301,85 @@ export const resolveAsSpaceChar = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const isMac = () => {
-  const platform =
-    typeof navigator !== "undefined" ? navigator.platform : undefined;
-  return !platform ? false : /Mac|iPod|iPhone|iPad/.test(platform);
+export const PLATFORM_OS = {
+  MAC: "MAC",
+  IOS: "IOS",
+  LINUX: "LINUX",
+  ANDROID: "ANDROID",
+  WINDOWS: "WINDOWS",
+};
+
+const platformOSRegex = {
+  [PLATFORM_OS.MAC]: /mac.*/i,
+  [PLATFORM_OS.IOS]: /(?:iphone|ipod|ipad|Pike v.*)/i,
+  [PLATFORM_OS.LINUX]: /(?:linux.*)/i,
+  [PLATFORM_OS.ANDROID]: /android.*|aarch64|arm.*/i,
+  [PLATFORM_OS.WINDOWS]: /win.*/i,
+};
+
+export const getPlatformOS = () => {
+  const browserPlatform =
+    typeof navigator !== "undefined" ? navigator.platform : null;
+  if (browserPlatform) {
+    const platformOSList = Object.entries(platformOSRegex);
+    const platform = platformOSList.find(([, regex]) =>
+      regex.test(browserPlatform),
+    );
+    return platform ? platform[0] : null;
+  }
+  return null;
+};
+
+export const isMacOrIOS = () => {
+  const platformOS = getPlatformOS();
+  return platformOS === PLATFORM_OS.MAC || platformOS === PLATFORM_OS.IOS;
+};
+
+export const getBrowserInfo = () => {
+  const userAgent =
+    typeof navigator !== "undefined" ? navigator.userAgent : null;
+
+  if (userAgent) {
+    let specificMatch;
+    let match =
+      userAgent.match(
+        /(opera|chrome|safari|firefox|msie|CriOS|trident(?=\/))\/?\s*(\d+)/i,
+      ) || [];
+
+    // browser
+    if (/CriOS/i.test(match[1])) match[1] = "Chrome";
+
+    if (match[1] === "Chrome") {
+      specificMatch = userAgent.match(/\b(OPR|Edge)\/(\d+)/);
+      if (specificMatch) {
+        const opera = specificMatch.slice(1);
+        return {
+          browser: opera[0].replace("OPR", "Opera"),
+          version: opera[1],
+        };
+      }
+
+      specificMatch = userAgent.match(/\b(Edg)\/(\d+)/);
+      if (specificMatch) {
+        const edge = specificMatch.slice(1);
+        return {
+          browser: edge[0].replace("Edg", "Edge (Chromium)"),
+          version: edge[1],
+        };
+      }
+    }
+
+    // version
+    match = match[2]
+      ? [match[1], match[2]]
+      : [navigator.appName, navigator.appVersion, "-?"];
+    const version = userAgent.match(/version\/(\d+)/i);
+
+    version && match.splice(1, 1, version[1]);
+
+    return { browser: match[0], version: match[1] };
+  }
+  return null;
 };
 
 /**
@@ -302,13 +443,11 @@ export const isNameValid = (
   invalidNames: Record<string, any>,
 ) => {
   return !(
-    name in JAVASCRIPT_KEYWORDS ||
-    name in DATA_TREE_KEYWORDS ||
-    name in GLOBAL_FUNCTIONS ||
-    name in WINDOW_OBJECT_PROPERTIES ||
-    name in WINDOW_OBJECT_METHODS ||
-    name in extraLibrariesNames ||
-    name in invalidNames
+    has(JAVASCRIPT_KEYWORDS, name) ||
+    has(DATA_TREE_KEYWORDS, name) ||
+    has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
+    has(APPSMITH_GLOBAL_FUNCTIONS, name) ||
+    has(invalidNames, name)
   );
 };
 
@@ -474,10 +613,7 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
 // Can be used to check if the user has developer role access to workspace
 export const getCanCreateApplications = (currentWorkspace: Workspace) => {
   const userWorkspacePermissions = currentWorkspace.userPermissions || [];
-  const canManage = isPermitted(
-    userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_APPLICATION,
-  );
+  const canManage = hasCreateNewAppPermission(userWorkspacePermissions ?? []);
   return canManage;
 };
 
@@ -555,14 +691,15 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMac() ? <span>&#8984;</span> : "Ctrl +");
-export const altText = () => (isMac() ? <span>&#8997;</span> : "Alt +");
-export const shiftText = () => (isMac() ? <span>&#8682;</span> : "Shift +");
+export const modText = () => (isMacOrIOS() ? <span>&#8984;</span> : "Ctrl +");
+export const altText = () => (isMacOrIOS() ? <span>&#8997;</span> : "Alt +");
+export const shiftText = () =>
+  isMacOrIOS() ? <span>&#8682;</span> : "Shift +";
 
 export const undoShortCut = () => <span>{modText()} Z</span>;
 
 export const redoShortCut = () =>
-  isMac() ? (
+  isMacOrIOS() ? (
     <span>
       {modText()} {shiftText()} Z
     </span>
@@ -705,6 +842,7 @@ export function shouldBeDefined<T>(
 
   return result;
 }
+
 /*
  * Check if a value is null / undefined / empty string
  *
@@ -725,52 +863,158 @@ export const isURLDeprecated = (url: string) => {
   });
 };
 
+export const matchPath_BuilderSlug = (path: string) =>
+  matchPath<{ applicationSlug: string; pageSlug: string; pageId: string }>(
+    path,
+    {
+      path: trimQueryString(BUILDER_PATH),
+      strict: false,
+      exact: false,
+    },
+  );
+
+export const matchPath_ViewerSlug = (path: string) =>
+  matchPath<{ applicationSlug: string; pageSlug: string; pageId: string }>(
+    path,
+    {
+      path: trimQueryString(VIEWER_PATH),
+      strict: false,
+      exact: false,
+    },
+  );
+
+export const matchPath_BuilderCustomSlug = (path: string) =>
+  matchPath<{ customSlug: string }>(path, {
+    path: trimQueryString(BUILDER_CUSTOM_PATH),
+  });
+
+export const matchPath_ViewerCustomSlug = (path: string) =>
+  matchPath<{ customSlug: string }>(path, {
+    path: trimQueryString(VIEWER_CUSTOM_PATH),
+  });
+
 export const getUpdatedRoute = (
   path: string,
   params: Record<string, string>,
 ) => {
-  let updatedPath = path;
-  const match = matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
-    path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
-    strict: false,
-    exact: false,
-  });
-  if (match?.params) {
-    const { applicationSlug, pageSlug } = match?.params;
-    if (params.customSlug) {
-      updatedPath = updatedPath.replace(
-        `${applicationSlug}/${pageSlug}`,
-        `${params.customSlug}-`,
-      );
-      return updatedPath;
-    }
-    if (params.applicationSlug)
-      updatedPath = updatedPath.replace(
-        applicationSlug,
-        params.applicationSlug,
-      );
-    if (params.pageSlug)
-      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
-    return updatedPath;
-  }
-  const matchCustomPath = matchPath<{ customSlug: string }>(path, {
-    path: [BUILDER_CUSTOM_PATH, VIEWER_CUSTOM_PATH],
-  });
-  if (matchCustomPath?.params) {
-    const { customSlug } = matchCustomPath.params;
-    if (params.customSlug) {
-      updatedPath = updatedPath.replace(
-        `${customSlug}`,
-        `${params.customSlug}-`,
-      );
-    } else {
-      updatedPath = updatedPath.replace(
-        `${customSlug}`,
-        `${params.applicationSlug}/${params.pageSlug}-`,
-      );
-    }
+  const updatedPath = path;
+
+  const matchBuilderSlugPath = matchPath_BuilderSlug(path);
+  const matchBuilderCustomPath = matchPath_BuilderCustomSlug(path);
+  const matchViewerSlugPath = matchPath_ViewerSlug(path);
+  const matchViewerCustomPath = matchPath_ViewerCustomSlug(path);
+
+  /*
+   * Note: When making changes to the order of these conditions
+   * Be sure to check if it is sync with the order of paths AppRouter.ts
+   * Context: https://github.com/appsmithorg/appsmith/pull/19833
+   */
+  if (matchBuilderSlugPath?.params) {
+    return getUpdateRouteForSlugPath(
+      path,
+      matchBuilderSlugPath.params.applicationSlug,
+      matchBuilderSlugPath.params.pageSlug,
+      params,
+    );
+  } else if (matchBuilderCustomPath?.params) {
+    return getUpdatedRouteForCustomSlugPath(
+      path,
+      matchBuilderCustomPath.params.customSlug,
+      params,
+    );
+  } else if (matchViewerSlugPath) {
+    return getUpdateRouteForSlugPath(
+      path,
+      matchViewerSlugPath.params.applicationSlug,
+      matchViewerSlugPath.params.pageSlug,
+      params,
+    );
+  } else if (matchViewerCustomPath) {
+    return getUpdatedRouteForCustomSlugPath(
+      path,
+      matchViewerCustomPath.params.customSlug,
+      params,
+    );
   }
   return updatedPath;
+};
+
+const getUpdatedRouteForCustomSlugPath = (
+  path: string,
+  customSlug: string,
+  params: Record<string, string>,
+) => {
+  let updatedPath = path;
+  if (params.customSlug) {
+    updatedPath = updatedPath.replace(`${customSlug}`, `${params.customSlug}-`);
+  } else if (params.applicationSlug && params.pageSlug) {
+    updatedPath = updatedPath.replace(
+      `${customSlug}`,
+      `${params.applicationSlug}/${params.pageSlug}-`,
+    );
+  }
+  return updatedPath;
+};
+
+const getUpdateRouteForSlugPath = (
+  path: string,
+  applicationSlug: string,
+  pageSlug: string,
+  params: Record<string, string>,
+) => {
+  let updatedPath = path;
+  if (params.customSlug) {
+    updatedPath = updatedPath.replace(
+      `${applicationSlug}/${pageSlug}`,
+      `${params.customSlug}-`,
+    );
+    return updatedPath;
+  }
+  if (params.applicationSlug)
+    updatedPath = updatedPath.replace(applicationSlug, params.applicationSlug);
+  if (params.pageSlug)
+    updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+  return updatedPath;
+};
+
+// to split relative url into array, so specific parts can be bolded on UI preview
+export const splitPathPreview = (
+  url: string,
+  customSlug?: string,
+): string | string[] => {
+  const slugMatch = matchPath<{ pageId: string; pageSlug: string }>(
+    url,
+    VIEWER_PATH,
+  );
+
+  const customSlugMatch = matchPath<{ pageId: string; customSlug: string }>(
+    url,
+    VIEWER_CUSTOM_PATH,
+  );
+
+  if (!customSlug && slugMatch?.isExact) {
+    const { pageSlug } = slugMatch.params;
+    const splitUrl = url.split(pageSlug);
+    splitUrl.splice(
+      1,
+      0,
+      pageSlug.slice(0, pageSlug.length - 1), // to split -
+      pageSlug.slice(pageSlug.length - 1),
+    );
+    return splitUrl;
+  } else if (customSlug && customSlugMatch?.isExact) {
+    const { customSlug } = customSlugMatch.params;
+    const splitUrl = url.split(customSlug);
+    splitUrl.splice(
+      1,
+      0,
+      customSlug.slice(0, customSlug.length - 1), // to split -
+      customSlug.slice(customSlug.length - 1),
+    );
+    return splitUrl;
+  }
+
+  return url;
 };
 
 export const updateSlugNamesInURL = (params: Record<string, string>) => {
@@ -781,8 +1025,95 @@ export const updateSlugNamesInURL = (params: Record<string, string>) => {
   history.replace(newURL + search);
 };
 
+/**
+ * Function to get valid supported mimeType for different browsers
+ * @param media "video" | "audio"
+ * @returns mimeType string
+ */
+export const getSupportedMimeTypes = (media: "video" | "audio") => {
+  const videoTypes = ["webm", "ogg", "mp4", "x-matroska"];
+  const audioTypes = ["webm", "ogg", "mp3", "x-matroska"];
+  const codecs = [
+    "should-not-be-supported",
+    "vp9",
+    "vp9.0",
+    "vp8",
+    "vp8.0",
+    "avc1",
+    "av1",
+    "h265",
+    "h.265",
+    "h264",
+    "h.264",
+    "opus",
+    "pcm",
+    "aac",
+    "mpeg",
+    "mp4a",
+  ];
+  const supported: Array<string> = [];
+  const isSupported = MediaRecorder.isTypeSupported;
+  const types = media === "video" ? videoTypes : audioTypes;
+
+  types.forEach((type: string) => {
+    const mimeType = `${media}/${type}`;
+    // without codecs
+    isSupported(mimeType) && supported.push(mimeType);
+
+    // with codecs
+    codecs.forEach((codec) =>
+      [
+        `${mimeType};codecs=${codec}`,
+        `${mimeType};codecs=${codec.toUpperCase()}`,
+      ].forEach(
+        (variation) => isSupported(variation) && supported.push(variation),
+      ),
+    );
+  });
+  return supported[0];
+};
+
 export function AutoBind(target: any, _: string, descriptor: any) {
   if (typeof descriptor.value === "function")
     descriptor.value = descriptor.value.bind(target);
   return descriptor;
+}
+
+/**
+ * Add item to an array which could be undefined
+ * @param arr1 Base Array (could be undefined)
+ * @param item Item to add to array
+ * @param makeUnique Should make sure array has unique entries
+ * @returns array which includes items from arr1 and item
+ */
+export function pushToArray(
+  item: unknown,
+  arr1?: unknown[],
+  makeUnique = false,
+) {
+  if (Array.isArray(arr1)) arr1.push(item);
+  else return [item];
+
+  if (makeUnique) return uniq(arr1);
+  return arr1;
+}
+
+/**
+ * Add items to array which could be undefined
+ * @param arr1 Base Array (could be undefined)
+ * @param items Items to add to arr1
+ * @param makeUnique Should make sure array has unique entries
+ * @returns array which contains items from arr1 and items
+ */
+export function concatWithArray(
+  items: unknown[],
+  arr1?: unknown[],
+  makeUnique = false,
+) {
+  let finalArr: unknown[] = [];
+  if (Array.isArray(arr1)) finalArr = arr1.concat(items);
+  else finalArr = finalArr.concat(items);
+
+  if (makeUnique) return uniq(finalArr);
+  return finalArr;
 }

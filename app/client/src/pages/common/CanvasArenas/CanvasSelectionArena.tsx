@@ -5,7 +5,7 @@ import {
 import { throttle } from "lodash";
 import React, { useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
@@ -17,15 +17,14 @@ import {
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { XYCord } from "./hooks/useCanvasDragging";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getAbsolutePixels } from "utils/helpers";
 import {
-  getSlidingCanvasName,
   getStickyCanvasName,
+  getSlidingArenaName,
 } from "constants/componentClassNameConstants";
 
 export interface SelectedArenaDimensions {
@@ -53,7 +52,6 @@ export function CanvasSelectionArena({
   snapRowSpace: number;
 }) {
   const dispatch = useDispatch();
-  const isCommentMode = useSelector(commentModeSelector);
   const canvasPadding =
     widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0;
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
@@ -467,7 +465,6 @@ export function CanvasSelectionArena({
     mainContainer,
     isDragging,
     isResizing,
-    isCommentMode,
     snapRows,
     snapColumnSpace,
     snapRowSpace,
@@ -476,8 +473,7 @@ export function CanvasSelectionArena({
   // Resizing state still shows selection arena to aid with scroll behavior
 
   const shouldShow =
-    appMode === APP_MODE.EDIT &&
-    !(isDragging || isCommentMode || isPreviewMode || dropDisabled);
+    appMode === APP_MODE.EDIT && !(isDragging || isPreviewMode || dropDisabled);
 
   const canvasRef = React.useRef({
     slidingArenaRef,
@@ -486,10 +482,10 @@ export function CanvasSelectionArena({
   return shouldShow ? (
     <StickyCanvasArena
       canExtend={canExtend}
-      canvasId={getSlidingCanvasName(widgetId)}
+      canvasId={getStickyCanvasName(widgetId)}
       canvasPadding={canvasPadding}
       getRelativeScrollingParent={getNearestParentCanvas}
-      id={getStickyCanvasName(widgetId)}
+      id={getSlidingArenaName(widgetId)}
       ref={canvasRef}
       showCanvas={shouldShow}
       snapColSpace={snapColumnSpace}

@@ -6,7 +6,7 @@ import {
   useCallback,
 } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { compact, get, groupBy } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
@@ -26,6 +26,7 @@ import {
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../SaaSEditor/constants";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -113,7 +114,9 @@ export const useOtherDatasourcesInWorkspace = () => {
     new Set(),
   );
   return allDatasources.filter(
-    (ds) => !datasourceIdsUsedInCurrentApplication.has(ds.id),
+    (ds) =>
+      !datasourceIdsUsedInCurrentApplication.has(ds.id) &&
+      ds.id !== TEMP_DATASOURCE_ID,
   );
 };
 
@@ -396,3 +399,21 @@ export function useActiveAction() {
     return saasMatch.params.apiId;
   }
 }
+
+export const useCloseMenuOnScroll = (
+  id: string,
+  open: boolean,
+  onClose: () => void,
+) => {
+  const scrollContainer = document.getElementById(id);
+
+  useEffect(() => {
+    if (open) {
+      scrollContainer?.addEventListener("scroll", onClose, true);
+    }
+
+    return () => {
+      scrollContainer?.removeEventListener("scroll", onClose);
+    };
+  }, [open]);
+};

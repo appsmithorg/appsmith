@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import TagInputComponent from "components/ads/TagInputComponent";
+import { TagInput } from "design-system-old";
 import { FormGroup } from "./Common";
 import { Intent } from "constants/DefaultTheme";
 import { Setting } from "@appsmith/pages/AdminSettings/config/types";
@@ -18,11 +18,11 @@ const renderComponent = (
   const setting = componentProps.setting;
   return (
     <FormGroup
-      className={`t--admin-settings-tag-input t--admin-settings-${setting.name ||
+      className={`tag-input t--admin-settings-tag-input t--admin-settings-${setting.name ||
         setting.id}`}
       setting={setting}
     >
-      <TagInputComponent {...componentProps} />
+      <TagInput {...componentProps} />
     </FormGroup>
   );
 };

@@ -10,8 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
 
-import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
-import PropertyControlsGenerator from "./Generator";
+import PropertyPaneTitle from "./PropertyPaneTitle";
+import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
@@ -26,9 +26,13 @@ import {
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
-import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
-import { IconSize } from "components/ads";
+import { BannerMessage, IconSize } from "design-system-old";
+import WidgetFactory from "utils/WidgetFactory";
+import { PropertyPaneTab } from "./PropertyPaneTab";
+import { useSearchText } from "./helpers";
+import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
+import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -58,6 +62,7 @@ function PropertyPaneView(
     getWidgetPropsForPropertyPaneView,
     equal,
   );
+
   const doActionsExist = useSelector(actionsExist);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {
@@ -67,6 +72,7 @@ function PropertyPaneView(
 
     return true;
   }, [widgetProperties?.type, excludeList]);
+  const { searchText, setSearchText } = useSearchText("");
 
   const handleKbdEvent = (e: Event) => {
     const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
@@ -90,6 +96,18 @@ function PropertyPaneView(
       );
     };
   }, []);
+
+  /**
+   * Analytics for property pane Search
+   */
+  useEffect(() => {
+    sendPropertyPaneSearchAnalytics({
+      widgetType: widgetProperties?.type,
+      searchText,
+      widgetName: widgetProperties.widgetName,
+      searchPath: "",
+    });
+  }, [searchText]);
 
   /**
    * on delete button click
@@ -154,6 +172,10 @@ function PropertyPaneView(
     ];
   }, [onCopy, onDelete, handleTabKeyDownForButton]);
 
+  useEffect(() => {
+    setSearchText("");
+  }, [widgetProperties?.widgetId]);
+
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
@@ -168,9 +190,17 @@ function PropertyPaneView(
     widgetReplacedWith,
   );
 
+  const isContentConfigAvailable = WidgetFactory.getWidgetPropertyPaneContentConfig(
+    widgetProperties.type,
+  ).length;
+
+  const isStyleConfigAvailable = WidgetFactory.getWidgetPropertyPaneStyleConfig(
+    widgetProperties.type,
+  ).length;
+
   return (
     <div
-      className="relative flex flex-col w-full pt-3 overflow-y-auto"
+      className="w-full overflow-y-scroll h-full"
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >
@@ -182,10 +212,11 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <div
-        className="pt-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
-        data-guided-tour-id="property-pane"
-      >
+      <div style={{ marginTop: "52px" }}>
+        <PropertyPaneConnections
+          widgetName={widgetProperties.widgetName}
+          widgetType={widgetProperties.type}
+        />
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
@@ -193,10 +224,6 @@ function PropertyPaneView(
             widgetType={widgetProperties?.type}
           />
         )}
-        <PropertyPaneConnections
-          widgetName={widgetProperties.widgetName}
-          widgetType={widgetProperties.type}
-        />
         {isDeprecated && (
           <BannerMessage
             backgroundColor={Colors.WARNING_ORANGE}
@@ -208,12 +235,68 @@ function PropertyPaneView(
             textColor={Colors.BROWN}
           />
         )}
-        <PropertyControlsGenerator
-          id={widgetProperties.widgetId}
-          panel={panel}
-          theme={EditorTheme.LIGHT}
-          type={widgetProperties.type}
-        />
+      </div>
+
+      <div
+        className="t--property-pane-view"
+        data-guided-tour-id="property-pane"
+      >
+        {isContentConfigAvailable || isStyleConfigAvailable ? (
+          <>
+            <PropertyPaneSearchInput onTextChange={setSearchText} />
+            {searchText.length > 0 ? (
+              <PropertyControlsGenerator
+                config={WidgetFactory.getWidgetPropertyPaneSearchConfig(
+                  widgetProperties.type,
+                )}
+                id={widgetProperties.widgetId}
+                panel={panel}
+                searchQuery={searchText}
+                theme={EditorTheme.LIGHT}
+                type={widgetProperties.type}
+              />
+            ) : (
+              <PropertyPaneTab
+                contentComponent={
+                  isContentConfigAvailable ? (
+                    <PropertyControlsGenerator
+                      config={WidgetFactory.getWidgetPropertyPaneContentConfig(
+                        widgetProperties.type,
+                      )}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={EditorTheme.LIGHT}
+                      type={widgetProperties.type}
+                    />
+                  ) : null
+                }
+                styleComponent={
+                  isStyleConfigAvailable ? (
+                    <PropertyControlsGenerator
+                      config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
+                        widgetProperties.type,
+                      )}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={EditorTheme.LIGHT}
+                      type={widgetProperties.type}
+                    />
+                  ) : null
+                }
+              />
+            )}
+          </>
+        ) : (
+          <PropertyControlsGenerator
+            config={WidgetFactory.getWidgetPropertyPaneConfig(
+              widgetProperties.type,
+            )}
+            id={widgetProperties.widgetId}
+            panel={panel}
+            theme={EditorTheme.LIGHT}
+            type={widgetProperties.type}
+          />
+        )}
       </div>
     </div>
   );

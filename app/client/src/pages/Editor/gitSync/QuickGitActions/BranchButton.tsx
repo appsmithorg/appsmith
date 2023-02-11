@@ -4,14 +4,17 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { Colors } from "constants/Colors";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
-import Icon, { IconSize } from "components/ads/Icon";
-import { TooltipComponent as Tooltip } from "design-system";
+import {
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  TooltipComponent as Tooltip,
+} from "design-system-old";
 import { isEllipsisActive } from "utils/helpers";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -22,7 +25,7 @@ const ButtonContainer = styled.div`
 
   & .label {
     color: ${(props) => props.theme.colors.editorBottomBar.branchBtnText};
-    ${(props) => getTypographyByKey(props, "p1")};
+    ${getTypographyByKey("p1")};
     line-height: 18px;
   }
 

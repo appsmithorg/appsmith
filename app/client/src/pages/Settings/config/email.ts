@@ -14,6 +14,7 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 
 export const config: AdminConfigType = {
+  icon: "mail-line",
   type: SettingCategories.EMAIL,
   controlType: SettingTypes.GROUP,
   title: "Email",

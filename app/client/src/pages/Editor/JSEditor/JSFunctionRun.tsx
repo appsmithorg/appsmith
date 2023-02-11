@@ -1,15 +1,20 @@
 import React from "react";
 import styled from "styled-components";
-import Dropdown, {
-  DropdownOnSelect,
-  DropdownContainer,
-} from "components/ads/Dropdown";
-import Button, { Size } from "components/ads/Button";
 import FlagBadge from "components/utils/FlagBadge";
 import { JSCollection } from "entities/JSCollection";
-import { TooltipComponent as Tooltip } from "design-system";
-import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ce/constants/messages";
-import { StyledButton } from "components/ads/Button";
+import {
+  Button,
+  Dropdown,
+  DropdownOnSelect,
+  DropdownContainer,
+  Size,
+  StyledButton,
+  TooltipComponent as Tooltip,
+} from "design-system-old";
+import {
+  createMessage,
+  NO_JS_FUNCTION_TO_RUN,
+} from "@appsmith/constants/messages";
 import { JSActionDropdownOption } from "./utils";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
 
@@ -65,6 +70,7 @@ export function JSFunctionRun({
     <DropdownWithCTAWrapper isDisabled={disabled}>
       <Dropdown
         customBadge={<FlagBadge name="Async" />}
+        cypressSelector="function-select-dropdown"
         height={RUN_BUTTON_DEFAULTS.HEIGHT}
         onSelect={onSelect}
         options={options}

@@ -1,32 +1,31 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
-import { Text, TextType } from "design-system";
+import { getTypographyByKey, Text, TextType } from "design-system-old";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
+import { Colors } from "constants/Colors";
 
 const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
   margin: ${(props) => props.theme.spaces[2]}px;
   .placeholder-text {
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${getTypographyByKey("p2")}
   }
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: ${(props) => props.theme.colors.globalSearch.helpBarText};
-  background: ${(props) => props.theme.colors.globalSearch.helpBarBackground};
   height: 28px;
   flex: 1;
-  max-width: 350px;
-  border: 1.5px solid transparent;
+  max-width: 205px;
+  border: 1px solid ${Colors.GRAY_200};
   cursor: default;
   &:hover {
-    border: 1.5px solid ${(props) => props.theme.colors.tertiary.light};
+    border: 1px solid ${(props) => props.theme.colors.tertiary.light};
   }
 `;
 
@@ -43,8 +42,10 @@ function HelpBar({ toggleShowModal }: Props) {
       data-cy="global-search-modal-trigger"
       onClick={toggleShowModal}
     >
-      <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
-      <Text italic type={TextType.P3}>
+      <Text color={Colors.GRAY_400} type={TextType.P2}>
+        {HELPBAR_PLACEHOLDER()}
+      </Text>
+      <Text color={Colors.GRAY_400} italic type={TextType.P3}>
         {comboText}
       </Text>
     </StyledHelpBar>

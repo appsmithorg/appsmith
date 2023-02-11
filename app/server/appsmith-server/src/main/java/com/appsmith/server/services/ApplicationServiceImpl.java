@@ -3,15 +3,17 @@ package com.appsmith.server.services;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 
 @Slf4j
@@ -26,12 +28,18 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
-                                  CommentThreadRepository commentThreadRepository,
                                   SessionUserService sessionUserService,
-                                  ResponseUtils responseUtils) {
+                                  ResponseUtils responseUtils,
+                                  PermissionGroupService permissionGroupService,
+                                  TenantService tenantService,
+                                  AssetService assetService,
+                                  UserRepository userRepository,
+                                  DatasourcePermission datasourcePermission,
+                                  ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, commentThreadRepository, sessionUserService, responseUtils);
+                configService, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
+                userRepository, datasourcePermission, applicationPermission);
 
     }
 }

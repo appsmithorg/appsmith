@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { Dropdown, DropdownOption } from "design-system-old";
 import { ControlType } from "constants/PropertyControlConstants";
 import { get, isNil } from "lodash";
 import {
@@ -10,14 +10,14 @@ import {
   WrappedFieldMetaProps,
 } from "redux-form";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import {
   FormDataPaths,
   matchExact,
   MATCH_ACTION_CONFIG_PROPERTY,
-} from "workers/formEval";
+} from "workers/Evaluation/formEval";
 import { Action } from "entities/Action";
 
 const DropdownSelect = styled.div<{
@@ -180,6 +180,33 @@ function renderDropdown(
       props.input?.onChange(selectedValue);
     }
   };
+
+  if (props.options.length > 0) {
+    if (props.isMultiSelect) {
+      const tempSelectedValues: string[] = [];
+      selectedOptions.forEach((option: DropdownOption) => {
+        if (selectedValue.includes(option.value as string)) {
+          tempSelectedValues.push(option.value as string);
+        }
+      });
+      if (tempSelectedValues.length !== selectedValue.length) {
+        selectedValue = [...tempSelectedValues];
+        props.input?.onChange(tempSelectedValues);
+      }
+    } else {
+      let tempSelectedValues = "";
+      selectedOptions.forEach((option: DropdownOption) => {
+        if (selectedValue === (option.value as string)) {
+          tempSelectedValues = option.value as string;
+        }
+      });
+
+      if (selectedValue !== tempSelectedValues) {
+        selectedValue = tempSelectedValues;
+        props.input?.onChange(tempSelectedValues);
+      }
+    }
+  }
 
   return (
     <Dropdown

@@ -1,10 +1,10 @@
 import { fetchApplication } from "actions/applicationActions";
-import { setAppMode, updateAppPersistentStore } from "actions/pageActions";
+import { setAppMode, updateAppStore } from "actions/pageActions";
 import {
   ApplicationPayload,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { getPersistentAppStore } from "constants/AppConstants";
 import { APP_MODE } from "entities/App";
 import log from "loglevel";
@@ -33,7 +33,11 @@ export interface IAppEngine {
   completeChore(): any;
 }
 
-export class PageNotFoundError extends Error {}
+export class AppEngineApiError extends Error {}
+export class PageNotFoundError extends AppEngineApiError {}
+export class ActionsNotFoundError extends AppEngineApiError {}
+export class PluginsNotFoundError extends AppEngineApiError {}
+export class PluginFormConfigsNotFoundError extends AppEngineApiError {}
 
 export default abstract class AppEngine {
   private _mode: APP_MODE;
@@ -65,9 +69,7 @@ export default abstract class AppEngine {
     if (!apiCalls)
       throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
     const application: ApplicationPayload = yield select(getCurrentApplication);
-    yield put(
-      updateAppPersistentStore(getPersistentAppStore(application.id, branch)),
-    );
+    yield put(updateAppStore(getPersistentAppStore(application.id, branch)));
     const toLoadPageId: string = pageId || (yield select(getDefaultPageId));
     this._urlRedirect = URLGeneratorFactory.create(
       application.applicationVersion,

@@ -1,11 +1,12 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
-import { GetSSHKeyResponseData } from "actions/gitSyncActions";
+import { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
+import { PageDefaultMeta } from "api/ApplicationApi";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -79,6 +80,12 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isCommitting: false,
     commitAndPushError: action.payload,
+  }),
+  [ReduxActionTypes.CLEAR_COMMIT_ERROR_STATE]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    commitAndPushError: null,
   }),
   [ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE]: (
     state: GitSyncReducerState,
@@ -229,7 +236,6 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingGitStatus: true,
     connectError: null,
-    commitAndPushError: null,
     pullError: null,
     mergeError: null,
   }),
@@ -371,6 +377,7 @@ const gitSyncReducer = createReducer(initialState, {
       ...state,
       SSHKeyPair: action.payload.publicKey,
       deployKeyDocUrl: action.payload.docUrl,
+      supportedKeyTypes: action.payload?.gitSupportedSSHKeyType,
     };
   },
   [ReduxActionErrorTypes.FETCH_SSH_KEY_PAIR_ERROR]: (
@@ -380,6 +387,7 @@ const gitSyncReducer = createReducer(initialState, {
       ...state,
       SSHKeyPair: null,
       deployKeyDocUrl: "",
+      supportedKeyTypes: null,
     };
   },
   [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (
@@ -418,6 +426,13 @@ const gitSyncReducer = createReducer(initialState, {
     gitImportError: null,
   }),
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_SUCCESS]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isImportingApplicationViaGit: false,
+    gitImportError: null,
+  }),
+  [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_STATUS_RESET]: (
     state: GitSyncReducerState,
   ) => ({
     ...state,
@@ -468,6 +483,14 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     deletingBranch: action.payload,
   }),
+  [ReduxActionTypes.GIT_DISCARD_CHANGES_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    isDiscarding: false,
+    discard: action.payload,
+  }),
 });
 
 export type GitStatusData = {
@@ -481,6 +504,7 @@ export type GitStatusData = {
   remoteBranch: string;
   modifiedJSObjects: number;
   modifiedDatasources: number;
+  modifiedJSLibs: number;
   discardDocUrl?: string;
 };
 
@@ -503,6 +527,40 @@ export type GitBranchDeleteState = {
   deleteBranchError?: any;
   deleteBranchWarning?: any;
   deletingBranch?: boolean;
+};
+
+export type GitDiscardResponse = {
+  id: string;
+  modifiedBy: string;
+  userPermissions: string[];
+  name: string;
+  workspaceId: string;
+  isPublic: boolean;
+  pages: PageDefaultMeta[];
+  appIsExample: boolean;
+  color: string;
+  icon: string;
+  slug: string;
+  gitApplicationMetadata: {
+    branchName: string;
+    defaultBranchName: string;
+    remoteUrl: string;
+    browserSupportedRemoteUrl: string;
+    isRepoPrivate: boolean;
+    repoName: string;
+    defaultApplicationId: string;
+    lastCommittedAt: string;
+  };
+  lastDeployedAt: string;
+  evaluationVersion: number;
+  applicationVersion: number;
+  isManualUpdate: boolean;
+  isAutoUpdate: boolean;
+  appLayout: {
+    type: string;
+  };
+  new: boolean;
+  modifiedAt: string;
 };
 
 export type GitSyncReducerState = GitBranchDeleteState & {
@@ -546,12 +604,14 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   SSHKeyPair?: string;
   deployKeyDocUrl?: string;
+  supportedKeyTypes?: SSHKeyType[];
 
   isImportingApplicationViaGit?: boolean;
 
   gitImportError?: any;
 
   isDiscarding?: boolean;
+  discard?: GitDiscardResponse;
 };
 
 export default gitSyncReducer;

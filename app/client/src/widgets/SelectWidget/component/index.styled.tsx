@@ -1,19 +1,17 @@
+import { PropsWithChildren } from "react";
 import { Classes, ControlGroup } from "@blueprintjs/core";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 
 import { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
-import {
-  BlueprintCSSTransform,
-  createGlobalStyle,
-} from "constants/DefaultTheme";
+import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import { isEmptyOrNill } from "../../../utils/helpers";
 import { LabelPosition, LABEL_MARGIN_OLD_SELECT } from "components/constants";
 import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "widgets/components/LabelWithTooltip";
 import { lightenColor } from "widgets/WidgetUtils";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 
@@ -22,8 +20,9 @@ export const StyledDiv = styled.div`
 `;
 
 export const StyledControlGroup = styled(ControlGroup)<{
-  compactMode: boolean;
-  labelPosition?: LabelPosition;
+  $compactMode: boolean;
+  $labelPosition?: LabelPosition;
+  $isDisabled?: boolean;
 }>`
   &&& > {
     span {
@@ -37,29 +36,53 @@ export const StyledControlGroup = styled(ControlGroup)<{
         svg {
           width: 10px !important;
           height: 10px !important;
+          fill: var(--wds-color-icon);
+
+          path {
+            fill: ${({ $isDisabled }) =>
+              $isDisabled
+                ? "var(--wds-color-icon-disabled)"
+                : "var(--wds-color-icon)"};
+            stroke: ${({ $isDisabled }) =>
+              $isDisabled
+                ? "var(--wds-color-icon-disabled)"
+                : "var(--wds-color-icon)"} !important;
+          }
         }
       }
       .dropdown-icon {
         width: 20px;
 
         svg {
+          fill: var(--wds-color-icon);
           width: 20px;
           height: 20px;
+
+          path {
+            fill: ${({ $isDisabled }) =>
+              $isDisabled
+                ? "var(--wds-color-icon-disabled)"
+                : "var(--wds-color-icon)"};
+          }
         }
       }
     }
   }
 `;
 
-const SingleDropDown = Select.ofType<DropdownOption>();
-export const StyledSingleDropDown = styled(SingleDropDown)<{
+type StyledSingleDropDownProps = PropsWithChildren<{
   value: string;
   isValid: boolean;
   hasError?: boolean;
   borderRadius: string;
   boxShadow?: string;
   accentColor?: string;
-}>`
+}>;
+
+const SingleDropDown = Select.ofType<DropdownOption>();
+export const StyledSingleDropDown = styled(SingleDropDown)<
+  StyledSingleDropDownProps
+>`
   div {
     flex: 1 1 auto;
   }
@@ -84,24 +107,24 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     box-shadow: ${(props) => props.boxShadow} !important;
     border: 1px solid;
     border-color: ${(props) =>
-      props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
-    ${(props) =>
-      props.isValid
-        ? `
-        &:hover {
-          border-color: ${Colors.GREY_5};
-        }
-        &:focus {
-          outline: 0;
-          border-color:
-            ${props.hasError ? Colors.DANGER_SOLID : props.accentColor};
-          box-shadow:
-            ${`0px 0px 0px 3px ${lightenColor(
-              props.hasError ? Colors.DANGER_SOLID : props.accentColor,
-            )} !important;`};
-        }
-      `
-        : ""};
+      props.hasError
+        ? "var(--wds-color-border-danger)"
+        : "var(--wds-color-border)"};
+    &:hover {
+      border-color: ${(props) =>
+        props.hasError
+          ? "var(--wds-color-border-danger-hover)"
+          : "var(--wds-color-border-hover)"};
+    }
+    &:focus {
+      outline: 0;
+      border-color: ${(props) =>
+        props.hasError ? "var(--wds-color-border-danger)" : props.accentColor};
+      box-shadow: ${(props) =>
+        `0px 0px 0px 2px ${lightenColor(
+          props.hasError ? Colors.DANGER_SOLID : props.accentColor,
+        )} !important;`};
+    }
   }
 
   &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
@@ -110,19 +133,22 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
       !props.hasError
         ? `
         border-color: ${
-          props.hasError ? Colors.DANGER_SOLID : props.accentColor
+          props.hasError ? "var(--wds-color-border-danger)" : props.accentColor
         };
-        box-shadow: ${`0px 0px 0px 3px ${lightenColor(
+        box-shadow: ${`0px 0px 0px 2px ${lightenColor(
           props.hasError ? Colors.DANGER_SOLID : props.accentColor,
         )} !important;`};
       `
-        : `border: 1px solid ${Colors.DANGER_SOLID};`}
+        : `border: 1px solid var(--wds-color-border-danger);`}
   }
   &&&&& .${Classes.DISABLED} {
-    background-color: ${Colors.GREY_1};
-    border: 1px solid ${Colors.GREY_3};
+    background-color: var(--wds-color-bg-disabled);
+    border: 1px solid var(--wds-color-border-disabled);
     .${Classes.BUTTON_TEXT} {
-      color: ${Colors.GREY_7};
+      color: ${(props) =>
+        !isEmptyOrNill(props.value)
+          ? "var(--wds-color-text-disabled)"
+          : "var(--wds-color-text-disabled-light)"};
     }
   }
   .${Classes.BUTTON_TEXT} {
@@ -134,12 +160,14 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     color: ${(props) =>
-      !isEmptyOrNill(props.value) ? Colors.GREY_10 : Colors.GREY_6};
+      !isEmptyOrNill(props.value)
+        ? "var(--wds-color-text)"
+        : "var(--wds-color-text-light)"};
   }
   && {
     .${Classes.ICON} {
       width: fit-content;
-      color: ${Colors.SLATE_GRAY};
+      color: var(--wds-color-icon-disabled);
     }
   }
 `;
@@ -158,7 +186,7 @@ ${({ dropDownWidth, id }) => `
 .select-popover-wrapper {
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
   border-radius: ${({ borderRadius }) =>
-    borderRadius === "1.5rem" ? `0.375rem` : borderRadius} !important;
+    `min(${borderRadius}, 0.375rem) !important`};
   overflow: hidden;
   background: white;
   ${CommonSelectFilterStyle}
@@ -174,10 +202,10 @@ ${({ dropDownWidth, id }) => `
     border-radius: 0;
     color: ${Colors.GREY_8};
     &:hover{
-      background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
+      background: var(--wds-color-bg-hover);
     }
     &.is-focused{
-      background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
+      background: var(--wds-color-bg-focus);
     }
     &.${Classes.ACTIVE} {
       background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
@@ -194,6 +222,21 @@ export const DropdownContainer = styled.div<{
 }>`
   ${BlueprintCSSTransform}
   ${labelLayoutStyles}
+
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+    ${({ labelPosition }) => {
+      if (labelPosition === LabelPosition.Left) {
+        return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+      }
+    }}
+
   & .${LABEL_CONTAINER_CLASS} {
     label {
       ${({ labelPosition }) => {
@@ -212,7 +255,6 @@ export const MenuItem = styled.div<{
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    border-radius: 2px;
     color: inherit;
     line-height: 20px;
     padding: 5px 7px;
@@ -223,24 +265,35 @@ export const MenuItem = styled.div<{
 
     min-height: 38px;
     padding: 9px 12px;
-    color: ${Colors.DOVE_GRAY2};
+    color: var(--wds-color-text);
     outline: none !important;
     background-color: transparent;
 
     &:hover {
-      background-color: ${({ accentColor }) => lightenColor(accentColor)};
-      color: ${Colors.GREY_10};
+      background-color: var(--wds-color-bg-hover);
+      color: var(--wds-color-text);
       position: relative;
     }
   }
 
   & .menu-item-active {
-    background-color: ${({ accentColor }) => lightenColor(accentColor)};
+    background-color: ${({ accentColor }) =>
+      lightenColor(accentColor)} !important;
+
+    &:hover {
+      background-color: ${({ accentColor }) =>
+        lightenColor(accentColor, "0.90")} !important;
+    }
   }
 
   && .has-focus {
+    color: var(--wds-color-text);
+    background-color: var(--wds-color-bg-focus) !important;
+  }
+
+  && .has-focus.menu-item-active {
     background-color: ${({ accentColor }) =>
-      lightenColor(accentColor)} !important;
+      lightenColor(accentColor, "0.90")} !important;
   }
 
   & .menu-item-text {

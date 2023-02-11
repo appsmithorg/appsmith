@@ -6,16 +6,18 @@ import ImageComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { Stylesheet } from "entities/AppTheming";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
     super(props);
     this.onImageClick = this.onImageClick.bind(this);
   }
-  static getPropertyPaneConfig() {
+
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             helpText: "Sets the image to be displayed",
@@ -37,6 +39,11 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.IMAGE_URL },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             helpText:
               "Sets how the Image should be resized to fit its container.",
@@ -150,8 +157,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         sectionName: "Events",
         children: [
           {
-            helpText:
-              "Triggers an action when a user changes the selected option",
+            helpText: "Triggers an action when user clicks on an image",
             propertyName: "onClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",
@@ -161,8 +167,13 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Border and Shadow",
         children: [
           {
             propertyName: "borderRadius",
@@ -201,6 +212,13 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   getPageView() {

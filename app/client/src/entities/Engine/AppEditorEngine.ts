@@ -14,6 +14,7 @@ import {
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
 import { fetchJSCollections } from "actions/jsActionActions";
+import { loadGuidedTourInit } from "actions/onboardingActions";
 import {
   fetchAllPageEntityCompletion,
   fetchPage,
@@ -28,10 +29,10 @@ import {
   ApplicationPayload,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import { all, call, put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
@@ -40,7 +41,18 @@ import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AppEngine, { AppEnginePayload } from ".";
+import AppEngine, {
+  ActionsNotFoundError,
+  AppEnginePayload,
+  PluginFormConfigsNotFoundError,
+  PluginsNotFoundError,
+} from ".";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import {
+  waitForSegmentInit,
+  waitForFetchUserSuccess,
+} from "ce/sagas/userSagas";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -65,6 +77,7 @@ export default class AppEditorEngine extends AppEngine {
   public *setupEngine(payload: AppEnginePayload): any {
     yield* super.setupEngine.call(this, payload);
     yield put(resetEditorSuccess());
+    CodemirrorTernService.resetServer();
   }
 
   public startPerformanceTracking() {
@@ -107,6 +120,9 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_PAGE_ERROR,
     ];
 
+    initActionsCalls.push(fetchJSLibraries(applicationId));
+    successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
+
     const allActionCalls: boolean = yield call(
       failFastApiCalls,
       initActionsCalls,
@@ -114,7 +130,13 @@ export default class AppEditorEngine extends AppEngine {
       failureActionEffects,
     );
 
-    if (!allActionCalls) return;
+    if (!allActionCalls)
+      throw new ActionsNotFoundError(
+        `Unable to fetch actions for the application: ${applicationId}`,
+      );
+
+    yield call(waitForFetchUserSuccess);
+    yield call(waitForSegmentInit, true);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 
@@ -147,7 +169,8 @@ export default class AppEditorEngine extends AppEngine {
       errorActions,
     );
 
-    if (!initActionCalls) return;
+    if (!initActionCalls)
+      throw new PluginsNotFoundError("Unable to fetch plugins");
 
     const pluginFormCall: boolean = yield call(
       failFastApiCalls,
@@ -155,14 +178,15 @@ export default class AppEditorEngine extends AppEngine {
       [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
-    if (!pluginFormCall) return;
+    if (!pluginFormCall)
+      throw new PluginFormConfigsNotFoundError(
+        "Unable to fetch plugin form configs",
+      );
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    yield all([
-      call(this.loadPageThemesAndActions, toLoadPageId, applicationId),
-      call(this.loadPluginsAndDatasources),
-    ]);
+    yield call(this.loadPageThemesAndActions, toLoadPageId, applicationId);
+    yield call(this.loadPluginsAndDatasources);
   }
 
   public *completeChore() {
@@ -173,6 +197,7 @@ export default class AppEditorEngine extends AppEngine {
       appId: currentApplication.id,
       appName: currentApplication.name,
     });
+    yield put(loadGuidedTourInit());
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });

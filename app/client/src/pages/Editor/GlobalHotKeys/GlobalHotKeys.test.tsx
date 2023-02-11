@@ -2,33 +2,39 @@ import React from "react";
 import { Slide } from "react-toastify";
 
 import {
+  createMessage,
+  SAVE_HOTKEY_TOASTER_MESSAGE,
+} from "@appsmith/constants/messages";
+import { all } from "@redux-saga/core/effects";
+import { redoAction, undoAction } from "actions/pageActions";
+import { StyledToastContainer } from "design-system-old";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { MemoryRouter } from "react-router-dom";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
+import * as utilities from "selectors/editorSelectors";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as sagaSelectors from "sagas/selectors";
+import store, { runSagaMiddleware } from "store";
+import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { act, render, fireEvent, waitFor } from "test/testUtils";
-import GlobalHotKeys from "./GlobalHotKeys";
-import MainContainer from "../MainContainer";
-import { MemoryRouter } from "react-router-dom";
-import * as utilities from "selectors/editorSelectors";
-import store from "store";
 import { sagasToRunForTests } from "test/sagas";
-import { all } from "@redux-saga/core/effects";
 import {
   dispatchTestKeyboardEventWithCode,
   MockApplication,
+  mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
+  mockGetChildWidgets,
+  mockGetWidgetEvalValues,
   MockPageDSL,
   useMockDsl,
 } from "test/testCommon";
 import { MockCanvas } from "test/testMockedWidgets";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { act, fireEvent, render, waitFor } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
-import { redoAction, undoAction } from "actions/pageActions";
-import { StyledToastContainer } from "components/ads/Toast";
-import {
-  createMessage,
-  SAVE_HOTKEY_TOASTER_MESSAGE,
-} from "@appsmith/constants/messages";
+import MainContainer from "../MainContainer";
+import GlobalHotKeys from "./GlobalHotKeys";
 
 jest.mock("constants/routes", () => {
   return {
@@ -38,13 +44,23 @@ jest.mock("constants/routes", () => {
 });
 
 describe("Canvas Hot Keys", () => {
+  beforeAll(() => {
+    runSagaMiddleware();
+  });
+
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+  const spyGetChildWidgets = jest.spyOn(utilities, "getChildWidgets");
+  const spyCreateCanvasWidget = jest.spyOn(
+    widgetRenderUtils,
+    "createCanvasWidget",
+  );
 
-  function UpdatedMainContainer({ dsl }: any) {
+  function UpdatedEditor({ dsl }: any) {
     useMockDsl(dsl);
     return <MainContainer />;
   }
+
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
     const mockGenerator = function*() {
@@ -68,6 +84,16 @@ describe("Canvas Hot Keys", () => {
   });
 
   describe("Select all hotkey", () => {
+    jest
+      .spyOn(widgetRenderUtils, "createCanvasWidget")
+      .mockImplementation(mockCreateCanvasWidget);
+    jest
+      .spyOn(dataTreeSelectors, "getWidgetEvalValues")
+      .mockImplementation(mockGetWidgetEvalValues);
+    jest
+      .spyOn(utilities, "computeMainContainerWidget")
+      .mockImplementation((widget) => widget as any);
+
     it("Cmd + A - select all widgets on canvas", async () => {
       const children: any = buildChildren([
         { type: "TABS_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
@@ -89,7 +115,7 @@ describe("Canvas Hot Keys", () => {
                 return { x: 0, y: 0 };
               }}
             >
-              <UpdatedMainContainer dsl={dsl} />
+              <UpdatedEditor dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
@@ -213,7 +239,7 @@ describe("Canvas Hot Keys", () => {
                 return { x: 0, y: 0 };
               }}
             >
-              <UpdatedMainContainer dsl={dsl} />
+              <UpdatedEditor dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
@@ -240,12 +266,14 @@ describe("Canvas Hot Keys", () => {
       expect(selectedWidgets.length).toBe(children.length);
     });
     it("Cmd + A - select all widgets inside a form", async () => {
+      spyGetChildWidgets.mockImplementation(mockGetChildWidgets);
       const children: any = buildChildren([
         { type: "FORM_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
       ]);
       const dsl: any = widgetCanvasFactory.build({
         children,
       });
+
       spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
       mockGetIsFetchingPage.mockImplementation(() => false);
 
@@ -259,7 +287,7 @@ describe("Canvas Hot Keys", () => {
                 return { x: 0, y: 0 };
               }}
             >
-              <UpdatedMainContainer dsl={dsl} />
+              <UpdatedEditor dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
@@ -337,6 +365,8 @@ describe("Canvas Hot Keys", () => {
       });
       spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
       mockGetIsFetchingPage.mockImplementation(() => false);
+      spyGetChildWidgets.mockImplementation(mockGetChildWidgets);
+      spyCreateCanvasWidget.mockImplementation(mockCreateCanvasWidget);
 
       const component = render(
         <MemoryRouter
@@ -348,7 +378,7 @@ describe("Canvas Hot Keys", () => {
                 return { x: 0, y: 0 };
               }}
             >
-              <UpdatedMainContainer dsl={dsl} />
+              <UpdatedEditor dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
@@ -429,6 +459,7 @@ describe("Cut/Copy/Paste hotkey", () => {
 
     let selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
+    jest.spyOn(sagaSelectors, "getWidgetMetaProps").mockReturnValue({});
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,

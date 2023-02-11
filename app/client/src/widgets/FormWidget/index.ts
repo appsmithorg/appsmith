@@ -9,10 +9,18 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  features: {
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
+  },
   searchTags: ["group"],
   defaults: {
     rows: 40,
     columns: 24,
+    borderColor: Colors.GREY_5,
+    borderWidth: "1",
     animateLoading: true,
     widgetName: "Form",
     backgroundColor: Colors.WHITE,
@@ -44,7 +52,7 @@ export const CONFIG = {
                   },
                 },
                 {
-                  type: "FORM_BUTTON_WIDGET",
+                  type: "BUTTON_WIDGET",
                   size: {
                     rows: 4,
                     cols: 16,
@@ -63,7 +71,7 @@ export const CONFIG = {
                   },
                 },
                 {
-                  type: "FORM_BUTTON_WIDGET",
+                  type: "BUTTON_WIDGET",
                   size: {
                     rows: 4,
                     cols: 16,
@@ -93,6 +101,9 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

@@ -8,14 +8,16 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.util.WebClientUtils;
 import com.external.config.ExecutionMethod;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.MethodConfig;
@@ -49,6 +51,7 @@ import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInForm
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class GoogleSheetsPlugin extends BasePlugin {
 
     // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
@@ -62,7 +65,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void>, SmartSubstitutionInterface {
 
@@ -105,7 +107,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         if (property != null) {
 
                             // First extract all the bindings in order
-                            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(property);
+                            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(property);
                             // Replace all the bindings with a placeholder
                             String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(property, mustacheKeysInOrder);
 
@@ -157,12 +159,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Convert unreadable map to a DTO
             MethodConfig methodConfig = new MethodConfig(formData);
 
-            // Initializing webClient to be used for http call
-            WebClient.Builder webClientBuilder = WebClient.builder();
-
             executionMethod.validateExecutionMethodRequest(methodConfig);
 
-            WebClient client = webClientBuilder
+            // Initializing webClient to be used for http call
+            WebClient client = WebClientUtils.builder()
                     .exchangeStrategies(EXCHANGE_STRATEGIES)
                     .build();
 
@@ -242,7 +242,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                 })
                                 .onErrorResume(e -> {
                                     errorResult.setBody(Exceptions.unwrap(e).getMessage());
-                                    System.out.println(e.getMessage());
+                                    log.debug("Received error on Google Sheets action execution", e);
                                     return Mono.just(errorResult);
                                 });
                     })
@@ -269,7 +269,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         @Override
         public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.empty();
+            return Mono.empty().then();
         }
 
         @Override
@@ -280,12 +280,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             return Set.of();
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            // This plugin would not have the option to test
-            return Mono.just(new DatasourceTestResult());
         }
 
         @Override
@@ -304,7 +298,8 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+            Param param = (Param) args[0];
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null, param);
         }
 
         @Override
@@ -371,8 +366,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         /**
          * This overridden implementation conforms to the form/JS mode data structure that was introduced in UQI
-         * @param formData form data from action configuration object
-         * @param mappedColumns column name map from template table to user defined table
+         *
+         * @param formData                     form data from action configuration object
+         * @param mappedColumns                column name map from template table to user defined table
          * @param pluginSpecificTemplateParams plugin specified fields like S3 bucket name etc
          */
         @Override

@@ -1,5 +1,5 @@
 import React from "react";
-import { WidgetState } from "widgets/BaseWidget";
+import { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, { InputComponentProps } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -16,15 +16,22 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
+import {
+  InputTypes,
+  NumberInputStepButtonPosition,
+} from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
+import { Stylesheet } from "entities/AppTheming";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export function defaultValueValidation(
   value: any,
@@ -81,6 +88,7 @@ export function defaultValueValidation(
         messages,
       };
     case "TEXT":
+    case "MULTI_LINE_TEXT":
     case "PASSWORD":
     case "EMAIL":
       parsed = value;
@@ -172,12 +180,37 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
     };
   }
 }
+
+function InputTypeUpdateHook(
+  props: WidgetProps,
+  propertyName: string,
+  propertyValue: unknown,
+) {
+  const updates = [
+    {
+      propertyPath: propertyName,
+      propertyValue: propertyValue,
+    },
+  ];
+
+  if (propertyValue === InputTypes.MULTI_LINE_TEXT) {
+    if (props.dynamicHeight === DynamicHeight.FIXED) {
+      updates.push({
+        propertyPath: "dynamicHeight",
+        propertyValue: DynamicHeight.AUTO_HEIGHT,
+      });
+    }
+  }
+
+  return updates;
+}
+
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
         {
-          sectionName: "General",
+          sectionName: "Data",
           children: [
             {
               helpText: "Changes the type of data captured in the input",
@@ -186,8 +219,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               controlType: "DROP_DOWN",
               options: [
                 {
-                  label: "Text",
+                  label: "Single-line text",
                   value: "TEXT",
+                },
+                {
+                  label: "Multi-line text",
+                  value: "MULTI_LINE_TEXT",
                 },
                 {
                   label: "Number",
@@ -204,29 +241,14 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               ],
               isBindProperty: false,
               isTriggerProperty: false,
-            },
-            {
-              helpText: "Sets maximum allowed text length",
-              propertyName: "maxChars",
-              label: "Max Chars",
-              controlType: "INPUT_TEXT",
-              placeholderText: "255",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.NUMBER,
-                params: { min: 1, natural: true },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.TEXT;
-              },
-              dependencies: ["inputType"],
+              updateHook: InputTypeUpdateHook,
+              dependencies: ["dynamicHeight"],
             },
             {
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
-              label: "Default Text",
+              label: "Default Value",
               controlType: "INPUT_TEXT",
               placeholderText: "John Doe",
               isBindProperty: true,
@@ -241,6 +263,42 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                     autocompleteDataType: AutocompleteDataType.STRING,
                   },
                 },
+              },
+              dependencies: ["inputType"],
+            },
+          ],
+        },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
+            {
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+            {
+              helpText: "Sets maximum allowed text length",
+              propertyName: "maxChars",
+              label: "Max Characters",
+              controlType: "INPUT_TEXT",
+              placeholderText: "255",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.NUMBER,
+                params: { min: 1, natural: true, passThroughOnZero: false },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return !checkInputTypeTextByProps(props);
               },
               dependencies: ["inputType"],
             },
@@ -294,23 +352,40 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             },
           ],
         },
+      ],
+      super.getPropertyPaneContentConfig(),
+    );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return mergeWidgetConfig(
+      [
         {
-          sectionName: "Icon Options",
+          sectionName: "Icon",
           children: [
             {
               propertyName: "iconName",
               label: "Icon",
               helpText: "Sets the icon to be used in input field",
               controlType: "ICON_SELECT",
-              isBindProperty: false,
+              isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
+              isJSConvertible: true,
+              validation: {
+                type: ValidationTypes.TEXT,
+                params: {
+                  allowedValues: ICON_NAMES,
+                },
+              },
+              hidden: (props: InputWidgetProps) =>
+                props.inputType === InputTypes.MULTI_LINE_TEXT,
             },
             {
               propertyName: "iconAlign",
-              label: "Icon alignment",
+              label: "Position",
               helpText: "Sets the icon alignment of input field",
               controlType: "ICON_TABS",
+              fullWidth: true,
               options: [
                 {
                   icon: "VERTICAL_LEFT",
@@ -324,13 +399,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isBindProperty: false,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: InputWidgetProps) => !props.iconName,
+              hidden: (props: InputWidgetProps) =>
+                props.inputType === InputTypes.MULTI_LINE_TEXT ||
+                !props.iconName,
               dependencies: ["iconName"],
             },
           ],
         },
       ],
-      super.getPropertyPaneConfig(),
+      super.getPropertyPaneStyleConfig(),
     );
   }
 
@@ -342,7 +419,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
-      inputText: undefined,
+      inputText: "",
+      text: "",
     });
   }
 
@@ -353,7 +431,33 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   handleFocusChange = (focusState: boolean) => {
+    if (focusState) {
+      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+    }
+    if (!focusState) {
+      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
+    }
     super.handleFocusChange(focusState);
   };
 
@@ -446,7 +550,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       conditionalProps.minNum = this.props.minNum;
     }
 
-    if (this.props.inputType === InputTypes.TEXT && this.props.maxChars) {
+    if (checkInputTypeTextByProps(this.props) && this.props.maxChars) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (
@@ -490,12 +594,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         );
       }
     }
-    const minInputSingleLineHeight =
-      this.props.label || this.props.tooltip
-        ? // adjust height for label | tooltip extra div
-          GRID_DENSITY_MIGRATION_V1 + 4
-        : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
-          GRID_DENSITY_MIGRATION_V1;
+
+    if (
+      this.props.inputType === InputTypes.NUMBER &&
+      this.props.showStepArrows
+    ) {
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.RIGHT;
+    } else {
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
+    }
 
     return (
       <InputComponent
@@ -517,6 +624,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
@@ -526,11 +634,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
-        multiline={
-          (this.props.bottomRow - this.props.topRow) /
-            minInputSingleLineHeight >
-            1 && this.props.inputType === InputTypes.TEXT
-        }
+        multiline={this.props.inputType === InputTypes.MULTI_LINE_TEXT}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}

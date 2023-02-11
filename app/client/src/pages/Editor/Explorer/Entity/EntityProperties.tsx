@@ -4,15 +4,15 @@ import { isFunction } from "lodash";
 import {
   entityDefinitions,
   EntityDefinitionsOptions,
-} from "utils/autocomplete/EntityDefinitions";
+  getPropsForJSActionEntity,
+} from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
-import { AppState } from "reducers";
-import { getPropsForJSActionEntity } from "utils/autocomplete/EntityDefinitions";
+import { AppState } from "@appsmith/reducers";
 import { isEmpty } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import classNames from "classnames";
@@ -20,6 +20,7 @@ import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
@@ -63,6 +64,15 @@ export function EntityProperties() {
 
     return () => document.removeEventListener("click", handleOutsideClick);
   }, [show]);
+
+  useEffect(() => {
+    if (entityId) {
+      AnalyticsUtil.logEvent("SHOW_BINDINGS_TRIGGERED", {
+        entityName,
+        entityType,
+      });
+    }
+  }, [entityId]);
 
   const actionEntity = useSelector((state: AppState) =>
     state.entities.actions.find((action) => action.config.id === entityId),
@@ -132,6 +142,7 @@ export function EntityProperties() {
               propertyName: actionProperty,
               entityName: jsCollection.config.name,
               value: value,
+              entityType,
             };
           },
         );
@@ -166,6 +177,7 @@ export function EntityProperties() {
               propertyName: actionProperty,
               entityName: entityName,
               value,
+              entityType,
             };
           });
       }
@@ -192,6 +204,7 @@ export function EntityProperties() {
             propertyName: widgetProperty,
             entityName: entity.widgetName,
             value: entity[widgetProperty],
+            entityType,
           };
         });
       break;

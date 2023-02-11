@@ -4,7 +4,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { applyChange, Diff } from "deep-diff";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import * as Sentry from "@sentry/react";
 
 export type EvaluatedTreeState = DataTree;

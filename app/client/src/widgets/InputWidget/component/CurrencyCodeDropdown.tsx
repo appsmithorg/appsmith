@@ -1,8 +1,7 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Dropdown, DropdownOption, Icon, IconSize } from "design-system-old";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
@@ -19,8 +18,8 @@ const DropdownTriggerIconWrapper = styled.div`
 
   .dropdown {
     svg {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
 
       path {
         fill: ${Colors.GREY_10} !important;
@@ -70,7 +69,10 @@ export const PopoverStyles = createGlobalStyle<{
       border: 1px solid ${props.accentColor} !important;
     }
 
-    .${props.portalClassName} .t--dropdown-option:hover,
+    .${props.portalClassName} .t--dropdown-option:hover {
+      background-color: var(--wds-color-bg-hover) !important;
+    }
+
     .${props.portalClassName} .t--dropdown-option.selected {
       background-color: ${lightenColor(props.accentColor)} !important;
     }

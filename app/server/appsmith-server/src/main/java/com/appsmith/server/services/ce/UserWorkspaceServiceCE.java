@@ -1,24 +1,23 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserRole;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface UserWorkspaceServiceCE {
 
-    Mono<User> addUserToWorkspace(String workspaceId, User user);
-
-    Mono<Workspace> addUserRoleToWorkspace(String workspaceId, UserRole userRole);
-
-    Mono<Workspace> addUserToWorkspaceGivenUserObject(Workspace workspace, User user, UserRole userRole);
-
     Mono<User> leaveWorkspace(String workspaceId);
 
-    Mono<UserRole> updateRoleForMember(String workspaceId, UserRole userRole, String originHeader);
+    Mono<WorkspaceMemberInfoDTO> updatePermissionGroupForMember(String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader);
 
-    Mono<Workspace> bulkAddUsersToWorkspace(Workspace workspace, List<User> users, String roleName);
+    Mono<List<WorkspaceMemberInfoDTO>> getWorkspaceMembers(String workspaceId);
 
+    Mono<Map<String, List<WorkspaceMemberInfoDTO>>> getWorkspaceMembers(Set<String> workspaceIds);
+    Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup);
 }

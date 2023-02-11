@@ -22,7 +22,8 @@ Cypress.Commands.add("createWorkspace", () => {
 });
 
 Cypress.Commands.add("renameWorkspace", (workspaceName, newWorkspaceName) => {
-  cy.contains(workspaceName)
+  cy.get(".t--applications-container")
+    .contains(workspaceName)
     .closest(homePage.workspaceCompleteSection)
     .find(homePage.workspaceNamePopover)
     .find(homePage.optionsIcon)
@@ -111,7 +112,10 @@ Cypress.Commands.add("shareApp", (email, role) => {
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
-  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(homePage.selectRole).should("be.visible");
+  cy.xpath("//span[@name='expand-more']")
+    .last()
+    .click();
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
   cy.wait("@mockPostInvite")
@@ -136,7 +140,7 @@ Cypress.Commands.add("shareAndPublic", (email, role) => {
   cy.enablePublicAccess();
 });
 
-Cypress.Commands.add("enablePublicAccess", () => {
+Cypress.Commands.add("enablePublicAccess", (editMode = false) => {
   cy.get(homePage.enablePublicAccess)
     .first()
     .click({ force: true });
@@ -146,7 +150,10 @@ Cypress.Commands.add("enablePublicAccess", () => {
     200,
   );
   cy.wait(10000);
-  cy.get(homePage.closeBtn)
+  const closeButtonLocator = editMode
+    ? homePage.editModeInviteModalCloseBtn
+    : homePage.closeBtn;
+  cy.get(closeButtonLocator)
     .first()
     .click({ force: true });
 });
@@ -271,8 +278,6 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
 
-  cy.get(generatePage.buildFromScratchActionCard).click();
-
   cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -291,9 +296,14 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     applicationId = response.body.data.id;
     localStorage.setItem("applicationId", applicationId);
   });
+  //cy.get("#loading").should("not.exist");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  //cy.reload();
+
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
+
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
@@ -301,19 +311,9 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
-
-  cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
-    errorMsg: "Build app from scratch not visible even aft 80 secs",
-    timeout: 20000,
-    interval: 1000,
-  }).then(($ele) =>
-    cy
-      .wrap($ele)
-      .should("be.visible")
-      .click(),
-  );
-
-  //cy.get(generatePage.buildFromScratchActionCard).click();
+  // Remove tooltip on the Application Name element
+  cy.get(homePage.applicationName).realHover();
+  cy.get("body").realHover({ position: "topLeft" });
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one
@@ -330,4 +330,21 @@ Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
   cy.get(explorer.editEntity)
     .last()
     .type(`${renamedEntity}`, { force: true });
+});
+Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
+  cy.openWorkspaceOptionsPopup(newWorkspaceName);
+  cy.get(homePage.workspaceNamePopoverContent)
+    .find("a")
+    .should("have.length", 1)
+    .first()
+    .contains("Leave Workspace")
+    .click();
+  cy.contains("Are you sure").click();
+  cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
+    expect(httpResponse.status).to.equal(200);
+  });
+  cy.get(homePage.toastMessage).should(
+    "contain",
+    "You have successfully left the workspace",
+  );
 });

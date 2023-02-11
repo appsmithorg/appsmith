@@ -1,9 +1,9 @@
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system-old";
 import React from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
-import { getDefaultPluginByPackageName } from "selectors/entitiesSelector";
+import { AppState } from "@appsmith/reducers";
+import { getDefaultPlugin } from "selectors/entitiesSelector";
 import styled from "styled-components";
 
 const StyledDatasourceChip = styled.div`
@@ -20,7 +20,7 @@ const StyledDatasourceChip = styled.div`
   }
   span {
     margin-left: ${(props) => props.theme.spaces[2]}px;
-    ${(props) => getTypographyByKey(props, "h6")}
+    ${getTypographyByKey("h6")}
     letter-spacing: -0.221538px;
     color: var(--appsmith-color-black-900);
   }
@@ -33,7 +33,7 @@ interface DatasourceChipProps {
 
 function DatasourceChip(props: DatasourceChipProps) {
   const plugin = useSelector((state: AppState) =>
-    getDefaultPluginByPackageName(state, props.pluginPackageName),
+    getDefaultPlugin(state, props.pluginPackageName),
   );
 
   if (!plugin) return null;

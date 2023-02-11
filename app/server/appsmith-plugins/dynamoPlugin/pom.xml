@@ -16,10 +16,6 @@
     <name>dynamoPlugin</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>dynamo-plugin</plugin.id>
         <plugin.class>com.external.plugins.DynamoPlugin</plugin.class>
         <plugin.version>1.0-SNAPSHOT</plugin.version>
@@ -45,15 +41,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <!-- Test Dependencies -->
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>1.15.0-rc2</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>

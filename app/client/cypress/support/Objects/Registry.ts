@@ -9,6 +9,17 @@ import { Table } from "../Pages/Table";
 import { TableV2 } from "../Pages/TableV2";
 import { PropertyPane } from "../Pages/PropertyPane";
 import { DeployMode } from "../Pages/DeployModeHelper";
+import { GitSync } from "../Pages/GitSync";
+import { FakerHelper } from "../Pages/FakerHelper";
+import { DebuggerHelper } from "../Pages/DebuggerHelper";
+import { LibraryInstaller } from "../Pages/LibraryInstaller";
+import { InviteModal } from "../Pages/InviteModal";
+import { AppSettings } from "../Pages/AppSettings/AppSettings";
+import { GeneralSettings } from "../Pages/AppSettings/GeneralSettings";
+import { PageSettings } from "../Pages/AppSettings/PageSettings";
+import { ThemeSettings } from "../Pages/AppSettings/ThemeSettings";
+import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
+import { Templates } from "../Pages/Templates";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -98,6 +109,94 @@ export class ObjectsRegistry {
     }
     return ObjectsRegistry.deployMode__;
   }
+
+  private static gitSync__: GitSync;
+  static get GitSync(): GitSync {
+    if (ObjectsRegistry.gitSync__ === undefined) {
+      ObjectsRegistry.gitSync__ = new GitSync();
+    }
+    return ObjectsRegistry.gitSync__;
+  }
+
+  private static fakerHelper__: FakerHelper;
+  static get FakerHelper(): FakerHelper {
+    if (ObjectsRegistry.fakerHelper__ === undefined) {
+      ObjectsRegistry.fakerHelper__ = new FakerHelper();
+    }
+    return ObjectsRegistry.fakerHelper__;
+  }
+
+  private static debuggerHelper__: DebuggerHelper;
+  static get DebuggerHelper(): DebuggerHelper {
+    if (ObjectsRegistry.debuggerHelper__ === undefined) {
+      ObjectsRegistry.debuggerHelper__ = new DebuggerHelper();
+    }
+    return ObjectsRegistry.debuggerHelper__;
+  }
+
+  private static appSettings__: AppSettings;
+  static get AppSettings(): AppSettings {
+    if (ObjectsRegistry.appSettings__ === undefined) {
+      ObjectsRegistry.appSettings__ = new AppSettings();
+    }
+    return ObjectsRegistry.appSettings__;
+  }
+
+  private static generalSettings__: GeneralSettings;
+  static get GeneralSettings(): GeneralSettings {
+    if (ObjectsRegistry.generalSettings__ === undefined) {
+      ObjectsRegistry.generalSettings__ = new GeneralSettings();
+    }
+    return ObjectsRegistry.generalSettings__;
+  }
+
+  private static pageSettings__: PageSettings;
+  static get PageSettings(): PageSettings {
+    if (ObjectsRegistry.pageSettings__ === undefined) {
+      ObjectsRegistry.pageSettings__ = new PageSettings();
+    }
+    return ObjectsRegistry.pageSettings__;
+  }
+
+  private static themeSettings__: ThemeSettings;
+  static get ThemeSettings(): ThemeSettings {
+    if (ObjectsRegistry.themeSettings__ === undefined) {
+      ObjectsRegistry.themeSettings__ = new ThemeSettings();
+    }
+    return ObjectsRegistry.themeSettings__;
+  }
+
+  private static embedSettings__: EmbedSettings;
+  static get EmbedSettings(): EmbedSettings {
+    if (ObjectsRegistry.embedSettings__ === undefined) {
+      ObjectsRegistry.embedSettings__ = new EmbedSettings();
+    }
+    return ObjectsRegistry.embedSettings__;
+  }
+
+  private static LibraryInstaller__: LibraryInstaller;
+  static get LibraryInstaller(): LibraryInstaller {
+    if (ObjectsRegistry.LibraryInstaller__ === undefined) {
+      ObjectsRegistry.LibraryInstaller__ = new LibraryInstaller();
+    }
+    return ObjectsRegistry.LibraryInstaller__;
+  }
+
+  private static inviteModal__: InviteModal;
+  static get InviteModal(): InviteModal {
+    if (ObjectsRegistry.inviteModal__ === undefined) {
+      ObjectsRegistry.inviteModal__ = new InviteModal();
+    }
+    return ObjectsRegistry.inviteModal__;
+  }
+
+  private static templates__: Templates;
+  static get Templates(): Templates {
+    if (ObjectsRegistry.templates__ === undefined) {
+      ObjectsRegistry.templates__ = new Templates();
+    }
+    return ObjectsRegistry.templates__;
+  }
 }
 
 export const initLocalstorageRegistry = () => {
@@ -108,10 +207,10 @@ export const initLocalstorageRegistry = () => {
   localStorage.setItem("inDeployedMode", "false");
 };
 
-declare global {
+declare namespace Cypress {
   namespace Cypress {
     interface Chainable {
-      typeTab: (shiftKey: Boolean, ctrlKey: boolean) => void;
+      TypeTab: (shiftKey: boolean, ctrlKey: boolean) => void;
     }
   }
 }

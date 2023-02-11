@@ -4,33 +4,41 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
         implements CustomActionCollectionRepositoryCE {
 
-    public CustomActionCollectionRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomActionCollectionRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 
     @Override
+    @Deprecated
     public Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
+
+        Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId)).is(applicationId);
+
+        return queryAll(List.of(applicationCriteria), aclPermission, sort);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByApplicationId(String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
 
         Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId)).is(applicationId);
 
@@ -113,24 +121,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 where(publishedPage).is(pageId)
         );
 
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .flatMapMany(auth -> {
-                    User user = (User) auth.getPrincipal();
-                    Query query = new Query();
-
-                    if (aclPermission == null) {
-                        query.addCriteria(new Criteria().andOperator(notDeleted(), pageCriteria));
-                    } else {
-                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission), pageCriteria));
-                    }
-
-                    return mongoOperations.query(ActionCollection.class)
-                            .matching(query)
-                            .all()
-                            .map(obj -> setUserPermissionsInObject(obj, user));
-                });
-
+        return queryAll(List.of(pageCriteria), aclPermission);
     }
 
     @Override

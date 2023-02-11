@@ -5,6 +5,7 @@ export const WORKSPACE_URL = "/workspace";
 export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
+export const LICENSE_CHECK_PATH = "/license";
 
 export const TEMPLATES_PATH = "/templates";
 export const TEMPLATES_ID_PATH = "/templates/:templateId";
@@ -13,7 +14,6 @@ export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";
 export const GIT_PROFILE_ROUTE = `${PROFILE}/git`;
 export const USERS_URL = "/users";
-export const UNSUBSCRIBE_EMAIL_URL = "/unsubscribe/discussion/:threadId";
 export const SETUP = "/setup/welcome";
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;

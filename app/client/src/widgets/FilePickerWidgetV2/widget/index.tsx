@@ -17,61 +17,211 @@ import FileDataTypes from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 import log from "loglevel";
+import { createGlobalStyle } from "styled-components";
+import UpIcon from "assets/icons/ads/up-arrow.svg";
+import CloseIcon from "assets/icons/ads/cross.svg";
+import { Colors } from "constants/Colors";
+import Papa from "papaparse";
+import { klona } from "klona";
+import { UppyFile } from "@uppy/utils";
+import { Stylesheet } from "entities/AppTheming";
 
+const CSV_ARRAY_LABEL = "Array (CSVs only)";
+const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
+
+const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
+
+const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
+
+type Result = string | Buffer | ArrayBuffer | null;
+
+const FilePickerGlobalStyles = createGlobalStyle<{
+  borderRadius?: string;
+}>`
+
+  /* Sets the font-family to theming font-family of the upload modal */
+  .uppy-Root {
+    font-family: var(--wds-font-family);
+  }
+
+  /*********************************************************/
+  /* Set the new dropHint upload icon */
+  .uppy-Dashboard-dropFilesHereHint {
+    background-image: none;
+    border-radius: ${({ borderRadius }) => borderRadius};
+  }
+
+  .uppy-Dashboard-dropFilesHereHint::before {
+    border: 2.5px solid var(--wds-accent-color);
+    width: 60px;
+    height: 60px;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    display: inline-block;
+    content: ' ';
+    position: absolute;
+    top: 43%;
+  }
+
+  .uppy-Dashboard-dropFilesHereHint::after {
+    display: inline-block;
+    content: ' ';
+    position: absolute;
+    top: 46%;
+    width: 30px;
+    height: 30px;
+
+    -webkit-mask-image: url(${UpIcon});
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: 30px;
+    background: var(--wds-accent-color);
+  }
+  /*********************************************************/
+
+  /*********************************************************/
+  /* Set the styles for the upload button */
+  .uppy-StatusBar-actionBtn--upload {
+    background-color: var(--wds-accent-color) !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
+  }
+
+  .uppy-Dashboard-Item-action--remove {
+
+    /* Sets the border radius of the button when it is focused */
+    &:focus {
+      border-radius: ${({ borderRadius }) =>
+        borderRadius === "0.375rem" ? "0.25rem" : borderRadius} !important;
+    }
+
+    .uppy-c-icon {
+      & path:first-child {
+      /* Sets the black background of remove file button hidden */
+        visibility: hidden;
+      }
+
+      & path:last-child {
+      /* Sets the cross mark color of remove file button */
+        fill: #858282;
+      }
+
+      background-color: #FFFFFF;
+      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.1);
+
+      & {
+      /* Sets the black background of remove file button hidden*/
+        border-radius: ${({ borderRadius }) =>
+          borderRadius === "0.375rem" ? "0.25rem" : borderRadius};
+      }
+    }
+  }
+  /*********************************************************/
+
+  /*********************************************************/
+  /* Sets the back cancel button color to match theming primary color */
+  .uppy-DashboardContent-back {
+    color: var(--wds-accent-color);
+
+    &:hover {
+      color: var(--wds-accent-color);
+      background-color: ${Colors.ATHENS_GRAY};
+    }
+  }
+  /*********************************************************/
+
+  /*********************************************************/
+  /* Sets the style according to reskinning for x button at the top right corner of the modal */
+  .uppy-Dashboard-close {
+    background-color: white;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    top: -33px;
+    border-radius: ${({ borderRadius }) => borderRadius};
+
+      & span {
+        font-size: 0;
+      }
+
+      & span::after {
+        content: ' ';
+        -webkit-mask-image: url(${CloseIcon});
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        -webkit-mask-size: 20px;
+        background: #858282;
+        position: absolute;
+        top: 32%;
+        left: 32%;
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+  /*********************************************************/
+
+
+  /*********************************************************/
+  /* Sets the border radius of the upload modal */
+  .uppy-Dashboard-inner, .uppy-Dashboard-innerWrap {
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+  }
+
+  .uppy-Dashboard-AddFiles {
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+  }
+  /*********************************************************/
+
+  /*********************************************************/
+  /* Sets the error message style according to reskinning*/
+  .uppy-Informer {
+    bottom: 82px;
+    & p[role="alert"] {
+      border-radius: ${({ borderRadius }) => borderRadius};
+      background-color: transparent;
+      color: #D91921;
+      border: 1px solid #D91921;
+    }
+  }
+  /*********************************************************/
+
+  /*********************************************************/
+  /* Style the + add more files button on top right corner of the upload modal */
+  .uppy-DashboardContent-addMore {
+    color: var(--wds-accent-color);
+    font-weight: 400;
+    &:hover {
+      background-color: ${Colors.ATHENS_GRAY};
+      color: var(--wds-accent-color);
+    }
+
+    & svg {
+      fill: var(--wds-accent-color) !important;
+    }
+  }
+  /*********************************************************/
+
+}
+`;
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
+  private isWidgetUnmounting: boolean;
+
   constructor(props: FilePickerWidgetProps) {
     super(props);
+    this.isWidgetUnmounting = false;
     this.state = {
       isLoading: false,
       uppy: this.initializeUppy(),
     };
   }
 
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Basic",
         children: [
-          {
-            propertyName: "label",
-            label: "Label",
-            controlType: "INPUT_TEXT",
-            helpText: "Sets the label of the button",
-            placeholderText: "Select Files",
-            inputType: "TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "maxNumFiles",
-            label: "Max No. files",
-            helpText:
-              "Sets the maximum number of files that can be uploaded at once",
-            controlType: "INPUT_TEXT",
-            placeholderText: "1",
-            inputType: "INTEGER",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            propertyName: "maxFileSize",
-            helpText: "Sets the maximum size of each file that can be uploaded",
-            label: "Max file size(Mb)",
-            controlType: "INPUT_TEXT",
-            placeholderText: "5",
-            inputType: "INTEGER",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: { min: 1, max: 100, default: 5 },
-            },
-          },
           {
             propertyName: "allowedFileTypes",
             helpText: "Restricts the type of files which can be uploaded",
@@ -133,6 +283,11 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "fileDataType",
             label: "Data Format",
             controlType: "DROP_DOWN",
+            helperText: (props: FilePickerWidgetProps) => {
+              return props.fileDataType === FileDataTypes.Array
+                ? ARRAY_CSV_HELPER_TEXT
+                : "";
+            },
             options: [
               {
                 label: FileDataTypes.Base64,
@@ -146,10 +301,62 @@ class FilePickerWidget extends BaseWidget<
                 label: FileDataTypes.Text,
                 value: FileDataTypes.Text,
               },
+              {
+                label: CSV_ARRAY_LABEL,
+                value: FileDataTypes.Array,
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
           },
+          {
+            propertyName: "dynamicTyping",
+            label: "Infer data-types from CSV",
+            helpText:
+              "Controls if the arrays should try to infer the best possible data type based on the values in csv files",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            hidden: (props: FilePickerWidgetProps) => {
+              return props.fileDataType !== FileDataTypes.Array;
+            },
+            dependencies: ["fileDataType"],
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "maxNumFiles",
+            label: "Max No. of files",
+            helpText:
+              "Sets the maximum number of files that can be uploaded at once",
+            controlType: "INPUT_TEXT",
+            placeholderText: "1",
+            inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            propertyName: "label",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            helpText: "Sets the label of the button",
+            placeholderText: "Select Files",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Validation",
+        children: [
           {
             propertyName: "isRequired",
             label: "Required",
@@ -160,6 +367,30 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "maxFileSize",
+            helpText: "Sets the maximum size of each file that can be uploaded",
+            label: "Max file size(Mb)",
+            controlType: "INPUT_TEXT",
+            placeholderText: "5",
+            inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                min: 1,
+                max: 100,
+                default: 5,
+                passThroughOnZero: false,
+              },
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             propertyName: "isVisible",
             label: "Visible",
@@ -208,9 +439,13 @@ class FilePickerWidget extends BaseWidget<
           },
         ],
       },
+    ];
+  }
 
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             propertyName: "buttonColor",
@@ -222,6 +457,11 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -249,9 +489,11 @@ class FilePickerWidget extends BaseWidget<
       },
     ];
   }
+
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
   }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
@@ -264,6 +506,14 @@ class FilePickerWidget extends BaseWidget<
       selectedFiles: [],
       uploadedFileData: {},
       isDirty: false,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
     };
   }
 
@@ -380,19 +630,40 @@ class FilePickerWidget extends BaseWidget<
        * Uppy provides an argument called reason. It helps us to distinguish on which event the file-removed event was called.
        * Refer to the following issue to know about reason prop: https://github.com/transloadit/uppy/pull/2323
        */
-      if (reason !== "cancel-all") {
-        const updatedFiles = this.props.selectedFiles
-          ? this.props.selectedFiles.filter((dslFile) => {
-              return file.id !== dslFile.id;
-            })
-          : [];
-        this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+      if (reason === "removed-by-user") {
+        const fileCount = this.props.selectedFiles?.length || 0;
+
+        /**
+         * Once the file is removed we update the selectedFiles
+         * with the current files present in the uppy's internal state
+         */
+        const updatedFiles = this.state.uppy
+          .getFiles()
+          .map((currentFile: UppyFile, index: number) => ({
+            type: currentFile.type,
+            id: currentFile.id,
+            data: currentFile.data,
+            name: currentFile.meta
+              ? currentFile.meta.name
+              : `File-${index + fileCount}`,
+            size: currentFile.size,
+            dataFormat: this.props.fileDataType,
+          }));
+        this.props.updateWidgetMetaProperty(
+          "selectedFiles",
+          updatedFiles ?? [],
+        );
+      }
+
+      if (reason === "cancel-all" && !this.isWidgetUnmounting) {
+        this.props.updateWidgetMetaProperty("selectedFiles", []);
       }
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {
-      const dslFiles = this.props.selectedFiles
-        ? [...this.props.selectedFiles]
+      // Deep cloning the selectedFiles
+      const selectedFiles = this.props.selectedFiles
+        ? klona(this.props.selectedFiles)
         : [];
 
       const fileCount = this.props.selectedFiles?.length || 0;
@@ -411,7 +682,12 @@ class FilePickerWidget extends BaseWidget<
               const newFile = {
                 type: file.type,
                 id: file.id,
-                data: reader.result,
+                data: this.parseUploadResult(
+                  reader.result,
+                  file.type,
+                  this.props.fileDataType,
+                ),
+                meta: file.meta,
                 name: file.meta ? file.meta.name : `File-${index + fileCount}`,
                 size: file.size,
                 dataFormat: this.props.fileDataType,
@@ -424,6 +700,7 @@ class FilePickerWidget extends BaseWidget<
               type: file.type,
               id: file.id,
               data: data,
+              meta: file.meta,
               name: file.meta ? file.meta.name : `File-${index + fileCount}`,
               size: file.size,
               dataFormat: this.props.fileDataType,
@@ -438,10 +715,17 @@ class FilePickerWidget extends BaseWidget<
           this.props.updateWidgetMetaProperty("isDirty", true);
         }
 
-        this.props.updateWidgetMetaProperty(
-          "selectedFiles",
-          dslFiles.concat(files),
-        );
+        if (selectedFiles.length !== 0) {
+          files.forEach((fileItem: any) => {
+            if (!fileItem?.meta?.isInitializing) {
+              selectedFiles.push(fileItem);
+            }
+          });
+          this.props.updateWidgetMetaProperty("selectedFiles", selectedFiles);
+        } else {
+          // update with newly added files when the selectedFiles is empty.
+          this.props.updateWidgetMetaProperty("selectedFiles", [...files]);
+        }
       });
     });
 
@@ -503,35 +787,111 @@ class FilePickerWidget extends BaseWidget<
     });
   }
 
+  initializeSelectedFiles() {
+    /**
+     * Since on unMount the uppy instance closes and it's internal state is lost along with the files present in it.
+     * Below we add the files again to the uppy instance so that the files are retained.
+     */
+    this.props.selectedFiles?.forEach((fileItem: any) => {
+      this.state.uppy.addFile({
+        name: fileItem.name,
+        type: fileItem.type,
+        data: new Blob([fileItem.data]),
+        meta: {
+          // Adding this flag to distinguish a file in the files-added event
+          isInitializing: true,
+        },
+      });
+    });
+  }
+
   componentDidMount() {
     super.componentDidMount();
 
     try {
       this.initializeUppyEventListeners();
+      this.initializeSelectedFiles();
     } catch (e) {
       log.debug("Error in initializing uppy");
     }
   }
 
   componentWillUnmount() {
+    this.isWidgetUnmounting = true;
     this.state.uppy.close();
   }
 
   getPageView() {
     return (
-      <FilePickerComponent
-        borderRadius={this.props.borderRadius}
-        boxShadow={this.props.boxShadow}
-        buttonColor={this.props.buttonColor}
-        files={this.props.selectedFiles || []}
-        isDisabled={this.props.isDisabled}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        key={this.props.widgetId}
-        label={this.props.label}
-        uppy={this.state.uppy}
-        widgetId={this.props.widgetId}
-      />
+      <>
+        <FilePickerComponent
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          buttonColor={this.props.buttonColor}
+          files={this.props.selectedFiles || []}
+          isDisabled={this.props.isDisabled}
+          isLoading={this.props.isLoading || this.state.isLoading}
+          key={this.props.widgetId}
+          label={this.props.label}
+          uppy={this.state.uppy}
+          widgetId={this.props.widgetId}
+        />
+        {this.state.uppy && this.state.uppy.getID() === this.props.widgetId && (
+          <FilePickerGlobalStyles borderRadius={this.props.borderRadius} />
+        )}
+      </>
     );
+  }
+
+  parseUploadResult(
+    result: Result,
+    fileType: string,
+    dataFormat: FileDataTypes,
+  ) {
+    if (
+      dataFormat !== FileDataTypes.Array ||
+      !isCSVFileType(fileType) ||
+      !result
+    ) {
+      return result;
+    }
+
+    const data: Record<string, string>[] = [];
+    const errors: Papa.ParseError[] = [];
+
+    function chunk(results: Papa.ParseStepResult<any>) {
+      if (results?.errors?.length) {
+        errors.push(...results.errors);
+      }
+      data.push(...results.data);
+    }
+
+    if (typeof result === "string") {
+      const config = {
+        header: true,
+        dynamicTyping: this.props.dynamicTyping,
+        chunk,
+      };
+      try {
+        const startParsing = performance.now();
+
+        Papa.parse(result, config);
+
+        const endParsing = performance.now();
+
+        log.debug(
+          `### FILE_PICKER_WIDGET_V2 - ${this.props.widgetName} - CSV PARSING  `,
+          `${endParsing - startParsing} ms`,
+        );
+
+        return data;
+      } catch (error) {
+        log.error(errors);
+        return [];
+      }
+    } else {
+      return [];
+    }
   }
 
   static getWidgetType(): WidgetType {
@@ -556,6 +916,7 @@ interface FilePickerWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  dynamicTyping?: boolean;
 }
 
 export type FilePickerWidgetV2Props = FilePickerWidgetProps;

@@ -1,83 +1,45 @@
-import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  APPLICATIONS_URL,
-  BUILDER_PATH,
-  BUILDER_PATH_DEPRECATED,
-  SIGNUP_SUCCESS_URL,
-  VIEWER_PATH,
-  VIEWER_PATH_DEPRECATED,
-} from "constants/routes";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import React from "react";
 import { useCallback } from "react";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "store";
-import { getIsSafeRedirectURL } from "utils/helpers";
-import history from "utils/history";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import Landing from "./Welcome";
-import { error } from "loglevel";
-import { matchPath } from "react-router";
+import Landing from "pages/setup/Welcome";
 import { Center } from "pages/setup/common";
-import { IconSize, Spinner } from "components/ads";
+import { IconSize, Spinner } from "design-system-old";
+import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
+import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
   const urlObject = new URL(window.location.href);
-  const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+  const redirectUrl = urlObject?.searchParams.get("redirectUrl") ?? "";
   const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
     "enableFirstTimeUserExperience",
   );
+  const isUsageAndBillingEnabled = useSelector(selectFeatureFlags)
+    ?.USAGE_AND_BILLING;
+  const validLicense = useSelector(isValidLicense);
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
   }, []);
 
-  const redirectUsingQueryParam = useCallback(() => {
-    if (redirectUrl) {
-      try {
-        if (
-          window.location.pathname == SIGNUP_SUCCESS_URL &&
-          shouldEnableFirstTimeUserOnboarding === "true"
-        ) {
-          let urlObject;
-          try {
-            urlObject = new URL(redirectUrl);
-          } catch (e) {}
-          const match = matchPath<{
-            pageId: string;
-            applicationId: string;
-          }>(urlObject?.pathname ?? redirectUrl, {
-            path: [
-              BUILDER_PATH,
-              BUILDER_PATH_DEPRECATED,
-              VIEWER_PATH,
-              VIEWER_PATH_DEPRECATED,
-            ],
-            strict: false,
-            exact: false,
-          });
-          const { applicationId, pageId } = match?.params || {};
-          if (applicationId || pageId) {
-            dispatch(
-              firstTimeUserOnboardingInit(applicationId, pageId as string),
-            );
-          }
-        } else if (getIsSafeRedirectURL(redirectUrl)) {
-          window.location.replace(redirectUrl);
-        }
-      } catch (e) {
-        error("Error handling the redirect url");
-      }
-    } else {
-      history.replace(APPLICATIONS_URL);
-    }
-  }, []);
+  const redirectUsingQueryParam = useCallback(
+    () =>
+      redirectUserAfterSignup(
+        redirectUrl,
+        shouldEnableFirstTimeUserOnboarding,
+        isUsageAndBillingEnabled,
+        validLicense,
+        dispatch,
+      ),
+    [],
+  );
 
   const onGetStarted = useCallback((role?: string, useCase?: string) => {
     dispatch({

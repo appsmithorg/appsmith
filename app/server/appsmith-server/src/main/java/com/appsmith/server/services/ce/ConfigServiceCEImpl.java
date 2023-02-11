@@ -1,9 +1,11 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -35,6 +37,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     public ConfigServiceCEImpl(ConfigRepository repository,
                                ApplicationRepository applicationRepository,
                                DatasourceRepository datasourceRepository) {
+
         this.applicationRepository = applicationRepository;
         this.datasourceRepository = datasourceRepository;
         this.repository = repository;
@@ -45,7 +48,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
         return repository.findByName(name)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)));
     }
-
+    
     @Override
     public Mono<Config> updateByName(Config config) {
         final String name = config.getName();
@@ -125,6 +128,16 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
         return repository.findByName(name)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
                 .flatMap(repository::delete);
+    }
+
+    @Override
+    public Mono<Config> getByName(String name, AclPermission permission) {
+        return repository.findByName(name, permission);
+    }
+
+    @Override
+    public Mono<Config> getByNameAsUser(String name, User user, AclPermission permission) {
+        return repository.findByNameAsUser(name, user, permission);
     }
 
 }

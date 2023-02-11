@@ -1,16 +1,33 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ApplicationResponsePayload } from "api/ApplicationApi";
+import {
+  AppEmbedSetting,
+  ApplicationResponsePayload,
+} from "api/ApplicationApi";
 import {
   UpdateApplicationPayload,
   ImportApplicationRequest,
   FetchApplicationPayload,
 } from "api/ApplicationApi";
+import { AppIconName } from "design-system-old";
 import { Datasource } from "entities/Datasource";
 
 export enum ApplicationVersion {
   DEFAULT = 1,
   SLUG_URL = 2,
 }
+
+export const changeAppViewAccessInit = (
+  applicationId: string,
+  publicAccess: boolean,
+) => {
+  return {
+    type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,
+    payload: {
+      applicationId,
+      publicAccess,
+    },
+  };
+};
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -57,6 +74,22 @@ export const updateApplication = (
       ...data,
       callback,
     },
+  };
+};
+
+export const updateCurrentApplicationIcon = (icon: AppIconName) => {
+  return {
+    type: ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE,
+    payload: icon,
+  };
+};
+
+export const updateCurrentApplicationEmbedSetting = (
+  embedSetting: AppEmbedSetting,
+) => {
+  return {
+    type: ReduxActionTypes.CURRENT_APPLICATION_EMBED_SETTING_UPDATE,
+    payload: embedSetting,
   };
 };
 
@@ -138,10 +171,17 @@ export const setWorkspaceIdForImport = (workspaceId?: string) => ({
   payload: workspaceId,
 });
 
+export const setPageIdForImport = (pageId?: string) => ({
+  type: ReduxActionTypes.SET_PAGE_ID_FOR_IMPORT,
+  payload: pageId,
+});
+
+// pageId can be used to navigate to a particular page instead of the default one
 export const showReconnectDatasourceModal = (payload: {
   application: ApplicationResponsePayload;
   unConfiguredDatasourceList: Datasource[];
   workspaceId: string;
+  pageId?: string;
 }) => ({
   type: ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
   payload,

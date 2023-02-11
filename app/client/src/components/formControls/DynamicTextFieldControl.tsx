@@ -1,5 +1,5 @@
 import React from "react";
-import { formValueSelector, change } from "redux-form";
+import { formValueSelector } from "redux-form";
 import { connect } from "react-redux";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
@@ -9,22 +9,17 @@ import {
   EditorModes,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
-import { AppState } from "reducers";
+import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
-import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
-import { QUERY_BODY_FIELD } from "constants/QueryEditorConstants";
 import { getPluginResponseTypes } from "selectors/entitiesSelector";
-import history from "utils/history";
-import {
-  convertObjectToQueryParams,
-  getQueryParams,
-} from "utils/AppsmithUtils";
 import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { getLineCommentString } from "components/editorComponents/CodeEditor/utils/codeComment";
 
 const Wrapper = styled.div`
-  width: 872px;
+  min-width: 380px;
+  max-width: 872px;
   .dynamic-text-field {
     border-radius: 4px;
     font-size: 14px;
@@ -67,48 +62,29 @@ class DynamicTextControl extends BaseControl<
       responseType,
     } = this.props;
     const dataTreePath = actionPathFromName(actionName, configProperty);
-    const isNewQuery =
-      new URLSearchParams(window.location.search).get("showTemplate") ===
-      "true";
-    const showTemplate =
-      isNewQuery && this.state.showTemplateMenu && this.props.pluginId;
     const mode =
       responseType === "TABLE"
         ? EditorModes.SQL_WITH_BINDING
         : EditorModes.JSON_WITH_BINDING;
 
+    const lineCommentString = getLineCommentString(mode);
+
     return (
       <Wrapper className={`t--${configProperty}`}>
-        {showTemplate ? (
-          <TemplateMenu
-            createTemplate={(templateString) => {
-              this.setState(
-                {
-                  showTemplateMenu: false,
-                },
-                () =>
-                  this.props.createTemplate(
-                    templateString,
-                    this.props.formName,
-                  ),
-              );
-            }}
-            pluginId={this.props.pluginId}
-          />
-        ) : (
-          <DynamicTextField
-            className="dynamic-text-field"
-            dataTreePath={dataTreePath}
-            disabled={this.props.disabled}
-            evaluationSubstitutionType={evaluationSubstitutionType}
-            mode={mode}
-            name={this.props.configProperty}
-            placeholder={placeholderText}
-            showLineNumbers={this.props.showLineNumbers}
-            size={EditorSize.EXTENDED}
-            tabBehaviour={TabBehaviour.INDENT}
-          />
-        )}
+        <DynamicTextField
+          className="dynamic-text-field"
+          dataTreePath={dataTreePath}
+          disabled={this.props.disabled}
+          evaluatedPopUpLabel={this?.props?.label}
+          evaluationSubstitutionType={evaluationSubstitutionType}
+          lineCommentString={lineCommentString}
+          mode={mode}
+          name={this.props.configProperty}
+          placeholder={placeholderText}
+          showLineNumbers={this.props.showLineNumbers}
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INDENT}
+        />
       </Wrapper>
     );
   }
@@ -116,7 +92,6 @@ class DynamicTextControl extends BaseControl<
 
 export interface DynamicTextFieldProps extends ControlProps {
   actionName: string;
-  createTemplate: (template: any, formName: string) => any;
   pluginId: string;
   responseType: string;
   placeholderText?: string;
@@ -139,20 +114,4 @@ const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: any) => ({
-  createTemplate: (template: any, formName: string) => {
-    const params = getQueryParams();
-    if (params.showTemplate) {
-      params.showTemplate = "false";
-    }
-    history.replace({
-      ...window.location,
-      search: convertObjectToQueryParams(params),
-    });
-    dispatch(
-      change(formName || QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template),
-    );
-  },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(DynamicTextControl);
+export default connect(mapStateToProps)(DynamicTextControl);

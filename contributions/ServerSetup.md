@@ -48,7 +48,7 @@ docker-compose up -d
 
 Before you can start to hack on the Appsmith server, your machine should have the following installed:
 
-- Java - OpenJDK 11.
+- Java - OpenJDK 17.
 - Maven - Version 3+ (preferably 3.6).
 - A MongoDB database - Refer to the [Setting up a local MongoDB instance](#setting-up-a-local-mongodb-instance) section to setup a MongoDB instance using `Docker`.
 - A Redis instance - Refer to the [Setting up a local Redis instance](#setting-up-a-local-redis-instance) section to setup a Redis instance using `Docker`.
@@ -147,7 +147,7 @@ Before you can start to hack on the Appsmith server, your machine should have th
 - WSL2 with Linux distro (preferably Ubuntu LTS). Refer to [WSL2 installation on Windows](https://docs.microsoft.com/en-us/windows/wsl/install).
 - Docker Desktop for Windows (must be with WSL backed/based engine). Refer to [Install Docker Desktop on Windows](https://docs.docker.com/desktop/windows/install/).
 - An IDE - We use IntelliJ IDEA as our primary IDE for backend development.
-- Java - OpenJDK 11 in WSL.
+- Java - OpenJDK 17 in WSL.
 - Maven - Version 3+ (preferably 3.6) in WSL.
 
 This document doesn't provide instructions to install Java and Maven because these vary between different operating systems and distributions. Please refer to the documentation of your operating system or package manager to install these.
@@ -184,6 +184,14 @@ Redis will now be running on `redis://localhost:6379`.
 With the initial configuration met, let's build the code.
 
 Note that you have to execute further steps into WSL terminal not in CMD.
+
+### Setting up local file path for the git
+
+To point to a custom Git Root where the git repositories will be persisted, update the env variable called APPSMITH_GIT_ROOT to point to your custom file path.
+
+```console
+APPSMITH_GIT_ROOT=./path/to/repo/directory 
+```
 
 ## Building and running the code
 

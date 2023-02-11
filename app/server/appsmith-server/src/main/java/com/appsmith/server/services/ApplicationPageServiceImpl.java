@@ -4,9 +4,12 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.ApplicationPageServiceCEImpl;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +17,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl implements ApplicationPageService {
 
-    public ApplicationPageServiceImpl(ApplicationService applicationService,
+    public ApplicationPageServiceImpl(WorkspaceService workspaceService,
+                                      ApplicationService applicationService,
                                       SessionUserService sessionUserService,
                                       WorkspaceRepository workspaceRepository,
                                       LayoutActionService layoutActionService,
@@ -25,12 +29,16 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                                       NewActionService newActionService,
                                       ActionCollectionService actionCollectionService,
                                       GitFileUtils gitFileUtils,
-                                      CommentThreadRepository commentThreadRepository,
                                       ThemeService themeService,
-                                      ResponseUtils responseUtils) {
+                                      ResponseUtils responseUtils,
+                                      WorkspacePermission workspacePermission,
+                                      ApplicationPermission applicationPermission,
+                                      PagePermission pagePermission,
+                                      ActionPermission actionPermission) {
 
-        super(applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
+        super(workspaceService, applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
                 policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
-                gitFileUtils, commentThreadRepository, themeService, responseUtils);
+                gitFileUtils, themeService, responseUtils, workspacePermission,
+                applicationPermission, pagePermission, actionPermission);
     }
 }

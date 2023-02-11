@@ -11,16 +11,20 @@ import ModalComponent from "../component";
 import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
-import { AppState } from "reducers";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { AppState } from "@appsmith/reducers";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
-import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { Stylesheet } from "entities/AppTheming";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import { get } from "lodash";
 
 const minSize = 100;
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
         sectionName: "General",
@@ -29,14 +33,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "canOutsideClickClose",
-            label: "Quick Dismiss",
-            helpText: "Allows dismissing the modal when user taps outside",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -51,6 +47,14 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "canOutsideClickClose",
+            label: "Quick Dismiss",
+            helpText: "Allows dismissing the modal when user taps outside",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -68,20 +72,29 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
 
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             propertyName: "backgroundColor",
             helpText: "Sets the background color of the widget",
-            label: "Background color",
+            label: "Background Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -98,6 +111,14 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       },
     ];
   }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static defaultProps = {
     isOpen: true,
     canEscapeKeyClose: false,
@@ -112,18 +133,17 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
-    childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? Math.max(childWidgetData.bottomRow, this.props.height)
-      : this.props.height;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.containerStyle = "none";
-    childWidgetData.minHeight = this.props.height;
-    childWidgetData.rightColumn =
+    const childData = { ...childWidgetData };
+    childData.parentId = this.props.widgetId;
+
+    childData.canExtend = this.props.shouldScrollContents;
+
+    childData.containerStyle = "none";
+    childData.minHeight = this.props.height;
+    childData.rightColumn =
       this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+
+    return WidgetFactory.createWidget(childData, this.props.renderMode);
   };
 
   onModalClose = () => {
@@ -136,7 +156,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
-    this.props.deselectAllWidgets();
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -144,6 +163,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       height: Math.max(minSize, dimensions.height),
       width: Math.max(minSize, this.getModalWidth(dimensions.width)),
     };
+
+    if (
+      newDimensions.height !== this.props.height &&
+      isAutoHeightEnabledForWidget(this.props)
+    )
+      return;
 
     const canvasWidgetId =
       this.props.children && this.props.children.length > 0
@@ -156,10 +181,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   closeModal = (e: any) => {
-    this.props.showPropertyPane(undefined);
+    this.props.updateWidgetMetaProperty("isVisible", false);
+    this.selectWidgetRequest(SelectionRequestType.Empty);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
-    this.props.updateWidgetMetaProperty("isVisible", false);
     e.stopPropagation();
     e.preventDefault();
   };
@@ -190,7 +215,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const portalContainer = isEditMode && artBoard ? artBoard : undefined;
     const {
       focusedWidget,
-      isCommentMode,
       isDragging,
       isSnipingMode,
       selectedWidget,
@@ -204,21 +228,30 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       selectedWidgets.includes(widgetId);
 
     const isResizeEnabled =
-      !isDragging &&
-      isWidgetFocused &&
-      isEditMode &&
-      !isCommentMode &&
-      !isSnipingMode;
+      !isDragging && isWidgetFocused && isEditMode && !isSnipingMode;
+
+    const settingsComponent = isEditMode ? (
+      <WidgetNameComponent
+        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+        parentId={this.props.parentId}
+        showControls
+        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+        type={this.props.type}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
+      />
+    ) : null;
 
     return (
       <ModalComponent
-        backgroundColor={this.props.backgroundColor}
+        background={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
         enableResize={isResizeEnabled}
         height={this.props.height}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
         isOpen={!!this.props.isVisible}
         maxWidth={this.getMaxModalWidth()}
@@ -228,6 +261,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
+        settingsComponent={settingsComponent}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         width={this.getModalWidth(this.props.width)}
@@ -240,7 +274,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   getCanvasView() {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
-    children = this.showWidgetName(children, true);
+    // children = this.showWidgetName(children, true);
+
     return this.makeModalComponent(children, true);
   }
 
@@ -289,15 +324,11 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: { widgetId, callForDragOrResize, force },
     });
   },
-  deselectAllWidgets: () => {
-    dispatch(deselectAllInitAction());
-  },
 });
 
 const mapStateToProps = (state: AppState) => {
   const props = {
     mainCanvasWidth: getCanvasWidth(state),
-    isCommentMode: commentModeSelector(state),
     isSnipingMode: snipingModeSelector(state),
     selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,
     selectedWidgets: state.ui.widgetDragResize.selectedWidgets,

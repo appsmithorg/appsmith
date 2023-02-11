@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
@@ -43,12 +44,6 @@ export const CONFIG = {
     customFusionChartConfig: {
       type: "column2d",
       dataSource: {
-        chart: {
-          caption: "Sales Report",
-          xAxisName: "Product Line",
-          yAxisName: "Revenue($)",
-          theme: "fusion",
-        },
         data: [
           {
             label: "Product1",
@@ -63,6 +58,40 @@ export const CONFIG = {
             value: 32000,
           },
         ],
+        chart: {
+          caption: "Sales Report",
+          xAxisName: "Product Line",
+          yAxisName: "Revenue($)",
+          theme: "fusion",
+          alignCaptionWithCanvas: 1,
+          // Caption styling =======================
+          captionFontSize: "24",
+          captionAlignment: "center",
+          captionPadding: "20",
+          captionFontColor: Colors.THUNDER,
+          // legend position styling ==========
+          legendIconSides: "4",
+          legendIconBgAlpha: "100",
+          legendIconAlpha: "100",
+          legendPosition: "top",
+          // Canvas styles ========
+          canvasPadding: "0",
+          // Chart styling =======
+          chartLeftMargin: "20",
+          chartTopMargin: "10",
+          chartRightMargin: "40",
+          chartBottomMargin: "10",
+          // Axis name styling ======
+          xAxisNameFontSize: "14",
+          labelFontSize: "12",
+          labelFontColor: Colors.DOVE_GRAY2,
+          xAxisNameFontColor: Colors.DOVE_GRAY2,
+
+          yAxisNameFontSize: "14",
+          yAxisValueFontSize: "12",
+          yAxisValueFontColor: Colors.DOVE_GRAY2,
+          yAxisNameFontColor: Colors.DOVE_GRAY2,
+        },
       },
     },
   },
@@ -71,6 +100,9 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

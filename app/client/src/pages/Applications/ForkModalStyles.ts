@@ -1,12 +1,14 @@
 import styled from "styled-components";
-import Button from "components/ads/Button";
-import RadioComponent from "components/ads/Radio";
-import { getTypographyByKey } from "constants/DefaultTheme";
-import Dialog from "components/ads/DialogComponent";
+import {
+  Button,
+  DialogComponent as Dialog,
+  getTypographyByKey,
+  RadioComponent,
+} from "design-system-old";
 import { Classes } from "@blueprintjs/core";
 
 const TriggerButton = styled(Button)`
-  ${(props) => getTypographyByKey(props, "btnLarge")}
+  ${getTypographyByKey("btnLarge")}
   height: 100%;
 `;
 

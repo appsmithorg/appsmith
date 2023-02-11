@@ -1,8 +1,7 @@
 import React from "react";
 import { Checkbox, Classes } from "@blueprintjs/core";
-import styled, { css, keyframes } from "styled-components";
+import styled, { css, keyframes, createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
-import { createGlobalStyle } from "constants/DefaultTheme";
 import {
   LabelPosition,
   LABEL_MARGIN_OLD_SELECT,
@@ -12,8 +11,9 @@ import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
   multiSelectInputContainerStyles,
-} from "components/ads/LabelWithTooltip";
+} from "design-system-old";
 import { lightenColor } from "widgets/WidgetUtils";
+import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
 
 const Input = styled.input`
   height: 0;
@@ -31,10 +31,9 @@ export const CommonSelectFilterStyle = css<{
     padding-left: 42px;
     margin-bottom: 0;
     .${Classes.CONTROL_INDICATOR} {
-      margin-right: 20px;
+      margin-right: 10px;
     }
     &.all-options.selected {
-      background: ${(props) => lightenColor(props.accentColor)};
       color: ${Colors.GREY_10} !important;
     }
   }
@@ -44,33 +43,37 @@ export const CommonSelectFilterStyle = css<{
     box-shadow: none;
     border-width: 1px;
     border-style: solid;
-    border-color: ${Colors.GREY_3};
+    border-color: var(--wds-color-border);
     border-radius: 0px;
     &::before {
       width: auto;
-      height: 1em;
+      height: 100%;
     }
   }
 
   & .${Classes.INPUT} {
-    height: 32px !important;
-    padding-left: 29px !important;
+    height: 30px !important;
+    padding-left: 34px !important;
     font-size: 14px;
-    color: ${Colors.GREY_10};
+    color: var(--wds-color-text);
     box-shadow: 0px 0px 0px 0px;
     border: none;
+  }
+
+  & .${Classes.INPUT}::placeholder {
+    color: var(--wds-color-text-light);
   }
 
   & .${Classes.INPUT_GROUP} {
     margin: 12px 12px 8px 12px;
     position: relative;
-    border: 1px solid ${Colors.GREY_3};
+    border: 1px solid var(--wds-color-border);
     border-radius: ${({ borderRadius }) =>
       borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
     overflow: hidden;
     &:focus-within {
       border: 1px solid ${(props) => props.accentColor};
-      box-shadow: 0px 0px 0px 3px ${(props) => lightenColor(props.accentColor)};
+      box-shadow: 0px 0px 0px 2px ${(props) => lightenColor(props.accentColor)};
     }
 
     & > .${Classes.ICON} {
@@ -78,8 +81,8 @@ export const CommonSelectFilterStyle = css<{
         left: 0px;
         top: 0px;
         bottom: 0px;
-        margin: 9px;
-        color: ${Colors.GREY_7};
+        margin: 8px 10px;
+        color: var(--wds-color-icon);
 
         & > svg {
           width: 14px;
@@ -126,6 +129,10 @@ const Indicator = styled.div`
 
   &::disabled {
     cursor: not-allowed;
+  }
+
+  &::before {
+    height: 100% !important;
   }
 `;
 
@@ -189,7 +196,7 @@ ${({ dropDownWidth, id }) => `
 
 	.rc-select-item-option-state {
 		pointer-events: all;
-		margin-right: 10px;
+		margin-right: 0px;
 	}
 }
 .rc-select-item-option-grouped {
@@ -201,23 +208,31 @@ ${({ dropDownWidth, id }) => `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: ${Colors.GREY_8};
+  color: var(--wds-color-text);
   font-weight: 400;
 }
-.rc-select-item-option:hover {
-	background: ${({ accentColor }) => lightenColor(accentColor)};
+.rc-select-item-option-active {
+  background: var(--wds-color-bg-focus) !important;
+  color: var(--wds-color-text);
 
   & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
-    border-color: ${({ accentColor }) => accentColor} !important;
+    border-color: var(--wds-color-border-hover) !important;
+  }
+}
+.rc-select-item-option:hover {
+	background: var(--wds-color-bg-hover);
+
+  & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    border-color: var(--wds-color-border-hover) !important;
   }
 
   & .rc-select-item-option-content {
-    color: ${Colors.GREY_9};
+    color: var(--wds-color-text);
   }
 }
 .rc-select-item-option-selected {
   & .rc-select-item-option-content {
-    color: ${Colors.GREY_10};
+    color: var(--wds-color-text);
   }
 }
 .rc-select-item-option-disabled {
@@ -318,11 +333,10 @@ ${({ dropDownWidth, id }) => `
     padding-left: 42px;
     margin-bottom: 0;
     .${Classes.CONTROL_INDICATOR} {
-      margin-right: 20px;
+      margin-right: 0px;
     }
     &.all-options.selected {
-      background: ${({ accentColor }) => lightenColor(accentColor)};
-      color: ${Colors.GREY_10} !important;
+      color: var(--wds-color-text) !important;
     }
   }
   &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
@@ -344,6 +358,12 @@ ${({ dropDownWidth, id }) => `
     border-color: ${({ accentColor }) => accentColor} !important;
     box-shadow: none;
     outline: none !important;
+
+    &::before {
+      background-image: url(${CheckIcon}) !important;
+      background-repeat: no-repeat !important;
+      background-position: center !important;
+    }
   }
   ${CommonSelectFilterStyle}
   .rc-select-item {
@@ -371,6 +391,21 @@ export const MultiSelectContainer = styled.div<{
   accentColor?: string;
 }>`
   ${labelLayoutStyles}
+
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+  ${({ labelPosition }) => {
+    if (labelPosition === LabelPosition.Left) {
+      return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+    }
+  }}
+
   & .${LABEL_CONTAINER_CLASS} {
     label {
       ${({ labelPosition }) => {
@@ -397,12 +432,12 @@ export const MultiSelectContainer = styled.div<{
       position: absolute;
       top: 50%;
       right: 12px;
-      left: 19px;
+      left: 10px;
       transform: translateY(-50%);
       transition: all 0.3s;
       flex: 1;
       overflow: hidden;
-      color: ${Colors.GREY_6};
+      color: var(--wds-color-text-light);
       white-space: nowrap;
       text-overflow: ellipsis;
       pointer-events: none;
@@ -415,6 +450,10 @@ export const MultiSelectContainer = styled.div<{
         appearance: none;
       }
     }
+    .rc-select-selection-overflow-item-suffix {
+      position: relative !important;
+      left: 0px !important;
+    }
   }
   && .rc-select-disabled {
     cursor: not-allowed;
@@ -422,13 +461,23 @@ export const MultiSelectContainer = styled.div<{
       cursor: not-allowed;
     }
     & .rc-select-selector {
-      background-color: ${Colors.GREY_1} !important;
-      border: 1px solid ${Colors.GREY_3};
+      background-color: var(--wds-color-bg-disabled) !important;
+      border: 1px solid var(--wds-color-border-disabled) !important;
+
+      .rc-select-selection-item {
+        border-color: var(--wds-color-border-disabled);
+      }
       .rc-select-selection-item-content {
-        color: ${Colors.GREY_7};
+        color: var(--wds-color-text-disabled) !important;
       }
     }
-    & .rc-select-arrow {
+
+    & .rc-select-selection-placeholder {
+      color: var(--wds-color-text-disabled-light);
+    }
+
+    & .rc-select-arrow svg path {
+      fill: var(--wds-color-icon-disabled);
     }
   }
   .rc-select-show-arrow.rc-select-loading {
@@ -453,7 +502,7 @@ export const MultiSelectContainer = styled.div<{
       display: flex;
       flex-wrap: wrap;
       padding: 1px;
-      background: ${Colors.WHITE};
+      background: var(--wds-color-bg);
       border-radius: ${({ borderRadius }) => borderRadius} !important;
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
@@ -463,7 +512,7 @@ export const MultiSelectContainer = styled.div<{
       .rc-select-selection-item {
         background: none;
         border: 1px solid ${Colors.GREY_3};
-        border-radius: 360px;
+        border-radius: ${({ borderRadius }) => borderRadius} !important;
         max-width: 273.926px;
         height: 20px;
         color: ${Colors.GREY_10};
@@ -565,17 +614,23 @@ export const MultiSelectContainer = styled.div<{
     .rc-select-selector {
       padding-right: 36px;
       padding-left: 10px;
-      background: ${Colors.WHITE};
+      background: var(--wds-color-bg);
       border-radius: ${({ borderRadius }) => borderRadius};
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;
       width: 100%;
       transition: none;
       border: 1px solid
-        ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+        ${(props) =>
+          props.isValid
+            ? "var(--wds-color-border)"
+            : "var(--wds-color-border-danger)"};
       &:hover {
         border: 1px solid
-          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
+        ${(props) =>
+          props.isValid
+            ? "var(--wds-color-border-hover)"
+            : "var(--wds-color-border-danger-hover)"};
       }
     }
   }
@@ -590,11 +645,16 @@ export const MultiSelectContainer = styled.div<{
       display: flex;
       align-items: center;
       justify-content: center;
-      fill: ${Colors.SLATE_GRAY};
+      fill: var(--wds-color-icon);
 
       & svg {
         width: 20px;
         height: 20px;
+        fill: var(--wds-color-icon);
+
+        path {
+          fill: var(--wds-color-icon);
+        }
       }
     }
   }
@@ -606,10 +666,10 @@ export const MultiSelectContainer = styled.div<{
         props.isValid
           ? `
           border: 1px solid  ${props.accentColor};
-          box-shadow: 0px 0px 0px 3px ${lightenColor(
+          box-shadow: 0px 0px 0px 2px ${lightenColor(
             props.accentColor,
           )} !important;`
-          : `border: 1px solid ${Colors.DANGER_SOLID};`}
+          : `border: 1px solid var(--wds-color-border-danger); box-shadow: 0px 0px 0px 2px var(--wds-color-border-danger-focus-light) !important;`}
     }
   }
 `;
@@ -622,12 +682,25 @@ export const StyledCheckbox = styled(Checkbox)<{
     text-overflow: ellipsis;
     height: 38px;
     padding-bottom: 0 !important;
-    color: ${Colors.GREY_8} !important;
+    color: var(--wds-color-text) !important;
     display: flex;
     align-items: center;
+    padding-left: 16px !important;
+    & .${Classes.CONTROL_INDICATOR} {
+      margin: 0;
+      margin-right: 10px;
+    }
     &:hover {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
-      color: ${Colors.GREY_9} !important;
+      background: var(--wds-color-bg-hover);
+      color: var(--wds-color-text) !important;
+
+      & .${Classes.CONTROL_INDICATOR} {
+        border-color: var(--wds-color-border-hover) !important;
+      }
+    }
+
+    & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      border-color: ${({ accentColor }) => accentColor} !important;
     }
   }
 `;

@@ -1,10 +1,8 @@
-import Button, { Category } from "components/ads/Button";
-import { Text, TextType } from "design-system";
-import { Icon } from "@blueprintjs/core";
 import React from "react";
+import { Icon } from "@blueprintjs/core";
+import { Button, Category, Text, TextType } from "design-system-old";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
-import { useSelector } from "store";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCanvasWidgets,
   getDatasources,
@@ -341,7 +339,7 @@ export default function OnboardingChecklist() {
                   () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_A_DATASOURCE,
                 )
                   ? Category.primary
-                  : Category.tertiary
+                  : Category.secondary
               }
               className="t--checklist-datasource-button"
               data-testid="checklist-datasource-button"
@@ -391,7 +389,7 @@ export default function OnboardingChecklist() {
                 suggestedNextAction ===
                 createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.CREATE_A_QUERY)
                   ? Category.primary
-                  : Category.tertiary
+                  : Category.secondary
               }
               className="t--checklist-action-button"
               data-testid="checklist-action-button"
@@ -443,7 +441,7 @@ export default function OnboardingChecklist() {
                 suggestedNextAction ===
                 createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS)
                   ? Category.primary
-                  : Category.tertiary
+                  : Category.secondary
               }
               className="t--checklist-widget-button"
               data-testid="checklist-widget-button"
@@ -493,7 +491,7 @@ export default function OnboardingChecklist() {
                   () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_DATA_TO_WIDGET,
                 )
                   ? Category.primary
-                  : Category.tertiary
+                  : Category.secondary
               }
               className="t--checklist-connection-button"
               data-testid="checklist-connection-button"
@@ -536,7 +534,7 @@ export default function OnboardingChecklist() {
                   () => ONBOARDING_CHECKLIST_ACTIONS.DEPLOY_APPLICATIONS,
                 )
                   ? Category.primary
-                  : Category.tertiary
+                  : Category.secondary
               }
               className="t--checklist-deploy-button"
               data-testid="checklist-deploy-button"

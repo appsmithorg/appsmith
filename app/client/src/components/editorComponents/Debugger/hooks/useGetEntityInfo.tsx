@@ -1,13 +1,18 @@
 import { isStoredDatasource } from "entities/Action";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { isEqual, keyBy } from "lodash";
+import { keyBy } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { getPluginIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo, useCallback } from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { getAction, getDatasource } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import { isAction, isJSAction, isWidget } from "workers/evaluationUtils";
+import {
+  isAction,
+  isJSAction,
+  isWidget,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { doesEntityHaveErrors } from "../helpers";
 import React from "react";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
@@ -20,7 +25,7 @@ export const useGetEntityInfo = (name: string) => {
   );
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
-  }, isEqual);
+  }, equal);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = action && getPluginIcon(pluginGroups[action.pluginId]);
   const datasource = useSelector((state: AppState) =>

@@ -1,10 +1,10 @@
 {
   "identifier": "SET_DOCUMENT",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'SET_DOCUMENT'}}"
   },
-  "children" : [
+  "children": [
     {
       "label": "Collection/Document Path",
       "configProperty": "actionConfiguration.formData.path.data",
@@ -14,19 +14,20 @@
       "initialValue": ""
     },
     {
-      "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+      "label": "Body",
+      "configProperty": "actionConfiguration.formData.body.data",
+      "controlType": "QUERY_DYNAMIC_TEXT",
+      "initialValue": "",
+      "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
+    },
+    {
+      "label": "Timestamp Path",
       "configProperty": "actionConfiguration.formData.timestampValuePath.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,
-      "placeholderText": "[\"checkinLog.timestampKey\", \"auditLog.timestampKey\"]",
-      "initialValue": ""
-    },
-    {
-      "label": "Body",
-      "configProperty": "actionConfiguration.formData.body.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "initialValue": ""
+      "initialValue": "",
+      "placeholderText": "[ \"checkinLog.timestampKey\" ]"
     }
   ]
 }

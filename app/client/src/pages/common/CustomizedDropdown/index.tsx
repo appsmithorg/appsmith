@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { withTheme } from "styled-components";
+import { createGlobalStyle } from "styled-components";
 import {
   Popover,
   IconName,
@@ -15,7 +15,7 @@ import { MenuIcons } from "icons/MenuIcons";
 import { Intent, IntentColors } from "constants/DefaultTheme";
 import { Direction, Directions } from "utils/helpers";
 import { getDirectionBased } from "./dropdownHelpers";
-import { Theme, Skin } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
 import {
   Option,
   DropdownContentSection,
@@ -49,8 +49,23 @@ export type CustomizedDropdownProps = {
   openOnHover?: boolean;
   usePortal?: boolean;
   skin?: Skin;
+  borderRadius?: string;
+  customizedDropdownId?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
 };
+
+const PopoverStyles = createGlobalStyle<{
+  id?: string;
+  borderRadius?: string;
+}>`
+  ${({ borderRadius, id }) => `
+    .${id}.${Classes.POPOVER} {
+      border-radius: min(${borderRadius}, 0.375rem);
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+  `}
+`;
 
 export const getIcon = (icon?: string | MaybeElement, intent?: Intent) => {
   if (icon && typeof icon === "string") {
@@ -103,9 +118,7 @@ const getContentSection = (
   );
 };
 
-export function CustomizedDropdown(
-  props: CustomizedDropdownProps & { theme: Theme },
-) {
+export function CustomizedDropdown(props: CustomizedDropdownProps) {
   const skin = props.skin ? props.skin : Skin.LIGHT;
   const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
@@ -133,30 +146,39 @@ export function CustomizedDropdown(
     </DropdownContentSection>
   ));
   return (
-    <Popover
-      enforceFocus={false}
-      interactionKind={
-        props.openOnHover
-          ? PopoverInteractionKind.HOVER
-          : PopoverInteractionKind.CLICK
-      }
-      minimal
-      modifiers={props.modifiers}
-      onClose={() => {
-        if (props.onCloseDropDown) {
-          props.onCloseDropDown();
+    <>
+      <Popover
+        enforceFocus={false}
+        interactionKind={
+          props.openOnHover
+            ? PopoverInteractionKind.HOVER
+            : PopoverInteractionKind.CLICK
         }
-      }}
-      position={
-        getDirectionBased.POPPER_POSITION(
-          props.openDirection,
-        ) as PopoverPosition
-      }
-    >
-      <DropdownTrigger skin={skin}>{trigger}</DropdownTrigger>
-      <DropdownContent skin={skin}>{content}</DropdownContent>
-    </Popover>
+        minimal
+        modifiers={props.modifiers}
+        onClose={() => {
+          if (props.onCloseDropDown) {
+            props.onCloseDropDown();
+          }
+        }}
+        popoverClassName={props.customizedDropdownId}
+        position={
+          getDirectionBased.POPPER_POSITION(
+            props.openDirection,
+          ) as PopoverPosition
+        }
+      >
+        <DropdownTrigger skin={skin}>{trigger}</DropdownTrigger>
+        <DropdownContent borderRadius={props.borderRadius} skin={skin}>
+          {content}
+        </DropdownContent>
+      </Popover>
+      <PopoverStyles
+        borderRadius={props.borderRadius}
+        id={props.customizedDropdownId}
+      />
+    </>
   );
 }
 
-export default withTheme(CustomizedDropdown);
+export default CustomizedDropdown;

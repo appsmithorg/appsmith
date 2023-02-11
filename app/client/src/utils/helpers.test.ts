@@ -1,7 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "./autocomplete/TernServer";
+import { AutocompleteDataType } from "./autocomplete/CodemirrorTernService";
 import {
   flattenObject,
   getLocale,
@@ -9,6 +9,9 @@ import {
   captureInvalidDynamicBindingPath,
   mergeWidgetConfig,
   extractColorsFromString,
+  isNameValid,
+  pushToArray,
+  concatWithArray,
 } from "./helpers";
 import WidgetFactory from "./WidgetFactory";
 import * as Sentry from "@sentry/react";
@@ -565,5 +568,77 @@ describe("#extractColorsFromString", () => {
 
     //Check rgb
     expect(extractColorsFromString(borderWithRgb)[0]).toEqual("rgb(0,0,0)");
+  });
+});
+
+describe("isNameValid()", () => {
+  it("works properly", () => {
+    const invalidEntityNames = [
+      "console",
+      "Promise",
+      "appsmith",
+      "Math",
+      "yield",
+      "Boolean",
+      "ReferenceError",
+      "clearTimeout",
+      "parseInt",
+      "eval",
+    ];
+    // Some window object methods and properties names should be valid entity names since evaluation is done
+    // in the worker thread, and some of the window methods and properties are not available there.
+    const validEntityNames = ["history", "parent", "screen"];
+    for (const invalidName of invalidEntityNames) {
+      expect(isNameValid(invalidName, {})).toBe(false);
+    }
+    for (const validName of validEntityNames) {
+      expect(isNameValid(validName, {})).toBe(true);
+    }
+  });
+});
+
+describe("pushToArray", () => {
+  it("adds to an undefined array", () => {
+    const item = "something";
+    const expected = ["something"];
+    const result = pushToArray(item);
+    expect(result).toStrictEqual(expected);
+  });
+  it("adds to an existing array", () => {
+    const item = "something";
+    const arr1 = ["another"];
+    const expected = ["another", "something"];
+    const result = pushToArray(item, arr1);
+    expect(result).toStrictEqual(expected);
+  });
+  it("adds to an existing array and make unique", () => {
+    const item = "something";
+    const arr1 = ["another", "another"];
+    const expected = ["another", "something"];
+    const result = pushToArray(item, arr1, true);
+    expect(result).toStrictEqual(expected);
+  });
+});
+
+describe("concatWithArray", () => {
+  it("adds to an undefined array", () => {
+    const items = ["something"];
+    const expected = ["something"];
+    const result = concatWithArray(items);
+    expect(result).toStrictEqual(expected);
+  });
+  it("adds to an existing array", () => {
+    const items = ["something"];
+    const arr1 = ["another"];
+    const expected = ["another", "something"];
+    const result = concatWithArray(items, arr1);
+    expect(result).toStrictEqual(expected);
+  });
+  it("adds to an existing array and make unique", () => {
+    const items = ["something"];
+    const arr1 = ["another", "another"];
+    const expected = ["another", "something"];
+    const result = concatWithArray(items, arr1, true);
+    expect(result).toStrictEqual(expected);
   });
 });

@@ -13,21 +13,26 @@ const breakpointColumnsObject = {
 };
 
 const Wrapper = styled.div`
-  padding-right: ${(props) => props.theme.spaces[12]}px;
-  padding-left: ${(props) => props.theme.spaces[12]}px;
+  padding: 0 11px;
+  // padding-right: ${(props) => props.theme.spaces[12]}px;
+  // padding-left: ${(props) => props.theme.spaces[12]}px;
 
   .grid {
     display: flex;
-    margin-left: ${(props) => -props.theme.spaces[9]}px;
+    // margin-left: ${(props) => -props.theme.spaces[9]}px;
   }
 
   .grid_column {
-    padding-left: ${(props) => props.theme.spaces[9]}px;
+    padding: 11px
+    // padding-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
 interface TemplateListProps {
+  isForkingEnabled: boolean;
   templates: TemplateInterface[];
+  onTemplateClick?: (id: string) => void;
+  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 function TemplateList(props: TemplateListProps) {
@@ -39,7 +44,14 @@ function TemplateList(props: TemplateListProps) {
         columnClassName="grid_column"
       >
         {props.templates.map((template) => (
-          <Template key={template.id} size="large" template={template} />
+          <Template
+            isForkingEnabled={props.isForkingEnabled}
+            key={template.id}
+            onClick={props.onTemplateClick}
+            onForkTemplateClick={props.onForkTemplateClick}
+            size="large"
+            template={template}
+          />
         ))}
         <RequestTemplate />
       </Masonry>

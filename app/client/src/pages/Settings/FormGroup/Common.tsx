@@ -1,9 +1,12 @@
-import { TooltipComponent as Tooltip } from "design-system";
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import {
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  TooltipComponent as Tooltip,
+} from "design-system-old";
 import { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { Colors } from "constants/Colors";
 
@@ -33,7 +36,6 @@ export const StyledFormGroup = styled.div`
   & svg:hover {
     cursor: default;
     path {
-      fill: #fff;
     }
   }
 `;
@@ -41,7 +43,7 @@ export const StyledFormGroup = styled.div`
 export const StyledLabel = styled.label`
   margin-bottom: ${(props) => props.theme.spaces[3]}px;
   display: inline-block;
-  ${(props) => getTypographyByKey(props, "h5")}
+  ${getTypographyByKey("h5")}
   color: ${(props) => props.theme.colors.textInput.normal.text};
 `;
 

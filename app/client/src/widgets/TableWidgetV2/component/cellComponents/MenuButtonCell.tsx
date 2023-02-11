@@ -2,11 +2,17 @@ import React from "react";
 import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 
-import { BaseCellComponentProps, MenuItems } from "../Constants";
+import { BaseCellComponentProps } from "../Constants";
 import { ButtonVariant } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import MenuButtonTableComponent from "./menuButtonTableComponent";
+import {
+  ConfigureMenuItems,
+  MenuItem,
+  MenuItems,
+  MenuItemsSource,
+} from "widgets/MenuButtonWidget/constants";
 
 interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
   action?: ColumnAction;
@@ -15,6 +21,9 @@ interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
 function MenuButton({
   borderRadius,
   boxShadow,
+  compactMode,
+  configureMenuItems,
+  getVisibleItems,
   iconAlign,
   iconName,
   isCompact,
@@ -23,8 +32,11 @@ function MenuButton({
   label,
   menuColor,
   menuItems,
+  menuItemsSource,
   menuVariant,
   onCommandClick,
+  rowIndex,
+  sourceData,
 }: MenuButtonProps): JSX.Element {
   const handlePropagation = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -33,9 +45,9 @@ function MenuButton({
       e.stopPropagation();
     }
   };
-  const onItemClicked = (onClick?: string) => {
+  const onItemClicked = (onClick?: string, index?: number) => {
     if (onClick) {
-      onCommandClick(onClick);
+      onCommandClick(onClick, index);
     }
   };
 
@@ -44,6 +56,9 @@ function MenuButton({
       <MenuButtonTableComponent
         borderRadius={borderRadius}
         boxShadow={boxShadow}
+        compactMode={compactMode}
+        configureMenuItems={configureMenuItems}
+        getVisibleItems={getVisibleItems}
         iconAlign={iconAlign}
         iconName={iconName}
         isCompact={isCompact}
@@ -51,8 +66,11 @@ function MenuButton({
         label={label}
         menuColor={menuColor}
         menuItems={{ ...menuItems }}
+        menuItemsSource={menuItemsSource}
         menuVariant={menuVariant}
         onItemClicked={onItemClicked}
+        rowIndex={rowIndex}
+        sourceData={sourceData}
       />
     </div>
   );
@@ -62,7 +80,11 @@ export interface RenderMenuButtonProps extends BaseCellComponentProps {
   isSelected: boolean;
   label: string;
   isDisabled: boolean;
-  onCommandClick: (dynamicTrigger: string, onComplete?: () => void) => void;
+  onCommandClick: (
+    dynamicTrigger: string,
+    index?: number,
+    onComplete?: () => void,
+  ) => void;
   isCompact?: boolean;
   menuItems: MenuItems;
   menuVariant?: ButtonVariant;
@@ -71,6 +93,11 @@ export interface RenderMenuButtonProps extends BaseCellComponentProps {
   boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  rowIndex: number;
+  getVisibleItems: (rowIndex: number) => Array<MenuItem>;
+  menuItemsSource: MenuItemsSource;
+  configureMenuItems: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
 }
 
 export function MenuButtonCell(props: RenderMenuButtonProps) {
@@ -80,6 +107,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
     compactMode,
     fontStyle,
     horizontalAlignment,
+    isCellDisabled,
     isCellVisible,
     isHidden,
     textColor,
@@ -94,6 +122,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
       compactMode={compactMode}
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
+      isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}

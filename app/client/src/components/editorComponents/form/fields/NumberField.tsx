@@ -1,6 +1,6 @@
 import React from "react";
 import { Field, BaseFieldProps } from "redux-form";
-import TextInput, { TextInputProps } from "components/ads/TextInput";
+import { TextInput, TextInputProps } from "design-system-old";
 
 type RenderComponentProps = TextInputProps & {
   input?: {

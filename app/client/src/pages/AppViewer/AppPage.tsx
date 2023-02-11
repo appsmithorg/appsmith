@@ -3,7 +3,7 @@ import styled from "styled-components";
 import WidgetFactory from "utils/WidgetFactory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import { DSLWidget } from "widgets/constants";
+import { CanvasWidgetStructure } from "widgets/constants";
 import { RenderModes } from "constants/WidgetConstants";
 
 const PageView = styled.div<{ width: number }>`
@@ -14,10 +14,11 @@ const PageView = styled.div<{ width: number }>`
 `;
 
 type AppPageProps = {
-  dsl: DSLWidget;
-  pageName?: string;
-  pageId?: string;
   appName?: string;
+  canvasWidth: number;
+  pageId?: string;
+  pageName?: string;
+  widgetsStructure: CanvasWidgetStructure;
 };
 
 export function AppPage(props: AppPageProps) {
@@ -33,9 +34,9 @@ export function AppPage(props: AppPageProps) {
   }, [props.pageId, props.pageName]);
 
   return (
-    <PageView className="t--app-viewer-page" width={props.dsl.rightColumn}>
-      {props.dsl.widgetId &&
-        WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
+    <PageView className="t--app-viewer-page" width={props.canvasWidth}>
+      {props.widgetsStructure.widgetId &&
+        WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
     </PageView>
   );
 }

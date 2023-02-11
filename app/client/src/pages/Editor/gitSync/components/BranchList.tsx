@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import TextInput from "components/ads/TextInput";
+import { getTypographyByKey, TextInput } from "design-system-old";
 import styled, { useTheme } from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -30,10 +29,9 @@ import {
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
 import { Space } from "./StyledComponents";
-import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
+import { Icon, IconSize, IconWrapper } from "design-system-old";
 import { get } from "lodash";
-import { TooltipComponent as Tooltip } from "design-system";
-import Spinner from "components/ads/Spinner";
+import { Spinner, TooltipComponent as Tooltip } from "design-system-old";
 import {
   isLocalBranch,
   isRemoteBranch,
@@ -44,6 +42,7 @@ import { useActiveHoverIndex, useFilteredBranches } from "../hooks";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
+import { Theme } from "constants/DefaultTheme";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -58,7 +57,7 @@ const BranchDropdownContainer = styled.div`
   flex-direction: column;
 
   & .title {
-    ${(props) => getTypographyByKey(props, "p1")};
+    ${getTypographyByKey("p1")};
   }
 
   padding: ${(props) => props.theme.spaces[5]}px;
@@ -80,17 +79,18 @@ const CreateNewBranchContainer = styled.div`
   }
 
   & div {
-    display: inline-block;
+    margin-left: ${(props) => props.theme.spaces[4]}px;
+    display: block;
     word-break: break-all;
   }
 
   & .large-text {
-    ${(props) => getTypographyByKey(props, "p1")};
+    ${getTypographyByKey("p1")};
     color: ${Colors.BLACK};
   }
 
   & .small-text {
-    ${(props) => getTypographyByKey(props, "p3")};
+    ${getTypographyByKey("p3")};
     color: ${Colors.GREY_7};
   }
 `;
@@ -120,7 +120,7 @@ function CreateNewBranch({
       });
   }, [shouldScrollIntoView]);
   const itemRef = React.useRef<HTMLDivElement>(null);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <div
@@ -139,8 +139,8 @@ function CreateNewBranch({
         size={IconSize.XXXL}
       />
       <CreateNewBranchContainer className={className} ref={itemRef}>
-        <div className="large-text">{`Create Branch: ${branch} `}</div>
-        <div className="small-text">{`from \`${currentBranch}\``}</div>
+        <div className="large-text">{`Create branch: ${branch} `}</div>
+        <div className="small-text">{`from '${currentBranch}'`}</div>
       </CreateNewBranchContainer>
       <SpinnerContainer>{isCreatingNewBranch && <Spinner />}</SpinnerContainer>
     </div>
@@ -175,7 +175,7 @@ export function Header({
   fetchBranches: () => void;
 }) {
   const title = createMessage(SWITCH_BRANCHES);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <div

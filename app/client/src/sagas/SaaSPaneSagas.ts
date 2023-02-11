@@ -4,31 +4,70 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import history from "utils/history";
-import { getPlugin } from "selectors/entitiesSelector";
-import { Datasource } from "entities/Datasource";
+import {
+  getGenerateCRUDEnabledPluginMap,
+  getPlugin,
+} from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
-import { Plugin } from "api/PluginApi";
-import { saasEditorApiIdURL, saasEditorDatasourceIdURL } from "RouteBuilder";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import {
+  generateTemplateFormURL,
+  saasEditorApiIdURL,
+  saasEditorDatasourceIdURL,
+} from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { CreateDatasourceSuccessAction } from "actions/datasourceActions";
+import { getQueryParams } from "utils/URLUtils";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
-function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
-  const plugin: Plugin | undefined = yield select(
-    getPlugin,
-    actionPayload.payload.pluginId,
-  );
+function* handleDatasourceCreatedSaga(
+  actionPayload: CreateDatasourceSuccessAction,
+) {
+  const { isDBCreated, payload } = actionPayload;
+  const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
   const pageId: string = yield select(getCurrentPageId);
   // Only look at SAAS plugins
   if (!plugin) return;
   if (plugin.type !== PluginType.SAAS) return;
 
-  history.push(
-    saasEditorDatasourceIdURL({
-      pageId,
-      pluginPackageName: plugin.packageName,
-      datasourceId: actionPayload.payload.id,
-      params: { from: "datasources" },
-    }),
+  const queryParams = getQueryParams();
+  const updatedDatasource = payload;
+
+  const isGeneratePageInitiator = getIsGeneratePageInitiator(
+    queryParams.isGeneratePageMode,
   );
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
+    getGenerateCRUDEnabledPluginMap,
+  );
+
+  // isGeneratePageInitiator ensures that datasource is being created from generate page with data
+  // then we check if the current plugin is supported for generate page with data functionality
+  // and finally isDBCreated ensures that datasource is not in temporary state and
+  // user has explicitly saved the datasource, before redirecting back to generate page
+  if (
+    isGeneratePageInitiator &&
+    updatedDatasource.pluginId &&
+    generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
+    isDBCreated
+  ) {
+    history.push(
+      generateTemplateFormURL({
+        pageId,
+        params: {
+          datasourceId: updatedDatasource.id,
+        },
+      }),
+    );
+  } else {
+    history.push(
+      saasEditorDatasourceIdURL({
+        pageId,
+        pluginPackageName: plugin.packageName,
+        datasourceId: payload.id,
+        params: { from: "datasources", pluginId: plugin?.id },
+      }),
+    );
+  }
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {

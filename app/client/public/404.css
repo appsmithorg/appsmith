@@ -1,0 +1,114 @@
+body, html {
+  height: 100%;
+  overflow-x: hidden;
+  width: 100%;
+  background-color: #fff;
+  margin: 0;
+  color: #182026;
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,Icons16,sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.header-root {
+  position: relative;
+  z-index: 9;
+}
+
+.appsmith-header {
+  justify-content: normal;
+  background: white;
+  height: 48px;
+  color: white;
+  position: fixed;
+  top: 0px;
+  z-index: 9;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 4px;
+  display: flex;
+  width: 100%;
+  -webkit-box-align: center;
+  align-items: center;
+  padding: 0px 30px 0px 24px;
+  font-size: 10px;
+}
+
+.appsmith-logo {
+  display: flex;
+  align-items: center;
+}
+
+.appsmith-logo svg {
+  max-width: 110px;
+  width: 110px;
+}
+
+.main {
+  display: flex;
+  align-items: center;
+  height: 90%;
+  flex-direction: column;
+  margin-top: 5%;
+  text-align: center;
+}
+
+.not-found-img {
+  width: 35%;
+}
+
+.bold-text {
+  font-family: system-ui;
+  font-weight: 700;
+  font-size: 24px;
+  margin: 24px 0 0;
+}
+
+.body-text {
+  margin: 8px 0 0 ;
+}
+
+.button-container {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: center;
+  align-content: center;
+  justify-items: center;
+  align-items: baseline;
+  grid-gap: 5px;
+}
+
+.button {
+  width: auto;
+  height: 38px;
+  text-decoration: none;
+  outline: none;
+  text-transform: uppercase;
+  border-radius: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 15px;
+  letter-spacing: 0.6px;
+  padding: 0 26px;
+  font-style: normal;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.primary {
+  background-color: #f86a2b;
+  color: #fff;
+  border: 1.2px solid #f86a2b;
+}
+
+.secondary {
+  text-transform: uppercase;
+  background-color: transparent;
+  color: #f86a2b;
+  border: 1.2px solid #f86a2b;
+}
+

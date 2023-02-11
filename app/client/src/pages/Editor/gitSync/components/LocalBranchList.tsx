@@ -1,4 +1,4 @@
-import SegmentHeader from "components/ads/ListSegmentHeader";
+import { SegmentHeader } from "design-system-old";
 import { BranchListItem } from "./BranchListItem";
 import { getIsActiveItem } from "../utils";
 import React from "react";
@@ -24,7 +24,10 @@ export function LocalBranchList(
   return (
     <div data-testid="t--git-local-branch-list-container">
       {localBranches?.length > 0 && (
-        <SegmentHeader hideStyledHr title={createMessage(LOCAL_BRANCHES)} />
+        <SegmentHeader
+          data-testid="t--branch-list-header-local"
+          title={createMessage(LOCAL_BRANCHES)}
+        />
       )}
       {localBranches
         .map((branch: string, index: number) => ({
@@ -39,7 +42,6 @@ export function LocalBranchList(
           <BranchListItem
             active={currentBranch === branch}
             branch={branch}
-            className="t--branch-item"
             isDefault={branch === defaultBranch}
             key={branch}
             onClick={() => switchBranch(branch)}

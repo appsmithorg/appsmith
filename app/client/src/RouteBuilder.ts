@@ -2,6 +2,8 @@ import {
   ADMIN_SETTINGS_PATH,
   GEN_TEMPLATE_FORM_ROUTE,
   GEN_TEMPLATE_URL,
+  getViewerCustomPath,
+  getViewerPath,
   TEMPLATES_PATH,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
@@ -17,6 +19,7 @@ export type URLBuilderParams = {
   hash?: string;
   params?: Record<string, any>;
   pageId: string;
+  persistExistingParams?: boolean;
 };
 
 export const fillPathname = (
@@ -25,8 +28,9 @@ export const fillPathname = (
   page: Page,
 ) => {
   const replaceValue = page.customSlug
-    ? `/app/${page.customSlug}-${page.pageId}`
-    : `/app/${application.slug}/${page.slug}-${page.pageId}`;
+    ? getViewerCustomPath(page.customSlug, page.pageId)
+    : getViewerPath(application.slug, page.slug, page.pageId);
+
   return pathname.replace(
     `/applications/${application.id}/pages/${page.pageId}`,
     replaceValue,
@@ -49,12 +53,6 @@ export function getQueryStringfromObject(
   return queryParams.length ? "?" + queryParams.join("&") : "";
 }
 
-export const pageListEditorURL = (props: URLBuilderParams): string => {
-  return urlBuilder.build({
-    ...props,
-    suffix: "pages",
-  });
-};
 export const datasourcesEditorURL = (props: URLBuilderParams): string =>
   urlBuilder.build({
     ...props,
@@ -75,11 +73,14 @@ export const datasourcesEditorIdURL = (
 export const jsCollectionIdURL = (
   props: URLBuilderParams & {
     collectionId: string;
+    // Pass a function name to set the cursor directly on the function
+    functionName?: string;
   },
 ): string => {
   return urlBuilder.build({
     ...props,
     suffix: `jsObjects/${props.collectionId}`,
+    hash: props.functionName,
   });
 };
 
@@ -149,12 +150,6 @@ export const saasEditorApiIdURL = (
   urlBuilder.build({
     ...props,
     suffix: `saas/${props.pluginPackageName}/api/${props.apiId}`,
-  });
-
-export const generateTemplateURL = (props: URLBuilderParams): string =>
-  urlBuilder.build({
-    ...props,
-    suffix: GEN_TEMPLATE_URL,
   });
 
 export const generateTemplateFormURL = (props: URLBuilderParams): string =>

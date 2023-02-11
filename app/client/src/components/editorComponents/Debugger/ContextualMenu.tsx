@@ -1,11 +1,10 @@
 import React from "react";
-import copy from "copy-to-clipboard";
 import styled from "styled-components";
 import { Classes as BPClasses, Position } from "@blueprintjs/core";
 import { Popover2, IPopover2Props } from "@blueprintjs/popover2";
 import { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system";
+import { Text, FontWeight, TextType } from "design-system-old";
 import { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -18,25 +17,19 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   createMessage,
   DEBUGGER_APPSMITH_SUPPORT,
-  DEBUGGER_COPY_MESSAGE,
   DEBUGGER_INTERCOM_TEXT,
   DEBUGGER_OPEN_DOCUMENTATION,
-  DEBUGGER_SEARCH_GOOGLE,
   DEBUGGER_SEARCH_SNIPPET,
 } from "@appsmith/constants/messages";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
-import { Colors } from "constants/Colors";
+import { Classes, Icon, IconName, IconSize } from "design-system-old";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 const { intercomAppID } = getAppsmithConfigs();
 
 enum CONTEXT_MENU_ACTIONS {
-  COPY = "COPY",
   DOCS = "DOCS",
   SNIPPET = "SNIPPET",
-  GOOGLE = "GOOGLE",
   INTERCOM = "INTERCOM",
 }
 
@@ -49,10 +42,8 @@ enum PLUGIN_EXECUTION_ERRORS {
 
 const getOptions = (type?: string, subType?: string) => {
   const defaultOptions = [
-    CONTEXT_MENU_ACTIONS.COPY,
     CONTEXT_MENU_ACTIONS.DOCS,
     CONTEXT_MENU_ACTIONS.SNIPPET,
-    CONTEXT_MENU_ACTIONS.GOOGLE,
     CONTEXT_MENU_ACTIONS.INTERCOM,
   ];
 
@@ -60,25 +51,13 @@ const getOptions = (type?: string, subType?: string) => {
     switch (subType) {
       // These types are sent by the server
       case PLUGIN_EXECUTION_ERRORS.DATASOURCE_CONFIGURATION_ERROR:
-        return [
-          CONTEXT_MENU_ACTIONS.COPY,
-          CONTEXT_MENU_ACTIONS.GOOGLE,
-          CONTEXT_MENU_ACTIONS.INTERCOM,
-        ];
+        return [CONTEXT_MENU_ACTIONS.INTERCOM];
       case PLUGIN_EXECUTION_ERRORS.PLUGIN_ERROR:
-        return [
-          CONTEXT_MENU_ACTIONS.COPY,
-          CONTEXT_MENU_ACTIONS.GOOGLE,
-          CONTEXT_MENU_ACTIONS.INTERCOM,
-        ];
+        return [CONTEXT_MENU_ACTIONS.INTERCOM];
       case PLUGIN_EXECUTION_ERRORS.CONNECTIVITY_ERROR:
-        return [CONTEXT_MENU_ACTIONS.COPY, CONTEXT_MENU_ACTIONS.DOCS];
+        return [CONTEXT_MENU_ACTIONS.DOCS];
       case PLUGIN_EXECUTION_ERRORS.ACTION_CONFIGURATION_ERROR:
-        return [
-          CONTEXT_MENU_ACTIONS.COPY,
-          CONTEXT_MENU_ACTIONS.DOCS,
-          CONTEXT_MENU_ACTIONS.INTERCOM,
-        ];
+        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.INTERCOM];
       default:
         return defaultOptions;
     }
@@ -86,23 +65,14 @@ const getOptions = (type?: string, subType?: string) => {
     switch (type) {
       case PropertyEvaluationErrorType.VALIDATION:
         return [
-          CONTEXT_MENU_ACTIONS.COPY,
           CONTEXT_MENU_ACTIONS.DOCS,
           CONTEXT_MENU_ACTIONS.SNIPPET,
           CONTEXT_MENU_ACTIONS.INTERCOM,
         ];
       case PropertyEvaluationErrorType.PARSE:
-        return [
-          CONTEXT_MENU_ACTIONS.COPY,
-          CONTEXT_MENU_ACTIONS.SNIPPET,
-          CONTEXT_MENU_ACTIONS.GOOGLE,
-        ];
+        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.SNIPPET];
       case PropertyEvaluationErrorType.LINT:
-        return [
-          CONTEXT_MENU_ACTIONS.COPY,
-          CONTEXT_MENU_ACTIONS.SNIPPET,
-          CONTEXT_MENU_ACTIONS.GOOGLE,
-        ];
+        return [CONTEXT_MENU_ACTIONS.SNIPPET];
       default:
         return defaultOptions;
     }
@@ -152,26 +122,6 @@ const searchAction: Record<
     ) => void;
   }
 > = {
-  [CONTEXT_MENU_ACTIONS.COPY]: {
-    icon: "duplicate",
-    text: createMessage(DEBUGGER_COPY_MESSAGE),
-    onSelect: (error: Message) => {
-      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
-        menuItem: CONTEXT_MENU_ACTIONS.COPY,
-      });
-      copy(error.message);
-    },
-  },
-  [CONTEXT_MENU_ACTIONS.GOOGLE]: {
-    icon: "share-2",
-    text: createMessage(DEBUGGER_SEARCH_GOOGLE),
-    onSelect: (error: Message) => {
-      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
-        menuItem: CONTEXT_MENU_ACTIONS.GOOGLE,
-      });
-      window.open("http://google.com/search?q=" + error.message);
-    },
-  },
   [CONTEXT_MENU_ACTIONS.DOCS]: {
     icon: "book-line",
     text: createMessage(DEBUGGER_OPEN_DOCUMENTATION),
@@ -208,7 +158,7 @@ const searchAction: Record<
     },
   },
   [CONTEXT_MENU_ACTIONS.SNIPPET]: {
-    icon: "play",
+    icon: "snippet",
     text: createMessage(DEBUGGER_SEARCH_SNIPPET),
     onSelect: (error: Message, dispatch: Dispatch, entity) => {
       AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
@@ -236,7 +186,7 @@ const IconContainer = styled.span`
   align-items: center;
 
   .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[4]}px;
+    margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 `;
 
@@ -246,16 +196,10 @@ const MenuItem = styled.a`
   justify-content: space-between;
   text-decoration: none;
   padding: 0px ${(props) => props.theme.spaces[6]}px;
-  height: 28px;
+  height: 40px;
 
   .${Classes.TEXT} {
-    color: ${Colors.CODE_GRAY};
-  }
-
-  .${Classes.ICON} {
-    path {
-      fill: ${Colors.CODE_GRAY};
-    }
+    color: ${(props) => props.theme.colors.menuItem.hoverText};
   }
 
   &:hover {
@@ -290,7 +234,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
     <Popover2
       className="t--debugger-contextual-error-menu"
       content={
-        <MenuWrapper width={"175px"}>
+        <MenuWrapper width={"264px"}>
           {options.map((e) => {
             const menuProps = searchAction[e];
             const onSelect = () => {
@@ -311,8 +255,12 @@ export default function ContextualMenu(props: ContextualMenuProps) {
                 onClick={onSelect}
               >
                 <IconContainer>
-                  <Icon name={menuProps.icon} size={IconSize.XS} />
-                  <Text type={TextType.P3} weight={FontWeight.NORMAL}>
+                  <Icon
+                    fillColor="#858282"
+                    name={menuProps.icon}
+                    size={IconSize.XXXL}
+                  />
+                  <Text type={TextType.P1} weight={FontWeight.NORMAL}>
                     {menuProps.text}
                   </Text>
                 </IconContainer>

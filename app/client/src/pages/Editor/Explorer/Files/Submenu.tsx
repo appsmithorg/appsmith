@@ -1,3 +1,5 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
 import { Popover2 } from "@blueprintjs/popover2";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import {
@@ -5,24 +7,31 @@ import {
   SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
 } from "components/editorComponents/GlobalSearch/utils";
-import styled from "constants/DefaultTheme";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 import classNames from "classnames";
 import keyBy from "lodash/keyBy";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import SubmenuHotKeys from "./SubmenuHotkeys";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { Colors } from "constants/Colors";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { EntityClassNames } from "../Entity";
-import { TooltipComponent } from "design-system";
-import { ADD_QUERY_JS_BUTTON, createMessage } from "ce/constants/messages";
+import { TooltipComponent } from "design-system-old";
+import {
+  ADD_QUERY_JS_TOOLTIP,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { useCloseMenuOnScroll } from "../hooks";
+import { SIDEBAR_ID } from "constants/Explorer";
+import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -61,6 +70,9 @@ export default function ExplorerSubMenu({
   const [query, setQuery] = useState("");
   const [show, setShow] = useState(openMenu);
   const fileOperations = useFilteredFileOperations(query);
+  const filteredFileOperations = fileOperations.filter(
+    (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
+  );
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
@@ -68,8 +80,12 @@ export default function ExplorerSubMenu({
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const [activeItemIdx, setActiveItemIdx] = useState(0);
-
   useEffect(() => setShow(openMenu), [openMenu]);
+  useCloseMenuOnScroll(SIDEBAR_ID, show, () => setShow(false));
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = hasCreateActionPermission(pagePermissions);
 
   useEffect(() => {
     setQuery("");
@@ -85,34 +101,27 @@ export default function ExplorerSubMenu({
 
   const handleUpKey = useCallback(() => {
     setActiveItemIdx((currentActiveIndex) => {
-      if (currentActiveIndex <= 0) return fileOperations.length - 1;
-      const offset =
-        fileOperations[currentActiveIndex - 1].kind ===
-        SEARCH_ITEM_TYPES.sectionTitle
-          ? 2
-          : 1;
-      return Math.max(currentActiveIndex - offset, 0);
+      if (currentActiveIndex <= 0) return filteredFileOperations.length - 1;
+      return Math.max(currentActiveIndex - 1, 0);
     });
-  }, [fileOperations]);
+  }, [filteredFileOperations]);
 
   const handleDownKey = useCallback(() => {
     setActiveItemIdx((currentActiveIndex) => {
-      if (currentActiveIndex >= fileOperations.length - 1) return 0;
-      const offset =
-        fileOperations[currentActiveIndex + 1].kind ===
-        SEARCH_ITEM_TYPES.sectionTitle
-          ? 2
-          : 1;
-      return Math.min(currentActiveIndex + offset, fileOperations.length - 1);
+      if (currentActiveIndex >= filteredFileOperations.length - 1) return 0;
+      return Math.min(
+        currentActiveIndex + 1,
+        filteredFileOperations.length - 1,
+      );
     });
-  }, [fileOperations]);
+  }, [filteredFileOperations]);
 
   const onChange = useCallback((e) => {
     setQuery(e.target.value);
   }, []);
 
   const handleSelect = () => {
-    const item = fileOperations[activeItemIdx];
+    const item = filteredFileOperations[activeItemIdx];
     handleClick(item);
   };
 
@@ -164,41 +173,37 @@ export default function ExplorerSubMenu({
               )}
             </div>
             <div className="ops-container">
-              {fileOperations
-                .filter(
-                  (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
-                )
-                .map((item: any, idx: number) => {
-                  const icon =
-                    item.icon ||
-                    (item.pluginId && (
-                      <EntityIcon>
-                        {getPluginIcon(pluginGroups[item.pluginId])}
-                      </EntityIcon>
-                    ));
-                  return (
-                    <div
-                      className={classNames({
-                        "px-4 py-2 text-sm flex items-center gap-2 t--file-operation": true,
-                        "cursor-pointer":
-                          item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
-                        active:
-                          activeItemIdx === idx &&
-                          item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
-                        "font-medium text-gray section-title":
-                          item.kind === SEARCH_ITEM_TYPES.sectionTitle,
-                      })}
-                      id={`file-op-${idx}`}
-                      key={`file-op-${idx}`}
-                      onClick={() => handleClick(item)}
-                    >
-                      {icon && <span className="flex-shrink-0">{icon}</span>}
-                      <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
-                        {item.shortTitle || item.title}
-                      </span>
-                    </div>
-                  );
-                })}
+              {filteredFileOperations.map((item: any, idx: number) => {
+                const icon =
+                  item.icon ||
+                  (item.pluginId && (
+                    <EntityIcon>
+                      {getPluginIcon(pluginGroups[item.pluginId])}
+                    </EntityIcon>
+                  ));
+                return (
+                  <div
+                    className={classNames({
+                      "px-4 py-2 text-sm flex items-center gap-2 t--file-operation": true,
+                      "cursor-pointer":
+                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
+                      active:
+                        activeItemIdx === idx &&
+                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
+                      "font-medium text-gray section-title":
+                        item.kind === SEARCH_ITEM_TYPES.sectionTitle,
+                    })}
+                    id={`file-op-${idx}`}
+                    key={`file-op-${idx}`}
+                    onClick={() => handleClick(item)}
+                  >
+                    {icon && <span className="flex-shrink-0">{icon}</span>}
+                    <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
+                      {item.shortTitle || item.title}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </SubMenuContainer>
         </SubmenuHotKeys>
@@ -212,24 +217,26 @@ export default function ExplorerSubMenu({
       placement="right-start"
       transitionDuration={0}
     >
-      <TooltipComponent
-        boundary="viewport"
-        className={EntityClassNames.TOOLTIP}
-        content={
-          <>
-            {createMessage(ADD_QUERY_JS_BUTTON)} (
-            {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
-          </>
-        }
-        disabled={show}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="right"
-      >
-        <EntityAddButton
-          className={`${className} ${show ? "selected" : ""}`}
-          onClick={() => setShow(true)}
-        />
-      </TooltipComponent>
+      {canCreateActions && (
+        <TooltipComponent
+          boundary="viewport"
+          className={EntityClassNames.TOOLTIP}
+          content={
+            <>
+              {createMessage(ADD_QUERY_JS_TOOLTIP)} (
+              {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
+            </>
+          }
+          disabled={show}
+          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+          position="right"
+        >
+          <EntityAddButton
+            className={`${className} ${show ? "selected" : ""}`}
+            onClick={() => setShow(true)}
+          />
+        </TooltipComponent>
+      )}
     </Popover2>
   );
 }

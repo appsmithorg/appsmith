@@ -20,8 +20,7 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { ThemeProp, Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system-old";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
@@ -42,6 +41,7 @@ import {
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
+import { ThemeProp } from "widgets/constants";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -72,25 +72,6 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
-/*
-  Don't use buttonHoverActiveStyles in a nested function it won't work -
-
-  const buttonHoverActiveStyles = css ``
-
-  const Button = styled.button`
-  // won't work
-    ${({ buttonColor, theme }) => {
-      &:hover, &:active {
-        ${buttonHoverActiveStyles}
-      }
-    }}
-
-  // will work
-  &:hover, &:active {
-    ${buttonHoverActiveStyles}
-  }`
-*/
-
 const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
 height: 100%;
 background-image: none !important;
@@ -99,7 +80,7 @@ outline: none;
 padding: 0px 10px;
 gap: 8px;
 
-&:hover, &:active {
+&:hover, &:active, &:focus {
   ${buttonHoverActiveStyles}
  }
 
@@ -115,14 +96,15 @@ ${({ buttonColor, buttonVariant, theme }) => `
 
     &:disabled, &.${Classes.DISABLED} {
     cursor: not-allowed;
-    background-color: ${Colors.GREY_1} !important;
-    color: ${Colors.GREY_9} !important;
+    background-color: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
+      "var(--wds-color-bg-disabled)"} !important;
+    color: var(--wds-color-text-disabled) !important;
     box-shadow: none !important;
     pointer-events: none;
-    border-color: ${Colors.GREY_1} !important;
+    border-color: var(--wds-color-border-disabled) !important;
 
     > span {
-      color: ${Colors.GREY_9} !important;
+      color: var(--wds-color-text-disabled) !important;
     }
   }
 
@@ -407,6 +389,10 @@ function RecaptchaV3Component(
   );
 }
 
+const Wrapper = styled.div`
+  height: 100%;
+`;
+
 function BtnWrapper(
   props: {
     children: any;
@@ -418,14 +404,14 @@ function BtnWrapper(
 ) {
   if (!props.googleRecaptchaKey) {
     return (
-      <div
+      <Wrapper
         className={props.className}
         onClick={(e: React.MouseEvent<HTMLElement>) =>
           props.onClick && !props.isLoading && props.onClick(e)
         }
       >
         {props.children}
-      </div>
+      </Wrapper>
     );
   } else {
     const handleError = (

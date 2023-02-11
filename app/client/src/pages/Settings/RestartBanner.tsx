@@ -1,10 +1,17 @@
 import React from "react";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Button,
+  Category,
+  hexToRgba,
+  Icon,
+  IconSize,
+  Size,
+} from "design-system-old";
 import {
   getIsRestartFailed,
   getRestartingState,
 } from "selectors/settingsSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import {
   createMessage,
@@ -15,9 +22,7 @@ import {
   RESTART_ERROR_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import Button, { Category, Size } from "components/ads/Button";
-import { hexToRgba } from "components/ads/common";
-import AppIcon from "components/ads/AppIcon";
+import { AppIcon } from "design-system-old";
 import { retryServerRestart } from "@appsmith/actions/settingsAction";
 import { useDispatch } from "react-redux";
 

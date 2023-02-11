@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system-old";
 import styled from "styled-components";
 import { TemplateLayout } from "./index";
 
@@ -16,14 +16,14 @@ const LargeTemplate = styled(TemplateLayout)`
 
   && {
     .title {
-      ${(props) => getTypographyByKey(props, "h1")}
+      ${getTypographyByKey("h1")}
     }
     .categories {
-      ${(props) => getTypographyByKey(props, "h4")}
+      ${getTypographyByKey("h4")}
       font-weight: normal;
     }
     .description {
-      ${(props) => getTypographyByKey(props, "p1")}
+      ${getTypographyByKey("p1")}
       flex: 1;
     }
   }

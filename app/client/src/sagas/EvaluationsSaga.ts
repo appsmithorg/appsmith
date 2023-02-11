@@ -25,12 +25,11 @@ import {
 import { getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
-import Worker from "worker-loader!../workers/evaluation.worker";
 import {
   EvalError,
-  EVAL_WORKER_ACTIONS,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
@@ -43,6 +42,7 @@ import {
   FIRST_EVAL_REDUX_ACTIONS,
   setDependencyMap,
   setEvaluatedTree,
+  shouldLint,
   shouldProcessBatchedAction,
 } from "actions/evaluationActions";
 import {
@@ -55,7 +55,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isUndefined } from "lodash";
+import { difference, get, isEmpty, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -64,85 +64,109 @@ import {
 import {
   executeActionTriggers,
   TriggerMeta,
-} from "./ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
   SNIPPET_EXECUTION_SUCCESS,
 } from "@appsmith/constants/messages";
-import { validate } from "workers/validations";
+import { validate } from "workers/Evaluation/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  LogObject,
+  UserLogObject,
+} from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import {
   logActionExecutionError,
   UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
-import { Channel } from "redux-saga";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { updateMetaState } from "actions/metaActions";
-import { getAllActionValidationConfig } from "selectors/entitiesSelector";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
-import { JSUpdate } from "utils/JSPaneUtils";
-import { DataTreeDiff } from "workers/evaluationUtils";
+import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
+import {
+  getAllActionValidationConfig,
+  getAllJSActionsData,
+} from "selectors/entitiesSelector";
+import {
+  DataTree,
+  UnEvalTree,
+  UnEvalTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
+import { lintWorker } from "./LintingSagas";
+import {
+  EvalTreeRequestData,
+  EvalTreeResponseData,
+} from "workers/Evaluation/types";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
+
+export const evalWorker = new GracefulWorkerService(
+  new Worker(
+    new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
+    {
+      type: "module",
+      name: "evalWorker",
+    },
+  ),
+);
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
-const worker = new GracefulWorkerService(Worker);
-
-export type EvalTreePayload = {
-  dataTree: DataTree;
-  dependencies: Record<string, string[]>;
-  errors: EvalError[];
-  evalMetaUpdates: EvalMetaUpdates;
-  evaluationOrder: string[];
-  jsUpdates: Record<string, JSUpdate>;
-  logs: any[];
-  unEvalUpdates: DataTreeDiff[];
-  isCreateFirstTree: boolean;
-};
-
-function* evaluateTreeSaga(
+/**
+ * This saga is responsible for evaluating the data tree
+ * @param postEvalActions
+ * @param shouldReplay
+ * @param requiresLinting
+ * @param forceEvaluation - if true, will re-evaluate the entire tree
+ * @returns
+ * @example
+ * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
+ */
+export function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
-  shouldReplay?: boolean,
+  shouldReplay = true,
+  requiresLinting = false,
+  forceEvaluation = false,
 ) {
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   } = yield select(getAllActionValidationConfig);
-  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
-
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
+  const isEditMode = appMode === APP_MODE.EDIT;
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  const evalTreeRequestData: EvalTreeRequestData = {
+    unevalTree,
+    widgetTypeConfigMap,
+    widgets,
+    theme,
+    shouldReplay,
+    allActionValidationConfig,
+    requiresLinting: isEditMode && requiresLinting,
+    forceEvaluation,
+  };
 
-  // @ts-expect-error: Worker Response is unknown
-  const workerResponse = yield call(
-    worker.request,
+  const workerResponse: EvalTreeResponseData = yield call(
+    evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
-    {
-      unevalTree,
-      widgetTypeConfigMap,
-      widgets,
-      theme,
-      shouldReplay,
-      allActionValidationConfig,
-    },
+    evalTreeRequestData,
   );
 
   const {
@@ -153,9 +177,11 @@ function* evaluateTreeSaga(
     evaluationOrder,
     jsUpdates,
     logs,
+    userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
-  }: EvalTreePayload = workerResponse;
+    staleMetaIds,
+  } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -165,6 +191,11 @@ function* evaluateTreeSaga(
   const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
+  // Replace empty object below with list of current metaWidgets present in the viewport
+  const hiddenStaleMetaIds = difference(staleMetaIds, Object.keys({}));
+  if (!isEmpty(hiddenStaleMetaIds)) {
+    yield put(resetWidgetsMetaState(hiddenStaleMetaIds));
+  }
 
   yield put(setEvaluatedTree(updates));
   PerformanceTracker.stopAsyncTracking(
@@ -177,14 +208,31 @@ function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
+  if (
+    !(!isCreateFirstTree && Object.keys(jsUpdates).length > 0) &&
+    !!userLogs &&
+    userLogs.length > 0
+  ) {
+    yield all(
+      userLogs.map((log: UserLogObject) => {
+        return call(
+          storeLogs,
+          log.logObject,
+          log.source.name,
+          log.source.type,
+          log.source.id,
+        );
+      }),
+    );
+  }
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
   yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
 
-  const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
+    const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
@@ -194,9 +242,14 @@ function* evaluateTreeSaga(
       isCreateFirstTree,
     );
 
-    yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
+    yield fork(
+      updateTernDefinitions,
+      updatedDataTree,
+      unEvalUpdates,
+      isCreateFirstTree,
+      jsData,
+    );
   }
-
   yield put(setDependencyMap(dependencies));
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
@@ -208,7 +261,7 @@ export function* evaluateActionBindings(
   executionParams: Record<string, any> | string = {},
 ) {
   const workerResponse: { errors: EvalError[]; values: unknown } = yield call(
-    worker.request,
+    evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS,
     {
       bindings,
@@ -230,6 +283,7 @@ export function* evaluateActionBindings(
  * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
  * execution is returned to the worker where it can resolve/reject the current promise.
  */
+
 export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -239,94 +293,82 @@ export function* evaluateAndExecuteDynamicTrigger(
 ) {
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
-
-  const { requestChannel, responseChannel } = yield call(
-    worker.duplexRequest,
+  const response: unknown = yield call(
+    evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
-    { dataTree: unEvalTree, dynamicTrigger, callbackData, globalContext },
+    {
+      unEvalTree,
+      dynamicTrigger,
+      callbackData,
+      globalContext,
+      eventType,
+      triggerMeta,
+    },
   );
-  let keepAlive = true;
 
-  while (keepAlive) {
-    const { requestData } = yield take(requestChannel);
-    log.debug({ requestData });
-    if (requestData.finished) {
-      keepAlive = false;
-      /* Handle errors during evaluation
-       * A finish event with errors means that the error was not caught by the user code.
-       * We raise an error telling the user that an uncaught error has occurred
-       * */
-      if (requestData.result.errors.length) {
-        if (
-          requestData.result.errors[0].errorMessage !==
-          "UncaughtPromiseRejection: User cancelled action execution"
-        ) {
-          throw new UncaughtPromiseError(
-            requestData.result.errors[0].errorMessage,
-          );
-        }
-      }
-      // It is possible to get a few triggers here if the user
-      // still uses the old way of action runs and not promises. For that we
-      // need to manually execute these triggers outside the promise flow
-      const { triggers } = requestData.result;
-      if (triggers && triggers.length) {
-        log.debug({ triggers });
-        yield all(
-          triggers.map((trigger: ActionDescription) =>
-            call(executeActionTriggers, trigger, eventType, triggerMeta),
-          ),
-        );
-      }
-      // Return value of a promise is returned
-      return requestData.result;
-    }
-    yield call(evalErrorHandler, requestData.errors);
-    if (requestData.trigger) {
-      // if we have found a trigger, we need to execute it and respond back
-      log.debug({ trigger: requestData.trigger });
-      yield spawn(
-        executeTriggerRequestSaga,
-        requestData,
-        eventType,
-        responseChannel,
-        triggerMeta,
-      );
+  const { logs = [], errors = [], triggers = [] } = response as any;
+  yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
+  yield call(
+    storeLogs,
+    logs,
+    triggerMeta.source?.name || triggerMeta.triggerPropertyName || "",
+    eventType === EventType.ON_JS_FUNCTION_EXECUTE
+      ? ENTITY_TYPE.JSACTION
+      : ENTITY_TYPE.WIDGET,
+    triggerMeta.source?.id || "",
+  );
+
+  yield call(evalErrorHandler, errors);
+  if (errors.length) {
+    if (
+      errors[0].errorMessage !==
+      "UncaughtPromiseRejection: User cancelled action execution"
+    ) {
+      const errorMessage = errors[0].errorMessage || errors[0].message;
+      throw new UncaughtPromiseError(errorMessage);
     }
   }
+
+  log.debug({ triggers });
+  yield all(
+    triggers.map((trigger: ActionDescription) =>
+      call(executeActionTriggers, trigger, eventType, triggerMeta),
+    ),
+  );
+
+  return response;
 }
 
-interface ResponsePayload {
+export interface ResponsePayload {
   data: {
-    subRequestId: string;
     reason?: string;
     resolve?: unknown;
   };
   success: boolean;
+  eventType?: EventType;
 }
 
 /*
  * It is necessary to respond back as the worker is waiting with a pending promise and wanting to know if it should
  * resolve or reject it with the data the execution has provided
  */
-function* executeTriggerRequestSaga(
-  requestData: { trigger: ActionDescription; subRequestId: string },
+export function* executeTriggerRequestSaga(
+  trigger: ActionDescription,
   eventType: EventType,
-  responseChannel: Channel<unknown>,
   triggerMeta: TriggerMeta,
 ) {
   const responsePayload: ResponsePayload = {
     data: {
       resolve: undefined,
       reason: undefined,
-      subRequestId: requestData.subRequestId,
     },
     success: false,
+    eventType,
   };
   try {
     responsePayload.data.resolve = yield call(
       executeActionTriggers,
-      requestData.trigger,
+      trigger,
       eventType,
       triggerMeta,
     );
@@ -336,56 +378,110 @@ function* executeTriggerRequestSaga(
     // a success: false is sent to reject the promise
 
     // @ts-expect-error: reason is of type string
-    responsePayload.data.reason = error;
+    responsePayload.data.reason = { message: error.message };
     responsePayload.success = false;
   }
-  responseChannel.put({
-    method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-    ...responsePayload,
-  });
+  return responsePayload;
 }
 
 export function* clearEvalCache() {
-  yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
 
   return true;
 }
 
-export function* executeFunction(
+interface JSFunctionExecutionResponse {
+  errors: unknown[];
+  result: unknown;
+  logs?: LogObject[];
+}
+
+function* executeAsyncJSFunction(
+  collectionName: string,
+  action: JSAction,
+  collectionId: string,
+) {
+  let response: JSFunctionExecutionResponse;
+  const functionCall = `${collectionName}.${action.name}()`;
+
+  try {
+    response = yield call(
+      evaluateAndExecuteDynamicTrigger,
+      functionCall,
+      EventType.ON_JS_FUNCTION_EXECUTE,
+      {
+        source: {
+          id: collectionId,
+          name: `${collectionName}.${action.name}`,
+        },
+        triggerPropertyName: `${collectionName}.${action.name}`,
+      },
+    );
+  } catch (e) {
+    if (e instanceof UncaughtPromiseError) {
+      logActionExecutionError(e.message);
+    }
+    response = { errors: [e], result: undefined };
+  }
+  return response;
+}
+
+function* executeSyncJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
 ) {
   const functionCall = `${collectionName}.${action.name}()`;
+  const response: JSFunctionExecutionResponse = yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS,
+    {
+      functionCall,
+    },
+  );
+  const { logs = [] } = response;
+  // Check for any logs in the response and store them in the redux store
+  yield call(
+    storeLogs,
+    logs,
+    collectionName + "." + action.name,
+    ENTITY_TYPE.JSACTION,
+    collectionId,
+  );
+  return response;
+}
+
+export function* executeJSFunction(
+  collectionName: string,
+  action: JSAction,
+  collectionId: string,
+) {
   const { isAsync } = action.actionConfiguration;
   let response: {
-    errors: any[];
-    result: any;
+    errors: unknown[];
+    result: unknown;
+    logs?: LogObject[];
   };
 
   if (isAsync) {
-    try {
-      response = yield call(
-        evaluateAndExecuteDynamicTrigger,
-        functionCall,
-        EventType.ON_JS_FUNCTION_EXECUTE,
-        {},
-      );
-    } catch (e) {
-      if (e instanceof UncaughtPromiseError) {
-        logActionExecutionError(e.message);
-      }
-      response = { errors: [e], result: undefined };
-    }
+    response = yield call(
+      executeAsyncJSFunction,
+      collectionName,
+      action,
+      collectionId,
+    );
   } else {
-    response = yield call(worker.request, EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS, {
-      functionCall,
-    });
+    response = yield call(
+      executeSyncJSFunction,
+      collectionName,
+      action,
+      collectionId,
+    );
   }
-
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
+  // After every function execution, log execution errors if present
   yield call(
     handleJSFunctionExecutionErrorLog,
     collectionId,
@@ -401,11 +497,11 @@ export function* validateProperty(
   value: any,
   props: WidgetProps,
 ) {
-  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
-  // @ts-expect-error: We have a typeMismatch for validationPaths
-  const validation = unevalTree[props.widgetName].validationPaths[property];
+  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
+  const entity = unevalTree[props.widgetName] as UnEvalTreeWidget;
+  const validation = entity?.__config__.validationPaths[property];
   const response: unknown = yield call(
-    worker.request,
+    evalWorker.request,
     EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
     {
       property,
@@ -414,7 +510,6 @@ export function* validateProperty(
       validation,
     },
   );
-
   return response;
 }
 
@@ -484,16 +579,23 @@ function getPostEvalActions(
   return postEvalActions;
 }
 
-function* evaluationChangeListenerSaga() {
+function* evaluationChangeListenerSaga(): any {
   // Explicitly shutdown old worker if present
-  yield call(worker.shutdown);
-  yield call(worker.start);
-  yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
+  yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
+  const [evalWorkerListenerChannel] = yield all([
+    call(evalWorker.start),
+    call(lintWorker.start),
+  ]);
+
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
+  yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
+
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction: {
+    type: ReduxActionType;
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true);
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -505,10 +607,12 @@ function* evaluationChangeListenerSaga() {
 
     if (shouldProcessBatchedAction(action)) {
       const postEvalActions = getPostEvalActions(action);
+
       yield call(
         evaluateTreeSaga,
         postEvalActions,
         get(action, "payload.shouldReplay"),
+        shouldLint(action),
       );
     }
   }
@@ -519,16 +623,15 @@ export function* evaluateSnippetSaga(action: any) {
     let { expression } = action.payload;
     const { dataType, isTrigger } = action.payload;
     if (isTrigger) {
-      expression = `function() { ${expression} }`;
+      expression = `(function() { ${expression} })()`;
     }
     const workerResponse: {
       errors: any;
       result: any;
       triggers: any;
-    } = yield call(worker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
+    } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
       expression,
       dataType,
-      isTrigger,
     });
     const { errors, result, triggers } = workerResponse;
     if (triggers && triggers.length > 0) {
@@ -591,7 +694,7 @@ export function* evaluateArgumentSaga(action: any) {
     const workerResponse: {
       errors: Array<unknown>;
       result: unknown;
-    } = yield call(worker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
+    } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
       expression: value,
     });
     const lintErrors = (workerResponse.errors || []).filter(
@@ -638,7 +741,7 @@ export function* updateReplayEntitySaga(
   yield delay(REPLAY_DELAY);
   const { entity, entityId, entityType } = actionPayload.payload;
   const workerResponse: unknown = yield call(
-    worker.request,
+    evalWorker.request,
     EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
     {
       entityId,
@@ -651,7 +754,7 @@ export function* updateReplayEntitySaga(
 }
 
 export function* workerComputeUndoRedo(operation: string, entityId: string) {
-  const workerResponse: unknown = yield call(worker.request, operation, {
+  const workerResponse: unknown = yield call(evalWorker.request, operation, {
     entityId,
   });
   return workerResponse;
@@ -666,7 +769,7 @@ export interface FormEvaluationConfig
 // Function to trigger the form eval job in the worker
 export function* evalFormConfig(formEvaluationConfigObj: FormEvaluationConfig) {
   const workerResponse: unknown = yield call(
-    worker.request,
+    evalWorker.request,
     EVAL_WORKER_ACTIONS.INIT_FORM_EVAL,
     formEvaluationConfigObj,
   );
@@ -679,7 +782,7 @@ export function* setAppVersionOnWorkerSaga(action: {
   payload: EvaluationVersion;
 }) {
   const version: EvaluationVersion = action.payload;
-  yield call(worker.request, EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION, {
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION, {
     version,
   });
 }
@@ -695,3 +798,5 @@ export default function* evaluationSagaListeners() {
     }
   }
 }
+
+export { evalWorker as EvalWorker };

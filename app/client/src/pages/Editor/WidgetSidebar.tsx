@@ -20,9 +20,18 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
   useEffect(() => {
     fuse = new Fuse(cards, {
-      keys: ["displayName", "searchTags"],
-      threshold: 0.5,
-      distance: 20,
+      keys: [
+        {
+          name: "displayName",
+          weight: 0.9,
+        },
+        {
+          name: "searchTags",
+          weight: 0.1,
+        },
+      ],
+      threshold: 0.2,
+      distance: 100,
     });
   }, [cards]);
 
@@ -68,7 +77,10 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         placeholder="Search widgets..."
         ref={searchInputRef}
       />
-      <div className="flex-grow px-3 overflow-y-scroll">
+      <div
+        className="flex-grow px-3 overflow-y-scroll"
+        data-cy="widget-sidebar-scrollable-wrapper"
+      >
         <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400 t--widget-sidebar">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>

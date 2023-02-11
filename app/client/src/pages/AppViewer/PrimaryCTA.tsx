@@ -1,12 +1,12 @@
 import React, { useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import {
   PERMISSION_TYPE,
   isPermitted,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import {
   getCurrentApplication,
   getCurrentPageId,
@@ -21,7 +21,6 @@ import {
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
-import { getAllApplications } from "actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
@@ -44,7 +43,6 @@ type Props = {
 
 function PrimaryCTA(props: Props) {
   const { className, url } = props;
-  const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
   const currentPageID = useSelector(getCurrentPageId);
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -56,7 +54,9 @@ function PrimaryCTA(props: Props) {
 
   const appViewerURL = useHref(viewerURL, {
     pageId: currentPageID,
-    suffix: "fork",
+    params: {
+      fork: "true",
+    },
   });
 
   // get the fork url
@@ -94,6 +94,7 @@ function PrimaryCTA(props: Props) {
       );
     }
 
+    if (!currentUser) return;
     if (
       currentApplication?.forkingEnabled &&
       currentApplication?.isPublic &&
@@ -104,7 +105,7 @@ function PrimaryCTA(props: Props) {
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
           buttonColor={selectedTheme.properties.colors.primaryColor}
           buttonVariant="PRIMARY"
-          className="t--fork-app"
+          className={`t--fork-app w-full md:w-auto ${className}`}
           icon="fork"
           onClick={() => {
             history.push(forkURL);
@@ -126,9 +127,9 @@ function PrimaryCTA(props: Props) {
                 }
                 buttonColor={selectedTheme.properties.colors.primaryColor}
                 buttonVariant="PRIMARY"
-                className="t--fork-app"
+                className={`t--fork-app w-full md:w-auto ${className}`}
+                data-testid="fork-modal-trigger"
                 icon="fork"
-                onClick={() => dispatch(getAllApplications())}
                 text={createMessage(FORK_APP)}
               />
             }
@@ -157,6 +158,8 @@ function PrimaryCTA(props: Props) {
   }, [
     url,
     canEdit,
+    forkURL,
+    currentUser?.username,
     selectedTheme.properties.colors.primaryColor,
     selectedTheme.properties.borderRadius.appBorderRadius,
   ]);

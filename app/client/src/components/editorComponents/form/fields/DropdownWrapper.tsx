@@ -1,4 +1,4 @@
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { Dropdown, DropdownOption, RenderOption } from "design-system-old";
 import React, { useEffect, useState } from "react";
 import { DropdownOnSelect } from "./SelectField";
 
@@ -11,33 +11,41 @@ type DropdownWrapperProps = {
   };
   options: DropdownOption[];
   isMultiSelect?: boolean;
-  onOptionSelect?: (value?: string, option?: DropdownOption[]) => void;
+  onOptionSelect?: (
+    value?: string,
+    option?: DropdownOption[] | DropdownOption,
+  ) => void;
   removeSelectedOption?: DropdownOnSelect;
   selected?: DropdownOption | DropdownOption[];
   showLabelOnly?: boolean;
   labelRenderer?: (selected: Partial<DropdownOption>[]) => JSX.Element;
   fillOptions?: boolean;
   disabled?: boolean;
+  renderOption?: RenderOption;
+  dropdownMaxHeight?: string;
+  enableSearch?: boolean;
 };
 
 function DropdownWrapper(props: DropdownWrapperProps) {
-  const [selectedOption, setSelectedOption] = useState({
-    value: props.placeholder,
-  });
-  const [selected, setSelected] = useState<any>([]);
+  const [selectedOption, setSelectedOption] = useState<any>([
+    {
+      value: props.placeholder,
+    },
+  ]);
 
   const onSelectHandler = (value?: string, option?: DropdownOption) => {
     if (props?.isMultiSelect) {
-      const updatedItems: DropdownOption[] = [...selected, option];
+      const updatedItems: DropdownOption[] = [...selectedOption, option];
       props.input && props.input.onChange && props.input.onChange(updatedItems);
       props.onOptionSelect && props.onOptionSelect(value, updatedItems);
     } else {
       props.input && props.input.onChange && props.input.onChange(value);
+      props.onOptionSelect && props.onOptionSelect(value, option);
     }
   };
 
   const onRemoveOptions = (value: any) => {
-    const updatedItems = selected.filter(
+    const updatedItems = selectedOption.filter(
       (option: any) => option.value !== value,
     );
     props.input && props.input.onChange && props.input.onChange(updatedItems);
@@ -45,13 +53,13 @@ function DropdownWrapper(props: DropdownWrapperProps) {
   };
 
   useEffect(() => {
-    if (props?.isMultiSelect) {
-      setSelected(props.selected);
+    if (props.selected) {
+      setSelectedOption(props.selected);
     } else {
       if (props.input && props.input.value) {
-        setSelectedOption({ value: props.input.value });
+        setSelectedOption([{ value: props.input.value }]);
       } else if (props.placeholder) {
-        setSelectedOption({ value: props.placeholder });
+        setSelectedOption([{ value: props.placeholder }]);
       }
     }
   }, [props.input, props.placeholder, props.selected]);
@@ -60,6 +68,8 @@ function DropdownWrapper(props: DropdownWrapperProps) {
     <Dropdown
       allowDeselection={props.allowDeselection}
       disabled={props.disabled}
+      dropdownMaxHeight={props.dropdownMaxHeight}
+      enableSearch={props.enableSearch}
       fillOptions={props.fillOptions}
       isMultiSelect={props.isMultiSelect}
       labelRenderer={props.labelRenderer}
@@ -67,11 +77,8 @@ function DropdownWrapper(props: DropdownWrapperProps) {
       options={props.options}
       placeholder={props.placeholder}
       removeSelectedOption={onRemoveOptions}
-      selected={
-        props.isMultiSelect
-          ? (props.selected as DropdownOption[])
-          : selectedOption
-      }
+      renderOption={props?.renderOption}
+      selected={props.isMultiSelect ? selectedOption : selectedOption[0]}
       showLabelOnly={props.showLabelOnly}
     />
   );

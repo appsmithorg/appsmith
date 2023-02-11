@@ -1,7 +1,8 @@
 import CodeMirror from "codemirror";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { EntityNavigationData } from "selectors/navigationSelectors";
 
 export enum EditorModes {
   TEXT = "text/plain",
@@ -11,6 +12,8 @@ export enum EditorModes {
   JSON_WITH_BINDING = "json-js",
   SQL_WITH_BINDING = "sql-js",
   JAVASCRIPT = "javascript",
+  GRAPHQL = "graphql",
+  GRAPHQL_WITH_BINDING = "graphql-js",
 }
 
 export enum EditorTheme {
@@ -25,6 +28,7 @@ export enum TabBehaviour {
 export enum EditorSize {
   COMPACT = "COMPACT",
   EXTENDED = "EXTENDED",
+  COMPACT_RETAIN_FORMATTING = "COMPACT_RETAIN_FORMATTING",
 }
 
 export type EditorConfig = {
@@ -45,9 +49,10 @@ export const EditorThemes: Record<EditorTheme, string> = {
 export type FieldEntityInformation = {
   entityName?: string;
   expectedType?: AutocompleteDataType;
-  entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET | ENTITY_TYPE.JSACTION;
+  entityType?: ENTITY_TYPE;
   entityId?: string;
   propertyPath?: string;
+  blockCompletions?: Array<{ parentPath: string; subPath: string }>;
 };
 
 export type HintHelper = (
@@ -65,7 +70,10 @@ export type Hinter = {
   fireOnFocus?: boolean;
 };
 
-export type MarkHelper = (editor: CodeMirror.Editor) => void;
+export type MarkHelper = (
+  editor: CodeMirror.Editor,
+  entityNavigationData: EntityNavigationData,
+) => void;
 
 export enum CodeEditorBorder {
   NONE = "none",

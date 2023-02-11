@@ -1,25 +1,22 @@
 import {
-  takeEvery,
+  all,
+  call,
+  delay,
   put,
   select,
-  call,
+  takeEvery,
   takeLatest,
-  all,
-  delay,
 } from "redux-saga/effects";
 
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 
 import {
-  getIsPropertyPaneVisible,
   getCurrentWidgetId,
+  getIsPropertyPaneVisible,
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
-import {
-  selectMultipleWidgetsInitAction,
-  selectWidgetAction,
-} from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -27,15 +24,14 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
-  scrollWidgetIntoView,
-  processUndoRedoToasts,
-  highlightReplayElement,
-  switchTab,
   expandAccordion,
+  highlightReplayElement,
+  processUndoRedoToasts,
+  scrollWidgetIntoView,
+  switchTab,
 } from "utils/replayHelpers";
 import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   getCurrentApplicationId,
   snipingModeSelector,
@@ -60,7 +56,7 @@ import {
   isQueryAction,
   isSaaSAction,
 } from "entities/Action";
-import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
+import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
@@ -72,13 +68,15 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   QUERY_EDITOR_FORM_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
 import {
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { AppThemingMode } from "selectors/appThemingSelectors";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -98,10 +96,6 @@ export default function* undoRedoListenerSaga() {
  */
 export function* openPropertyPaneSaga(replay: any) {
   try {
-    if (Object.keys(replay.widgets).length > 1) {
-      yield put(selectWidgetAction(replay.widgets[0], false));
-    }
-
     const replayWidgetId = Object.keys(replay.widgets)[0];
 
     if (!replayWidgetId || !replay.widgets[replayWidgetId].propertyUpdates)
@@ -116,7 +110,9 @@ export function* openPropertyPaneSaga(replay: any) {
 
     //if property pane is not visible, select the widget and force open property pane
     if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {
-      yield put(selectWidgetAction(replayWidgetId, false));
+      yield put(
+        selectWidgetInitAction(SelectionRequestType.One, [replayWidgetId]),
+      );
     }
 
     flashElementsById(
@@ -154,11 +150,7 @@ export function* postUndoRedoSaga(replay: any) {
 
     const widgetIds = Object.keys(replay.widgets);
 
-    if (widgetIds.length > 1) {
-      yield put(selectMultipleWidgetsInitAction(widgetIds));
-    } else {
-      yield put(selectWidgetAction(widgetIds[0], false));
-    }
+    yield put(selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds));
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
     log.error(e);
@@ -174,11 +166,10 @@ export function* postUndoRedoSaga(replay: any) {
  * @returns
  */
 export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
-  const isCommentMode: boolean = yield select(commentModeSelector);
   const isSnipingMode: boolean = yield select(snipingModeSelector);
 
   // if the app is in snipping or comments mode, don't do anything
-  if (isCommentMode || isSnipingMode) return;
+  if (isSnipingMode) return;
   try {
     const history = createBrowserHistory();
     const pathname = history.location.pathname;
@@ -215,9 +206,21 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
-        if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-        yield put(updateAndSaveLayout(replayEntity.widgets, false, false));
-        if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+
+        yield put(
+          updateAndSaveLayout(replayEntity.widgets, {
+            isRetry: false,
+            shouldReplay: false,
+          }),
+        );
+
+        if (isPropertyUpdate) {
+          yield call(openPropertyPaneSaga, replay);
+        }
+        if (!isPropertyUpdate) {
+          yield call(postUndoRedoSaga, replay);
+        }
+        yield put(generateAutoHeightLayoutTreeAction(true, false));
         break;
       }
       case ENTITY_TYPE.ACTION:
@@ -257,7 +260,7 @@ function* replayThemeSaga(replayEntity: Canvas, replay: any) {
     yield put(setAppThemingModeStackAction([]));
   }
 
-  yield put(selectWidgetAction());
+  yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
   // todo(pawan): check with arun/rahul on how we can get rid of this check
   // better way to do is set shouldreplay = false when evaluating tree

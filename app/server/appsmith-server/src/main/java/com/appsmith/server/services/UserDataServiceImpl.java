@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 @Service
 public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDataService {
@@ -28,10 +28,11 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
                                ReleaseNotesService releaseNotesService,
                                FeatureFlagService featureFlagService,
                                UserChangedHandler userChangedHandler,
-                               ApplicationRepository applicationRepository) {
+                               ApplicationRepository applicationRepository,
+                               TenantService tenantService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, userRepository,
                 sessionUserService, assetService, releaseNotesService, featureFlagService, userChangedHandler,
-                applicationRepository);
+                applicationRepository, tenantService);
     }
 }

@@ -2,7 +2,7 @@ import {
   NotificationBanner,
   NotificationBannerProps,
   NotificationVariant,
-} from "components/ads/NotificationBanner";
+} from "design-system-old";
 import React from "react";
 import {
   createMessage,
@@ -11,7 +11,7 @@ import {
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import { useSelector } from "react-redux";
 import { getCurrentPageName } from "selectors/editorSelectors";
 import { getGitStatus } from "selectors/gitSyncSelectors";

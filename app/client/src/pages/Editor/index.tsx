@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Spinner } from "@blueprintjs/core";
 import { BuilderRouteParams } from "constants/routes";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
@@ -20,7 +20,7 @@ import {
   InitializeEditorPayload,
   resetEditorRequest,
 } from "actions/initActions";
-import { editorInitializer } from "utils/EditorUtils";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
@@ -30,19 +30,11 @@ import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
-import { handlePathUpdated } from "actions/recentEntityActions";
-import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
-import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
-
-import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
-
 import { getCurrentPageId } from "selectors/editorSelectors";
-
 import { getSearchQuery } from "utils/helpers";
-import ConcurrentPageEditorToast from "comments/ConcurrentPageEditorToast";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 import {
   collabStartSharingPointerEvent,
@@ -56,6 +48,10 @@ import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import TemplatesModal from "pages/Templates/TemplatesModal";
+import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
+import MultiPaneContainer from "pages/Editor/MultiPaneContainer";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -70,7 +66,6 @@ type EditorProps = {
   user?: User;
   lightTheme: Theme;
   resetEditorRequest: () => void;
-  handlePathUpdated: (location: typeof window.location) => void;
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
   handleBranchChange: (branch: string) => void;
@@ -79,13 +74,12 @@ type EditorProps = {
   collabStartSharingPointerEvent: (pageId: string) => void;
   collabStopSharingPointerEvent: (pageId?: string) => void;
   pageLevelSocketRoomId: string;
+  isMultiPane: boolean;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
-  unlisten: any;
-
   public state = {
     registered: false,
   };
@@ -108,8 +102,6 @@ class Editor extends Component<Props> {
         branch,
         mode: APP_MODE.EDIT,
       });
-    this.props.handlePathUpdated(window.location);
-    this.unlisten = history.listen(this.handleHistoryChange);
 
     if (this.props.isPageLevelSocketConnected && pageId) {
       this.props.collabStartSharingPointerEvent(
@@ -172,7 +164,7 @@ class Editor extends Component<Props> {
     } else {
       /**
        * First time load is handled by init sagas
-       * If we don't check for `prevPageId`: fetch page is retriggered
+       * If we don't check for `prevPageId`: fetch page is re triggered
        * when redirected to the default page
        */
       if (prevPageId && pageId && isPageIdUpdated) {
@@ -195,15 +187,10 @@ class Editor extends Component<Props> {
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
     this.props.resetEditorRequest();
-    if (typeof this.unlisten === "function") this.unlisten();
     this.props.collabStopSharingPointerEvent(
       getPageLevelSocketRoomId(pageId, branch),
     );
   }
-
-  handleHistoryChange = (location: any) => {
-    this.props.handlePathUpdated(location);
-  };
 
   public render() {
     if (
@@ -212,7 +199,9 @@ class Editor extends Component<Props> {
       this.props.loadingGuidedTour
     ) {
       return (
-        <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
+        <CenteredWrapper
+          style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}
+        >
           <Spinner />
         </CenteredWrapper>
       );
@@ -233,15 +222,18 @@ class Editor extends Component<Props> {
               </title>
             </Helmet>
             <GlobalHotKeys>
-              <MainContainer />
-              <AddCommentTourComponent />
-              <CommentShowCaseCarousel />
+              {this.props.isMultiPane ? (
+                <MultiPaneContainer />
+              ) : (
+                <MainContainer />
+              )}
               <GitSyncModal />
               <DisconnectGitModal />
-              <ConcurrentPageEditorToast />
               <GuidedTourModal />
               <RepoLimitExceededErrorModal />
+              <TemplatesModal />
               <ImportedApplicationSuccessModal />
+              <ReconnectDatasourceModal />
             </GlobalHotKeys>
           </div>
           <RequestConfirmationModal />
@@ -264,6 +256,7 @@ const mapStateToProps = (state: AppState) => ({
   currentPageId: getCurrentPageId(state),
   isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
   loadingGuidedTour: loading(state),
+  isMultiPane: isMultiPaneActive(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -271,8 +264,6 @@ const mapDispatchToProps = (dispatch: any) => {
     initEditor: (payload: InitializeEditorPayload) =>
       dispatch(initEditor(payload)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
-    handlePathUpdated: (location: typeof window.location) =>
-      dispatch(handlePathUpdated(location)),
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
     collabStartSharingPointerEvent: (pageId: string) =>

@@ -1,17 +1,13 @@
 import React, { useState } from "react";
-import PageWrapper from "pages/common/PageWrapper";
+import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import styled from "styled-components";
-import { TabComponent, TabProp } from "components/ads/Tabs";
-import { Text, TextType } from "design-system";
+import { TabComponent, TabProp, Text, TextType } from "design-system-old";
 import { Icon } from "@blueprintjs/core";
-// import { Link } from "react-router-dom";
 import General from "./General";
 import { Colors } from "constants/Colors";
 import GitConfig from "./GitConfig";
 import { useLocation } from "react-router";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
-import { useSelector } from "react-redux";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const ProfileWrapper = styled.div`
   width: ${(props) => props.theme.pageContentWidth}px;
@@ -23,9 +19,11 @@ const LinkToApplications = styled.div`
   margin-bottom: 35px;
   display: inline-block;
   width: auto;
+
   &:hover {
     text-decoration: none;
   }
+
   svg {
     cursor: pointer;
   }
@@ -33,7 +31,6 @@ const LinkToApplications = styled.div`
 
 function UserProfile() {
   const location = useLocation();
-  const featureFlags = useSelector(selectFeatureFlags);
 
   let initialTabIndex = 0;
   const tabs: TabProp[] = [
@@ -45,16 +42,14 @@ function UserProfile() {
     },
   ];
 
-  if (featureFlags.GIT) {
-    tabs.push({
-      key: "gitConfig",
-      title: "Git user config",
-      panelComponent: <GitConfig />,
-      icon: "git-branch",
-    });
-    if (location.pathname === GIT_PROFILE_ROUTE) {
-      initialTabIndex = 1;
-    }
+  tabs.push({
+    key: "gitConfig",
+    title: "Git user config",
+    panelComponent: <GitConfig />,
+    icon: "git-branch",
+  });
+  if (location.pathname === GIT_PROFILE_ROUTE) {
+    initialTabIndex = 1;
   }
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(initialTabIndex);

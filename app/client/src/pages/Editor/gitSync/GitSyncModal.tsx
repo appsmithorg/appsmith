@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from "react";
-import Dialog from "components/ads/DialogComponent";
 import {
   getActiveGitSyncModalTab,
   getIsGitConnected,
@@ -13,7 +12,7 @@ import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
-import Icon, { IconSize } from "components/ads/Icon";
+import { DialogComponent as Dialog, Icon, IconSize } from "design-system-old";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
@@ -21,6 +20,8 @@ import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useGitConnect } from "./hooks";
+import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 600px;
@@ -67,13 +68,15 @@ const TabKeys: string[] = Object.values(GitSyncModalTab)
   .map((value) => value as string);
 
 function GitSyncModal(props: { isImport?: boolean }) {
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
   const activeTabIndex = useSelector(getActiveGitSyncModalTab);
+  const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
 
   const handleClose = useCallback(() => {
+    resetGitConnectStatus();
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
@@ -132,6 +135,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
         canEscapeKeyClose
         canOutsideClickClose
         className={Classes.GIT_SYNC_MODAL}
+        data-testid="t--git-sync-modal"
         isOpen={isModalOpen}
         maxWidth={"900px"}
         noModalBodyMarginTop

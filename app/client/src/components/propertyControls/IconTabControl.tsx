@@ -1,8 +1,6 @@
 import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import ButtonTabComponent, {
-  ButtonTabOption,
-} from "components/ads/ButtonTabComponent";
+import { ButtonGroup, ButtonGroupOption } from "design-system-old";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -29,7 +27,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
 
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
-      e.detail.component === "ButtonTab" &&
+      e.detail.component === "ButtonGroup" &&
       e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
@@ -52,9 +50,10 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
     }
   };
   render() {
-    const { options, propertyValue } = this.props;
+    const { fullWidth, options, propertyValue } = this.props;
     return (
-      <ButtonTabComponent
+      <ButtonGroup
+        fullWidth={fullWidth}
         options={options}
         ref={this.componentRef}
         selectButton={this.selectOption}
@@ -79,8 +78,9 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
 }
 
 export interface IconTabControlProps extends ControlProps {
-  options: ButtonTabOption[];
+  options: ButtonGroupOption[];
   defaultValue: string;
+  fullWidth: boolean;
 }
 
 export default IconTabControl;

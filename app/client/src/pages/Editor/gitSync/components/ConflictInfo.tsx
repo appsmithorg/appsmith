@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Text, TextType } from "design-system";
 import InfoWrapper from "./InfoWrapper";
 import Link from "./Link";
 import {
@@ -9,8 +8,15 @@ import {
   LEARN_MORE,
   OPEN_REPO,
 } from "@appsmith/constants/messages";
-import Button, { Category, Size } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Button,
+  Category,
+  Size,
+  Text,
+  TextType,
+  Icon,
+  IconSize,
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 
 const Row = styled.div`
@@ -27,12 +33,17 @@ type Props = {
   learnMoreLink: string;
 };
 
+const ConflictInfoContainer = styled.div`
+  margin-top: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+`;
+
 export default function ConflictInfo({
   browserSupportedRemoteUrl,
   learnMoreLink,
 }: Props) {
   return (
-    <div data-testid="t--conflict-info-container">
+    <ConflictInfoContainer data-testid="t--conflict-info-container">
       <InfoWrapper data-testid="t--conflict-info-error-warning" isError>
         <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
         <div style={{ display: "block" }}>
@@ -48,7 +59,7 @@ export default function ConflictInfo({
       </InfoWrapper>
       <Row>
         <OpenRepoButton
-          category={Category.tertiary}
+          category={Category.secondary}
           className="t--commit-button"
           href={browserSupportedRemoteUrl}
           size={Size.large}
@@ -58,6 +69,6 @@ export default function ConflictInfo({
           width="max-content"
         />
       </Row>
-    </div>
+    </ConflictInfoContainer>
   );
 }

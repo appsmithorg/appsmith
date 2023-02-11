@@ -30,11 +30,11 @@ public class MDCFilter implements WebFilter {
 
     private static final String MDC_HEADER_PREFIX = "X-MDC-";
     private static final String REQUEST_ID_HEADER = "X-REQUEST-ID";
-    private static final String USER_EMAIL = "userEmail";
-    private static final String REQUEST_ID_LOG = "requestId";
+    public static final String USER_EMAIL = "userEmail";
+    public static final String REQUEST_ID_LOG = "requestId";
     private static final String SESSION_ID_LOG = "sessionId";
     private static final String SESSION = "SESSION";
-    private static final String THREAD = "thread";
+    public static final String THREAD = "thread";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -47,7 +47,7 @@ public class MDCFilter implements WebFilter {
                     .map(ctx -> ctx.getAuthentication().getPrincipal())
                     .flatMap(principal -> {
                         final User user = principal instanceof User ? (User) principal : null;
-                        return chain.filter(exchange).subscriberContext(ctx -> addRequestHeadersToContext(exchange.getRequest(), ctx, user));
+                        return chain.filter(exchange).contextWrite(ctx -> addRequestHeadersToContext(exchange.getRequest(), ctx, user));
                     });
         } finally {
             MDC.clear();
@@ -65,6 +65,9 @@ public class MDCFilter implements WebFilter {
         }
         contextMap.put(REQUEST_ID_LOG, getOrCreateRequestId(request));
         contextMap.put(SESSION_ID_LOG, getSessionId(request));
+
+        // This is for the initial thread that started the request,
+        // any reactive forking will generate a new thread
         contextMap.put(THREAD, Thread.currentThread().getName());
 
         // Set the MDC context here for regular non-reactive logs
@@ -75,7 +78,7 @@ public class MDCFilter implements WebFilter {
     }
 
     private Mono<Void> addContextToHttpResponse(final ServerHttpResponse response) {
-        return Mono.subscriberContext().doOnNext(ctx -> {
+        return Mono.deferContextual(Mono::just).doOnNext(ctx -> {
             if (!ctx.hasKey(LogHelper.CONTEXT_MAP)) {
                 return;
             }

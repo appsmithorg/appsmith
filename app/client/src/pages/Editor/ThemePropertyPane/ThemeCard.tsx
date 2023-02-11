@@ -19,6 +19,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import DeleteThemeModal from "./DeleteThemeModal";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Colors } from "constants/Colors";
 
 /**
  * ----------------------------------------------------------------------------
@@ -49,6 +50,10 @@ const MainText = styled.main<{ backgroundColor: string }>`
 
 const ThemeColorCircle = styled.main<{ backgroundColor: string }>`
   background-color: ${({ backgroundColor }) => backgroundColor};
+`;
+
+const ThemeName = styled.h3`
+  color: ${Colors.GRAY_700};
 `;
 
 const ThemeColorButton = styled.main<{
@@ -138,9 +143,9 @@ export function ThemeCard(props: ThemeCard) {
       <div className="space-y-1 group">
         {selectable && (
           <div className="flex items-center justify-between">
-            <h3 className="text-sm text-gray-600 break-all">
+            <ThemeName className="text-sm break-all">
               {props.theme.displayName}
-            </h3>
+            </ThemeName>
             {deletable && (
               <button
                 className="p-1 opacity-0 group-hover:block hover:bg-gray-100 group-hover:opacity-100"

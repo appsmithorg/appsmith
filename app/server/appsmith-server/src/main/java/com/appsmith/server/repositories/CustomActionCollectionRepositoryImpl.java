@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomActionCollectionRepositoryImpl extends CustomActionCollectionRepositoryCEImpl implements CustomActionCollectionRepository {
 
-    public CustomActionCollectionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomActionCollectionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

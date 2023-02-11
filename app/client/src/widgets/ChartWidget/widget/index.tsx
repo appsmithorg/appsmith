@@ -4,7 +4,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import propertyConfig from "./propertyConfig";
+import { contentConfig, styleConfig } from "./propertyConfig";
 import {
   ChartType,
   CustomFusionChartConfig,
@@ -14,6 +14,8 @@ import {
 
 import { WidgetType } from "constants/WidgetConstants";
 import { ChartComponentProps } from "../component";
+import { Colors } from "constants/Colors";
+import { Stylesheet } from "entities/AppTheming";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -30,8 +32,21 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
-  static getPropertyPaneConfig() {
-    return propertyConfig;
+  static getPropertyPaneContentConfig() {
+    return contentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return styleConfig;
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+    };
   }
 
   onDataPointClick = (selectedDataPoint: ChartSelectedDataPoint) => {
@@ -53,19 +68,19 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <ChartComponent
           allowScroll={this.props.allowScroll}
-          backgroundColor={this.props.backgroundColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
           chartData={this.props.chartData}
           chartName={this.props.chartName}
           chartType={this.props.chartType}
           customFusionChartConfig={this.props.customFusionChartConfig}
+          fontFamily={this.props.fontFamily ?? "Nunito Sans"}
           isLoading={this.props.isLoading}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           labelOrientation={this.props.labelOrientation}
           onDataPointClick={this.onDataPointClick}
-          primaryColor={"#FFFF00"}
+          primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
           setAdaptiveYMin={this.props.setAdaptiveYMin}
           widgetId={this.props.widgetId}
           xAxisName={this.props.xAxisName}
@@ -79,7 +94,6 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return "CHART_WIDGET";
   }
 }
-
 export interface ChartWidgetProps extends WidgetProps {
   chartType: ChartType;
   chartData: AllChartData;
@@ -89,10 +103,10 @@ export interface ChartWidgetProps extends WidgetProps {
   chartName: string;
   isVisible?: boolean;
   allowScroll: boolean;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor?: string;
+  accentColor?: string;
+  fontFamily?: string;
 }
 
 type ChartComponentPartialProps = Omit<ChartComponentProps, "onDataPointClick">;

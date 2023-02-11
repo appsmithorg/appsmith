@@ -1,4 +1,4 @@
-import Dropdown from "components/ads/Dropdown";
+import { Dropdown } from "design-system-old";
 import { Colors } from "constants/Colors";
 import React, { useEffect, useState } from "react";
 import { WrappedFieldInputProps } from "redux-form";
@@ -11,6 +11,7 @@ type DropdownWrapperProps = {
   width?: string;
   height?: string;
   optionWidth?: string;
+  disabled?: boolean;
 };
 
 function DropdownFieldWrapper(props: DropdownWrapperProps) {
@@ -42,6 +43,7 @@ function DropdownFieldWrapper(props: DropdownWrapperProps) {
     <Dropdown
       bgColor={Colors.CODE_GRAY}
       className={props.className}
+      disabled={props.disabled}
       height={props.height}
       onSelect={onSelectHandler}
       optionWidth={props.optionWidth}

@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import { AppTheme } from "entities/AppTheming";
-import { TooltipComponent } from "design-system";
-import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
+import { TooltipComponent } from "design-system-old";
+import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 
 interface ThemeColorControlProps {
   theme: AppTheme;
@@ -51,7 +51,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
       </div>
       {selectedColor && (
         <div className="pt-1 space-y-1">
-          <h3 className="text-gray-700">{startCase(selectedColor)}</h3>
+          <h3>{startCase(selectedColor)}</h3>
           <ColorPickerComponent
             autoFocus={autoFocus}
             changeColor={(color: string) => {
@@ -69,6 +69,9 @@ function ThemeColorControl(props: ThemeColorControlProps) {
             color={userDefinedColors[selectedColor]}
             isOpen={autoFocus}
             key={selectedColor}
+            portalContainer={
+              document.getElementById("app-settings-portal") || undefined
+            }
           />
         </div>
       )}

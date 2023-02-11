@@ -1,0 +1,442 @@
+{
+	"clientSchemaVersion": 1.0,
+	"serverSchemaVersion": 6.0,
+	"exportedApplication": {
+		"name": "JSOnLoadFailureTest",
+		"isPublic": false,
+		"pages": [
+			{
+				"id": "Page1",
+				"isDefault": true
+			}
+		],
+		"publishedPages": [
+			{
+				"id": "Page1",
+				"isDefault": true
+			}
+		],
+		"viewMode": false,
+		"appIsExample": false,
+		"unreadCommentThreads": 0.0,
+		"color": "#FBF4ED",
+		"icon": "server-line",
+		"slug": "jsonloadfailuretest",
+		"evaluationVersion": 2.0,
+		"applicationVersion": 2.0,
+		"isManualUpdate": false,
+		"deleted": false
+	},
+	"datasourceList": [
+
+	],
+	"pageList": [
+		{
+			"unpublishedPage": {
+				"name": "Page1",
+				"slug": "page1",
+				"layouts": [
+					{
+						"viewMode": false,
+						"dsl": {
+							"widgetName": "MainContainer",
+							"backgroundColor": "none",
+							"rightColumn": 4896.0,
+							"snapColumns": 64.0,
+							"detachFromLayout": true,
+							"widgetId": "0",
+							"topRow": 0.0,
+							"bottomRow": 5000.0,
+							"containerStyle": "none",
+							"snapRows": 125.0,
+							"parentRowSpace": 1.0,
+							"type": "CANVAS_WIDGET",
+							"canExtend": true,
+							"version": 59.0,
+							"minHeight": 1292.0,
+							"dynamicTriggerPathList": [
+
+							],
+							"parentColumnSpace": 1.0,
+							"dynamicBindingPathList": [
+
+							],
+							"leftColumn": 0.0,
+							"children": [
+								{
+									"resetFormOnClick": false,
+									"boxShadow": "none",
+									"widgetName": "Button1",
+									"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+									"displayName": "Button",
+									"iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
+									"searchTags": [
+										"click",
+										"submit"
+									],
+									"topRow": 25.0,
+									"bottomRow": 29.0,
+									"parentRowSpace": 10.0,
+									"type": "BUTTON_WIDGET",
+									"hideCard": false,
+									"animateLoading": true,
+									"parentColumnSpace": 16.6875,
+									"leftColumn": 24.0,
+									"dynamicBindingPathList": [
+										{
+											"key": "buttonColor"
+										},
+										{
+											"key": "borderRadius"
+										}
+									],
+									"text": "Submit",
+									"isDisabled": false,
+									"key": "pvmpansmzr",
+									"isDeprecated": false,
+									"rightColumn": 40.0,
+									"isDefaultClickDisabled": true,
+									"widgetId": "rvtvgekx1v",
+									"isVisible": true,
+									"recaptchaType": "V3",
+									"version": 1.0,
+									"parentId": "0",
+									"renderMode": "CANVAS",
+									"isLoading": false,
+									"disabledWhenInvalid": false,
+									"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+									"buttonVariant": "PRIMARY",
+									"placement": "CENTER"
+								}
+							]
+						},
+						"layoutOnLoadActions": [
+							[
+								{
+									"id": "Page1_JSObject1.runWorldCountries",
+									"name": "JSObject1.runWorldCountries",
+									"collectionId": "Page1_JSObject1",
+									"confirmBeforeExecute": true,
+									"pluginType": "JS",
+									"jsonPathKeys": [
+										"async () => {\n  return getWorldCountries.run();\n}"
+									],
+									"timeoutInMillisecond": 10000.0
+								}
+							]
+						],
+						"validOnPageLoadActions": true,
+						"id": "Page1",
+						"deleted": false,
+						"policies": [
+
+						],
+						"userPermissions": [
+
+						]
+					}
+				],
+				"userPermissions": [
+
+				],
+				"policies": [
+
+				]
+			},
+			"publishedPage": {
+				"name": "Page1",
+				"slug": "page1",
+				"layouts": [
+					{
+						"viewMode": false,
+						"dsl": {
+							"widgetName": "MainContainer",
+							"backgroundColor": "none",
+							"rightColumn": 4896.0,
+							"snapColumns": 64.0,
+							"detachFromLayout": true,
+							"widgetId": "0",
+							"topRow": 0.0,
+							"bottomRow": 5000.0,
+							"containerStyle": "none",
+							"snapRows": 125.0,
+							"parentRowSpace": 1.0,
+							"type": "CANVAS_WIDGET",
+							"canExtend": true,
+							"version": 59.0,
+							"minHeight": 1292.0,
+							"dynamicTriggerPathList": [
+
+							],
+							"parentColumnSpace": 1.0,
+							"dynamicBindingPathList": [
+
+							],
+							"leftColumn": 0.0,
+							"children": [
+								{
+									"resetFormOnClick": false,
+									"boxShadow": "none",
+									"widgetName": "Button1",
+									"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+									"displayName": "Button",
+									"iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
+									"searchTags": [
+										"click",
+										"submit"
+									],
+									"topRow": 25.0,
+									"bottomRow": 29.0,
+									"parentRowSpace": 10.0,
+									"type": "BUTTON_WIDGET",
+									"hideCard": false,
+									"animateLoading": true,
+									"parentColumnSpace": 16.6875,
+									"leftColumn": 24.0,
+									"dynamicBindingPathList": [
+										{
+											"key": "buttonColor"
+										},
+										{
+											"key": "borderRadius"
+										}
+									],
+									"text": "Submit",
+									"isDisabled": false,
+									"key": "pvmpansmzr",
+									"isDeprecated": false,
+									"rightColumn": 40.0,
+									"isDefaultClickDisabled": true,
+									"widgetId": "rvtvgekx1v",
+									"isVisible": true,
+									"recaptchaType": "V3",
+									"version": 1.0,
+									"parentId": "0",
+									"renderMode": "CANVAS",
+									"isLoading": false,
+									"disabledWhenInvalid": false,
+									"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+									"buttonVariant": "PRIMARY",
+									"placement": "CENTER"
+								}
+							]
+						},
+						"layoutOnLoadActions": [
+							[
+								{
+									"id": "Page1_JSObject1.runWorldCountries",
+									"name": "JSObject1.runWorldCountries",
+									"collectionId": "Page1_JSObject1",
+									"confirmBeforeExecute": true,
+									"pluginType": "JS",
+									"jsonPathKeys": [
+										"async () => {\n  return getWorldCountries.run();\n}"
+									],
+									"timeoutInMillisecond": 10000.0
+								}
+							]
+						],
+						"validOnPageLoadActions": true,
+						"id": "Page1",
+						"deleted": false,
+						"policies": [
+
+						],
+						"userPermissions": [
+
+						]
+					}
+				],
+				"userPermissions": [
+
+				],
+				"policies": [
+
+				]
+			},
+			"deleted": false,
+			"gitSyncId": "62e101db0ad6737fc68ce911_62e101db0ad6737fc68ce913"
+		}
+	],
+	"actionList": [
+		{
+			"pluginType": "JS",
+			"pluginId": "js-plugin",
+			"unpublishedAction": {
+				"name": "runWorldCountries",
+				"fullyQualifiedName": "JSObject1.runWorldCountries",
+				"datasource": {
+					"name": "UNUSED_DATASOURCE",
+					"pluginId": "js-plugin",
+					"messages": [
+
+					],
+					"isAutoGenerated": false,
+					"deleted": false,
+					"policies": [
+
+					],
+					"userPermissions": [
+
+					]
+				},
+				"pageId": "Page1",
+				"collectionId": "Page1_JSObject1",
+				"actionConfiguration": {
+					"timeoutInMillisecond": 10000.0,
+					"paginationType": "NONE",
+					"encodeParamsToggle": true,
+					"body": "async () => {\n  return getWorldCountries.run();\n}",
+					"jsArguments": [
+
+					],
+					"isAsync": true
+				},
+				"executeOnLoad": true,
+				"dynamicBindingPathList": [
+					{
+						"key": "body"
+					}
+				],
+				"isValid": true,
+				"invalids": [
+
+				],
+				"messages": [
+
+				],
+				"jsonPathKeys": [
+					"async () => {\n  return getWorldCountries.run();\n}"
+				],
+				"userSetOnLoad": true,
+				"confirmBeforeExecute": true,
+				"policies": [
+
+				],
+				"userPermissions": [
+
+				]
+			},
+			"publishedAction": {
+				"name": "runWorldCountries",
+				"fullyQualifiedName": "JSObject1.runWorldCountries",
+				"datasource": {
+					"name": "UNUSED_DATASOURCE",
+					"pluginId": "js-plugin",
+					"messages": [
+
+					],
+					"isAutoGenerated": false,
+					"deleted": false,
+					"policies": [
+
+					],
+					"userPermissions": [
+
+					]
+				},
+				"pageId": "Page1",
+				"collectionId": "Page1_JSObject1",
+				"actionConfiguration": {
+					"timeoutInMillisecond": 10000.0,
+					"paginationType": "NONE",
+					"encodeParamsToggle": true,
+					"body": "async () => {\n  return getWorldCountries.run();\n}",
+					"jsArguments": [
+
+					],
+					"isAsync": true
+				},
+				"executeOnLoad": true,
+				"dynamicBindingPathList": [
+					{
+						"key": "body"
+					}
+				],
+				"isValid": true,
+				"invalids": [
+
+				],
+				"messages": [
+
+				],
+				"jsonPathKeys": [
+					"async () => {\n  return getWorldCountries.run();\n}"
+				],
+				"userSetOnLoad": true,
+				"confirmBeforeExecute": true,
+				"policies": [
+
+				],
+				"userPermissions": [
+
+				]
+			},
+			"id": "Page1_JSObject1.runWorldCountries",
+			"deleted": false,
+			"gitSyncId": "62e101db0ad6737fc68ce911_62e101ef0ad6737fc68ce91b"
+		}
+	],
+	"actionCollectionList": [
+		{
+			"unpublishedCollection": {
+				"name": "JSObject1",
+				"pageId": "Page1",
+				"pluginId": "js-plugin",
+				"pluginType": "JS",
+				"actions": [
+
+				],
+				"archivedActions": [
+
+				],
+				"body": "export default {\n\trunWorldCountries: async () => {\n\t\treturn getWorldCountries.run();\n\t}\n}",
+				"variables": [
+
+				]
+			},
+			"publishedCollection": {
+				"name": "JSObject1",
+				"pageId": "Page1",
+				"pluginId": "js-plugin",
+				"pluginType": "JS",
+				"actions": [
+
+				],
+				"archivedActions": [
+
+				],
+				"body": "export default {\n\trunWorldCountries: async () => {\n\t\treturn getWorldCountries.run();\n\t}\n}",
+				"variables": [
+
+				]
+			},
+			"id": "Page1_JSObject1",
+			"deleted": false,
+			"gitSyncId": "62e101db0ad6737fc68ce911_62e101ec0ad6737fc68ce919"
+		}
+	],
+	"updatedResources": {
+		"actionList": [
+			"JSObject1.runWorldCountries##ENTITY_SEPARATOR##Page1"
+		],
+		"pageList": [
+			"Page1"
+		],
+		"actionCollectionList": [
+			"JSObject1##ENTITY_SEPARATOR##Page1"
+		]
+	},
+	"editModeTheme": {
+		"name": "Default",
+		"displayName": "Modern",
+		"isSystemTheme": true,
+		"deleted": false
+	},
+	"publishedTheme": {
+		"name": "Default",
+		"displayName": "Modern",
+		"isSystemTheme": true,
+		"deleted": false
+	}
+}

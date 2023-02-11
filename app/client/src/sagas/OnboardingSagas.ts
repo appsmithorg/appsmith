@@ -5,12 +5,12 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
+  call,
+  delay,
   put,
   select,
-  takeLatest,
-  delay,
-  call,
   take,
+  takeLatest,
 } from "redux-saga/effects";
 import {
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
@@ -29,12 +29,12 @@ import {
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
-import { Workspaces } from "constants/workspaceConstants";
+import { Toaster, Variant } from "design-system-old";
+import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import {
   enableGuidedTour,
   focusWidgetProperty,
+  loadGuidedTour,
   setCurrentStep,
   toggleLoader,
 } from "actions/onboardingActions";
@@ -60,7 +60,10 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
-import { setExplorerPinnedAction } from "actions/explorerActions";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
@@ -72,6 +75,16 @@ import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { shouldBeDefined } from "utils/helpers";
+import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
+import { sessionStorage } from "utils/localStorage";
+import store from "store";
+import {
+  createMessage,
+  ONBOARDING_SKIPPED_FIRST_TIME_USER,
+} from "@appsmith/constants/messages";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+
+const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
 function* createApplication() {
   // If we are starting onboarding from the editor wait for the editor to reset.
@@ -117,6 +130,36 @@ function* createApplication() {
   yield put(setPreviewModeAction(true));
 }
 
+function* syncGuidedTourStateSaga() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const guidedTourState: GuidedTourState = yield select(
+    (state) => state.ui.guidedTour,
+  );
+  yield call(
+    sessionStorage.setItem,
+    GUIDED_TOUR_STORAGE_KEY,
+    JSON.stringify({ applicationId, guidedTourState }),
+  );
+}
+
+function* loadGuidedTourInitSaga() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const guidedTourState: undefined | string = yield call(
+    sessionStorage.getItem,
+    GUIDED_TOUR_STORAGE_KEY,
+  );
+  if (guidedTourState) {
+    const parsedGuidedTourState: {
+      applicationId: string;
+      guidedTourState: GuidedTourState;
+    } = JSON.parse(guidedTourState);
+
+    if (applicationId === parsedGuidedTourState.applicationId) {
+      yield put(loadGuidedTour(parsedGuidedTourState.guidedTourState));
+    }
+  }
+}
+
 function* setCurrentStepSaga(action: ReduxAction<number>) {
   const hadReachedStep: number = yield select(getHadReachedStep);
   // Log only once when we reach that step
@@ -126,6 +169,7 @@ function* setCurrentStepSaga(action: ReduxAction<number>) {
     });
   }
 
+  yield call(syncGuidedTourStateSaga);
   yield put(setCurrentStep(action.payload));
 }
 
@@ -173,9 +217,6 @@ function* setUpTourAppSaga() {
       },
     }),
   );
-  // Hide the explorer initialy
-  yield put(setExplorerPinnedAction(false));
-  yield put(toggleLoader(false));
   if (!query) return;
   history.push(
     queryEditorIdURL({
@@ -183,6 +224,10 @@ function* setUpTourAppSaga() {
       queryId: query.config.id,
     }),
   );
+  // Hide the explorer initialy
+  yield put(setExplorerPinnedAction(false));
+  yield put(setExplorerActiveAction(false));
+  yield put(toggleLoader(false));
 }
 
 function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
@@ -304,6 +349,7 @@ function* focusWidgetPropertySaga(action: ReduxAction<string>) {
 function* endGuidedTourSaga(action: ReduxAction<boolean>) {
   if (!action.payload) {
     yield call(hideIndicator);
+    yield call(sessionStorage.removeItem, GUIDED_TOUR_STORAGE_KEY);
   }
 }
 
@@ -323,8 +369,10 @@ function* selectWidgetSaga(
 
   if (widget) {
     // Navigate to the widget as well, usefull especially when we are not on the canvas
-    navigateToCanvas({ pageId, widgetId: widget.widgetId });
-    yield put(selectWidgetInitAction(widget.widgetId));
+    navigateToCanvas(pageId, widget.widgetId);
+    yield put(
+      selectWidgetInitAction(SelectionRequestType.One, [widget.widgetId]),
+    );
     // Delay to wait for the fields to render
     yield delay(1000);
     // If the propertyName exist then we focus the respective input field as well
@@ -361,10 +409,11 @@ function* endFirstTimeUserOnboardingSaga() {
     payload: "",
   });
   Toaster.show({
-    text: "Skipped First time user experience",
+    text: createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER),
     hideProgressBar: false,
     variant: Variant.success,
     dispatchableAction: {
+      dispatch: store.dispatch,
       type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
       payload: firstTimeUserExperienceAppId,
     },
@@ -420,6 +469,7 @@ export default function* onboardingActionSagas() {
     takeLatest(ReduxActionTypes.ENABLE_GUIDED_TOUR, endGuidedTourSaga),
     takeLatest(ReduxActionTypes.GUIDED_TOUR_FOCUS_WIDGET, selectWidgetSaga),
     takeLatest(ReduxActionTypes.FOCUS_WIDGET_PROPERTY, focusWidgetPropertySaga),
+    takeLatest(ReduxActionTypes.LOAD_GUIDED_TOUR_INIT, loadGuidedTourInitSaga),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       setEnableFirstTimeUserOnboarding,

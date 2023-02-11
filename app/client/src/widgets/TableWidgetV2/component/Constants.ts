@@ -7,6 +7,16 @@ import {
   ButtonStyleType,
   ButtonVariant,
 } from "components/constants";
+import { DropdownOption } from "widgets/SelectWidget/constants";
+import {
+  ConfigureMenuItems,
+  MenuItem,
+  MenuItems,
+  MenuItemsSource,
+} from "widgets/MenuButtonWidget/constants";
+import { ColumnTypes } from "../constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import { generateReactKey } from "widgets/WidgetUtils";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -15,6 +25,8 @@ export type TableSizes = {
   ROW_FONT_SIZE: number;
   VERTICAL_PADDING: number;
   EDIT_ICON_TOP: number;
+  ROW_VIRTUAL_OFFSET: number;
+  VERTICAL_EDITOR_PADDING: number;
 };
 
 export enum CompactModeTypes {
@@ -35,6 +47,12 @@ export enum VerticalAlignmentTypes {
   CENTER = "CENTER",
 }
 
+export enum ImageSizes {
+  DEFAULT = "32px",
+  MEDIUM = "64px",
+  LARGE = "128px",
+}
+
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 32,
@@ -42,7 +60,9 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
     VERTICAL_PADDING: 6,
+    VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 10,
+    ROW_VIRTUAL_OFFSET: 3,
   },
   [CompactModeTypes.SHORT]: {
     COLUMN_HEADER_HEIGHT: 32,
@@ -50,7 +70,9 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 30,
     ROW_FONT_SIZE: 12,
     VERTICAL_PADDING: 0,
+    VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 5,
+    ROW_VIRTUAL_OFFSET: 1,
   },
   [CompactModeTypes.TALL]: {
     COLUMN_HEADER_HEIGHT: 32,
@@ -58,7 +80,9 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 18,
     VERTICAL_PADDING: 16,
+    VERTICAL_EDITOR_PADDING: 16,
     EDIT_ICON_TOP: 21,
+    ROW_VIRTUAL_OFFSET: 3,
   },
 };
 
@@ -86,83 +110,120 @@ export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
 export type CellAlignment = keyof typeof CellAlignmentTypes;
 export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
+export type ImageSize = keyof typeof ImageSizes;
 
 export interface ReactTableFilter {
+  id: string;
   column: string;
   operator: Operator;
   condition: Condition;
   value: any;
 }
 
-export interface CellLayoutProperties {
+export interface EditActionCellProperties {
+  discardActionIconName?: IconName;
+  discardActionLabel?: string;
+  discardButtonColor: string;
+  discardButtonVariant: ButtonVariant;
+  discardBorderRadius: ButtonBorderRadius;
+  discardIconAlign: Alignment;
+  isDiscardDisabled?: boolean;
+  isDiscardVisible?: boolean;
+  isSaveDisabled?: boolean;
+  isSaveVisible?: boolean;
+  saveActionIconName?: IconName;
+  saveActionLabel?: string;
+  saveButtonColor: string;
+  saveButtonVariant: ButtonVariant;
+  saveBorderRadius: ButtonBorderRadius;
+  saveIconAlign: Alignment;
+}
+
+export interface InlineEditingCellProperties {
+  isCellEditable: boolean;
+  hasUnsavedChanges?: boolean;
+}
+
+export interface CellWrappingProperties {
+  allowCellWrapping: boolean;
+}
+
+export interface ButtonCellProperties {
+  buttonVariant: ButtonVariant;
+  buttonColor?: string;
+  buttonLabel?: string;
+  isCompact?: boolean;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+}
+
+export interface MenuButtonCellProperties {
+  menuButtonLabel?: string;
+  menuItems: MenuItems;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  menuButtoniconName?: IconName;
+  onItemClicked?: (onClick: string | undefined) => void;
+  menuItemsSource: MenuItemsSource;
+  configureMenuItems: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
+}
+
+export interface URLCellProperties {
+  displayText?: string;
+}
+
+export interface SelectCellProperties {
+  isFilterable?: boolean;
+  serverSideFiltering?: boolean;
+  placeholderText?: string;
+  resetFilterTextOnClose?: boolean;
+  selectOptions?: DropdownOption[];
+}
+
+export interface ImageCellProperties {
+  imageSize?: ImageSize;
+}
+
+export interface DateCellProperties {
+  inputFormat: string;
+  outputFormat: string;
+  shortcuts: boolean;
+  timePrecision?: TimePrecision;
+}
+
+export interface BaseCellProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  buttonColor?: string;
-  buttonLabel?: string;
-  menuButtonLabel?: string;
   isVisible?: boolean;
   isDisabled?: boolean;
-  displayText?: string;
-  buttonVariant: ButtonVariant;
   borderRadius: string;
   boxShadow: string;
   isCellVisible: boolean;
-  isCompact?: boolean;
-  menuItems: MenuItems;
-  menuVariant?: ButtonVariant;
-  menuColor?: string;
-  iconName?: IconName;
-  menuButtoniconName?: IconName;
-  iconAlign?: Alignment;
-  onItemClicked?: (onClick: string | undefined) => void;
-  isCellEditable: boolean;
-  allowCellWrapping: boolean;
-  hasUnsavedChanged?: boolean;
-  saveButtonVariant: ButtonVariant;
-  saveButtonColor: string;
-  saveIconAlign: Alignment;
-  saveBorderRadius: ButtonBorderRadius;
-  saveActionIconName?: IconName;
-  saveActionLabel?: string;
-  isSaveVisible?: boolean;
-  isSaveDisabled?: boolean;
-  discardButtonVariant: ButtonVariant;
-  discardButtonColor: string;
-  discardIconAlign: Alignment;
-  discardBorderRadius: ButtonBorderRadius;
-  discardActionLabel?: string;
-  discardActionIconName?: IconName;
-  isDiscardVisible?: boolean;
-  isDiscardDisabled?: boolean;
+  isCellDisabled?: boolean;
 }
 
-export type MenuItems = Record<
-  string,
-  {
-    widgetId: string;
-    id: string;
-    index: number;
-    isVisible?: boolean;
-    isDisabled?: boolean;
-    label?: string;
-    backgroundColor?: string;
-    textColor?: string;
-    iconName?: IconName;
-    iconColor?: string;
-    iconAlign?: Alignment;
-    onClick?: string;
-  }
->;
+export interface CellLayoutProperties
+  extends EditActionCellProperties,
+    InlineEditingCellProperties,
+    CellWrappingProperties,
+    ButtonCellProperties,
+    URLCellProperties,
+    MenuButtonCellProperties,
+    SelectCellProperties,
+    ImageCellProperties,
+    DateCellProperties,
+    BaseCellProperties {}
 
 export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
   inputFormat?: string;
-  type: string;
+  type: ColumnTypes;
 }
 
 export interface TableColumnProps {
@@ -183,7 +244,7 @@ export interface ReactTableColumnProps extends TableColumnProps {
   Cell: (props: any) => JSX.Element;
 }
 
-export interface ColumnProperties {
+export interface ColumnBaseProperties {
   id: string;
   originalId: string;
   label?: string;
@@ -191,6 +252,17 @@ export interface ColumnProperties {
   isVisible: boolean;
   isDisabled?: boolean;
   index: number;
+  enableFilter?: boolean;
+  enableSort?: boolean;
+  isDerived: boolean;
+  computedValue: string;
+  isCellVisible?: boolean;
+  isAscOrder?: boolean;
+  alias: string;
+  allowCellWrapping: boolean;
+}
+
+export interface ColumnStyleProperties {
   width: number;
   cellBackground?: string;
   horizontalAlignment?: CellAlignment;
@@ -198,38 +270,31 @@ export interface ColumnProperties {
   textSize?: string;
   fontStyle?: string;
   textColor?: string;
-  enableFilter?: boolean;
-  enableSort?: boolean;
-  isDerived: boolean;
-  computedValue: string;
-  buttonLabel?: string;
-  menuButtonLabel?: string;
-  buttonColor?: string;
-  onClick?: string;
+}
+
+export interface DateColumnProperties {
   outputFormat?: string;
   inputFormat?: string;
-  dropdownOptions?: string;
-  onOptionChange?: string;
-  displayText?: string;
-  buttonVariant?: ButtonVariant;
-  isCompact?: boolean;
-  menuItems?: MenuItems;
-  menuVariant?: ButtonVariant;
-  menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: string;
-  boxShadowColor?: string;
-  iconName?: IconName;
-  menuButtoniconName?: IconName;
-  iconAlign?: Alignment;
-  onItemClicked?: (onClick: string | undefined) => void;
-  iconButtonStyle?: ButtonStyleType;
-  isCellVisible?: boolean;
-  isAscOrder?: boolean;
-  alias: string;
+  shortcuts?: boolean;
+  timePrecision?: TimePrecision;
+}
+
+export interface ColumnEditabilityProperties {
   isCellEditable: boolean; // Cell level editability
   isEditable: boolean; // column level edtitability
-  allowCellWrapping: boolean;
+  validation?: {
+    regex?: string;
+    isEditableCellValid?: boolean;
+    errorMessage?: string;
+    isEditableCellRequired?: boolean;
+    min?: number;
+    max?: number;
+    minDate?: string;
+    maxDate?: string;
+  };
+}
+
+export interface EditActionColumnProperties {
   saveButtonVariant?: ButtonVariant;
   saveButtonColor?: string;
   saveIconAlign?: Alignment;
@@ -246,6 +311,44 @@ export interface ColumnProperties {
   discardActionIconName?: string;
   isDiscardVisible?: boolean;
   isDiscardDisabled?: boolean;
+  isFilterable?: boolean;
+  serverSideFiltering?: boolean;
+  placeholderText?: string;
+  resetFilterTextOnClose?: boolean;
+  selectOptions?: DropdownOption[] | DropdownOption[][];
+}
+
+export interface ColumnProperties
+  extends ColumnBaseProperties,
+    ColumnStyleProperties,
+    DateColumnProperties,
+    ColumnEditabilityProperties,
+    EditActionColumnProperties {
+  buttonLabel?: string;
+  menuButtonLabel?: string;
+  buttonColor?: string;
+  onClick?: string;
+  dropdownOptions?: string;
+  onOptionChange?: string;
+  displayText?: string;
+  buttonVariant?: ButtonVariant;
+  isCompact?: boolean;
+  menuItems?: MenuItems;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: string;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  menuButtoniconName?: IconName;
+  iconAlign?: Alignment;
+  onItemClicked?: (onClick: string | undefined) => void;
+  iconButtonStyle?: ButtonStyleType;
+  imageSize?: ImageSize;
+  getVisibleItems?: () => Array<MenuItem>;
+  menuItemsSource?: MenuItemsSource;
+  configureMenuItems?: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
 }
 
 export const ConditionFunctions: {
@@ -343,15 +446,15 @@ export enum ALIGN_ITEMS {
 }
 
 export enum IMAGE_HORIZONTAL_ALIGN {
-  LEFT = "left",
+  LEFT = "flex-start",
   CENTER = "center",
-  RIGHT = "right",
+  RIGHT = "flex-end",
 }
 
 export enum IMAGE_VERTICAL_ALIGN {
-  TOP = "top",
+  TOP = "flex-start",
   CENTER = "center",
-  BOTTOM = "bottom",
+  BOTTOM = "flex-end",
 }
 
 export type BaseCellComponentProps = {
@@ -365,6 +468,7 @@ export type BaseCellComponentProps = {
   fontStyle?: string;
   textColor?: string;
   textSize?: string;
+  isCellDisabled?: boolean;
 };
 
 export enum CheckboxState {
@@ -372,3 +476,43 @@ export enum CheckboxState {
   CHECKED = 1,
   PARTIAL = 2,
 }
+
+export const scrollbarOnHoverCSS = `
+  .track-horizontal {
+    height: 6px;
+    bottom: 1px;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.15s ease-in;
+    &:active {
+      opacity: 1;
+    }
+  }
+  &:hover {
+    .track-horizontal {
+      opacity: 1;
+    }
+  }
+  .thumb-horizontal {
+    &:hover, &:active {
+      height: 6px !important;
+    }
+  }
+`;
+
+export const MULTISELECT_CHECKBOX_WIDTH = 40;
+
+export enum AddNewRowActions {
+  SAVE = "SAVE",
+  DISCARD = "DISCARD",
+}
+
+export const EDITABLE_CELL_PADDING_OFFSET = 8;
+
+export const DEFAULT_FILTER = {
+  id: generateReactKey(),
+  column: "",
+  operator: OperatorTypes.OR,
+  value: "",
+  condition: "",
+};

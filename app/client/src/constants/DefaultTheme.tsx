@@ -1,5 +1,4 @@
-import * as styledComponents from "styled-components";
-import { ThemedStyledComponentsModule } from "styled-components";
+import { css } from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
@@ -11,22 +10,6 @@ import { typography, Typography, TypographyKeys } from "./typography";
 
 import { LabelPosition } from "components/constants";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
-
-const themedStyled = {
-  default: styledComponents.default,
-  css: styledComponents.css,
-  createGlobalStyle: styledComponents.createGlobalStyle,
-  keyframes: styledComponents.keyframes,
-  ThemeProvider: styledComponents.ThemeProvider,
-} as ThemedStyledComponentsModule<Theme>;
-
-const {
-  createGlobalStyle,
-  css,
-  default: styled,
-  keyframes,
-  ThemeProvider,
-} = themedStyled;
 
 export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
@@ -82,18 +65,41 @@ export const BlueprintControlTransform = css`
         box-shadow: none;
         border: 1px solid ${(props) => props.theme.colors.primaryOld};
       }
-      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
-        opacity: 0.5;
+
+      &
+        input:invalid:not(:disabled):not(:checked)
+        ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid var(--wds-color-border-danger);
       }
+
+      &:hover
+        input:invalid:not(:disabled):not(:checked)
+        ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid var(--wds-color-border-danger-hover) !important;
+      }
+
       & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
-        border: 1px solid ${Colors.GREY_5};
+        background-color: var(--wds-color-bg-disabled) !important;
+        border: 1px solid var(--wds-color-border-disabled) !important;
+      }
+
+      & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background-color: var(--wds-color-bg-disabled) !important;
+        border: 1px solid var(--wds-color-border-disabled) !important;
+      }
+
+      &:hover input:not(:checked):not(:disabled) ~ .bp3-control-indicator,
+      & input:not(:checked):not(:disabled):focus ~ .bp3-control-indicator {
+        border: 1px solid var(--wds-color-bg-disabled-strong) !important;
       }
     }
 
     .${Classes.SWITCH} {
-      & .${Classes.CONTROL_INDICATOR} {
+      & input ~ .${Classes.CONTROL_INDICATOR} {
+        transition: none;
+
         &::before {
-          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+          box-shadow: none;
         }
       }
       input:checked ~ .${Classes.CONTROL_INDICATOR} {
@@ -102,8 +108,21 @@ export const BlueprintControlTransform = css`
         }
       }
       input:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${Colors.GREY_3};
-        border: 1px solid ${Colors.GREY_5};
+        background: var(--wds-color-bg-strong);
+        border: 1px solid var(--wds-color-border);
+      }
+
+      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
+        background: var(--wds-color-bg-disabled) !important;
+        &::before {
+          background: var(--wds-color-bg-disabled-strong);
+        }
+      }
+
+      &:hover input:not(:checked):not(:disabled) ~ .bp3-control-indicator,
+      input:not(:checked):not(:disabled):focus ~ .bp3-control-indicator {
+        background: var(--wds-color-bg-strong-hover);
+        border: 1px solid var(--wds-color-border-hover) !important;
       }
     }
 
@@ -284,16 +303,16 @@ export const BlueprintRadioSwitchGroupTransform = css<{
   width: 100%;
   height: 100%;
 
-  ${({ alignment, inline, optionCount }) => `
-    display: ${
-      inline ? "inline-flex" : alignment === Alignment.RIGHT ? "block" : "flex"
-    };
+  ${({ inline, optionCount }) => `
+  display: ${inline ? "inline-flex" : "flex"};
     flex-direction: ${inline ? "row" : "column"};
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
     justify-content: ${
       optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`
     };
+    gap: 10px;
+    flex-grow: 1;
   `}
 
   ${BlueprintControlTransform};
@@ -304,54 +323,23 @@ export const BlueprintRadioSwitchGroupTransform = css<{
       }
       return "flex";
     }};
+    width: ${({ alignment, inline }) => {
+      if (alignment === Alignment.RIGHT) {
+        return inline ? "auto" : "100%";
+      }
+      return "auto";
+    }};
     align-items: center;
     border: 1px solid transparent;
     color: ${Colors.GREY_10};
     line-height: 16px;
-    min-height: ${({ alignment }) =>
-      alignment === Alignment.RIGHT ? 23 : 30}px;
-    margin-top: ${({ alignment }) => (alignment === Alignment.RIGHT ? 7 : 0)}px;
 
-    margin-bottom: ${({
-      alignment,
-      height,
-      inline,
-      labelPosition,
-      optionCount,
-    }) => {
-      if (
-        alignment === Alignment.RIGHT &&
-        !inline &&
-        optionCount > 1 &&
-        height
-      ) {
-        return Math.max(
-          (height -
-            (labelPosition === LabelPosition.Left ? 0 : 35) -
-            optionCount * 31) /
-            (optionCount - 1),
-          8,
-        );
-      } else {
-        return 0;
-      }
-    }}px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
     .bp3-control-indicator {
       margin-top: 0;
-      border: 1px solid ${Colors.GREY_3};
-    }
-    input:checked ~ .bp3-control-indicator,
-    &:hover input:checked ~ .bp3-control-indicator {
-      background-color: ${Colors.GREEN};
-    }
-    &:hover {
-      & input:not(:checked) ~ .bp3-control-indicator {
-        border: 1px solid ${Colors.GREY_5} !important;
-      }
+      border: 1px solid ${Colors.GREY_5};
+      box-shadow: none;
+      background-image: none;
+      background-color: white;
     }
   }
 `;
@@ -410,6 +398,7 @@ export type Theme = {
   headerHeight: string;
   smallHeaderHeight: string;
   bottomBarHeight: string;
+  pageTabsHeight: string;
   integrationsPageUnusableHeight: string;
   backBanner: string;
   homePage: any;
@@ -417,7 +406,6 @@ export type Theme = {
   canvasBottomPadding: number;
   navbarMenuHeight: string;
   navbarMenuLineHeight: string;
-  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -1181,53 +1169,11 @@ type ColorType = {
     iconPath: string;
     iconCircle: string;
   };
-  comments: {
-    profileUserName: string;
-    threadTitle: string;
-    commentBody: string;
-    profileImageBorder: string;
-    mention: string;
-    threadContainerBorder: string;
-    addCommentInputBorder: string;
-    sendButton: string;
-    addCommentInputBackground: string;
-    pin: string;
+  toggleMode: {
     activeModeBackground: string;
     activeModeIcon: string;
     modeIcon: string;
-    emojiPicker: string;
-    resolved: string;
-    unresolved: string;
-    resolvedFill: string;
-    unresolvedFill: string;
-    resolvedPath: string;
-    childCommentsIndent: string;
-    commentBackground: string;
-    contextMenuTrigger: string;
-    contextMenuItemHover: ShadeColor;
-    contextMenuIcon: ShadeColor;
-    contextMenuIconHover: ShadeColor;
-    contextMenuIconStroke: ShadeColor;
-    contextMenuIconStrokeHover: ShadeColor;
-    contextMenuTitle: ShadeColor;
-    contextMenuTitleHover: ShadeColor;
-    appCommentsHeaderTitle: ShadeColor;
-    appCommentsClose: ShadeColor;
-    viewLatest: string;
-    commentTime: string;
-    pinId: string;
-    commentsFilter: string;
-    appCommentsHeaderBorder: string;
     unreadIndicator: string;
-    unreadIndicatorCommentCard: string;
-    pinnedByText: string;
-    pinnedThreadBackground: string;
-    visibleThreadBackground: string;
-    cardOptionsIcon: string;
-    appCommentsPlaceholderText: string;
-    cardHoverBackground: string;
-    introTitle: string;
-    introContent: string;
     modeIconCircleStroke: string;
     activeModeIconCircleStroke: string;
   };
@@ -1290,7 +1236,6 @@ type ColorType = {
   debugger: {
     background: string;
     messageTextColor: string;
-    time: string;
     label: string;
     entity: string;
     entityLink: string;
@@ -1314,15 +1259,18 @@ type ColorType = {
       color: string;
     };
     info: {
+      time: string;
       borderBottom: string;
     };
     warning: {
+      time: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
       hoverIconColor: string;
     };
     error: {
+      time: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
@@ -1335,10 +1283,8 @@ type ColorType = {
     itemHighlight: string;
     background: string;
   };
-  mentionsInput: Record<string, string>;
   showcaseCarousel: Record<string, string>;
   displayImageUpload: Record<string, string>;
-  notifications: Record<string, string>;
   widgetGroupingContextMenu: {
     border: string;
     actionActiveBg: string;
@@ -1354,9 +1300,6 @@ type ColorType = {
     highlightBackground: string;
     highlightTextColor: string;
     textColor: string;
-  };
-  pagesEditor: {
-    iconColor: string;
   };
   numberedStep: {
     line: string;
@@ -1396,16 +1339,6 @@ const tabItemBackgroundFill = {
   textColor: Colors.CHARCOAL,
 };
 
-const notifications = {
-  time: "#858282",
-  listHeaderTitle: "#090707",
-  markAllAsReadButtonBackground: "#f0f0f0",
-  markAllAsReadButtonText: "#716E6E",
-  unreadIndicator: "#F86A2B",
-  bellIndicator: "#E22C2C",
-  label: "#858282",
-};
-
 const displayImageUpload = {
   background: "#AEBAD9",
   label: "#457AE6",
@@ -1430,59 +1363,13 @@ const mentionSuggestion = {
   hover: "#EBEBEB",
 };
 
-const pagesEditor = {
-  iconColor: "#A2A6A8",
-};
-
-const comments = {
-  introTitle: "#090707",
-  introContent: "#716E6E",
-  commentsFilter: "#6A86CE",
-  profileUserName: darkShades[11],
-  threadTitle: darkShades[8],
-  commentBody: darkShades[8],
-  profileImageBorder: Colors.JAFFA_DARK,
-  mention: "#F86A2B",
-  threadContainerBorder: lightShades[5],
-  addCommentInputBorder: lightShades[13],
-  sendButton: "#6A86CE",
-  addCommentInputBackground: "#FAFAFA",
-  pin: "#EF4141",
-  activeModeBackground: "#090707",
-  emojiPicker: lightShades[5],
-  resolved: Colors.BLACK,
-  unresolved: lightShades[5],
-  resolvedFill: Colors.BLACK,
-  unresolvedFill: "transparent",
-  resolvedPath: Colors.WHITE,
-  childCommentsIndent: lightShades[13],
-  commentBackground: lightShades[2],
-  contextMenuTrigger: darkShades[6],
-  contextMenuItemHover: lightShades[2],
-  contextMenuIcon: darkShades[6],
-  contextMenuIconHover: darkShades[11],
-  contextMenuIconStroke: darkShades[6],
-  contextMenuIconStrokeHover: darkShades[11],
-  contextMenuTitle: lightShades[8],
-  contextMenuTitleHover: darkShades[11],
-  appCommentsHeaderTitle: darkShades[11],
-  appCommentsClose: lightShades[15],
-  viewLatest: "#F86A2B",
-  commentTime: lightShades[7],
-  pinId: lightShades[8],
-  appCommentsHeaderBorder: lightShades[3],
+const toggleMode = {
+  activeModeBackground: "#EBEBEB",
+  activeModeIcon: "#4B4848",
+  modeIcon: "#858282",
+  modeIconCircleStroke: "#fff",
+  activeModeIconCircleStroke: "#EBEBEB",
   unreadIndicator: "#E00D0D",
-  unreadIndicatorCommentCard: "#F86A2B",
-  pinnedByText: lightShades[7],
-  pinnedThreadBackground: "#FFFAE9",
-  visibleThreadBackground: "#FBEED0",
-  cardOptionsIcon: "#777272",
-  appCommentsPlaceholderText: lightShades[8],
-  activeModeIcon: "#F0F0F0",
-  modeIcon: "#6D6D6D",
-  cardHoverBackground: "#FBEED0",
-  modeIconCircleStroke: "#222222",
-  activeModeIconCircleStroke: "#090707",
 };
 
 const auth = {
@@ -1561,15 +1448,6 @@ const globalSearch = {
   },
 };
 
-const mentionsInput = {
-  suggestionsListBackground: "#fff",
-  suggestionsListBorder: "rgba(0,0,0,0.15)",
-  focusedItemBackground: "#cee4e5",
-  itemBorderBottom: "#cee4e5",
-  mentionBackground: "#cee4e5",
-  mentionsInviteBtnPlusIcon: "#6A86CE",
-};
-
 const actionSidePane = {
   noConnections: "#f0f0f0",
   noConnectionsText: "#e0dede",
@@ -1621,15 +1499,13 @@ export const dark: ColorType = {
   numberedStep,
   tabItemBackgroundFill,
   overlayColor: "#090707cc",
-  notifications,
   displayImageUpload,
   showcaseCarousel,
   mentionSuggestion,
   reactionsComponent,
-  mentionsInput,
   helpModal,
   globalSearch,
-  comments,
+  toggleMode,
   navigationMenu,
   selected: darkShades[10],
   header: {
@@ -2173,7 +2049,6 @@ export const dark: ColorType = {
   debugger: {
     background: darkShades[11],
     messageTextColor: "#D4D4D4",
-    time: "#D4D4D4",
     label: "#D4D4D4",
     entity: "rgba(212, 212, 212, 0.5)",
     entityLink: "#D4D4D4",
@@ -2199,15 +2074,18 @@ export const dark: ColorType = {
       shortcut: "#D4D4D4",
     },
     info: {
+      time: "#D4D4D4",
       borderBottom: "black",
     },
     warning: {
+      time: "#D4D4D4",
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
+      time: "#D4D4D4",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
       borderBottom: "black",
@@ -2220,7 +2098,6 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],
@@ -2236,12 +2113,11 @@ export const light: ColorType = {
   numberedStep,
   tabItemBackgroundFill,
   overlayColor: "#090707cc",
-  notifications,
   displayImageUpload,
   showcaseCarousel,
   mentionSuggestion,
   reactionsComponent,
-  mentionsInput,
+  toggleMode,
   helpModal: {
     itemHighlight: "#EBEBEB",
     background: "#FFFFFF",
@@ -2249,17 +2125,9 @@ export const light: ColorType = {
   globalSearch: {
     ...globalSearch,
     helpBarBackground: "#F0F0F0",
-    helpBarText: "#A9A7A7",
+    helpBarText: Colors.GRAY_400,
     helpButtonBackground: "#F0F0F0",
-    helpIcon: "#939090",
-  },
-  comments: {
-    ...comments,
-    activeModeBackground: "#EBEBEB",
-    activeModeIcon: "#4B4848",
-    modeIcon: "#858282",
-    modeIconCircleStroke: "#fff",
-    activeModeIconCircleStroke: "#EBEBEB",
+    helpIcon: Colors.GRAY_700,
   },
   navigationMenu: {
     contentActive: "#090707",
@@ -2274,7 +2142,7 @@ export const light: ColorType = {
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
-    background: lightShades[0],
+    background: lightShades[11],
     deployToolTipText: lightShades[8],
     deployToolTipBackground: "#FFF",
     shareBtnHighlight: "#F86A2B",
@@ -2814,10 +2682,9 @@ export const light: ColorType = {
   debugger: {
     background: "#FFFFFF",
     messageTextColor: "#716e6e",
-    time: "#4b4848",
-    label: "#4b4848",
+    label: "#575757",
     entity: "rgba(75, 72, 72, 0.7)",
-    entityLink: "#6d6d6d",
+    entityLink: "#575757",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
     evalDebugButton: {
@@ -2840,19 +2707,22 @@ export const light: ColorType = {
       shortcut: "black",
     },
     info: {
-      borderBottom: "rgba(0, 0, 0, 0.05)",
+      time: "#939393",
+      borderBottom: "#E8E8E8",
     },
     warning: {
+      time: "#575757",
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
-      borderBottom: "white",
-      backgroundColor: "rgba(254, 184, 17, 0.1)",
+      borderBottom: "#E8E8E8",
+      backgroundColor: "#FFF8E2",
     },
     error: {
+      time: "#575757",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
-      borderBottom: "white",
-      backgroundColor: "rgba(242, 43, 43, 0.08)",
+      borderBottom: "#E8E8E8",
+      backgroundColor: "#F9E9E9",
     },
   },
   guidedTour,
@@ -2861,7 +2731,6 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],
@@ -2898,7 +2767,7 @@ export const theme: Theme = {
       darkText: lightShades[0],
     },
     appBackground: "#EDEDED",
-    artboard: "#F6F6F6",
+    artboard: "#F8FAFC",
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
@@ -2937,7 +2806,6 @@ export const theme: Theme = {
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
-    notification: Colors.JAFFA,
     bindingTextDark: Colors.BINDING_COLOR,
     bindingText: Colors.BINDING_COLOR_LT,
     cmBacground: Colors.BLUE_CHARCOAL,
@@ -3012,8 +2880,9 @@ export const theme: Theme = {
     sidebar: 256,
   },
   headerHeight: "48px",
-  smallHeaderHeight: "32px",
+  smallHeaderHeight: "40px",
   bottomBarHeight: "34px",
+  pageTabsHeight: "32px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
@@ -3075,7 +2944,6 @@ export const theme: Theme = {
   },
   pageContentWidth: 1224,
   tabPanelHeight: 34,
-  actionsBottomTabInitialHeight: "40%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,
@@ -3140,7 +3008,3 @@ export const theme: Theme = {
     linkBg: lightShades[2],
   },
 };
-
-export { css, createGlobalStyle, keyframes, ThemeProvider };
-
-export default styled;

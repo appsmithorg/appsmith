@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
+import org.json.JSONException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -46,6 +48,7 @@ public class PluginUtils {
             return String.class;
         }
     };
+
     public static final TypeReference<Object> OBJECT_TYPE = new TypeReference<>() {
     };
 
@@ -183,6 +186,12 @@ public class PluginUtils {
         return getDataValueAsTypeFromFormData(formDataValueMap, type);
     }
 
+    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type,
+                                                    T defaultValue) {
+        Object value = getValueSafelyFromFormData(formData, field);
+        return value == null ? defaultValue : (T) value;
+    }
+
     public static Object getValueSafelyFromFormData(Map<String, Object> formData, String field) {
         if (CollectionUtils.isEmpty(formData)) {
             return null;
@@ -213,6 +222,17 @@ public class PluginUtils {
             return formData.getOrDefault(field, null);
         }
 
+    }
+
+    public static String getValueSafelyFromFormDataAsString(Map<String, Object> formData, String field) {
+
+        Object output = getValueSafelyFromFormData(formData, field);
+
+        if (output == null) {
+            return null;
+        } else {
+            return String.valueOf(output);
+        }
     }
 
     public static void setDataValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {
@@ -389,6 +409,31 @@ public class PluginUtils {
 
     public static Object getValueSafelyFromPropertyList(List<Property> properties, int index) {
         return getValueSafelyFromPropertyList(properties, index, Object.class);
+    }
+
+    public static JSONObject parseStringIntoJSONObject(String body) throws JSONException {
+        return new JSONObject(body);
+    }
+
+    public static void setValueSafelyInPropertyList(List<Property> properties, int index, Object value) throws AppsmithPluginException {
+        if (properties == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Appsmith server encountered an unexpected error: property list is null. Please reach out to " +
+                            "our customer support to resolve this."
+            );
+        }
+
+        if (index < 0 || index > properties.size() - 1) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Appsmith server encountered an unexpected error: index value out or range: index: " + index +
+                            ", property list size: " + properties.size() + ". Please reach out to our customer " +
+                            "support to resolve this."
+            );
+        }
+
+        properties.get(index).setValue(value);
     }
 
     public static String replaceMappedColumnInStringValue(Map<String, String> mappedColumns, Object propertyValue) {

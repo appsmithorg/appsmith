@@ -1,15 +1,40 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import styled, { withTheme } from "styled-components";
+import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
-import { Text, Case, TextType } from "design-system";
-import { Classes } from "components/ads/common";
+import {
+  Case,
+  Classes,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+} from "design-system-old";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
+`;
+
+const TagContainer = styled.div`
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 16px;
+`;
+
+const Tag = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: var(--appsmith-color-black-100);
+  margin-right: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--appsmith-color-black);
 `;
 
 export const StyledSeparator = styled.div`
@@ -21,11 +46,11 @@ export const StyledSeparator = styled.div`
 
 const StyledDate = styled.div`
   font-weight: ${(props) => props.theme.typography.releaseList.fontWeight};
-  font-size: ${(props) => props.theme.typography.releaseList.fontSize}px;
+  font-size: 12px;
   line-height: ${(props) => props.theme.typography.releaseList.lineHeight}px;
   letter-spacing: ${(props) =>
     props.theme.typography.releaseList.letterSpacing}px;
-  color: ${(props) => props.theme.colors.text.normal};
+  color: var(--appsmith-color-black-700);
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -37,7 +62,7 @@ const StyledContent = styled.div<{ maxHeight: number }>`
     line-height: ${(props) => props.theme.typography.releaseList.lineHeight}px;
     letter-spacing: ${(props) =>
       props.theme.typography.releaseList.letterSpacing}px;
-    color: ${(props) => props.theme.colors.text.normal};
+    color: var(--appsmith-color-black-700);
   }
   a {
     color: ${(props) => props.theme.colors.modal.link};
@@ -51,12 +76,13 @@ const StyledContent = styled.div<{ maxHeight: number }>`
 
   h2 {
     display: block;
-    font-size: 1.5em;
+    font-size: 18px;
     margin-block-start: 0.83em;
     margin-block-end: 0.83em;
     margin-inline-start: 0px;
     margin-inline-end: 0px;
-    font-weight: bold;
+    font-weight: 500;
+    color: var(--appsmith-color-black);
   }
 
   ul {
@@ -78,6 +104,7 @@ export type Release = {
   descriptionHtml: string;
   name: string;
   publishedAt?: string;
+  tagName: string;
 };
 
 type ReleaseProps = {
@@ -106,38 +133,35 @@ const ReadMoreContainer = styled.div`
   padding: ${(props) => props.theme.spaces[8]}px 0;
 `;
 
-const ReadMore = withTheme(
-  ({
-    currentState,
-    onClick,
-  }: {
-    currentState: ReleaseComponentViewState;
-    onClick: () => void;
-    theme: any;
-  }) => (
-    <ReadMoreContainer>
-      <StyledReadMore onClick={onClick}>
-        <Text case={Case.UPPERCASE} color={Colors.GREY_8} type={TextType.P2}>
-          {currentState === ReleaseComponentViewState.collapsed
-            ? "read more"
-            : "read less"}
-        </Text>
-        <Icon
-          fillColor={Colors.GREY_8}
-          name={
-            currentState === ReleaseComponentViewState.collapsed
-              ? "view-all"
-              : "view-less"
-          }
-          size={IconSize.SMALL}
-        />
-      </StyledReadMore>
-    </ReadMoreContainer>
-  ),
+const ReadMore = ({
+  currentState,
+  onClick,
+}: {
+  currentState: ReleaseComponentViewState;
+  onClick: () => void;
+}) => (
+  <ReadMoreContainer>
+    <StyledReadMore onClick={onClick}>
+      <Text case={Case.UPPERCASE} color={Colors.GREY_8} type={TextType.P2}>
+        {currentState === ReleaseComponentViewState.collapsed
+          ? "read more"
+          : "read less"}
+      </Text>
+      <Icon
+        fillColor={Colors.GREY_8}
+        name={
+          currentState === ReleaseComponentViewState.collapsed
+            ? "view-all"
+            : "view-less"
+        }
+        size={IconSize.SMALL}
+      />
+    </StyledReadMore>
+  </ReadMoreContainer>
 );
 
 function ReleaseComponent({ release }: ReleaseProps) {
-  const { descriptionHtml, name, publishedAt } = release;
+  const { descriptionHtml, name, publishedAt, tagName } = release;
   const [isCollapsed, setCollapsed] = useState(true);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -166,10 +190,13 @@ function ReleaseComponent({ release }: ReleaseProps) {
 
   return descriptionHtml ? (
     <StyledContainer>
+      <TagContainer>
+        <Tag>{tagName}</Tag>
+        <StyledDate>{moment(publishedAt).format("D MMM YYYY")}</StyledDate>
+      </TagContainer>
       <Text color={Colors.BLACK} type={TextType.H1}>
         {name}
       </Text>
-      <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
       <StyledContent
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         maxHeight={getHeight()}

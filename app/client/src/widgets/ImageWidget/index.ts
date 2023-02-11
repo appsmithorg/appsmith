@@ -11,7 +11,7 @@ export const CONFIG = {
     maxZoomLevel: 1,
     enableRotation: false,
     enableDownload: false,
-    objectFit: "contain",
+    objectFit: "cover",
     image: "",
     rows: 12,
     columns: 12,
@@ -24,6 +24,9 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

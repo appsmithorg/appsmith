@@ -3,11 +3,12 @@ import styled from "styled-components";
 import { hexToRgba } from "widgets/WidgetUtils";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { RenderMode } from "constants/WidgetConstants";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 interface IframeContainerProps {
   borderColor?: string;
@@ -51,6 +52,8 @@ const OverlayDiv = styled.div`
   height: 100%;
 `;
 
+const { disableIframeWidgetSandbox } = getAppsmithConfigs();
+
 export interface IframeComponentProps extends ComponentProps {
   renderMode: RenderMode;
   source: string;
@@ -78,11 +81,13 @@ function IframeComponent(props: IframeComponentProps) {
     srcDoc,
     title,
     widgetId,
+    widgetName,
   } = props;
 
   const frameRef = useRef<HTMLIFrameElement>(null);
 
-  const isFirstRender = useRef(true);
+  const isFirstSrcURLRender = useRef(true);
+  const isFirstSrcDocRender = useRef(true);
 
   const [message, setMessage] = useState("");
 
@@ -102,8 +107,8 @@ function IframeComponent(props: IframeComponentProps) {
   }, []);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (isFirstSrcURLRender.current) {
+      isFirstSrcURLRender.current = false;
       return;
     }
     onURLChanged(source);
@@ -115,8 +120,8 @@ function IframeComponent(props: IframeComponentProps) {
   }, [source]);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (isFirstSrcDocRender.current) {
+      isFirstSrcDocRender.current = false;
       return;
     }
     onSrcDocChanged(srcDoc);
@@ -147,7 +152,13 @@ function IframeComponent(props: IframeComponentProps) {
       ) : srcDoc ? (
         <iframe
           allow="camera; microphone"
+          id={`iframe-${widgetName}`}
           ref={frameRef}
+          sandbox={
+            disableIframeWidgetSandbox
+              ? undefined
+              : "allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts allow-top-navigation-by-user-activation"
+          }
           src={source}
           srcDoc={srcDoc}
           title={title}
@@ -155,6 +166,7 @@ function IframeComponent(props: IframeComponentProps) {
       ) : (
         <iframe
           allow="camera; microphone"
+          id={`iframe-${widgetName}`}
           ref={frameRef}
           src={source}
           title={title}

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRepositoryCEImpl
         implements CustomPermissionGroupRepository {
 
-    public CustomPermissionGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomPermissionGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

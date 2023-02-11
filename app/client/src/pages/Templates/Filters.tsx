@@ -2,23 +2,20 @@ import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
-import { Classes } from "components/ads/common";
-import { Text, TextType } from "design-system";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Checkbox, Text, TextType } from "design-system-old";
 import { filterTemplates } from "actions/templateActions";
 import { createMessage, FILTERS } from "@appsmith/constants/messages";
 import {
   getFilterListSelector,
   getTemplateFilterSelector,
 } from "selectors/templatesSelectors";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
 
 const FilterWrapper = styled.div`
   overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 200}px);
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 256}px);
   ${thinScrollbar}
 
   .more {
@@ -32,48 +29,11 @@ const FilterWrapper = styled.div`
   }
 `;
 
-const Wrapper = styled.div`
-  width: ${(props) => props.theme.homePage.sidebar}px;
-  height: 100%;
-  display: flex;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
-  padding-top: ${(props) => props.theme.spaces[11]}px;
-  flex-direction: column;
-`;
-
-const SecondWrapper = styled.div`
-  height: calc(
-    100vh - ${(props) => props.theme.homePage.header + props.theme.spaces[11]}px
-  );
-  position: relative;
-`;
-
-const StyledFilterItem = styled.div<{ selected: boolean }>`
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
+const FilterItemWrapper = styled.div<{ selected: boolean }>`
   padding: ${(props) =>
-    `${props.theme.spaces[2]}px ${props.theme.spaces[6]}px ${props.theme.spaces[2]}px ${props.theme.spaces[11]}px`};
-  .${Classes.TEXT} {
-    color: ${Colors.MIRAGE_2};
-  }
-  ${(props) =>
-    props.selected &&
-    `
-    background-color: ${Colors.GALLERY_1};
-    .${Classes.TEXT} {
-      color: ${Colors.EBONY_CLAY_2};
-    }
-  `}
-
-  .${Classes.ICON} {
-    visibility: ${(props) => (props.selected ? "visible" : "hidden")};
-  }
-
-  &:hover {
-    background-color: ${Colors.GALLERY_1};
+    `${props.theme.spaces[4]}px 0px 0px ${props.theme.spaces[11] - 10}px `};
+  .filter input + span {
+    ${(props) => !props.selected && `border: 1.8px solid ${Colors.GRAY_400};`}
   }
 `;
 
@@ -81,10 +41,13 @@ const StyledFilterCategory = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   padding-left: ${(props) => props.theme.spaces[6]}px;
   font-weight: bold;
+  text-transform: capitalize;
 
   &.title {
-    margin-bottom: ${(props) => props.theme.spaces[12] - 2}px;
+    margin-bottom: ${(props) => props.theme.spaces[12] - 10}px;
     display: inline-block;
+    text-transform: uppercase;
+    // font-size: 14px;
   }
 `;
 
@@ -93,7 +56,7 @@ const ListWrapper = styled.div`
 `;
 
 const FilterCategoryWrapper = styled.div`
-  padding-bottom: ${(props) => props.theme.spaces[13] - 2}px;
+  padding-bottom: ${(props) => props.theme.spaces[13] - 11}px;
 `;
 
 export type Filter = {
@@ -126,12 +89,15 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
   };
 
   return (
-    <StyledFilterItem onClick={onClick} selected={selected}>
-      <Text color={Colors.MIRAGE_2} type={TextType.P1}>
-        {item.label}
-      </Text>
-      <Icon name={"close-x"} size={IconSize.XXXL} />
-    </StyledFilterItem>
+    <FilterItemWrapper selected={selected}>
+      <Checkbox
+        // backgroundColor={Colors.GREY_900}
+        className="filter"
+        isDefaultChecked={selected}
+        label={item.label}
+        onCheckChange={onClick}
+      />
+    </FilterItemWrapper>
   );
 }
 
@@ -169,7 +135,7 @@ function FilterCategory({
   return (
     <FilterCategoryWrapper>
       <StyledFilterCategory type={TextType.P4}>
-        {label.toLocaleUpperCase()}{" "}
+        {`${label} `}
         {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
       <ListWrapper>
@@ -220,26 +186,23 @@ function Filters() {
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   return (
-    <Wrapper>
-      <SecondWrapper>
-        <FilterWrapper>
-          <StyledFilterCategory className={"title"} type={TextType.H5}>
-            {createMessage(FILTERS)}
-          </StyledFilterCategory>
-          {Object.keys(filters).map((filter) => {
-            return (
-              <FilterCategory
-                filterList={filters[filter]}
-                key={filter}
-                label={filter}
-                selectedFilters={selectedFilters[filter] ?? []}
-              />
-            );
-          })}
-        </FilterWrapper>
-        <LeftPaneBottomSection />
-      </SecondWrapper>
-    </Wrapper>
+    <div>
+      <StyledFilterCategory className={"title"} type={TextType.SIDE_HEAD}>
+        {createMessage(FILTERS)}
+      </StyledFilterCategory>
+      <FilterWrapper className="filter-wrapper">
+        {Object.keys(filters).map((filter) => {
+          return (
+            <FilterCategory
+              filterList={filters[filter]}
+              key={filter}
+              label={filter}
+              selectedFilters={selectedFilters[filter] ?? []}
+            />
+          );
+        })}
+      </FilterWrapper>
+    </div>
   );
 }
 

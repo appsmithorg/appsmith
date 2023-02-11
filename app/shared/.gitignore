@@ -1,0 +1,7 @@
+**build
+**node_modules
+yarn-error.log
+yarn.lock
+
+# test coverage
+coverage-summary.json

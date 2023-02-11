@@ -18,20 +18,21 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import Explorer from "pages/Editor/Explorer";
-import AppComments from "comments/AppComments/AppComments";
 import { setExplorerActiveAction } from "actions/explorerActions";
 import {
   getExplorerActive,
   getExplorerPinned,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { SIDEBAR_ID } from "constants/Explorer";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 type Props = {
   width: number;
@@ -40,11 +41,13 @@ type Props = {
 };
 
 export const EntityExplorerSidebar = memo((props: Props) => {
-  let tooltipTimeout: number;
+  let tooltipTimeout: ReturnType<typeof setTimeout>;
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const pinned = useSelector(getExplorerPinned);
+  let pinned = useSelector(getExplorerPinned);
+  const isMultiPane = useSelector(isMultiPaneActive);
+  if (isMultiPane) pinned = false;
   const isPreviewMode = useSelector(previewModeSelector);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -147,12 +150,13 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-full duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
+        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
         relative: pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewMode,
       })}
+      id={SIDEBAR_ID}
     >
       {/* SIDEBAR */}
       <div
@@ -168,7 +172,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         <EntityProperties />
         {/* Contains entity explorer & widgets library along with a switcher*/}
         <Explorer />
-        <AppComments />
       </div>
       {/* RESIZER */}
       <div

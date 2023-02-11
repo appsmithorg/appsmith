@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 public class CustomPageRepositoryImpl extends CustomPageRepositoryCEImpl
         implements CustomPageRepository {
 
-    public CustomPageRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomPageRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

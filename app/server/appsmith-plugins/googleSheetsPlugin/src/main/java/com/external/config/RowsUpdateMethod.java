@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.util.WebClientUtils;
+import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -64,6 +67,12 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
         final String body = methodConfig.getRowObjects();
         try {
             this.getRowObjectFromBody(this.objectMapper.readTree(body));
+        } catch (IllegalArgumentException e) {
+            if (!StringUtils.hasLength(body)) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        ErrorMessages.EMPTY_UPDATE_ROW_OBJECT_MESSAGE);
+            }
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
                     "Unable to parse request body. Expected a row object.");
@@ -73,7 +82,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
     @Override
     public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
-        WebClient client = WebClient.builder()
+        WebClient client = WebClientUtils.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
         final RowsGetMethod rowsGetMethod = new RowsGetMethod(this.objectMapper);
@@ -215,6 +224,17 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
     }
 
     private RowObject getRowObjectFromBody(JsonNode body) {
+
+        if (body.isArray()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    ErrorMessages.EXPECTED_ROW_OBJECT_MESSAGE);
+        }
+
+        if (body.isEmpty()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    ErrorMessages.EMPTY_UPDATE_ROW_OBJECT_MESSAGE);
+        }
+
         return new RowObject(
                 this.objectMapper.convertValue(body, TypeFactory
                         .defaultInstance()

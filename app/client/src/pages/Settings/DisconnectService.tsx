@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Variant } from "components/ads/common";
-import Button from "components/ads/Button";
-import { Callout } from "components/ads/CalloutV2";
+import {
+  Button,
+  CalloutV2,
+  getTypographyByKey,
+  Variant,
+} from "design-system-old";
 import {
   createMessage,
   DANGER_ZONE,
@@ -10,7 +13,6 @@ import {
   DISCONNECT_CONFIRMATION,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 export const Container = styled.div`
   width: 100%;
@@ -33,7 +35,7 @@ export const DisconnectButton = styled(Button)`
 `;
 
 export const Header = styled.h2`
-  ${(props) => getTypographyByKey(props, "dangerHeading")}
+  ${getTypographyByKey("dangerHeading")}
   text-align: left;
 `;
 
@@ -43,7 +45,7 @@ export const HeaderDanger = styled(Header)`
 
 export const Info = styled.h3`
   display: block;
-  ${(props) => getTypographyByKey(props, "p3")}
+  ${getTypographyByKey("p3")}
   text-align: left;
   margin: 8px 0;
 `;
@@ -67,7 +69,7 @@ export function DisconnectService(props: {
     <Container>
       <HeaderDanger>{createMessage(DANGER_ZONE)}</HeaderDanger>
       <Info>{props.subHeader}</Info>
-      <Callout title={props.warning} type="Warning" />
+      <CalloutV2 desc={props.warning} type="Warning" />
       <DisconnectButton
         data-testid="disconnect-service-button"
         onClick={() =>

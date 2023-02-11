@@ -3,11 +3,11 @@ import editorReducer from "./editorReducer";
 import errorReducer from "./errorReducer";
 import propertyPaneReducer from "./propertyPaneReducer";
 import appViewReducer from "./appViewReducer";
-import applicationsReducer from "./applicationsReducer";
+import applicationsReducer from "@appsmith/reducers/uiReducers/applicationsReducer";
 import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
-import workspaceReducer from "./workspaceReducer";
+import workspaceReducer from "@appsmith/reducers/uiReducers/workspaceReducer";
 import templateReducer from "./templateReducer";
 import usersReducer from "./usersReducer";
 import { widgetDraggingReducer } from "./dragResizeReducer";
@@ -26,13 +26,11 @@ import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
 import globalSearchReducer from "./globalSearchReducer";
 import releasesReducer from "./releasesReducer";
-import commentsReducer from "./commentsReducer/commentsReducer";
 import websocketReducer from "./websocketReducer";
 import debuggerReducer from "./debuggerReducer";
 import tourReducer from "./tourReducer";
 import tableFilterPaneReducer from "./tableFilterPaneReducer";
 import jsPaneReducer from "./jsPaneReducer";
-import notificationsReducer from "./notificationsReducer";
 import appCollabReducer from "./appCollabReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 import gitSyncReducer from "./gitSyncReducer";
@@ -41,8 +39,17 @@ import { widgetReflowReducer } from "./reflowReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
 import appThemingReducer from "./appThemingReducer";
 import mainCanvasReducer from "./mainCanvasReducer";
+import focusHistoryReducer from "./focusHistoryReducer";
+import { editorContextReducer } from "./editorContextReducer";
+import guidedTourReducer from "./guidedTourReducer";
+import libraryReducer from "./libraryReducer";
+import appSettingsPaneReducer from "./appSettingsPaneReducer";
+import autoHeightUIReducer from "./autoHeightReducer";
+import analyticsReducer from "./analyticsReducer";
+import multiPaneReducer from "./multiPaneReducer";
 
 const uiReducer = combineReducers({
+  analytics: analyticsReducer,
   editor: editorReducer,
   errors: errorReducer,
   propertyPane: propertyPaneReducer,
@@ -69,15 +76,14 @@ const uiReducer = combineReducers({
   theme: themeReducer,
   modalAction: modalActionReducer,
   onBoarding: onBoardingReducer,
+  guidedTour: guidedTourReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
-  comments: commentsReducer,
   websocket: websocketReducer,
   debugger: debuggerReducer,
   tour: tourReducer,
   jsPane: jsPaneReducer,
   jsObjectName: jsObjectNameReducer,
-  notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
   gitSync: gitSyncReducer,
   appCollab: appCollabReducer,
@@ -85,6 +91,12 @@ const uiReducer = combineReducers({
   widgetReflow: widgetReflowReducer,
   appTheming: appThemingReducer,
   mainCanvas: mainCanvasReducer,
+  appSettingsPane: appSettingsPaneReducer,
+  focusHistory: focusHistoryReducer,
+  editorContext: editorContextReducer,
+  libraries: libraryReducer,
+  autoHeightUI: autoHeightUIReducer,
+  multiPaneConfig: multiPaneReducer,
 });
 
 export default uiReducer;

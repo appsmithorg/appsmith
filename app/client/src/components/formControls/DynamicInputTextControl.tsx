@@ -2,9 +2,9 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { formValueSelector } from "redux-form";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { connect } from "react-redux";
 import { actionPathFromName } from "components/formControls/utils";
 import {
@@ -83,6 +83,7 @@ export function InputText(props: {
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         disabled={props.disabled}
+        evaluatedPopUpLabel={props?.label || ""}
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}

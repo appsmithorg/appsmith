@@ -8,6 +8,7 @@ import AudioRecorderComponent from "../component";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   accentColor: string;
@@ -26,16 +27,16 @@ class AudioRecorderWidget extends BaseWidget<
   AudioRecorderWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
         sectionName: "General",
         children: [
           {
-            propertyName: "isDisabled",
-            label: "Disabled",
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
-            helpText: "Disables input to this widget",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -44,10 +45,10 @@ class AudioRecorderWidget extends BaseWidget<
             },
           },
           {
-            propertyName: "isVisible",
-            label: "Visible",
-            helpText: "Controls the visibility of the widget",
+            propertyName: "isDisabled",
+            label: "Disabled",
             controlType: "SWITCH",
+            helpText: "Disables input to this widget",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -91,9 +92,21 @@ class AudioRecorderWidget extends BaseWidget<
           },
         ],
       },
+    ];
+  }
+  static getPropertyPaneStyleConfig() {
+    return [
       {
         sectionName: "Styles",
         children: [
+          {
+            propertyName: "iconColor",
+            helpText: "Sets the icon color of the widget",
+            label: "Icon color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
           {
             propertyName: "accentColor",
             helpText: "Changes the color of the recorder button",
@@ -104,6 +117,11 @@ class AudioRecorderWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -126,17 +144,17 @@ class AudioRecorderWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-          {
-            propertyName: "iconColor",
-            helpText: "Sets the icon color of the widget",
-            label: "Icon color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

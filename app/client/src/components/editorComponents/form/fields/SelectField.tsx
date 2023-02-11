@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import { DropdownOption } from "components/ads";
+import { DropdownOption, RenderOption } from "design-system-old";
 import DropdownWrapper from "./DropdownWrapper";
 
 const renderComponent = (
@@ -33,6 +33,9 @@ type SelectFieldProps = {
   labelRenderer?: (selected: Partial<DropdownOption>[]) => JSX.Element;
   fillOptions?: boolean;
   disabled?: boolean;
+  renderOption?: RenderOption;
+  dropdownMaxHeight?: string;
+  enableSearch?: boolean;
 };
 
 export function SelectField(props: SelectFieldProps) {
@@ -41,6 +44,8 @@ export function SelectField(props: SelectFieldProps) {
       allowDeselection={props.allowDeselection}
       component={renderComponent}
       disabled={props.disabled}
+      dropdownMaxHeight={props.dropdownMaxHeight}
+      enableSearch={props.enableSearch}
       fillOptions={props.fillOptions}
       isMultiSelect={props.isMultiSelect}
       labelRenderer={props.labelRenderer}
@@ -50,6 +55,7 @@ export function SelectField(props: SelectFieldProps) {
       outline={props.outline}
       placeholder={props.placeholder}
       removeSelectedOption={props.removeSelectedOption}
+      renderOption={props?.renderOption}
       selected={props.selected}
       showLabelOnly={props.showLabelOnly}
       size={props.size}

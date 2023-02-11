@@ -1,6 +1,6 @@
 import { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getWorkspaceCreateApplication } from "./applicationSelectors";
 import { getWidgetCards } from "./editorSelectors";
@@ -19,6 +19,8 @@ export const getTemplatesSelector = (state: AppState) =>
   state.ui.templates.templates;
 export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
+export const isImportingTemplateToAppSelector = (state: AppState) =>
+  state.ui.templates.isImportingTemplateToApp;
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.templateNotificationSeen;
 
@@ -63,6 +65,7 @@ export const getFilteredTemplateList = createSelector(
   getTemplateFiltersLength,
   (templates, templatesFilters, numberOfFiltersApplied) => {
     const result: Template[] = [];
+    const activeTemplateIds: string[] = [];
 
     if (!numberOfFiltersApplied) {
       return templates;
@@ -74,12 +77,17 @@ export const getFilteredTemplateList = createSelector(
 
     Object.keys(templatesFilters).map((filter) => {
       templates.map((template) => {
+        if (activeTemplateIds.includes(template.id)) {
+          return;
+        }
+
         if (
           template[filter as FilterKeys].some((templateFilter) => {
             return templatesFilters[filter].includes(templateFilter);
           })
         ) {
           result.push(template);
+          activeTemplateIds.push(template.id);
         }
       });
     });
@@ -104,17 +112,39 @@ export const getSearchedTemplateList = createSelector(
   },
 );
 
+// Get the list of datasources which are used by templates
 export const templatesDatasourceFiltersSelector = createSelector(
+  getTemplatesSelector,
   getDefaultPlugins,
-  (plugins) => {
-    return plugins.map((plugin) => {
-      return {
-        label: plugin.name,
-        value: plugin.packageName,
-      };
+  (templates, plugins) => {
+    const datasourceFilters: Filter[] = [];
+    templates.map((template) => {
+      template.datasources.map((pluginIdentifier) => {
+        if (
+          !datasourceFilters.find((filter) => filter.value === pluginIdentifier)
+        ) {
+          const matchedPlugin = plugins.find(
+            (plugin) =>
+              plugin.id === pluginIdentifier ||
+              plugin.packageName === pluginIdentifier,
+          );
+
+          if (matchedPlugin) {
+            datasourceFilters.push({
+              label: matchedPlugin.name,
+              value: pluginIdentifier,
+            });
+          }
+        }
+      });
     });
+
+    return datasourceFilters;
   },
 );
+
+export const templatesFiltersSelector = (state: AppState) =>
+  state.ui.templates.allFilters;
 
 // Get all filters which is associated with atleast one template
 // If no template is associated with a filter, then the filter shouldn't be in the filter list
@@ -122,16 +152,17 @@ export const getFilterListSelector = createSelector(
   getWidgetCards,
   templatesDatasourceFiltersSelector,
   getTemplatesSelector,
-  (widgetConfigs, allDatasources, templates) => {
+  templatesFiltersSelector,
+  (widgetConfigs, allDatasources, templates, allTemplateFilters) => {
     const filters: Record<string, Filter[]> = {
       datasources: [],
-      widgets: [],
+      functions: [],
     };
 
-    const allWidgets = widgetConfigs.map((widget) => {
+    const allFunctions = allTemplateFilters.functions.map((item) => {
       return {
-        label: widget.displayName,
-        value: widget.type,
+        label: item,
+        value: item,
       };
     });
 
@@ -162,7 +193,7 @@ export const getFilterListSelector = createSelector(
 
     templates.map((template) => {
       filterFilters("datasources", allDatasources, template);
-      filterFilters("widgets", allWidgets, template);
+      filterFilters("functions", allFunctions, template);
     });
 
     return filters;
@@ -180,3 +211,9 @@ export const getForkableWorkspaces = createSelector(
     });
   },
 );
+
+export const templateModalOpenSelector = (state: AppState) =>
+  state.ui.templates.showTemplatesModal;
+
+export const templatesCountSelector = (state: AppState) =>
+  state.ui.templates.templates.length;

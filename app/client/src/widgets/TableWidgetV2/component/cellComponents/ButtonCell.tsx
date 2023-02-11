@@ -25,6 +25,7 @@ export function ButtonCell(props: RenderActionProps) {
     compactMode,
     fontStyle,
     horizontalAlignment,
+    isCellDisabled,
     isCellVisible,
     isDisabled,
     isHidden,
@@ -43,6 +44,7 @@ export function ButtonCell(props: RenderActionProps) {
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -58,6 +60,7 @@ export function ButtonCell(props: RenderActionProps) {
       compactMode={compactMode}
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
+      isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}

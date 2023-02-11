@@ -3,6 +3,7 @@ package com.external.utils;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import lombok.extern.slf4j.Slf4j;
 import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 
 import java.sql.Connection;
@@ -15,12 +16,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class ExecutionUtils {
     /**
      * Execute query and return the resulting table as a list of rows.
      *
      * @param connection - Connection object to execute query.
-     * @param query - Query string
+     * @param query      - Query string
      * @return List of rows from the response table.
      * @throws AppsmithPluginException
      * @throws StaleConnectionException
@@ -29,6 +31,7 @@ public class ExecutionUtils {
             AppsmithPluginException, StaleConnectionException {
         List<Map<String, Object>> rowsList = new ArrayList<>();
         ResultSet resultSet = null;
+        Statement statement = null;
         try {
             // We do not use keep alive threads for our connections since these might become expensive
             // Instead for every execution, we check for connection validity,
@@ -37,7 +40,7 @@ public class ExecutionUtils {
                 throw new StaleConnectionException();
             }
 
-            Statement statement = connection.createStatement();
+            statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
             ResultSetMetaData metaData = resultSet.getMetaData();
             int colCount = metaData.getColumnCount();
@@ -56,15 +59,22 @@ public class ExecutionUtils {
             if (e instanceof SnowflakeReauthenticationRequest) {
                 throw new StaleConnectionException();
             }
-            e.printStackTrace();
+            log.error("Exception caught when executing Snowflake query. Cause: ", e);
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
 
-        }  finally {
+        } finally {
             if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    log.error("Unable to close Snowflake resultset. Cause: ", e);
+                }
+            }
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    log.error("Unable to close Snowflake statement. Cause: ", e);
                 }
             }
         }
