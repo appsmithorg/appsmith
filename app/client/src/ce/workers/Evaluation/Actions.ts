@@ -18,6 +18,11 @@ declare global {
   }
 }
 
+export enum ExecutionType {
+  PROMISE = "PROMISE",
+  TRIGGER = "TRIGGER",
+}
+
 /**
  * This method returns new dataTree with entity function and platform function
  */
