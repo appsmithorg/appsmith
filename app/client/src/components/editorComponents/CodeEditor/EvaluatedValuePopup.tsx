@@ -18,13 +18,7 @@ import {
 } from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import {
-  Button,
-  Classes,
-  Collapse,
-  Icon,
-  IPopoverSharedProps,
-} from "@blueprintjs/core";
+import { Button, Classes, Icon, IPopoverSharedProps } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
@@ -39,6 +33,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
+import Collapsible from "./Collapsible";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -417,7 +412,7 @@ const ControlledCurrentValueViewer = memo(
             <CollapseToggle isOpen={openEvaluatedValue} />
           </StyledTitle>
         )}
-        <Collapse isOpen={openEvaluatedValue}>
+        <Collapsible isOpen={openEvaluatedValue}>
           <CurrentValueWrapper
             className="t-property-evaluated-value"
             colorTheme={props.theme}
@@ -435,7 +430,7 @@ const ControlledCurrentValueViewer = memo(
               </CopyIconWrapper>
             )}
           </CurrentValueWrapper>
-        </Collapse>
+        </Collapsible>
       </>
     );
   },
@@ -528,7 +523,7 @@ function PopoverContent(props: PopoverContentProps) {
             Expected Structure
             <CollapseToggle isOpen={openExpectedDataType} />
           </StyledTitle>
-          <Collapse isOpen={openExpectedDataType}>
+          <Collapsible isOpen={openExpectedDataType}>
             <TypeText
               addBorder
               colorTheme={props.theme}
@@ -537,7 +532,7 @@ function PopoverContent(props: PopoverContentProps) {
             >
               {props.expected.type}
             </TypeText>
-          </Collapse>
+          </Collapsible>
         </>
       )}
       {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
@@ -546,7 +541,7 @@ function PopoverContent(props: PopoverContentProps) {
             Expected Structure - Example
             <CollapseToggle isOpen={openExpectedExample} />
           </StyledTitle>
-          <Collapse isOpen={openExpectedExample}>
+          <Collapsible isOpen={openExpectedExample}>
             <TypeText colorTheme={props.theme} ref={typeTextRef}>
               <CurrentValueViewer
                 evaluatedValue={props.expected.example}
@@ -554,7 +549,7 @@ function PopoverContent(props: PopoverContentProps) {
                 theme={props.theme}
               />
             </TypeText>
-          </Collapse>
+          </Collapsible>
         </>
       )}
       {!props.hideEvaluatedValue && (
