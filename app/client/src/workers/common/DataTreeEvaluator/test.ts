@@ -210,9 +210,11 @@ describe("DataTreeEvaluator", () => {
   });
 
   describe("parseJsActions", () => {
+    const postMessageMock = jest.fn();
     beforeEach(() => {
       dataTreeEvaluator.setupFirstTree(({} as unknown) as DataTree);
       dataTreeEvaluator.evalAndValidateFirstTree();
+      self.postMessage = postMessageMock;
     });
     it("set's isAsync tag for cross JsObject references", () => {
       const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);

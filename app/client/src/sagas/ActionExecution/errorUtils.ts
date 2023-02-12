@@ -15,7 +15,7 @@ import { Types } from "utils/TypeHelpers";
 import {
   ActionTriggerFunctionNames,
   ActionTriggerKeys,
-} from "@appsmith/entities/DataTree/actionTriggers";
+} from "@appsmith/workers/Evaluation/fns/index";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 /*
