@@ -77,11 +77,7 @@ import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
-import {
-  ENTITY_TYPE,
-  LogObject,
-  UserLogObject,
-} from "entities/AppsmithConsole";
+import { ENTITY_TYPE, LogObject } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import {
   logActionExecutionError,
@@ -103,13 +99,12 @@ import {
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 import { lintWorker } from "./LintingSagas";
 import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 
 export const evalWorker = new GracefulWorkerService(
@@ -177,7 +172,6 @@ export function* evaluateTreeSaga(
     evaluationOrder,
     jsUpdates,
     logs,
-    userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
     staleMetaIds,
@@ -208,23 +202,6 @@ export function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
-  if (
-    !(!isCreateFirstTree && Object.keys(jsUpdates).length > 0) &&
-    !!userLogs &&
-    userLogs.length > 0
-  ) {
-    yield all(
-      userLogs.map((log: UserLogObject) => {
-        return call(
-          storeLogs,
-          log.logObject,
-          log.source.name,
-          log.source.type,
-          log.source.id,
-        );
-      }),
-    );
-  }
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
@@ -275,15 +252,6 @@ export function* evaluateActionBindings(
   return values;
 }
 
-/*
- * Used to evaluate and execute dynamic trigger end to end
- * Widget action fields and JS Object run triggers this flow
- *
- * We start a duplex request with the worker and wait till the time we get a 'finished' event from the
- * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
- * execution is returned to the worker where it can resolve/reject the current promise.
- */
-
 export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -305,19 +273,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       triggerMeta,
     },
   );
-
-  const { logs = [], errors = [], triggers = [] } = response as any;
-  yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
-  yield call(
-    storeLogs,
-    logs,
-    triggerMeta.source?.name || triggerMeta.triggerPropertyName || "",
-    eventType === EventType.ON_JS_FUNCTION_EXECUTE
-      ? ENTITY_TYPE.JSACTION
-      : ENTITY_TYPE.WIDGET,
-    triggerMeta.source?.id || "",
-  );
-
+  const { errors = [] } = response as any;
   yield call(evalErrorHandler, errors);
   if (errors.length) {
     if (
@@ -328,14 +284,6 @@ export function* evaluateAndExecuteDynamicTrigger(
       throw new UncaughtPromiseError(errorMessage);
     }
   }
-
-  log.debug({ triggers });
-  yield all(
-    triggers.map((trigger: ActionDescription) =>
-      call(executeActionTriggers, trigger, eventType, triggerMeta),
-    ),
-  );
-
   return response;
 }
 
@@ -345,7 +293,6 @@ export interface ResponsePayload {
     resolve?: unknown;
   };
   success: boolean;
-  eventType?: EventType;
 }
 
 /*
@@ -357,36 +304,31 @@ export function* executeTriggerRequestSaga(
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {
-  const responsePayload: ResponsePayload = {
-    data: {
-      resolve: undefined,
-      reason: undefined,
-    },
-    success: false,
-    eventType,
+  const responsePayload = {
+    data: null,
+    error: null,
   };
   try {
-    responsePayload.data.resolve = yield call(
+    responsePayload.data = yield call(
       executeActionTriggers,
       trigger,
       eventType,
       triggerMeta,
     );
-    responsePayload.success = true;
   } catch (error) {
     // When error occurs in execution of triggers,
     // a success: false is sent to reject the promise
-
     // @ts-expect-error: reason is of type string
-    responsePayload.data.reason = { message: error.message };
-    responsePayload.success = false;
+    responsePayload.error = {
+      // @ts-expect-error: reason is of type string
+      message: error.responseData?.[0] || error.message,
+    };
   }
   return responsePayload;
 }
 
 export function* clearEvalCache() {
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
-
   return true;
 }
 
@@ -403,19 +345,21 @@ function* executeAsyncJSFunction(
 ) {
   let response: JSFunctionExecutionResponse;
   const functionCall = `${collectionName}.${action.name}()`;
-
+  const triggerMeta = {
+    source: {
+      id: collectionId,
+      name: `${collectionName}.${action.name}`,
+      type: ENTITY_TYPE.JSACTION,
+    },
+    triggerPropertyName: `${collectionName}.${action.name}`,
+  };
+  const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
   try {
     response = yield call(
       evaluateAndExecuteDynamicTrigger,
       functionCall,
-      EventType.ON_JS_FUNCTION_EXECUTE,
-      {
-        source: {
-          id: collectionId,
-          name: `${collectionName}.${action.name}`,
-        },
-        triggerPropertyName: `${collectionName}.${action.name}`,
-      },
+      eventType,
+      triggerMeta,
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
@@ -432,21 +376,23 @@ function* executeSyncJSFunction(
   collectionId: string,
 ) {
   const functionCall = `${collectionName}.${action.name}()`;
+  const triggerMeta = {
+    source: {
+      id: collectionId,
+      name: `${collectionName}.${action.name}`,
+      type: ENTITY_TYPE.JSACTION,
+    },
+    triggerPropertyName: `${collectionName}.${action.name}`,
+  };
+  const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
   const response: JSFunctionExecutionResponse = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS,
     {
       functionCall,
+      triggerMeta,
+      eventType,
     },
-  );
-  const { logs = [] } = response;
-  // Check for any logs in the response and store them in the redux store
-  yield call(
-    storeLogs,
-    logs,
-    collectionName + "." + action.name,
-    ENTITY_TYPE.JSACTION,
-    collectionId,
   );
   return response;
 }
@@ -463,20 +409,27 @@ export function* executeJSFunction(
     logs?: LogObject[];
   };
 
-  if (isAsync) {
-    response = yield call(
-      executeAsyncJSFunction,
-      collectionName,
-      action,
-      collectionId,
-    );
-  } else {
-    response = yield call(
-      executeSyncJSFunction,
-      collectionName,
-      action,
-      collectionId,
-    );
+  try {
+    if (isAsync) {
+      response = yield call(
+        executeAsyncJSFunction,
+        collectionName,
+        action,
+        collectionId,
+      );
+    } else {
+      response = yield call(
+        executeSyncJSFunction,
+        collectionName,
+        action,
+        collectionId,
+      );
+    }
+  } catch (e) {
+    if (e instanceof UncaughtPromiseError) {
+      logActionExecutionError(e.message);
+    }
+    response = { errors: [e], result: undefined };
   }
   const { errors, result } = response;
   const isDirty = !!errors.length;
@@ -633,35 +586,20 @@ export function* evaluateSnippetSaga(action: any) {
       expression,
       dataType,
     });
-    const { errors, result, triggers } = workerResponse;
-    if (triggers && triggers.length > 0) {
-      yield all(
-        triggers.map((trigger: any) =>
-          call(
-            executeActionTriggers,
-            trigger,
-            EventType.ON_SNIPPET_EXECUTE,
-            {},
-          ),
-        ),
-      );
-      //Result is when trigger is present. Following code will hide the evaluated snippet section
-      yield put(setEvaluatedSnippet(result));
-    } else {
-      /*
+    const { errors, result } = workerResponse;
+    /*
         JSON.stringify(undefined) is undefined.
         We need to set it manually to "undefined" for codeEditor to display it.
       */
-      yield put(
-        setEvaluatedSnippet(
-          errors?.length
-            ? JSON.stringify(errors, null, 2)
-            : isUndefined(result)
-            ? "undefined"
-            : JSON.stringify(result),
-        ),
-      );
-    }
+    yield put(
+      setEvaluatedSnippet(
+        errors?.length
+          ? JSON.stringify(errors, null, 2)
+          : isUndefined(result)
+          ? "undefined"
+          : JSON.stringify(result),
+      ),
+    );
     Toaster.show({
       text: createMessage(
         errors?.length ? SNIPPET_EXECUTION_FAILED : SNIPPET_EXECUTION_SUCCESS,
