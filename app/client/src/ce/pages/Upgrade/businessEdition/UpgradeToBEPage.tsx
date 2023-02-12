@@ -19,9 +19,8 @@ export const UpgradeToBEPageWrapper = styled.div`
 
 export const ImageContainer = styled.div`
   img {
-    width: 500px;
-    height: 500px;
-    min-width: 400px;
+    height: calc(100vh - 400px);
+    object-fit: contain;
   }
 `;
 
@@ -59,9 +58,8 @@ export const FlexContainer = styled.div`
 
 export const LeftWrapper = styled.div`
   img {
-    min-width: 500px;
-    width: 600px;
-    height: 600px;
+    object-fit: contain;
+    height: calc(100vh - 200px);
   }
 `;
 
