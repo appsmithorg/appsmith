@@ -17,6 +17,11 @@ import {
   TNavigateToDescription,
 } from "workers/Evaluation/fns/navigateTo";
 
+export enum NavigationTargetType_Dep {
+  SAME_WINDOW = "SAME_WINDOW",
+  NEW_WINDOW = "NEW_WINDOW",
+}
+
 const isValidUrlScheme = (url: string): boolean => {
   return (
     // Standard http call
