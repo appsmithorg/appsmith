@@ -270,8 +270,9 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("10. Verify application does not break when user runs the query with wrong table name", function() {
     ee.SelectEntityByName("DropProductlines", "Queries/JS");
-    dataSources.RunQuery(false);
+    dataSources.RunQuery(false, false);
     cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(true);
       expect(
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains("Unknown table 'fakeapi.productlines'");
