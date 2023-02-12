@@ -304,7 +304,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       expect(
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains(
-        'null value in column "vessel_type" violates not-null constraint',
+        'ERROR: null value in column "vessel_type" of relation "vessels" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , null, null, , null, , null, null, 0, ).',
       );
     });
     deployMode.SelectJsonFormDropDown("Passenger");
@@ -315,7 +315,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       expect(
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains(
-        'null value in column "vessel_type" violates not-null constraint',
+        'ERROR: null value in column "distance_to_go" of relation "vessels" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , Passenger, null, , null, , null, null, null, ).',
       );
     });
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
@@ -621,7 +621,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("18. Verify application does not break when user runs the query with wrong table name", function() {
     ee.SelectEntityByName("DropVessels", "Queries/JS");
-    dataSources.RunQuery(false);
+    dataSources.RunQuery(false, false);
     cy.wait("@postExecute").then(({ response }) => {
       expect(
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
