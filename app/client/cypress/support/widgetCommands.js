@@ -338,6 +338,7 @@ Cypress.Commands.add("getCodeMirror", () => {
 Cypress.Commands.add("testCodeMirror", (value) => {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   cy.EnableAllCodeEditors();
+  cy.wait(2000);
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
