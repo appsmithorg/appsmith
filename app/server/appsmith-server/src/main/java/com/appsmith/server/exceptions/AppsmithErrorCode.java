@@ -33,6 +33,7 @@ public enum AppsmithErrorCode {
     WORKSPACE_ID_NOT_GIVEN("AE-APP-4031", "Workspace id not given"),
     REMOVE_LAST_WORKSPACE_ADMIN_ERROR("AE-APP-4038", "Remove last workspace admin error"),
     UNKNOWN_PLUGIN_REFERENCE("AE-APP-4052", "Unknown plugin reference"),
+    INVALID_LICENSE_KEY_ENTERED("AE-APP-4053", "Invalid license key"),
     HEALTHCHECK_TIMEOUT("AE-APP-4080", "Connection timeout during health check"),
     INTERNAL_SERVER_ERROR("AE-APP-5000", "Internal server error"),
     REPOSITORY_SAVE_FAILED("AE-APP-5001", "Repository save failed"),
