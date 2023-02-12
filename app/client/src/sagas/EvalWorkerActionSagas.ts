@@ -1,17 +1,14 @@
-import { call, put, spawn, take } from "redux-saga/effects";
+import { all, call, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { evalErrorHandler } from "../sagas/PostEvaluationSagas";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
 import {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
 } from "reducers/entityReducers/jsActionsReducer";
-import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import { MessageType, TMessage } from "utils/MessageUtil";
 import {
   ResponsePayload,
@@ -20,16 +17,8 @@ import {
 } from "../sagas/EvaluationsSaga";
 import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
-import { isEmpty } from "lodash";
-
-/*
- * Used to evaluate and execute dynamic trigger end to end
- * Widget action fields and JS Object run triggers this flow
- *
- * We start a duplex request with the worker and wait till the time we get a 'finished' event from the
- * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
- * execution is returned to the worker where it can resolve/reject the current promise.
- */
+import isEmpty from "lodash/isEmpty";
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -53,16 +42,7 @@ export function* lintTreeActionHandler(message: any) {
 export function* processLogsHandler(message: any) {
   const { body } = message;
   const { data } = body;
-  const { logs = [], triggerMeta, eventType } = data;
-  yield call(
-    storeLogs,
-    logs,
-    triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
-    eventType === EventType.ON_JS_FUNCTION_EXECUTE
-      ? ENTITY_TYPE.JSACTION
-      : ENTITY_TYPE.WIDGET,
-    triggerMeta?.source?.id || "",
-  );
+  yield call(storeLogs, data);
 }
 
 export function* processJSFunctionExecution(message: any) {
@@ -76,7 +56,7 @@ export function* processJSFunctionExecution(message: any) {
   }: {
     sortedData: BatchedJSExecutionData;
     sortedErrors: BatchedJSExecutionErrors;
-  } = yield sortJSExecutionDataByCollectionId(
+  } = yield* sortJSExecutionDataByCollectionId(
     JSExecutionData,
     JSExecutionErrors,
   );
@@ -115,19 +95,19 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
   const { data, method } = body;
   switch (method) {
     case MAIN_THREAD_ACTION.LINT_TREE: {
-      yield lintTreeActionHandler(message);
+      yield call(lintTreeActionHandler, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_LOGS: {
-      yield processLogsHandler(message);
+      yield call(processLogsHandler, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION: {
-      yield processJSFunctionExecution(message);
+      yield call(processJSFunctionExecution, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_TRIGGER: {
-      yield processTriggerHandler(message);
+      yield call(processTriggerHandler, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
@@ -136,6 +116,21 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
       yield logJSFunctionExecution(message);
+      break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {
+      const batchedTriggers = data;
+      yield all(
+        batchedTriggers.map((data: any) => {
+          const { eventType, trigger, triggerMeta } = data;
+          return call(
+            executeTriggerRequestSaga,
+            trigger,
+            eventType,
+            triggerMeta,
+          );
+        }),
+      );
       break;
     }
   }
