@@ -90,7 +90,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void setTenantLicenseKey_Valid_LicenseKey() {
+    public void setTenantLicenseKey_validLicenseKey_Success() {
         String licenseKey = "sample-license-key";
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(true);

@@ -151,7 +151,7 @@ public class LicenseValidator {
                                 HttpStatusCode::isError,
                                 response -> Mono.error(new AppsmithException(
                                     AppsmithError.CLOUD_SERVICES_ERROR,
-                                    "unable to connect to cloud-services with error status {}", response.statusCode()))
+                                    "unable to connect to cloud-services with error status ", response.statusCode()))
                             )
                             .bodyToMono(new ParameterizedTypeReference<ResponseDTO<LicenseValidationResponseDTO>>(){});
                     }
@@ -163,11 +163,7 @@ public class LicenseValidator {
                     license.setExpiry(licenseValidationResponse.getExpiry());
                     license.setType(licenseValidationResponse.getLicenseType());
                     license.setStatus(licenseValidationResponse.getLicenseStatus());
-
-                    if (null == license.getOrigin()) {
-                        license.setOrigin(LicenseOrigin.SELF_SERVE);
-                    }
-
+                    license.setOrigin(licenseValidationResponse.getOrigin());
                     return license;
                 });
     }
