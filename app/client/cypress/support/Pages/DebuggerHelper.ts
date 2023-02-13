@@ -35,6 +35,7 @@ export class DebuggerHelper {
       [PageType.JsEditor]: ".t--js-editor-bottom-pane-container",
     },
     _debuggerList: ".debugger-list",
+    _debuggerFilter: ".debugger-search",
   };
 
   ClickDebuggerIcon(
@@ -122,6 +123,10 @@ export class DebuggerHelper {
       index,
       timeout,
     );
+  }
+
+  filter(text: string) {
+    this.agHelper.RemoveCharsNType(this.locators._debuggerFilter, -1, text);
   }
 
   LogStateContains(text: string, index?: number) {
