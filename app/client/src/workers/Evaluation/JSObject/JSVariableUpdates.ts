@@ -49,6 +49,7 @@ export function getModifiedPaths(patches: Patch[]) {
     const pathArray = patch.path.split(".");
     const [jsObjectName, varName] = pathArray;
     const dataTree = (dataTreeEvaluator?.evalTree || {}) as DataTree;
+
     const jsObject = dataTree[jsObjectName];
     if (isJSAction(jsObject)) {
       const variables = jsObject.variables;
