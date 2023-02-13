@@ -7,6 +7,8 @@ import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
+import { useDispatch } from "react-redux";
+import { addSuggestedWidget } from "actions/widgetActions";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -70,6 +72,7 @@ export const IconLabel = styled.h5`
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
+  const dispatch = useDispatch();
 
   const onDragStart = (e: any) => {
     e.preventDefault();
@@ -86,6 +89,10 @@ function WidgetCard(props: CardProps) {
     deselectAll();
   };
 
+  const onClick = () => {
+    dispatch(addSuggestedWidget(props.details));
+  };
+
   const type = `${props.details.type
     .split("_")
     .join("")
@@ -96,6 +103,7 @@ function WidgetCard(props: CardProps) {
       className={className}
       data-guided-tour-id={`widget-card-${type}`}
       draggable
+      onClick={onClick}
       onDragStart={onDragStart}
     >
       <div>
