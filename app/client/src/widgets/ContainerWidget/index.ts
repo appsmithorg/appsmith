@@ -18,7 +18,7 @@ export const CONFIG = {
   },
   canvasHeightOffset: (props: WidgetProps): number => {
     const offset =
-      props.borderWidth && props.borderWidth > 0
+      props.borderWidth && props.borderWidth > 1
         ? Math.ceil(
             (2 * parseInt(props.borderWidth, 10) || 0) /
               GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
