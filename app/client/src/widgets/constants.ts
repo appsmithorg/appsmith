@@ -42,6 +42,9 @@ export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
   ADD_ACTION = "ADD_ACTION",
   CHILD_OPERATIONS = "CHILD_OPERATIONS",
+  BEFORE_DROP = "BEFORE_DROP",
+  BEFORE_COPY = "BEFORE_COPY",
+  BEFORE_ADD = "BEFORE_ADD",
 }
 
 export type FlattenedWidgetProps = WidgetProps & {
