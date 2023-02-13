@@ -259,6 +259,7 @@ export function* executeWidgetBlueprintBeforeOperations(
   const beforeAddOperation = blueprintOperations.find(
     (operation) => operation.type === blueprintOperation,
   );
+
   if (beforeAddOperation)
     (beforeAddOperation.fn as BlueprintBeforeOperationsFn)(
       widgets,

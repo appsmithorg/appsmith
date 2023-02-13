@@ -323,8 +323,6 @@ function* moveWidgetsSaga(
       );
     }
 
-    if (!draggedBlocksToUpdate.length) return;
-
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
       moveAndUpdateWidgets,
       allWidgets,

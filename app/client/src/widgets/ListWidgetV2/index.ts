@@ -280,7 +280,9 @@ export const CONFIG = {
             );
 
             if (numOfParentListWidget > 3) {
-              throw Error("Cannot have more than 3 levels of nesting");
+              throw Error(
+                "Cannot have more than 3 levels of nesting in the list widget",
+              );
             }
           },
         },
@@ -301,7 +303,9 @@ export const CONFIG = {
             );
 
             if (numOfParentListWidget + numOfChildListWidget > 3) {
-              throw Error("Cannot have more than 3 levels of nesting");
+              throw Error(
+                "Cannot have more than 3 levels of nesting in the list widget",
+              );
             }
           },
         },
@@ -323,7 +327,9 @@ export const CONFIG = {
             );
 
             if (numOfParentListWidget + numOfChildListWidget > 3) {
-              throw Error("Cannot have more than 3 levels of nesting");
+              throw Error(
+                "Cannot have more than 3 levels of nesting in the list widget",
+              );
             }
           },
         },
