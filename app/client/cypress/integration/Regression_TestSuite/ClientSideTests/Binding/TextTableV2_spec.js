@@ -28,10 +28,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     cy.readTableV2data("1", "0").then((tabData) => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
-      cy.get(commonlocators.evaluatedTypeTitle)
-        .first()
-        .find("span")
-        .click();
+      cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
@@ -55,10 +52,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     cy.readTableV2data("2", "1").then((tabData) => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
-      cy.get(commonlocators.evaluatedTypeTitle)
-        .first()
-        .find("span")
-        .click();
+      cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
@@ -79,10 +73,8 @@ describe("Text-Table v2 Binding Functionality", function() {
       .then((listing) => {
         const listingCount = listing.length.toString();
         cy.get(commonlocators.TextInside).contains(listingCount);
-        cy.get(commonlocators.evaluatedTypeTitle)
-          .first()
-          .find("span")
-          .click();
+        cy.findAndExpandEvaluatedTypeTitle();
+
         cy.EvaluateDataType("string");
         cy.validateEvaluatedValue(listingCount);
         cy.PublishtheApp();
@@ -130,10 +122,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     cy.readTableV2data("1", "2").then((tabData) => {
       const tabValue = `\"${tabData}\"`;
       cy.get(commonlocators.TextInside).contains(tabValue);
-      cy.get(commonlocators.evaluatedTypeTitle)
-        .first()
-        .find("span")
-        .click();
+      cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();

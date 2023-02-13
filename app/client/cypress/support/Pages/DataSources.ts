@@ -118,7 +118,7 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
-  private _urlInputControl = "input[name='url']";
+  public _urlInputControl = "input[name='url']";
 
   // Authenticated API locators
   private _authType = "[data-cy=authType]";
@@ -623,7 +623,7 @@ export class DataSources {
     this.agHelper.AssertAutoSave();
   }
 
-  public EnterQuery(query: string, sleep= 500) {
+  public EnterQuery(query: string, sleep = 500) {
     cy.get(this.locator._codeEditorTarget).then(($field: any) => {
       this.agHelper.UpdateCodeInput($field, query);
     });
@@ -833,6 +833,21 @@ export class DataSources {
   public FillAuthAPIUrl() {
     const URL = datasourceFormData["authenticatedApiUrl"];
     this.agHelper.TypeText(this._urlInputControl, URL);
+  }
+
+  public AssertCursorPositionForTextInput(
+    selector: string,
+    moveCursor: string,
+    typeText = "as",
+    cursorPosition = 0,
+  ) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator
+      .type(moveCursor)
+      .type(typeText)
+      .should("have.prop", "selectionStart", cursorPosition);
   }
 
   public AddOAuth2AuthorizationCodeDetails(

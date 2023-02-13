@@ -275,7 +275,6 @@ $(if [[ $use_https == 1 ]]; then echo "
             sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME-}';
             sub_filter __APPSMITH_ALGOLIA_API_KEY__ '${APPSMITH_ALGOLIA_API_KEY-}';
             sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL-}';
-            sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY-}';
             sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP-}';
             sub_filter __APPSMITH_SENTRY_RELEASE__ '${APPSMITH_SENTRY_RELEASE-}';
             sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ '${APPSMITH_SENTRY_ENVIRONMENT-}';
