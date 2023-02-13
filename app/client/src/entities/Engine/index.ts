@@ -70,10 +70,12 @@ export default abstract class AppEngine {
     if (!apiCalls)
       throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
     const application: ApplicationPayload = yield select(getCurrentApplication);
-    const appBranch: string | undefined = yield select(getCurrentGitBranch);
+    const currentGitBranch: string | undefined = yield select(
+      getCurrentGitBranch,
+    );
     yield put(
       updateAppStore(
-        getPersistentAppStore(application.id, appBranch || branch),
+        getPersistentAppStore(application.id, branch || currentGitBranch),
       ),
     );
     const toLoadPageId: string = pageId || (yield select(getDefaultPageId));
