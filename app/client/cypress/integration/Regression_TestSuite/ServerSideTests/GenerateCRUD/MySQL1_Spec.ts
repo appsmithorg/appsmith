@@ -272,7 +272,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     ee.SelectEntityByName("DropProductlines", "Queries/JS");
     dataSources.RunQuery(false, false);
     cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(true);
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
       expect(
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains("Unknown table 'fakeapi.productlines'");

@@ -254,7 +254,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contain(
-        "The specified key does not exist.",
+        "Your S3 query failed to execute. To know more please check the error details.",
       );
     });
 
@@ -264,7 +264,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contain(
-        "The specified key does not exist.",
+        "Your S3 query failed to execute. To know more please check the error details.",
       );
     });
 
