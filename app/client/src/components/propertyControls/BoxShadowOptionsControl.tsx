@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { ButtonGroup, TooltipComponent } from "design-system";
+import { ButtonGroup, TooltipComponent } from "design-system-old";
 import { boxShadowOptions } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import {

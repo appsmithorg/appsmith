@@ -29,18 +29,19 @@ export class DataSources {
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
-  private _saveDs = ".t--save-datasource";
-  private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
-  private _datasourceCard = ".t--datasource";
+  _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
+  _saveDs = ".t--save-datasource";
+  _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
   _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
+  _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
-  private _createQuery = ".t--create-query";
+  _createQuery = ".t--create-query";
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
   _dropdownTitle = (ddTitle: string) =>
@@ -117,7 +118,7 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
-  private _urlInputControl = "input[name='url']";
+  public _urlInputControl = "input[name='url']";
 
   // Authenticated API locators
   private _authType = "[data-cy=authType]";
@@ -133,6 +134,7 @@ export class DataSources {
 
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
+  public _deleteDatasourceButton = ".t--delete-datasource";
 
   public AssertViewMode() {
     this.agHelper.AssertElementExist(this._editButton);
@@ -140,6 +142,18 @@ export class DataSources {
 
   public AssertEditMode() {
     this.agHelper.AssertElementAbsence(this._editButton);
+  }
+
+  public GeneratePageWithMockDB() {
+    this.ee.AddNewPage("generate-page");
+    this.agHelper.GetNClick(this._selectDatasourceDropdown);
+    this.agHelper.GetNClick(this.locator._dropdownText, 1);
+    this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
+    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.GetNClick("[data-cy='t--dropdown-option-public.users']");
+    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));
   }
 
   public StartDataSourceRoutes() {
@@ -287,7 +301,9 @@ export class DataSources {
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
-    cy.get(this._newDatasourceContainer).scrollTo("bottom");
+    cy.get(this._newDatasourceContainer).scrollTo("bottom", {
+      ensureScrollable: false,
+    });
     cy.get(this._newDatabases).should("be.visible");
   }
 
@@ -388,7 +404,9 @@ export class DataSources {
   public TestDatasource(expectedRes = true) {
     this.agHelper.GetNClick(this._testDs, 0, false, 0);
     this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
-    this.agHelper.AssertContains("datasource is valid");
+    if (expectedRes) {
+      this.agHelper.AssertContains("datasource is valid");
+    }
   }
 
   public SaveDatasource() {
@@ -462,7 +480,7 @@ export class DataSources {
 
   public NavigateToActiveTab() {
     this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab);
+    this.agHelper.GetNClick(this._activeTab,0,true);
   }
 
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
@@ -606,12 +624,13 @@ export class DataSources {
     this.agHelper.AssertAutoSave();
   }
 
-  public EnterQuery(query: string) {
+  public EnterQuery(query: string, sleep = 500) {
     cy.get(this.locator._codeEditorTarget).then(($field: any) => {
       this.agHelper.UpdateCodeInput($field, query);
     });
     this.agHelper.AssertAutoSave();
-    this.agHelper.Sleep(500); //waiting a bit before proceeding!
+    this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
+    cy.wait("@saveAction");
   }
 
   public RunQueryNVerifyResponseViews(
@@ -763,13 +782,13 @@ export class DataSources {
   }
 
   //Update with new password in the datasource conf page
-  public updatePassword(newPassword: string) {
+  public UpdatePassword(newPassword: string) {
     this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._password).type(newPassword);
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(
+  public VerifySchema(
     dataSourceName: string,
     schema: string,
     isUpdate = false,
@@ -815,6 +834,21 @@ export class DataSources {
   public FillAuthAPIUrl() {
     const URL = datasourceFormData["authenticatedApiUrl"];
     this.agHelper.TypeText(this._urlInputControl, URL);
+  }
+
+  public AssertCursorPositionForTextInput(
+    selector: string,
+    moveCursor: string,
+    typeText = "as",
+    cursorPosition = 0,
+  ) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator
+      .type(moveCursor)
+      .type(typeText)
+      .should("have.prop", "selectionStart", cursorPosition);
   }
 
   public AddOAuth2AuthorizationCodeDetails(

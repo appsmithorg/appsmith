@@ -82,7 +82,7 @@
   "entitySearchResult": ".t--entity-name:contains('",
   "saveStatusContainer": ".t--save-status-container",
   "saveStatusIsSaving": "t--save-status-is-saving",
-  "saveStatusSuccess": ".t--save-status-success",
+  "statusSaving":".t--save-status-is-saving",
   "saveStatusError": ".t--save-status-error",
   "selectWidgetVirtualList": ".menu-virtual-list div",
   "tableNextPage": ".t--table-widget-next-page",

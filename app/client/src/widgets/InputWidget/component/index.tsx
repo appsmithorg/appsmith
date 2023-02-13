@@ -37,12 +37,12 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { limitDecimalValue, getSeparators } from "./utilities";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import {
-  Icon,
-  LabelWithTooltip,
+import { Icon } from "design-system-old";
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
+} from "widgets/components/LabelWithTooltip";
+import { checkInputTypeText } from "widgets/BaseInputWidget/utils";
 
 /**
  * All design system component specific logic goes here.
@@ -206,7 +206,7 @@ const InputComponentWrapper = styled((props) => (
         : compactMode
         ? `center`
         : labelPosition === LabelPosition.Left
-        ? inputType === InputTypes.TEXT
+        ? checkInputTypeText(inputType)
           ? `stretch`
           : `center`
         : `flex-start`};

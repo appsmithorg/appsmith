@@ -47,6 +47,7 @@ export const useCanvasDragToScroll = (
               behavior: "smooth",
             });
           }
+          // @ts-expect-error: setTimeout return type mismatch
           scrollTimeOut.push(setTimeout(scrollFn, 100 * Math.max(0.4, speed)));
         }
       };

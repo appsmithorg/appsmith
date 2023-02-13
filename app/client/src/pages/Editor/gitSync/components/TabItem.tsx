@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Theme } from "constants/DefaultTheme";
-import { getTypographyByKey, TabProp } from "design-system";
+import { getTypographyByKey, TabProp } from "design-system-old";
 import { Colors } from "constants/Colors";
 
 type WrapperProps = {
@@ -14,7 +14,7 @@ const getSelectedStyles = (props: WrapperProps) =>
   props.selected
     ? `color: ${props.theme.colors.tabItemBackgroundFill.highlightTextColor};
       font-weight: 500;
-      border-bottom: 2px solid ${props.theme.colors.info.light};
+      border-bottom: 2px solid var(--ads-color-brand);
 
      `
     : `color: ${Colors.GREY_7}

@@ -1,4 +1,3 @@
-import { UserLogObject } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
@@ -26,6 +25,7 @@ import {
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
 } from "../types";
+import { clearAllIntervals } from "../fns/overrides/interval";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -41,9 +41,9 @@ export default function(request: EvalWorkerSyncRequest) {
   let dataTree: DataTree = {};
   let errors: EvalError[] = [];
   let logs: any[] = [];
-  let userLogs: UserLogObject[] = [];
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
+  let staleMetaIds: string[] = [];
 
   const {
     allActionValidationConfig,
@@ -86,6 +86,7 @@ export default function(request: EvalWorkerSyncRequest) {
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
+      staleMetaIds = dataTreeResponse.staleMetaIds;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -125,6 +126,7 @@ export default function(request: EvalWorkerSyncRequest) {
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
+      staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         dataTreeEvaluator.setAllActionValidationConfig(
@@ -156,6 +158,7 @@ export default function(request: EvalWorkerSyncRequest) {
       const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
+        unEvalUpdates,
       );
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
@@ -163,13 +166,13 @@ export default function(request: EvalWorkerSyncRequest) {
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );
+      staleMetaIds = updateResponse.staleMetaIds;
     }
     dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
     dependencies = dataTreeEvaluator.inverseDependencyMap;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
-    userLogs = dataTreeEvaluator.userLogs;
     if (shouldReplay) {
       if (replayMap[CANVAS]?.logs) logs = logs.concat(replayMap[CANVAS]?.logs);
       replayMap[CANVAS]?.clearLogs();
@@ -180,7 +183,6 @@ export default function(request: EvalWorkerSyncRequest) {
     if (dataTreeEvaluator !== undefined) {
       errors = dataTreeEvaluator.errors;
       logs = dataTreeEvaluator.logs;
-      userLogs = dataTreeEvaluator.userLogs;
     }
     if (!(error instanceof CrashingError)) {
       errors.push({
@@ -200,7 +202,7 @@ export default function(request: EvalWorkerSyncRequest) {
     unEvalUpdates = [];
   }
 
-  return {
+  const evalTreeResponse: EvalTreeResponseData = {
     dataTree,
     dependencies,
     errors,
@@ -208,13 +210,16 @@ export default function(request: EvalWorkerSyncRequest) {
     evaluationOrder: evalOrder,
     jsUpdates,
     logs,
-    userLogs,
     unEvalUpdates,
     isCreateFirstTree,
-  } as EvalTreeResponseData;
+    staleMetaIds,
+  };
+
+  return evalTreeResponse;
 }
 
 export function clearCache() {
   dataTreeEvaluator = undefined;
+  clearAllIntervals();
   return true;
 }

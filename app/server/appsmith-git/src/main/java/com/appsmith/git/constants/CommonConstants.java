@@ -10,5 +10,6 @@ public class CommonConstants {
     public static final String METADATA = "metadata";
     public static final String JSON_EXTENSION = ".json";
     public static final String JS_EXTENSION = ".js";
+    public static final String JS_BODY = "body";
     public static final String TEXT_FILE_EXTENSION = ".txt";
 }

@@ -52,6 +52,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.GitConstants.CUSTOM_JS_LIB_LIST;
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.constants.GitConstants.PAGE_LIST;
 import static com.appsmith.external.constants.GitConstants.ACTION_LIST;
@@ -59,6 +60,7 @@ import static com.appsmith.external.constants.GitConstants.ACTION_COLLECTION_LIS
 import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
+import static com.appsmith.git.constants.GitDirectories.JS_LIB_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 
@@ -133,9 +135,7 @@ public class FileUtilsImpl implements FileInterface {
         page1
             canvas.json
             queries
-                Query1
-                    Query1.txt
-                    metadata.json
+                Query1.json
             jsobjects
                 JSObject1
                     JSObject1.js
@@ -145,6 +145,28 @@ public class FileUtilsImpl implements FileInterface {
      datasources
          datasource1.json
          datasource2.json
+
+     For v4:
+     repo_name
+        application.json
+        metadata.json
+        theme
+        publishedTheme.json
+        editModeTheme.json
+     pages
+        page1
+        canvas.json
+        queries
+            Query1.json
+        jsobjects
+            JSObject1
+                JSObject1.js
+                Metadata.json
+        page2
+        page3
+     datasources
+        datasource1.json
+        datasource2.json
      */
 
 
@@ -213,8 +235,26 @@ public class FileUtilsImpl implements FileInterface {
                         }
                         validPages.add(pageName);
                     }
-
                     scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
+
+                    // Save JS Libs
+                    Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
+                    Set<Map.Entry<String, Object>> jsLibEntries = applicationGitReference.getJsLibraries().entrySet();
+                    Set<String> validJsLibs = new HashSet<>();
+                    jsLibEntries
+                            .forEach(jsLibEntry -> {
+                                String uidString = jsLibEntry.getKey();
+                                Boolean isResourceUpdated = updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString);
+                                String fileNameWithExtension =
+                                        uidString.replaceAll("/", "_") + CommonConstants.JSON_EXTENSION;
+                                Path jsLibSpecificFile =
+                                        jsLibDirectory.resolve(fileNameWithExtension);
+                                if (isResourceUpdated) {
+                                    saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
+                                }
+                                validJsLibs.add(fileNameWithExtension);
+                            });
+                    scanAndDeleteFileForDeletedResources(validJsLibs, jsLibDirectory);
 
                     // Create HashMap for valid actions and actionCollections
                     HashMap<String, Set<String>> validActionsMap = new HashMap<>();
@@ -285,6 +325,8 @@ public class FileUtilsImpl implements FileInterface {
                                         actionCollectionSpecificDirectory.resolve(actionCollectionName),
                                         gson
                                 );
+                                // Delete the resource from the old file structure v2
+                                deleteFile(actionCollectionSpecificDirectory.resolve(actionCollectionName + CommonConstants.JSON_EXTENSION));
                             }
                         }
                     }
@@ -667,6 +709,11 @@ public class FileUtilsImpl implements FileInterface {
             default:
         }
         applicationGitReference.setMetadata(metadata);
+
+        Path jsLibDirectory = baseRepoPath.resolve(JS_LIB_DIRECTORY);
+        Map<String, Object> jsLibrariesMap = readFiles(jsLibDirectory, gson, "");
+        applicationGitReference.setJsLibraries(jsLibrariesMap);
+
         return applicationGitReference;
     }
 
@@ -685,7 +732,7 @@ public class FileUtilsImpl implements FileInterface {
             for (File page : Objects.requireNonNull(directory.listFiles())) {
                 pageMap.put(page.getName(), readFile(page.toPath().resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson));
                 actionMap.putAll(readFiles(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName()));
-                if (fileFormatVersion == 3) {
+                if (fileFormatVersion >= 3) {
                     actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
                 } else {
                     actionCollectionMap.putAll(readFiles(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName()));

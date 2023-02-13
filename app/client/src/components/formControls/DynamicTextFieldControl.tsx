@@ -15,9 +15,11 @@ import styled from "styled-components";
 import { getPluginResponseTypes } from "selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { getLineCommentString } from "components/editorComponents/CodeEditor/utils/codeComment";
 
 const Wrapper = styled.div`
-  width: 872px;
+  min-width: 380px;
+  max-width: 872px;
   .dynamic-text-field {
     border-radius: 4px;
     font-size: 14px;
@@ -65,13 +67,17 @@ class DynamicTextControl extends BaseControl<
         ? EditorModes.SQL_WITH_BINDING
         : EditorModes.JSON_WITH_BINDING;
 
+    const lineCommentString = getLineCommentString(mode);
+
     return (
       <Wrapper className={`t--${configProperty}`}>
         <DynamicTextField
           className="dynamic-text-field"
           dataTreePath={dataTreePath}
           disabled={this.props.disabled}
+          evaluatedPopUpLabel={this?.props?.label}
           evaluationSubstitutionType={evaluationSubstitutionType}
+          lineCommentString={lineCommentString}
           mode={mode}
           name={this.props.configProperty}
           placeholder={placeholderText}

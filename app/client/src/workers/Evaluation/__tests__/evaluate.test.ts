@@ -6,8 +6,8 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { functionDeterminer } from "../functionDeterminer";
+import { resetJSLibraries } from "workers/common/JSLibrary";
 
 describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
@@ -40,6 +40,7 @@ describe("evaluateSync", () => {
   };
   beforeAll(() => {
     setupEvalEnv();
+    resetJSLibraries();
   });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
@@ -65,7 +66,6 @@ describe("evaluateSync", () => {
     const response1 = evaluate("wrongJS", {}, {}, false);
     expect(response1).toStrictEqual({
       result: undefined,
-      logs: [],
       errors: [
         {
           errorMessage: "ReferenceError: wrongJS is not defined",
@@ -85,7 +85,6 @@ describe("evaluateSync", () => {
     const response2 = evaluate("{}.map()", {}, {}, false);
     expect(response2).toStrictEqual({
       result: undefined,
-      logs: [],
       errors: [
         {
           errorMessage: "TypeError: {}.map is not a function",
@@ -113,7 +112,6 @@ describe("evaluateSync", () => {
     const response = evaluate(js, dataTree, {}, false);
     expect(response).toStrictEqual({
       result: undefined,
-      logs: [],
       errors: [
         {
           errorMessage: "ReferenceError: setImmediate is not defined",
@@ -194,9 +192,7 @@ describe("evaluateAsync", () => {
     const response = await evaluateAsync(js, {}, {}, {});
     expect(response).toStrictEqual({
       errors: [],
-      logs: [],
       result: 123,
-      triggers: [],
     });
   });
   it("runs and returns errors", async () => {
@@ -214,9 +210,7 @@ describe("evaluateAsync", () => {
           severity: "error",
         },
       ],
-      triggers: [],
       result: undefined,
-      logs: [],
     });
   });
 });
@@ -250,10 +244,7 @@ describe("isFunctionAsync", () => {
       if (typeof testFunc === "string") {
         testFunc = eval(testFunc);
       }
-
       functionDeterminer.setupEval({}, {});
-      addPlatformFunctionsToEvalContext(self);
-
       const actual = functionDeterminer.isFunctionAsync(testFunc);
       expect(actual).toBe(testCase.expected);
     }

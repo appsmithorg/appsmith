@@ -21,6 +21,7 @@ export class DebuggerHelper {
     _tabsContainer: ".t--debugger-tabs-container",
     _closeButton: ".t--close-debugger",
     _logMessage: ".t--debugger-log-message",
+    _logEntityLink: ".t--debugger-log-entity-link",
     _logState: ".t--debugger-log-state",
     _errorCount: ".t--debugger-count",
     _clearLogs: ".t--debugger-clear-logs",
@@ -34,6 +35,7 @@ export class DebuggerHelper {
       [PageType.JsEditor]: ".t--js-editor-bottom-pane-container",
     },
     _debuggerList: ".debugger-list",
+    _debuggerFilter: ".debugger-search",
   };
 
   ClickDebuggerIcon(
@@ -123,6 +125,10 @@ export class DebuggerHelper {
     );
   }
 
+  filter(text: string) {
+    this.agHelper.RemoveCharsNType(this.locators._debuggerFilter, -1, text);
+  }
+
   LogStateContains(text: string, index?: number) {
     this.agHelper.GetNAssertContains(
       this.locators._logState,
@@ -162,6 +168,10 @@ export class DebuggerHelper {
 
   ClickErrorMessage(index?: number) {
     this.agHelper.GetNClick(this.locators._debuggerMessage, index);
+  }
+
+  ClicklogEntityLink(index?: number) {
+    this.agHelper.GetNClick(this.locators._logEntityLink, index);
   }
 
   AssertContextMenuItemVisible() {

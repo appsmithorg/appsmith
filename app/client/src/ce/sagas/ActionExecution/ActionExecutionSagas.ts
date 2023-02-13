@@ -16,19 +16,11 @@ import {
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
-import storeValueLocally, {
-  clearLocalStore,
-  removeLocalValue,
-} from "sagas/ActionExecution/StoreActionSaga";
 import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
 import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
 import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
 import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
-import {
-  ActionDescription,
-  ActionTriggerType,
-} from "@appsmith/entities/DataTree/actionTriggers";
 import { clearActionResponse } from "actions/pluginActionActions";
 import {
   closeModalSaga,
@@ -39,20 +31,14 @@ import {
   logActionExecutionError,
   TriggerFailureError,
   UncaughtPromiseError,
-  UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
-import {
-  clearIntervalSaga,
-  setIntervalSaga,
-} from "sagas/ActionExecution/SetIntervalSaga";
 import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
-} from "sagas/ActionExecution/GetCurrentLocationSaga";
-import { requestModalConfirmationSaga } from "sagas/UtilSagas";
-import { ModalType } from "reducers/uiReducers/modalActionReducer";
+} from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
+import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -73,87 +59,54 @@ export function* executeActionTriggers(
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
   switch (trigger.type) {
-    case ActionTriggerType.RUN_PLUGIN_ACTION:
-      response = yield call(
-        executePluginActionTriggerSaga,
-        trigger.payload,
-        eventType,
-        triggerMeta,
-      );
+    case "RUN_PLUGIN_ACTION":
+      response = yield call(executePluginActionTriggerSaga, trigger, eventType);
       break;
-    case ActionTriggerType.CLEAR_PLUGIN_ACTION:
+    case "CLEAR_PLUGIN_ACTION":
       yield put(clearActionResponse(trigger.payload.actionId));
       break;
-    case ActionTriggerType.NAVIGATE_TO:
-      yield call(navigateActionSaga, trigger.payload);
+    case "NAVIGATE_TO":
+      yield call(navigateActionSaga, trigger);
       break;
-    case ActionTriggerType.SHOW_ALERT:
-      yield call(showAlertSaga, trigger.payload);
+    case "SHOW_ALERT":
+      yield call(showAlertSaga, trigger);
       break;
-    case ActionTriggerType.SHOW_MODAL_BY_NAME:
+    case "SHOW_MODAL_BY_NAME":
       yield call(openModalSaga, trigger);
       break;
-    case ActionTriggerType.CLOSE_MODAL:
+    case "CLOSE_MODAL":
       yield call(closeModalSaga, trigger);
       break;
-    case ActionTriggerType.STORE_VALUE:
-      yield call(storeValueLocally, trigger.payload);
+    case "DOWNLOAD":
+      yield call(downloadSaga, trigger);
       break;
-    case ActionTriggerType.REMOVE_VALUE:
-      yield call(removeLocalValue, trigger.payload);
+    case "COPY_TO_CLIPBOARD":
+      yield call(copySaga, trigger);
       break;
-    case ActionTriggerType.CLEAR_STORE:
-      yield call(clearLocalStore);
+    case "RESET_WIDGET_META_RECURSIVE_BY_NAME":
+      yield call(resetWidgetActionSaga, trigger);
       break;
-    case ActionTriggerType.DOWNLOAD:
-      yield call(downloadSaga, trigger.payload);
-      break;
-    case ActionTriggerType.COPY_TO_CLIPBOARD:
-      yield call(copySaga, trigger.payload);
-      break;
-    case ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME:
-      yield call(resetWidgetActionSaga, trigger.payload);
-      break;
-    case ActionTriggerType.SET_INTERVAL:
-      yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
-      break;
-    case ActionTriggerType.CLEAR_INTERVAL:
-      yield call(clearIntervalSaga, trigger.payload);
-      break;
-    case ActionTriggerType.GET_CURRENT_LOCATION:
+    case "GET_CURRENT_LOCATION":
       response = yield call(
         getCurrentLocationSaga,
-        trigger.payload,
+        trigger,
         eventType,
         triggerMeta,
       );
       break;
-
-    case ActionTriggerType.WATCH_CURRENT_LOCATION:
+    case "WATCH_CURRENT_LOCATION":
       response = yield call(
         watchCurrentLocation,
-        trigger.payload,
+        trigger,
         eventType,
         triggerMeta,
       );
       break;
-
-    case ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION:
+    case "STOP_WATCHING_CURRENT_LOCATION":
       response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
       break;
-    case ActionTriggerType.CONFIRMATION_MODAL:
-      const payloadInfo = {
-        name: trigger?.payload?.funName,
-        modalOpen: true,
-        modalType: ModalType.RUN_ACTION,
-      };
-      const flag = yield call(requestModalConfirmationSaga, payloadInfo);
-      if (!flag) {
-        throw new UserCancelledActionExecutionError();
-      }
-      break;
-    case ActionTriggerType.POST_MESSAGE:
-      yield call(postMessageSaga, trigger.payload, triggerMeta);
+    case "POST_MESSAGE":
+      yield call(postMessageSaga, trigger, triggerMeta);
       break;
     default:
       log.error("Trigger type unknown", trigger);

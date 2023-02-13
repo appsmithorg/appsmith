@@ -78,6 +78,7 @@ const generateDataTreeWidgetWithoutMeta = (
     blockedDerivedProps[propertyName] = true;
   });
 
+  // Map of properties that can be overridden by both meta and default values
   const overridingMetaPropsMap: Record<string, boolean> = {};
 
   Object.entries(defaultProps).forEach(
@@ -214,11 +215,12 @@ export const generateDataTreeWidget = (
   } = generateDataTreeWidgetWithoutMetaMemoized(widget);
   const overridingMetaProps: Record<string, unknown> = {};
 
-  // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
-  Object.entries(defaultMetaProps).forEach(([key, value]) => {
+  // overridingMetaProps maps properties that can be overriden by either default values or meta changes to initial values.
+  // initial value is set to metaProps value or undefined (set to undefined to ensure that its path is present in the unevalTree).
+  Object.entries(defaultMetaProps).forEach(([key]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =
-        key in widgetMetaProps ? widgetMetaProps[key] : value;
+        key in widgetMetaProps ? widgetMetaProps[key] : undefined;
     }
   });
 

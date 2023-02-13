@@ -7,7 +7,7 @@ import {
   LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { MAIN_THREAD_ACTION } from "workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import {
   JSHINT as jshint,
   LintError as JSHintError,
@@ -52,8 +52,8 @@ import {
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
-import { MessageType, sendMessage } from "utils/MessageUtil";
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { ActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
+import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -68,7 +68,11 @@ export function getlintErrorsFromTree(
     skipEntityFunctions: true,
   });
 
-  addPlatformFunctionsToEvalContext(evalContext);
+  const platformFnNamesMap = Object.values(ActionTriggerFunctionNames).reduce(
+    (acc, name) => ({ ...acc, [name]: true }),
+    {} as { [x: string]: boolean },
+  );
+  Object.assign(evalContext, platformFnNamesMap);
 
   const evalContextWithOutFunctions = createEvaluationContext({
     dataTree: unEvalTree,
@@ -476,15 +480,11 @@ export function initiateLinting(
   requiresLinting: boolean,
 ) {
   if (!requiresLinting) return;
-  sendMessage.call(self, {
-    messageId: "",
-    messageType: MessageType.REQUEST,
-    body: {
-      data: {
-        lintOrder,
-        unevalTree,
-      },
-      method: MAIN_THREAD_ACTION.LINT_TREE,
+  WorkerMessenger.ping({
+    data: {
+      lintOrder,
+      unevalTree,
     },
+    method: MAIN_THREAD_ACTION.LINT_TREE,
   });
 }

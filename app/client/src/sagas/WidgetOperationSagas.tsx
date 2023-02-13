@@ -15,10 +15,10 @@ import {
   actionChannel,
   all,
   call,
-  take,
   fork,
   put,
   select,
+  take,
   takeEvery,
   takeLatest,
   takeLeading,
@@ -58,13 +58,12 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
   getContainerWidgetSpacesSelector,
-  getCanvasHeightOffset,
 } from "selectors/editorSelectors";
-import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
@@ -74,47 +73,46 @@ import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   createMessage,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
+  ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
   WIDGET_COPY,
   WIDGET_CUT,
-  ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
 
 import {
+  changeIdsOfPastePositions,
   CopiedWidgetGroup,
+  createSelectedWidgetsAsCopiedWidgets,
+  createWidgetCopy,
   doesTriggerPathsContainPropertyPath,
-  getParentBottomRowAfterAddingWidget,
+  filterOutSelectedWidgets,
+  getBoundariesFromSelectedWidgets,
+  getBoundaryWidgetsFromCopiedGroups,
+  getCanvasIdForContainer,
+  getContainerIdForCanvas,
+  getDefaultCanvas,
+  getMousePositions,
+  getNewPositionsForCopiedWidgets,
+  getNextWidgetName,
+  getOccupiedSpacesFromProps,
+  getParentWidgetIdForGrouping,
   getParentWidgetIdForPasting,
+  getPastePositionMapFromMousePointer,
+  getReflowedPositions,
+  getSelectedWidgetWhenPasting,
+  getSnappedGrid,
+  getValueFromTree,
+  getVerifiedSelectedWidgets,
+  getVerticallyAdjustedPositions,
   getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
   handleSpecificCasesWhilePasting,
-  getSelectedWidgetWhenPasting,
-  createSelectedWidgetsAsCopiedWidgets,
-  filterOutSelectedWidgets,
-  isSelectedWidgetsColliding,
-  getBoundaryWidgetsFromCopiedGroups,
-  createWidgetCopy,
-  getNextWidgetName,
-  getParentWidgetIdForGrouping,
-  purgeOrphanedDynamicPaths,
-  getReflowedPositions,
-  NewPastePositionVariables,
-  getContainerIdForCanvas,
-  getSnappedGrid,
-  getNewPositionsForCopiedWidgets,
-  getVerticallyAdjustedPositions,
-  getOccupiedSpacesFromProps,
-  changeIdsOfPastePositions,
-  getCanvasIdForContainer,
-  getMousePositions,
-  getPastePositionMapFromMousePointer,
-  getBoundariesFromSelectedWidgets,
-  WIDGET_PASTE_PADDING,
-  getDefaultCanvas,
   isDropTarget,
-  getValueFromTree,
-  getVerifiedSelectedWidgets,
+  isSelectedWidgetsColliding,
   mergeDynamicPropertyPaths,
+  NewPastePositionVariables,
+  purgeOrphanedDynamicPaths,
+  WIDGET_PASTE_PADDING,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -146,53 +144,7 @@ import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
 import { MetaState } from "reducers/entityReducers/metaReducer";
-
-export function* updateAllChildCanvasHeights(
-  currentContainerLikeWidgetId: string,
-  topRow: number,
-  bottomRow: number,
-  allWidgets?: CanvasWidgetsReduxState,
-) {
-  const containerLikeWidget: FlattenedWidgetProps = yield select(
-    getWidget,
-    currentContainerLikeWidgetId,
-  );
-  let stateWidgets: CanvasWidgetsReduxState | undefined = allWidgets;
-  if (!stateWidgets) stateWidgets = yield select(getWidgets);
-  const canvasHeightOffset: number = getCanvasHeightOffset(
-    containerLikeWidget.type,
-    containerLikeWidget,
-  );
-  const containerLikeWidgetHeightInPx: number =
-    (bottomRow - topRow - canvasHeightOffset) *
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-  const widgets = { ...stateWidgets };
-  if (Array.isArray(containerLikeWidget.children)) {
-    containerLikeWidget.children.forEach((childWidgetId: string) => {
-      const childWidget = { ...widgets[childWidgetId] };
-      if (Array.isArray(childWidget.children)) {
-        const maxChildBottomRow = childWidget.children.reduce((prev, next) => {
-          return widgets[next].bottomRow > prev
-            ? widgets[next].bottomRow
-            : prev;
-        }, 0);
-        const maxHeightBasedOnChildrenInPx =
-          maxChildBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-        const finalHeight = Math.max(
-          containerLikeWidgetHeightInPx,
-          maxHeightBasedOnChildrenInPx,
-        );
-        widgets[childWidgetId] = {
-          ...childWidget,
-          bottomRow: finalHeight,
-          minHeight: finalHeight,
-        };
-      }
-    });
-  }
-  return widgets;
-}
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -215,7 +167,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
-    let movedWidgets: {
+    const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(
       reflowWidgets,
@@ -223,13 +175,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       widget,
       snapColumnSpace,
       snapRowSpace,
-    );
-
-    movedWidgets = yield updateAllChildCanvasHeights(
-      widgetId,
-      topRow,
-      bottomRow,
-      movedWidgets,
     );
 
     const updatedCanvasBottomRow: number = yield call(
@@ -592,6 +537,7 @@ export function* getIsContainerLikeWidget(widget: FlattenedWidgetProps) {
   }
   return false;
 }
+
 export function* getPropertiesUpdatedWidget(
   updatesObj: UpdateWidgetPropertyPayload,
 ) {
@@ -1350,7 +1296,6 @@ function* pasteWidgetSaga(
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
   let reflowedMovementMap,
-    bottomMostRow: number | undefined,
     gridProps: GridProps | undefined,
     newPastingPositionMap: SpaceMap | undefined,
     canvasId;
@@ -1384,7 +1329,6 @@ function* pasteWidgetSaga(
     // If there are already widgets inside the selection box even before grouping
     //then we will have to move it down to the bottom most row
     ({
-      bottomMostRow,
       copiedWidgetGroups,
       gridProps,
       reflowedMovementMap,
@@ -1418,7 +1362,6 @@ function* pasteWidgetSaga(
     // new pasting positions, the variables are undefined if the positions cannot be calculated,
     // then it pastes the regular way at the bottom of the canvas
     ({
-      bottomMostRow,
       canvasId,
       gridProps,
       newPastingPositionMap,
@@ -1615,16 +1558,11 @@ function* pasteWidgetSaga(
               // Add the new child to existing children
               parentChildren = parentChildren.concat(widgetChildren);
             }
-            const parentBottomRow = getParentBottomRowAfterAddingWidget(
-              widgets[pastingParentId],
-              widget,
-            );
 
             widgets = {
               ...widgets,
               [pastingParentId]: {
                 ...widgets[pastingParentId],
-                bottomRow: Math.max(parentBottomRow, bottomMostRow || 0),
                 children: parentChildren,
               },
             };
@@ -1723,7 +1661,12 @@ function* pasteWidgetSaga(
     flashElementsById(newlyCreatedWidgetIds, 100);
   }
 
-  yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
+  yield put(
+    selectWidgetInitAction(
+      SelectionRequestType.Multiple,
+      newlyCreatedWidgetIds,
+    ),
+  );
 }
 
 function* cutWidgetSaga() {

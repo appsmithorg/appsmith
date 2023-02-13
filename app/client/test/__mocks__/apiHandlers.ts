@@ -6,7 +6,7 @@ import {
 } from "mockResponses/CommentApiMockResponse";
 import CreateWorkspaceMockResponse from "mockResponses/CreateWorkspaceMockResponse.json";
 import ApplicationsNewMockResponse from "mockResponses/ApplicationsNewMockResponse.json";
-
+import FetchReleasesMockResponse from "mockResponses/FetchReleasesMockResponse.json";
 const mockSuccessRes = {
   responseMeta: { status: 200, success: true },
   data: {},
@@ -19,6 +19,9 @@ export const handlers = [
   }),
   rest.get("/api/v1/applications/new", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(ApplicationsNewMockResponse));
+  }),
+  rest.get("/api/v1/applications/releaseItems",  (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(FetchReleasesMockResponse));
   }),
   // comment thread api
   // fetch application threads, accept query { applicationId }

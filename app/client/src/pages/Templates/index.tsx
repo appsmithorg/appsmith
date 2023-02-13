@@ -4,7 +4,11 @@ import * as Sentry from "@sentry/react";
 import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import { getTypographyByKey, SearchInput, SearchVariant } from "design-system";
+import {
+  getTypographyByKey,
+  SearchInput,
+  SearchVariant,
+} from "design-system-old";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -16,6 +20,7 @@ import {
   setTemplateSearchQuery,
 } from "actions/templateActions";
 import {
+  getForkableWorkspaces,
   getSearchedTemplateList,
   getTemplateFiltersLength,
   getTemplateSearchQuery,
@@ -31,7 +36,7 @@ import {
 import { getAllApplications } from "actions/applicationActions";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
 import { Template } from "api/TemplatesApi";
 import LoadingScreen from "./TemplatesModal/LoadingScreen";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
@@ -145,6 +150,7 @@ type TemplatesContentProps = {
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: Template) => void;
   stickySearchBar?: boolean;
+  isForkingEnabled: boolean;
 };
 
 export function TemplatesContent(props: TemplatesContentProps) {
@@ -196,6 +202,7 @@ export function TemplatesContent(props: TemplatesContentProps) {
       </SearchWrapper>
       <ResultsCount>{resultsText}</ResultsCount>
       <TemplateList
+        isForkingEnabled={props.isForkingEnabled}
         onForkTemplateClick={props.onForkTemplateClick}
         onTemplateClick={props.onTemplateClick}
         templates={templates}
@@ -205,6 +212,8 @@ export function TemplatesContent(props: TemplatesContentProps) {
 }
 
 function Templates() {
+  const workspaceList = useSelector(getForkableWorkspaces);
+
   return (
     <PageWrapper>
       <SidebarWrapper>
@@ -215,7 +224,7 @@ function Templates() {
         </SecondaryWrapper>
       </SidebarWrapper>
       <TemplateListWrapper>
-        <TemplatesContent />
+        <TemplatesContent isForkingEnabled={!!workspaceList.length} />
       </TemplateListWrapper>
     </PageWrapper>
   );

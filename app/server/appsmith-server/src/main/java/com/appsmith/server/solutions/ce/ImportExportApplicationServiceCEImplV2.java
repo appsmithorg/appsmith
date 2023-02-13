@@ -7,6 +7,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -21,6 +22,7 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -49,6 +51,7 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
@@ -75,6 +78,8 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -83,6 +88,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -120,12 +127,14 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
     private final AnalyticsService analyticsService;
+    private final CustomJSLibService customJSLibService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final Gson gson;
+    private final TransactionalOperator transactionalOperator;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -187,6 +196,46 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                             }
 
                             return application;
+                        });
+
+        /**
+         * Since we are exporting for git, we only consider unpublished JS libraries
+         * Ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1672225134025919
+         */
+        Mono<List<CustomJSLib>> allCustomJSLibListMono =
+                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, false)
+                        .zipWith(applicationMono)
+                        .map(tuple2 -> {
+                            Application application = tuple2.getT2();
+                            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                            Instant applicationLastCommittedAt = gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
+
+                            List<CustomJSLib> unpublishedCustomJSLibList = tuple2.getT1();
+                            List<String> updatedCustomJSLibList;
+                            if (applicationLastCommittedAt != null) {
+                                updatedCustomJSLibList = unpublishedCustomJSLibList
+                                        .stream()
+                                        .filter(lib -> lib.getUpdatedAt() == null ||
+                                                applicationLastCommittedAt.isBefore(lib.getUpdatedAt()))
+                                        .map(lib -> lib.getUidString())
+                                        .collect(Collectors.toList());
+                            }
+                            else {
+                                updatedCustomJSLibList = unpublishedCustomJSLibList
+                                        .stream()
+                                        .map(lib -> lib.getUidString())
+                                        .collect(Collectors.toList());
+                            }
+                            applicationJson.getUpdatedResources().put(FieldName.CUSTOM_JS_LIB_LIST,
+                                    new HashSet<>(updatedCustomJSLibList));
+
+                            /**
+                             * Previously it was a Set and as Set is an unordered collection of elements that
+                             * resulted in uncommitted changes. Making it a list and sorting it by the UidString
+                             * ensure that the order will be maintained. And this solves the issue.
+                             */
+                            Collections.sort(unpublishedCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
+                            return unpublishedCustomJSLibList;
                         });
 
         // Set json schema version which will be used to check the compatibility while importing the JSON
@@ -463,6 +512,11 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                 return applicationJson;
                             });
                 })
+                .then(allCustomJSLibListMono)
+                .map(allCustomLibList -> {
+                    applicationJson.setCustomJSLibList(allCustomLibList);
+                    return applicationJson;
+                })
                 .then(currentUserMono)
                 .map(user -> {
                     stopwatch.stopTimer();
@@ -682,6 +736,23 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
 
+        /* We need to take care of the null case in case someone is trying to import an older app where JS libs did
+        not exist */
+        List<CustomJSLib> customJSLibs = importedDoc.getCustomJSLibList() == null ? new ArrayList<>() :
+                importedDoc.getCustomJSLibList();
+        Mono<Application> installedJSLibMono = Flux.fromIterable(customJSLibs)
+                .flatMap(customJSLib -> {
+                    customJSLib.setId(null);
+                    customJSLib.setCreatedAt(null);
+                    customJSLib.setUpdatedAt(null);
+                    return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false);
+                })
+                .collectList()
+                .map(jsLibDTOList -> {
+                    importedApplication.setUnpublishedCustomJSLibs(new HashSet<>(jsLibDTOList));
+                    return importedApplication;
+                });
+
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
                 .findAllByWorkspaceId(workspaceId, isGitSync ? Optional.empty() : Optional.of(datasourcePermission.getEditPermission()))
@@ -700,7 +771,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         importedApplication.setPublishedPages(null);
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
-        Mono<Application> importedApplicationMono = pluginRepository.findAll()
+        Mono<Application> importedApplicationMono = installedJSLibMono
+                .flatMapMany(ignored -> pluginRepository.findAll())
                 .map(plugin -> {
                     final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
                     pluginMap.put(pluginReference, plugin.getId());
@@ -756,11 +828,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     existingDatasource.setStructure(null);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
-                                    return datasourceService.update(existingDatasource.getId(), existingDatasource)
-                                            .map(datasource1 -> {
-                                                datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                                return datasource1;
-                                            });
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
 
                                 // This is explicitly copied over from the map we created before
@@ -777,19 +845,17 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId)
-                                        .map(datasource1 -> {
-                                            datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                            return datasource1;
-                                        });
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId);
                             });
                 })
-                .then(
+                .collectMap(Datasource::getName, Datasource::getId)
+                .flatMap(map -> {
+                        datasourceMap.putAll(map);
                         // 1. Assign the policies for the imported application
                         // 2. Check for possible duplicate names,
                         // 3. Save the updated application
 
-                        Mono.just(importedApplication)
+                        return Mono.just(importedApplication)
                                 .zipWith(currUserMono)
                                 .map(objects -> {
                                     Application application = objects.getT1();
@@ -848,7 +914,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                 });
                                     }
                                     return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
-                                })
+                                });
+                    }
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
                 .flatMap(savedApp -> {
@@ -1167,12 +1234,9 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 })
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application ", throwable.getMessage());
-                    if (importedApplication.getId() != null && applicationId == null) {
-                        return applicationPageService.deleteApplication(importedApplication.getId())
-                                .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
-                    }
-                    return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE));
-                });
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
+                })
+                .as(transactionalOperator::transactional);
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow
@@ -1955,6 +2019,10 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
             authResponse.setExpiresAt(Instant.now());
             auth2.setAuthenticationResponse(authResponse);
             datasource.getDatasourceConfiguration().setAuthentication(auth2);
+        } else if (org.apache.commons.lang.StringUtils.equals(authType, BearerTokenAuth.class.getName())) {
+            BearerTokenAuth auth = new BearerTokenAuth();
+            auth.setBearerToken(decryptedFields.getBearerTokenAuth().getBearerToken());
+            datasource.getDatasourceConfiguration().setAuthentication(auth);
         }
         return datasource;
     }
@@ -1995,6 +2063,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 BasicAuth auth = (BasicAuth) authentication;
                 dsDecryptedFields.setPassword(auth.getPassword());
                 dsDecryptedFields.setBasicAuth(auth);
+            } else if (authentication instanceof BearerTokenAuth auth) {
+                dsDecryptedFields.setBearerTokenAuth(auth);
             }
             dsDecryptedFields.setAuthType(authentication.getClass().getName());
             return dsDecryptedFields;

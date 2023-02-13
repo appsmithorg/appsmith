@@ -13,7 +13,9 @@ export class CommonLocators {
     widgetName +
     "') span.bp3-editable-text-content";
   _widgetNameTxt = ".editable-text-container input.bp3-editable-text-input";
-  _saveStatusSuccess = ".t--save-status-success";
+  _saveStatusContainer = ".t--save-status-container";
+  _statusSaving = ".t--save-status-is-saving";
+  _saveStatusError = ".t--save-status-error";
   _codeMirrorTextArea = ".CodeMirror textarea";
   _codeMirrorCode = ".CodeMirror-code";
   _codeEditorTargetTextArea = ".CodeEditorTarget textarea";
@@ -72,7 +74,7 @@ export class CommonLocators {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//button[contains(@class, 't--open-dropdown-Select-Action')]";
-    _selectPropPageDropdown = (ddName: string) =>
+  _selectPropPageDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//button[contains(@class, 't--open-dropdown-Select-Page')]";
@@ -117,6 +119,7 @@ export class CommonLocators {
   _codeMirrorValue = "//div[contains(@class,'CodeMirror-code')]//span/span";
   _evaluatedCurrentValue =
     "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre";
+  _evaluatedValuePopDragHandler = ".drag-handle-block";
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _multiSelectOptions = (option: string) =>
@@ -164,9 +167,11 @@ export class CommonLocators {
     "']";
   _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
   _omnibarDescription = "[data-cy='description']";
-  _previewModeToggle = ".t--switch-preview-mode-toggle";
+  _previewModeToggle = (currentMode: "preview" | "edit") =>
+    `[data-cy='${currentMode}-mode']`;
   _editModeToggle = ".t--switch-comment-mode-off";
   _editorVariable = ".cm-variable";
   _consoleString = ".cm-string";
   _commentString = ".cm-comment";
+  _modalWrapper = "[data-cy='modal-wrapper']";
 }

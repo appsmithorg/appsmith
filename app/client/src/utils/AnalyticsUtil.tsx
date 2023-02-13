@@ -228,6 +228,7 @@ export type EventName =
   | "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
   | "ADMIN_SETTINGS_ENABLE_AUTH_METHOD"
   | "ADMIN_SETTINGS_UPGRADE_HOOK"
+  | "BILLING_UPGRADE_ADMIN_SETTINGS"
   | "REFLOW_BETA_FLAG"
   | "CONTAINER_JUMP"
   | "CONNECT_GIT_CLICK"
@@ -317,68 +318,100 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
+  static blockTrackEvent: boolean | undefined;
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
 
+  static initializeSegmentWithoutTracking(key: string) {
+    AnalyticsUtil.blockTrackEvent = true;
+    return AnalyticsUtil.initializeSegment(key);
+  }
+
   static initializeSegment(key: string) {
-    (function init(window: any) {
-      const analytics = (window.analytics = window.analytics || []);
-      if (!analytics.initialize) {
-        if (analytics.invoked) {
-          log.error("Segment snippet included twice.");
-        } else {
-          analytics.invoked = !0;
-          analytics.methods = [
-            "trackSubmit",
-            "trackClick",
-            "trackLink",
-            "trackForm",
-            "pageview",
-            "identify",
-            "reset",
-            "group",
-            "track",
-            "ready",
-            "alias",
-            "debug",
-            "page",
-            "once",
-            "off",
-            "on",
-          ];
-          analytics.factory = function(t: any) {
-            return function() {
-              const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
-              e.unshift(t);
-              analytics.push(e);
-              return analytics;
+    const initPromise = new Promise<boolean>((resolve) => {
+      (function init(window: any) {
+        const analytics = (window.analytics = window.analytics || []);
+        if (!analytics.initialize) {
+          if (analytics.invoked) {
+            log.error("Segment snippet included twice.");
+          } else {
+            analytics.invoked = !0;
+            analytics.methods = [
+              "trackSubmit",
+              "trackClick",
+              "trackLink",
+              "trackForm",
+              "pageview",
+              "identify",
+              "reset",
+              "group",
+              "track",
+              "ready",
+              "alias",
+              "debug",
+              "page",
+              "once",
+              "off",
+              "on",
+            ];
+            analytics.factory = function(t: any) {
+              return function() {
+                const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
+                e.unshift(t);
+                analytics.push(e);
+                return analytics;
+              };
             };
+          }
+          for (let t: any = 0; t < analytics.methods.length; t++) {
+            const e = analytics.methods[t];
+            analytics[e] = analytics.factory(e);
+          }
+          analytics.load = function(t: any, e: any) {
+            const n = document.createElement("script");
+            n.type = "text/javascript";
+            n.async = !0;
+            // Ref: https://www.notion.so/appsmith/530051a2083040b5bcec15a46121aea3
+            n.src = "https://a.appsmith.com/reroute/" + t + "/main.js";
+            const a: any = document.getElementsByTagName("script")[0];
+            a.parentNode.insertBefore(n, a);
+            analytics._loadOptions = e;
           };
+          analytics.ready(() => {
+            resolve(true);
+          });
+          setTimeout(() => {
+            resolve(false);
+          }, 2000);
+          analytics.SNIPPET_VERSION = "4.1.0";
+          // Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#batching
+          analytics.load(key, {
+            integrations: {
+              "Segment.io": {
+                deliveryStrategy: {
+                  strategy: "batching", // The delivery strategy used for sending events to Segment
+                  config: {
+                    size: 100, // The batch size is the threshold that forces all batched events to be sent once it’s reached.
+                    timeout: 1000, // The number of milliseconds that forces all events queued for batching to be sent, regardless of the batch size, once it’s reached
+                  },
+                },
+              },
+            },
+          });
+          analytics.page();
         }
-        for (let t: any = 0; t < analytics.methods.length; t++) {
-          const e = analytics.methods[t];
-          analytics[e] = analytics.factory(e);
-        }
-        analytics.load = function(t: any, e: any) {
-          const n = document.createElement("script");
-          n.type = "text/javascript";
-          n.async = !0;
-          // Ref: https://www.notion.so/appsmith/530051a2083040b5bcec15a46121aea3
-          n.src = "https://a.appsmith.com/reroute/" + t + "/main.js";
-          const a: any = document.getElementsByTagName("script")[0];
-          a.parentNode.insertBefore(n, a);
-          analytics._loadOptions = e;
-        };
-        analytics.SNIPPET_VERSION = "4.1.0";
-        analytics.load(key);
-        analytics.page();
-      }
-    })(window);
+      })(window);
+    });
+    return initPromise;
   }
 
   static logEvent(eventName: EventName, eventData: any = {}) {
+    if (AnalyticsUtil.blockTrackEvent) {
+      return;
+    }
+
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
@@ -476,6 +509,18 @@ class AnalyticsUtil {
         username: userData.username,
       });
     }
+
+    AnalyticsUtil.blockTrackEvent = false;
+  }
+
+  static getAnonymousId() {
+    const windowDoc: any = window;
+    const { segment } = getAppsmithConfigs();
+    if (windowDoc.analytics && windowDoc.analytics.user) {
+      return windowDoc.analytics.user().anonymousId();
+    } else if (segment.enabled) {
+      return localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', "");
+    }
   }
 
   static reset() {
@@ -486,6 +531,11 @@ class AnalyticsUtil {
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
     window.zipy && window.zipy.anonymize();
+  }
+
+  static removeAnalytics() {
+    AnalyticsUtil.blockTrackEvent = false;
+    (window as any).analytics = undefined;
   }
 }
 

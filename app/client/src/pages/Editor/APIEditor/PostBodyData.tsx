@@ -18,7 +18,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes, MultiSwitch } from "design-system";
+import { Classes, MultiSwitch } from "design-system-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
@@ -86,6 +86,7 @@ function PostBodyData(props: Props) {
           <DynamicTextField
             border={CodeEditorBorder.ALL_SIDE}
             dataTreePath={`${dataTreePath}.body`}
+            evaluatedPopUpLabel={"Body"}
             expected={expectedPostBody}
             mode={EditorModes.JSON_WITH_BINDING}
             name="actionConfiguration.body"

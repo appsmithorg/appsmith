@@ -14,6 +14,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ActionProvider;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
@@ -27,11 +28,13 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -65,6 +68,7 @@ import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
@@ -80,10 +84,12 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple5;
 
 import javax.lang.model.SourceVersion;
@@ -101,10 +107,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.CommonFieldName.REDACTED_DATA;
+import static com.appsmith.external.constants.spans.ActionSpans.*;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
@@ -148,6 +157,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
 
+    private final ObservationRegistry observationRegistry;
+
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
                                   MongoConverter mongoConverter,
@@ -171,7 +182,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission,
                                   PagePermission pagePermission,
-                                  ActionPermission actionPermission) {
+                                  ActionPermission actionPermission,
+                                  ObservationRegistry observationRegistry) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -187,6 +199,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
         this.permissionGroupService = permissionGroupService;
+        this.observationRegistry = observationRegistry;
         this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
         this.configService = configService;
@@ -366,7 +379,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             } else {
                 // TODO: check if datasource should be fetched with edit during action create or update.
                 //Data source already exists. Find the same.
-                datasourceMono = datasourceService.findById(action.getDatasource().getId(), datasourcePermission.getEditPermission())
+                datasourceMono = datasourceService.findById(action.getDatasource().getId())
                         .switchIfEmpty(Mono.defer(() -> {
                             action.setIsValid(false);
                             invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
@@ -658,6 +671,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return repository.findById(actionId, actionPermission.getExecutePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
+                .name(ACTION_EXECUTION_CACHED_ACTION)
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
     }
 
@@ -697,6 +712,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     // The external datasource have already been validated. No need to validate again.
                     return Mono.just(datasource);
                 })
+                .name(ACTION_EXECUTION_CACHED_DATASOURCE)
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
     }
 
@@ -721,6 +738,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return pluginService.findById(datasource.getPluginId());
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN)))
+                .name(ACTION_EXECUTION_CACHED_PLUGIN)
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
     }
 
@@ -739,7 +758,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
 
                     return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
-                });
+                })
+                .name(ACTION_EXECUTION_EDITOR_CONFIG)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -764,40 +785,79 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                                          Plugin plugin,
                                                                          PluginExecutor pluginExecutor,
                                                                          String environmentName) {
-        // This method will be overridden in EE branch to make use of environmentName.
-        Mono<Datasource> validatedDatasourceMono = getValidatedDatasourceForActionExecution(datasource, environmentName);
 
-        Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
-                .flatMap(datasource1 -> getDatasourceContextFromValidatedDatasourceForActionExecution(datasource1,
-                        plugin,
-                        environmentName))
-                // Now that we have the context (connection details), execute the action.
-                .flatMap(resourceContext -> validatedDatasourceMono
-                        .flatMap(datasource1 -> {
-                            final Instant requestedAt = Instant.now();
-                            return ((Mono<ActionExecutionResult>) pluginExecutor.
-                                    executeParameterized(resourceContext.getConnection(),
-                                            executeActionDTO,
-                                            datasource1.getDatasourceConfiguration(),
-                                            actionDTO.getActionConfiguration()))
-                                    .map(actionExecutionResult -> {
-                                        ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
-                                        if (actionExecutionRequest == null) {
-                                            actionExecutionRequest = new ActionExecutionRequest();
-                                        }
-                                        actionExecutionRequest.setActionId(executeActionDTO.getActionId());
-                                        actionExecutionRequest.setRequestedAt(requestedAt);
+        DatasourceContextIdentifier dsContextIdentifier = new DatasourceContextIdentifier();
 
-                                        actionExecutionResult.setRequest(actionExecutionRequest);
-                                        return actionExecutionResult;
+        Mono<ActionExecutionResult> executionMono =
+                datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
+                        .flatMap(tuple3 -> {
+                            Datasource datasource1 = tuple3.getT1();
+                            DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
+                            Map<String, BaseDomain> environmentMap = tuple3.getT3();
+
+                            dsContextIdentifier.setDatasourceId(datasourceContextIdentifier.getDatasourceId());
+                            dsContextIdentifier.setEnvironmentId(datasourceContextIdentifier.getEnvironmentId());
+
+                            return getValidatedDatasourceForActionExecution(datasource1, datasourceContextIdentifier.getEnvironmentId())
+                                    .zipWhen(validatedDatasource -> getDsContextForActionExecution(validatedDatasource,
+                                            plugin,
+                                            datasourceContextIdentifier,
+                                            environmentMap))
+                                    .flatMap(tuple2 -> {
+                                        Datasource validatedDatasource = tuple2.getT1();
+                                        DatasourceContext<?> resourceContext = tuple2.getT2();
+                                        // Now that we have the context (connection details), execute the action.
+
+                                        Instant requestedAt = Instant.now();
+                                        return ((Mono<ActionExecutionResult>)
+                                                pluginExecutor.executeParameterizedWithMetrics(resourceContext.getConnection(),
+                                                        executeActionDTO,
+                                                        validatedDatasource.getDatasourceConfiguration(),
+                                                        actionDTO.getActionConfiguration(),
+                                                        observationRegistry))
+                                                .map(actionExecutionResult -> {
+                                                    ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
+                                                    if (actionExecutionRequest == null) {
+                                                        actionExecutionRequest = new ActionExecutionRequest();
+                                                    }
+
+                                                    actionExecutionRequest.setActionId(executeActionDTO.getActionId());
+                                                    actionExecutionRequest.setRequestedAt(requestedAt);
+
+                                                    actionExecutionResult.setRequest(actionExecutionRequest);
+                                                    return actionExecutionResult;
+                                                });
                                     });
-                        }));
+                        });
 
         return executionMono.onErrorResume(StaleConnectionException.class, error -> {
             log.info("Looks like the connection is stale. Retrying with a fresh context.");
-            return deleteDatasourceContextForRetry(datasource, environmentName)
-                    .then(executionMono);
+            return deleteDatasourceContextForRetry(dsContextIdentifier).then(executionMono);
         });
+    }
+
+    /**
+     * This is a composite method for fetching authenticated datasource, datasourceContextIdentifier, and environmentMap
+     *
+     * @param datasource
+     * @param environmentName
+     * @return
+     */
+    protected Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
+    getValidatedDatasourceWithDsContextKeyAndEnvMap(Datasource datasource, String environmentName) {
+        // see EE override for complete usage.
+        return datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
+                .flatMap(tuple3 -> {
+                    Datasource datasource1 = tuple3.getT1();
+                    DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
+                    Map<String, BaseDomain> environmentMap = tuple3.getT3();
+
+                    return getValidatedDatasourceForActionExecution(datasource1, environmentName)
+                            .flatMap(datasource2 -> Mono.zip(Mono.just(datasource2),
+                                    Mono.just(datasourceContextIdentifier),
+                                    Mono.just(environmentMap))
+                            );
+                });
     }
 
     /**
@@ -806,10 +866,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param datasource
      * @return
      */
-    protected Mono<Datasource> getValidatedDatasourceForActionExecution(Datasource datasource, String environmentName) {
+    protected Mono<Datasource> getValidatedDatasourceForActionExecution(Datasource datasource, String environmentId) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
-        return authenticationValidator.validateAuthentication(datasource).cache();
+        return authenticationValidator.validateAuthentication(datasource, environmentId)
+                .name(ACTION_EXECUTION_VALIDATE_AUTHENTICATION)
+                .tap(Micrometer.observation(observationRegistry))
+                .cache();
     }
 
     /**
@@ -817,31 +880,35 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      *
      * @param validatedDatasource
      * @param plugin
-     * @param environmentName
+     * @param datasourceContextIdentifier
+     * @param environmentMap
      * @return datasourceContextMono
      */
-    protected Mono<DatasourceContext<?>> getDatasourceContextFromValidatedDatasourceForActionExecution
-    (Datasource validatedDatasource, Plugin plugin, String environmentName) {
-        // the environmentName argument is not consumed over here
-        // See EE override for usage of variable
+    protected Mono<DatasourceContext<?>> getDsContextForActionExecution(Datasource validatedDatasource, Plugin plugin,
+                                                                        DatasourceContextIdentifier datasourceContextIdentifier,
+                                                                        Map<String, BaseDomain> environmentMap) {
         if (plugin.isRemotePlugin()) {
-            return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource);
+            return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource)
+                    .tag("plugin", plugin.getPackageName())
+                    .name(ACTION_EXECUTION_DATASOURCE_CONTEXT_REMOTE)
+                    .tap(Micrometer.observation(observationRegistry));
         }
-        return datasourceContextService.getDatasourceContext(validatedDatasource);
-
+        return datasourceContextService.getDatasourceContext(validatedDatasource, datasourceContextIdentifier, environmentMap)
+                .tag("plugin", plugin.getPackageName())
+                .name(ACTION_EXECUTION_DATASOURCE_CONTEXT)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
      * Deletes the datasourceContext for the given datasource
      *
-     * @param datasource
-     * @param environmentName
+     * @param datasourceContextIdentifier
      * @return datasourceContextMono
      */
-    protected Mono<DatasourceContext<?>> deleteDatasourceContextForRetry(Datasource datasource, String environmentName) {
+    protected Mono<DatasourceContext<?>> deleteDatasourceContextForRetry(DatasourceContextIdentifier datasourceContextIdentifier) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
-        return datasourceContextService.deleteDatasourceContext(datasource.getId());
+        return datasourceContextService.deleteDatasourceContext(datasourceContextIdentifier);
     }
 
     protected Mono<ActionExecutionResult> handleExecutionErrors(Mono<ActionExecutionResult> actionExecutionResultMono,
@@ -1020,6 +1087,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @return an executionDTO object with parameterMap
      */
     protected Mono<ExecuteActionDTO> createExecuteActionDTO(Flux<Part> partFlux) {
+        final AtomicLong totalReadableByteCount = new AtomicLong(0);
         final ExecuteActionDTO dto = new ExecuteActionDTO();
         return partFlux
                 .flatMap(part -> {
@@ -1072,6 +1140,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             .join(part.content())
                             .map(dataBuffer -> {
                                 byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                                totalReadableByteCount.addAndGet(dataBuffer.readableByteCount());
                                 dataBuffer.read(bytes);
                                 DataBufferUtils.release(dataBuffer);
                                 param.setValue(new String(bytes, StandardCharsets.UTF_8));
@@ -1083,6 +1152,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (dto.getActionId() == null) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
                     }
+
+                    dto.setTotalReadableByteCount(totalReadableByteCount.longValue());
 
                     final Set<String> visitedBindings = new HashSet<>();
                     /*
@@ -1142,7 +1213,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     dto.setParams(params);
                     return Mono.just(dto);
-                });
+                })
+                .name(ACTION_EXECUTION_REQUEST_PARSING)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -1163,7 +1236,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             executeActionDTO.setActionId(branchedAction.getId());
                             return executeActionDTO;
                         }))
-                .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, environmentName));
+                .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, environmentName))
+                .name(ACTION_EXECUTION_SERVER_EXECUTION)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
 
@@ -1373,9 +1448,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
                             "timeElapsed", timeElapsed,
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
-                            "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, String.valueOf(executionParams.size()),
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams.stream().collect(Collectors.joining(",", "[", "]"))
+                            "actionId", ObjectUtils.defaultIfNull(action.getId(), "")
+                    ));
+                    data.putAll(Map.of(
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_SIZE, executeActionDto.getTotalReadableByteCount(),
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, executionParams.size()
                     ));
                     data.putAll(Map.of(
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
@@ -1410,17 +1487,23 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         executionRequestQuery = actionExecutionResult.getRequest().getQuery();
                     }
 
-                    final Map<String, Object> eventData = Map.of(
+                    final Map<String, Object> eventData = new HashMap<>(Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
                             FieldName.APP_MODE, appMode,
                             FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
                             FieldName.ACTION_EXECUTION_TIME, timeElapsed,
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams,
                             FieldName.ACTION_EXECUTION_QUERY, executionRequestQuery,
                             FieldName.APPLICATION, application,
                             FieldName.PLUGIN, plugin
-                    );
+                    ));
+
+                    if (executeActionDto.getTotalReadableByteCount() <= Constraint.MAX_ANALYTICS_SIZE_BYTES) {
+                        // Only send params info if total size is less than 5 MB
+                        eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams);
+                    } else {
+                        eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, REDACTED_DATA);
+                    }
                     data.put(FieldName.EVENT_DATA, eventData);
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data)

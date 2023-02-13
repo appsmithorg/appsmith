@@ -8,7 +8,7 @@ import {
   getTemplateInformation,
   importTemplateIntoApplication,
 } from "actions/templateActions";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -154,6 +154,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
           </TemplateDescriptionWrapper>
           <StyledSimilarTemplatesWrapper
             breakpointCols={breakpointColumns}
+            isForkingEnabled
             onBackPress={props.onBackPress}
             onClick={onSimilarTemplateClick}
             onFork={onForkTemplateClick}

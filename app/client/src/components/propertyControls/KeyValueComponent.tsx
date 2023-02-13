@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { FormIcons } from "icons/FormIcons";
-import { AnyStyledComponent } from "styled-components";
 import {
   ControlWrapper,
   StyledInputGroup,
@@ -11,7 +9,7 @@ import {
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
-import { Category, Size } from "design-system";
+import { Category, Size } from "design-system-old";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
@@ -47,7 +45,7 @@ function updateOptionValue<T>(
   });
 }
 
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
+const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
   cursor: pointer;
 
   && svg path {
