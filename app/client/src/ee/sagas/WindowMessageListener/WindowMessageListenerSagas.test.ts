@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import {
-  UnlistenWindowMessageDescription,
-  WindowMessageListenerDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
+  TUnlistenWindowMessageDescription,
+  TWindowMessageListenerDescription,
+} from "@appsmith/workers/Evaluation/fns/messageListenerFns";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   windowMessageListener,
@@ -37,7 +37,7 @@ describe("Window message listener", () => {
     jest.restoreAllMocks();
   });
   it("1. addEventListener should be called", () => {
-    const payload: WindowMessageListenerDescription["payload"] = {
+    const payload: TWindowMessageListenerDescription["payload"] = {
       callbackString: "() => {}",
       acceptedOrigin: "https://domain.com",
     };
@@ -133,7 +133,7 @@ describe("Window message listener", () => {
 
   it("4. addEventListener shouldn't be called again", () => {
     expect(__listenersMap__.get("https://domain.com")).toBeDefined();
-    const payload: WindowMessageListenerDescription["payload"] = {
+    const payload: TWindowMessageListenerDescription["payload"] = {
       callbackString: "() => {}",
       acceptedOrigin: "https://domain.com",
     };
@@ -151,7 +151,7 @@ describe("Window message listener", () => {
 
   it("5. removeEventListener shouldn't be called", () => {
     expect(__listenersMap__.get("https://domain1.com")).not.toBeDefined();
-    const payload: UnlistenWindowMessageDescription["payload"] = {
+    const payload: TUnlistenWindowMessageDescription["payload"] = {
       origin: "https://domain1.com",
     };
 
@@ -168,7 +168,7 @@ describe("Window message listener", () => {
 
   it("6. removeEventListener should be called", () => {
     expect(__listenersMap__.get("https://domain.com")).toBeDefined();
-    const payload: UnlistenWindowMessageDescription["payload"] = {
+    const payload: TUnlistenWindowMessageDescription["payload"] = {
       origin: "https://domain.com",
     };
 
@@ -216,7 +216,7 @@ describe("Window message listener", () => {
   });
 
   it("9. addEventListener shouldn't be called with invalid URL", () => {
-    const payload: WindowMessageListenerDescription["payload"] = {
+    const payload: TWindowMessageListenerDescription["payload"] = {
       callbackString: "() => {}",
       acceptedOrigin: "random",
     };
@@ -233,7 +233,7 @@ describe("Window message listener", () => {
   });
 
   it("10. removeEventListener shouldn't be called with invalid URL", () => {
-    const payload: UnlistenWindowMessageDescription["payload"] = {
+    const payload: TUnlistenWindowMessageDescription["payload"] = {
       origin: "random",
     };
 

@@ -3,7 +3,6 @@ import { IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch, useSelector } from "react-redux";
-import BECtaImage from "assets/svg/be-upgrade/be-cta.svg";
 // import { getAllAclUsers } from "@appsmith/selectors/aclSelectors";
 import {
   ACTIVATE,
@@ -42,6 +41,7 @@ import {
   getLicenseStatus,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
@@ -153,7 +153,7 @@ export function Billing() {
           <DialogHeaderImg
             className="no-sub-img"
             loading="lazy"
-            src={BECtaImage}
+            src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
           />
           <Text type={TextType.H1}>{createMessage(UPDATE_LICENSE)}</Text>
           <LicenseForm

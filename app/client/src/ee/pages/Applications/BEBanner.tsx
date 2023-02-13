@@ -1,6 +1,5 @@
 import React from "react";
 import { Button, Category, Size, Text, TextType } from "design-system-old";
-import BECtaImage from "assets/svg/be-upgrade/be-cta.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getRemainingDays,
@@ -22,6 +21,7 @@ import {
   BannerTextWrapper,
   BannerCtaWrapper,
 } from "./styles";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export function BEBanner() {
   const daysLeft = useSelector(getRemainingDays);
@@ -39,7 +39,7 @@ export function BEBanner() {
           alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
           className="no-sub-img"
           height="180px"
-          src={BECtaImage}
+          src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
           width="180px"
         />
         <BannerTextWrapper>
