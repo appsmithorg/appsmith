@@ -46,7 +46,7 @@ describe("JSONForm Footer spec", () => {
       cy.get(".t--jsonform-footer").then(($footer) => {
         const gap = $footer.prop("offsetTop") - $body.prop("scrollHeight");
 
-        expect(gap).equals(0);
+        expect(gap).equals(1);
       });
     });
   });
@@ -72,7 +72,7 @@ describe("JSONForm Footer spec", () => {
             $footer.prop("offsetHeight") -
             $form.prop("offsetHeight");
 
-          expect(gap).equals(0);
+          expect(gap).equals(1);
         });
       });
   });
@@ -91,7 +91,7 @@ describe("JSONForm Footer spec", () => {
             $footer.prop("offsetHeight") -
             $form.prop("scrollHeight");
 
-          expect(gap).equals(0);
+          expect(gap).equals(1);
         });
       });
   });

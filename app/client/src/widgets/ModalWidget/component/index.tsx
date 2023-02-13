@@ -178,8 +178,6 @@ export default function ModalComponent(props: ModalComponentProps) {
       setModalPosition("unset");
     }, 100);
 
-    modalContentRef.current?.focus();
-
     return () => {
       // handle modal close events when this component unmounts
       // will be called in all cases :-

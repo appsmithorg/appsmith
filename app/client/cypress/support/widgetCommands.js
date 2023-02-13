@@ -280,7 +280,7 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
     .type("{enter}");
   cy.get(inputcss)
     .first()
-    .trigger("mouseover", { force: true });
+    .click({ force: true });
   cy.contains(innercss, text);
 });
 
@@ -338,6 +338,7 @@ Cypress.Commands.add("getCodeMirror", () => {
 Cypress.Commands.add("testCodeMirror", (value) => {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   cy.EnableAllCodeEditors();
+  cy.wait(2000);
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
@@ -1261,10 +1262,30 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
     .first()
     .trigger("mouseover", { force: true })
     .wait(500);
-  cy.get(
-    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
-  )
+  cy.get(`${selector}:first-of-type`)
     .first()
+    .click({ force: true })
+    .wait(500);
+  cy.get(".t--widget-propertypane-toggle > .t--widget-name")
+    .first()
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
+Cypress.Commands.add("openPropertyPaneFromModal", (widgetType) => {
+  const selector = `.t--draggable-${widgetType}`;
+  cy.wait(500);
+  cy.get(selector)
+    .first()
+    .trigger("mouseover", { force: true })
+    .wait(500);
+  cy.get(`${selector}:first-of-type`)
+    .first()
+    .click({ force: true })
+    .wait(500);
+  cy.get(".t--widget-propertypane-toggle > .t--widget-name")
+    .last()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
@@ -1279,9 +1300,11 @@ Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
       .last()
       .trigger("mouseover", { force: true })
       .wait(500);
-    cy.get(
-      `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
-    )
+    cy.get(`${selector}:first-of-type`)
+      .first()
+      .click({ force: true })
+      .wait(500);
+    cy.get(".t--widget-propertypane-toggle > .t--widget-name")
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -1675,11 +1698,13 @@ Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
     .scrollIntoView()
     .trigger("mouseover", { force: true })
     .wait(500);
-  cy.get(
-    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
-  )
+  cy.get(`${selector}:first-of-type`)
     .eq(index)
     .scrollIntoView()
+    .click({ force: true })
+    .wait(500);
+  cy.get(".t--widget-propertypane-toggle > .t--widget-name")
+    .first()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);

@@ -24,7 +24,7 @@ describe("Table Widget V2 Functionality", function() {
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidgetV2,
-      commonlocators.tableV2Inner,
+      widgetsPage.widgetNameSpan,
     );
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");

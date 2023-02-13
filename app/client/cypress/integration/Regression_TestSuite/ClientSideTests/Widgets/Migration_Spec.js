@@ -155,7 +155,7 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
               .eq(0)
               .contains("State:", { timeout: 30000 })
               .should("exist"),
@@ -169,7 +169,7 @@ describe("Migration Validate", function() {
         cy.get(selector + " button span")
           .invoke("text")
           .then((statetxt) => {
-            cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
+            cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
               .eq(0)
               .invoke("text")
               .then((txtWidtxt) => {
@@ -227,7 +227,7 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
                 timeout: 50000,
               })
               .eq(0)
@@ -240,7 +240,7 @@ describe("Migration Validate", function() {
           },
         ).then(() => cy.wait(500)); //allow time for n/w to finish
 
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
           timeout: 30000,
         })
           .eq(0)
@@ -265,7 +265,7 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
                 timeout: 50000,
               })
               .eq(0)
@@ -278,7 +278,7 @@ describe("Migration Validate", function() {
           },
         ).then(() => cy.wait(500)); //allow time for n/w to finish
 
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
           timeout: 30000,
         })
           .eq(0)
@@ -331,7 +331,7 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
                 timeout: 50000,
               })
               .eq(0)
@@ -347,7 +347,7 @@ describe("Migration Validate", function() {
         cy.get(selector + " button span")
           .invoke("text")
           .then((statetxt) => {
-            cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
+            cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
               .eq(0)
               .invoke("text")
               .then((txtWidtxt) => {
@@ -406,7 +406,7 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
                 timeout: 50000,
               })
               .eq(0)
@@ -419,7 +419,7 @@ describe("Migration Validate", function() {
           },
         ).then(() => cy.wait(500)); //allow time for n/w to finish
 
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
           timeout: 30000,
         })
           .eq(0)
@@ -444,7 +444,7 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
                 timeout: 50000,
               })
               .eq(0)
@@ -457,7 +457,7 @@ describe("Migration Validate", function() {
           },
         ).then(() => cy.wait(500)); //allow time for n/w to finish
 
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
+        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
           timeout: 30000,
         })
           .eq(0)
