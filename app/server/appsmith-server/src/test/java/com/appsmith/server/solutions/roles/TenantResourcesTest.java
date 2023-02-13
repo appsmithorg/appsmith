@@ -46,6 +46,8 @@ import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
+import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
+import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.CUSTOM_ROLES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -329,29 +331,43 @@ public class TenantResourcesTest {
                     Map<String, Set<IdPermissionDTO>> disableHelperMap = groupsAndRolesTab.getDisableHelperMap();
                     assertThat(disableHelperMap).isNotNull();
 
-                    String tenantCreate = tenantId + "_Create";
-                    String tenantEdit = tenantId + "_Edit";
-                    String tenantDelete = tenantId + "_Delete";
+                    String tenantCreateRole = tenantId + "_Create_" + TENANT_ROLE;
+                    String tenantCreateGroup = tenantId + "_Create_" + TENANT_GROUP;
+                    String tenantEditRole = tenantId + "_Edit_" + TENANT_ROLE;
+                    String tenantEditGroup = tenantId + "_Edit_" + TENANT_GROUP;
+                    String tenantDeleteRole = tenantId + "_Delete_" + TENANT_ROLE;
+                    String tenantDeleteGroup = tenantId + "_Delete_" + TENANT_GROUP;
                     String groupEdit = createdGroup.getId() + "_Edit";
                     String groupDelete = createdGroup.getId() + "_Delete";
                     String roleEdit = createdRole.getId() + "_Edit";
                     String roleDelete = createdRole.getId() + "_Delete";
 
                     // asserting a few relationships to exist in the map
-                    assertThat(disableHelperMap.get(tenantCreate)).containsAll(Set.of(
+                    assertThat(disableHelperMap.get(tenantCreateGroup)).containsAll(Set.of(
                             new IdPermissionDTO(tenantId, PermissionViewableName.EDIT),
                             new IdPermissionDTO(tenantId, PermissionViewableName.DELETE),
                             new IdPermissionDTO(tenantId, PermissionViewableName.VIEW),
                             new IdPermissionDTO(tenantId, PermissionViewableName.INVITE_USER),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.REMOVE_USER),
+                            new IdPermissionDTO(tenantId, PermissionViewableName.REMOVE_USER)
+                    ));
+                    assertThat(disableHelperMap.get(tenantCreateRole)).containsAll(Set.of(
+                            new IdPermissionDTO(tenantId, PermissionViewableName.EDIT),
+                            new IdPermissionDTO(tenantId, PermissionViewableName.DELETE),
+                            new IdPermissionDTO(tenantId, PermissionViewableName.VIEW),
                             new IdPermissionDTO(tenantId, PermissionViewableName.ASSOCIATE_ROLE)
                     ));
-                    assertThat(disableHelperMap.get(tenantEdit)).containsAll(Set.of(
+                    assertThat(disableHelperMap.get(tenantEditGroup)).containsAll(Set.of(
                             new IdPermissionDTO(tenantId, PermissionViewableName.VIEW),
                             new IdPermissionDTO(tenantId, PermissionViewableName.INVITE_USER),
                             new IdPermissionDTO(tenantId, PermissionViewableName.REMOVE_USER)
                     ));
-                    assertThat(disableHelperMap.get(tenantDelete)).containsAll(Set.of(
+                    assertThat(disableHelperMap.get(tenantEditRole)).containsAll(Set.of(
+                            new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)
+                    ));
+                    assertThat(disableHelperMap.get(tenantDeleteRole)).containsAll(Set.of(
+                            new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)
+                    ));
+                    assertThat(disableHelperMap.get(tenantDeleteGroup)).containsAll(Set.of(
                             new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)
                     ));
                     assertThat(disableHelperMap.get(groupEdit)).containsAll(Set.of(
