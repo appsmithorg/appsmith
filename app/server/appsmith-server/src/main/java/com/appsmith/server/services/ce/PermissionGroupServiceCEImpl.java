@@ -306,4 +306,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .isPresent();
     }
 
+    @Override
+    public Mono<Set<String>> getAllAssignedUserIds(PermissionGroup permissionGroup) {
+        return Mono.just(permissionGroup.getAssignedToUserIds());
+    }
+
 }
