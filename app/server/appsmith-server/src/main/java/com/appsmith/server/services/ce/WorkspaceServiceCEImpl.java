@@ -48,7 +48,6 @@ import reactor.core.scheduler.Scheduler;
 import jakarta.validation.Validator;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +82,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final AssetRepository assetRepository;
     private final AssetService assetService;
     private final ApplicationRepository applicationRepository;
-    private final PermissionGroupService permissionGroupService;
+    protected final PermissionGroupService permissionGroupService;
     private final PolicyUtils policyUtils;
     private final ModelMapper modelMapper;
     private final WorkspacePermission workspacePermission;
@@ -206,33 +205,39 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         }))
                 // Save the workspace in the db
                 .flatMap(repository::save)
-                .flatMap(createdWorkspace -> addPermissionGroupsAndPoliciesToWorkspace(createdWorkspace, user))
+                .flatMap(createdWorkspace -> enrichWorkspaceWithDependents(createdWorkspace, user))
                 .flatMap(analyticsService::sendCreateEvent);
     }
 
-    protected Mono<Workspace> addPermissionGroupsAndPoliciesToWorkspace(Workspace dbWorkspace, User user) {
+    protected Mono<Workspace> enrichWorkspaceWithDependents(Workspace createdWorkspace, User user) {
         // Generate the default permission groups & policy for the current user
-        return Mono.zip(generateDefaultPermissionGroups(dbWorkspace, user, new HashMap<>()), Mono.just(dbWorkspace))
-                .flatMap(tuple -> {
-                    Set<PermissionGroup> permissionGroups = tuple.getT1();
-                    Workspace createdWorkspace = tuple.getT2();
-                    createdWorkspace = addPoliciesToWorkspace(permissionGroups, createdWorkspace);
-                    return repository.save(createdWorkspace);
-                });
+        return generateDefaultPermissionGroups(createdWorkspace, user)
+                .flatMap(permissionGroups -> enrichDependents(permissionGroups,createdWorkspace)
+                        .then(addPoliciesAndSaveWorkspace(permissionGroups, createdWorkspace)));
     }
 
-    protected Workspace addPoliciesToWorkspace(Set<PermissionGroup> permissionGroups, Workspace createdWorkspace) {
+    /**
+     * returns the created workspace without any Operations
+     * See EE overrides for complete usage
+     * @param permissionGroups
+     * @param createdWorkspace
+     * @return Mono of the createdWorkspace
+     */
+    protected Mono<Workspace> enrichDependents(Set<PermissionGroup> permissionGroups, Workspace createdWorkspace) {
+        return Mono.just(createdWorkspace);
+    }
+
+    protected Mono<Workspace> addPoliciesAndSaveWorkspace(Set<PermissionGroup> permissionGroups, Workspace createdWorkspace) {
         createdWorkspace.setDefaultPermissionGroups(
                 permissionGroups.stream()
                         .map(PermissionGroup::getId)
-                        .collect(Collectors.toSet())
-                                                   );
+                        .collect(Collectors.toSet()));
         // Apply the permissions to the workspace
         for (PermissionGroup permissionGroup : permissionGroups) {
             Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
             createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
         }
-        return createdWorkspace;
+        return repository.save(createdWorkspace);
     }
 
     protected Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
@@ -290,8 +295,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     Mono<Set<PermissionGroup>> generatePermissionsForDefaultPermissionGroups(Set<PermissionGroup> permissionGroups,
-                                                                             Workspace workspace, User user,
-                                                                             Map environmentMap) {
+                                                                             Workspace workspace, User user) {
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst().get();
@@ -322,11 +326,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
 
 
-        Set<Permission> permissions = generateAdminPermissions(environmentMap,
-                                                               workspacePermissions,
-                                                               assignPermissionGroupPermissions,
-                                                               readPermissionGroupPermissions,
-                                                               unassignPermissionGroupPermissions);
+        Set<Permission> permissions = collateAllPermissions(List.of(workspacePermissions,
+                                                                    assignPermissionGroupPermissions,
+                                                                    readPermissionGroupPermissions,
+                                                                    unassignPermissionGroupPermissions));
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign the user creating the permission group to this permission group
@@ -343,10 +346,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         assignPermissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
-        permissions = generateDeveloperPermissions(environmentMap,
-                                                   workspacePermissions,
-                                                   assignPermissionGroupPermissions,
-                                                   readPermissionGroupPermissions);
+        permissions = collateAllPermissions(List.of(workspacePermissions,
+                                                    assignPermissionGroupPermissions,
+                                                    readPermissionGroupPermissions));
         developerPermissionGroup.setPermissions(permissions);
 
         // App Viewer Permissions
@@ -361,10 +363,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
 
-        permissions = generateViewerPermissions(environmentMap,
-                                                workspacePermissions,
-                                                assignPermissionGroupPermissions,
-                                                readPermissionGroupPermissions);
+        permissions = collateAllPermissions(List.of(workspacePermissions,
+                                                    assignPermissionGroupPermissions,
+                                                    readPermissionGroupPermissions));
         viewerPermissionGroup.setPermissions(permissions);
 
         Mono<Set<PermissionGroup>> savedPermissionGroupsMono = Flux.fromIterable(permissionGroups)
@@ -396,50 +397,18 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(tuple -> tuple.getT1());
     }
 
-    protected Set<Permission> generateAdminPermissions(Map environmentMap,
-                                                       Set<Permission> workspacePermissions,
-                                                       Set<Permission> assignPermissionGroupPermissions,
-                                                       Set<Permission> readPermissionGroupPermissions,
-                                                       Set<Permission> unassignPermissionGroupPermissions) {
-
+    private Set<Permission> collateAllPermissions(List<Set<Permission>> permissionSetList) {
         Set<Permission> permissions = new HashSet<>();
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        permissions.addAll(unassignPermissionGroupPermissions);
+        permissionSetList.stream().peek(permissions::addAll).toList();
         return permissions;
     }
 
-    protected Set<Permission> generateDeveloperPermissions(Map environmentMap,
-                                                           Set<Permission> workspacePermissions,
-                                                           Set<Permission> assignPermissionGroupPermissions,
-                                                           Set<Permission> readPermissionGroupPermissions) {
-
-        Set<Permission> permissions = new HashSet<>();
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        return permissions;
-    }
-
-    protected Set<Permission> generateViewerPermissions(Map environmentMap,
-                                                        Set<Permission> workspacePermissions,
-                                                        Set<Permission> assignPermissionGroupPermissions,
-                                                        Set<Permission> readPermissionGroupPermissions) {
-
-        Set<Permission> permissions = new HashSet<>();
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        return permissions;
-    }
-
-    protected Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user, Map environmentMap) {
+    protected Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {
 
         return generateDefaultPermissionGroupsWithoutPermissions(workspace)
                 // Generate the permissions per permission group
                 .flatMap(permissionGroups -> generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace,
-                                                                                           user, environmentMap));
+                                                                                           user));
     }
 
     /**
