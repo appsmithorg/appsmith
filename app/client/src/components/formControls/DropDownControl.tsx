@@ -202,8 +202,13 @@ function renderDropdown(
       });
 
       if (selectedValue !== tempSelectedValues) {
-        selectedValue = tempSelectedValues;
-        props.input?.onChange(tempSelectedValues);
+        // when pre-selected value is not found in dropdown options,
+        // initializing dropdown to initial value instead of no options
+        const tempValues = !isNil(props.input?.value)
+          ? (props?.initialValue as string[])
+          : tempSelectedValues;
+        selectedValue = tempValues;
+        props.input?.onChange(tempValues);
       }
     }
   }

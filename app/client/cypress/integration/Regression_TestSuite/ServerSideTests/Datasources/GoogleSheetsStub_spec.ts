@@ -4,9 +4,32 @@ let dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Google Sheets datasource test cases", function() {
-  it("1. Create Google Sheets datasource", function() {
+  // Commenting out this test, with limiting gsheet access implementation
+  // new UI would be implemented
+
+  // it("1. Create Google Sheets datasource", function() {
+  //   cy.intercept("GET", "/api/v1/users/features", {
+  //     fixture: "featureFlags.json",
+  //   }).as("featureFlags");
+  //   cy.reload();
+  //   dataSources.NavigateToDSCreateNew();
+  //   dataSources.CreatePlugIn("Google Sheets");
+  //   VerifyFunctionDropdown([
+  //     "Read Files",
+  //     "Read, Edit and Create Files",
+  //     "Read, Edit, Create and Delete Files",
+  //   ]);
+  //   dataSources.SaveDSFromDialog(false);
+  // });
+
+  it.only("1. Create Google Sheets datasource with Limiting Google Sheet Access flow", function() {
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    cy.reload();
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Google Sheets");
+    cy.get('[type="radio"]').check("ALL_SHEETS");
     VerifyFunctionDropdown([
       "Read Files",
       "Read, Edit and Create Files",

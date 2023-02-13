@@ -2,6 +2,57 @@
   "form": [
     {
       "sectionName": "General",
+      "hidden": {
+        "comparison": "FEATURE_FLAG",
+        "value": true
+      },
+      "children": [
+        {
+          "label": "Authentication Type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "oAuth2"
+        },
+        {
+          "label": "Grant Type",
+          "configProperty": "datasourceConfiguration.authentication.grantType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "authorization_code"
+        },
+        {
+          "label": "Scope",
+          "configProperty": "datasourceConfiguration.authentication.scopeString",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "options": [
+            {
+              "label": "Read Files",
+              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
+            },
+            {
+              "label": "Read, Edit and Create Files",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+            },
+            {
+              "label": "Read, Edit, Create and Delete Files",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+            }
+          ],
+          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+        }
+      ]
+    },
+    {
+      "sectionName": "General",
+      "hidden": {
+        "comparison": "FEATURE_FLAG",
+        "value": false
+      },
+      "isDefaultOpen": true,
       "children": [
         {
           "label": "Authentication Type",
@@ -22,45 +73,55 @@
         {
           "label": "Mode",
           "configProperty": "datasourceConfiguration.authentication.mode",
-          "controlType": "DROP_DOWN",
+          "controlType": "RADIO",
           "isRequired": true,
           "options": [
             {
-              "label": "Whole Drive Access",
-              "value": "ALL_SHEETS"
-            },
-            {
-              "label": "Limited Access to Sheets",
+              "label": "Access Selected Google Sheets",
               "value": "SPECIFIC_SHEETS"
-            }
-          ],
-          "initialValue": "ALL_SHEETS"
-        },
-        {
-          "label": "Scope",
-          "configProperty": "datasourceConfiguration.authentication.scopeString",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "hidden": {
-            "path": "datasourceConfiguration.authentication.mode",
-            "comparison": "NOT_EQUALS",
-            "value": "ALL_SHEETS"
-          },
-          "options": [
-            {
-              "label": "Read Files",
-              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             },
             {
-              "label": "Read, Edit and Create Files",
-              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
-            },
-            {
-              "label": "Read, Edit, Create and Delete Files",
-              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+              "label": "Access all of your google sheets",
+              "value": "ALL_SHEETS",
+              "helpText": "Use all the google sheet linked to your account as a data source."
             }
           ],
-          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+          "initialValue": "SPECIFIC_SHEETS",
+          "schema": [
+            {
+              "helpText": "Select the google sheets that you want to use as a data source."
+            },
+            {
+              "label": "Scope",
+              "configProperty": "datasourceConfiguration.authentication.scopeString",
+              "controlType": "DROP_DOWN",
+              "isRequired": true,
+              "options": [
+                {
+                  "label": "Read Files",
+                  "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
+                },
+                {
+                  "label": "Read, Edit and Create Files",
+                  "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+                },
+                {
+                  "label": "Read, Edit, Create and Delete Files",
+                  "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+                }
+              ],
+              "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly",
+              "helpText": "Use all the google sheet linked to your account as a data source.",
+              "callout": {
+                "actionLabel": "Learn More",
+                "description": "To use all of your google sheets as a data source, appsmith requires access to your entire google drive.\n          Appsmith only accesses the google sheets from the drive and not any other files from the drive.",
+                "showCrossIcon": true,
+                "title": "Appsmith will ask for permission to access your entire drive",
+                "type": "Notify",
+                "url": "example.com"
+              }
+            }
+          ]
         }
       ]
     }

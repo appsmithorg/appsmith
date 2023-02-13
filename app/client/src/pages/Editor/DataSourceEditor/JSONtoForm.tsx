@@ -236,13 +236,23 @@ export class JSONtoForm<
   };
 
   renderMainSection = (section: any, index: number) => {
-    if (isHidden(this.props.formData, section.hidden)) return null;
+    // hides features/configs that are hidden behind feature flag
+    // TODO: remove hidden config property as well as this param,
+    // when feature flag is removed
+    if (
+      isHidden(
+        this.props.formData,
+        section.hidden,
+        this.props?.featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS,
+      )
+    )
+      return null;
     return (
       <Collapsible
-        defaultIsOpen={index === 0}
+        defaultIsOpen={index === 0 || section?.isDefaultOpen}
         key={section.sectionName}
-        showSection={index !== 0}
-        showTopBorder={index !== 0}
+        showSection={index !== 0 && !section?.isDefaultOpen}
+        showTopBorder={index !== 0 && !section?.isDefaultOpen}
         title={section.sectionName}
       >
         {this.renderEachConfig(section)}
@@ -297,7 +307,17 @@ export class JSONtoForm<
       <div key={section.sectionName}>
         {_.map(section.children, (propertyControlOrSection: ControlProps) => {
           // If the section is hidden, skip rendering
-          if (isHidden(this.props.formData, section.hidden)) return null;
+          // hides features/configs that are hidden behind feature flag
+          // TODO: remove hidden config property as well as this param,
+          // when feature flag is removed
+          if (
+            isHidden(
+              this.props.formData,
+              section.hidden,
+              this.props?.featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS,
+            )
+          )
+            return null;
           if ("children" in propertyControlOrSection) {
             const { children } = propertyControlOrSection as any;
             if (isKVArray(children)) {

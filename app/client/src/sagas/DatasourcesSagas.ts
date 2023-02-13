@@ -102,6 +102,8 @@ import {
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
+import FeatureFlags from "entities/FeatureFlags";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -326,8 +328,18 @@ function* updateDatasourceSaga(
 ) {
   try {
     const queryParams = getQueryParams();
-    const datasourcePayload = _.omit(actionPayload.payload, "name");
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    let datasourcePayload = _.omit(actionPayload.payload, "name");
     datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
+
+    // TODO: remove this piece of code, when feature flag is removed
+    if (!featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS) {
+      datasourcePayload = _.omit(
+        datasourcePayload,
+        "datasourceConfiguration.authentication.mode",
+      );
+    }
+
     const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
       datasourcePayload.id,
@@ -675,6 +687,7 @@ function* createDatasourceFromFormSaga(
 ) {
   try {
     const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     const actionRouteInfo: Partial<{
       apiId: string;
       datasourceId: string;
@@ -695,11 +708,18 @@ function* createDatasourceFromFormSaga(
       formConfig,
     );
 
-    const payload = _.omit(merge(initialValues, actionPayload.payload), [
+    let payload = _.omit(merge(initialValues, actionPayload.payload), [
       "id",
       "new",
       "type",
     ]);
+
+    // TODO: remove this piece of code, when feature flag is removed
+    if (!featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS) {
+      payload = _.omit(payload, [
+        "datasourceConfiguration.authentication.mode",
+      ]);
+    }
 
     payload.isConfigured = true;
 
