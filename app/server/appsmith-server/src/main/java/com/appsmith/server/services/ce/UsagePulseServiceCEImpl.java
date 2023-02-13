@@ -44,6 +44,7 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
         }
 
         // Remove usage pulse logging for appsmith-cloud until multi-tenancy is introduced
+        // TODO remove this condition after multi-tenancy is introduced
         if (Boolean.TRUE.equals(commonConfig.isCloudHosting())) {
             return Mono.just(new UsagePulse());
         }
