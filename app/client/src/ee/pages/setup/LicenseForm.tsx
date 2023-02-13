@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { validateLicense } from "@appsmith/actions/tenantActions";
 import { Text, TextType, Size } from "design-system-old";
 import { useForm } from "react-hook-form";
@@ -37,6 +37,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
   } = useForm();
 
   const isFieldTouched = getFieldState("licenseKey").isTouched;
+  const [isFieldEmpty, setIsFieldEmpty] = useState(true);
 
   useEffect(() => {
     const values = getValues();
@@ -63,6 +64,14 @@ export const LicenseForm = (props: LicenseFormProps) => {
     }
   };
 
+  const handleInputChange = (value: string) => {
+    if (isEmptyString(value)) {
+      setIsFieldEmpty(true);
+    } else {
+      setIsFieldEmpty(false);
+    }
+  };
+
   const formError = errors?.licenseKey?.type ? true : false;
   return (
     <StyledForm
@@ -73,9 +82,10 @@ export const LicenseForm = (props: LicenseFormProps) => {
       {label && <label className="license-input-label">{label}</label>}
       <InputWrapper>
         <StyledInput
-          className={`license-input `}
+          className={`license-input`}
           placeholder={placeholder ?? createMessage(ADD_KEY)}
           {...register("licenseKey")}
+          onChange={handleInputChange}
         />
         {errors.licenseKey && (
           <Text className="input-error-msg" type={TextType.P3}>
@@ -84,6 +94,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
         )}
       </InputWrapper>
       <StyledButton
+        disabled={isFieldEmpty}
         fill
         isLoading={licenseValidating}
         size={Size.large}

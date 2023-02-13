@@ -60,6 +60,7 @@ export const IconBadge = styled.div`
   height: 48px;
   border-radius: 50%;
   background-color: var(--appsmith-color-black-100);
+  pointer-events: none;
 
   svg {
     fill: var(--appsmith-color-black-700);

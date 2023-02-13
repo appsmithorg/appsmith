@@ -88,7 +88,7 @@ function LicenseCheckPage() {
             </StyledCard>
             <StyledCard noField>
               <IconBadge>
-                <Icon name="arrow-right-up-line" size={IconSize.XXXXL} />
+                <Icon name="arrow-up-line" size={IconSize.XXXXL} />
               </IconBadge>
               <StyledContent>
                 {createMessage(LICENSE_KEY_CTA_LABEL)}

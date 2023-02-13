@@ -3,6 +3,7 @@ import { IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch, useSelector } from "react-redux";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 // import { getAllAclUsers } from "@appsmith/selectors/aclSelectors";
 import {
   ACTIVATE,
@@ -41,7 +42,6 @@ import {
   getLicenseStatus,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
@@ -100,7 +100,7 @@ export function Billing() {
       ),
     },*/
     {
-      icon: "upgrade",
+      icon: "money-dollar-circle-line",
       title: (
         <HeaderText type={TextType.H3} weight="700">
           {createMessage(BILLING_AND_USAGE)}
@@ -147,7 +147,7 @@ export function Billing() {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title=""
-        width="455"
+        width="456px"
       >
         <DialogWrapper>
           <DialogHeaderImg

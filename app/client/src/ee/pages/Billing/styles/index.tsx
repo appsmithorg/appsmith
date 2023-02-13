@@ -60,6 +60,7 @@ export const IconBadge = styled.div`
   height: 48px;
   border-radius: 50%;
   background-color: rgba(94, 93, 193, 0.15);
+  pointer-events: none;
 `;
 
 export const CardRightContent = styled.div`
@@ -126,7 +127,6 @@ export const DialogHeaderImg = styled.img`
   transform: translateY(-96%);
   z-index: 1;
   width: 190px;
-  height: 190px;
 `;
 
 export const StyledInput = styled(TextInput)`
