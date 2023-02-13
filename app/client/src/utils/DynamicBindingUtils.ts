@@ -10,7 +10,10 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeEntity,
+  DataTreeEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -531,8 +534,11 @@ export function getEntityId(entity: DataTreeEntity) {
   if (isJSAction(entity)) return entity.actionId;
 }
 
-export function getEntityName(entity: DataTreeEntity) {
-  if (isAction(entity)) return entity.name;
+export function getEntityName(
+  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
+) {
+  if (isAction(entity)) return entityConfig.name;
   if (isWidget(entity)) return entity.widgetName;
-  if (isJSAction(entity)) return entity.name;
+  if (isJSAction(entity)) return entityConfig.name;
 }

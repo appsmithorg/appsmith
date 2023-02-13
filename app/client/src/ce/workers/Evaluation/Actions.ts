@@ -46,7 +46,7 @@ export const addDataTreeToContext = (args: {
     if (skipEntityFunctions || !isTriggerBased) continue;
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
-      const func = entityFn.fn(entity);
+      const func = entityFn.fn(entity, entityName);
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
       set(entityFunctionCollection, fullPath, func);
     }

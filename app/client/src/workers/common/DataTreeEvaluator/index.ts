@@ -26,6 +26,7 @@ import {
   EvaluationSubstitutionType,
   ConfigTree,
   WidgetEntityConfig,
+  DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE, PrivateWidgets } from "entities/DataTree/types";
 import {
@@ -963,11 +964,13 @@ export default class DataTreeEvaluator {
   ) {
     // Get the {{binding}} bound values
     let entity: DataTreeEntity | undefined = undefined;
+    let entityConfig: DataTreeEntityConfig | undefined = undefined;
     let propertyPath: string;
     if (fullPropertyPath) {
       const entityName = fullPropertyPath.split(".")[0];
       propertyPath = fullPropertyPath.split(".")[1];
       entity = data[entityName];
+      entityConfig = configTree[entityName];
     }
     // Get the {{binding}} bound values
     const { jsSnippets, stringSegments } = getDynamicBindings(
@@ -982,12 +985,12 @@ export default class DataTreeEvaluator {
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
         if (jsSnippet) {
-          if (entity && !propertyPath.includes("body")) {
+          if (entity && entityConfig && !propertyPath.includes("body")) {
             ExecutionMetaData.setExecutionMetaData({
               source: {
                 id: getEntityId(entity) || "",
                 entityType: getEntityType(entity) || ENTITY_TYPE.WIDGET,
-                name: getEntityName(entity) || "",
+                name: getEntityName(entity, entityConfig) || "",
               },
               triggerPropertyName: fullPropertyPath?.split(".")[1] || "",
             });
