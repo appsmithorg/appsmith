@@ -437,7 +437,8 @@ export function* updateWidgetAutoHeightSaga(
                   parentContainerLikeWidget.widgetId,
                 ) &&
                 parentContainerLikeWidget.topRow ===
-                  parentContainerLikeWidget.bottomRow;
+                  parentContainerLikeWidget.bottomRow &&
+                !existingUpdate;
 
               // If both the above conditions are false
               // Then update the expected updates for further
