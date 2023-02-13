@@ -14,12 +14,10 @@ import {
 import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
-  updateUnEvalTreeWithLatestJSVariableValue,
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { getOriginalValueFromProxy, jsObjectCollection } from "./Collection";
-import { Diff } from "deep-diff";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -58,22 +56,27 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   return localUnEvalTree;
 };
 
-export const getUpdatedLocalUnEvalTreeAfterDifferences = (
-  differences: Diff<DataTree, DataTree>[],
-  localUnEvalTree: DataTree,
+export const updateUnEvalTreeWithChanges = (
+  pathsChanged: string[][],
+  UnEvalTree: DataTree,
 ) => {
-  for (const diff of differences) {
-    const path = diff.path;
+  for (const path of pathsChanged) {
     if (path?.length) {
       const entityName = path[0];
-      const entity = localUnEvalTree[entityName];
+      const entity = UnEvalTree[entityName];
       if (isJSAction(entity)) {
-        updateUnEvalTreeWithLatestJSVariableValue(entity, localUnEvalTree);
+        const variableName = path[1];
+        const fullPath = `${entityName}.${variableName}`;
+        const newJSObject = jsObjectCollection.getCurrentVariableState(
+          entityName,
+        );
+        const latestValue = newJSObject[variableName];
+        set(UnEvalTree, fullPath, latestValue);
       }
     }
   }
 
-  return localUnEvalTree;
+  return UnEvalTree;
 };
 
 const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);

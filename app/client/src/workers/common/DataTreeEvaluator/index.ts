@@ -47,6 +47,7 @@ import {
   difference,
   flatten,
   get,
+  isArray,
   isEmpty,
   isFunction,
   isObject,
@@ -89,7 +90,7 @@ import {
 } from "workers/common/DependencyMap";
 import {
   getJSEntities,
-  getUpdatedLocalUnEvalTreeAfterDifferences,
+  updateUnEvalTreeWithChanges,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
@@ -415,23 +416,7 @@ export default class DataTreeEvaluator {
         nonDynamicFieldValidationOrder: [],
       };
     }
-    return {
-      ...this.updateTreeEvaluation(
-        localUnEvalTree,
-        differences,
-        totalUpdateTreeSetupStartTime,
-        diffCheckTimeStartTime,
-      ),
-      jsUpdates,
-    };
-  }
 
-  updateTreeEvaluation(
-    localUnEvalTree: DataTree,
-    differences: Diff<DataTree, DataTree>[],
-    totalUpdateTreeSetupStartTime?: any,
-    diffCheckTimeStartTime?: any,
-  ) {
     //find all differences which can lead to updating of dependency map
     const translatedDiffs = flatten(
       differences.map((diff) =>
@@ -457,11 +442,65 @@ export default class DataTreeEvaluator {
     });
     const updateDependencyEndTime = performance.now();
 
-    this.applyDifferencesToEvalTree({ differences, localUnEvalTree });
+    this.updateEvalTreeWithChanges({ differences, localUnEvalTree });
+
+    const findDifferenceTime = getFixedTimeDifference(
+      diffCheckTimeStopTime,
+      diffCheckTimeStartTime,
+    );
+
+    const updateDependencyMapTime = getFixedTimeDifference(
+      updateDependencyEndTime,
+      updateDependencyStartTime,
+    );
+
+    this.logs.push({ findDifferenceTime, updateDependencyMapTime });
+
+    const pathsChangedSet = new Set<string[]>();
+    for (const diff of differences) {
+      if (isArray(diff.path)) {
+        pathsChangedSet.add(diff.path);
+      }
+    }
+
+    const pathsChanged = [...pathsChangedSet];
+
+    return {
+      ...this.updateTreeEvaluation(localUnEvalTree, pathsChanged, {
+        totalUpdateTreeSetupStartTime,
+        dependenciesOfRemovedPaths,
+        removedPaths,
+        extraPathsToLint,
+        translatedDiffs,
+      }),
+      jsUpdates,
+    };
+  }
+
+  updateTreeEvaluation(
+    localUnEvalTree: DataTree,
+    pathsChanged: string[][],
+    extraParams?: {
+      totalUpdateTreeSetupStartTime?: any;
+      dependenciesOfRemovedPaths: string[];
+      removedPaths: string[];
+      extraPathsToLint: string[];
+      translatedDiffs: DataTreeDiff[];
+    },
+  ) {
+    const {
+      dependenciesOfRemovedPaths = [],
+      extraPathsToLint = [],
+      removedPaths = [],
+      totalUpdateTreeSetupStartTime,
+      translatedDiffs = [],
+    } = extraParams || {};
+
+    updateEvalTreeWithJSCollectionState(this.evalTree);
 
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
-      differences,
+      pathsChanged,
       dependenciesOfRemovedPaths,
       removedPaths,
       localUnEvalTree,
@@ -519,24 +558,14 @@ export default class DataTreeEvaluator {
         totalUpdateTreeSetupEndTime,
         totalUpdateTreeSetupStartTime,
       ),
-      updateDependencyMap: getFixedTimeDifference(
-        updateDependencyEndTime,
-        updateDependencyStartTime,
-      ),
       calculateSubTreeSortOrder: getFixedTimeDifference(
         calculateSortOrderEndTime,
         calculateSortOrderStartTime,
-      ),
-      findDifferences: getFixedTimeDifference(
-        diffCheckTimeStopTime,
-        diffCheckTimeStartTime,
       ),
       clone: getFixedTimeDifference(cloneEndTime, cloneStartTime),
     };
 
     this.logs.push({ timeTakenForSetupUpdateTree });
-
-    updateEvalTreeWithJSCollectionState(this.evalTree);
 
     return {
       unEvalUpdates: translatedDiffs,
@@ -548,10 +577,10 @@ export default class DataTreeEvaluator {
     };
   }
 
-  setupUpdateTreeWithDifferences(differences: Diff<DataTree, DataTree>[]) {
+  setupUpdateTreeWithDifferences(pathsChanged: string[][]) {
     let localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local un eval tree
-    if (differences.length === 0) {
+    if (pathsChanged.length === 0) {
       return {
         unEvalUpdates: [],
         evalOrder: [],
@@ -560,11 +589,11 @@ export default class DataTreeEvaluator {
         nonDynamicFieldValidationOrder: [],
       };
     }
-    localUnEvalTree = getUpdatedLocalUnEvalTreeAfterDifferences(
-      differences,
+    localUnEvalTree = updateUnEvalTreeWithChanges(
+      pathsChanged,
       localUnEvalTree,
     );
-    return this.updateTreeEvaluation(localUnEvalTree, differences);
+    return this.updateTreeEvaluation(localUnEvalTree, pathsChanged);
   }
 
   getDifferencesInJSCollectionBody(localUnEvalTree: DataTree) {
@@ -1283,7 +1312,7 @@ export default class DataTreeEvaluator {
     });
   }
 
-  applyDifferencesToEvalTree({
+  updateEvalTreeWithChanges({
     differences,
     localUnEvalTree,
   }: {
@@ -1294,23 +1323,22 @@ export default class DataTreeEvaluator {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
       // Apply the changes into the evalTree so that it gets the latest changes
       applyChange(this.evalTree, undefined, d);
-      const { entityName } = getEntityNameAndPropertyPath(d.path.join("."));
+      const entityName = d.path[0];
       this.updateConfigForModifiedEntity(localUnEvalTree, entityName);
     }
   }
 
   calculateSubTreeSortOrder(
-    differences: Diff<any, any>[],
+    changedPaths: string[][],
     dependenciesOfRemovedPaths: Array<string>,
     removedPaths: Array<string>,
     unEvalTree: DataTree,
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
-    for (const d of differences) {
-      if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
-      changePaths.add(convertPathToString(d.path));
+    for (const path of changedPaths) {
+      changePaths.add(convertPathToString(path));
       // If this is a property path change, simply add for evaluation and move on
-      if (!isDynamicLeaf(unEvalTree, convertPathToString(d.path))) {
+      if (!isDynamicLeaf(unEvalTree, convertPathToString(path))) {
         // A parent level property has been added or deleted
         /**
          * We want to add all pre-existing dynamic and static bindings in dynamic paths of this entity to get evaluated and validated.
@@ -1320,7 +1348,7 @@ export default class DataTreeEvaluator {
          * - This function gets called with a diff {path:["Api1"]}
          * We want to add `Api.data` to changedPaths so that `Table1.tableData` can be discovered below.
          */
-        const entityName = d.path[0];
+        const entityName = path[0];
         const entity = unEvalTree[entityName];
         if (!entity) {
           continue;
@@ -1339,7 +1367,8 @@ export default class DataTreeEvaluator {
             },
           );
         }
-        const parentPropertyPath = convertPathToString(d.path);
+
+        const parentPropertyPath = convertPathToString(path);
         Object.keys(entity.reactivePaths).forEach((relativePath) => {
           const childPropertyPath = `${entityName}.${relativePath}`;
           // Check if relative path has dynamic binding
@@ -1378,6 +1407,7 @@ export default class DataTreeEvaluator {
       trimmedChangedPaths,
       this.inverseDependencyMap,
     );
+
     // Remove any paths that do not exist in the data tree anymore
     return difference(completeSortOrder, removedPaths);
   }
