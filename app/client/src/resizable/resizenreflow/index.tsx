@@ -433,7 +433,7 @@ export function ReflowResizable(props: ResizableProps) {
   const widget = allWidgets[props.widgetId];
   const widgetMinWidth = getMinPixelWidth(widget, mainCanvasWidth) || 300;
   const widgetMinHeight = getMinPixelHeight(widget, mainCanvasWidth) || 300;
-  console.log("MIN WIDTH FROM AUTO LAYOUT", widgetMinWidth, widgetMinHeight);
+
   if (!(isAutoHeight && widget.leftColumn === 0) && props.handles.left) {
     handles.push({
       dragCallback: (x: number) => {
