@@ -67,7 +67,7 @@ describe("MySQL noise test", function() {
     });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-STC-5000");
-      expect(response.body.data.title).to.eq("Query execution error");
+      expect(response.body.data.title).to.eq("Connection is stale");
     });
   });
 });
