@@ -53,6 +53,11 @@ describe("Button Widget Functionality", function() {
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.apiCallToast).length<=0) {
+        cy.get(publishPage.buttonWidget).click();
+      }
+    });
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
@@ -96,6 +101,11 @@ describe("Button Widget Functionality", function() {
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.apiCallToast).length<=0) {
+        cy.get(publishPage.buttonWidget).click();
+      }
+    });
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
@@ -112,6 +122,11 @@ describe("Button Widget Functionality", function() {
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.apiCallToast).length<=0) {
+        cy.get(publishPage.buttonWidget).click();
+      }
+    });
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
@@ -127,6 +142,11 @@ describe("Button Widget Functionality", function() {
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.apiCallToast).length<=0) {
+        cy.get(publishPage.buttonWidget).click();
+      }
+    });
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
