@@ -111,7 +111,6 @@ export function saveResolvedFunctionsAndJSUpdates(
                 false,
                 undefined,
                 undefined,
-                true,
               );
               if (!!result) {
                 let params: Array<{ key: string; value: unknown }> = [];

@@ -5,7 +5,6 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ResetWidgetDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import {
   ActionValidationError,
   TriggerFailureError,
@@ -16,10 +15,12 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 
 export default function* resetWidgetActionSaga(
-  payload: ResetWidgetDescription["payload"],
+  action: TResetWidgetDescription,
 ) {
+  const { payload } = action;
   const { widgetName } = payload;
   if (getType(widgetName) !== Types.STRING) {
     throw new ActionValidationError(

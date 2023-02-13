@@ -57,8 +57,8 @@ import {
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
-import { MessageType, sendMessage } from "utils/MessageUtil";
-import { ActionTriggerFunctionNames } from "@appsmith/entities/DataTree/actionTriggers";
+import { ActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
+import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -492,16 +492,12 @@ export function initiateLinting(
   configTree: ConfigTree,
 ) {
   if (!requiresLinting) return;
-  sendMessage.call(self, {
-    messageId: "",
-    messageType: MessageType.REQUEST,
-    body: {
-      data: {
-        lintOrder,
-        unevalTree,
-        configTree,
-      },
-      method: MAIN_THREAD_ACTION.LINT_TREE,
+  WorkerMessenger.ping({
+    data: {
+      lintOrder,
+      unevalTree,
+      configTree,
     },
+    method: MAIN_THREAD_ACTION.LINT_TREE,
   });
 }
