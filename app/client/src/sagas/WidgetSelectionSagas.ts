@@ -200,6 +200,11 @@ function* canPerformSelectionSaga(saga: any, action: any) {
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   if (action.payload.widgetIds.length !== 1) return;
 
+  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+  if (!isEditorInitialized) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+  }
+
   const selectedWidget = action.payload.widgetIds[0];
 
   const modalWidgetIds: string[] = yield select(

@@ -5,6 +5,7 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
   DATA_SOURCES_EDITOR_ID_PATH,
+  INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
@@ -91,6 +92,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     pageId?: string;
     collectionId?: string;
     widgetIds?: string;
+    selectedTab?: string; // Datasource creation/list screen
   }>(path, {
     path: [
       BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
@@ -102,6 +104,9 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       BUILDER_PATH_DEPRECATED + DATA_SOURCES_EDITOR_ID_PATH,
       BUILDER_PATH + DATA_SOURCES_EDITOR_ID_PATH,
       BUILDER_CUSTOM_PATH + DATA_SOURCES_EDITOR_ID_PATH,
+      BUILDER_PATH_DEPRECATED + INTEGRATION_EDITOR_PATH,
+      BUILDER_PATH + INTEGRATION_EDITOR_PATH,
+      BUILDER_CUSTOM_PATH + INTEGRATION_EDITOR_PATH,
       BUILDER_PATH + SAAS_EDITOR_DATASOURCE_ID_PATH,
       BUILDER_CUSTOM_PATH + SAAS_EDITOR_DATASOURCE_ID_PATH,
       BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
@@ -140,6 +145,13 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     return {
       entity: FocusEntity.DATASOURCE,
       id: match.params.datasourceId,
+      pageId: match.params.pageId,
+    };
+  }
+  if (match.params.selectedTab) {
+    return {
+      entity: FocusEntity.DATASOURCE,
+      id: match.params.selectedTab,
       pageId: match.params.pageId,
     };
   }
