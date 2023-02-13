@@ -1,15 +1,10 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentNotification;
-import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
-import com.appsmith.server.events.CommentNotificationEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.NumberUtils;
@@ -18,23 +13,20 @@ import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class NotificationServiceCEImpl
@@ -111,13 +103,6 @@ public class NotificationServiceCEImpl
                         )
                 )
                 .map(notification -> {
-                    if (notification instanceof CommentNotification) {
-                        CommentNotification commentNotification = (CommentNotification) notification;
-                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(commentNotification.getComment());
-                    } else if (notification instanceof CommentThreadNotification) {
-                        CommentThreadNotification threadNotification = (CommentThreadNotification) notification;
-                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(threadNotification.getCommentThread());
-                    }
                     return notification;
                 });
     }
@@ -127,51 +112,8 @@ public class NotificationServiceCEImpl
         // Ignore branch name as notifications are independent of branchNames
         return repository.findById(id)
                 .map(notification -> {
-                    if (notification instanceof CommentNotification) {
-                        CommentNotification commentNotification = (CommentNotification) notification;
-                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(commentNotification.getComment());
-                    } else if(notification instanceof CommentThreadNotification) {
-                        CommentThreadNotification threadNotification = (CommentThreadNotification) notification;
-                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(threadNotification.getCommentThread());
-                    }
                     return notification;
                 });
-    }
-
-    /**
-     * Creates a notification for the provided comment which is under provided comment thread
-     * @param comment
-     * @param forUsername
-     * @param event
-     * @return
-     */
-    @Override
-    public Mono<Notification> createNotification(Comment comment, CommentNotificationEvent event, String forUsername) {
-        final CommentNotification notification = new CommentNotification();
-        notification.setComment(comment);
-        notification.setForUsername(forUsername);
-        notification.setIsRead(false);
-        notification.setEvent(event);
-        return repository.save(notification);
-    }
-
-    @Override
-    public Flux<Notification> createNotification(CommentThread commentThread, CommentNotificationEvent event, String authorUsername) {
-        if(!CollectionUtils.isEmpty(commentThread.getSubscribers())) {
-            List<Notification> notificationMonoList = new ArrayList<>(commentThread.getSubscribers().size());
-            for(String subscriberUserName: commentThread.getSubscribers()) {
-                if(!subscriberUserName.equals(authorUsername)) {
-                    CommentThreadNotification commentThreadNotification = new CommentThreadNotification();
-                    commentThreadNotification.setCommentThread(commentThread);
-                    commentThreadNotification.setForUsername(subscriberUserName);
-                    commentThreadNotification.setIsRead(false);
-                    commentThreadNotification.setEvent(event);
-                    notificationMonoList.add(commentThreadNotification);
-                }
-            }
-            return repository.saveAll(notificationMonoList);
-        }
-        return Flux.empty();
     }
 
     @Override

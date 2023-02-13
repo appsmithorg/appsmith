@@ -34,6 +34,9 @@ describe("List widget v2 Copy and Paste", () => {
   });
 
   it("2. Validate Delete action", () => {
+    // Represents the toast message is closed
+    cy.get(commonlocators.toastmsg).should("not.exist");
+
     cy.openPropertyPane("listwidgetv2");
     cy.get(".t--delete-widget").click({ force: true });
     cy.get(".t--toast-action span")

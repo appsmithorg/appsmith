@@ -34,7 +34,9 @@ export const primaryColumnValidation = (
       return {
         isValid: false,
         parsed: [],
-        messages: ["Primary key cannot be empty"],
+        messages: [
+          "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+        ],
       };
     }
 
@@ -43,7 +45,9 @@ export const primaryColumnValidation = (
       return {
         isValid: false,
         parsed: inputValue, // undefined the chosen key doesn't exist.
-        messages: ["Chosen Primary key doesn't exist"],
+        messages: [
+          "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+        ],
       };
     }
 
@@ -52,7 +56,9 @@ export const primaryColumnValidation = (
       return {
         isValid: false,
         parsed: inputValue,
-        messages: ["Primary key cannot be null or undefined"],
+        messages: [
+          "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+        ],
       };
     }
 
@@ -62,13 +68,15 @@ export const primaryColumnValidation = (
       return {
         isValid: false,
         parsed: [], // Empty array as the inputValue is an array type
-        messages: ["Primary keys are not unique."],
+        messages: [
+          "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+        ],
       };
     }
   } else {
     const message = isJSModeEnabled
-      ? "Use currentItem/currentIndex to generate primary key or composite key"
-      : "Select valid option form the primary key list";
+      ? "Use currentItem or currentIndex to find a good data identifier. You can also combine two or more data attributes or columns."
+      : "Select an option from the dropdown or toggle JS on to define a data identifier.";
 
     return {
       isValid: false,
@@ -153,7 +161,7 @@ export const PropertyPaneContentConfig = [
     children: [
       {
         propertyName: "listData",
-        helpText: "Takes in an array of objects to display items in the list.",
+        helpText: "Reference or write an array to display in the List.",
         label: "Items",
         controlType: "INPUT_TEXT",
         placeholderText: '[{ "name": "John" }]',
@@ -165,9 +173,9 @@ export const PropertyPaneContentConfig = [
       },
       {
         propertyName: "primaryKeys",
-        helpText:
-          "Assign a unique column which improves performance and maintains values across page changes",
-        label: "Primary key",
+        helperText:
+          "Like keys in React, you must include a primary data identifier, often a column from your datasource. You could also combine two columns or data attributes.",
+        label: "Data Identifier",
         controlType: "DROP_DOWN",
         dropdownUsePropertyValue: true,
         customJSControl: "LIST_COMPUTE_CONTROL",
@@ -210,7 +218,7 @@ export const PropertyPaneContentConfig = [
       {
         propertyName: "serverSidePagination",
         helpText:
-          "Bind the List.pageNo property in your API and call it onPageChange",
+          "Triggered by onPageChange, this helps you show your data one page at a time for better performance.",
         label: "Server Side Pagination",
         controlType: "SWITCH",
         isBindProperty: false,
@@ -218,7 +226,8 @@ export const PropertyPaneContentConfig = [
       },
       {
         propertyName: "onPageChange",
-        helpText: "Triggers an action when a list page is changed",
+        helpText:
+          "Configure one or chain multiple Actions when the page is changed in a List. All nested Actions run at the same time.",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
@@ -236,7 +245,7 @@ export const PropertyPaneContentConfig = [
       {
         propertyName: "isVisible",
         label: "Visible",
-        helpText: "Controls the visibility of the widget",
+        helpText: "Toggles the visibility of this List to end users",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -249,7 +258,8 @@ export const PropertyPaneContentConfig = [
         propertyName: "animateLoading",
         label: "Animate Loading",
         controlType: "SWITCH",
-        helpText: "Controls the loading of the widget",
+        helpText:
+          "Toggles the loading animation of this List on and off for end-users",
         defaultValue: true,
         isJSConvertible: true,
         isBindProperty: true,
@@ -263,7 +273,7 @@ export const PropertyPaneContentConfig = [
     children: [
       {
         propertyName: "onItemClick",
-        helpText: "Triggers an action when an item is clicked",
+        helpText: "Triggers an action when an item in this List is clicked",
         label: "onItemClick",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
@@ -300,7 +310,7 @@ export const PropertyPaneStyleConfig = [
     children: [
       {
         propertyName: "itemSpacing",
-        helpText: "Spacing between items in Pixels",
+        helpText: "Sets the spacing between items in pixels to a max 16 px",
         placeholderText: "0",
         label: "Item Spacing (px)",
         controlType: "INPUT_TEXT",
@@ -320,7 +330,7 @@ export const PropertyPaneStyleConfig = [
       {
         propertyName: "backgroundColor",
         label: "Background Color",
-        helpText: "Background color of the list container",
+        helpText: "Sets the background color of this List",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -344,7 +354,7 @@ export const PropertyPaneStyleConfig = [
       {
         propertyName: "borderRadius",
         label: "Border Radius",
-        helpText: "Rounds the corners of the icon button's outer border edge",
+        helpText: "Rounds the corners of the List's border",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,
         isBindProperty: true,
@@ -354,8 +364,7 @@ export const PropertyPaneStyleConfig = [
       {
         propertyName: "boxShadow",
         label: "Box Shadow",
-        helpText:
-          "Enables you to cast a drop shadow from the frame of the widget",
+        helpText: "Drops a shadow from the frame of this List",
         controlType: "BOX_SHADOW_OPTIONS",
         isJSConvertible: true,
         isBindProperty: true,

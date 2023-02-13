@@ -339,8 +339,26 @@ class ListWidget extends BaseWidget<
       propertyUpdates,
     };
 
+    /**
+     * The else if condition checks if the List's canvas widget is present in the
+     * metaWidgetChildrenStructure, if not then it tries to re-hydrate it with the
+     * previously generated mainCanvasWidget.
+     *
+     * This handles a case where the inner List widget is dragged an dropped outside
+     * the list widget and into the main canvas. This operation results into the calling
+     * of componentWillUnmount after componentDidMount of the inner list widget and the
+     * main canvas gets removed thus breaking the sub-tree. This needs to be further
+     * explored as to why this happen but for the time being this patch fixes that issue.
+     */
     if (mainCanvasWidget) {
       metaWidgets[mainCanvasWidget.widgetId] = mainCanvasWidget;
+    } else if (
+      (this.props.metaWidgetChildrenStructure || []).length === 0 &&
+      this.prevMetaMainCanvasWidget
+    ) {
+      metaWidgets[
+        this.prevMetaMainCanvasWidget.widgetId
+      ] = this.prevMetaMainCanvasWidget;
     }
 
     const { metaWidgetId: metaMainCanvasId } =
@@ -967,6 +985,7 @@ class ListWidget extends BaseWidget<
   getPageView() {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const {
+      infiniteScroll,
       isLoading,
       parentColumnSpace,
       parentRowSpace,
@@ -1014,6 +1033,7 @@ class ListWidget extends BaseWidget<
         boxShadow={this.props.boxShadow}
         componentRef={this.componentRef}
         height={componentHeight}
+        infiniteScroll={infiniteScroll}
       >
         <MetaWidgetContextProvider
           batchUpdateWidgetProperty={this.overrideBatchUpdateWidgetProperty}

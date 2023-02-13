@@ -46,7 +46,9 @@ describe(".primaryColumnValidation", () => {
     const expectedOutput = {
       isValid: false,
       parsed: [],
-      messages: ["Primary keys are not unique."],
+      messages: [
+        "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+      ],
     };
 
     const output = primaryColumnValidation(inputValue, props, _);
@@ -76,7 +78,7 @@ describe(".primaryColumnValidation", () => {
         isValid: false,
         parsed: undefined,
         messages: [
-          "Use currentItem/currentIndex to generate primary key or composite key",
+          "Use currentItem or currentIndex to find a good data identifier. You can also combine two or more data attributes or columns.",
         ],
       });
     });
@@ -102,7 +104,9 @@ describe(".primaryColumnValidation", () => {
       expect(output).toEqual({
         isValid: false,
         parsed: undefined,
-        messages: ["Select valid option form the primary key list"],
+        messages: [
+          "Select an option from the dropdown or toggle JS on to define a data identifier.",
+        ],
       });
     });
   });
@@ -127,7 +131,9 @@ describe(".primaryColumnValidation", () => {
     expect(output).toEqual({
       isValid: false,
       parsed: [],
-      messages: ["Primary key cannot be empty"],
+      messages: [
+        "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+      ],
     });
   });
 
@@ -151,7 +157,9 @@ describe(".primaryColumnValidation", () => {
     expect(output).toEqual({
       isValid: false,
       parsed: input,
-      messages: ["Chosen Primary key doesn't exist"],
+      messages: [
+        "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+      ],
     });
   });
 
@@ -181,7 +189,9 @@ describe(".primaryColumnValidation", () => {
     expect(output).toEqual({
       isValid: false,
       parsed: input,
-      messages: ["Primary key cannot be null or undefined"],
+      messages: [
+        "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+      ],
     });
   });
 });

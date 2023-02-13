@@ -44,7 +44,7 @@ describe("List widget v2; TriggeredRow, SelectedRow", () => {
 
   it("1. Setup necessary data and widgets", () => {
     cy.openPropertyPane("listwidgetv2");
-    cy.testJsontext("items", JSON.stringify(data));
+
     cy.wait("@updateLayout");
 
     // Update widgets with right data and confirm
@@ -82,7 +82,8 @@ describe("List widget v2; TriggeredRow, SelectedRow", () => {
 
   it("2. Select a row and validate data", () => {
     // Select the First Row in Page 1
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+    cy.get(widgetSelector("List1"))
+      .find(containerWidgetSelector)
       .first()
       .click({ force: true });
 

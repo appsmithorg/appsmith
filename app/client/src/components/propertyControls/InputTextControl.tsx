@@ -33,6 +33,7 @@ export function InputText(props: {
     evaluatedValue,
     expected,
     hideEvaluatedValue,
+    label,
     onBlur,
     onChange,
     onFocus,
@@ -49,6 +50,7 @@ export function InputText(props: {
         additionalDynamicData={props.additionalAutocomplete}
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}
+        evaluatedPopUpLabel={label}
         evaluatedValue={evaluatedValue}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
