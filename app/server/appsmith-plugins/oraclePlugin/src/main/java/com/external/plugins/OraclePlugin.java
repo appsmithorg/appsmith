@@ -13,6 +13,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.PsParameterDTO;
@@ -161,7 +162,7 @@ public class OraclePlugin extends BasePlugin {
     }
     @Extension
     public static class OraclePluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
         private final SharedConfig sharedConfig;
@@ -297,7 +298,7 @@ public class OraclePlugin extends BasePlugin {
             }
 
             // First extract all the bindings in order
-            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             List<DataType> explicitCastDataTypes = extractExplicitCasting(updatedQuery);
@@ -310,7 +311,7 @@ public class OraclePlugin extends BasePlugin {
                                                           DatasourceConfiguration datasourceConfiguration,
                                                           ActionConfiguration actionConfiguration,
                                                           Boolean preparedStatement,
-                                                          List<String> mustacheValuesInOrder,
+                                                          List<MustacheBindingToken> mustacheValuesInOrder,
                                                           ExecuteActionDTO executeActionDTO,
                                                           List<DataType> explicitCastDataTypes) {
 

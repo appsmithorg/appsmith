@@ -2,16 +2,19 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>com.appsmith</groupId>
     <artifactId>appsmith-plugins</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
+
   <groupId>com.external.plugins</groupId>
   <artifactId>oraclePlugin</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>oraclePlugin</name>
   <url>http://maven.apache.org</url>
+
   <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
@@ -23,6 +26,7 @@
         <plugin.provider>tech@appsmith.com</plugin.provider>
         <plugin.dependencies/>
   </properties>
+
   <dependencies>
       <dependency>
           <groupId>org.pf4j</groupId>
@@ -47,7 +51,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.8</version>
+            <version>1.18.22</version>
             <scope>provided</scope>
         </dependency>
        <!-- Test Dependencies -->
@@ -56,12 +60,12 @@
             <artifactId>ojdbc8</artifactId>
             <version>19.3.0.0</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <version>1.17.2</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -77,7 +81,7 @@
       <dependency>
           <groupId>com.zaxxer</groupId>
           <artifactId>HikariCP</artifactId>
-          <version>3.4.5</version>
+          <version>5.0.1</version>
           <exclusions>
               <exclusion>
                   <groupId>org.slf4j</groupId>
@@ -86,6 +90,7 @@
           </exclusions>
       </dependency>
   </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -102,7 +107,8 @@
                         <configuration>
                             <minimizeJar>false</minimizeJar>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Plugin-Id>${plugin.id}</Plugin-Id>
                                         <Plugin-Class>${plugin.class}</Plugin-Class>
