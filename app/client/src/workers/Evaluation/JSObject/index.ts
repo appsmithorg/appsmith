@@ -95,50 +95,44 @@ export function saveResolvedFunctionsAndJSUpdates(
       if (!!parsedObject) {
         parsedObject.forEach((parsedElement) => {
           if (isTypeOfFunction(parsedElement.type)) {
-            try {
-              const { result } = evaluateSync(
-                parsedElement.value,
-                unEvalDataTree,
-                {},
-                false,
-                undefined,
-                undefined,
+            const { errors, result } = evaluateSync(
+              parsedElement.value,
+              unEvalDataTree,
+              {},
+              false,
+              undefined,
+              undefined,
+            );
+            if (errors.length) return;
+
+            let params: Array<{ key: string; value: unknown }> = [];
+            if (parsedElement.arguments) {
+              params = parsedElement.arguments.map(
+                ({ defaultValue, paramName }) => ({
+                  key: paramName,
+                  value: defaultValue,
+                }),
               );
-              if (!!result) {
-                let params: Array<{ key: string; value: unknown }> = [];
-
-                if (parsedElement.arguments) {
-                  params = parsedElement.arguments.map(
-                    ({ defaultValue, paramName }) => ({
-                      key: paramName,
-                      value: defaultValue,
-                    }),
-                  );
-                }
-
-                const functionString = parsedElement.value;
-                set(
-                  dataTreeEvalRef.resolvedFunctions,
-                  `${entityName}.${parsedElement.key}`,
-                  result,
-                );
-                set(
-                  dataTreeEvalRef.currentJSCollectionState,
-                  `${entityName}.${parsedElement.key}`,
-                  functionString,
-                );
-                actions.push({
-                  name: parsedElement.key,
-                  body: functionString,
-                  arguments: params,
-                  parsedFunction: result,
-                  isAsync: false,
-                });
-              }
-            } catch {
-              // in case we need to handle error state
             }
-          } else if (parsedElement.type !== "literal") {
+            const functionString = parsedElement.value;
+            set(
+              dataTreeEvalRef.resolvedFunctions,
+              `${entityName}.${parsedElement.key}`,
+              result,
+            );
+            set(
+              dataTreeEvalRef.currentJSCollectionState,
+              `${entityName}.${parsedElement.key}`,
+              functionString,
+            );
+            actions.push({
+              name: parsedElement.key,
+              body: functionString,
+              arguments: params,
+              parsedFunction: result,
+              isAsync: false,
+            });
+          } else {
             variables.push({
               name: parsedElement.key,
               value: parsedElement.value,

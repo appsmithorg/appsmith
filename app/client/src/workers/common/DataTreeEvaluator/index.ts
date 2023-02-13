@@ -830,7 +830,7 @@ export default class DataTreeEvaluator {
                 );
                 set(currentTree, fullPropertyPath, evalPropertyValue);
               } else {
-                set(currentTree, fullPropertyPath, currentEvaluatedValue);
+                set(currentTree, fullPropertyPath, evalPropertyValue);
               }
             }
             return currentTree;
