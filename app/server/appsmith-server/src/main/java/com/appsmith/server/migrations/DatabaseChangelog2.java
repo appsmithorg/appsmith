@@ -2281,7 +2281,7 @@ public class DatabaseChangelog2 {
      * This ensures that any permission changes for super users happen once all other migrations are completed
      *
      * @param mongoTemplate
-     * @param cacheableRepositoryUtil
+     * @param cacheableRepositoryHelper
      */
     @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
     public void updateSuperUsers(MongoTemplate mongoTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
