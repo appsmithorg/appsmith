@@ -107,7 +107,6 @@ describe("Dynamic Height Width validation list widget", function() {
               .wait(1000)
               .invoke("css", "height")
               .then((newheight) => {
-                cy.log("newheight", newheight);
                 expect(height).to.not.equal(newheight);
               });
           });
