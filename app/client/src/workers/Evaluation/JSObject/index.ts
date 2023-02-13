@@ -10,6 +10,7 @@ import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
+  isJSObject,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   removeFunctionsAndVariableJSCollection,
@@ -316,17 +317,19 @@ export function updateJSCollectionStateFromContext() {
   const jsObjectNames = Object.keys(jsObjectCOllectionState || {});
   for (const jsObjectName of jsObjectNames) {
     const jsObjectEntity = oldUnEvalTree[jsObjectName] as DataTreeJSAction;
-    const variables = jsObjectEntity.variables;
-    for (const variableName of variables) {
-      const variableValue = get(currentEvalContext, [
-        jsObjectName,
-        variableName,
-      ]);
-      set(
-        newVarState,
-        [jsObjectName, variableName],
-        getOriginalValueFromProxy(variableValue),
-      );
+    if (isJSObject(jsObjectEntity)) {
+      const variables = jsObjectEntity.variables;
+      for (const variableName of variables) {
+        const variableValue = get(currentEvalContext, [
+          jsObjectName,
+          variableName,
+        ]);
+        set(
+          newVarState,
+          [jsObjectName, variableName],
+          getOriginalValueFromProxy(variableValue),
+        );
+      }
     }
   }
   jsObjectCollection.setVariableState(newVarState);
