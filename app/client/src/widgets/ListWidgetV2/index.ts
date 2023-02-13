@@ -279,11 +279,13 @@ export const CONFIG = {
               widgets,
             );
 
-            if (numOfParentListWidget > 3) {
+            if (numOfParentListWidget >= 3) {
               throw Error(
                 "Cannot have more than 3 levels of nesting in the list widget",
               );
             }
+
+            return numOfParentListWidget;
           },
         },
         {
