@@ -70,7 +70,7 @@ Note that this command doesn't set any username or password on the database so w
 
 MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
 
-###Convert a Standalone to a Replica Set
+### Convert a standalone MongoDB node to a replica set
 - Upgrade the MongoDB version to 4.4 or higher if it’s 4.2 or lower (https://www.mongodb.com/docs/manual/release-notes/4.4/#std-label-4.4-upgrade)
 - Close the mongoDB instance running in your local
 - Start the mongoDB in replica set mode and initiate the replica set
