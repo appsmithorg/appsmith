@@ -388,6 +388,7 @@ describe("Git sync apps", function() {
     cy.get(".t--page-switch-tab")
       .contains(`${newPage}`)
       .click({ force: true });
+    cy.wait(2000);
     cy.get(".bp3-input")
       .first()
       .should("have.value", "morpheus");
@@ -397,6 +398,7 @@ describe("Git sync apps", function() {
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
+    cy.wait(2000);
     cy.get(".bp3-input")
       .first()
       .should("have.value", "morpheus");
