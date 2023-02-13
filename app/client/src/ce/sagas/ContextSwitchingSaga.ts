@@ -15,7 +15,6 @@ import {
   FocusEntityInfo,
   FocusStoreHierarchy,
   identifyEntityFromPath,
-  isSameBranch,
   shouldStoreURLForFocus,
 } from "navigation/FocusEntity";
 import { FocusElementsConfig } from "navigation/FocusElements";
@@ -25,42 +24,11 @@ import history, {
   AppsmithLocationState,
   NavigationMethod,
 } from "utils/history";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
-import log from "loglevel";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
-
-export function* handlePageChange(
-  action: ReduxAction<{
-    pageId: string;
-    currPath: string;
-    currParamString: string;
-    fromPath: string;
-    fromParamString: string;
-  }>,
-) {
-  const {
-    currParamString,
-    currPath,
-    fromParamString,
-    fromPath,
-    pageId,
-  } = action.payload;
-  try {
-    const fromPageId = identifyEntityFromPath(fromPath)?.pageId;
-    if (fromPageId && fromPageId !== pageId) {
-      yield call(storeStateOfPage, fromPageId, fromPath, fromParamString);
-
-      yield call(setStateOfPage, pageId, currPath, currParamString);
-    }
-  } catch (e) {
-    log.error("Error on page change", e);
-  }
-}
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 export function* contextSwitchingSaga(
   currentPath: string,
@@ -69,16 +37,26 @@ export function* contextSwitchingSaga(
 ) {
   if (previousPath) {
     // store current state
-    const storePaths = getEntitiesForStore(previousPath, currentPath);
+    const storePaths: Array<{
+      key: string;
+      entityInfo: FocusEntityInfo;
+    }> = yield call(getEntitiesForStore, previousPath, currentPath);
     for (const storePath of storePaths) {
-      yield call(storeStateOfPath, storePath.key, storePath.entityInfo);
+      yield call(
+        storeStateOfPath,
+        storePath.key,
+        storePath.entityInfo,
+        previousPath,
+      );
     }
   }
-  // Check if it should restore the stored state of the path
-  if (shouldSetState(previousPath, currentPath, state)) {
-    // restore old state for new path
-    yield call(waitForPathLoad, currentPath, previousPath);
-    yield call(setStateOfPath, currentPath);
+  yield call(waitForPathLoad, currentPath, previousPath);
+  const setPaths: Array<{
+    key: string;
+    entityInfo: FocusEntityInfo;
+  }> = yield call(getEntitiesForSet, previousPath, currentPath, state);
+  for (const setPath of setPaths) {
+    yield call(setStateOfPath, setPath.key, setPath.entityInfo);
   }
 }
 
@@ -110,11 +88,19 @@ type StoreStateOfPathType = Generator<
 function* storeStateOfPath(
   key: string,
   entityInfo: FocusEntityInfo,
+  fromPath: string,
 ): StoreStateOfPathType {
   const selectors = FocusElementsConfig[entityInfo.entity];
   const state: Record<string, any> = {};
   for (const selectorInfo of selectors) {
     state[selectorInfo.name] = yield select(selectorInfo.selector);
+  }
+  if (entityInfo.entity === FocusEntity.PAGE) {
+    if (shouldStoreURLForFocus(fromPath)) {
+      if (fromPath) {
+        state._routingURL = fromPath;
+      }
+    }
   }
   yield put(
     setFocusHistory(key, {
@@ -124,18 +110,19 @@ function* storeStateOfPath(
   );
 }
 
-function* setStateOfPath(path: string) {
-  const focusHistory: FocusState = yield select(getCurrentFocusInfo, path);
-
-  const entityInfo: FocusEntityInfo = focusHistory
-    ? focusHistory.entityInfo
-    : identifyEntityFromPath(path);
+function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
+  const focusHistory: FocusState = yield select(getCurrentFocusInfo, key);
 
   const selectors = FocusElementsConfig[entityInfo.entity];
 
   if (focusHistory) {
     for (const selectorInfo of selectors) {
       yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
+    }
+    if (entityInfo.entity === FocusEntity.PAGE) {
+      if (focusHistory.state._routingURL) {
+        history.push(`${focusHistory.state._routingURL}`);
+      }
     }
   } else {
     const subType: string | undefined = yield call(
@@ -149,67 +136,6 @@ function* setStateOfPath(path: string) {
       } else if (defaultValue !== undefined) {
         yield put(selectorInfo.setter(defaultValue));
       }
-    }
-  }
-}
-
-function* storeStateOfPage(
-  pageId: string,
-  fromPath: string,
-  fromParam: string | undefined,
-) {
-  const entity = FocusEntity.PAGE;
-
-  const selectors = FocusElementsConfig[entity];
-  const state: Record<string, any> = {};
-  for (const selectorInfo of selectors) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    state[selectorInfo.name] = yield select(selectorInfo.selector);
-  }
-  if (shouldStoreURLForFocus(fromPath)) {
-    if (fromPath) {
-      state._routingURL = fromPath;
-    }
-
-    if (fromParam !== undefined) {
-      state._paramString = fromParam;
-    }
-  }
-
-  const entityInfo = { entity, id: pageId };
-  yield put(setFocusHistory(pageId, { entityInfo, state }));
-}
-
-function* setStateOfPage(
-  pageId: string,
-  currPath: string,
-  paramString: string,
-) {
-  const focusHistory: FocusState = yield select(getCurrentFocusInfo, pageId);
-
-  const entity = FocusEntity.PAGE;
-
-  const selectors = FocusElementsConfig[entity];
-
-  if (focusHistory) {
-    for (const selectorInfo of selectors) {
-      yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
-    }
-    if (
-      focusHistory.state._routingURL &&
-      focusHistory.state._routingURL !== currPath &&
-      isSameBranch(focusHistory.state._paramString, paramString)
-    ) {
-      history.push(
-        `${focusHistory.state._routingURL}${focusHistory.state._paramString ||
-          ""}`,
-      );
-    }
-  } else {
-    for (const selectorInfo of selectors) {
-      if ("defaultValue" in selectorInfo)
-        yield put(selectorInfo.setter(selectorInfo.defaultValue));
     }
   }
 }
@@ -271,16 +197,14 @@ const isPageChange = (prevPath: string, currentPath: string) => {
   return prevFocusEntityInfo.pageId !== currFocusEntityInfo.pageId;
 };
 
-const getEntitiesForStore = (
-  previousPath: string,
-  currentPath: string,
-): Array<{ entityInfo: FocusEntityInfo; key: string }> => {
+function* getEntitiesForStore(previousPath: string, currentPath: string) {
+  const branch: string | undefined = yield select(getCurrentGitBranch);
   const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
   const prevFocusEntityInfo = identifyEntityFromPath(previousPath);
   if (isPageChange(previousPath, currentPath)) {
     if (prevFocusEntityInfo.pageId) {
       entities.push({
-        key: prevFocusEntityInfo.pageId,
+        key: `${prevFocusEntityInfo.pageId}#${branch}`,
         entityInfo: {
           entity: FocusEntity.PAGE,
           id: prevFocusEntityInfo.pageId,
@@ -299,15 +223,53 @@ const getEntitiesForStore = (
           id: "",
           pageId: prevFocusEntityInfo.pageId,
         },
-        key: parentPath,
+        key: `${parentPath}#${branch}`,
       });
     }
   }
 
   entities.push({
     entityInfo: prevFocusEntityInfo,
-    key: previousPath,
+    key: `${previousPath}#${branch}`,
   });
 
   return entities;
-};
+}
+
+function* getEntitiesForSet(
+  previousPath: string,
+  currentPath: string,
+  state: AppsmithLocationState,
+) {
+  if (!shouldSetState(previousPath, currentPath, state)) {
+    return [];
+  }
+  const branch: string | undefined = yield select(getCurrentGitBranch);
+  const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
+  const currentEntityInfo = identifyEntityFromPath(currentPath);
+  if (isPageChange(previousPath, currentPath)) {
+    if (currentEntityInfo.pageId) {
+      entities.push({
+        key: `${currentEntityInfo.pageId}#${branch}`,
+        entityInfo: {
+          entity: FocusEntity.PAGE,
+          id: currentEntityInfo.pageId,
+        },
+      });
+
+      const focusHistory: FocusState = yield select(
+        getCurrentFocusInfo,
+        `${currentEntityInfo.pageId}#${branch}`,
+      );
+      if ("_routingURL" in focusHistory.state) {
+        return entities;
+      }
+    }
+  }
+
+  entities.push({
+    entityInfo: currentEntityInfo,
+    key: `${currentPath}#${branch}`,
+  });
+  return entities;
+}

@@ -135,7 +135,7 @@ describe("MaintainContext&Focus", function() {
 
   it("6. Maintains focus on JS Objects", () => {
     cy.SearchEntityandOpen("JSObject1");
-    cy.assertCursorOnCodeInput(".js-editor", { ch: 4, line: 4 });
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
 
     cy.SearchEntityandOpen("JSObject2");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
