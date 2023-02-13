@@ -26,8 +26,8 @@ export const successFetchingWidgetCards = (cards: {
   };
 };
 
-export const forceOpenWidgetPanel = (flag: boolean) => ({
-  type: ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN,
+export const toggleWidgetPanel = (flag?: boolean) => ({
+  type: ReduxActionTypes.TOGGLE_WIDGET_PANE,
   payload: flag,
 });
 

@@ -26,7 +26,7 @@ import {
 } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { toggleWidgetPanel } from "actions/widgetSidebarActions";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { Redirect } from "react-router";
 import {
@@ -450,7 +450,7 @@ export default function OnboardingChecklist() {
                   from: "CHECKLIST",
                 });
                 dispatch(toggleInOnboardingWidgetSelection(true));
-                dispatch(forceOpenWidgetPanel(true));
+                dispatch(toggleWidgetPanel(true));
                 history.push(builderURL({ pageId }));
               }}
               text={createMessage(

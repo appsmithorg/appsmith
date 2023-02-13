@@ -6,7 +6,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
-  selectForceOpenWidgetPanel,
+  getIsWidgetPaneOpen,
 } from "selectors/editorSelectors";
 import {
   ADD_WIDGET_BUTTON,
@@ -37,7 +37,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const guidedTour = useSelector(inGuidedTour);
-  const isWidgetPaneOpen = useSelector(selectForceOpenWidgetPanel);
+  const isWidgetPaneOpen = useSelector(getIsWidgetPaneOpen);
   let isWidgetsOpen = getExplorerStatus(applicationId, "widgets");
   if (isWidgetsOpen === null || isWidgetsOpen === undefined) {
     isWidgetsOpen = widgets?.children?.length === 0 || guidedTour;

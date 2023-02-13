@@ -47,6 +47,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { toggleWidgetPanel } from "actions/widgetSidebarActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -76,6 +77,7 @@ type Props = {
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
+  toggleWidgetPanel: () => void;
 };
 
 @HotkeysTarget
@@ -370,6 +372,15 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.showCommitModal();
           }}
         />
+        <Hotkey
+          combo="w"
+          global
+          label="Open widget pane"
+          onKeyDown={() => {
+            this.props.toggleWidgetPanel();
+          }}
+          preventDefault
+        />
       </Hotkeys>
     );
   }
@@ -417,6 +428,7 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(
         setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
       ),
+    toggleWidgetPanel: () => dispatch(toggleWidgetPanel()),
     hideInstaller: () => dispatch(toggleInstaller(false)),
   };
 };

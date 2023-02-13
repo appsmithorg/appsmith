@@ -47,8 +47,8 @@ export const getWidgetConfigs = (state: AppState) =>
   state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
-export const selectForceOpenWidgetPanel = (state: AppState) =>
-  state.ui.onBoarding.forceOpenWidgetPanel;
+export const getIsWidgetPaneOpen = (state: AppState) =>
+  state.ui.editor.openWidgetPane;
 
 export const getProviderCategories = (state: AppState) =>
   state.ui.providers.providerCategories;

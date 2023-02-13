@@ -16,7 +16,7 @@ import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import Canvas from "../Canvas";
 import { useParams } from "react-router";
 import classNames from "classnames";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { toggleWidgetPanel } from "actions/widgetSidebarActions";
 import { useDispatch } from "react-redux";
 import {
   getAppThemeIsChanging,
@@ -71,7 +71,7 @@ function CanvasContainer() {
 
   useEffect(() => {
     return () => {
-      dispatch(forceOpenWidgetPanel(false));
+      dispatch(toggleWidgetPanel(false));
     };
   }, []);
 

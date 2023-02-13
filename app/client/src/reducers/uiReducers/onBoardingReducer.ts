@@ -8,7 +8,6 @@ const initialState: OnboardingState = {
   // Signposting
   inOnboardingWidgetSelection: false,
   enableFirstTimeUserOnboarding: false,
-  forceOpenWidgetPanel: false,
   firstTimeUserOnboardingApplicationId: "",
   firstTimeUserOnboardingComplete: false,
   showFirstTimeUserOnboardingModal: false,
@@ -17,7 +16,6 @@ const initialState: OnboardingState = {
 export interface OnboardingState {
   inOnboardingWidgetSelection: boolean;
   enableFirstTimeUserOnboarding: boolean;
-  forceOpenWidgetPanel: boolean;
   firstTimeUserOnboardingApplicationId: string;
   firstTimeUserOnboardingComplete: boolean;
   showFirstTimeUserOnboardingModal: boolean;
@@ -68,12 +66,6 @@ const onboardingReducer = createReducer(initialState, {
       ...state,
       showFirstTimeUserOnboardingModal: action.payload,
     };
-  },
-  [ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN]: (
-    state: OnboardingState,
-    action: ReduxAction<boolean>,
-  ) => {
-    return { ...state, forceOpenWidgetPanel: action.payload };
   },
 });
 

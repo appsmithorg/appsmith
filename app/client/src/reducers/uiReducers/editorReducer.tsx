@@ -11,6 +11,7 @@ import {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { UpdatePageResponse } from "api/PageApi";
+import isUndefined from "lodash/isUndefined";
 
 const initialState: EditorReduxState = {
   initialized: false,
@@ -34,6 +35,7 @@ const initialState: EditorReduxState = {
   isSnipingMode: false,
   snipModeBindTo: undefined,
   isPreviewMode: false,
+  openWidgetPane: false,
   zoomLevel: 1,
 };
 
@@ -217,6 +219,22 @@ const editorReducer = createReducer(initialState, {
       savingEntity: false,
     },
   }),
+  [ReduxActionTypes.TOGGLE_WIDGET_PANE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean | undefined>,
+  ) => {
+    if (isUndefined(action.payload)) {
+      return {
+        ...state,
+        openWidgetPane: !state.openWidgetPane,
+      };
+    }
+
+    return {
+      ...state,
+      openWidgetPane: action.payload,
+    };
+  },
 });
 
 export interface EditorReduxState {
@@ -230,6 +248,7 @@ export interface EditorReduxState {
   isSnipingMode: boolean;
   snipModeBindTo?: string;
   isPreviewMode: boolean;
+  openWidgetPane: boolean;
   zoomLevel: number;
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
   loadingStates: {

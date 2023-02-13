@@ -22,7 +22,7 @@ import { Colors } from "constants/Colors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { toggleWidgetPanel } from "actions/widgetSidebarActions";
 import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
@@ -102,7 +102,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     if (!pinned && active) {
       dispatch(setExplorerActiveAction(false));
     }
-    dispatch(forceOpenWidgetPanel(true));
+    dispatch(toggleWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }

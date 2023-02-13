@@ -1,5 +1,5 @@
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { toggleWidgetPanel } from "actions/widgetSidebarActions";
 import { Button } from "design-system-old";
 import {
   ONBOARDING_TASK_DATASOURCE_BODY,
@@ -151,7 +151,7 @@ export default function OnboardingTasks() {
                 from: "CANVAS",
               });
               dispatch(toggleInOnboardingWidgetSelection(true));
-              dispatch(forceOpenWidgetPanel(true));
+              dispatch(toggleWidgetPanel(true));
             }}
           >
             {createMessage(ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION)}
@@ -203,7 +203,7 @@ export default function OnboardingTasks() {
                 from: "CANVAS",
               });
               dispatch(toggleInOnboardingWidgetSelection(true));
-              dispatch(forceOpenWidgetPanel(true));
+              dispatch(toggleWidgetPanel(true));
             }}
           >
             {createMessage(ONBOARDING_TASK_QUERY_FOOTER_ACTION)}
@@ -233,7 +233,7 @@ export default function OnboardingTasks() {
                 from: "CANVAS",
               });
               dispatch(toggleInOnboardingWidgetSelection(true));
-              dispatch(forceOpenWidgetPanel(true));
+              dispatch(toggleWidgetPanel(true));
             }}
             tag="button"
             text={createMessage(ONBOARDING_TASK_WIDGET_BUTTON)}

@@ -12,7 +12,7 @@ import {
 import { IconName } from "design-system-old";
 import { highlightSection, showIndicator } from "./utils";
 import { setExplorerPinnedAction } from "actions/explorerActions";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { toggleWidgetPanel } from "actions/widgetSidebarActions";
 import {
   createMessage,
   STEP_EIGHT_SUCCESS_TEXT,
@@ -443,7 +443,7 @@ export const Steps: StepsType = {
       onClick: (dispatch) => {
         dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.ADD_BUTTON_WIDGET));
         dispatch(setExplorerPinnedAction(true));
-        dispatch(forceOpenWidgetPanel(true));
+        dispatch(toggleWidgetPanel(true));
         setTimeout(() => {
           highlightSection("widget-card-buttonwidget");
         }, 2000);
@@ -469,7 +469,7 @@ export const Steps: StepsType = {
       text: createMessage(STEP_SIX_SUCCESS_TEXT),
       timed: true,
       onClick: (dispatch) => {
-        dispatch(forceOpenWidgetPanel(false));
+        dispatch(toggleWidgetPanel(false));
         setTimeout(() => {
           highlightSection("explorer-entity-updateCustomerInfo");
         }, 1000);

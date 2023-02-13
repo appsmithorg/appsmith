@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import { useDispatch, useSelector } from "react-redux";
 import DashboardLine from "remixicon-react/DashboardLineIcon";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { toggleWidgetPanel } from "actions/widgetSidebarActions";
 import { getDragDetails } from "sagas/selectors";
 import { AppState } from "@appsmith/reducers";
 import { useMouseLocation } from "../GlobalHotKeys/useMouseLocation";
@@ -17,7 +17,7 @@ import {
 } from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { selectForceOpenWidgetPanel } from "selectors/editorSelectors";
+import { getIsWidgetPaneOpen } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import {
   ADD_WIDGET_TOOLTIP,
@@ -72,7 +72,7 @@ const StyledIconWrapper = styled(IconWrapper)`
 
 function WidgetPaneTrigger() {
   const dispatch = useDispatch();
-  const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
+  const openWidgetPanel = useSelector(getIsWidgetPaneOpen);
   const pinned = useSelector(getExplorerPinned);
   const active = useSelector(getExplorerActive);
   const dragDetails = useSelector(getDragDetails);
@@ -107,7 +107,7 @@ function WidgetPaneTrigger() {
 
   useEffect(() => {
     if (!pinned && active && openWidgetPanel) {
-      dispatch(forceOpenWidgetPanel(false));
+      dispatch(toggleWidgetPanel(false));
     }
   }, [pinned, active, openWidgetPanel]);
 
@@ -115,7 +115,7 @@ function WidgetPaneTrigger() {
   useEffect(() => {
     if (isDragging && dragDetails.newWidget && openWidgetPanel) {
       toOpen.current = true;
-      dispatch(forceOpenWidgetPanel(false));
+      dispatch(toggleWidgetPanel(false));
     }
   }, [isDragging, dragDetails.newWidget, openWidgetPanel]);
 
@@ -124,7 +124,7 @@ function WidgetPaneTrigger() {
     if (!isDragging && toOpen.current) {
       if (!isOverlappingWithPane() && !isInGuidedTour) {
         toOpen.current = false;
-        dispatch(forceOpenWidgetPanel(true));
+        dispatch(toggleWidgetPanel(true));
       }
     }
   }, [isDragging, isInGuidedTour]);
@@ -148,7 +148,7 @@ function WidgetPaneTrigger() {
             },
           },
         }}
-        onClose={() => dispatch(forceOpenWidgetPanel(false))}
+        onClose={() => dispatch(toggleWidgetPanel(false))}
         placement="bottom-start"
       >
         <TooltipComponent
@@ -161,7 +161,7 @@ function WidgetPaneTrigger() {
             active={openWidgetPanel}
             className="flex ml-3 justify-center items-center gap-1 px-1"
             data-cy="widget-page-cta"
-            onClick={() => dispatch(forceOpenWidgetPanel(true))}
+            onClick={() => dispatch(toggleWidgetPanel(true))}
             ref={ref}
           >
             <StyledIconWrapper fillColor={Colors.GRAY_700} size={IconSize.XXS}>
