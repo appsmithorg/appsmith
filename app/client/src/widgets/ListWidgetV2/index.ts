@@ -8,6 +8,10 @@ import {
 } from "widgets/constants";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "widgets/BaseWidget";
+import {
+  getNumberOfChildListWidget,
+  getNumberOfParentListWidget,
+} from "./widget/helper";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -261,6 +265,66 @@ export const CONFIG = {
 
             widgets[widgetId] = widget;
             return { widgets };
+          },
+        },
+        {
+          type: BlueprintOperationTypes.BEFORE_ADD,
+          fn: (
+            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgetId: string,
+            parentId: string,
+          ) => {
+            const numOfParentListWidget = getNumberOfParentListWidget(
+              parentId,
+              widgets,
+            );
+
+            if (numOfParentListWidget > 3) {
+              throw Error("Cannot have more than 3 levels of nesting");
+            }
+          },
+        },
+        {
+          type: BlueprintOperationTypes.BEFORE_PASTE,
+          fn: (
+            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgetId: string,
+            parentId: string,
+          ) => {
+            const numOfParentListWidget = getNumberOfParentListWidget(
+              parentId,
+              widgets,
+            );
+            const numOfChildListWidget = getNumberOfChildListWidget(
+              widgetId,
+              widgets,
+            );
+
+            if (numOfParentListWidget + numOfChildListWidget > 3) {
+              throw Error("Cannot have more than 3 levels of nesting");
+            }
+          },
+        },
+
+        {
+          type: BlueprintOperationTypes.BEFORE_DROP,
+          fn: (
+            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgetId: string,
+            parentId: string,
+          ) => {
+            const numOfParentListWidget = getNumberOfParentListWidget(
+              parentId,
+              widgets,
+            );
+            const numOfChildListWidget = getNumberOfChildListWidget(
+              widgetId,
+              widgets,
+            );
+
+            if (numOfParentListWidget + numOfChildListWidget > 3) {
+              throw Error("Cannot have more than 3 levels of nesting");
+            }
           },
         },
       ],

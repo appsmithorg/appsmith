@@ -19,7 +19,9 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { getWidget, getWidgets } from "./selectors";
 import {
+  BlueprintOperation,
   buildWidgetBlueprint,
+  executeWidgetBlueprintBeforeOperations,
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
@@ -30,7 +32,10 @@ import { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import {
+  GRID_DENSITY_MIGRATION_V1,
+  BlueprintOperationTypes,
+} from "widgets/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -301,6 +306,27 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     Toaster.clear();
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const { newWidgetId, type, widgetId } = addChildAction.payload;
+    const blueprintOperations: BlueprintOperation[] =
+      WidgetFactory.widgetConfigMap.get(type)?.blueprint?.operations ?? [];
+    const beforeAddOperation = blueprintOperations.find(
+      (operation) => operation.type === BlueprintOperationTypes.BEFORE_ADD,
+    );
+
+    if (
+      blueprintOperations &&
+      blueprintOperations.length &&
+      beforeAddOperation
+    ) {
+      yield call(
+        executeWidgetBlueprintBeforeOperations,
+        beforeAddOperation,
+        stateWidgets,
+        newWidgetId,
+        widgetId,
+      );
+    }
 
     // Avoid having more than 3 levels of nesting in ListV2
     if (addChildAction.payload.type === "LIST_WIDGET_V2") {

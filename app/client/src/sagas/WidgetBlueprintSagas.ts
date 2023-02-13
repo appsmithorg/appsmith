@@ -77,10 +77,17 @@ export type BlueprintOperationChildOperationsFn = (
   },
 ) => ChildOperationFnResponse;
 
+export type BlueprintBeforeOperationsFn = (
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  widgetId: string,
+  parentId: string,
+) => void;
+
 export type BlueprintOperationFunction =
   | BlueprintOperationModifyPropsFn
   | BlueprintOperationAddActionFn
-  | BlueprintOperationChildOperationsFn;
+  | BlueprintOperationChildOperationsFn
+  | BlueprintBeforeOperationsFn;
 
 export type BlueprintOperationType = keyof typeof BlueprintOperationTypes;
 
@@ -237,4 +244,13 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
   }
 
   return widgets;
+}
+
+export function* executeWidgetBlueprintBeforeOperations(
+  operation: BlueprintOperation,
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  widgetId: string,
+  parentId: string,
+) {
+  (operation.fn as BlueprintBeforeOperationsFn)(widgets, widgetId, parentId);
 }

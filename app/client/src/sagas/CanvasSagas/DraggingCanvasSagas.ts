@@ -25,14 +25,20 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getMetaWidgets, getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { traverseTreeAndExecuteBlueprintChildOperations } from "sagas/WidgetBlueprintSagas";
+import {
+  BlueprintOperation,
+  executeWidgetBlueprintBeforeOperations,
+  traverseTreeAndExecuteBlueprintChildOperations,
+} from "sagas/WidgetBlueprintSagas";
 import {
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "widgets/constants";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -308,41 +314,45 @@ function* moveWidgetsSaga(
   const { canvasId, draggedBlocksToUpdate } = actionPayload.payload;
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
 
     // Avoid having more than 3 levels of nesting in ListV2
-    const blocksToUpdate = draggedBlocksToUpdate.filter((dragBlock) => {
-      if (allWidgets[dragBlock.widgetId].type === "LIST_WIDGET_V2") {
-        const parentListWidgetId = metaWidgets[canvasId]?.creatorId;
+    for (const dragBlock of draggedBlocksToUpdate) {
+      const blueprintOperations: BlueprintOperation[] =
+        WidgetFactory.widgetConfigMap.get(allWidgets[dragBlock.widgetId].type)
+          ?.blueprint?.operations ?? [];
 
-        if (
-          parentListWidgetId &&
-          metaWidgets[parentListWidgetId]?.type === "LIST_WIDGET_V2" &&
-          metaWidgets[parentListWidgetId]?.level >= 3
-        ) {
-          Toaster.show({
-            text: "Cannot have more than 3 levels of nesting",
-            variant: Variant.info,
-          });
-          return false;
-        }
+      const beforeAddOperation = blueprintOperations.find(
+        (operation) => operation.type === BlueprintOperationTypes.BEFORE_DROP,
+      );
+
+      if (
+        blueprintOperations &&
+        blueprintOperations.length &&
+        beforeAddOperation
+      ) {
+        yield call(
+          executeWidgetBlueprintBeforeOperations,
+          beforeAddOperation,
+          allWidgets,
+          dragBlock.widgetId,
+          canvasId,
+        );
       }
-      return true;
-    });
+    }
 
-    if (!blocksToUpdate.length) return;
+    if (!draggedBlocksToUpdate.length) return;
 
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
       moveAndUpdateWidgets,
       allWidgets,
-      blocksToUpdate,
+      draggedBlocksToUpdate,
       canvasId,
     );
 
     if (
       !collisionCheckPostReflow(
         updatedWidgetsOnMove,
-        blocksToUpdate.map((block) => block.widgetId),
+        draggedBlocksToUpdate.map((block) => block.widgetId),
         canvasId,
       )
     ) {
@@ -351,7 +361,7 @@ function* moveWidgetsSaga(
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
-    const block = blocksToUpdate[0];
+    const block = draggedBlocksToUpdate[0];
     const oldParentId = block.updateWidgetParams.payload.parentId;
     const newParentId = block.updateWidgetParams.payload.newParentId;
 
@@ -359,14 +369,14 @@ function* moveWidgetsSaga(
     const newParentWidgetType = getParentWidgetType(allWidgets, newParentId);
 
     AnalyticsUtil.logEvent("WIDGET_DRAG", {
-      widgets: blocksToUpdate.map((block) => {
+      widgets: draggedBlocksToUpdate.map((block) => {
         const widget = allWidgets[block.widgetId];
         return {
           widgetType: widget.type,
           widgetName: widget.widgetName,
         };
       }),
-      multiple: blocksToUpdate.length > 1,
+      multiple: draggedBlocksToUpdate.length > 1,
       movedToNewWidget: oldParentId !== newParentId,
       source: oldParentWidgetType,
       destination: newParentWidgetType,
