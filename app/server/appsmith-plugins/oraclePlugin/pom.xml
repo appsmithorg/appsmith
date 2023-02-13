@@ -24,12 +24,18 @@
         <plugin.dependencies/>
   </properties>
   <dependencies>
-        <dependency>
-            <groupId>org.pf4j</groupId>
-            <artifactId>pf4j-spring</artifactId>
-            <version>0.7.0</version>
-            <scope>provided</scope>
-        </dependency>
+      <dependency>
+          <groupId>org.pf4j</groupId>
+          <artifactId>pf4j-spring</artifactId>
+          <version>0.8.0</version>
+          <scope>provided</scope>
+          <exclusions>
+              <exclusion>
+                  <artifactId>slf4j-reload4j</artifactId>
+                  <groupId>org.slf4j</groupId>
+              </exclusion>
+          </exclusions>
+      </dependency>
 
         <dependency>
             <groupId>com.appsmith</groupId>
