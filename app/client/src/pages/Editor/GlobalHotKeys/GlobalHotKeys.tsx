@@ -373,7 +373,7 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          combo="w"
+          combo="mod + e"
           global
           label="Open widget pane"
           onKeyDown={() => {
