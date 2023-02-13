@@ -1,2 +1,2 @@
-export { Checkbox } from "./components/Checkbox";
-export { Button, transformV1ButtonProps } from "./components/Button";
+export { Checkbox } from "./src/components/Checkbox";
+export { Button, transformV1ButtonProps } from "./src/components/Button";

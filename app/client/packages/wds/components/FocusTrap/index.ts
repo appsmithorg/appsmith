@@ -1,1 +1,0 @@
-export { FocusTrap } from "./FocusTrap";

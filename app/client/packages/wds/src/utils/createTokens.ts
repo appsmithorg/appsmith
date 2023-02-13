@@ -5,7 +5,7 @@ import {
   calulateHoverColor,
   darkenColor,
   parseColor,
-} from "../utils/color";
+} from "./colors";
 
 /**
  * This function is used to create tokens for widgets

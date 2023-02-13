@@ -1,17 +1,22 @@
 import React, { HTMLAttributes, useMemo, forwardRef } from "react";
 
-import { Text } from "../Text";
 import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
 
-/**
- * ----------------------------------------------------------------------------
- * TYPES
- *-----------------------------------------------------------------------------
- */
+// types
+export const BUTTON_VARIANTS = [
+  "filled",
+  "outline",
+  "light",
+  "subtle",
+  "input",
+] as const;
+
+export type ButtonVariant = typeof BUTTON_VARIANTS[number];
+
 export type ButtonProps = {
   accentColor?: string;
-  variant?: "filled" | "outline" | "link" | "subtle" | "white" | "light";
+  variant?: ButtonVariant;
   boxShadow?: string;
   borderRadius?: string;
   tooltip?: string;
@@ -24,11 +29,7 @@ export type ButtonProps = {
   as?: keyof JSX.IntrinsicElements;
 } & HTMLAttributes<HTMLButtonElement>;
 
-/**
- * ----------------------------------------------------------------------------
- * COMPONENT
- *-----------------------------------------------------------------------------
- */
+// component
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const {
     children,
@@ -46,11 +47,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     return (
       <>
         {leadingIcon && <span data-component="leadingIcon">{leadingIcon}</span>}
-        {children && (
-          <span data-component="text">
-            <Text>{children}</Text>
-          </span>
-        )}
+        {children && <span data-component="text">{children}</span>}
         {trailingIcon && (
           <span data-component="trailingIcon">{trailingIcon}</span>
         )}
@@ -73,5 +70,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     </StyledButton>
   );
 }) as typeof StyledButton;
+
+Button.displayName = "Button";
 
 export { Button };
