@@ -301,7 +301,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       .click({
         force: true,
       });
-    cy.wait(500);
+    cy.wait(2000);
     // check Menu Item 3 is disable
     cy.get(".bp3-menu-item")
       .eq(2)
