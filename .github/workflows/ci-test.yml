@@ -128,14 +128,14 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: server-build
           path: app/server/dist/
 
       - name: Download the rts build artifact
