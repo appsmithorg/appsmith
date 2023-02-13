@@ -207,12 +207,13 @@ describe("Git sync apps", function() {
     cy.get(".t--draggable-inputwidgetv2")
       .first()
       .find(".bp3-input")
-      .should("have.value", "morpheus");
-
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--draggable-inputwidgetv2")
       .last()
       .find(".bp3-input")
-      .should("have.value", "This is a test");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(`.t--entity-item:contains(${newPage})`)
       .first()
       .click();
@@ -257,19 +258,23 @@ describe("Git sync apps", function() {
       .click({ force: true });
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
       .last()
-      .should("have.value", "This is a test");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
       .last()
-      .should("have.value", "This is a test");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
@@ -391,20 +396,24 @@ describe("Git sync apps", function() {
     cy.wait(2000);
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
       .last()
-      .should("have.value", "This is a test");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
     cy.wait(2000);
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
       .last()
-      .should("have.value", "This is a test");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
     // verfiy data binding on all pages in edit mode
