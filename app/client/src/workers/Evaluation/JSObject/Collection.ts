@@ -3,6 +3,14 @@ import { klona } from "klona/full";
 import { get, set } from "lodash";
 
 export type VariableState = Record<string, Record<string, unknown>>;
+
+export function getOriginalValueFromProxy(obj: Record<string, unknown>) {
+  if (obj && obj.__isProxy) {
+    return obj.__originalValue;
+  }
+  return obj;
+}
+
 class JSObjectCollection {
   private prevVariableState: VariableState = {};
   private currentVariableState: VariableState = {};

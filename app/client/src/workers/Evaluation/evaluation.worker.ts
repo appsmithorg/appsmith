@@ -5,6 +5,7 @@ import { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 import { syncHandlerMap, asyncHandlerMap } from "./handlers";
 import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
 import { evaluateAsync } from "./evaluate";
+import { getOriginalValueFromProxy } from "./JSObject/Collection";
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function syncRequestMessageListener(
@@ -47,13 +48,9 @@ type Data = AsyncEvalResponse | unknown;
 function respond(messageId: string, data: Data, timeTaken: number) {
   try {
     const responseData = data;
-    if (
-      typeof data === "object" &&
-      "result" in (data as AsyncEvalResponse) &&
-      (data as AsyncEvalResponse).result.__isProxy
-    ) {
+    if (typeof data === "object" && "result" in (data as AsyncEvalResponse)) {
       // @ts-expect-error: need to fix type
-      responseData.result = (data as AsyncEvalResponse).result.__originalValue;
+      responseData.result = getOriginalValueFromProxy(data);
     }
     sendMessage.call(self, {
       messageId,

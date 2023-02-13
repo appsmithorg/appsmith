@@ -18,7 +18,7 @@ import {
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
-import { jsObjectCollection } from "./Collection";
+import { getOriginalValueFromProxy, jsObjectCollection } from "./Collection";
 import { Diff } from "deep-diff";
 
 /**
@@ -319,7 +319,11 @@ export function updateJSCollectionStateFromContext() {
         jsObjectName,
         variableName,
       ]);
-      set(newVarState, [jsObjectName, variableName], variableValue);
+      set(
+        newVarState,
+        [jsObjectName, variableName],
+        getOriginalValueFromProxy(variableValue),
+      );
     }
   }
   jsObjectCollection.setVariableState(newVarState);
