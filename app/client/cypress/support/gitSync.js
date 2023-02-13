@@ -429,7 +429,7 @@ Cypress.Commands.add("gitDiscardChanges", () => {
     .should("have.text", "Are you sure?");
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
-  cy.wait(2000);
+  cy.wait(6000);
   cy.validateToastMessage("Discarded changes successfully.");
 });
 
