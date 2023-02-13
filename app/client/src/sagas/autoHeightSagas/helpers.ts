@@ -15,6 +15,8 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { getDataTree } from "selectors/dataTreeSelectors";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(previewModeSelector);
@@ -94,6 +96,9 @@ export function* getMinHeightBasedOnChildren(
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
   // Get all widgets in the DSL
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  // Skip this whole process if the parent is collapsed: Process:
+  // Get the DataTree
+  const dataTree: DataTree = yield select(getDataTree);
 
   const { children = [], parentId } = stateWidgets[widgetId];
   // If we need to consider the parent height
@@ -154,6 +159,18 @@ export function* getMinHeightBasedOnChildren(
     // I'm not completely sure why that is, or which widgets use "children" properties as strings
     // So, we're skipping computations for the children if such a thing happens.
     if (tree[childWidgetId] === undefined) continue;
+
+    // Get this parentContainerWidget from the DataTree
+    const dataTreeWidget = dataTree[stateWidgets[childWidgetId].widgetName];
+    // If the widget exists, is not visible and we can collapse widgets
+
+    if (
+      dataTreeWidget &&
+      (dataTreeWidget as DataTreeWidget).isVisible !== true &&
+      shouldCollapse
+    ) {
+      continue;
+    }
 
     // Get the child widget's dimenstions from the tree
     const { bottomRow, topRow } = tree[childWidgetId];
