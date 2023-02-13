@@ -1,7 +1,10 @@
 import { importTemplateIntoApplication } from "actions/templateActions";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { isFetchingTemplatesSelector } from "selectors/templatesSelectors";
+import {
+  isFetchingTemplatesSelector,
+  isImportingTemplateToAppSelector,
+} from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { TemplatesContent } from "..";
 import Filters from "../Filters";
@@ -11,6 +14,7 @@ import TemplateModalHeader from "./Header";
 import {
   createMessage,
   FETCHING_TEMPLATE_LIST,
+  FORKING_TEMPLATE,
 } from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
@@ -50,10 +54,17 @@ function TemplateList(props: TemplateListProps) {
   const onForkTemplateClick = (template: Template) => {
     dispatch(importTemplateIntoApplication(template.id, template.title));
   };
+  const isImportingTemplateToApp = useSelector(
+    isImportingTemplateToAppSelector,
+  );
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
 
   if (isFetchingTemplates) {
     return <LoadingScreen text={createMessage(FETCHING_TEMPLATE_LIST)} />;
+  }
+
+  if (isImportingTemplateToApp) {
+    return <LoadingScreen text={createMessage(FORKING_TEMPLATE)} />;
   }
 
   return (
@@ -69,6 +80,7 @@ function TemplateList(props: TemplateListProps) {
         </FilterWrapper>
         <ListWrapper>
           <TemplatesContent
+            isForkingEnabled
             onForkTemplateClick={onForkTemplateClick}
             onTemplateClick={props.onTemplateClick}
             stickySearchBar
