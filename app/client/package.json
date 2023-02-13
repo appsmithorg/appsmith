@@ -6,6 +6,7 @@
     "node": "^16.14.0",
     "npm": "^8.5.5"
   },
+  "workspaces": ["packages/**"],
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",

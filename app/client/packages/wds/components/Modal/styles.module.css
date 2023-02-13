@@ -1,0 +1,36 @@
+.root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.inner {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 48px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay {
+  inset: 0px;
+  z-index: 0;
+  background-color: rgb(0, 0, 0);
+  opacity: 0.75;
+  border-radius: 0px;
+  position: fixed;
+}
+
+.modal {
+  position: relative;
+  width: max-content;
+  outline: 0;
+  background: white;
+  margin-top: auto;
+  margin-bottom: auto;
+  z-index: 1;
+}

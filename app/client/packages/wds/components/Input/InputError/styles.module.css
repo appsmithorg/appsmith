@@ -1,0 +1,8 @@
+.error {
+  text-decoration: none;
+  word-break: break-word;
+  color: var(--wds-color-text-danger);
+  font-size: 12px;
+  line-height: 1.2;
+  display: block;
+}
