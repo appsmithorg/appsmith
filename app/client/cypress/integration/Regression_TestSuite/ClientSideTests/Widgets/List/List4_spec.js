@@ -113,8 +113,8 @@ describe("Container Widget Functionality", function() {
     //cy.SearchEntityandOpen("Button1");
     cy.testJsontext("label", `{{currentItem.last_name}}`);
     cy.addAction("{{currentItem.last_name}}", "onclick");
-    cy.wait(3000)
     cy.PublishtheApp();
+    cy.wait(1500)
     // Verify Widget Button by clicking on it
     cy.get(widgetsPage.widgetBtn)
       .closest("div")
