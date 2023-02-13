@@ -259,7 +259,7 @@ describe("Git sync apps", function() {
       .first()
       .should("have.value", "morpheus");
     cy.get(".bp3-input")
-      .eq(1)
+      .last()
       .should("have.value", "This is a test");
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
@@ -268,7 +268,7 @@ describe("Git sync apps", function() {
       .first()
       .should("have.value", "morpheus");
     cy.get(".bp3-input")
-      .eq(1)
+      .last()
       .should("have.value", "This is a test");
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
@@ -364,14 +364,14 @@ describe("Git sync apps", function() {
     cy.wait(8000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verfiy data binding on all pages in deploy mode
-    cy.wait(2000);
+    cy.wait(4000);
     cy.latestDeployPreview();
     cy.get(".bp3-input").should("be.visible");
     cy.get(".bp3-input")
       .first()
       .should("have.value", "Success");
     cy.get(".bp3-input")
-      .eq(1)
+      .last()
       .should("have.value", "Test user 7");
     cy.get(".t--page-switch-tab")
       .contains(`${pageName}`)
@@ -392,7 +392,7 @@ describe("Git sync apps", function() {
       .first()
       .should("have.value", "morpheus");
     cy.get(".bp3-input")
-      .eq(1)
+      .last()
       .should("have.value", "This is a test");
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
@@ -401,7 +401,7 @@ describe("Git sync apps", function() {
       .first()
       .should("have.value", "morpheus");
     cy.get(".bp3-input")
-      .eq(1)
+      .last()
       .should("have.value", "This is a test");
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
@@ -421,7 +421,7 @@ describe("Git sync apps", function() {
       .first()
       .should("have.value", "Success");
     cy.get(".bp3-input")
-      .eq(1)
+      .last()
       .should("have.value", "Test user 7");
     cy.get(`.t--entity-item:contains(${newPage})`)
       .first()
