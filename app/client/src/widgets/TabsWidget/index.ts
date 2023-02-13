@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { WidgetHeightLimits } from "constants/WidgetConstants";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
@@ -16,8 +16,20 @@ export const CONFIG = {
   // evaluations. One way to handle these types of properties is to
   // define them in a Map which the platform understands to have
   // them stored only in the WidgetFactory.
-  canvasHeightOffset: (props: WidgetProps): number =>
-    props.shouldShowTabs === true ? 4 : 0,
+  canvasHeightOffset: (props: WidgetProps): number => {
+    let offset =
+      props.borderWidth && props.borderWidth > 0
+        ? Math.ceil(
+            (2 * parseInt(props.borderWidth, 10) || 0) /
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          )
+        : 0;
+
+    if (props.shouldShowTabs === true) {
+      offset += 4;
+    }
+    return offset;
+  },
   features: {
     dynamicHeight: {
       sectionIndex: 1,

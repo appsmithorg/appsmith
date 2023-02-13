@@ -1,5 +1,7 @@
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
+import { GridDefaults } from "constants/WidgetConstants";
+import { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -14,6 +16,17 @@ export const CONFIG = {
       sectionIndex: 0,
       active: true,
     },
+  },
+  canvasHeightOffset: (props: WidgetProps): number => {
+    const offset =
+      props.borderWidth && props.borderWidth > 0
+        ? Math.ceil(
+            (2 * parseInt(props.borderWidth, 10) || 0) /
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          )
+        : 0;
+
+    return offset;
   },
   searchTags: ["group"],
   defaults: {

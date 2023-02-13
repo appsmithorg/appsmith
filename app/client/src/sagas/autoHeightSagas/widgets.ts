@@ -508,9 +508,7 @@ export function* updateWidgetAutoHeightSaga(
       widgetsToUpdate,
       MAIN_CONTAINER_WIDGET_ID,
       {
-        propertyPath: "bottomRow",
-        propertyValue:
-          maxCanvasHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        bottomRow: maxCanvasHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       },
     );
 
@@ -522,14 +520,12 @@ export function* updateWidgetAutoHeightSaga(
         changedWidgetId
       ];
 
-      if (!action?.payload) {
-        const canvasOffset = getCanvasHeightOffset(
-          stateWidgets[changedWidgetId].type,
-          stateWidgets[changedWidgetId],
-        );
+      const canvasOffset = getCanvasHeightOffset(
+        stateWidgets[changedWidgetId].type,
+        stateWidgets[changedWidgetId],
+      );
 
-        widgetCanvasOffsets[changedWidgetId] = canvasOffset;
-      }
+      widgetCanvasOffsets[changedWidgetId] = canvasOffset;
 
       widgetsToUpdate = mutation_setPropertiesToUpdate(
         widgetsToUpdate,
