@@ -117,6 +117,17 @@ export function* dynamicallyUpdateContainersSaga(
 
           // Get the larger value between the minDynamicHeightInRows and bottomMostRowForChild
           maxBottomRow = Math.max(maxBottomRowBasedOnChildren, maxBottomRow);
+        } else {
+          // If the parent is not supposed to be collapsed
+          // Use the canvasHeight offset, as that would be the
+          // minimum
+          if (
+            parentContainerWidget.bottomRow - parentContainerWidget.topRow >
+              0 ||
+            !shouldCollapse
+          ) {
+            maxBottomRow += canvasHeightOffset;
+          }
         }
 
         // The following makes sure we stay within bounds

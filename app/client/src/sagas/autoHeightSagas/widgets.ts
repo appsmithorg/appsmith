@@ -393,19 +393,6 @@ export function* updateWidgetAutoHeightSaga(
                 };
               }
 
-              // Convert this change into the standard expected update format.
-              const expectedUpdate = {
-                widgetId: parentContainerLikeWidget.widgetId,
-                expectedHeightinPx:
-                  minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-                expectedChangeInHeightInRows:
-                  minHeightInRows - (layoutData.bottomRow - layoutData.topRow),
-                currentTopRow: layoutData.topRow,
-                currentBottomRow: layoutData.bottomRow,
-                expectedBottomRow: layoutData.topRow + minHeightInRows,
-                parentId: parentContainerLikeWidget.parentId,
-              };
-
               // If this widget is actually removed from the layout
               // For example, if this is a ModalWidget
               // We need to make sure that we change properties other than bottomRow and topRow
@@ -429,46 +416,91 @@ export function* updateWidgetAutoHeightSaga(
                 );
               }
 
-              // If this is not a widget which is outside of the layout,
-              // We must check if it has a parent
-              // It most likely will, as this widget cannot be the MainContainer
-              // The maincontainer is a Canvas Widget, not a container like widget.
-              if (
-                !parentContainerLikeWidget.detachFromLayout &&
-                parentContainerLikeWidget.parentId
-              ) {
-                // If this widget's parent canvas already has some updates
-                // We push this update to the existing array.
-                // DRY THIS
-                if (
-                  expectedUpdatesGroupedByParentCanvasWidget.hasOwnProperty(
-                    parentContainerLikeWidget.parentId,
-                  )
-                ) {
-                  expectedUpdatesGroupedByParentCanvasWidget[
-                    parentContainerLikeWidget.parentId
-                  ].push(expectedUpdate);
-                } else {
-                  // Otherwise, we add a new entry.
-                  expectedUpdatesGroupedByParentCanvasWidget[
-                    parentContainerLikeWidget.parentId
-                  ] = [expectedUpdate];
-                }
+              // If the parent container is trying to collapse already
+              // Then the changes in the child should not effect the parent
+              // For this we need to check for two different scenarios
+              // 1. The parent is collapsing in this computation cycle
+              // 2. The parent is already collapsed and should stay collapsed
 
-                // The parent might not have been added to the previously created group
-                // parentCanvasWidgetGroupedByLevel
-                const _level =
-                  canvasLevelMap[parentContainerLikeWidget.parentId];
-                // So, we add it, if it is not the MainContainer.
-                // This way it will be used in parentCanvasWidgetsToConsider
-                // MainContainer was added when we initialised this variable,
-                // so we're skipping it. level === 0 is true only for the MainContainer.
-                if (_level !== 0) {
+              // Get the parent from existing updates in this computation
+              // cycle.
+              const existingUpdate = expectedUpdates.find(
+                (update) =>
+                  update.widgetId === parentContainerLikeWidget.widgetId,
+              );
+
+              // Check if the parent has collapsed previously
+              // And it needs to stay collapsed
+              const shouldCollapseParent =
+                shouldCollapseThisWidget(
+                  stateWidgets,
+                  parentContainerLikeWidget.widgetId,
+                ) &&
+                parentContainerLikeWidget.topRow ===
+                  parentContainerLikeWidget.bottomRow;
+
+              // If both the above conditions are false
+              // Then update the expected updates for further
+              // computations
+              if (
+                (existingUpdate === undefined ||
+                  existingUpdate.expectedHeightinPx !== 0) &&
+                !shouldCollapseParent
+              ) {
+                // Convert this change into the standard expected update format.
+                const expectedUpdate = {
+                  widgetId: parentContainerLikeWidget.widgetId,
+                  expectedHeightinPx:
+                    minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                  expectedChangeInHeightInRows:
+                    minHeightInRows -
+                    (layoutData.bottomRow - layoutData.topRow),
+                  currentTopRow: layoutData.topRow,
+                  currentBottomRow: layoutData.bottomRow,
+                  expectedBottomRow: layoutData.topRow + minHeightInRows,
+                  parentId: parentContainerLikeWidget.parentId,
+                };
+                // If this is not a widget which is outside of the layout,
+                // We must check if it has a parent
+                // It most likely will, as this widget cannot be the MainContainer
+                // The maincontainer is a Canvas Widget, not a container like widget.
+                if (
+                  !parentContainerLikeWidget.detachFromLayout &&
+                  parentContainerLikeWidget.parentId
+                ) {
+                  // If this widget's parent canvas already has some updates
+                  // We push this update to the existing array.
                   // DRY THIS
-                  parentCanvasWidgetsGroupedByLevel[_level] = uniq([
-                    ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
-                    parentContainerLikeWidget.parentId,
-                  ]);
+                  if (
+                    expectedUpdatesGroupedByParentCanvasWidget.hasOwnProperty(
+                      parentContainerLikeWidget.parentId,
+                    )
+                  ) {
+                    expectedUpdatesGroupedByParentCanvasWidget[
+                      parentContainerLikeWidget.parentId
+                    ].push(expectedUpdate);
+                  } else {
+                    // Otherwise, we add a new entry.
+                    expectedUpdatesGroupedByParentCanvasWidget[
+                      parentContainerLikeWidget.parentId
+                    ] = [expectedUpdate];
+                  }
+
+                  // The parent might not have been added to the previously created group
+                  // parentCanvasWidgetGroupedByLevel
+                  const _level =
+                    canvasLevelMap[parentContainerLikeWidget.parentId];
+                  // So, we add it, if it is not the MainContainer.
+                  // This way it will be used in parentCanvasWidgetsToConsider
+                  // MainContainer was added when we initialised this variable,
+                  // so we're skipping it. level === 0 is true only for the MainContainer.
+                  if (_level !== 0) {
+                    // DRY THIS
+                    parentCanvasWidgetsGroupedByLevel[_level] = uniq([
+                      ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
+                      parentContainerLikeWidget.parentId,
+                    ]);
+                  }
                 }
               }
             }
