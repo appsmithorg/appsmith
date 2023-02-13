@@ -46,7 +46,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import jakarta.validation.Validator;
-import reactor.util.function.Tuple2;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -206,79 +206,33 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         }))
                 // Save the workspace in the db
                 .flatMap(repository::save)
-                .flatMap(this::createDefaultEnvironments)
-                // Generate the default permission groups & policy for the current user
-                .flatMap(tuple2 -> {
-                    Workspace createdWorkspace1 = tuple2.getT1();
-                    Map environmentMap = tuple2.getT2();
-                    return Mono.zip(generateDefaultPermissionGroups(createdWorkspace1, user, environmentMap), Mono.just(createdWorkspace1))
-                            .flatMap(tuple -> {
-
-                                Set<PermissionGroup> permissionGroups = tuple.getT1();
-                                Workspace createdWorkspace = tuple.getT2();
-
-                                createdWorkspace.setDefaultPermissionGroups(
-                                        permissionGroups.stream()
-                                                .map(PermissionGroup::getId)
-                                                .collect(Collectors.toSet())
-                                                                           );
-
-                                // Apply the permissions to the workspace
-                                for (PermissionGroup permissionGroup : permissionGroups) {
-                                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
-                                    createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
-                                }
-
-                                addPermissionToEnvironments(permissionGroups, environmentMap);
-                                return saveEnvironmentsWithPolicies(environmentMap)
-                                        .then(repository.save(createdWorkspace));
-                            });
-                })
+                .flatMap(createdWorkspace -> addPermissionGroupsAndPoliciesToWorkspace(createdWorkspace, user))
                 .flatMap(analyticsService::sendCreateEvent);
     }
 
-    /**
-     *
-     * See EE override for complete usage
-     * @param permissionGroups
-     * @param environmentMap
-     */
-
-    protected void addPermissionToEnvironments(Set<PermissionGroup> permissionGroups, Map environmentMap) {
+    protected Mono<Workspace> addPermissionGroupsAndPoliciesToWorkspace(Workspace dbWorkspace, User user) {
+        // Generate the default permission groups & policy for the current user
+        return Mono.zip(generateDefaultPermissionGroups(dbWorkspace, user, new HashMap<>()), Mono.just(dbWorkspace))
+                .flatMap(tuple -> {
+                    Set<PermissionGroup> permissionGroups = tuple.getT1();
+                    Workspace createdWorkspace = tuple.getT2();
+                    createdWorkspace = addPoliciesToWorkspace(permissionGroups, createdWorkspace);
+                    return repository.save(createdWorkspace);
+                });
     }
 
-    /**
-     * packs the given workspace in a tuple with a Map.
-     * see EE override method for complete usage.
-     * @param newWorkspace
-     * @return tuple of workspace and an empty Map
-     */
-    protected Mono<Tuple2<Workspace, Map>> createDefaultEnvironments(Workspace newWorkspace) {
-        return  Mono.zip(Mono.just(newWorkspace), Mono.just(new HashMap<>()));
-    }
-
-    /**
-     * saves the workspace into database
-     * see EE override for complete usage
-     * @param - workspace with appended policies
-     * @param -- this map has no usage in CE
-     * @return Mono of workspace
-     */
-    protected Mono<Boolean> saveEnvironmentsWithPolicies(Map environmentMap){
-        return Mono.just(Boolean.FALSE);
-    }
-
-
-    protected Set<Permission> adminPermissionForEnvironments(Set<Permission> permissions, Map environmentMap) {
-        return permissions;
-    }
-
-    protected Set<Permission> developerPermissionForEnvironments(Set<Permission> permissions, Map environmentMap) {
-        return permissions;
-    }
-
-    protected Set<Permission> viewerPermissionForEnvironments(Set<Permission> permissions, Map environmentMap) {
-        return permissions;
+    protected Workspace addPoliciesToWorkspace(Set<PermissionGroup> permissionGroups, Workspace createdWorkspace) {
+        createdWorkspace.setDefaultPermissionGroups(
+                permissionGroups.stream()
+                        .map(PermissionGroup::getId)
+                        .collect(Collectors.toSet())
+                                                   );
+        // Apply the permissions to the workspace
+        for (PermissionGroup permissionGroup : permissionGroups) {
+            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
+            createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
+        }
+        return createdWorkspace;
     }
 
     protected Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
@@ -368,12 +322,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
 
 
-        Set<Permission> permissions = new HashSet<>();
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        permissions.addAll(unassignPermissionGroupPermissions);
-        permissions = adminPermissionForEnvironments(permissions, environmentMap);
+        Set<Permission> permissions = generateAdminPermissions(environmentMap,
+                                                               workspacePermissions,
+                                                               assignPermissionGroupPermissions,
+                                                               readPermissionGroupPermissions,
+                                                               unassignPermissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign the user creating the permission group to this permission group
@@ -390,11 +343,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         assignPermissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
-        permissions = new HashSet<>();
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        permissions = developerPermissionForEnvironments(permissions, environmentMap);
+        permissions = generateDeveloperPermissions(environmentMap,
+                                                   workspacePermissions,
+                                                   assignPermissionGroupPermissions,
+                                                   readPermissionGroupPermissions);
         developerPermissionGroup.setPermissions(permissions);
 
         // App Viewer Permissions
@@ -408,11 +360,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         assignPermissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
-        permissions = new HashSet<>();
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        permissions = viewerPermissionForEnvironments(permissions, environmentMap);
+
+        permissions = generateViewerPermissions(environmentMap,
+                                                workspacePermissions,
+                                                assignPermissionGroupPermissions,
+                                                readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
         Mono<Set<PermissionGroup>> savedPermissionGroupsMono = Flux.fromIterable(permissionGroups)
@@ -440,11 +392,49 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return Mono.zip(
                         savedPermissionGroupsMono,
                         cleanPermissionGroupCacheForCurrentUser
-                )
+                       )
                 .map(tuple -> tuple.getT1());
     }
 
-    private Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user, Map environmentMap) {
+    protected Set<Permission> generateAdminPermissions(Map environmentMap,
+                                                       Set<Permission> workspacePermissions,
+                                                       Set<Permission> assignPermissionGroupPermissions,
+                                                       Set<Permission> readPermissionGroupPermissions,
+                                                       Set<Permission> unassignPermissionGroupPermissions) {
+
+        Set<Permission> permissions = new HashSet<>();
+        permissions.addAll(workspacePermissions);
+        permissions.addAll(assignPermissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
+        permissions.addAll(unassignPermissionGroupPermissions);
+        return permissions;
+    }
+
+    protected Set<Permission> generateDeveloperPermissions(Map environmentMap,
+                                                           Set<Permission> workspacePermissions,
+                                                           Set<Permission> assignPermissionGroupPermissions,
+                                                           Set<Permission> readPermissionGroupPermissions) {
+
+        Set<Permission> permissions = new HashSet<>();
+        permissions.addAll(workspacePermissions);
+        permissions.addAll(assignPermissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
+        return permissions;
+    }
+
+    protected Set<Permission> generateViewerPermissions(Map environmentMap,
+                                                        Set<Permission> workspacePermissions,
+                                                        Set<Permission> assignPermissionGroupPermissions,
+                                                        Set<Permission> readPermissionGroupPermissions) {
+
+        Set<Permission> permissions = new HashSet<>();
+        permissions.addAll(workspacePermissions);
+        permissions.addAll(assignPermissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
+        return permissions;
+    }
+
+    protected Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user, Map environmentMap) {
 
         return generateDefaultPermissionGroupsWithoutPermissions(workspace)
                 // Generate the permissions per permission group
@@ -667,21 +657,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                     .then(Mono.just(workspace));
                         })
                         .flatMap(repository::archive)
-                        .flatMap(this::archiveEnvironments)
                         .flatMap(analyticsService::sendDeleteEvent);
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }
         });
-    }
-
-    /**
-     * This method has no usage in the CE, SEE EE override for complete usage
-     * @param workspaceToBeDeleted
-     * @return
-     */
-    protected Mono<Workspace> archiveEnvironments(Workspace workspaceToBeDeleted) {
-        return Mono.just(workspaceToBeDeleted);
     }
 
     private void validateIncomingWorkspace(Workspace workspace){
