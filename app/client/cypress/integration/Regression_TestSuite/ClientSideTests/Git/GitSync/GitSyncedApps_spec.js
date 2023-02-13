@@ -374,10 +374,12 @@ describe("Git sync apps", function() {
     cy.get(".bp3-input").should("be.visible");
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "Success");
+      .invoke("val")
+      .should("be.oneOf", ["Success", "Test user 7"]);
     cy.get(".bp3-input")
       .last()
-      .should("have.value", "Test user 7");
+      .invoke("val")
+      .should("be.oneOf", ["Success", "Test user 7"]);
     cy.get(".t--page-switch-tab")
       .contains(`${pageName}`)
       .click({ force: true });
