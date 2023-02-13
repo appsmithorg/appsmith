@@ -146,7 +146,7 @@ public class TenantServiceTest {
         Mono<Tenant> addLicenseKeyMono = tenantService.setTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                    throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.KEY)))
+                    throwable.getMessage().equals(AppsmithError.INVALID_LICENSE_KEY_ENTERED.getMessage()))
                 .verify();
     }
 
