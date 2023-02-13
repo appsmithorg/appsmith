@@ -112,7 +112,7 @@ cp envs/dev.env.example .env
 
 This command creates a `.env` file in the `app/server` folder. All run scripts pick up environment configuration from this file.
 
-5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis. And make sure to update the replica set name with correct value in the mongo connection string. 
+5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis. Also please make sure to update the replica set name with correct value in the mongo connection string. 
 
 6. Run the following command to create the final JAR for the Appsmith server:
 
