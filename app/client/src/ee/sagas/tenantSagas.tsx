@@ -18,7 +18,6 @@ import {
 import { ApiResponse } from "api/ApiResponses";
 import { TenantApi } from "@appsmith/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
-import log from "loglevel";
 import history from "utils/history";
 import { TenantReduxState, License } from "@appsmith/reducers/tenantReducer";
 import localStorage from "utils/localStorage";
@@ -162,10 +161,12 @@ export function* validateLicenseSaga(
         type: ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_ERROR,
       });
     }
-  } catch (e) {
-    log.error(e);
+  } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_ERROR,
+      payload: {
+        error,
+      },
     });
   }
 }

@@ -24,6 +24,7 @@ export interface License {
   showBEBanner: boolean;
   closedBannerAlready: boolean;
   invalidLicenseKeyError: boolean;
+  validatingLicense: boolean;
 }
 
 const INITIAL_BRAND_COLOR = "#000";
@@ -36,7 +37,9 @@ export const initialState: TenantReduxState<any> = {
       ...createBrandColorsFromPrimaryColor(INITIAL_BRAND_COLOR),
     },
     ...cachedTenantConfigParsed,
-    license: {},
+    license: {
+      validatingLicense: false,
+    },
   },
 };
 
@@ -65,7 +68,13 @@ export const handlers = {
     state: TenantReduxState<License>,
   ) => ({
     ...state,
-    isLoading: true,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        validatingLicense: true,
+      },
+    },
   }),
   [ReduxActionTypes.VALIDATE_LICENSE_KEY_SUCCESS]: (
     state: TenantReduxState<License>,
@@ -83,9 +92,9 @@ export const handlers = {
         closedBannerAlready:
           state.tenantConfiguration.license?.closedBannerAlready ?? false,
         invalidLicenseKeyError: false,
+        validatingLicense: false,
       },
     },
-    isLoading: false,
   }),
   [ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_ERROR]: (
     state: TenantReduxState<License>,
@@ -96,9 +105,9 @@ export const handlers = {
       license: {
         ...state.tenantConfiguration.license,
         invalidLicenseKeyError: true,
+        validatingLicense: false,
       },
     },
-    isLoading: false,
   }),
   [ReduxActionTypes.STOP_LICENSE_STATUS_CHECK]: (
     state: TenantReduxState<License>,
@@ -122,7 +131,6 @@ export const handlers = {
         closedBannerAlready: true,
       },
     },
-    isLoading: false,
   }),
 };
 

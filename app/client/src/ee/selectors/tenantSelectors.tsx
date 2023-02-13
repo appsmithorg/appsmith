@@ -86,3 +86,6 @@ export const getLicenseStatus = (state: AppState) => {
 
 export const isAdminUser = (state: AppState) =>
   state.tenant?.userPermissions?.includes(EE_PERMISSION_TYPE.MANAGE_TENANTS);
+
+export const isLicenseValidating = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.validatingLicense;

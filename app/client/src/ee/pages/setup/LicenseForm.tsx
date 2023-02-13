@@ -9,7 +9,10 @@ import {
   ACTIVATE_INSTANCE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { hasInvalidLicenseKeyError } from "@appsmith/selectors/tenantSelectors";
+import {
+  hasInvalidLicenseKeyError,
+  isLicenseValidating,
+} from "@appsmith/selectors/tenantSelectors";
 import { isEmptyString } from "utils/formhelpers";
 import { StyledForm, StyledInput, InputWrapper, StyledButton } from "./styles";
 
@@ -23,6 +26,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
   const { actionBtnText, label, placeholder } = props;
   const dispatch = useDispatch();
   const isInvalid = useSelector(hasInvalidLicenseKeyError);
+  const licenseValidating = useSelector(isLicenseValidating);
   const {
     formState: { errors },
     getFieldState,
@@ -59,7 +63,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
     }
   };
 
-  const formError = errors?.licenseKey?.message ? true : false;
+  const formError = errors?.licenseKey?.type ? true : false;
   return (
     <StyledForm
       className={`license-form`}
@@ -81,6 +85,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
       </InputWrapper>
       <StyledButton
         fill
+        isLoading={licenseValidating}
         size={Size.large}
         tag="button"
         text={actionBtnText ?? createMessage(ACTIVATE_INSTANCE)}
