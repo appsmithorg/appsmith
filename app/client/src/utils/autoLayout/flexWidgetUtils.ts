@@ -175,3 +175,22 @@ export function getMinPixelWidth(
   if (typeof minSize.minWidth === "number")
     return minSize.minWidth * widget.parentColumnSpace;
 }
+
+/**
+ * Return the minimum pixel height of a widget based on the widget type and the canvas width.
+ * minSize can be configured in columns (number) or pixels (string).
+ * Return an appropriate pixel width based on the minSize type.
+ */
+export function getMinPixelHeight(
+  widget: any,
+  canvasWidth: number,
+): number | undefined {
+  if (!widget) return;
+  const minSize = getMinSize(widget, canvasWidth);
+  if (!minSize) return;
+  const arr: string[] =
+    typeof minSize.minHeight === "string" ? minSize.minHeight.split("px") : [];
+  if (arr.length) return parseInt(arr[0]);
+  if (typeof minSize.minHeight === "number")
+    return minSize.minHeight * widget.parentRowSpace;
+}
