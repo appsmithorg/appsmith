@@ -1,5 +1,5 @@
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Toaster, Variant } from "design-system-old";
+import { Toaster } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -19,7 +19,6 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { getWidget, getWidgets } from "./selectors";
 import {
-  BlueprintOperation,
   buildWidgetBlueprint,
   executeWidgetBlueprintBeforeOperations,
   executeWidgetBlueprintOperations,
@@ -40,8 +39,6 @@ import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { getMetaWidgets } from "selectors/editorSelectors";
-import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -308,44 +305,15 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     Toaster.clear();
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const { newWidgetId, type, widgetId } = addChildAction.payload;
-    const blueprintOperations: BlueprintOperation[] =
-      WidgetFactory.widgetConfigMap.get(type)?.blueprint?.operations ?? [];
-    const beforeAddOperation = blueprintOperations.find(
-      (operation) => operation.type === BlueprintOperationTypes.BEFORE_ADD,
+
+    yield call(
+      executeWidgetBlueprintBeforeOperations,
+      BlueprintOperationTypes.BEFORE_ADD,
+      stateWidgets,
+      newWidgetId,
+      widgetId,
+      type,
     );
-
-    if (
-      blueprintOperations &&
-      blueprintOperations.length &&
-      beforeAddOperation
-    ) {
-      yield call(
-        executeWidgetBlueprintBeforeOperations,
-        beforeAddOperation,
-        stateWidgets,
-        newWidgetId,
-        widgetId,
-      );
-    }
-
-    // Avoid having more than 3 levels of nesting in ListV2
-    if (addChildAction.payload.type === "LIST_WIDGET_V2") {
-      const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
-      const parentListWidgetId =
-        metaWidgets[addChildAction.payload.widgetId]?.creatorId;
-
-      if (
-        parentListWidgetId &&
-        metaWidgets[parentListWidgetId]?.type === "LIST_WIDGET_V2" &&
-        metaWidgets[parentListWidgetId]?.level >= 3
-      ) {
-        Toaster.show({
-          text: "Cannot have more than 3 levels of nesting",
-          variant: Variant.info,
-        });
-        return;
-      }
-    }
 
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;

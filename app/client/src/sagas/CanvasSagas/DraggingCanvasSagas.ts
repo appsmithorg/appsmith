@@ -12,7 +12,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { Toaster, Variant } from "design-system-old";
+import { Toaster } from "design-system-old";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
@@ -20,13 +20,11 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getMetaWidgets, getWidget, getWidgets } from "sagas/selectors";
+import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
-  BlueprintOperation,
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
@@ -36,7 +34,6 @@ import {
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
-import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 
@@ -315,29 +312,15 @@ function* moveWidgetsSaga(
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-    // Avoid having more than 3 levels of nesting in ListV2
     for (const dragBlock of draggedBlocksToUpdate) {
-      const blueprintOperations: BlueprintOperation[] =
-        WidgetFactory.widgetConfigMap.get(allWidgets[dragBlock.widgetId].type)
-          ?.blueprint?.operations ?? [];
-
-      const beforeAddOperation = blueprintOperations.find(
-        (operation) => operation.type === BlueprintOperationTypes.BEFORE_DROP,
+      yield call(
+        executeWidgetBlueprintBeforeOperations,
+        BlueprintOperationTypes.BEFORE_DROP,
+        allWidgets,
+        dragBlock.widgetId,
+        canvasId,
+        allWidgets[dragBlock.widgetId].type,
       );
-
-      if (
-        blueprintOperations &&
-        blueprintOperations.length &&
-        beforeAddOperation
-      ) {
-        yield call(
-          executeWidgetBlueprintBeforeOperations,
-          beforeAddOperation,
-          allWidgets,
-          dragBlock.widgetId,
-          canvasId,
-        );
-      }
     }
 
     if (!draggedBlocksToUpdate.length) return;

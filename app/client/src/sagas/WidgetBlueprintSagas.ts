@@ -247,10 +247,22 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
 }
 
 export function* executeWidgetBlueprintBeforeOperations(
-  operation: BlueprintOperation,
+  blueprintOperation: BlueprintOperationTypes,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   widgetId: string,
   parentId: string,
+  widgetType: WidgetType,
 ) {
-  (operation.fn as BlueprintBeforeOperationsFn)(widgets, widgetId, parentId);
+  const blueprintOperations: BlueprintOperation[] =
+    WidgetFactory.widgetConfigMap.get(widgetType)?.blueprint?.operations ?? [];
+
+  const beforeAddOperation = blueprintOperations.find(
+    (operation) => operation.type === blueprintOperation,
+  );
+  if (beforeAddOperation)
+    (beforeAddOperation.fn as BlueprintBeforeOperationsFn)(
+      widgets,
+      widgetId,
+      parentId,
+    );
 }
