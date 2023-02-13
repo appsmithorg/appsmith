@@ -29,6 +29,7 @@ import { Action } from "entities/Action";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { has } from "lodash";
 
 export function* contextSwitchingSaga(
   currentPath: string,
@@ -261,7 +262,7 @@ function* getEntitiesForSet(
         getCurrentFocusInfo,
         `${currentEntityInfo.pageId}#${branch}`,
       );
-      if ("_routingURL" in focusHistory.state) {
+      if (has(focusHistory, "state._routingURL")) {
         return entities;
       }
     }
