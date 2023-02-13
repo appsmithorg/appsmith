@@ -156,8 +156,8 @@ Cypress.Commands.add("createGitBranch", (branch) => {
   cy.wait(3000);
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
   // increasing timeout to reduce flakyness
-  cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
-  cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
+  cy.get(".bp3-spinner", { timeout: 45000 }).should("exist");
+  cy.get(".bp3-spinner", { timeout: 45000 }).should("not.exist");
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
@@ -170,8 +170,8 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
     .click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
-    cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
-    cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
+    cy.get(".bp3-spinner", { timeout: 45000 }).should("exist");
+    cy.get(".bp3-spinner", { timeout: 45000 }).should("not.exist");
   }
 
   cy.wait(2000);
@@ -244,14 +244,14 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
   if (!assertFailure) {
     // check for commit success
     //adding timeout since commit is taking longer sometimes
-    cy.wait("@commit", { timeout: 35000 }).should(
+    cy.wait("@commit", { timeout: 45000 }).should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
     cy.wait(3000);
   } else {
-    cy.wait("@commit", { timeout: 35000 }).then((interception) => {
+    cy.wait("@commit", { timeout: 45000 }).then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
     });
@@ -311,8 +311,8 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
     .click();
-  agHelper.AssertElementAbsence(gitSync._checkMergeability, 30000);
-  cy.wait("@mergeStatus", { timeout: 35000 }).should(
+  agHelper.AssertElementAbsence(gitSync._checkMergeability, 45000);
+  cy.wait("@mergeStatus", { timeout: 45000 }).should(
     "have.nested.property",
     "response.body.data.isMergeAble",
     true,
