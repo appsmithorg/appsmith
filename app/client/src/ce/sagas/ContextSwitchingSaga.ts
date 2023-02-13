@@ -122,7 +122,8 @@ function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
     }
     if (entityInfo.entity === FocusEntity.PAGE) {
       if (focusHistory.state._routingURL) {
-        history.push(`${focusHistory.state._routingURL}`);
+        const params = history.location.search;
+        history.push(`${focusHistory.state._routingURL}${params ?? ""}`);
       }
     }
   } else {

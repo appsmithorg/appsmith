@@ -65,6 +65,7 @@ myFun2: async () => {
     homePage.NavigateToHome();
     homePage.DuplicateApplication(appname);
     agHelper.WaitUntilAllToastsDisappear();
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");

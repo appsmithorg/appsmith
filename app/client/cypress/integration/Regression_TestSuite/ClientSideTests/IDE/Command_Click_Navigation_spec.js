@@ -178,7 +178,7 @@ describe("1. CommandClickNavigation", function() {
 
   it("8. Will navigate within Js Object properly", () => {
     cy.updateCodeInput(".js-editor", JSInputTestCode);
-    agHelper.Sleep();
+    agHelper.Sleep(2000);
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myVar1"]`).click({
       ctrlKey: true,
     });
