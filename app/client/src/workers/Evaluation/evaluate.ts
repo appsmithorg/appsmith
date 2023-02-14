@@ -5,13 +5,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
-import {
-  ErrorMessageType,
-  LogObject,
-  Severity,
-} from "entities/AppsmithConsole";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
-import userLogs from "./UserLog";
+import { ErrorMessageType, Severity } from "entities/AppsmithConsole";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
