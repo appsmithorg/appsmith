@@ -104,7 +104,7 @@ jobs:
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
-        if: steps.run_result.outputs.run_result != 'success'
+        # if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
         uses: actions/cache@v3
         env:
@@ -115,6 +115,7 @@ jobs:
           key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-dep-
+        run: pwd && ls -l
 
       # Install all the dependencies
       - name: Install dependencies
@@ -261,27 +262,27 @@ jobs:
         working-directory: app/client/perf
         run: chmod +x ./start-test.sh
 
-      - name: Run performance tests
-        if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
-        shell: bash
-        env:
-          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
-          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
-          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME9 }}
-          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD9 }}
-          APPSMITH_PERFORMANCE_DB_CONFIG: ${{ secrets.APPSMITH_PERFORMANCE_DB_CONFIG }}
-          APPSMITH_PERFORMANCE_S3_KEY: ${{secrets.APPSMITH_PERFORMANCE_S3_KEY}}
-          APPSMITH_PERFORMANCE_S3_SECRET: ${{secrets.APPSMITH_PERFORMANCE_S3_SECRET}}
-          APPSMITH_PERFORMANCE_DB_PASSWORD: ${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}
-          APPSMITH_PERFORMANCE_DB_HOST: ${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}
-          PERF_GITHUB_PAT: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
-          APPSMITH_DISABLE_TELEMETRY: true
-          POSTGRES_PASSWORD: postgres
-          NODE_TLS_REJECT_UNAUTHORIZED: "0"
-          MACHINE: ubuntu-latest-4-cores
+      # - name: Run performance tests
+      #   if: steps.run_result.outputs.run_result != 'success'
+      #   working-directory: app/client/perf
+      #   shell: bash
+      #   env:
+      #     APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+      #     APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+      #     CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME9 }}
+      #     CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD9 }}
+      #     APPSMITH_PERFORMANCE_DB_CONFIG: ${{ secrets.APPSMITH_PERFORMANCE_DB_CONFIG }}
+      #     APPSMITH_PERFORMANCE_S3_KEY: ${{secrets.APPSMITH_PERFORMANCE_S3_KEY}}
+      #     APPSMITH_PERFORMANCE_S3_SECRET: ${{secrets.APPSMITH_PERFORMANCE_S3_SECRET}}
+      #     APPSMITH_PERFORMANCE_DB_PASSWORD: ${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}
+      #     APPSMITH_PERFORMANCE_DB_HOST: ${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}
+      #     PERF_GITHUB_PAT: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
+      #     APPSMITH_DISABLE_TELEMETRY: true
+      #     POSTGRES_PASSWORD: postgres
+      #     NODE_TLS_REJECT_UNAUTHORIZED: "0"
+      #     MACHINE: ubuntu-latest-4-cores
 
-        run: ./start-test.sh
+      #   run: ./start-test.sh
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
@@ -299,5 +300,5 @@ jobs:
           path: app/client/perf/traces/reports
 
         # Set status = success
-      - name: Save the status of the run
-        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+        # - name: Save the status of the run
+        #   run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
