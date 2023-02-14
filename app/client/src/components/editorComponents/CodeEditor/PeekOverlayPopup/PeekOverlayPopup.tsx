@@ -60,6 +60,7 @@ export function PeekOverlayPopUpContent(
   return (
     <div
       className={`absolute ${zIndexLayers.PEEK_OVERLAY}`}
+      id="t--peek-overlay-container"
       onMouseEnter={() => debouncedHide.cancel()}
       onMouseLeave={() => debouncedHide()}
       onWheel={(ev) => ev.stopPropagation()}
@@ -92,6 +93,7 @@ export function PeekOverlayPopUpContent(
       </div>
       <MenuDivider style={{ margin: 0 }} />
       <div
+        id="t--peek-overlay-data"
         style={{
           minHeight: "20px",
           padding: "2px 0px 2px 12px",
@@ -112,9 +114,20 @@ export function PeekOverlayPopUpContent(
         {props.dataType === "function" && (
           <div>{(props.data as any).toString()}</div>
         )}
-        {((props.dataType !== "object" && props.dataType !== "function") ||
+        {props.dataType === "boolean" && (
+          <div>{(props.data as any).toString()}</div>
+        )}
+        {((props.dataType !== "object" &&
+          props.dataType !== "function" &&
+          props.dataType !== "boolean") ||
           props.data === null) && (
-          <div>{(props.data as any)?.toString() ?? props.data ?? "null"}</div>
+          <div>
+            {(props.data as any)?.toString() ??
+            props.data ??
+            props.data === undefined
+              ? "undefined"
+              : "null"}
+          </div>
         )}
       </div>
     </div>
