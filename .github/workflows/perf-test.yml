@@ -97,6 +97,7 @@ jobs:
         with:
           node-version: '16.14.0'
           cache: 'yarn'
+          cache-dependency-path: 'app/client/yarn.lock'
 
       # - name: Use Node.js 16.14.0
       #   if: steps.run_result.outputs.run_result != 'success'
