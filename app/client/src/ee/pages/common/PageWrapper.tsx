@@ -59,7 +59,7 @@ const StyledText = styled(Text)<{ color: string; underline?: boolean }>`
 export function PageWrapper(props: PageWrapperProps) {
   const { isFixed = false, isSavable = false } = props;
   const isTrial = useSelector(isTrialLicense);
-  const gracePeriod = useSelector(getRemainingDays);
+  const { days: gracePeriod, suffix } = useSelector(getRemainingDays);
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isAdmin = useSelector(isAdminUser);
@@ -81,7 +81,9 @@ export function PageWrapper(props: PageWrapperProps) {
             <StyledText
               color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
               dangerouslySetInnerHTML={{
-                __html: createMessage(() => TRIAL_EXPIRY_WARNING(gracePeriod)),
+                __html: createMessage(() =>
+                  TRIAL_EXPIRY_WARNING(gracePeriod, suffix),
+                ),
               }}
               type={TextType.P1}
               weight="600"

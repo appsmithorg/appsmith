@@ -24,7 +24,7 @@ import {
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export function BEBanner() {
-  const daysLeft = useSelector(getRemainingDays);
+  const { days, suffix } = useSelector(getRemainingDays);
   const dispatch = useDispatch();
   const isAdmin = useSelector(isAdminUser);
 
@@ -50,7 +50,7 @@ export function BEBanner() {
             className="sub-text"
             dangerouslySetInnerHTML={{
               __html: createMessage(() =>
-                BE_TRIAL_BANNER_EXPIRY_MESSAGE(daysLeft),
+                BE_TRIAL_BANNER_EXPIRY_MESSAGE(days, suffix),
               ),
             }}
             type={TextType.P1}
