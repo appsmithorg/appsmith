@@ -50,49 +50,46 @@ export const getEntitiesForNavigation = createSelector(
       const config = getActionConfig(action.config.pluginType);
       const result = getActionChildrenNavData(action, dataTree);
       if (!config) return;
-      navigationData[action.config.name] = createNavData(
-        action.config.name,
-        action.config.id,
-        ENTITY_TYPE.ACTION,
-        true,
-        config.getURL(
+      navigationData[action.config.name] = createNavData({
+        id: action.config.id,
+        name: action.config.name,
+        type: ENTITY_TYPE.ACTION,
+        url: config.getURL(
           pageId,
           action.config.id,
           action.config.pluginType,
           plugin,
         ),
-        true,
-        result?.peekData,
-        result?.childNavData || {},
-      );
+        peekable: true,
+        peekData: result?.peekData,
+        children: result?.childNavData || {},
+      });
     });
 
     jsActions.forEach((jsAction) => {
       const result = getJsChildrenNavData(jsAction, pageId, dataTree);
-      navigationData[jsAction.config.name] = createNavData(
-        jsAction.config.name,
-        jsAction.config.id,
-        ENTITY_TYPE.JSACTION,
-        true,
-        jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
-        true,
-        result?.peekData,
-        result?.childNavData || {},
-      );
+      navigationData[jsAction.config.name] = createNavData({
+        id: jsAction.config.id,
+        name: jsAction.config.name,
+        type: ENTITY_TYPE.JSACTION,
+        url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
+        peekable: true,
+        peekData: result?.peekData,
+        children: result?.childNavData || {},
+      });
     });
 
     Object.values(widgets).forEach((widget) => {
       const result = getWidgetChildrenNavData(widget, dataTree, pageId);
-      navigationData[widget.widgetName] = createNavData(
-        widget.widgetName,
-        widget.widgetId,
-        ENTITY_TYPE.WIDGET,
-        true,
-        builderURL({ pageId, hash: widget.widgetId }),
-        true,
-        result?.peekData,
-        result?.childNavData || {},
-      );
+      navigationData[widget.widgetName] = createNavData({
+        id: widget.widgetId,
+        name: widget.widgetName,
+        type: ENTITY_TYPE.WIDGET,
+        url: builderURL({ pageId, hash: widget.widgetId }),
+        peekable: true,
+        peekData: result?.peekData,
+        children: result?.childNavData || {},
+      });
     });
     navigationData["appsmith"] = getAppsmithNavData(
       dataTree.appsmith as DataTreeAppsmith,

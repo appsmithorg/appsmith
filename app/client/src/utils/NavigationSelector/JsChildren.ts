@@ -30,55 +30,52 @@ export const getJsChildrenNavData = (
       const children: EntityNavigationData = {};
       if (jsAction.data?.[jsChild.id] && jsChild.executeOnLoad) {
         (peekData[jsChild.name] as any).data = jsAction.data[jsChild.id];
-        children.data = createNavData(
-          `${jsAction.config.name}.${jsChild.name}.data`,
-          `${jsAction.config.name}.${jsChild.name}.data`,
-          ENTITY_TYPE.JSACTION,
-          false,
-          undefined,
-          true,
-          undefined,
-          {},
-          jsChild.name + ".data",
-        );
+        children.data = createNavData({
+          id: `${jsAction.config.name}.${jsChild.name}.data`,
+          name: `${jsAction.config.name}.${jsChild.name}.data`,
+          type: ENTITY_TYPE.JSACTION,
+          url: undefined,
+          peekable: true,
+          peekData: undefined,
+          children: {},
+          key: jsChild.name + ".data",
+        });
       }
 
-      return createNavData(
-        `${jsAction.config.name}.${jsChild.name}`,
-        `${jsAction.config.name}.${jsChild.name}`,
-        ENTITY_TYPE.JSACTION,
-        true,
-        jsCollectionIdURL({
+      return createNavData({
+        id: `${jsAction.config.name}.${jsChild.name}`,
+        name: `${jsAction.config.name}.${jsChild.name}`,
+        type: ENTITY_TYPE.JSACTION,
+        url: jsCollectionIdURL({
           pageId,
           collectionId: jsAction.config.id,
           functionName: jsChild.name,
         }),
-        true,
-        undefined,
+        peekable: true,
+        peekData: undefined,
         children,
-        jsChild.name,
-      );
+        key: jsChild.name,
+      });
     });
 
     const variableChildren: NavigationData[] = jsAction.config.variables.map(
       (jsChild) => {
         if (dataTreeAction)
           peekData[jsChild.name] = dataTreeAction[jsChild.name];
-        return createNavData(
-          `${jsAction.config.name}.${jsChild.name}`,
-          `${jsAction.config.name}.${jsChild.name}`,
-          ENTITY_TYPE.JSACTION,
-          true,
-          jsCollectionIdURL({
+        return createNavData({
+          id: `${jsAction.config.name}.${jsChild.name}`,
+          name: `${jsAction.config.name}.${jsChild.name}`,
+          type: ENTITY_TYPE.JSACTION,
+          url: jsCollectionIdURL({
             pageId,
             collectionId: jsAction.config.id,
             functionName: jsChild.name,
           }),
-          true,
-          undefined,
-          {},
-          jsChild.name,
-        );
+          peekable: true,
+          peekData: undefined,
+          children: {},
+          key: jsChild.name,
+        });
       },
     );
 

@@ -29,28 +29,26 @@ export const getWidgetChildrenNavData = (
     if (dataTreeWidget) {
       Object.keys(dataTreeWidget.data || {}).forEach((widgetName) => {
         const childWidgetId = (dataTree[widgetName] as DataTreeWidget).widgetId;
-        formChildren[widgetName] = createNavData(
-          widgetName,
-          `${widget.widgetName}.data.${widgetName}`,
-          ENTITY_TYPE.WIDGET,
-          true,
-          builderURL({ pageId, hash: childWidgetId }),
-          false,
-          undefined,
-          {},
-        );
+        formChildren[widgetName] = createNavData({
+          id: `${widget.widgetName}.data.${widgetName}`,
+          name: widgetName,
+          type: ENTITY_TYPE.WIDGET,
+          url: builderURL({ pageId, hash: childWidgetId }),
+          peekable: false,
+          peekData: undefined,
+          children: {},
+        });
       });
     }
-    children.data = createNavData(
-      "data",
-      `${widget.widgetName}.data`,
-      ENTITY_TYPE.WIDGET,
-      false,
-      undefined,
-      false,
-      undefined,
-      formChildren,
-    );
+    children.data = createNavData({
+      id: `${widget.widgetName}.data`,
+      name: "data",
+      type: ENTITY_TYPE.WIDGET,
+      url: undefined,
+      peekable: false,
+      peekData: undefined,
+      children: formChildren,
+    });
 
     return { childNavData: children, peekData };
   }
@@ -71,16 +69,15 @@ export const getWidgetChildrenNavData = (
       widgetProps.forEach((prop) => {
         const data = dataTreeWidget[prop];
         peekData[prop] = data;
-        childNavData[prop] = createNavData(
-          `${widget.widgetName}.${prop}`,
-          `${widget.widgetName}.${prop}`,
-          ENTITY_TYPE.WIDGET,
-          false,
-          undefined,
-          true,
-          undefined,
-          {},
-        );
+        childNavData[prop] = createNavData({
+          id: `${widget.widgetName}.${prop}`,
+          name: `${widget.widgetName}.${prop}`,
+          type: ENTITY_TYPE.WIDGET,
+          url: undefined,
+          peekable: true,
+          peekData: undefined,
+          children: {},
+        });
       });
     }
     return { childNavData, peekData };

@@ -4,27 +4,26 @@ import {
   NavigationData,
 } from "selectors/navigationSelectors";
 
-export const createNavData = (
-  name: string,
-  id: string,
-  type: ENTITY_TYPE,
-  navigable: boolean,
-  url: string | undefined,
-  peekable: boolean,
-  peekData: unknown,
-  children: EntityNavigationData,
-  key?: string,
-): NavigationData => {
+export const createNavData = (general: {
+  name: string;
+  id: string;
+  type: ENTITY_TYPE;
+  children: EntityNavigationData;
+  key?: string;
+  url: string | undefined;
+  peekable: boolean;
+  peekData: unknown;
+}): NavigationData => {
   return {
-    name,
-    id,
-    type,
-    url,
-    navigable,
-    children,
-    peekable,
-    peekData,
-    key,
+    name: general.name,
+    id: general.id,
+    type: general.type,
+    children: general.children,
+    key: general.key,
+    url: general.url,
+    navigable: !!!general.url,
+    peekable: general.peekable,
+    peekData: general.peekData,
   };
 };
 
@@ -53,44 +52,41 @@ export const createObjectNavData = (
             restrictKeysFrom,
           );
           peekData[key] = result.peekData;
-          entityNavigationData[key] = createNavData(
-            childKey,
-            childKey,
-            ENTITY_TYPE.APPSMITH,
-            false,
-            undefined,
-            true,
-            undefined,
-            result.entityNavigationData,
-          );
+          entityNavigationData[key] = createNavData({
+            id: childKey,
+            name: childKey,
+            type: ENTITY_TYPE.APPSMITH,
+            children: result.entityNavigationData,
+            url: undefined,
+            peekable: true,
+            peekData: undefined,
+          });
         } else {
           peekData[key] = data[key];
-          entityNavigationData[key] = createNavData(
-            childKey,
-            childKey,
-            ENTITY_TYPE.APPSMITH,
-            false,
-            undefined,
-            true,
-            undefined,
-            {},
-          );
+          entityNavigationData[key] = createNavData({
+            id: childKey,
+            name: childKey,
+            type: ENTITY_TYPE.APPSMITH,
+            children: {},
+            url: undefined,
+            peekable: true,
+            peekData: undefined,
+          });
         }
       } else {
         peekData[key] = isTernFunctionDef(defs[key])
           ? // eslint-disable-next-line @typescript-eslint/no-empty-function
             function() {} // tern inference required here
           : data[key];
-        entityNavigationData[key] = createNavData(
-          childKey,
-          childKey,
-          ENTITY_TYPE.APPSMITH,
-          false,
-          undefined,
-          true,
-          undefined,
-          {},
-        );
+        entityNavigationData[key] = createNavData({
+          id: childKey,
+          name: childKey,
+          type: ENTITY_TYPE.APPSMITH,
+          children: {},
+          url: undefined,
+          peekable: true,
+          peekData: undefined,
+        });
       }
     }
   });

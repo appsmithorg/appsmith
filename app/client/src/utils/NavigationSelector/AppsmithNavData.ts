@@ -20,14 +20,13 @@ export const getAppsmithNavData = (dataTree: DataTreeAppsmith) => {
     },
   );
 
-  return createNavData(
-    "appsmith",
-    "appsmith",
-    ENTITY_TYPE.APPSMITH,
-    false,
-    undefined,
-    true,
-    result.peekData,
-    result.entityNavigationData,
-  );
+  return createNavData({
+    id: "appsmith",
+    name: "appsmith",
+    type: ENTITY_TYPE.APPSMITH,
+    url: undefined,
+    peekable: true,
+    peekData: result.peekData,
+    children: result.entityNavigationData,
+  });
 };
