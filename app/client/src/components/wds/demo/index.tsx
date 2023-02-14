@@ -10,7 +10,6 @@ import ButtonShowcase from "./Button";
 import ButtonGroupShowcase from "./ButtonGroup";
 import { createTokens } from "../utils/createTokens";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
-import { createGlobalFontStack } from "../utils/typography";
 
 type StyledWrapperProps = {
   borderRadius: CSSProperties["borderRadius"];
