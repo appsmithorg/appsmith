@@ -33,6 +33,8 @@ export class HomePage {
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role +
     "']";
+  private _profileMenu = ".t--profile-menu";
+  private _signout = ".t--logout-icon";
 
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
@@ -240,6 +242,14 @@ export class HomePage {
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
     cy.request("POST", "/api/v1/logout");
+    this.agHelper.Sleep(); //for logout to complete!
+  }
+
+  public Signout() {
+    this.NavigateToHome();
+    this.agHelper.GetNClick(this._profileMenu);
+    this.agHelper.GetNClick(this._signout);
+    this.agHelper.ValidateNetworkStatus("@postLogout")
     this.agHelper.Sleep(); //for logout to complete!
   }
 
