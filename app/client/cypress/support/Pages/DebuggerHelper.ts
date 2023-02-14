@@ -178,8 +178,10 @@ export class DebuggerHelper {
     this.agHelper.AssertElementVisible(this.locators._contextMenuItem);
   }
 
-  AssertDebugError(label: string, message: string) {
-    this.ClickDebuggerIcon();
+  AssertDebugError(label: string, message: string, shouldOpenDebugger = true) {
+    if (shouldOpenDebugger) {
+      this.ClickDebuggerIcon();
+    }
     this.agHelper.GetNClick(this.commonLocators._errorTab, 0, true, 0);
     this.agHelper
       .GetText(this.locators._debuggerLabel, "text", 0)

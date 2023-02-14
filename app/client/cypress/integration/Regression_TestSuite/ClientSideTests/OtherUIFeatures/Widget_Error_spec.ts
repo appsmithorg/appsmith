@@ -82,6 +82,7 @@ describe("Widget error state", function() {
     debuggerHelper.AssertDebugError(
       "The value at primaryColumns.customColumn1.computedValue is invalid",
       "ReferenceError: test is not defined",
+      false,
     );
 
     cy.deleteColumn("customColumn1");
