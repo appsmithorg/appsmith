@@ -8,10 +8,6 @@ let ee = ObjectsRegistry.EntityExplorer;
 let datasourceName;
 
 describe("Validate CRUD queries for Postgres along with UI flow verifications", function() {
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
-
   // afterEach(function() {
   //   if (this.currentTest.state === "failed") {
   //     Cypress.runner.stop();
@@ -92,7 +88,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.get(".CodeMirror textarea").paste(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     cy.EvaluateCurrentValue(tableCreateQuery);
-
+    cy.wait(3000);
     cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
   });
 

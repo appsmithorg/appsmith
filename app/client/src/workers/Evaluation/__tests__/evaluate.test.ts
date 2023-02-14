@@ -67,7 +67,6 @@ describe("evaluateSync", () => {
     const response1 = evaluate("wrongJS", {}, {}, false);
     expect(response1).toStrictEqual({
       result: undefined,
-      logs: [],
       errors: [
         {
           errorMessage: {
@@ -90,7 +89,6 @@ describe("evaluateSync", () => {
     const response2 = evaluate("{}.map()", {}, {}, false);
     expect(response2).toStrictEqual({
       result: undefined,
-      logs: [],
       errors: [
         {
           errorMessage: {
@@ -121,7 +119,6 @@ describe("evaluateSync", () => {
     const response = evaluate(js, dataTree, {}, false);
     expect(response).toStrictEqual({
       result: undefined,
-      logs: [],
       errors: [
         {
           errorMessage: {
@@ -205,9 +202,7 @@ describe("evaluateAsync", () => {
     const response = await evaluateAsync(js, {}, {}, {});
     expect(response).toStrictEqual({
       errors: [],
-      logs: [],
       result: 123,
-      triggers: [],
     });
   });
   it("runs and returns errors", async () => {
@@ -228,9 +223,7 @@ describe("evaluateAsync", () => {
           severity: "error",
         },
       ],
-      triggers: [],
       result: undefined,
-      logs: [],
     });
   });
 });

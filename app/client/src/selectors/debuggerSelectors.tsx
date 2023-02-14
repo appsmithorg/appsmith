@@ -6,7 +6,10 @@ import { AppState } from "@appsmith/reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
-import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  shouldSuppressDebuggerError,
+  isWidget,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 
 type ErrorObejct = {
@@ -43,6 +46,9 @@ export const getFilteredErrors = createSelector(
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
+          if (shouldSuppressDebuggerError(entity)) {
+            return false;
+          }
           if (!hasParentWidget(entity)) {
             return entity.isVisible
               ? true

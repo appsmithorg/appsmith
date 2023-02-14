@@ -9,7 +9,7 @@ import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
-  getDataTreeWithoutPrivateWidgets,
+  getDataTreeForAutocomplete,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -359,11 +359,11 @@ export function* updateTernDefinitions(
 
   if (!shouldUpdate) return;
   const start = performance.now();
-  // remove private widgets from dataTree used for autocompletion
-  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
+  const dataTreeForAutocomplete = getDataTreeForAutocomplete(dataTree);
   const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const { def, entityInfo } = dataTreeTypeDefCreator(
-    treeWithoutPrivateWidgets,
+    dataTreeForAutocomplete,
     !!featureFlags.JS_EDITOR,
     jsData,
   );

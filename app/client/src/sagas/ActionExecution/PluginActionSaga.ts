@@ -84,7 +84,6 @@ import {
   CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import { RunPluginActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
@@ -97,10 +96,6 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { JSCollection } from "entities/JSCollection";
-import {
-  executeAppAction,
-  TriggerMeta,
-} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
@@ -116,6 +111,7 @@ import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
+import { TRunDescription } from "workers/Evaluation/fns/actionFns";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -329,11 +325,11 @@ function* evaluateActionParams(
 }
 
 export default function* executePluginActionTriggerSaga(
-  pluginAction: RunPluginActionDescription["payload"],
+  pluginAction: TRunDescription,
   eventType: EventType,
-  triggerMeta: TriggerMeta,
 ) {
-  const { actionId, onError, onSuccess, params } = pluginAction;
+  const { payload: pluginPayload } = pluginAction;
+  const { actionId, onError, params } = pluginPayload;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
       "RUN_PLUGIN_ACTION",
@@ -422,12 +418,6 @@ export default function* executePluginActionTriggerSaga(
       },
     ]);
     if (onError) {
-      yield call(executeAppAction, {
-        event: { type: eventType },
-        dynamicString: onError,
-        callbackData: [payload.body, params],
-        ...triggerMeta,
-      });
       throw new PluginTriggerFailureError(
         createMessage(ERROR_ACTION_EXECUTE_FAIL, action.name),
         [payload.body, params],
@@ -435,7 +425,7 @@ export default function* executePluginActionTriggerSaga(
     } else {
       throw new PluginTriggerFailureError(
         createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
-        [payload.body, params],
+        [],
       );
     }
   } else {
@@ -453,14 +443,6 @@ export default function* executePluginActionTriggerSaga(
         request: payload.request,
       },
     });
-    if (onSuccess) {
-      yield call(executeAppAction, {
-        event: { type: eventType },
-        dynamicString: onSuccess,
-        callbackData: [payload.body, params],
-        ...triggerMeta,
-      });
-    }
   }
   return [payload.body, params];
 }

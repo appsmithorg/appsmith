@@ -6,6 +6,9 @@ import {
   EvaluationError,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
+  getEntityId,
+  getEntityName,
+  getEntityType,
   getEvalErrorPath,
   getEvalValuePath,
   isChildPropertyPath,
@@ -22,7 +25,7 @@ import {
   DataTreeWidget,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import { PrivateWidgets } from "entities/DataTree/types";
+import { ENTITY_TYPE, PrivateWidgets } from "entities/DataTree/types";
 import {
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,
@@ -41,6 +44,7 @@ import {
   getAllPaths,
   isValidEntity,
   isNewEntity,
+  getStaleMetaStateIds,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -68,12 +72,7 @@ import evaluateSync, {
   evaluateAsync,
 } from "workers/Evaluation/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
-import {
-  Severity,
-  SourceEntity,
-  ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
-  UserLogObject,
-} from "entities/AppsmithConsole";
+import { Severity } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
 import { JSUpdate } from "utils/JSPaneUtils";
 
@@ -100,10 +99,8 @@ import {
   validateAndParseWidgetProperty,
 } from "./validationUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
-import {
-  isMetaWidgetTemplate,
-  isWidgetDefaultPropertyPath,
-} from "entities/DataTree/utils";
+import userLogs from "workers/Evaluation/fns/overrides/console";
+import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -131,7 +128,7 @@ export default class DataTreeEvaluator {
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
   logs: unknown[] = [];
-  userLogs: UserLogObject[] = [];
+  console = userLogs;
   allActionValidationConfig?: {
     [actionId: string]: ActionValidationConfigMap;
   };
@@ -530,6 +527,7 @@ export default class DataTreeEvaluator {
     evaluationOrder: string[],
     nonDynamicFieldValidationOrder: string[],
     unevalUpdates: DataTreeDiff[],
+    metaWidgetIds: string[] = [],
   ): {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
@@ -543,7 +541,12 @@ export default class DataTreeEvaluator {
       this.evalTree,
       this.resolvedFunctions,
       evaluationOrder,
-      { skipRevalidation: false, isFirstTree: false, unevalUpdates },
+      {
+        skipRevalidation: false,
+        isFirstTree: false,
+        unevalUpdates,
+        metaWidgets: metaWidgetIds,
+      },
     );
     const evaluationEndTime = performance.now();
     const reValidateStartTime = performance.now();
@@ -671,7 +674,13 @@ export default class DataTreeEvaluator {
       skipRevalidation: boolean;
       isFirstTree: boolean;
       unevalUpdates: DataTreeDiff[];
-    } = { skipRevalidation: true, isFirstTree: true, unevalUpdates: [] },
+      metaWidgets: string[];
+    } = {
+      skipRevalidation: true,
+      isFirstTree: true,
+      unevalUpdates: [],
+      metaWidgets: [],
+    },
   ): {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
@@ -680,7 +689,12 @@ export default class DataTreeEvaluator {
     const tree = klona(oldUnevalTree);
     errorModifier.updateAsyncFunctions(tree);
     const evalMetaUpdates: EvalMetaUpdates = [];
-    const { isFirstTree, skipRevalidation, unevalUpdates } = options;
+    const {
+      isFirstTree,
+      metaWidgets,
+      skipRevalidation,
+      unevalUpdates,
+    } = options;
     let staleMetaIds: string[] = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
@@ -772,7 +786,12 @@ export default class DataTreeEvaluator {
                 });
               }
               staleMetaIds = staleMetaIds.concat(
-                this.getStaleMetaStateIds(entity, propertyPath),
+                getStaleMetaStateIds({
+                  entity,
+                  propertyPath,
+                  isNewWidget,
+                  metaWidgets,
+                }),
               );
 
               return currentTree;
@@ -840,13 +859,18 @@ export default class DataTreeEvaluator {
         },
         tree,
       );
-      return { evaluatedTree, evalMetaUpdates, staleMetaIds };
+
+      return {
+        evaluatedTree,
+        evalMetaUpdates,
+        staleMetaIds: staleMetaIds,
+      };
     } catch (error) {
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds };
+      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds: [] };
     }
   }
 
@@ -941,6 +965,17 @@ export default class DataTreeEvaluator {
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
         if (jsSnippet) {
+          if (entity && !propertyPath.includes("body")) {
+            ExecutionMetaData.setExecutionMetaData({
+              source: {
+                id: getEntityId(entity) || "",
+                entityType: getEntityType(entity) || ENTITY_TYPE.WIDGET,
+                name: getEntityName(entity) || "",
+              },
+              triggerPropertyName: fullPropertyPath?.split(".")[1] || "",
+            });
+          }
+
           const result = this.evaluateDynamicBoundValue(
             toBeSentForEval,
             data,
@@ -948,8 +983,6 @@ export default class DataTreeEvaluator {
             !!entity && isJSAction(entity),
             contextData,
             callBackData,
-            fullPropertyPath?.includes("body") ||
-              !toBeSentForEval.includes("console."),
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty({
@@ -957,39 +990,6 @@ export default class DataTreeEvaluator {
               evalProps: this.evalProps,
               fullPropertyPath,
               dataTree: data,
-            });
-          }
-          // if there are any console outputs found from the evaluation, extract them and add them to the logs array
-          if (
-            !!entity &&
-            !!result.logs &&
-            result.logs.length > 0 &&
-            !propertyPath.includes("body")
-          ) {
-            let type = CONSOLE_ENTITY_TYPE.WIDGET;
-            let id = "";
-
-            // extracting the id and type of the entity from the entity for logs object
-            if (isWidget(entity)) {
-              type = CONSOLE_ENTITY_TYPE.WIDGET;
-              id = entity.widgetId;
-            } else if (isAction(entity)) {
-              type = CONSOLE_ENTITY_TYPE.ACTION;
-              id = entity.actionId;
-            } else if (isJSAction(entity)) {
-              type = CONSOLE_ENTITY_TYPE.JSACTION;
-              id = entity.actionId;
-            }
-
-            // This is the object that will help to associate the log with the origin entity
-            const source: SourceEntity = {
-              type,
-              name: fullPropertyPath?.split(".")[0] || "Widget",
-              id,
-            };
-            this.userLogs.push({
-              logObject: result.logs,
-              source,
             });
           }
           return result.result;
@@ -1065,7 +1065,6 @@ export default class DataTreeEvaluator {
     isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
-    skipUserLogsOperations = false,
   ): EvalResult {
     try {
       return evaluateSync(
@@ -1075,7 +1074,6 @@ export default class DataTreeEvaluator {
         isJSObject,
         contextData,
         callbackData,
-        skipUserLogsOperations,
       );
     } catch (error) {
       return {
@@ -1401,20 +1399,12 @@ export default class DataTreeEvaluator {
       );
     });
   }
-  // When a default value changes, meta values of metaWidgets not present in the unevalTree becomes stale
-  getStaleMetaStateIds(entity: DataTreeWidget, propertyPath: string) {
-    return isWidgetDefaultPropertyPath(entity, propertyPath) &&
-      isMetaWidgetTemplate(entity)
-      ? (entity.siblingMetaWidgets as string[])
-      : [];
-  }
 
   clearErrors() {
     this.errors = [];
   }
   clearLogs() {
     this.logs = [];
-    this.userLogs = [];
   }
 }
 

@@ -29,15 +29,13 @@ export type Methods =
   | "count"
   | "assert";
 
-export type UserLogObject = { logObject: LogObject[]; source: SourceEntity };
-
-// Type of the log object
 export type LogObject = {
   method: Methods | "result";
   data: any[];
   timestamp: string;
   id: string;
   severity: Severity;
+  source: SourceEntity;
 };
 
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
