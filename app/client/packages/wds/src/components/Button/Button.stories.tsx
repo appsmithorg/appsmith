@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentMeta } from "@storybook/react";
+import { ComponentMeta, ComponentStory } from "@storybook/react";
 
 import { Button } from "./index";
 
@@ -21,6 +21,7 @@ export default {
       defaultValue: "filled",
       options: ["filled", "outline", "subtle", "light"],
       control: { type: "radio" },
+      table: { defaultValue: { summary: "filled" } },
     },
     ...HIDDEN_ARGS.reduce((acc: any, arg) => {
       acc[arg] = { table: { disable: true } };
@@ -32,23 +33,16 @@ export default {
     isLoading: false,
     isDisabled: false,
   },
+  parameters: {
+    height: "32px",
+    width: "180px",
+  },
 } as ComponentMeta<typeof Button>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template = (args) => {
+const Template: ComponentStory<typeof Button> = (args) => {
   return <Button {...args} />;
 };
 
 export const TextStory = Template.bind({});
 TextStory.storyName = "Button";
-TextStory.args = {
-  children: "Button",
-  isLoading: false,
-  isDisabled: false,
-  variant: "filled",
-};
-
-TextStory.parameters = {
-  height: "32px",
-  width: "120px",
-};

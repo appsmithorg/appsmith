@@ -1,6 +1,0 @@
-/* dialog/modal */
-[data-component="overlay"] {
-  background: rgba(0, 0, 0, 0.8);
-  display: grid;
-  place-items: center;
-}

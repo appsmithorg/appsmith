@@ -1,9 +1,10 @@
 import styled from "styled-components";
+
 import { ButtonGroupProps } from "./ButtonGroup";
 
-export const StyledContainer = styled.div<
-  Pick<ButtonGroupProps, "orientation">
->`
+export const StyledContainer = styled.div<ButtonGroupProps>`
+  --border-width: 1px;
+
   display: flex;
   height: 100%;
   width: 100%;
@@ -11,28 +12,28 @@ export const StyledContainer = styled.div<
     orientation === "vertical" ? "column" : "row"};
 
   & [data-button] {
-    &:is([data-variant="filled"]) {
-      border-color: var(--wds-vs-color-border-accent-dark);
+    &:is([data-variant="filled"]):not([data-disabled]) {
+      border-color: var(--wds-vs-color-border-onaccent);
     }
 
-    &:is([data-variant="light"]) {
-      border-color: var(--wds-vs-color-border-accent-light);
+    &:is([data-variant="light"]):not([data-disabled]) {
+      border-color: var(--wds-vs-color-border-onaccent-light);
     }
 
     &:first-child {
       border-bottom-right-radius: 0;
       ${({ orientation }) =>
         orientation === "vertical"
-          ? "border-bottom-left-radius: 0; border-bottom-width: 0.5px;"
-          : "border-top-right-radius: 0; border-right-width: 0.5px;"}
+          ? "border-bottom-left-radius: 0; border-bottom-width: calc(var(--border-width) / 2);"
+          : "border-top-right-radius: 0; border-right-width: calc(var(--border-width) / 2);"}
     }
 
     &:last-of-type {
       border-top-left-radius: 0;
       ${({ orientation }) =>
         orientation === "vertical"
-          ? "border-top-right-radius: 0; border-top-width: 0.5px"
-          : "border-bottom-left-radius: 0; border-left-width: 0.5px"}
+          ? "border-top-right-radius: 0; border-top-width: calc(var(--border-width) / 2);"
+          : "border-bottom-left-radius: 0; border-left-width: calc(var(--border-width) / 2);"}
     }
 
     &:not(:first-child):not(:last-of-type) {
@@ -40,13 +41,15 @@ export const StyledContainer = styled.div<
 
       ${({ orientation }) =>
         orientation === "vertical"
-          ? "border-top-width: 0.5px; border-bottom-width: 0.5px;"
-          : "border-left-width: 0.5px; border-right-radius: 0.5px;"}
+          ? "border-top-width: calc(var(--border-width) / 2); border-bottom-width: calc(var(--border-width) / 2);"
+          : "border-left-width: calc(var(--border-width) / 2); border-right-width: calc(var(--border-width) / 2);"}
     }
 
     & + [data-button] {
       ${({ orientation }) =>
-        orientation === "vertical" ? "margin-top: -1px;" : "margin-left: -1px;"}
+        orientation === "vertical"
+          ? "margin-top: calc(var(--border-width) * -1);"
+          : "margin-left: calc(var(--border-width) * -1);"}
 
       @media (min-resolution: 192dpi) {
         ${({ orientation }) =>
