@@ -20,6 +20,7 @@ export const CONFIG = {
   isDeprecated: true,
   hideCard: true,
   replacement: "LIST_WIDGET_V2",
+  needsHeightForContent: true,
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",

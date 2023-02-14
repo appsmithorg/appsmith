@@ -23,6 +23,8 @@ const StyledContainerComponent = styled.div<
   height: 100%;
   width: 100%;
   overflow: hidden;
+  ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
+  
   ${(props) => (props.shouldScrollContents ? scrollCSS : ``)}
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
 
@@ -48,6 +50,7 @@ interface ContainerWrapperProps {
   backgroundColor?: string;
   widgetId: string;
   type: WidgetType;
+  dropDisabled?: boolean;
 }
 function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
@@ -120,6 +123,7 @@ function ContainerComponentWrapper(
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} container-with-scrollbar`}
       data-widgetId={props.widgetId}
+      dropDisabled={props.dropDisabled}
       onClick={props.onClick}
       onClickCapture={props.onClickCapture}
       onMouseOver={onMouseOver}
@@ -138,6 +142,7 @@ function ContainerComponent(props: ContainerComponentProps) {
   if (props.detachFromLayout) {
     return (
       <ContainerComponentWrapper
+        dropDisabled={props.dropDisabled}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
@@ -163,6 +168,7 @@ function ContainerComponent(props: ContainerComponentProps) {
     >
       <ContainerComponentWrapper
         backgroundColor={props.backgroundColor}
+        dropDisabled={props.dropDisabled}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
@@ -190,6 +196,7 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   backgroundColor?: string;
   type: WidgetType;
   noScroll?: boolean;
+  dropDisabled?: boolean;
 }
 
 export default ContainerComponent;

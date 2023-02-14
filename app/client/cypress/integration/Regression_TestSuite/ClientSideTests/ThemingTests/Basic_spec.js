@@ -951,6 +951,9 @@ describe("App Theming funtionality", function() {
       .should("have.css", "background-color", "rgb(126, 34, 206)"); //Widget Color
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
+      .should("be.visible");
+    cy.get(widgetsPage.widgetBtn)
+      .eq(1)
       .should("have.css", "background-color", "rgb(126, 34, 206)"); //Widget Color
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
@@ -1194,6 +1197,9 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.widgetBtn)
       .eq(0)
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
+    cy.get(widgetsPage.widgetBtn)
+      .eq(1)
+      .should("be.visible");
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
