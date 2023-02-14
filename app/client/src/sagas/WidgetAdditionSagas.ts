@@ -140,8 +140,11 @@ function* getChildWidgetProps(
   );
 
   if (params.dynamicBindingPathList) {
-    const copy = [...dynamicBindingPathList, ...params.dynamicBindingPathList];
-    widget.dynamicBindingPathList = copy;
+    const mergedDynamicBindingPathLists = [
+      ...dynamicBindingPathList,
+      ...params.dynamicBindingPathList,
+    ];
+    widget.dynamicBindingPathList = mergedDynamicBindingPathLists;
   } else {
     widget.dynamicBindingPathList = clone(dynamicBindingPathList);
   }
