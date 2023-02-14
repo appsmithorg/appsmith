@@ -18,11 +18,6 @@ describe("Button Widget Functionality", function() {
     cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("be.visible");
-    cy.get("body").then(($ele) => {
-      if ($ele.find(modalWidgetPage.modelTextField).length <= 0) {
-        cy.get(publishPage.buttonWidget).click();
-      }
-    });
     cy.get(publishPage.buttonWidget).click();
     cy.get("body").then(($ele) => {
       if ($ele.find(modalWidgetPage.modelTextField).length <= 0) {
