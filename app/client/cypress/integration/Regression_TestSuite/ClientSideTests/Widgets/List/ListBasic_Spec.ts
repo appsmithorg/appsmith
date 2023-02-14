@@ -34,11 +34,11 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.apiPage.RunAPI();
     _.agHelper.GetNClick(_.locators._jsonTab);
     _.apiPage.ReadApiResponsebyKey("name");
-    cy.get("@apiResp").then((name) => {
+    cy.get("@apiResp").then((name: any) => {
       userName = name.trim();
     });
     _.apiPage.ReadApiResponsebyKey("email");
-    cy.get("@apiResp").then((email) => {
+    cy.get("@apiResp").then((email: any) => {
       userEmail = email.trim();
     });
     _.agHelper.AssertElementAbsence(
@@ -96,11 +96,11 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.propPane.UpdatePropertyFieldValue("Items", JSON.stringify(listData));
     _.deployMode.DeployApp();
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
-    _.tableV2.AssertPageNumber_List(1);
-    _.tableV2.NavigateToNextPage_List();
-    _.tableV2.AssertPageNumber_List(2, true);
-    _.tableV2.NavigateToPreviousPage_List();
-    _.tableV2.AssertPageNumber_List(1);
+    _.table.AssertPageNumber_List(1);
+    _.table.NavigateToNextPage_List();
+    _.table.AssertPageNumber_List(2, true);
+    _.table.NavigateToPreviousPage_List();
+    _.table.AssertPageNumber_List(1);
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.Sleep();
   });
@@ -164,20 +164,20 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
       _.deployMode.DeployApp();
       _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
 
-      _.tableV2.AssertPageNumber_List(1, false, true);
-      _.tableV2.AssertListPagesPresent(2, false);
-      _.tableV2.NavigateToNextPage_List();
-      _.tableV2.AssertPageNumber_List(2, false, true);
-      _.tableV2.AssertListPagesPresent(1, false);
-      _.tableV2.NavigateToPreviousPage_List();
-      _.tableV2.AssertPageNumber_List(1, false, true);
+      _.table.AssertPageNumber_List(1, false, true);
+      _.table.AssertListPagesPresent(2, false);
+      _.table.NavigateToNextPage_List();
+      _.table.AssertPageNumber_List(2, false, true);
+      _.table.AssertListPagesPresent(1, false);
+      _.table.NavigateToPreviousPage_List();
+      _.table.AssertPageNumber_List(1, false, true);
       _.deployMode.NavigateBacktoEditor();
       _.ee.SelectEntityByName("List1", "Widgets");
       _.propPane.ToggleOnOrOff("Server Side Pagination", "Off");
-      _.agHelper.AssertElementAbsence(_.tableV2._liPaginateItem);
+      _.agHelper.AssertElementAbsence(_.table._liPaginateItem);
       _.deployMode.DeployApp();
       _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
-      _.agHelper.AssertElementAbsence(_.tableV2._liPaginateItem);
+      _.agHelper.AssertElementAbsence(_.table._liPaginateItem);
       _.deployMode.NavigateBacktoEditor();
       _.agHelper.Sleep();
     });
