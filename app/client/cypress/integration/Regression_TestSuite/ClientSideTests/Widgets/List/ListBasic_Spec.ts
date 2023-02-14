@@ -25,7 +25,7 @@ const listData = [
 ];
 
 let dsName: any;
-let userName, userGender;
+let userName, userEmail;
 
 describe("Verify List widget binding, Server side Pagination & functionalities with Queries and API", function() {
   before(() => {
@@ -38,8 +38,8 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
       userName = name.trim();
     });
     _.apiPage.ReadApiResponsebyKey("email");
-    cy.get("@apiResp").then((gender) => {
-      userGender = gender.trim();
+    cy.get("@apiResp").then((email) => {
+      userEmail = email.trim();
     });
     _.agHelper.AssertElementAbsence(
       _.locators._specificToast(
@@ -68,7 +68,7 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.email}}");
     _.agHelper.GetNAssertElementText(
       _.locators._textWidget,
-      userGender,
+      userEmail,
       "have.text",
       1,
     );
@@ -84,9 +84,9 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.deployMode.DeployApp();
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
     _.agHelper.GetNClick(_.locators._containerWidget, 0, true);
-    _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userGender);
+    _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userEmail);
     _.agHelper.GetNClick(_.locators._containerWidget, 1, true);
-    _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userGender);
+    _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userEmail);
     _.deployMode.NavigateBacktoEditor();
   });
 
