@@ -68,6 +68,7 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRI
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
+import static com.appsmith.server.helpers.PermissionUtils.collateAllPermissions;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -326,10 +327,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
 
 
-        Set<Permission> permissions = collateAllPermissions(List.of(workspacePermissions,
-                                                                    assignPermissionGroupPermissions,
-                                                                    readPermissionGroupPermissions,
-                                                                    unassignPermissionGroupPermissions));
+        Set<Permission> permissions = collateAllPermissions(workspacePermissions,
+                                                            assignPermissionGroupPermissions,
+                                                            readPermissionGroupPermissions,
+                                                            unassignPermissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign the user creating the permission group to this permission group
@@ -346,9 +347,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         assignPermissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
-        permissions = collateAllPermissions(List.of(workspacePermissions,
-                                                    assignPermissionGroupPermissions,
-                                                    readPermissionGroupPermissions));
+        permissions = collateAllPermissions(workspacePermissions,
+                                            assignPermissionGroupPermissions,
+                                            readPermissionGroupPermissions);
         developerPermissionGroup.setPermissions(permissions);
 
         // App Viewer Permissions
@@ -363,9 +364,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
 
-        permissions = collateAllPermissions(List.of(workspacePermissions,
-                                                    assignPermissionGroupPermissions,
-                                                    readPermissionGroupPermissions));
+        permissions = collateAllPermissions(workspacePermissions,
+                                            assignPermissionGroupPermissions,
+                                            readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
         Mono<Set<PermissionGroup>> savedPermissionGroupsMono = Flux.fromIterable(permissionGroups)
@@ -395,12 +396,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         cleanPermissionGroupCacheForCurrentUser
                        )
                 .map(tuple -> tuple.getT1());
-    }
-
-    private Set<Permission> collateAllPermissions(List<Set<Permission>> permissionSetList) {
-        Set<Permission> permissions = new HashSet<>();
-        permissionSetList.stream().peek(permissions::addAll).toList();
-        return permissions;
     }
 
     protected Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {
