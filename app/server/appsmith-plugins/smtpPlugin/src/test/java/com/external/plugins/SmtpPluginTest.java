@@ -9,8 +9,14 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import jakarta.mail.*;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -18,7 +24,6 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import jakarta.mail.Session;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,13 +32,14 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 @Testcontainers
 public class SmtpPluginTest {
     final static String username = "smtpUser";
     final static String password = "smtpPass";
     private static String host = "localhost";
-    private static Long port = 25l;
+    private static Long port = 25L;
 
     @Container
     public static final GenericContainer smtp = new GenericContainer(DockerImageName.parse("maildev/maildev"))
@@ -92,7 +98,7 @@ public class SmtpPluginTest {
     @Test
     public void testInvalidHostname() {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
-        invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint("", 25l)));
+        invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint("", 25L)));
 
         assertEquals(Set.of("Could not find host address. Please edit the 'Hostname' field to provide the " +
                         "desired endpoint."),
@@ -153,13 +159,13 @@ public class SmtpPluginTest {
 
     @Test
     public void testBlankFromAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
                 "send.from", "   ");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e ->
@@ -189,13 +195,13 @@ public class SmtpPluginTest {
 
     @Test
     public void testInvalidFromAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
                 "send.from", "invalid");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithPluginException)
@@ -204,13 +210,13 @@ public class SmtpPluginTest {
 
     @Test
     public void testInvalidToAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
                 "send.to", "invalidEmail");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithPluginException)
@@ -219,13 +225,13 @@ public class SmtpPluginTest {
 
     @Test
     public void testNullSubject() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
                 "subject", null);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
@@ -234,13 +240,13 @@ public class SmtpPluginTest {
 
     @Test
     public void testBlankBody() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         actionConfiguration.setBody(null);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
@@ -296,7 +302,7 @@ public class SmtpPluginTest {
     }
 
     @Test
-    public void testInvalidAttachmentFiledata() {
+    public void testInvalidAttachmentFileData() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
@@ -357,5 +363,32 @@ public class SmtpPluginTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    public void testExecuteWithUTFEncoding() throws MessagingException {
+        ActionConfiguration actionConfiguration = createActionConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        MimeBodyPart mockMimeBodyPart = mock(MimeBodyPart.class);
+        doNothing().when(mockMimeMessage).setSubject(anyString(), anyString());
+        doNothing().when(mockMimeBodyPart).setContent(anyString(), anyString());
+
+        SmtpPlugin.SmtpPluginExecutor spySmtp = spy(pluginExecutor);
+
+        try (MockedStatic<Transport> transportMock = Mockito.mockStatic(Transport.class)) {
+            Session session = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+
+            when(spySmtp.getMimeMessage(session)).thenReturn(mockMimeMessage);
+            when(spySmtp.getMimeBodyPart()).thenReturn(mockMimeBodyPart);
+
+            transportMock.when(() -> Transport.send(mockMimeMessage)).thenAnswer((Answer<Void>) invocation -> null);
+
+            spySmtp.execute(session, datasourceConfiguration, actionConfiguration);// test method call
+            String ENCODING = "UTF-8";
+
+            verify(mockMimeMessage).setSubject("This is a test subject", ENCODING);
+            verify(mockMimeBodyPart).setContent(actionConfiguration.getBody(), "text/html; charset=" + ENCODING);
+        }
     }
 }
