@@ -123,6 +123,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     ee.ClonePage("Page1");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.Sleep(3000);
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);

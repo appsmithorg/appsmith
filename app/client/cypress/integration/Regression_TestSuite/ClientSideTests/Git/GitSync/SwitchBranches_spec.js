@@ -120,6 +120,7 @@ describe("Git sync:", function() {
     cy.wait(2000);
     cy.GlobalSearchEntity("ParentPage1");
     cy.contains("ParentPage1").click();
+    cy.get(".t--close-editor").click();
     cy.get(commonLocators.canvas);
 
     cy.switchGitBranch(parentBranchKey);

@@ -196,6 +196,9 @@ const getEntityParentUrl = (
 const isPageChange = (prevPath: string, currentPath: string) => {
   const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
   const currFocusEntityInfo = identifyEntityFromPath(currentPath);
+  if (prevFocusEntityInfo.pageId === "" || currFocusEntityInfo.pageId === "") {
+    return false;
+  }
   return prevFocusEntityInfo.pageId !== currFocusEntityInfo.pageId;
 };
 
@@ -235,7 +238,9 @@ function* getEntitiesForStore(previousPath: string, currentPath: string) {
     key: `${previousPath}#${branch}`,
   });
 
-  return entities;
+  return entities.filter(
+    (entity) => entity.entityInfo.entity !== FocusEntity.NONE,
+  );
 }
 
 function* getEntitiesForSet(
@@ -273,5 +278,7 @@ function* getEntitiesForSet(
     entityInfo: currentEntityInfo,
     key: `${currentPath}#${branch}`,
   });
-  return entities;
+  return entities.filter(
+    (entity) => entity.entityInfo.entity !== FocusEntity.NONE,
+  );
 }
