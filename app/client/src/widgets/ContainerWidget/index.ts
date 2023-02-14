@@ -1,8 +1,9 @@
 import { ButtonBoxShadowTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { WidgetHeightLimits } from "constants/WidgetConstants";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
