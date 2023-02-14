@@ -61,7 +61,7 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
   });
 
   it("2. Verify 'onListitemClick' functionality of Show messgage event on deploy mode", function() {
-    _.agHelper.GetNClick(_.locators._listWidget, 0, true);
+    _.ee.SelectEntityByName("List1");
     _.propPane.EnterJSContext(
       "onListItemClick",
       "{{showAlert('ListWidget_' + currentItem.name + '_' + currentItem.id,'success')}}",
@@ -70,17 +70,15 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.deployMode.DeployApp();
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
     _.agHelper.GetNClick(_.locators._containerWidget, 0, true);
-    _.agHelper.ValidateToastMessage("ListWidget_Barty Crouch_1");
-    _.agHelper.WaitUntilAllToastsDisappear();
+    _.agHelper.AssertContains("ListWidget_Barty Crouch_1");
     _.agHelper.GetNClick(_.locators._containerWidget, 1, true);
-    _.agHelper.ValidateToastMessage("ListWidget_Jenelle Kibbys_2");
-    _.agHelper.WaitUntilAllToastsDisappear();
+    _.agHelper.AssertContains("ListWidget_Jenelle Kibbys_2");
     _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Verify pagination and also verify Next_Page/Prev_Page disabled when List reach to last/first page", function() {
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
-    _.agHelper.GetNClick(_.locators._listWidget, 0, true);
+    _.ee.SelectEntityByName("List1", "Widgets");
     _.propPane.UpdatePropertyFieldValue("Items", JSON.stringify(listData));
     _.deployMode.DeployApp();
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
@@ -93,24 +91,9 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.agHelper.Sleep();
   });
 
-  it("4. Delete the List widget from canvas and verify it", function() {
-    _.agHelper.GetNClick(_.locators._listWidget, 0, true);
-    _.agHelper.GetNAssertElementText(
-      _.locators._propertyPaneTitle,
-      "List1",
-      "have.text",
-    );
-    _.agHelper.GetNClick(_.propPane._deleteWidget);
-    _.agHelper.ValidateToastMessage("List1 is removed");
-    _.deployMode.DeployApp();
-    _.agHelper.Sleep(2000);
-    _.agHelper.AssertElementAbsence(_.locators._listWidget);
-    _.deployMode.NavigateBacktoEditor();
-  });
 
-  it("5. Verify List widget with error message on wrong input", function() {
-    _.ee.DragDropWidgetNVerify(WIDGET.LIST, 300, 100);
-    _.ee.NavigateToSwitcher("explorer");
+  it("4. Verify List widget with error message on wrong input", function() {
+    _.ee.ExpandCollapseEntity("Widgets");
     _.ee.ExpandCollapseEntity("List1");
     _.ee.ExpandCollapseEntity("Container1");
     _.ee.SelectEntityByName("Text1");
@@ -118,7 +101,7 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.agHelper.VerifyEvaluatedErrorMessage(
       "ReferenceError: text is not defined",
     );
-    _.agHelper.GetNClick(_.locators._listWidget, 0, true);
+    _.ee.SelectEntityByName("List1");
     _.propPane.UpdatePropertyFieldValue(
       "Items",
       "{'id': '001', 'name': 'Blue', img': 'https://assets.appsmith.com/widgets/default.png'}",
@@ -129,8 +112,8 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.agHelper.Sleep();
   });
 
-  it("6. Verify Copy/Paste List widget", function() {
-    _.agHelper.GetNClick(_.locators._listWidget, 0, true);
+  it("5. Verify Copy/Paste/Delete the copied List widget", function() {
+    _.ee.SelectEntityByName("List1");
     _.ee.CopyPasteWidget("List1");
     _.agHelper.AssertElementExist(_.locators._listWidget, 1);
     _.agHelper.GetNAssertElementText(
@@ -139,52 +122,43 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
       "have.text",
     );
     _.agHelper.Sleep();
+
+    _.ee.SelectEntityByName("List1Copy");
+    _.agHelper.GetNClick(_.propPane._deleteWidget);
   });
 
-  it("7. Verify Pagination in Server side pagination and verify no pagination visible when Server Side Pagination is disabled", function() {
-    _.agHelper.GetNClick(_.locators._listWidget, 1, true);
+  it("6. Verify Pagination in Server side pagination and verify no pagination visible when Server Side Pagination is disabled", function() {
     _.ee.NavigateToSwitcher("explorer");
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       _.dataSources.CreateNewQueryInDS(
         dsName,
-        "SELECT * FROM users LIMIT {{List1Copy.pageSize}} offset {{(List1Copy.pageNo-1)*List1Copy.pageSize}}",
+        "SELECT * FROM hogwartsstudents LIMIT {{List1.pageSize}} offset {{(List1.pageNo-1)*List1.pageSize}}",
         "postgres_ssp",
       );
       _.dataSources.ToggleUsePreparedStatement(false);
       _.dataSources.RunQuery(true);
-      _.ee.NavigateToSwitcher("widgets");
-      _.agHelper.GetNClick(_.locators._listWidget, 1, true);
+      _.ee.SelectEntityByName("List1");
       _.propPane.UpdatePropertyFieldValue("Items", "{{postgres_ssp.data}}");
       _.propPane.ToggleOnOrOff("Server Side Pagination", "On");
       _.propPane.EnterJSContext("onPageChange", "{{postgres_ssp.run()}}", true);
-      _.ee.NavigateToSwitcher("explorer");
-      _.ee.ExpandCollapseEntity("Widgets");
-      _.ee.ExpandCollapseEntity("List1Copy");
-      _.ee.ExpandCollapseEntity("Container1Copy");
-      _.ee.SelectEntityByName("Text1Copy");
+      _.ee.ExpandCollapseEntity("List1");
+      _.ee.ExpandCollapseEntity("Container1");
+      _.ee.SelectEntityByName("Text1");
       _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
       _.deployMode.DeployApp();
       _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
-      _.agHelper.GetNAssertElementText(
-        _.locators._listPaginateActivePage,
-        "1",
-        "have.text",
-      );
-      _.agHelper.GetNAssertElementText(
-        _.locators._listPaginateItem,
-        "2",
-        "not.have.text",
-      );
-      _.agHelper.GetNClick(_.locators._listPaginateNextButton);
-      _.agHelper.GetNAssertElementText(
-        _.locators._listPaginateActivePage,
-        "2",
-        "have.text",
-      );
+
+      _.tableV2.AssertPageNumber_List(1, false, true);
+      _.tableV2.AssertListPagesPresent(2, false);
+      _.tableV2.NavigateToNextPage_List();
+      _.tableV2.AssertPageNumber_List(2, false, true);
+      _.tableV2.AssertListPagesPresent(1, false);
+      _.tableV2.NavigateToPreviousPage_List();
+      _.tableV2.AssertPageNumber_List(1, false, true);
       _.deployMode.NavigateBacktoEditor();
-      _.agHelper.GetNClick(_.locators._listWidget, 1, true);
+      _.ee.SelectEntityByName("List1", "Widgets");
       _.propPane.ToggleOnOrOff("Server Side Pagination", "Off");
       _.agHelper.AssertElementAbsence(_.locators._listPaginateItem);
       _.deployMode.DeployApp();
@@ -195,19 +169,30 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     });
   });
 
-  it("8. Verify onPageSizeChange functionality in Server Side Pagination of list widget", function() {
-    _.agHelper.GetNClick(_.locators._listWidget, 1, true);
+  it("7. Verify onPageSizeChange functionality in Server Side Pagination of list widget", function() {
+    _.ee.SelectEntityByName("List1");
     _.propPane.ToggleOnOrOff("Server Side Pagination", "On");
     _.propPane.EnterJSContext(
       "onPageSizeChange",
-      "{{showAlert('Page size changed ' + List1Copy.pageSize)}}",
+      "{{showAlert('Page size changed ' + List1.pageSize)}}",
       true,
     );
     _.propPane.ToggleOnOrOff("Server Side Pagination", "Off");
     _.propPane.ToggleOnOrOff("Server Side Pagination", "On");
-    _.agHelper.ValidateToastMessage("Page size changed 2");
+    _.agHelper.AssertContains("Page size changed 2");
     _.agHelper.Sleep();
   });
+
+  it("8. Delete the List widget from canvas and verify it", function() {
+    _.ee.SelectEntityByName("List1");
+    _.agHelper.GetNClick(_.propPane._deleteWidget);
+    _.agHelper.AssertContains("List1 is removed");
+    _.deployMode.DeployApp();
+    _.agHelper.Sleep(2000);
+    _.agHelper.AssertElementAbsence(_.locators._listWidget);
+    _.deployMode.NavigateBacktoEditor();
+  });
+
 
   after(() => {
     _.ee.ExpandCollapseEntity("Queries/JS");

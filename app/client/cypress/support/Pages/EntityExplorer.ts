@@ -99,7 +99,7 @@ export class EntityExplorer {
   }
 
   public NavigateToSwitcher(navigationTab: "explorer" | "widgets") {
-    cy.get(this.locator._openNavigationTab(navigationTab)).click();
+    this.agHelper.GetNClick(this.locator._openNavigationTab(navigationTab))
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {

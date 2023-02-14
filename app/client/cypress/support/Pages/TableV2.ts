@@ -55,7 +55,7 @@ export class TableV2 {
   _liNextPage = "li[title='Next Page']";
   _liPreviousPage = "li[title='Previous Page']";
   _liCurrentSelectedPage =
-    "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a";
+    "//div[@type='LIST_WIDGET']//li[contains(@class, 'rc-pagination-item-active')]/a";
   private _searchText = "input[type='search']";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
@@ -85,6 +85,8 @@ export class TableV2 {
     `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] .t--edit-column-btn`;
   _showPageItemsCount = "div.show-page-items";
   _filtersCount = this._filterBtn + " span.action-title";
+  _listPages = (title: number) =>
+    "//li[contains(@class, 'rc-pagination-item')][title='" + title + "']";
 
   public WaitUntilTableLoad() {
     cy.waitUntil(() => this.ReadTableRowColumnData(0, 0, 2000), {
@@ -359,16 +361,40 @@ export class TableV2 {
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
   }
 
-  public AssertPageNumber_List(pageNo: number, checkNoNextPage = false) {
+  public AssertListPagesPresent(pageNumber: number, tobePresent = true) {
+    if (tobePresent)
+      this.agHelper.AssertElementVisible(this._listPages(pageNumber));
+    else this.agHelper.AssertElementAbsence(this._listPages(pageNumber));
+  }
+
+  public AssertPageNumber_List(
+    pageNo: number,
+    checkNoNextPage = false,
+    isSSP = false,
+  ) {
     cy.xpath(this._liCurrentSelectedPage)
       .invoke("text")
       .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
 
-    if (pageNo == 1)
-      cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", "true");
+    if (pageNo == 1) {
+      if (!isSSP)
+        cy.get(this._liPreviousPage).should(
+          "have.attr",
+          "aria-disabled",
+          "true",
+        );
+      else if (isSSP)
+        cy.get(this._liPreviousPage).should(
+          "have.class",
+          "rc-pagination-disabled",
+        );
+    }
 
-    if (checkNoNextPage)
-      cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
-    else cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+    if (!isSSP) {
+      if (checkNoNextPage)
+        cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
+      else
+        cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+    }
   }
 }
