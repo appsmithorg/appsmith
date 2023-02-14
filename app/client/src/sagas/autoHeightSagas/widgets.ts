@@ -23,6 +23,7 @@ import {
   resetAutoHeightUpdateQueue,
 } from "./batcher";
 import {
+  getChildOfContainerLikeWidget,
   getMinHeightBasedOnChildren,
   mutation_setPropertiesToUpdate,
   shouldCollapseThisWidget,
@@ -338,6 +339,18 @@ export function* updateWidgetAutoHeightSaga(
             // As these widgets have canvas children.
             const parentContainerLikeWidget: FlattenedWidgetProps =
               stateWidgets[parentCanvasWidget.parentId];
+
+            // Get the child we need to consider
+            // For a container widget, it will be the child canvas
+            // For a tabs widget, it will be the currently open tab's canvas
+            const childWidgetId:
+              | string
+              | undefined = yield getChildOfContainerLikeWidget(
+              parentContainerLikeWidget,
+            );
+            // Skip computations for the parent container like widget
+            // if this child canvas is not the one currently visible
+            if (childWidgetId !== parentCanvasWidget.widgetId) continue;
 
             let minCanvasHeightInRows: number = yield getMinHeightBasedOnChildren(
               parentCanvasWidget.widgetId,
