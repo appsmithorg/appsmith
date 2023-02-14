@@ -854,6 +854,7 @@ export const widgetPathsNotToOverride = (
   let pathsNotToOverride: string[] = [];
   const overriddenPropertyPaths = entity.overridingPropertyPaths[propertyPath];
 
+  // Check if widget has pre-existing meta values (although newly added to the unevalTree)
   if (isNewWidget && entity.isMetaPropDirty) {
     const overriddenMetaPaths = overriddenPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
