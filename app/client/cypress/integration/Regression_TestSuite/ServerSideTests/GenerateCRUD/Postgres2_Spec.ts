@@ -305,7 +305,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       expect(
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains(
-        'ERROR: null value in column "vessel_type" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , null, null, , null, , null, null, null, ).',
+        'ERROR: null value in column "vessel_type" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , null, null, , null, , null, null, 0, ).',
       );
     });
     deployMode.SelectJsonFormDropDown("Passenger");
