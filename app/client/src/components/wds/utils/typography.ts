@@ -50,7 +50,7 @@ export const createTypographyStyles = (props: createTypographyStylesProps) => {
     });
 
     return {
-      fontFamily: `"-apple-system, "-apple-system Fallback: BlinkMacSystemFont", "-apple-system Fallback: Segoe UI", "-apple-system Fallback: Roboto""`,
+      fontFamily: `-apple-system, "-apple-system Fallback: BlinkMacSystemFont", "-apple-system Fallback: Segoe UI", "-apple-system Fallback: Roboto"`,
       ...styles,
     };
   }
