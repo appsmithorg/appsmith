@@ -216,7 +216,7 @@ export const generateDataTreeWidget = (
   const overridingMetaProps: Record<string, unknown> = {};
 
   // overridingMetaProps maps properties that can be overriden by either default values or meta changes to initial values.
-  // initial value is set to metaProps value or undefined (set to undefined to ensure that its path is present in the unevalTree).
+  // initial value is set to metaProps value or defaultMetaProps value.
   Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =
