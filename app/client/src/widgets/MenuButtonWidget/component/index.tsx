@@ -54,7 +54,7 @@ const PopoverStyles = createGlobalStyle<{
     border-radius: ${({ borderRadius }) =>
       borderRadius >= THEMEING_TEXT_SIZES.lg ? `0.375rem` : borderRadius};
     overflow-y: scroll;
-    height: 384px;
+    max-height: 384px;
   }
 
   .menu-button-popover .${BlueprintClasses.MENU_ITEM} {
