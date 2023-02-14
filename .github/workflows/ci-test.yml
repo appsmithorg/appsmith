@@ -128,14 +128,14 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: server-build
           path: app/server/dist/
 
       - name: Download the rts build artifact
@@ -185,6 +185,7 @@ jobs:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
+          sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
@@ -194,6 +195,7 @@ jobs:
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_AUDITLOG_ENABLED=true \
+            -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
             cicontainer

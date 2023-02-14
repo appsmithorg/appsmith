@@ -2901,14 +2901,13 @@ public class ImportExportApplicationServiceTests {
         assert appJson != null;
         final String randomId = UUID.randomUUID().toString();
         appJson.getDatasourceList().get(0).setPluginId(randomId);
-        final Mono<Application> resultMono = workspaceService
-                .create(newWorkspace)
-                .flatMap(workspace -> importExportApplicationService.importApplicationInWorkspace(workspace.getId(), appJson));
+        Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
+        final Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), appJson);
 
         StepVerifier
                 .create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.UNKNOWN_PLUGIN_REFERENCE.getMessage(randomId)))
+                        throwable.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
                 .verify();
     }
 

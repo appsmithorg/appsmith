@@ -33,6 +33,8 @@ export class HomePage {
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role +
     "']";
+  private _profileMenu = ".t--profile-menu";
+  private _signout = ".t--logout-icon";
 
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
