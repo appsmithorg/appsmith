@@ -10,4 +10,6 @@ const Spinner = (props: IconProps) => {
   return <StyledSpinner {...props} />;
 };
 
+Spinner.displayName = "Spinner";
+
 export { Spinner };

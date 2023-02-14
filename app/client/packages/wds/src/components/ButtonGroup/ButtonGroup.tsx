@@ -3,22 +3,14 @@ import React, { forwardRef } from "react";
 
 import { StyledContainer } from "./index.styled";
 
-/**
- * ----------------------------------------------------------------------------
- * TYPES
- *-----------------------------------------------------------------------------
- */
+// types
 export interface ButtonGroupProps
   extends React.ComponentPropsWithoutRef<"div"> {
   children?: React.ReactNode;
   orientation?: "vertical" | "horizontal";
 }
 
-/**
- * ----------------------------------------------------------------------------
- * COMPONENT
- *-----------------------------------------------------------------------------
- */
+// component
 export const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
   (props, ref) => {
     const { orientation = "horizontal", ...others } = props;
@@ -26,4 +18,4 @@ export const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
   },
 );
 
-// ButtonGroup.displayName = "@mantine/core/ButtonGroup";
+ButtonGroup.displayName = "ButtonGroup";
