@@ -17,3 +17,5 @@ export const apiPage = ObjectsRegistry.ApiPage;
 export const dataSources = ObjectsRegistry.DataSources;
 export const inviteModal = ObjectsRegistry.InviteModal;
 export const tableV2 = ObjectsRegistry.TableV2;
+export const debuggerHelper = ObjectsRegistry.DebuggerHelper;
+export const templates = ObjectsRegistry.Templates;
