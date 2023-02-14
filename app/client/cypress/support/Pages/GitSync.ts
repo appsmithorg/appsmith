@@ -34,7 +34,7 @@ export class GitSync {
   }
 
   CreateNConnectToGit(
-    repoName: string = "Test",
+    repoName = "Test",
     assertConnect = true,
     privateFlag = false,
   ) {
@@ -100,7 +100,7 @@ export class GitSync {
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
-        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo", 200, 40000);//Increasing wait time for GitRepo to create in Gitea
+        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo", 200, 40000); //Increasing wait time for GitRepo to create in Gitea
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
       }
@@ -122,7 +122,7 @@ export class GitSync {
     cy.wait(`@generateKey`).then((result: any) => {
       generatedKey = result.response.body.data.publicKey;
       generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-      var formdata = new FormData();
+      const formdata = new FormData();
       cy.log("generatedKey is " + generatedKey);
       formdata.set("sshkey", generatedKey);
       // fetch the generated key and post to the github repo
@@ -199,7 +199,7 @@ export class GitSync {
   }
 
   private CreateLocalGithubRepo(repo: string) {
-    let remoteUrl: string = "";
+    let remoteUrl = "";
     cy.request({
       method: "GET",
       url:
@@ -223,7 +223,7 @@ export class GitSync {
     });
   }
 
-  CreateGitBranch(branch: string = "Test", toUseNewGuid = false) {
+  CreateGitBranch(branch = "Test", toUseNewGuid = false) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
     this.agHelper.GetNClick(this._branchButton);
