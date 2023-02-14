@@ -1,5 +1,6 @@
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 
 type Props = {
@@ -8,22 +9,16 @@ type Props = {
   logEventData?: any;
 };
 
-const PRICING_PAGE_URL =
-  "https://www.appsmith.com/api/preview?secret=8JPsJRnSkt6Va8FzxUPFhZezxZuHRnSU&slug=pricing-preview";
-
 const useOnUpgrade = (props: Props) => {
   const { logEventData, logEventName } = props;
-  const tenantConfig = useSelector(getTenantConfig);
+  const instanceId = useSelector(getInstanceId);
 
   const onUpgrade = () => {
     AnalyticsUtil.logEvent(
       logEventName || "ADMIN_SETTINGS_UPGRADE",
       logEventData,
     );
-    window.open(
-      `${PRICING_PAGE_URL}?source=CE&instance=${tenantConfig?.instanceId}`,
-      "_blank",
-    );
+    window.open(PRICING_PAGE_URL("CE", instanceId), "_blank");
   };
 
   return { onUpgrade };
