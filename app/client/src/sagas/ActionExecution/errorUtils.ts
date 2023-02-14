@@ -1,13 +1,8 @@
 import { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import AppsmithConsole from "utils/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   createMessage,
-  DEBUGGER_TRIGGER_ERROR,
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Toaster, Variant } from "design-system-old";
 import { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
@@ -62,31 +57,31 @@ export const logActionExecutionError = (
   errorMessage: string,
   source?: TriggerSource,
   triggerPropertyName?: string,
-  errorType?: PropertyEvaluationErrorType,
 ) => {
-  if (triggerPropertyName) {
-    AppsmithConsole.addErrors([
-      {
-        payload: {
-          id: `${source?.id}-${triggerPropertyName}`,
-          logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
-          text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
-          source: {
-            type: ENTITY_TYPE.WIDGET,
-            id: source?.id ?? "",
-            name: source?.name ?? "",
-            propertyPath: triggerPropertyName,
-          },
-          messages: [
-            {
-              type: errorType,
-              message: { name: "TriggerExecutionError", message: errorMessage },
-            },
-          ],
-        },
-      },
-    ]);
-  }
+  //Commenting as per decision taken for the error hanlding epic to not show the trigger errors in the debugger.
+  // if (triggerPropertyName) {
+  //   AppsmithConsole.addErrors([
+  //     {
+  //       payload: {
+  //         id: `${source?.id}-${triggerPropertyName}`,
+  //         logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
+  //         text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
+  //         source: {
+  //           type: ENTITY_TYPE.WIDGET,
+  //           id: source?.id ?? "",
+  //           name: source?.name ?? "",
+  //           propertyPath: triggerPropertyName,
+  //         },
+  //         messages: [
+  //           {
+  //             type: errorType,
+  //             message: { name: "TriggerExecutionError", message: errorMessage },
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   ]);
+  // }
 
   Toaster.show({
     text: errorMessage,

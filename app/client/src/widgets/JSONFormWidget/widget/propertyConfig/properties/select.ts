@@ -12,6 +12,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultOptionValueValidation(
   inputValue: unknown,
@@ -19,7 +20,7 @@ export function defaultOptionValueValidation(
   _: any,
 ): ValidationResponse {
   const DEFAULT_ERROR_MESSAGE = {
-    name: "TypeError",
+    name: ErrorMessageType.TYPE_ERROR,
     message:
       'value should match: string | { "label": "label1", "value": "value1" }',
   };

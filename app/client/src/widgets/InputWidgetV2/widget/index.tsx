@@ -32,6 +32,7 @@ import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultValueValidation(
   value: any,
@@ -39,11 +40,11 @@ export function defaultValueValidation(
   _?: any,
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = {
-    name: "TypeError",
+    name: ErrorMessageType.TYPE_ERROR,
     message: "This value must be string",
   };
   const NUMBER_ERROR_MESSAGE = {
-    name: "TypeError",
+    name: ErrorMessageType.TYPE_ERROR,
     message: "This value must be number",
   };
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };

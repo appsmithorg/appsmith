@@ -1,3 +1,4 @@
+import { ErrorMessageType } from "entities/AppsmithConsole";
 import { documentUrlValidation } from ".";
 
 describe("validate propertypane input : docUrl", () => {
@@ -18,7 +19,7 @@ describe("validate propertypane input : docUrl", () => {
       parsed: "",
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message: "Provided URL / Base64 is invalid.",
         },
       ],
@@ -33,7 +34,7 @@ describe("validate propertypane input : docUrl", () => {
       parsed: "",
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message: "Provided URL / Base64 is invalid.",
         },
       ],
@@ -48,7 +49,7 @@ describe("validate propertypane input : docUrl", () => {
       parsed: "",
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message: "Provided URL / Base64 is invalid.",
         },
       ],
@@ -63,7 +64,7 @@ describe("validate propertypane input : docUrl", () => {
       parsed: "",
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message: "Provided URL / Base64 is invalid.",
         },
       ],
@@ -80,7 +81,7 @@ describe("validate propertypane input : docUrl", () => {
       parsed: "",
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message: "Provided URL / Base64 is invalid.",
         },
       ],
@@ -95,7 +96,7 @@ describe("validate propertypane input : docUrl", () => {
       parsed: "",
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message: "Provided URL / Base64 is invalid.",
         },
       ],

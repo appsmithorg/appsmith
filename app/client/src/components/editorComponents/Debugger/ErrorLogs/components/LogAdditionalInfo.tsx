@@ -11,6 +11,8 @@ export const Wrapper = styled.div<{ width: string }>`
   min-width: ${(props) => props.width};
 `;
 
+// This component is used to render the additional info in the error logs.
+// ex: Linenumber and error code
 export default function LogAdditionalInfo(props: {
   text: string;
   width: string;

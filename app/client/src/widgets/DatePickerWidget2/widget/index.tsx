@@ -16,6 +16,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { DateFormatOptions } from "./constants";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
@@ -32,7 +33,7 @@ function allowedRange(value: any) {
         ]
       : [
           {
-            name: "RangeError",
+            name: ErrorMessageType.RANGE_ERROR,
             message: "Number should be between 0-6.",
           },
         ],

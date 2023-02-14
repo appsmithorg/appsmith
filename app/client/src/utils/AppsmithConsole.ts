@@ -16,6 +16,9 @@ import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";
 import { isEmpty } from "lodash";
 
+// * @param payload - payload of the error
+//  * @param severity - severity of the error
+//  * @param category - category of the error
 export interface ErrorObject {
   payload: LogActionPayload;
   severity?: Severity;

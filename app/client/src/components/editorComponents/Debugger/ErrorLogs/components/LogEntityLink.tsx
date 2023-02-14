@@ -34,25 +34,33 @@ const IconWrapper = styled.span`
   margin-right: 4px;
 `;
 
+// This component is used to render the entity link in the error logs.
 export default function LogEntityLink(props: LogItemProps) {
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
 
+  // This function is used to fetch the icon component for the entity link.
   const getIcon = () => {
     if (props.source) {
+      // If the source is a widget.
       if (props.source.type === ENTITY_TYPE.WIDGET && props.source.pluginType) {
         return (
           <WidgetIcon height={12} type={props.source.pluginType} width={12} />
         );
-      } else if (props.source.type === ENTITY_TYPE.JSACTION) {
+      }
+      // If the source is a JS action.
+      else if (props.source.type === ENTITY_TYPE.JSACTION) {
         return JsFileIconV2(12, 12);
       } else if (props.source.type === ENTITY_TYPE.ACTION) {
+        // If the source is an API action.
         if (
           props.source.pluginType === PluginType.API &&
           props.source.httpMethod
         ) {
           return ApiMethodIcon(props.source.httpMethod, "9px", "17px", 28);
-        } else if (props.iconId && pluginGroups[props.iconId]) {
+        }
+        // If the source is a Datasource action.
+        else if (props.iconId && pluginGroups[props.iconId]) {
           return (
             <EntityIcon height={"12px"} width={"12px"}>
               <img
@@ -64,6 +72,8 @@ export default function LogEntityLink(props: LogItemProps) {
         }
       }
     }
+    // If the source is not defined then return an empty icon.
+    // this case is highly unlikely to happen.
     return <img alt="icon" src={undefined} />;
   };
 

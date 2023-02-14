@@ -7,6 +7,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -43,7 +44,10 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: "abc",
         messages: [
-          { name: "ValidationError", message: "Disallowed value: xyz" },
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "Disallowed value: xyz",
+          },
         ],
       },
       {
@@ -51,7 +55,7 @@ describe("Validate Validators", () => {
         parsed: "abc",
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
           },
         ],
@@ -61,7 +65,7 @@ describe("Validate Validators", () => {
         parsed: "abc",
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
           },
         ],
@@ -71,7 +75,7 @@ describe("Validate Validators", () => {
         parsed: "{}",
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
           },
         ],
@@ -81,7 +85,7 @@ describe("Validate Validators", () => {
         parsed: "[]",
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
           },
         ],
@@ -95,7 +99,7 @@ describe("Validate Validators", () => {
         parsed: "abc",
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
           },
         ],
@@ -240,7 +244,10 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: "abc",
         messages: [
-          { name: "ValidationError", message: "Disallowed value: xyz" },
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "Disallowed value: xyz",
+          },
         ],
       },
       {
@@ -248,7 +255,7 @@ describe("Validate Validators", () => {
         parsed: "abc",
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
           },
         ],
@@ -299,7 +306,7 @@ describe("Validate Validators", () => {
           "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR}: base64 encoded image | data uri | image url`,
           },
         ],
@@ -348,21 +355,20 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: 90,
         messages: [
-          { name: "RangeError", message: "Minimum allowed value: 100" },
+          {
+            name: ErrorMessageType.RANGE_ERROR,
+            message: "Minimum allowed value: 100",
+          },
         ],
       },
       {
         isValid: false,
         parsed: 200,
         messages: [
-          { name: "RangeError", message: "Maximum allowed value: 200" },
-        ],
-      },
-      {
-        isValid: false,
-        parsed: 150,
-        messages: [
-          { name: "ValidationError", message: "This value is required" },
+          {
+            name: ErrorMessageType.RANGE_ERROR,
+            message: "Maximum allowed value: 200",
+          },
         ],
       },
       {
@@ -370,7 +376,17 @@ describe("Validate Validators", () => {
         parsed: 150,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "This value is required",
+          },
+        ],
+      },
+      {
+        isValid: false,
+        parsed: 150,
+        messages: [
+          {
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
           },
         ],
@@ -380,7 +396,7 @@ describe("Validate Validators", () => {
         parsed: 150,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
           },
         ],
@@ -393,7 +409,10 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: 150,
         messages: [
-          { name: "ValidationError", message: "This value is required" },
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "This value is required",
+          },
         ],
       },
     ];
@@ -422,7 +441,10 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: -120,
         messages: [
-          { name: "RangeError", message: "Minimum allowed value: -8" },
+          {
+            name: ErrorMessageType.RANGE_ERROR,
+            message: "Minimum allowed value: -8",
+          },
         ],
       },
       {
@@ -450,7 +472,7 @@ describe("Validate Validators", () => {
         isValid: false,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
           },
         ],
@@ -460,7 +482,7 @@ describe("Validate Validators", () => {
         isValid: false,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
           },
         ],
@@ -468,30 +490,6 @@ describe("Validate Validators", () => {
       },
       {
         isValid: true,
-        parsed: false,
-      },
-      {
-        isValid: true,
-        parsed: true,
-      },
-      {
-        isValid: false,
-        messages: [
-          {
-            name: "TypeError",
-            message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
-          },
-        ],
-        parsed: false,
-      },
-      {
-        isValid: false,
-        messages: [
-          {
-            name: "TypeError",
-            message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
-          },
-        ],
         parsed: false,
       },
       {
@@ -499,6 +497,30 @@ describe("Validate Validators", () => {
         parsed: true,
       },
       {
+        isValid: false,
+        messages: [
+          {
+            name: ErrorMessageType.TYPE_ERROR,
+            message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
+          },
+        ],
+        parsed: false,
+      },
+      {
+        isValid: false,
+        messages: [
+          {
+            name: ErrorMessageType.TYPE_ERROR,
+            message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
+          },
+        ],
+        parsed: false,
+      },
+      {
+        isValid: true,
+        parsed: true,
+      },
+      {
         isValid: true,
         parsed: false,
       },
@@ -507,7 +529,7 @@ describe("Validate Validators", () => {
         parsed: false,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "This value does not evaluate to type boolean",
           },
         ],
@@ -596,7 +618,7 @@ describe("Validate Validators", () => {
         parsed: { key1: 120, key2: "abc" },
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
           },
         ],
@@ -606,7 +628,7 @@ describe("Validate Validators", () => {
         parsed: { key1: 120, key2: "abc" },
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
           },
         ],
@@ -616,7 +638,7 @@ describe("Validate Validators", () => {
         parsed: { key1: 120, key2: "abc" },
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `Value of key: key1 is invalid: This value does not evaluate to type number Required`,
           },
         ],
@@ -626,7 +648,7 @@ describe("Validate Validators", () => {
         parsed: { key1: 120, key2: "abc" },
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `Value of key: key2 is invalid: This value does not evaluate to type string ( abc | mnop )`,
           },
         ],
@@ -635,7 +657,10 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
         messages: [
-          { name: "ValidationError", message: `Missing required key: key1` },
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: `Missing required key: key1`,
+          },
         ],
       },
     ];
@@ -676,7 +701,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Value is not allowed in this array: q",
           },
         ],
@@ -686,11 +711,11 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Value is not allowed in this array: q",
           },
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Value is not allowed in this array: s",
           },
         ],
@@ -705,7 +730,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message:
               "This value does not evaluate to type Array<'a' | 'b' | 'c' | 'n' | 'm' | 'p' | 'r'>",
           },
@@ -750,7 +775,7 @@ describe("Validate Validators", () => {
         parsed: ["a"],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Value is not allowed in this array: q",
           },
         ],
@@ -760,11 +785,11 @@ describe("Validate Validators", () => {
         parsed: ["a"],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Value is not allowed in this array: q",
           },
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Value is not allowed in this array: s",
           },
         ],
@@ -779,7 +804,7 @@ describe("Validate Validators", () => {
         parsed: ["a"],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message:
               "This value does not evaluate to type Array<'a' | 'b' | 'c' | 'n' | 'm' | 'p' | 'r'>",
           },
@@ -828,52 +853,52 @@ describe("Validate Validators", () => {
       parsed: [],
       messages: [
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 0. This value does not evaluate to type number Required",
         },
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 1. This value does not evaluate to type number Required",
         },
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 2. This value does not evaluate to type number Required",
         },
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 3. This value does not evaluate to type number Required",
         },
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 4. This value does not evaluate to type number Required",
         },
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 5. This value does not evaluate to type number Required",
         },
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 6. This value does not evaluate to type number Required",
         },
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 7. This value does not evaluate to type number Required",
         },
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 8. This value does not evaluate to type number Required",
         },
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             "Invalid entry at index: 9. This value does not evaluate to type number Required",
         },
@@ -930,7 +955,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Invalid entry at index: 2. Disallowed value: q",
           },
         ],
@@ -945,7 +970,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message:
               "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
           },
@@ -956,7 +981,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message:
               "This property is required for the widget to function correctly",
           },
@@ -967,7 +992,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message:
               "This property is required for the widget to function correctly",
           },
@@ -978,7 +1003,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message:
               "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
           },
@@ -994,7 +1019,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message:
               "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
           },
@@ -1005,7 +1030,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Array must be unique. Duplicate values found at index: 2",
           },
         ],
@@ -1015,7 +1040,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message:
               "This property is required for the widget to function correctly",
           },
@@ -1113,7 +1138,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Invalid entry at index: 0. Missing required key: label",
           },
         ],
@@ -1123,7 +1148,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type number Required`,
           },
         ],
@@ -1133,11 +1158,11 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Invalid entry at index: 0. Missing required key: label",
           },
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Invalid entry at index: 0. Missing required key: value",
           },
         ],
@@ -1152,7 +1177,7 @@ describe("Validate Validators", () => {
         parsed: [],
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message:
               "This property is required for the widget to function correctly",
           },
@@ -1245,7 +1270,7 @@ describe("Validate Validators", () => {
         parsed: defaultDate,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "Value does not match: ISO 8601 date string",
           },
         ],
@@ -1255,7 +1280,7 @@ describe("Validate Validators", () => {
         parsed: defaultDate,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "Value does not match: ISO 8601 date string",
           },
         ],
@@ -1264,7 +1289,7 @@ describe("Validate Validators", () => {
         isValid: false,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "Value does not match: ISO 8601 date string",
           },
         ],
@@ -1351,7 +1376,7 @@ describe("Validate Validators", () => {
         parsed: [{ id: 1, name: "alpha" }],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "This value does not evaluate to type Array<Object>",
           },
         ],
@@ -1361,7 +1386,7 @@ describe("Validate Validators", () => {
         parsed: [{ id: 1, name: "alpha" }],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "This value does not evaluate to type Array<Object>",
           },
         ],
@@ -1371,7 +1396,7 @@ describe("Validate Validators", () => {
         parsed: [{ id: 1, name: "alpha" }],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "This value does not evaluate to type Array<Object>",
           },
         ],
@@ -1381,7 +1406,7 @@ describe("Validate Validators", () => {
         parsed: [{ id: 1, name: "alpha" }],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "This value does not evaluate to type Array<Object>",
           },
         ],
@@ -1391,7 +1416,7 @@ describe("Validate Validators", () => {
         parsed: [{ id: 1, name: "alpha" }],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "This value does not evaluate to type Array<Object>",
           },
         ],
@@ -1401,7 +1426,7 @@ describe("Validate Validators", () => {
         parsed: [{ id: 1, name: "alpha" }],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: "This value does not evaluate to type Array<Object>",
           },
         ],
@@ -1410,21 +1435,10 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
         messages: [
-          { name: "ValidationError", message: "Invalid object at index 0" },
-        ],
-      },
-      {
-        isValid: false,
-        parsed: [{ id: 1, name: "alpha" }],
-        messages: [
-          { name: "ValidationError", message: "Invalid object at index 1" },
-        ],
-      },
-      {
-        isValid: false,
-        parsed: [{ id: 1, name: "alpha" }],
-        messages: [
-          { name: "ValidationError", message: "Invalid object at index 1" },
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "Invalid object at index 0",
+          },
         ],
       },
       {
@@ -1432,7 +1446,27 @@ describe("Validate Validators", () => {
         parsed: [{ id: 1, name: "alpha" }],
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "Invalid object at index 1",
+          },
+        ],
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        messages: [
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "Invalid object at index 1",
+          },
+        ],
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        messages: [
+          {
+            name: ErrorMessageType.TYPE_ERROR,
             message: "This value does not evaluate to type Array<Object>",
           },
         ],
@@ -1520,7 +1554,7 @@ describe("Validate Validators", () => {
         isValid: false,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
           },
         ],
@@ -1530,7 +1564,7 @@ describe("Validate Validators", () => {
         isValid: false,
         messages: [
           {
-            name: "TypeError",
+            name: ErrorMessageType.TYPE_ERROR,
             message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
           },
         ],
@@ -1603,7 +1637,7 @@ describe("Validate Validators", () => {
       parsed: [],
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message:
             "Duplicate values found for the following properties, in the array entries, that must be unique -- label,value.",
         },
@@ -1644,17 +1678,32 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "a",
-        messages: [{ name: "ValidationError", message: "Disallowed value: x" }],
+        messages: [
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "Disallowed value: x",
+          },
+        ],
       },
       {
         isValid: false,
         parsed: "a",
-        messages: [{ name: "ValidationError", message: "Disallowed value: x" }],
+        messages: [
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "Disallowed value: x",
+          },
+        ],
       },
       {
         isValid: false,
         parsed: "a",
-        messages: [{ name: "ValidationError", message: "Disallowed value: x" }],
+        messages: [
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "Disallowed value: x",
+          },
+        ],
       },
     ];
     inputs.forEach((input, i) => {

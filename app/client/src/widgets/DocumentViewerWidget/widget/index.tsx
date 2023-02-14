@@ -6,6 +6,7 @@ import {
   ValidationResponse,
 } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -36,7 +37,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
           parsed: "",
           messages: [
             {
-              name: "ValidationError",
+              name: ErrorMessageType.VALIDATION_ERROR,
               message: "Provided URL / Base64 is invalid.",
             },
           ],
@@ -55,7 +56,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
         parsed: "",
         messages: [
           {
-            name: "ValidationError",
+            name: ErrorMessageType.VALIDATION_ERROR,
             message: "Provided URL / Base64 is invalid.",
           },
         ],

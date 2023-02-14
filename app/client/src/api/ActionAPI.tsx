@@ -98,6 +98,13 @@ export interface ActionResponse {
   pluginErrorDetails?: PluginErrorDetails;
 }
 
+//This contains the error details from the plugin that is sent to the client in the response
+//title: The title of the error
+//errorType: The type of error that occurred
+//appsmithErrorCode: The error code that is used to identify the error in the appsmith
+//appsmithErrorMessage: The appsmith error message that is shown to the user
+//downstreamErrorCode: The error code that is sent by the plugin
+//downstreamErrorMessage: The error message that is sent by the plugin
 export interface PluginErrorDetails {
   title: string;
   errorType: string;

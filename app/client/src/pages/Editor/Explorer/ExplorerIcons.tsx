@@ -224,6 +224,7 @@ const EntityTextIconWrapper = styled.div<{ fontSize?: number; color?: string }>`
   padding: 0 2px;
 `;
 
+// added fontSize prop to allow for dynamic sizing.
 function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
   return (
     <EntityTextIconWrapper color={props.textColor} fontSize={props.fontSize}>
@@ -232,6 +233,9 @@ function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
   );
 }
 
+//border size is 8.5% of the height.
+// (8.5% because for 18px of default height, the border is 1.5px).
+//img and svg are set to 80% of the height to allow for the border to be visible and not cut off.
 const EntityIconWrapper = styled.div<{
   borderColor?: string;
   width?: string;
@@ -288,6 +292,8 @@ export { EntityIcon };
 
 /** ======= Entity Icon components ends ====== */
 
+// height and width are set to 18px by default. This is to maintain the current icon sizes.
+// fontSize is set to 56% by default.
 export function ApiMethodIcon(
   type: keyof typeof HTTP_METHOD,
   height = "18px",
@@ -326,6 +332,8 @@ export function CurlIconV2() {
   );
 }
 
+// height and width are set to 18px by default. This is to maintain the current icon sizes.
+// fontSize is set to 56% by default.
 export function JsFileIconV2(height = 18, width = 18) {
   return (
     <EntityIcon height={height + "px"} width={width + "px"}>

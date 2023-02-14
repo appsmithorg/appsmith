@@ -14,6 +14,7 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { ICON_NAMES } from "widgets/constants";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 function defaultValueValidation(
   value: any,
@@ -55,7 +56,10 @@ function defaultValueValidation(
           isValid: false,
           parsed: undefined,
           messages: [
-            { name: "TypeError", message: "This value must be a number" },
+            {
+              name: ErrorMessageType.TYPE_ERROR,
+              message: "This value must be a number",
+            },
           ],
         };
       }
@@ -72,7 +76,12 @@ function defaultValueValidation(
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: [{ name: "TypeError", message: "This value must be string" }],
+      messages: [
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message: "This value must be string",
+        },
+      ],
     };
   }
 
@@ -86,7 +95,12 @@ function defaultValueValidation(
       return {
         isValid: false,
         parsed: "",
-        messages: [{ name: "TypeError", message: "This value must be string" }],
+        messages: [
+          {
+            name: ErrorMessageType.TYPE_ERROR,
+            message: "This value must be string",
+          },
+        ],
       };
     }
   }
@@ -122,7 +136,12 @@ export function minValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: [{ name: "TypeError", message: "This value must be number" }],
+      messages: [
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message: "This value must be number",
+        },
+      ],
     };
   } else if (max !== undefined && min >= max) {
     return {
@@ -130,7 +149,7 @@ export function minValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "RangeError",
+          name: ErrorMessageType.RANGE_ERROR,
           message: "This value must be lesser than max value",
         },
       ],
@@ -168,7 +187,12 @@ export function maxValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: [{ name: "TypeError", message: "This value must be number" }],
+      messages: [
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message: "This value must be number",
+        },
+      ],
     };
   } else if (min !== undefined && max <= min) {
     return {
@@ -176,7 +200,7 @@ export function maxValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "RangeError",
+          name: ErrorMessageType.RANGE_ERROR,
           message: "This value must be greater than min value",
         },
       ],

@@ -5,6 +5,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
 import ErrorLog from "./ErrorLogs/ErrorLog";
 
+// This component is used to fetch the errors from the store and pass it to the error log component.
 function Errors(props: { hasShortCut?: boolean }) {
   const errors = useSelector(getFilteredErrors);
   const currentUser = useSelector(getCurrentUser);

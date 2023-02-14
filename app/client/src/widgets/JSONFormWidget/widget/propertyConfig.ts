@@ -11,6 +11,7 @@ import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -27,7 +28,7 @@ export const sourceDataValidationFn = (
       parsed: {},
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message: "Source data cannot be empty.",
         },
       ],

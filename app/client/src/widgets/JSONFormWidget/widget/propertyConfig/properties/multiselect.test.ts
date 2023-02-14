@@ -1,3 +1,4 @@
+import { ErrorMessageType } from "entities/AppsmithConsole";
 import _ from "lodash";
 
 import { JSONFormWidgetProps } from "../..";
@@ -151,7 +152,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: [],
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
@@ -165,7 +166,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: [],
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
@@ -179,7 +180,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: [],
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
@@ -193,7 +194,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: [],
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
@@ -207,7 +208,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: [],
           messages: [
             {
-              name: "ValidationError",
+              name: ErrorMessageType.VALIDATION_ERROR,
               message: "value must be unique. Duplicate values found",
             },
           ],
@@ -229,7 +230,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: [],
           messages: [
             {
-              name: "ValidationError",
+              name: ErrorMessageType.VALIDATION_ERROR,
               message: "value must be unique. Duplicate values found",
             },
           ],
@@ -249,7 +250,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: [],
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },
@@ -269,7 +270,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: [],
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message:
                 "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
             },

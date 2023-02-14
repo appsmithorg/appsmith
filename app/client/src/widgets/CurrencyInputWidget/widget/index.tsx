@@ -38,6 +38,7 @@ import {
 } from "widgets/WidgetUtils";
 import { Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultValueValidation(
   value: any,
@@ -45,11 +46,11 @@ export function defaultValueValidation(
   _?: any,
 ): ValidationResponse {
   const NUMBER_ERROR_MESSAGE = {
-    name: "TypeError",
+    name: ErrorMessageType.TYPE_ERROR,
     message: "This value must be number",
   };
   const DECIMAL_SEPARATOR_ERROR_MESSAGE = {
-    name: "ValidationError",
+    name: ErrorMessageType.VALIDATION_ERROR,
     message: "Please use . as the decimal separator for default values.",
   };
   const EMPTY_ERROR_MESSAGE = {
@@ -112,7 +113,7 @@ export function defaultValueValidation(
       isValid = false;
       messages = [
         {
-          name: "RangeError",
+          name: ErrorMessageType.RANGE_ERROR,
           message:
             "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
         },

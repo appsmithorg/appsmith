@@ -1,4 +1,4 @@
-import { Severity } from "entities/AppsmithConsole";
+import { ErrorMessageType, Severity } from "entities/AppsmithConsole";
 import {
   LintError,
   PropertyEvaluationErrorType,
@@ -52,7 +52,7 @@ describe("getLintAnnotations()", () => {
           "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         severity: WARNING,
         errorMessage: {
-          name: "LintingError",
+          name: ErrorMessageType.LINTING_ERROR,
           message: "Expected '===' and instead saw '=='.",
         },
         errorSegment: "    const result =  world == test ",
@@ -68,7 +68,7 @@ describe("getLintAnnotations()", () => {
           "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         severity: WARNING,
         errorMessage: {
-          name: "LintingError",
+          name: ErrorMessageType.LINTING_ERROR,
           message: "'world' is not defined.",
         },
         errorSegment: "    const result =  world == test ",
@@ -80,7 +80,7 @@ describe("getLintAnnotations()", () => {
       },
       {
         errorMessage: {
-          name: "LintingError",
+          name: ErrorMessageType.LINTING_ERROR,
           message: "'test' is not defined.",
         },
         severity: WARNING,
@@ -145,7 +145,7 @@ describe("getLintAnnotations()", () => {
           "\n  function closedFunction () {\n    const result = hss\n    return result;\n  }\n  closedFunction.call(THIS_CONTEXT)\n  ",
         severity: ERROR,
         errorMessage: {
-          name: "LintingError",
+          name: ErrorMessageType.LINTING_ERROR,
           message: "'hss' is not defined.",
         },
         errorSegment: "    const result = hss",
@@ -184,7 +184,7 @@ describe("getLintAnnotations()", () => {
           "\n  function closedFunction () {\n    const result =  world\n\n    return result;\n  }\n  closedFunction()\n  ",
         severity: ERROR,
         errorMessage: {
-          name: "LintingError",
+          name: ErrorMessageType.LINTING_ERROR,
           message: "'world' is not defined.",
         },
         errorSegment: "    const result =  world",

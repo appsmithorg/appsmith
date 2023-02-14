@@ -33,7 +33,11 @@ import {
 } from "selectors/applicationSelectors";
 import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  ErrorMessageType,
+  PLATFORM_ERROR,
+} from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { Action, PluginType } from "entities/Action";
@@ -404,7 +408,7 @@ export default function* executePluginActionTriggerSaga(
               // Need to stringify cause this gets rendered directly
               // and rendering objects can crash the app
               message: {
-                name: "PluginExecutionError",
+                name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
                 message: !isString(payload.body)
                   ? JSON.stringify(payload.body)
                   : payload.body,
@@ -607,20 +611,20 @@ function* runActionSaga(
 
   const readableError = payload.readableError
     ? {
-        name: "PluginExecutionError",
+        name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
         message: getErrorAsString(payload.readableError),
       }
     : undefined;
 
   const payloadBodyError = payload.body
     ? {
-        name: "PluginExecutionError",
+        name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
         message: getErrorAsString(payload.body),
       }
     : undefined;
 
   const defaultError = {
-    name: "PluginExecutionError",
+    name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
     message: "An unexpected error occurred",
   };
 
@@ -791,6 +795,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       isExampleApp: currentApp.appIsExample,
     });
 
+    // action is required to fetch the pluginId and pluginType.
     const action = shouldBeDefined<Action>(
       yield select(getAction, pageAction.id),
       `action not found for id - ${pageAction.id}`,
@@ -799,7 +804,7 @@ function* executePageLoadAction(pageAction: PageAction) {
     let payload = EMPTY_RESPONSE;
     let isError = true;
     let error = {
-      name: "PluginExecutionError",
+      name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
       message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
     };
     try {
@@ -814,7 +819,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
       if (e instanceof UserCancelledActionExecutionError) {
         error = {
-          name: "PluginExecutionError",
+          name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
           message: createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name),
         };
       }
@@ -1016,6 +1021,7 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
+    // TODO: Plugins are not always fetched before on page load actions are executed.
     try {
       let plugin: Plugin | undefined;
       if (!!pluginAction.pluginId) {

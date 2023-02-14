@@ -32,6 +32,7 @@ import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultValueValidation(
   value: any,
@@ -39,7 +40,7 @@ export function defaultValueValidation(
   _?: any,
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = {
-    name: "TypeError",
+    name: ErrorMessageType.TYPE_ERROR,
     message: "This value must be string",
   };
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };

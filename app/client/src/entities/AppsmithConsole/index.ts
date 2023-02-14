@@ -73,9 +73,9 @@ export interface SourceEntity {
   id: string;
   // property path of the child
   propertyPath?: string;
-  // type of plugin
+  // plugin type of the action
   pluginType?: PluginType;
-  //If actionn is API, http method is required for icon in error item
+  // http method of the api. (Only for api actions)
   httpMethod?: HTTP_METHOD;
 }
 
@@ -87,7 +87,7 @@ export enum LOG_CATEGORY {
 export interface LogActionPayload {
   // Log id, used for updating or deleting
   id?: string;
-  //icon id, used for finding right icons.
+  // icon id, used in finding appropriate icons.
   iconId?: string;
   // What is the log about. Is it a datasource update, widget update, eval error etc.
   logType?: LOG_TYPE;
@@ -97,7 +97,8 @@ export interface LogActionPayload {
   occurrenceCount?: number;
   // Deconstructed data of the log, this includes the whole nested objects/arrays/strings etc.
   logData?: any[];
-  messages?: Message[];
+  // messages associated with this event
+  messages?: Array<Message>;
   // Time taken for the event to complete
   timeTaken?: string;
   // "where" source entity and propertyPsath.
@@ -106,7 +107,7 @@ export interface LogActionPayload {
   state?: Record<string, any>;
   // Any other data required for analytics
   analytics?: Record<string, any>;
-  // plugin execution error details
+  // plugin error details if any (only for plugin errors).
   pluginErrorDetails?: any;
 }
 
@@ -119,6 +120,23 @@ export interface Message {
   // The section of code being referred to
   // codeSegment?: string;
 }
+
+// Error types for the message.
+export const ErrorMessageType = {
+  TYPE_ERROR: "TypeError",
+  RANGE_ERROR: "RangeError",
+  REFERENCE_ERROR: "ReferenceError",
+  SYNTAX_ERROR: "SyntaxError",
+  EVAL_ERROR: "EvalError",
+  URI_ERROR: "URIError",
+  ERROR: "Error",
+  VALIDATION_ERROR: "ValidationError",
+  LINTING_ERROR: "LintingError",
+  PLUGIN_EXECUTION_ERROR: "PluginExecutionError",
+  DOWNSTREAM_ERROR: "DownstreamError",
+  CYCLICAL_DEPENDENCY_ERROR: "CyclicalDependencyError",
+  UNCAUGHT_PROMISE_REJECTION: "UncaughtPromiseRejection",
+};
 
 export interface Log extends LogActionPayload {
   severity: Severity;

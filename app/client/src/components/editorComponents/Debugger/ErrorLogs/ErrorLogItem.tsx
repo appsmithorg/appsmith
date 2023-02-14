@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { get } from "lodash";
 import {
+  ErrorMessageType,
   Log,
   LOG_CATEGORY,
   Message,
@@ -8,7 +9,6 @@ import {
   SourceEntity,
 } from "entities/AppsmithConsole";
 import styled, { useTheme } from "styled-components";
-import { getLogIcon } from "../helpers";
 import {
   AppIcon,
   Classes,
@@ -26,12 +26,13 @@ import {
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { PluginErrorDetails } from "api/ActionAPI";
 import LogCollapseData from "./components/LogCollapseData";
 import LogAdditionalInfo from "./components/LogAdditionalInfo";
-import { PluginErrorDetails } from "api/ActionAPI";
 import ContextualMenu from "../ContextualMenu";
 import LogEntityLink from "./components/LogEntityLink";
 import LogTimeStamp from "./components/LogTimeStamp";
+import { getLogIcon } from "../helpers";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -167,6 +168,7 @@ const showToggleIcon = (e: Log) => {
   return !!e.state;
 };
 
+// returns required parameters for log item
 export const getLogItemProps = (e: Log) => {
   return {
     icon: getLogIcon(e) as IconName,
@@ -207,6 +209,7 @@ export type LogItemProps = {
   pluginErrorDetails?: PluginErrorDetails;
 };
 
+// Log item component
 function ErrorLogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { collapsable } = props;
@@ -236,7 +239,8 @@ function ErrorLogItem(props: LogItemProps) {
           {props.logType &&
             props.logType !== LOG_TYPE.LINT_ERROR &&
             props.messages &&
-            props.messages[0].message.name !== "SyntaxError" && (
+            props.messages[0].message.name !==
+              ErrorMessageType.SYNTAX_ERROR && (
               <LogTimeStamp
                 severity={props.severity}
                 timestamp={props.timestamp}

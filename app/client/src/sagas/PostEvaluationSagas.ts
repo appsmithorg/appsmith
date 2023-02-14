@@ -1,5 +1,6 @@
 import {
   ENTITY_TYPE,
+  ErrorMessageType,
   Log,
   PLATFORM_ERROR,
   Severity,
@@ -387,11 +388,27 @@ export function* handleJSFunctionExecutionErrorLog(
             text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
               action.name
             }`,
-            messages: errors.map((error) => ({
-              message: error.errorMessage || error.message,
-              type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
-              subType: error.errorType,
-            })),
+            messages: errors.map((error) => {
+              // TODO: Remove this check once we address uncaught promise errors
+              let errorMessage = error.errorMessage;
+              if (!errorMessage) {
+                const errMsgArr = error.message.split(":");
+                errorMessage = errMsgArr.length
+                  ? {
+                      name: errMsgArr[0],
+                      message: errMsgArr.slice(1).join(":"),
+                    }
+                  : {
+                      name: ErrorMessageType.VALIDATION_ERROR,
+                      message: error.message,
+                    };
+              }
+              return {
+                message: errorMessage,
+                type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
+                subType: error.errorType,
+              };
+            }),
             source: {
               id: action.collectionId ? action.collectionId : action.id,
               name: `${collectionName}.${action.name}`,

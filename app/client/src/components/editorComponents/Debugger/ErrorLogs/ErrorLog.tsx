@@ -18,10 +18,12 @@ const ListWrapper = styled.div`
   padding-bottom: 25px;
 `;
 
+// This component is used to render the error logs in the debugger.
 function ErrorLog(props: {
   errors: Record<string, Log>;
   hasShortCut?: boolean;
 }) {
+  // returns array of log items for each error in the error log.
   const getLogItem = (error: Log, index: number) => {
     const logItemProps = getLogItemProps(error);
     const messages = error.messages || [];
@@ -59,4 +61,5 @@ function ErrorLog(props: {
   );
 }
 
+// Memoizing the component to avoid unnecessary re-renders
 export default memo(ErrorLog);

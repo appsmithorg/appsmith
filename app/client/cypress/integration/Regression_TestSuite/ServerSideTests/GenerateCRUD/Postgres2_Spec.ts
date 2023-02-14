@@ -627,7 +627,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.RunQuery(false, false);
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(false);
-      expect(response?.body.data.isExecutionSuccess).to.eq(false);
       expect(
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains(`table "vessels" does not exist`);

@@ -1,5 +1,6 @@
 import { defaultValueValidation, PhoneInputWidgetProps } from "./index";
 import _ from "lodash";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 describe("defaultValueValidation", () => {
   let result: any;
@@ -25,7 +26,12 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: [{ name: "TypeError", message: "This value must be string" }],
+      messages: [
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message: "This value must be string",
+        },
+      ],
     });
   });
 });

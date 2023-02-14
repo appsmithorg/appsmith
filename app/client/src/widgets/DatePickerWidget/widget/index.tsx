@@ -12,6 +12,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import moment from "moment";
 import { DatePickerType } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 function defaultDateValidation(
   value: unknown,
@@ -33,7 +34,7 @@ function defaultDateValidation(
       parsed: "",
       messages: [
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message: `This value does not evaluate to type: Date ${dateFormat}`,
         },
       ],
@@ -49,7 +50,7 @@ function defaultDateValidation(
       isValid === false
         ? [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message: `Value does not match ISO 8601 standard date string`,
             },
           ]
@@ -70,7 +71,7 @@ function minDateValidation(
       parsed: "",
       messages: [
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             `Value does not match: Date String ` +
             (dateFormat ? dateFormat : ""),
@@ -103,7 +104,7 @@ function minDateValidation(
       parsed: "",
       messages: [
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             `Value does not match: Date String ` +
             (dateFormat ? dateFormat : ""),
@@ -131,7 +132,7 @@ function maxDateValidation(
       parsed: "",
       messages: [
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             `Value does not match type: Date String ` +
             (dateFormat ? dateFormat : ""),
@@ -163,7 +164,7 @@ function maxDateValidation(
       parsed: "",
       messages: [
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message:
             `Value does not match type: Date String ` +
             (dateFormat ? dateFormat : ""),

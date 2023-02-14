@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
-import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import { ErrorMessageType, LOG_CATEGORY } from "entities/AppsmithConsole";
 import { getTypographyByKey } from "design-system-old";
 import ReactJson from "react-json-view";
 import { Colors } from "constants/Colors";
@@ -46,7 +46,9 @@ const JsonWrapper = styled.div`
   }
 `;
 
+// This component is used to render the collapsed information in the error logs.
 export default function LogCollapseData(props: any) {
+  // This is the props that are passed to the react-json-view component.
   const reactJsonProps = {
     name: null,
     enableClipboard: false,
@@ -86,7 +88,7 @@ export default function LogCollapseData(props: any) {
                   text={
                     props.pluginErrorDetails.downstreamErrorCode
                       ? props.pluginErrorDetails.downstreamErrorCode
-                      : "Downstream Error"
+                      : ErrorMessageType.DOWNSTREAM_ERROR
                   }
                   width="90px"
                 />

@@ -105,11 +105,14 @@ export const hasParentWidget = (widget: DataTreeWidget) =>
 export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
   let errorsCount = 0;
 
+  // count number of messages in each error.
+  // This logic is required because each messages in error is rendered separately.
   Object.values(errors).forEach((error) => {
     if (error.messages) {
       errorsCount += error.messages.length;
     }
   });
+  // count number of warnings.
   const warningsCount = Object.keys(errors).filter((key: string) =>
     key.includes("warning"),
   ).length;

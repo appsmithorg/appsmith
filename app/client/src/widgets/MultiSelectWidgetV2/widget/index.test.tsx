@@ -1,3 +1,4 @@
+import { ErrorMessageType } from "entities/AppsmithConsole";
 import _ from "lodash";
 import { defaultOptionValueValidation, MultiSelectWidgetProps } from ".";
 
@@ -17,17 +18,17 @@ const props = {
 };
 
 const DEFAULT_ERROR_MESSAGE = {
-  name: "TypeError",
+  name: ErrorMessageType.TYPE_ERROR,
   message:
     "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
 };
 const MISSING_FROM_OPTIONS = {
-  name: "ValidationError",
+  name: ErrorMessageType.VALIDATION_ERROR,
   message:
     "Some or all default values are missing from options. Please update the values.",
 };
 const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
-  name: "ValidationError",
+  name: ErrorMessageType.VALIDATION_ERROR,
   message:
     "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
 };
@@ -318,7 +319,7 @@ describe("defaultOptionValueValidation - ", () => {
           parsed: [],
           messages: [
             {
-              name: "ValidationError",
+              name: ErrorMessageType.VALIDATION_ERROR,
               message: "values must be unique. Duplicate values found",
             },
           ],
@@ -340,7 +341,7 @@ describe("defaultOptionValueValidation - ", () => {
           parsed: [],
           messages: [
             {
-              name: "ValidationError",
+              name: ErrorMessageType.VALIDATION_ERROR,
               message: "path:value must be unique. Duplicate values found",
             },
           ],

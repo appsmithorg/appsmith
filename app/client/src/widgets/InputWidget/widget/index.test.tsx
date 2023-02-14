@@ -1,5 +1,6 @@
 import { defaultValueValidation, InputWidgetProps } from "./index";
 import _ from "lodash";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 describe("#defaultValueValidation", () => {
   const defaultInputWidgetProps: InputWidgetProps = {
@@ -54,7 +55,7 @@ describe("#defaultValueValidation", () => {
       parsed: undefined,
       messages: [
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message: "This value must be a number",
         },
       ],
@@ -64,7 +65,7 @@ describe("#defaultValueValidation", () => {
       parsed: undefined,
       messages: [
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message: "This value must be a number",
         },
       ],

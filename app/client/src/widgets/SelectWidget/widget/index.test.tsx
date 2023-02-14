@@ -1,3 +1,4 @@
+import { ErrorMessageType } from "entities/AppsmithConsole";
 import _ from "lodash";
 import { SelectWidgetProps, defaultOptionValueValidation } from ".";
 
@@ -169,7 +170,7 @@ describe("defaultOptionValueValidation - ", () => {
           parsed: undefined,
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
@@ -182,7 +183,7 @@ describe("defaultOptionValueValidation - ", () => {
           parsed: undefined,
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
@@ -195,7 +196,7 @@ describe("defaultOptionValueValidation - ", () => {
           parsed: undefined,
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
@@ -208,7 +209,7 @@ describe("defaultOptionValueValidation - ", () => {
           parsed: undefined,
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
@@ -223,7 +224,7 @@ describe("defaultOptionValueValidation - ", () => {
           parsed: undefined,
           messages: [
             {
-              name: "TypeError",
+              name: ErrorMessageType.TYPE_ERROR,
               message: `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
             },
           ],
@@ -269,7 +270,7 @@ describe("defaultOptionValueValidation - ", () => {
       parsed: "YELLOW",
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message:
             "Default value is missing in options. Please update the value.",
         },
@@ -297,7 +298,7 @@ describe("defaultOptionValueValidation - ", () => {
       parsed: "YELLOW",
       messages: [
         {
-          name: "ValidationError",
+          name: ErrorMessageType.VALIDATION_ERROR,
           message:
             "Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.",
         },

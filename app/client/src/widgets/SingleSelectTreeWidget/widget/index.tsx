@@ -18,6 +18,7 @@ import { Alignment } from "@blueprintjs/core";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import derivedProperties from "./parseDerivedProperties";
 import { Stylesheet } from "entities/AppTheming";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -27,7 +28,7 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
       parsed: "",
       messages: [
         {
-          name: "TypeError",
+          name: ErrorMessageType.TYPE_ERROR,
           message: "This value does not evaluate to type: string",
         },
       ],
