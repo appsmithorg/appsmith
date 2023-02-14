@@ -2,12 +2,16 @@ import React, {
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
+  RefObject,
+  useCallback,
+  useEffect,
   useRef,
   useEffect,
   RefObject,
 } from "react";
 import styled from "styled-components";
 import tinycolor from "tinycolor2";
+import fastdom from "fastdom";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import WidgetStyleContainer, {
   WidgetStyleContainerProps,
@@ -50,6 +54,7 @@ const StyledContainerComponent = styled.div<
 `;
 
 interface ContainerWrapperProps {
+  onClick?: MouseEventHandler<HTMLDivElement>;
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
   resizeDisabled?: boolean;
   shouldScrollContents?: boolean;
@@ -62,19 +67,63 @@ function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
 ) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!props.shouldScrollContents) {
       const supportsNativeSmoothScroll =
         "scrollBehavior" in document.documentElement.style;
-      if (supportsNativeSmoothScroll) {
-        containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        if (containerRef.current) {
-          containerRef.current.scrollTop = 0;
+
+      fastdom.mutate(() => {
+        if (supportsNativeSmoothScroll) {
+          containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          if (containerRef.current) {
+            containerRef.current.scrollTop = 0;
+          }
         }
-      }
+      });
     }
   }, [props.shouldScrollContents]);
+
+  /**
+   * This is for all the container widgets that have the onClickCapture method.
+   * The mouse over event makes sure to add the class `hover-styles` so that a
+   * darker shade of the background color takes effect to induce the hover effect.
+   *
+   * Why not use the :hover css selector?
+   * For cases like List widget, it can have inner list widgets; so there can be
+   * containers inside containers. When the inner container is hovered, the parent container's
+   * :hover selector is also triggered making the outer and inner container both having this
+   * hover effect.
+   */
+  const onMouseOver = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = e.currentTarget;
+      const widgetType = el.getAttribute("type");
+      const widgetId = el.dataset.widgetid;
+      const isMainContainer = widgetId === "0";
+
+      if (
+        (widgetType === "CONTAINER_WIDGET" && props.onClickCapture) ||
+        isMainContainer
+      ) {
+        const elementsHovered = document.getElementsByClassName(
+          "hover-styles",
+        ) as HTMLCollectionOf<HTMLDivElement>;
+
+        fastdom.mutate(() => {
+          for (const elHovered of elementsHovered) {
+            elHovered.classList.remove("hover-styles");
+          }
+
+          if (!isMainContainer) {
+            el.classList.add("hover-styles");
+          }
+        });
+      }
+    },
+    [props.onClickCapture],
+  );
 
   return (
     <StyledContainerComponent
@@ -84,8 +133,11 @@ function ContainerComponentWrapper(
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} container-with-scrollbar`}
+      data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
+      onClick={props.onClick}
       onClickCapture={props.onClickCapture}
+      onMouseOver={onMouseOver}
       ref={containerRef}
       resizeDisabled={props.resizeDisabled}
       shouldScrollContents={!!props.shouldScrollContents}
@@ -102,6 +154,7 @@ function ContainerComponent(props: ContainerComponentProps) {
     return (
       <ContainerComponentWrapper
         dropDisabled={props.dropDisabled}
+        onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={props.shouldScrollContents}
@@ -121,11 +174,13 @@ function ContainerComponent(props: ContainerComponentProps) {
       boxShadow={props.boxShadow}
       className="style-container"
       containerStyle={props.containerStyle}
+      selected={props.selected}
       widgetId={props.widgetId}
     >
       <ContainerComponentWrapper
         backgroundColor={props.backgroundColor}
         dropDisabled={props.dropDisabled}
+        onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={props.shouldScrollContents}
@@ -144,7 +199,10 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   children?: ReactNode;
   shouldScrollContents?: boolean;
   resizeDisabled?: boolean;
+  selected?: boolean;
+  focused?: boolean;
   detachFromLayout?: boolean;
+  onClick?: MouseEventHandler<HTMLDivElement>;
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
   backgroundColor?: string;
   type: WidgetType;

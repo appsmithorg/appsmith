@@ -67,6 +67,7 @@ import {
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
   WIDGET_COPY,
   WIDGET_CUT,
+  ERROR_WIDGET_CUT_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { Toaster, Variant } from "design-system-old";
@@ -639,6 +640,7 @@ function* batchUpdateWidgetPropertySaga(
   };
   log.debug(
     "Batch widget property update calculations took: ",
+    action,
     performance.now() - start,
     "ms",
   );
@@ -1737,6 +1739,18 @@ function* cutWidgetSaga() {
   if (!selectedWidgets) {
     Toaster.show({
       text: createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED),
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const allAllowedToCut = selectedWidgets.some((each) => {
+    return allWidgets[each] && !allWidgets[each].disallowCopy;
+  });
+
+  if (!allAllowedToCut) {
+    Toaster.show({
+      text: createMessage(ERROR_WIDGET_CUT_NOT_ALLOWED),
       variant: Variant.info,
     });
     return;

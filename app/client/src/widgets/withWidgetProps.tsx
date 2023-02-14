@@ -21,6 +21,9 @@ import {
   getCurrentAppPositioningType,
   getMainCanvasProps,
   getRenderMode,
+  getMetaWidgetChildrenStructure,
+  getMetaWidget,
+  getFlattenedChildCanvasWidgets,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
@@ -44,21 +47,39 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
     props: WidgetProps & { skipWidgetPropsHydration?: boolean },
   ) {
-    const { children, skipWidgetPropsHydration, type, widgetId } = props;
+    const {
+      children,
+      hasMetaWidgets,
+      referencedWidgetId,
+      requiresFlatWidgetChildren,
+      skipWidgetPropsHydration,
+      type,
+      widgetId,
+    } = props;
     const isPreviewMode = useSelector(previewModeSelector);
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
+    const metaWidget = useSelector(getMetaWidget(widgetId));
+
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
     );
     const googleMapsApiKey = useSelector(getGoogleMapsApiKey);
     const renderMode = useSelector(getRenderMode);
+
+    const widgetName = canvasWidget?.widgetName || metaWidget?.widgetName;
+
     const evaluatedWidget = useSelector((state: AppState) =>
-      getWidgetEvalValues(state, canvasWidget?.widgetName),
+      getWidgetEvalValues(state, widgetName),
     );
     const isLoading = useSelector((state: AppState) =>
-      getIsWidgetLoading(state, canvasWidget?.widgetName),
+      getIsWidgetLoading(state, widgetName),
+    );
+
+    const metaWidgetChildrenStructure = useSelector(
+      getMetaWidgetChildrenStructure(widgetId, type, hasMetaWidgets),
+      equal,
     );
     const isMobile = useSelector(getIsMobile);
     const appPositioningType = useSelector(getCurrentAppPositioningType);
@@ -70,7 +91,19 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       return getChildWidgets(state, widgetId);
     }, equal);
 
+    const flattenedChildCanvasWidgets = useSelector((state: AppState) => {
+      if (requiresFlatWidgetChildren) {
+        return getFlattenedChildCanvasWidgets(
+          state,
+          referencedWidgetId || widgetId,
+        );
+      }
+    }, equal);
+
     let widgetProps: WidgetProps = {} as WidgetProps;
+
+    const widget = metaWidget || canvasWidget;
+
     if (!skipWidgetPropsHydration) {
       const canvasWidgetProps = (() => {
         if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
@@ -102,8 +135,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         }
 
         return evaluatedWidget
-          ? createCanvasWidget(canvasWidget, evaluatedWidget)
-          : createLoadingWidget(canvasWidget);
+          ? createCanvasWidget(widget, evaluatedWidget)
+          : createLoadingWidget(widget);
       })();
 
       widgetProps = { ...canvasWidgetProps };
@@ -155,9 +188,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       }
 
       widgetProps.children = children;
-
+      widgetProps.metaWidgetChildrenStructure = metaWidgetChildrenStructure;
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
+      widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
     }
     //merging with original props
     widgetProps = { ...props, ...widgetProps, renderMode };

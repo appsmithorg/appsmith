@@ -32,15 +32,20 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { Stylesheet } from "entities/AppTheming";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import React, { Component, Context, ReactNode, RefObject } from "react";
 import { get, memoize } from "lodash";
-import React, { Component, ReactNode, RefObject } from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import shallowequal from "shallowequal";
 import { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
+import {
+  EditorContext,
+  EditorContextType,
+} from "components/editorComponents/EditorContextProvider";
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   DataTreeEvaluationProps,
   EvaluationError,
@@ -56,6 +61,20 @@ import {
   isAutoHeightEnabledForWidget,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
+import { CanvasWidgetStructure } from "./constants";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import Skeleton from "./Skeleton";
+import { Stylesheet } from "entities/AppTheming";
+import { CSSProperties } from "styled-components";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import AutoHeightOverlayContainer from "components/autoHeightOverlay";
+import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
+import { FlattenedWidgetProps } from "./constants";
+import {
+  ModifyMetaWidgetPayload,
+  UpdateMetaWidgetPropertyPayload,
+} from "reducers/entityReducers/metaWidgetsReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 /***
@@ -71,12 +90,15 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
  *
  */
 
+const REFERENCE_KEY = "$$refs$$";
+
 abstract class BaseWidget<
   T extends WidgetProps,
-  K extends WidgetState
+  K extends WidgetState,
+  TCache = unknown
 > extends Component<T, K> {
   static contextType = EditorContext;
-  context!: React.ContextType<typeof EditorContext>;
+  context!: React.ContextType<Context<EditorContextType<TCache>>>;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -243,7 +265,7 @@ abstract class BaseWidget<
   /* eslint-disable @typescript-eslint/no-empty-function */
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {
+  componentDidUpdate(prevProps: T, prevState?: K) {
     if (
       !this.props.deferRender &&
       this.props.deferRender !== prevProps.deferRender
@@ -262,6 +284,64 @@ abstract class BaseWidget<
   deferredComponentDidRender(): void {}
 
   /* eslint-enable @typescript-eslint/no-empty-function */
+
+  modifyMetaWidgets = (modifications: ModifyMetaWidgetPayload) => {
+    this.context.modifyMetaWidgets?.({
+      ...modifications,
+      creatorId: this.props.widgetId,
+    });
+  };
+
+  deleteMetaWidgets = () => {
+    this.context?.deleteMetaWidgets?.({
+      creatorIds: [this.props.widgetId],
+    });
+  };
+
+  setWidgetCache = (data: TCache) => {
+    const key = this.getWidgetCacheKey();
+
+    if (key) {
+      this.context?.setWidgetCache?.(key, data);
+    }
+  };
+
+  updateMetaWidgetProperty = (payload: UpdateMetaWidgetPropertyPayload) => {
+    const { widgetId } = this.props;
+
+    this.context.updateMetaWidgetProperty?.({
+      ...payload,
+      creatorId: widgetId,
+    });
+  };
+
+  getWidgetCache = () => {
+    const key = this.getWidgetCacheKey();
+
+    if (key) {
+      return this.context?.getWidgetCache?.(key);
+    }
+  };
+
+  getWidgetCacheKey = () => {
+    return this.props.metaWidgetId || this.props.widgetId;
+  };
+
+  setWidgetReferenceCache = <TRefCache,>(data: TRefCache) => {
+    const key = this.getWidgetCacheReferenceKey();
+
+    this.context?.setWidgetCache?.(`${key}.${REFERENCE_KEY}`, data);
+  };
+
+  getWidgetReferenceCache = <TRefCache,>() => {
+    const key = this.getWidgetCacheReferenceKey();
+
+    return this.context?.getWidgetCache?.<TRefCache>(`${key}.${REFERENCE_KEY}`);
+  };
+
+  getWidgetCacheReferenceKey = () => {
+    return this.props.referencedWidgetId || this.props.widgetId;
+  };
 
   getComponentDimensions = () => {
     return this.calculateWidgetBounds(
@@ -418,6 +498,7 @@ abstract class BaseWidget<
         selected={this.props.selected}
         topRow={this.props.topRow}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         widgetType={this.props.type}
       >
         {content}
@@ -643,12 +724,28 @@ export interface WidgetBuilder<
 
 export interface WidgetBaseProps {
   widgetId: string;
+  metaWidgetId?: string;
   type: WidgetType;
   widgetName: string;
   parentId?: string;
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
+  flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
+  metaWidgetChildrenStructure?: CanvasWidgetStructure[];
+  referencedWidgetId?: string;
+  requiresFlatWidgetChildren?: boolean;
+  hasMetaWidgets?: boolean;
+  creatorId?: string;
+  isMetaWidget?: boolean;
+  suppressAutoComplete?: boolean;
+  suppressDebuggerError?: boolean;
+  disallowCopy?: boolean;
+  /**
+   * The keys of the props mentioned here would always be picked from the canvas widget
+   * rather than the evaluated values in withWidgetProps HOC.
+   *  */
+  additionalStaticProps?: string[];
 }
 
 export type WidgetRowCols = {

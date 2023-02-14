@@ -36,12 +36,12 @@ export type RenderMode =
   | "PAGE"
   | "CANVAS_SELECTED";
 
-export const RenderModes: { [id: string]: RenderMode } = {
-  COMPONENT_PANE: "COMPONENT_PANE",
-  CANVAS: "CANVAS",
-  PAGE: "PAGE",
-  CANVAS_SELECTED: "CANVAS_SELECTED",
-};
+export enum RenderModes {
+  COMPONENT_PANE = "COMPONENT_PANE",
+  CANVAS = "CANVAS",
+  PAGE = "PAGE",
+  CANVAS_SELECTED = "CANVAS_SELECTED",
+}
 
 export const CSSUnits: { [id: string]: CSSUnit } = {
   PIXEL: "px",
@@ -152,12 +152,15 @@ export const WIDGET_STATIC_PROPS = {
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {
+  bottomRow: true,
   children: true,
+  requiresFlatWidgetChildren: true,
+  hasMetaWidgets: true,
+  parentId: true,
+  referencedWidgetId: true,
+  topRow: true,
   type: true,
   widgetId: true,
-  parentId: true,
-  topRow: true,
-  bottomRow: true,
 };
 
 export type TextSize = keyof typeof TextSizes;

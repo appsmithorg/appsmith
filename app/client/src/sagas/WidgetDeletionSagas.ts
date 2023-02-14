@@ -277,6 +277,7 @@ function* deleteAllSelectedWidgetsSaga(
       }),
     );
     const flattenedWidgets = flattenDeep(widgetsToBeDeleted);
+
     const parentUpdatedWidgets = flattenedWidgets.reduce(
       (allWidgets: any, eachWidget: any) => {
         const { parentId, widgetId } = eachWidget;

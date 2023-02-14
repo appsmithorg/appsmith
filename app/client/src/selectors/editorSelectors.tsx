@@ -33,15 +33,19 @@ import {
   getCanvasWidgets,
   getJSCollections,
 } from "selectors/entitiesSelector";
-import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import {
   buildChildWidgetTree,
+  buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { CanvasWidgetStructure } from "widgets/constants";
+import { denormalize } from "utils/canvasStructureHelpers";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
@@ -272,6 +276,36 @@ export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
 
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
+export const getMetaWidgets = (state: AppState) => state.entities.metaWidgets;
+
+export const getMetaWidget = (metaWidgetId: string) =>
+  createSelector(getMetaWidgets, (metaWidgets) => {
+    return metaWidgets[metaWidgetId];
+  });
+
+export const getMetaWidgetChildrenStructure = (
+  parentWidgetId: string,
+  type: string,
+  hasMetaWidgets = false,
+) =>
+  createSelector(getMetaWidgets, (metaWidgets) => {
+    if (!hasMetaWidgets) return [];
+
+    const structure: CanvasWidgetStructure[] = [];
+
+    Object.values(metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.parentId === parentWidgetId) {
+        structure.push(
+          denormalize(metaWidget.widgetId, metaWidgets, {
+            widgetTypeForHaltingRecursion: type,
+          }),
+        );
+      }
+    });
+
+    return structure;
+  });
+
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
@@ -387,11 +421,20 @@ export const getCanvasWidgetDsl = createSelector(
 export const getChildWidgets = createSelector(
   [
     getCanvasWidgets,
+    getMetaWidgets,
     getDataTree,
     getLoadingEntities,
     (_state: AppState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
+);
+
+export const getFlattenedChildCanvasWidgets = createSelector(
+  [
+    getCanvasWidgets,
+    (_state: AppState, parentWidgetId: string) => parentWidgetId,
+  ],
+  buildFlattenedChildCanvasWidgets,
 );
 
 const getOccupiedSpacesForContainer = (
