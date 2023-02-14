@@ -60,13 +60,13 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
       "ondropdownclose",
       "{{showAlert('TreeSelect1 dropdown closed', 'success')}}",
     );
-
+    cy.wait(500);
     cy.get(formWidgetsPage.treeSelect)
-      .last()
+      .first()
       .click({ force: true });
     cy.validateToastMessage("TreeSelect1 dropdown opened");
     cy.get(formWidgetsPage.treeSelect)
-      .last()
+      .first()
       .click({ force: true });
     cy.validateToastMessage("TreeSelect1 dropdown closed");
   });
@@ -84,13 +84,13 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
       "ondropdownclose",
       "{{showAlert('MultiTreeSelect1 dropdown closed', 'success')}}",
     );
-
+    cy.wait(500);
     cy.get(formWidgetsPage.multiTreeSelect)
-      .first()
+      .last()
       .click({ force: true });
     cy.validateToastMessage("MultiTreeSelect1 dropdown opened");
     cy.get(formWidgetsPage.multiTreeSelect)
-      .first()
+      .last()
       .click({ force: true });
     cy.validateToastMessage("MultiTreeSelect1 dropdown closed");
   });

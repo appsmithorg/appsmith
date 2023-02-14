@@ -2,6 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/formdsl1.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 /**
  * A function to set the content inside an RTE widget
@@ -46,7 +47,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.widgetText(
       this.data.RichTextEditorName,
       formWidgetsPage.richTextEditorWidget,
-      formWidgetsPage.richTextEditorWidget + " " + commonlocators.widgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
 
     //Edit the text area with Html

@@ -205,6 +205,13 @@ export class AggregateHelper {
     shouldSleep && this.Sleep();
   }
 
+  public clickMultipleButtons(btnVisibleText: string, shouldSleep = true) {
+    cy.xpath(this.locator._spanButton(btnVisibleText)).each(($el) => {
+      $el.trigger("click", { force: true });
+    });
+    shouldSleep && this.Sleep();
+  }
+
   public Paste(selector: any, pastePayload: string) {
     cy.wrap(selector).then(($destination) => {
       const pasteEvent = Object.assign(
@@ -744,13 +751,22 @@ export class AggregateHelper {
   }
 
   // by dynamic input value we mean QUERY_DYNAMIC_INPUT_TEXT formControls.
-  public TypeDynamicInputValueNValidate(valueToType: string, fieldName = "") {
+  public TypeDynamicInputValueNValidate(
+    valueToType: string,
+    fieldName = "",
+    isDynamicValue = false,
+    evaluatedValue = valueToType,
+  ) {
     this.EnterValue(valueToType, {
       propFieldName: fieldName,
       directInput: true,
       inputFieldName: "",
     });
-    this.VerifyEvaluatedValue(valueToType);
+    if (!isDynamicValue) {
+      this.AssertElementAbsence(this.locator._evaluatedCurrentValue);
+    } else {
+      this.VerifyEvaluatedValue(evaluatedValue);
+    }
   }
 
   public EnterValue(
@@ -844,6 +860,51 @@ export class AggregateHelper {
       });
   }
 
+  public FocusCodeInput(selector: string) {
+    cy.wrap(selector)
+      .find(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        this.Sleep(200);
+        // input.display.input.blur();
+        // this.Sleep(200);
+      });
+  }
+
+  DragEvaluatedValuePopUp(x: number, y: number) {
+    cy.get(this.locator._evaluatedCurrentValue)
+      .first()
+      .should("be.visible")
+      .realHover({ pointer: "mouse" });
+    cy.get(this.locator._evaluatedValuePopDragHandler)
+      .trigger("mousedown", { which: 1 })
+      .trigger("mousemove", { clientX: x, clientY: y })
+      .trigger("mouseup", { force: true });
+  }
+
+  public FocusAndDragEvaluatedValuePopUp(
+    options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
+    x = 0,
+    y = 0,
+  ) {
+    const { directInput, inputFieldName, propFieldName } = options;
+    if (propFieldName && directInput && !inputFieldName) {
+      cy.get(propFieldName).then(($field: any) => {
+        this.FocusCodeInput($field);
+        this.DragEvaluatedValuePopUp(x, y);
+      });
+    } else if (inputFieldName && !propFieldName && !directInput) {
+      cy.xpath(this.locator._inputFieldByName(inputFieldName)).then(
+        ($field: any) => {
+          this.FocusCodeInput($field);
+          this.DragEvaluatedValuePopUp(x, y);
+        },
+      );
+    }
+  }
+
   public CheckCodeInputValue(selector: string, expectedValue: string) {
     cy.wrap(selector)
       .find(".CodeMirror")
@@ -856,12 +917,46 @@ export class AggregateHelper {
       });
   }
 
+  public ReturnCodeInputValue(selector: string) {
+    let inputVal = "";
+    this.GetElement(selector).then(($field) => {
+      cy.wrap($field)
+        .find(".CodeMirror-code span")
+        .first()
+        .invoke("text")
+        .then((text1) => {
+          inputVal = text1;
+        });
+    });
+    //if (currentValue) expect(val).to.eq(currentValue);
+    // to be chained with another cy command.
+    return cy.wrap(inputVal);
+
+    // cy.xpath(this.locator._existingFieldValueByName(selector)).then(
+    //   ($field: any) => {
+    //     cy.wrap($field)
+    //       .find(".CodeMirror")
+    //       .first()
+    //       .then((ins: any) => {
+    //         const input = ins[0].CodeMirror;
+    //         inputVal = input.getValue();
+    //         this.Sleep(200);
+    //       });
+
+    //     // to be chained with another cy command.
+    //     return inputVal;
+    //   },
+    // );
+  }
+
   public VerifyEvaluatedErrorMessage(errorMessage: string) {
     cy.get(this.locator._evaluatedErrorMessage)
       .should("be.visible")
       .should("have.text", errorMessage);
   }
 
+  // this should only be used when we want to verify the evaluated value of dynamic bindings for example {{Api1.data}} or {{"asa"}}
+  // and should not be called for plain strings
   public VerifyEvaluatedValue(currentValue: string) {
     this.Sleep(3000);
     cy.get(this.locator._evaluatedCurrentValue)
@@ -878,26 +973,6 @@ export class AggregateHelper {
       .then(() => {
         cy.wait(2000);
       });
-  }
-
-  public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
-    let toValidate = false;
-    if (currentValue) toValidate = true;
-    if (fieldName) {
-      cy.xpath(this.locator._existingFieldValueByName(fieldName))
-        .eq(0)
-        .click();
-    } else {
-      cy.xpath(this.locator._codeMirrorCode).click();
-    }
-    this.Sleep(3000); //Increasing wait time to evaluate non-undefined values
-    const val = cy
-      .get(this.locator._evaluatedCurrentValue)
-      .first()
-      .should("be.visible")
-      .invoke("text");
-    if (toValidate) expect(val).to.eq(currentValue);
-    return val;
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true) {

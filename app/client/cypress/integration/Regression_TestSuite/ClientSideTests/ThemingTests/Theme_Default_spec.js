@@ -75,7 +75,7 @@ describe("Theme validation for default data", function() {
     cy.widgetText(
       "FormTest",
       formWidgetsPage.formWidget,
-      formWidgetsPage.formInner,
+      widgetsPage.widgetNameSpan,
     );
     cy.moveToStyleTab();
     cy.get(widgetsPage.backgroundcolorPickerNew)

@@ -313,6 +313,7 @@ type CascadeFieldProps = {
   condition: Condition;
   value: any;
   operator: Operator;
+  id: string;
   index: number;
   hasAnyFilters: boolean;
   applyFilter: (
@@ -482,7 +483,7 @@ function CascadeField(props: CascadeFieldProps) {
 }
 
 function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
-  const { applyFilter, hasAnyFilters, index, removeFilter } = props;
+  const { applyFilter, hasAnyFilters, id, index, removeFilter } = props;
   const [state, dispatch] = React.useReducer(CaseCaseFieldReducer, props.state);
   const handleRemoveFilter = () => {
     dispatch({ type: CascadeFieldActionTypes.DELETE_FILTER });
@@ -534,7 +535,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   useEffect(() => {
     if (!isDeleted && isUpdate) {
       applyFilter(
-        { operator, column, condition, value },
+        { id, operator, column, condition, value },
         index,
         isOperatorChange,
       );

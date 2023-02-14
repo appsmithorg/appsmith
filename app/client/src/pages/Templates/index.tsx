@@ -20,6 +20,7 @@ import {
   setTemplateSearchQuery,
 } from "actions/templateActions";
 import {
+  getForkableWorkspaces,
   getSearchedTemplateList,
   getTemplateFiltersLength,
   getTemplateSearchQuery,
@@ -149,6 +150,7 @@ type TemplatesContentProps = {
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: Template) => void;
   stickySearchBar?: boolean;
+  isForkingEnabled: boolean;
 };
 
 export function TemplatesContent(props: TemplatesContentProps) {
@@ -200,6 +202,7 @@ export function TemplatesContent(props: TemplatesContentProps) {
       </SearchWrapper>
       <ResultsCount>{resultsText}</ResultsCount>
       <TemplateList
+        isForkingEnabled={props.isForkingEnabled}
         onForkTemplateClick={props.onForkTemplateClick}
         onTemplateClick={props.onTemplateClick}
         templates={templates}
@@ -209,6 +212,8 @@ export function TemplatesContent(props: TemplatesContentProps) {
 }
 
 function Templates() {
+  const workspaceList = useSelector(getForkableWorkspaces);
+
   return (
     <PageWrapper>
       <SidebarWrapper>
@@ -219,7 +224,7 @@ function Templates() {
         </SecondaryWrapper>
       </SidebarWrapper>
       <TemplateListWrapper>
-        <TemplatesContent />
+        <TemplatesContent isForkingEnabled={!!workspaceList.length} />
       </TemplateListWrapper>
     </PageWrapper>
   );

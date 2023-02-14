@@ -8,6 +8,8 @@ import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { Alignment, Positioning, Spacing } from "utils/autoLayout/constants";
 import { generateClassName } from "utils/generators";
@@ -16,9 +18,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
-// import { generatePositioningConfig } from "utils/layoutPropertiesUtils";
-import { Stylesheet } from "entities/AppTheming";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const minSize = 100;
 
@@ -207,11 +206,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   makeModalSelectable(content: ReactNode): ReactNode {
     // substitute coz the widget lacks draggable and position containers.
     return (
-      <ClickContentToOpenPropPane
-        backgroundColor={this.props.backgroundColor}
-        borderRadius={this.props.borderRadius}
-        widgetId={this.props.widgetId}
-      >
+      <ClickContentToOpenPropPane widgetId={this.props.widgetId}>
         {content}
       </ClickContentToOpenPropPane>
     );
@@ -226,6 +221,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
     return (
       <ModalComponent
+        background={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}

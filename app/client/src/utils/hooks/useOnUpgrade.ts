@@ -3,7 +3,7 @@ import {
   createMessage,
   UPGRADE_TO_EE_GENERIC,
 } from "@appsmith/constants/messages";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
@@ -19,7 +19,7 @@ type Props = {
 const useOnUpgrade = (props: Props) => {
   const { intercomMessage, logEventData, logEventName } = props;
   const features = useSelector(selectFeatureFlags);
-  const tenantConfig = useSelector(getTenantConfig);
+  const instanceId = useSelector(getInstanceId);
 
   const triggerIntercom = (message: string) => {
     if (intercomAppID && window.Intercom) {
@@ -34,7 +34,7 @@ const useOnUpgrade = (props: Props) => {
     );
     if (features.USAGE_AND_BILLING) {
       window.open(
-        `https://www.appsmith.com/api/preview?secret=8JPsJRnSkt6Va8FzxUPFhZezxZuHRnSU&slug=pricing-preview?source=CE&instance=${tenantConfig?.instanceId}`,
+        `https://www.appsmith.com/api/preview?secret=8JPsJRnSkt6Va8FzxUPFhZezxZuHRnSU&slug=pricing-preview?source=CE&instance=${instanceId}`,
         "_blank",
       );
     } else {

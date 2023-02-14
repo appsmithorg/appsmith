@@ -113,6 +113,7 @@ describe("Container Widget Functionality", function() {
     //cy.SearchEntityandOpen("Button1");
     cy.testJsontext("label", `{{currentItem.last_name}}`);
     cy.addAction("{{currentItem.last_name}}", "onclick");
+    cy.wait(3000);
     cy.PublishtheApp();
     // Verify Widget Button by clicking on it
     cy.get(widgetsPage.widgetBtn)
@@ -269,7 +270,7 @@ describe("Container Widget Functionality", function() {
     cy.widgetText(
       "List2",
       widgetsPage.listWidgetName,
-      widgetsPage.listWidgetName + " " + commonlocators.listWidgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
     // Change the list widget name from Entity Explorer
     cy.renameEntity("List2", "List1");

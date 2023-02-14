@@ -1,6 +1,7 @@
 const Layoutpage = require("../../../../../locators/Layout.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tabsWithWidgetDsl.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Tab widget test", function() {
   before(() => {
@@ -8,7 +9,7 @@ describe("Tab widget test", function() {
   });
   it("Tab Widget Functionality Test with Modal on change of selected tab", function() {
     cy.openPropertyPane("tabswidget");
-    cy.widgetText("tab", Layoutpage.tabWidget, Layoutpage.tabInput);
+    cy.widgetText("tab", Layoutpage.tabWidget, widgetsPage.widgetNameSpan);
     cy.AddActionWithModal();
     cy.get(".t--widget-buttonwidget:contains('Confirm')").click({
       force: true,
