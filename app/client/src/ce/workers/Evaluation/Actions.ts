@@ -4,7 +4,7 @@ import { EvalContext } from "workers/Evaluation/evaluate";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import { set } from "lodash";
-import { entityFns, platformFns } from "workers/Evaluation/fns";
+import { entityFns, platformFns } from "@appsmith/workers/Evaluation/fns";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
