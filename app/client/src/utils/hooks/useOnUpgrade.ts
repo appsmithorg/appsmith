@@ -16,6 +16,9 @@ type Props = {
   logEventData?: any;
 };
 
+const PRICING_PAGE_URL =
+  "https://www.appsmith.com/api/preview?secret=8JPsJRnSkt6Va8FzxUPFhZezxZuHRnSU&slug=pricing-preview";
+
 const useOnUpgrade = (props: Props) => {
   const { intercomMessage, logEventData, logEventName } = props;
   const features = useSelector(selectFeatureFlags);
@@ -34,7 +37,7 @@ const useOnUpgrade = (props: Props) => {
     );
     if (features.USAGE_AND_BILLING) {
       window.open(
-        `https://www.appsmith.com/api/preview?secret=8JPsJRnSkt6Va8FzxUPFhZezxZuHRnSU&slug=pricing-preview?source=CE&instance=${instanceId}`,
+        `${PRICING_PAGE_URL}source=CE&instance=${instanceId}`,
         "_blank",
       );
     } else {
