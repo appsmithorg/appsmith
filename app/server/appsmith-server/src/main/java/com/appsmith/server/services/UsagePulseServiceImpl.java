@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.repositories.UsagePulseRepository;
 import com.appsmith.server.services.ce.UsagePulseServiceCEImpl;
 import org.springframework.stereotype.Service;
@@ -11,8 +12,9 @@ public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements Us
                                  SessionUserService sessionUserService,
                                  UserService userService,
                                  TenantService tenantService,
-                                 ConfigService configService) {
-        super(repository, sessionUserService, userService, tenantService, configService);
+                                 ConfigService configService,
+                                 CommonConfig commonConfig) {
+        super(repository, sessionUserService, userService, tenantService, configService, commonConfig);
     }
 
 }

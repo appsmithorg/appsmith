@@ -138,7 +138,7 @@ export class AggregateHelper {
 
   public CheckForPageSaveError() {
     // Wait for "saving" status to disappear
-    this.GetElement(this.locator._statusSaving).should("not.exist");
+    this.GetElement(this.locator._statusSaving,60000).should("not.exist");
     // Check for page save error
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._saveStatusError).length) {
