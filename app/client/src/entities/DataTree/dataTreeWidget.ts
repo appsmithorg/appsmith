@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _ from "lodash";
+import _, { isEmpty } from "lodash";
 import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -217,12 +217,14 @@ export const generateDataTreeWidget = (
 
   // overridingMetaProps maps properties that can be overriden by either default values or meta changes to initial values.
   // initial value is set to metaProps value or undefined (set to undefined to ensure that its path is present in the unevalTree).
-  Object.entries(defaultMetaProps).forEach(([key]) => {
+  Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =
-        key in widgetMetaProps ? widgetMetaProps[key] : undefined;
+        key in widgetMetaProps ? widgetMetaProps[key] : value;
     }
   });
+
+  entityConfig.isMetaPropDirty = !isEmpty(widgetMetaProps);
 
   const meta = _.merge({}, overridingMetaProps, widgetMetaProps);
 

@@ -18,7 +18,7 @@ import {
   DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 
-import _, { find, get, isEmpty, set } from "lodash";
+import _, { find, get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -854,12 +854,7 @@ export const widgetPathsNotToOverride = (
   let pathsNotToOverride: string[] = [];
   const overriddenPropertyPaths = entity.overridingPropertyPaths[propertyPath];
 
-  // To tell whether a widget has pre-existing meta values (although newly added), we stringify its meta object to get rid of undefined values
-  // An empty parsedMetaObj implies that the widget has no pre-existing meta values.
-  // MetaWidgets can have pre-existing meta values
-  const parsedMetaObj = JSON.parse(JSON.stringify(entity.meta));
-
-  if (isNewWidget && !isEmpty(parsedMetaObj)) {
+  if (isNewWidget && entity.isMetaPropDirty) {
     const overriddenMetaPaths = overriddenPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
     );
