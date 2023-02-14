@@ -178,6 +178,15 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 });
     }
 
+    @PostMapping("/snapshot/{id}")
+    public Mono<ResponseDTO<String>> createSnapshot(@PathVariable String id,
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to create snapshot with application id: {}, branch: {}", id, branchName);
+
+        return importExportApplicationService.createApplicationSnapshot(id, branchName)
+                .map(snapshotId -> new ResponseDTO<>(HttpStatus.OK.value(), snapshotId, null));
+    }
+
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
                                                                              @PathVariable String workspaceId) {

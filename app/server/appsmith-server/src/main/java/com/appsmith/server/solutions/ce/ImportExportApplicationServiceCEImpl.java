@@ -21,8 +21,8 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -48,6 +48,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.ce.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -136,6 +137,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ActionPermission actionPermission;
     private final Gson gson;
     private final TransactionalOperator transactionalOperator;
+    private final ApplicationSnapshotRepository applicationSnapshotRepository;
 
     /**
      * This function will give the application resource to rebuild the application in import application flow
@@ -2207,5 +2209,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return analyticsService.sendObjectEvent(event, application, data);
                 });
+    }
+
+    @Override
+    public Mono<String> createApplicationSnapshot(String applicationId, String branchName) {
+        return this.exportApplicationById(applicationId, branchName).flatMap(applicationJson -> {
+            ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
+            applicationSnapshot.setApplicationId(applicationId);
+            applicationSnapshot.setBranchName(branchName);
+            applicationSnapshot.setApplicationJson(applicationJson);
+            return applicationSnapshotRepository.save(applicationSnapshot);
+        }).map(BaseDomain::getId);
     }
 }

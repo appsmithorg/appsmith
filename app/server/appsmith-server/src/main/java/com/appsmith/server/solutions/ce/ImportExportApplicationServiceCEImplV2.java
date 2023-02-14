@@ -22,6 +22,7 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
@@ -47,6 +48,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.ce.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -78,7 +80,6 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -135,6 +136,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     private final ActionPermission actionPermission;
     private final Gson gson;
     private final TransactionalOperator transactionalOperator;
+    private final ApplicationSnapshotRepository applicationSnapshotRepository;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -2245,5 +2247,16 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
                     return analyticsService.sendObjectEvent(event, application, data);
                 });
+    }
+
+    @Override
+    public Mono<String> createApplicationSnapshot(String applicationId, String branchName) {
+        return this.exportApplicationById(applicationId, branchName).flatMap(applicationJson -> {
+            ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
+            applicationSnapshot.setApplicationId(applicationId);
+            applicationSnapshot.setBranchName(branchName);
+            applicationSnapshot.setApplicationJson(applicationJson);
+            return applicationSnapshotRepository.save(applicationSnapshot);
+        }).map(BaseDomain::getId);
     }
 }
