@@ -107,13 +107,12 @@ jobs:
         # if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
         uses: actions/cache@v3
-        working-directory: "."
         env:
           cache-name: cache-yarn-dependencies
         with:
           path: |
             ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock', '../**/yarn.lock', '../../**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-dep-
 
