@@ -1298,8 +1298,9 @@ Cypress.Commands.add(
     cy.wait(500);
     cy.get(selector)
       .trigger("mouseover", { force: true })
+      .click({ force: true })
       .wait(500);
-    cy.get(`${selector} .t--widget-propertypane-toggle > .t--widget-name`)
+    cy.get(".t--widget-propertypane-toggle > .t--widget-name")
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
