@@ -34,9 +34,6 @@ const StyledCalloutV2 = styled.div`
 type Props = RadioControlProps & ReduxDispatchProps;
 
 class RadioControl extends BaseControl<Props> {
-  componentDidMount() {
-    console.log("Component Mounted: ", this.props);
-  }
   render() {
     const styles = {
       width: "280px",
