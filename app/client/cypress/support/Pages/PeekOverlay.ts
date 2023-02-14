@@ -10,6 +10,8 @@ export class PeekOverlay {
 
     // react json viewer selectors
     rjv_variableValue: ".variable-value",
+    rjv_topLevelArrayData:
+      ".pushed-content.object-container .object-content .object-key-val",
     rjv_firstLevelBraces:
       ".pretty-json-container > .object-content:first-of-type > .object-key-val:first-of-type > span",
   };
@@ -23,7 +25,7 @@ export class PeekOverlay {
         )
       : this.agHelper.GetElement(this.locators.peekableCode(peekableAttribute))
     ).realHover();
-    cy.wait(500);
+    cy.wait(1000);
   }
 
   isOverlayOpen(checkIsOpen = true) {
@@ -33,18 +35,38 @@ export class PeekOverlay {
   }
 
   resetHover() {
-    this.agHelper.GetElement("body").realHover({ position: "topLeft" });
-    cy.wait(500);
+    this.agHelper.GetElement("body").realHover({ position: "bottomLeft" });
+    cy.wait(1000);
   }
 
   checkPrimitiveData(data: string) {
-    this.agHelper.GetElement(this.locators.overlayContainer);
+    this.agHelper
+      .GetElement(this.locators.dataContainer)
+      .children("div")
+      .should("have.text", data);
   }
 
   checkPrimitveArrayInOverlay(array: Array<string | number>) {
     this.agHelper
       .GetElement(this.locators.dataContainer)
       .find(this.locators.rjv_variableValue)
+      .should("have.length", array.length);
+    this.agHelper
+      .GetElement(this.locators.dataContainer)
+      .find(this.locators.rjv_firstLevelBraces)
+      .eq(0)
+      .contains("[");
+    this.agHelper
+      .GetElement(this.locators.dataContainer)
+      .find(this.locators.rjv_firstLevelBraces)
+      .eq(1)
+      .contains("]");
+  }
+
+  checkObjectArrayInOverlay(array: Array<Record<string, any>>) {
+    this.agHelper
+      .GetElement(this.locators.dataContainer)
+      .find(this.locators.rjv_topLevelArrayData)
       .should("have.length", array.length);
     this.agHelper
       .GetElement(this.locators.dataContainer)

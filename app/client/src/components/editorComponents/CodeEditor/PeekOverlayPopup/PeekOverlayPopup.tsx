@@ -51,8 +51,8 @@ export function PeekOverlayPopUpContent(
 
   const getDataTypeHeader = (dataType: string) => {
     if (props.dataType === "object") {
-      if (Array.isArray(props.data)) return "Array";
-      if (props.data === null) return "Null";
+      if (Array.isArray(props.data)) return "array";
+      if (props.data === null) return "null";
     }
     return dataType;
   };
@@ -117,9 +117,17 @@ export function PeekOverlayPopUpContent(
         {props.dataType === "boolean" && (
           <div>{(props.data as any).toString()}</div>
         )}
+        {props.dataType === "string" && (
+          <div>{(props.data as any).toString()}</div>
+        )}
+        {props.dataType === "number" && (
+          <div>{(props.data as any).toString()}</div>
+        )}
         {((props.dataType !== "object" &&
           props.dataType !== "function" &&
-          props.dataType !== "boolean") ||
+          props.dataType !== "boolean" &&
+          props.dataType !== "string" &&
+          props.dataType !== "number") ||
           props.data === null) && (
           <div>
             {(props.data as any)?.toString() ??
