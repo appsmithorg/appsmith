@@ -23,7 +23,11 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
 
   it("Table Widget Functionality with multiple page", function() {
     cy.openPropertyPane("tablewidget");
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
+    cy.widgetText(
+      "Table1",
+      widgetsPage.tableWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
   });
 

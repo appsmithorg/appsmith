@@ -29,6 +29,7 @@ const Wrapper = styled.div`
 `;
 
 interface TemplateListProps {
+  isForkingEnabled: boolean;
   templates: TemplateInterface[];
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: TemplateInterface) => void;
@@ -44,6 +45,7 @@ function TemplateList(props: TemplateListProps) {
       >
         {props.templates.map((template) => (
           <Template
+            isForkingEnabled={props.isForkingEnabled}
             key={template.id}
             onClick={props.onTemplateClick}
             onForkTemplateClick={props.onForkTemplateClick}

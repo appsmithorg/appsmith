@@ -45,7 +45,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.widgetText(
       this.data.TextName,
       widgetsPage.textWidget,
-      widgetsPage.textWidget + " " + commonlocators.widgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
 
     //Changing the text label

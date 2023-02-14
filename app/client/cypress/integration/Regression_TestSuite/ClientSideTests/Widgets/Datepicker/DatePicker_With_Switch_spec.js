@@ -13,7 +13,7 @@ describe("Switch Widget within Form widget Functionality", function() {
     cy.widgetText(
       "Toggler",
       formWidgetsPage.switchWidget,
-      widgetsPage.switchInput,
+      widgetsPage.widgetNameSpan,
     );
     cy.testCodeMirror(this.data.switchInputName);
     cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");

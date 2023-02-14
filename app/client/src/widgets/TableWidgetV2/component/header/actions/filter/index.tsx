@@ -8,7 +8,7 @@ import TableFilterPane from "./FilterPane";
 import {
   ReactTableColumnProps,
   ReactTableFilter,
-  OperatorTypes,
+  DEFAULT_FILTER,
 } from "../../../Constants";
 
 //TODO(abhinav): All of the following imports should not exist in a widget component
@@ -44,12 +44,7 @@ function TableFilters(props: TableFilterProps) {
   useEffect(() => {
     const filters: ReactTableFilter[] = props.filters ? [...props.filters] : [];
     if (filters.length === 0) {
-      filters.push({
-        column: "",
-        operator: OperatorTypes.OR,
-        value: "",
-        condition: "",
-      });
+      filters.push({ ...DEFAULT_FILTER });
     }
     updateFilters(filters);
   }, [props.filters]);

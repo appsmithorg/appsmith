@@ -15,7 +15,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.widgetText(
       "Table_1",
       widgetsPage.tableWidget,
-      commonlocators.tableInner,
+      widgetsPage.widgetNameSpan,
     );
     cy.createModal("Modal", this.data.ModalName);
     cy.isSelectRow(1);

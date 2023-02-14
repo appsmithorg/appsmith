@@ -35,7 +35,11 @@ describe("Table Widget and Navigate to functionality validation", function() {
       .should("be.visible")
       .click({ force: true });
     cy.openPropertyPane("tablewidget");
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
+    cy.widgetText(
+      "Table1",
+      widgetsPage.tableWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     cy.focused().blur();
     cy.get(widgetsPage.tableOnRowSelect)
