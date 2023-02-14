@@ -317,7 +317,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       expect(
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains(
-        'ERROR: null value in column "distance_to_go" of relation "vessels" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , Passenger, null, , null, , null, null, null, ).',
+        'ERROR: null value in column "distance_to_go" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , Passenger, null, , null, , null, null, null, ).',
       );
     });
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
