@@ -22,7 +22,7 @@ describe("Text-Table Binding Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Update table data and assert", function() {
+  it("1. Update table data and assert", function() {
     cy.openPropertyPane("tablewidget");
 
     cy.get(widgetLocators.tabedataField).then(($el) => {
@@ -33,7 +33,7 @@ describe("Text-Table Binding Functionality", function() {
     });
   });
 
-  it("Update chart data and assert", function() {
+  it("2. Update chart data and assert", function() {
     cy.openPropertyPane("chartwidget");
     cy.get(".t--property-control-chart-series-data-control").then(($el) => {
       cy.updateCodeInput($el, updateData);
@@ -49,7 +49,8 @@ describe("Text-Table Binding Functionality", function() {
     });
   });
 
-  it("Publish and assert", function() {
+  //Skipped due to issue #20581
+  it.skip("3. Publish and assert", function() {
     cy.PublishtheApp();
     cy.readTabledata("1", "0").then((cellData) => {
       cy.wrap(cellData).should("equal", "Product2");

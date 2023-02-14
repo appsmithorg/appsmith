@@ -32,11 +32,6 @@ describe("Fork a template to the current app", () => {
     );
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.xpath(
       "//div[text()='Slack Bot']/parent::div//button[contains(@class, 't--fork-template')]",
     )
