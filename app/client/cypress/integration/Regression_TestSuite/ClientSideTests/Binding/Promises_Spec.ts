@@ -17,7 +17,7 @@ describe("Validate basic Promises", () => {
     agHelper.SaveLocalStorageCache();
   });
 
-  it.only("1. Verify storeValue via .then via direct Promises", () => {
+  it("1. Verify storeValue via .then via direct Promises", () => {
     const date = new Date().toDateString();
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
@@ -33,7 +33,7 @@ describe("Validate basic Promises", () => {
     deployMode.NavigateBacktoEditor();
   });
 
-  it.only("2. Verify resolve & chaining via direct Promises", () => {
+  it("2. Verify resolve & chaining via direct Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
