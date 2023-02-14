@@ -298,6 +298,10 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Click on the Menu Button
     cy.get(".t--widget-tablewidgetv2 .bp3-button")
       .first()
+      .scrollIntoView()
+      .should("be.visible");
+    cy.get(".t--widget-tablewidgetv2 .bp3-button")
+      .first()
       .click({
         force: true,
       });
