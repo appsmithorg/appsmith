@@ -277,7 +277,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     return Flux.fromIterable(userIds)
                             .flatMap(userId -> {
                                 String email = userMap.get(userId);
-                                return repository.evictPermissionGroupsUser(email, defaultTenantId)
+                                return repository.evictAllPermissionGroupCachesForUser(email, defaultTenantId)
                                         .thenReturn(TRUE);
                             });
                 })
