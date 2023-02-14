@@ -1,6 +1,8 @@
 import React, { lazy, Suspense } from "react";
 import log from "loglevel";
 import moment, { MomentInput } from "moment";
+import memoizeOne from "memoize-one";
+
 import _, {
   isNumber,
   isString,
@@ -102,6 +104,118 @@ const defaultFilter = [
     condition: "",
   },
 ];
+
+const transformDataPureFn = (tableData, columns, editableCell) => {
+  if (isArray(tableData)) {
+    return tableData.map((row, rowIndex) => {
+      const newRow: { [key: string]: any } = {};
+
+      columns.forEach((column) => {
+        const { alias } = column;
+        let value = row[alias];
+
+        if (column.metaProperties) {
+          switch (column.metaProperties.type) {
+            case ColumnTypes.DATE:
+              let isValidDate = true;
+              const outputFormat = _.isArray(column.metaProperties.format)
+                ? column.metaProperties.format[rowIndex]
+                : column.metaProperties.format;
+              let inputFormat;
+
+              try {
+                const type = _.isArray(column.metaProperties.inputFormat)
+                  ? column.metaProperties.inputFormat[rowIndex]
+                  : column.metaProperties.inputFormat;
+
+                if (
+                  type !== DateInputFormat.EPOCH &&
+                  type !== DateInputFormat.MILLISECONDS
+                ) {
+                  inputFormat = type;
+                  moment(value as MomentInput, inputFormat);
+                } else if (!isNumber(value)) {
+                  isValidDate = false;
+                }
+              } catch (e) {
+                isValidDate = false;
+              }
+
+              if (isValidDate && value) {
+                try {
+                  if (
+                    column.metaProperties.inputFormat ===
+                    DateInputFormat.MILLISECONDS
+                  ) {
+                    value = Number(value);
+                  } else if (
+                    column.metaProperties.inputFormat === DateInputFormat.EPOCH
+                  ) {
+                    value = 1000 * Number(value);
+                  }
+
+                  newRow[alias] = moment(
+                    value as MomentInput,
+                    inputFormat,
+                  ).format(outputFormat);
+                } catch (e) {
+                  log.debug("Unable to parse Date:", { e });
+                  newRow[alias] = "";
+                }
+              } else if (value) {
+                newRow[alias] = "Invalid Value";
+              } else {
+                newRow[alias] = "";
+              }
+              break;
+            default:
+              let data;
+
+              if (
+                _.isString(value) ||
+                _.isNumber(value) ||
+                _.isBoolean(value)
+              ) {
+                data = value;
+              } else if (isNil(value)) {
+                data = "";
+              } else {
+                data = JSON.stringify(value);
+              }
+
+              newRow[alias] = data;
+              break;
+          }
+        }
+      });
+
+      /*
+       * Inject the edited cell value from the editableCell object
+       */
+      if (editableCell?.index === rowIndex) {
+        const { column, inputValue } = editableCell;
+
+        newRow[column] = inputValue;
+      }
+
+      return newRow;
+    });
+  } else {
+    return [];
+  }
+};
+const memoizedTransformData = memoizeOne(
+  transformDataPureFn,
+  (prev: Array<any>, next: Array<any>) => {
+    const [prevTableData, prevColumns, prevCellEditable] = prev;
+    const [nextTableData, nextColumns, nextCellEditable] = next;
+
+    if (prevTableData !== nextTableData) return false;
+    if (!equal(prevCellEditable, nextCellEditable)) return false;
+    if (!equal(prevColumns, nextColumns)) return false;
+    return true;
+  },
+);
 
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
@@ -310,104 +424,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     tableData: Array<Record<string, unknown>>,
     columns: ReactTableColumnProps[],
   ) => {
-    if (isArray(tableData)) {
-      return tableData.map((row, rowIndex) => {
-        const newRow: { [key: string]: any } = {};
-
-        columns.forEach((column) => {
-          const { alias } = column;
-          let value = row[alias];
-
-          if (column.metaProperties) {
-            switch (column.metaProperties.type) {
-              case ColumnTypes.DATE:
-                let isValidDate = true;
-                const outputFormat = _.isArray(column.metaProperties.format)
-                  ? column.metaProperties.format[rowIndex]
-                  : column.metaProperties.format;
-                let inputFormat;
-
-                try {
-                  const type = _.isArray(column.metaProperties.inputFormat)
-                    ? column.metaProperties.inputFormat[rowIndex]
-                    : column.metaProperties.inputFormat;
-
-                  if (
-                    type !== DateInputFormat.EPOCH &&
-                    type !== DateInputFormat.MILLISECONDS
-                  ) {
-                    inputFormat = type;
-                    moment(value as MomentInput, inputFormat);
-                  } else if (!isNumber(value)) {
-                    isValidDate = false;
-                  }
-                } catch (e) {
-                  isValidDate = false;
-                }
-
-                if (isValidDate && value) {
-                  try {
-                    if (
-                      column.metaProperties.inputFormat ===
-                      DateInputFormat.MILLISECONDS
-                    ) {
-                      value = Number(value);
-                    } else if (
-                      column.metaProperties.inputFormat ===
-                      DateInputFormat.EPOCH
-                    ) {
-                      value = 1000 * Number(value);
-                    }
-
-                    newRow[alias] = moment(
-                      value as MomentInput,
-                      inputFormat,
-                    ).format(outputFormat);
-                  } catch (e) {
-                    log.debug("Unable to parse Date:", { e });
-                    newRow[alias] = "";
-                  }
-                } else if (value) {
-                  newRow[alias] = "Invalid Value";
-                } else {
-                  newRow[alias] = "";
-                }
-                break;
-              default:
-                let data;
-
-                if (
-                  _.isString(value) ||
-                  _.isNumber(value) ||
-                  _.isBoolean(value)
-                ) {
-                  data = value;
-                } else if (isNil(value)) {
-                  data = "";
-                } else {
-                  data = JSON.stringify(value);
-                }
-
-                newRow[alias] = data;
-                break;
-            }
-          }
-        });
-
-        /*
-         * Inject the edited cell value from the editableCell object
-         */
-        if (this.props.editableCell?.index === rowIndex) {
-          const { column, inputValue } = this.props.editableCell;
-
-          newRow[column] = inputValue;
-        }
-
-        return newRow;
-      });
-    } else {
-      return [];
-    }
+    const basicColumnProperties = columns.map((c) => ({
+      alias: c.alias,
+      metaProperties: c.metaProperties,
+    }));
+    return memoizedTransformData(
+      tableData,
+      basicColumnProperties,
+      this.props.editableCell,
+    );
   };
 
   updateDerivedColumnsIndex = (

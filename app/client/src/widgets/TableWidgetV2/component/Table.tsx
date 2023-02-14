@@ -33,7 +33,7 @@ import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell, TableVariant } from "../constants";
 import { TableBody } from "./TableBody";
-
+import useTraceUpdate from "use-trace-update";
 interface TableProps {
   width: number;
   height: number;
@@ -134,7 +134,7 @@ export function Table(props: TableProps) {
     }
     props.handleResizeColumn(columnWidthMap);
   };
-  const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
+  const data = props.data;
   const columnString = JSON.stringify(
     pick(props, ["columns", "compactMode", "columnWidthMap"]),
   );
@@ -152,6 +152,7 @@ export function Table(props: TableProps) {
     it will not give the correct count of records in the current page when query limit
     is set higher/lower than the visible number of rows in the table
   */
+  useTraceUpdate({ data: props.data, columns: props.columns });
   const pageCount =
     props.serverSidePaginationEnabled &&
     props.totalRecordsCount &&

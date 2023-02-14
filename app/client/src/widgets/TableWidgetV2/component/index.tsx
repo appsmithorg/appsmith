@@ -392,7 +392,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.borderColor === next.borderColor &&
     prev.accentColor === next.accentColor &&
     equal(prev.columnWidthMap, next.columnWidthMap) &&
-    equal(prev.tableData, next.tableData) &&
+    //static reference
+    prev.tableData === next.tableData &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
