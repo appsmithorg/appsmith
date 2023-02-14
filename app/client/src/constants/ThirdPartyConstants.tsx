@@ -21,3 +21,5 @@ export const EMAIL_SETUP_DOC =
   "https://docs.appsmith.com/getting-started/setup/instance-configuration/email";
 export const SIGNUP_RESTRICTION_DOC =
   "https://docs.appsmith.com/getting-started/setup/instance-configuration/disable-user-signup#disable-sign-up";
+export const PRICING_PAGE_URL = (source: string, instanceId: string) =>
+  `https://www.appsmith.com/api/preview?secret=8JPsJRnSkt6Va8FzxUPFhZezxZuHRnSU&slug=pricing-preview?source=${source}&instance=${instanceId}`;
