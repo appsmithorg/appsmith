@@ -23,33 +23,8 @@ const JSInputTestCode = `export default {
   }
 }`;
 
-const JSInput2TestCode = `export default {
-\tmyVar1: [],
-\tmyVar2: {},
-\tmyFun1: () => {
-\t\t
-\t\t//write code here
-\t},
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-}`;
+const JSInput2TestCode =
+  "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n}";
 
 let repoName;
 
