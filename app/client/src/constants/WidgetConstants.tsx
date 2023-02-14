@@ -142,6 +142,8 @@ export const WIDGET_STATIC_PROPS = {
   detachFromLayout: true,
   noContainerOffset: false,
   height: false,
+  topRowBeforeCollapse: false,
+  bottomRowBeforeCollapse: false,
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {
@@ -181,4 +183,6 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   iconSVG: true,
   version: true,
   displayName: true,
+  topRowBeforeCollapse: false,
+  bottomRowBeforeCollapse: false,
 };
