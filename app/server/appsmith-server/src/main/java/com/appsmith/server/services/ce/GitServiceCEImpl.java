@@ -593,7 +593,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             // Release the file lock on git repo
                             .flatMap(application -> {
                                 if(Boolean.TRUE.equals(isFileLock)) {
-                                    return redisUtils.releaseFileLock(childApplication.getGitApplicationMetadata().getDefaultApplicationId());
+                                    return releaseFileLock(childApplication.getGitApplicationMetadata().getDefaultApplicationId());
                                 }
                                 return Mono.just(application);
                             })
@@ -1235,7 +1235,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .thenReturn(application);
                             });
                 })
-                .flatMap(application -> redisUtils.releaseFileLock(application.getGitApplicationMetadata().getDefaultApplicationId())
+                .flatMap(application -> releaseFileLock(application.getGitApplicationMetadata().getDefaultApplicationId())
                         .then(addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_CREATE_BRANCH.getEventName(),
                                 application,
@@ -1415,7 +1415,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", "There are uncommitted changes present in your local. Please commit them first and then try git pull"));
                     }
-                    return pullAndRehydrateApplication(defaultApplication, branchName);
+                    return pullAndRehydrateApplication(defaultApplication, branchName)
+                            // Release file lock after the pull operation
+                            .flatMap(gitPullDTO -> releaseFileLock(defaultApplicationId)
+                                    .then(Mono.just(gitPullDTO)));
                 });
 
         return Mono.create(sink -> pullMono
@@ -1603,7 +1606,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .then(branchedStatusMono)
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(gitExecutor.resetToLastCommit(tuple.getT3(), branchName))
-                                .then(branchedStatusMono)
+                                .flatMap(gitStatusDTO -> {
+                                    if (Boolean.TRUE.equals(isFileLock)) {
+                                        return releaseFileLock(defaultApplicationId)
+                                                .then(branchedStatusMono);
+                                    }
+                                    return branchedStatusMono;
+                                })
                                 .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
                     } catch (GitAPIException | IOException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
@@ -1749,12 +1758,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                     MergeStatusDTO mergeStatusDTO = tuple.getT1();
                     Application application = tuple.getT2();
                     // Send analytics event
-                    return addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_MERGE.getEventName(),
-                            application,
-                            application.getGitApplicationMetadata().getIsRepoPrivate()
-                    )
-                            .thenReturn(mergeStatusDTO);
+                    return releaseFileLock(defaultApplicationId)
+                            .flatMap(status -> addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_MERGE.getEventName(),
+                                    application,
+                                    application.getGitApplicationMetadata().getIsRepoPrivate())
+                                    .thenReturn(mergeStatusDTO));
                 });
 
         return Mono.create(sink -> mergeMono
@@ -1816,7 +1825,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error));
                             })
-                            .then(gitExecutor.isMergeBranch(repoSuffix, sourceBranch, destinationBranch))
+                            .then(gitExecutor.isMergeBranch(repoSuffix, sourceBranch, destinationBranch)
+                                    .flatMap(mergeStatusDTO -> releaseFileLock(defaultApplicationId)
+                                            .then(Mono.just(mergeStatusDTO)))
+                            )
                             .onErrorResume(error -> {
                                 try {
                                     return gitExecutor.resetToLastCommit(repoSuffix, destinationBranch)
@@ -2194,13 +2206,18 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<Application> discardChangeMono;
         if (Boolean.TRUE.equals(doPull)) {
             discardChangeMono = defaultApplicationMono
+                    // Add file lock before proceeding with the git operation
+                    .flatMap(application -> addFileLock(defaultApplicationId).thenReturn(application))
                     .flatMap(defaultApplication -> this.pullAndRehydrateApplication(defaultApplication, branchName))
                     .map(GitPullDTO::getApplication)
-                    .flatMap(application -> this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null))
+                    .flatMap(application -> releaseFileLock(defaultApplicationId)
+                                .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null)))
                     .map(responseUtils::updateApplicationWithDefaultResources);
         } else {
             // Rehydrate the application from local file system
             discardChangeMono = branchedApplicationMono
+                    // Add file lock before proceeding with the git operation
+                    .flatMap(application -> addFileLock(defaultApplicationId).thenReturn(application))
                     .flatMap(branchedApplication -> {
                         GitApplicationMetadata gitData = branchedApplication.getGitApplicationMetadata();
                         if (gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())) {
@@ -2219,7 +2236,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 .importApplicationInWorkspace(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
                                 );
                     })
-                    .flatMap(application -> this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null))
+                    .flatMap(application -> releaseFileLock(defaultApplicationId)
+                            .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null)))
                     .map(responseUtils::updateApplicationWithDefaultResources);
         }
 
@@ -2406,8 +2424,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         */
         GitApplicationMetadata gitData = defaultApplication.getGitApplicationMetadata();
         if (isInvalidDefaultApplicationGitMetadata(gitData)) {
-            return redisUtils.releaseFileLock(gitData.getDefaultApplicationId())
-                    .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR)));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
         }
         Path repoSuffix = Paths.get(defaultApplication.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
 
@@ -2537,6 +2554,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                         }));
+    }
+
+    private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
+        return redisUtils.releaseFileLock(defaultApplicationId);
     }
 
     @Override
