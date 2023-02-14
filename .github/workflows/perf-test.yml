@@ -115,7 +115,6 @@ jobs:
           key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-dep-
-        run: pwd && ls -l
 
       # Install all the dependencies
       - name: Install dependencies
