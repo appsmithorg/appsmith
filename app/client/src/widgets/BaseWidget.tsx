@@ -15,7 +15,6 @@ import {
 import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
@@ -44,7 +43,6 @@ import {
   EditorContext,
   EditorContextType,
 } from "components/editorComponents/EditorContextProvider";
-import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   DataTreeEvaluationProps,
@@ -52,7 +50,6 @@ import {
   EVAL_ERROR_PATH,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { CanvasWidgetStructure } from "./constants";
 import Skeleton from "./Skeleton";
 import {
@@ -61,15 +58,7 @@ import {
   isAutoHeightEnabledForWidget,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
-import { CanvasWidgetStructure } from "./constants";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import Skeleton from "./Skeleton";
 import { Stylesheet } from "entities/AppTheming";
-import { CSSProperties } from "styled-components";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import AutoHeightOverlayContainer from "components/autoHeightOverlay";
-import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
 import { FlattenedWidgetProps } from "./constants";
 import {
   ModifyMetaWidgetPayload,

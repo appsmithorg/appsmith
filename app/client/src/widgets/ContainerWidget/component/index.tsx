@@ -6,8 +6,6 @@ import React, {
   useCallback,
   useEffect,
   useRef,
-  useEffect,
-  RefObject,
 } from "react";
 import styled from "styled-components";
 import tinycolor from "tinycolor2";
@@ -26,7 +24,7 @@ const StyledContainerComponent = styled.div<
   width: 100%;
   overflow: hidden;
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
-  
+
   ${(props) => (props.shouldScrollContents ? scrollCSS : ``)}
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
 
@@ -207,8 +205,6 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   backgroundColor?: string;
   type: WidgetType;
   noScroll?: boolean;
-  selected?: boolean;
-  focused?: boolean;
   minHeight?: number;
   useAutoLayout?: boolean;
   direction?: string;

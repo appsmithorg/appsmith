@@ -80,7 +80,7 @@ export type CanvasWidgetStructure = Pick<
     children?: CanvasWidgetStructure[];
     selected?: boolean;
     onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
-};
+  };
 
 export enum FileDataTypes {
   Base64 = "Base64",

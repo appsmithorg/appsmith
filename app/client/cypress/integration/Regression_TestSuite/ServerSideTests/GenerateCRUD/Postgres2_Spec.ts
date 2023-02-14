@@ -541,7 +541,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("15. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
     table.SelectTableRow(0);
-    agHelper.Sleep(2000);//since table taking time to display JSON form
+    agHelper.Sleep(2000); //since table taking time to display JSON form
 
     //validating update happened fine!
     dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180"); //Validaing new record got inserted in 1st position due to id used
@@ -691,7 +691,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
-    agHelper.AssertElementAbsence(locator._spinner, 10000);//10 secs for update to reflect!
+    agHelper.AssertElementAbsence(locator._spinner, 10000); //10 secs for update to reflect!
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex); //Validate Primary key column selection
