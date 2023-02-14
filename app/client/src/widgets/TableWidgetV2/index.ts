@@ -17,6 +17,7 @@ export const CONFIG = {
   name: "Table",
   iconSVG: IconSVG,
   needsMeta: true,
+  needsHeightForContent: true,
   defaults: {
     rows: 28,
     canFreezeColumn: true,
