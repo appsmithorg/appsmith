@@ -286,7 +286,7 @@ public class FileUtilsImpl implements FileInterface {
                             if(Boolean.TRUE.equals(isResourceUpdated)) {
                                 saveActions(
                                         resource.getValue(),
-                                        applicationGitReference.getActionBody().get(resource.getKey()),
+                                        applicationGitReference.getActionBody().containsKey(resource.getKey()) ? applicationGitReference.getActionBody().get(resource.getKey()) : null,
                                         queryName,
                                         actionSpecificDirectory.resolve(queryName),
                                         gson
@@ -411,8 +411,11 @@ public class FileUtilsImpl implements FileInterface {
         try {
             Files.createDirectories(path);
             // Write the user written query to .txt file to make conflict handling easier
-            Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
-            writeStringToFile(body, bodyPath);
+            // Body will be null if the action is of type JS
+            if (body != null) {
+                Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
+                writeStringToFile(body, bodyPath);
+            }
 
             // Write metadata for the actions
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
@@ -656,11 +659,37 @@ public class FileUtilsImpl implements FileInterface {
 
     /**
      * This method is to read the content for action and actionCollection or any nested resources which has the new structure - v3
-     * Where the user queries and the metadata is split into to different files
+     * Where the user written JS Object code and the metadata is split into to different files
      * @param directoryPath file path for files on which read operation will be performed
      * @return resources stored in the directory
      */
     private Map<String, Object> readActionCollection(Path directoryPath, Gson gson, String keySuffix, Map<String, String> actionCollectionBodyMap) {
+        Map<String, Object> resource = new HashMap<>();
+        File directory = directoryPath.toFile();
+        if (directory.isDirectory()) {
+            for (File dirFile : Objects.requireNonNull(directory.listFiles())) {
+                String resourceName = dirFile.getName();
+                Path resourcePath = directoryPath.resolve(resourceName).resolve( resourceName + CommonConstants.JS_EXTENSION);
+                String body = "";
+                if (resourcePath.toFile().exists()) {
+                    body = readFileAsString(resourcePath);
+                }
+                Object file = readFile(directoryPath.resolve(resourceName).resolve( CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
+                actionCollectionBodyMap.put(resourceName + keySuffix, body);
+                resource.put(resourceName + keySuffix, file);
+            }
+        }
+        return resource;
+    }
+
+    /**
+     * This method is to read the content for action and actionCollection or any nested resources which has the new structure - v4
+     * Where the user queries and the metadata is split into to different files
+     * @param directoryPath directory path for files on which read operation will be performed
+     * @param gson
+     * @return resources stored in the directory
+     */
+    private Map<String, Object> readAction(Path directoryPath, Gson gson, String keySuffix, Map<String, String> actionCollectionBodyMap) {
         Map<String, Object> resource = new HashMap<>();
         File directory = directoryPath.toFile();
         if (directory.isDirectory()) {
@@ -722,7 +751,7 @@ public class FileUtilsImpl implements FileInterface {
         File directory = pageDirectory.toFile();
         Map<String, Object> pageMap = new HashMap<>();
         Map<String, Object> actionMap = new HashMap<>();
-        Map<String, Object> actionBodyMap = new HashMap<>();
+        Map<String, String> actionBodyMap = new HashMap<>();
         Map<String, Object> actionCollectionMap = new HashMap<>();
         Map<String, String> actionCollectionBodyMap = new HashMap<>();
         // TODO same approach should be followed for modules(app level actions, actionCollections, widgets etc)
@@ -731,7 +760,13 @@ public class FileUtilsImpl implements FileInterface {
             // pages, actions and actionCollections from the JSON files
             for (File page : Objects.requireNonNull(directory.listFiles())) {
                 pageMap.put(page.getName(), readFile(page.toPath().resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson));
-                actionMap.putAll(readFiles(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName()));
+
+                if (fileFormatVersion >= 4) {
+                    actionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
+                } else {
+                    actionMap.putAll(readFiles(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName()));
+                }
+
                 if (fileFormatVersion >= 3) {
                     actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
                 } else {

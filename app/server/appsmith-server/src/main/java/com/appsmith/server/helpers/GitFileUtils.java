@@ -6,6 +6,7 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -189,7 +190,13 @@ public class GitFileUtils {
                             : newAction.getPublishedAction().getValidName() + NAME_SEPARATOR + newAction.getPublishedAction().getPageId();
                     removeUnwantedFieldFromAction(newAction);
                     String body = newAction.getUnpublishedAction().getActionConfiguration().getBody() != null ? newAction.getUnpublishedAction().getActionConfiguration().getBody() : "";
-                    resourceMapBody.put(prefix, body);
+                    // This is a special case where we are handling JS actions as we don't want to commit the body of JS actions
+                    if (newAction.getPluginType().equals(PluginType.JS)) {
+                        newAction.getUnpublishedAction().getActionConfiguration().setBody(null);
+                    } else {
+                        // For the regular actions we save the body field to git repo
+                        resourceMapBody.put(prefix, body);
+                    }
                     resourceMap.put(prefix, newAction);
                 });
         applicationReference.setActions(new HashMap<>(resourceMap));
@@ -199,7 +206,7 @@ public class GitFileUtils {
 
         // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
         // JSObjectName_pageName => nomenclature for the keys
-        Map<String, String> resourceMapBody = new HashMap<>();
+        Map<String, String> resourceMapActionCollectionBody = new HashMap<>();
         applicationJson
                 .getActionCollectionList()
                 .stream()
@@ -215,14 +222,14 @@ public class GitFileUtils {
 
                     String body = actionCollection.getUnpublishedCollection().getBody() != null ? actionCollection.getUnpublishedCollection().getBody() : "";
                     actionCollection.getUnpublishedCollection().setBody(null);
-                    resourceMapBody.put(prefix, body);
+                    resourceMapActionCollectionBody.put(prefix, body);
                     resourceMap.put(prefix, actionCollection);
                 });
         applicationReference.setActionCollections(new HashMap<>(resourceMap));
-        applicationReference.setActionCollectionBody(new HashMap<>(resourceMapBody));
+        applicationReference.setActionCollectionBody(new HashMap<>(resourceMapActionCollectionBody));
         applicationReference.setUpdatedResources(updatedResources);
         resourceMap.clear();
-        resourceMapBody.clear();
+        resourceMapActionCollectionBody.clear();
 
         // Send datasources
         applicationJson
