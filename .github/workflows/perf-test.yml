@@ -107,6 +107,7 @@ jobs:
         # if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
         uses: actions/cache@v3
+        working-directory: "."
         env:
           cache-name: cache-yarn-dependencies
         with:
