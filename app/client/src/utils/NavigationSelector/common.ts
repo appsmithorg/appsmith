@@ -21,7 +21,7 @@ export const createNavData = (general: {
     children: general.children,
     key: general.key,
     url: general.url,
-    navigable: !!!general.url,
+    navigable: !!general.url,
     peekable: general.peekable,
     peekData: general.peekData,
   };
