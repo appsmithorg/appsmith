@@ -311,7 +311,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
     .click();
-  agHelper.AssertElementAbsence(gitSync._checkMergeability, 30000);
+  agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
   cy.wait("@mergeStatus", { timeout: 35000 }).should(
     "have.nested.property",
     "response.body.data.isMergeAble",

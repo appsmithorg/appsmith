@@ -1068,6 +1068,7 @@ export interface ApplicationPayload {
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
+  collapseInvisibleWidgets?: boolean;
 }
 
 export type WorkspaceDetails = {

@@ -34,6 +34,7 @@ import {
   defaultAutoLayoutWidgets,
   Positioning,
 } from "utils/autoLayout/constants";
+import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 
@@ -197,7 +198,32 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
       shouldResetCollapsedContainerHeightInCanvasMode
     ) {
-      dispatch(checkContainersForAutoHeightAction());
+      // We also need to check if a non-auto height widget has collapsed earlier
+      // We can figure this out if the widget height is zero and the beforeCollapse
+      // topRow and bottomRow are available.
+
+      // If the above is true, we call an auto height update call
+      // so that the widget can be reset correctly.
+      if (
+        widgetProps.topRow === widgetProps.bottomRow &&
+        widgetProps.topRowBeforeCollapse !== undefined &&
+        widgetProps.bottomRowBeforeCollapse !== undefined &&
+        !isAutoHeightEnabledForWidget(widgetProps)
+      ) {
+        const heightBeforeCollapse =
+          (widgetProps.bottomRowBeforeCollapse -
+            widgetProps.topRowBeforeCollapse) *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+        dispatch({
+          type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
+          payload: {
+            widgetId: props.widgetId,
+            height: heightBeforeCollapse,
+          },
+        });
+      } else {
+        dispatch(checkContainersForAutoHeightAction());
+      }
     }
 
     return <WrappedWidget {...widgetProps} />;
