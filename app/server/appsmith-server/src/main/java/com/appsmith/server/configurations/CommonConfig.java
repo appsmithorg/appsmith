@@ -67,8 +67,6 @@ public class CommonConfig {
     @Value("${appsmith.rts.port:8091}")
     private String rtsPort;
 
-    private String rtsBaseDomain;
-
     private List<String> allowedDomains;
 
     @Bean
