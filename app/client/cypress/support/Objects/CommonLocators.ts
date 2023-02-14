@@ -55,6 +55,7 @@ export class CommonLocators {
   _createNew = ".t--entity-add-btn.group.files";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
+  _jsonTab = "[data-cy='t--tab-JSON']";
   _errorTab = "[data-cy=t--tab-ERROR]";
   _responseTab = "[data-cy=t--tab-response]";
   _modal = ".t--modal-widget";
@@ -175,10 +176,5 @@ export class CommonLocators {
   _commentString = ".cm-comment";
   _modalWrapper = "[data-cy='modal-wrapper']";
   _containerWidget = "div[type='CONTAINER_WIDGET']";
-  _listPaginateNextButton = ".rc-pagination-next";
-  _listPaginateActivePage = ".rc-pagination-item-active";
-  _listPaginatePrevButton = ".rc-pagination-prev";
-  _listPaginateItem = ".rc-pagination-item";
-  _listPaginateButtonsDisabled = ".rc-pagination-disabled";
   _propertyPaneTitle = ".t--property-pane-title";
 }

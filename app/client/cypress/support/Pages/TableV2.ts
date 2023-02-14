@@ -54,6 +54,7 @@ export class TableV2 {
     "//div[contains(@class, 'tbody')]//div[contains(@class, 'selected-row')]/div";
   _liNextPage = "li[title='Next Page']";
   _liPreviousPage = "li[title='Previous Page']";
+  _liPaginateItem = ".rc-pagination-item";
   _liCurrentSelectedPage =
     "//div[@type='LIST_WIDGET']//li[contains(@class, 'rc-pagination-item-active')]/a";
   private _searchText = "input[type='search']";

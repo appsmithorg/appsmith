@@ -25,20 +25,34 @@ const listData = [
 ];
 
 let dsName: any;
+let userName, userGender;
 
 describe("Verify List widget binding, Server side Pagination & functionalities with Queries and API", function() {
-  it("1. Create new API & verify data on List widget", function() {
-    const apiUrl = `https://mock-api.appsmith.com/users`;
+  before(() => {
+    const apiUrl = `http://host.docker.internal:5001/v1/mock-api?records=10`;
     _.apiPage.CreateAndFillApi(apiUrl, "API1");
     _.apiPage.RunAPI();
+    _.agHelper.GetNClick(_.locators._jsonTab);
+    _.apiPage.ReadApiResponsebyKey("name");
+    cy.get("@apiResp").then((name) => {
+      userName = name.trim();
+    });
+    _.apiPage.ReadApiResponsebyKey("email");
+    cy.get("@apiResp").then((gender) => {
+      userGender = gender.trim();
+    });
     _.agHelper.AssertElementAbsence(
       _.locators._specificToast(
         createMessage(ERROR_ACTION_EXECUTE_FAIL, "API1"),
       ),
     );
     _.apiPage.ResponseStatusCheck("200 OK");
+  });
+
+  it("1. Create new API & verify data on List widget", function() {
+    _.ee.NavigateToSwitcher("widgets")
     _.ee.DragDropWidgetNVerify(WIDGET.LIST, 300, 100);
-    _.propPane.UpdatePropertyFieldValue("Items", "{{API1.data.users}}");
+    _.propPane.UpdatePropertyFieldValue("Items", "{{API1.data}}");
     _.ee.NavigateToSwitcher("explorer");
     _.ee.ExpandCollapseEntity("List1");
     _.ee.ExpandCollapseEntity("Container1");
@@ -46,15 +60,15 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
     _.agHelper.GetNAssertElementText(
       _.locators._textWidget,
-      "Barty Crouch",
+      userName,
       "have.text",
       0,
     );
     _.ee.SelectEntityByName("Text2");
-    _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.id}}");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.email}}");
     _.agHelper.GetNAssertElementText(
       _.locators._textWidget,
-      "1",
+      userGender,
       "have.text",
       1,
     );
@@ -64,15 +78,15 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.ee.SelectEntityByName("List1");
     _.propPane.EnterJSContext(
       "onListItemClick",
-      "{{showAlert('ListWidget_' + currentItem.name + '_' + currentItem.id,'success')}}",
+      "{{showAlert('ListWidget_' + currentItem.name + '_' + currentItem.email,'success')}}",
       true,
     );
     _.deployMode.DeployApp();
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
     _.agHelper.GetNClick(_.locators._containerWidget, 0, true);
-    _.agHelper.AssertContains("ListWidget_Barty Crouch_1");
+    _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userGender);
     _.agHelper.GetNClick(_.locators._containerWidget, 1, true);
-    _.agHelper.AssertContains("ListWidget_Jenelle Kibbys_2");
+    _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userGender);
     _.deployMode.NavigateBacktoEditor();
   });
 
@@ -160,10 +174,10 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
       _.deployMode.NavigateBacktoEditor();
       _.ee.SelectEntityByName("List1", "Widgets");
       _.propPane.ToggleOnOrOff("Server Side Pagination", "Off");
-      _.agHelper.AssertElementAbsence(_.locators._listPaginateItem);
+      _.agHelper.AssertElementAbsence(_.tableV2._liPaginateItem);
       _.deployMode.DeployApp();
       _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
-      _.agHelper.AssertElementAbsence(_.locators._listPaginateItem);
+      _.agHelper.AssertElementAbsence(_.tableV2._liPaginateItem);
       _.deployMode.NavigateBacktoEditor();
       _.agHelper.Sleep();
     });
