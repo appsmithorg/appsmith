@@ -29,17 +29,31 @@ describe("Google Sheets datasource test cases", function() {
     cy.reload();
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Google Sheets");
-    cy.get('[type="radio"]').check("ALL_SHEETS");
-    VerifyFunctionDropdown([
-      "Read Files",
-      "Read, Edit and Create Files",
-      "Read, Edit, Create and Delete Files",
-    ]);
+
+    // Verify that specific sheets is selected by default
+    agHelper.VerifyIfRadioOptionChecked(
+      dataSources._gsRadioButton,
+      "SPECIFIC_SHEETS",
+    );
+
+    // Verify the dropdown options in case of all sheets
+    agHelper.CheckRadioButtonWithValue(
+      dataSources._gsRadioButton,
+      "ALL_SHEETS",
+    );
+    VerifyFunctionDropdown(
+      [
+        "Read Files",
+        "Read, Edit and Create Files",
+        "Read, Edit, Create and Delete Files",
+      ],
+      dataSources._gsScopeDropdown,
+    );
     dataSources.SaveDSFromDialog(false);
   });
 
-  function VerifyFunctionDropdown(scopeOptions: string[]) {
-    agHelper.GetNClick(dataSources._gsScopeDropdown);
+  function VerifyFunctionDropdown(scopeOptions: string[], selector: string) {
+    agHelper.GetNClick(selector);
     cy.get(dataSources._gsScopeOptions).then(function($ele) {
       expect($ele.eq(0).text()).to.be.oneOf(scopeOptions);
       expect($ele.eq(1).text()).to.be.oneOf(scopeOptions);

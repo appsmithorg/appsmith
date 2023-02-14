@@ -18,7 +18,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
-  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10"
+  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10";
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
@@ -1060,6 +1060,27 @@ export class AggregateHelper {
         .eq(index)
         .should("not.be.disabled");
     }
+  }
+
+  public CheckRadioButtonWithValue(
+    selector: ElementType,
+    value: string,
+    index = 0,
+  ) {
+    this.GetElement(selector)
+      .eq(index)
+      .check(value);
+  }
+
+  public VerifyIfRadioOptionChecked(
+    selector: ElementType,
+    value: string,
+    index = 0,
+  ) {
+    this.GetElement(selector)
+      .eq(index)
+      .should("be.checked")
+      .and("have.value", value);
   }
 
   //Not used:

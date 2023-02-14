@@ -80,6 +80,27 @@ public class OAuth2 extends AuthenticationDTO {
 
     String mode;
 
+    @Transient
+    String scopeStringLimitingSheets;
+
+    public String getScopeStringLimitingSheets() {
+        if (scopeStringLimitingSheets != null && !scopeStringLimitingSheets.isBlank()) {
+            return scopeStringLimitingSheets;
+        } else if (this.scope != null && !this.scope.isEmpty()) {
+            return Strings.join(this.scope, ',');
+        } else return null;
+    }
+
+    public void setScopeStringLimitingSheets(String scopeStringLimitingSheets) {
+        this.scopeStringLimitingSheets = scopeStringLimitingSheets;
+        if (scopeStringLimitingSheets != null && !scopeStringLimitingSheets.isBlank() && this.mode != null && this.mode.equals("SPECIFIC_SHEETS")) {
+            this.scope = Arrays.stream(scopeStringLimitingSheets.split(","))
+                    .filter(x -> !StringUtils.isEmpty(x))
+                    .map(String::trim)
+                    .collect(Collectors.toSet());
+        }
+    }
+
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {
             return scopeString;
@@ -90,11 +111,20 @@ public class OAuth2 extends AuthenticationDTO {
 
     public void setScopeString(String scopeString) {
         this.scopeString = scopeString;
-        if (scopeString != null && !scopeString.isBlank()) {
-            this.scope = Arrays.stream(scopeString.split(","))
-                    .filter(x -> !StringUtils.isEmpty(x))
-                    .map(String::trim)
-                    .collect(Collectors.toSet());
+        if (this.mode != null) {
+            if (scopeString != null && !scopeString.isBlank() && this.mode.equals("ALL_SHEETS")) {
+                this.scope = Arrays.stream(scopeString.split(","))
+                        .filter(x -> !StringUtils.isEmpty(x))
+                        .map(String::trim)
+                        .collect(Collectors.toSet());
+            }
+        } else {
+            if (scopeString != null && !scopeString.isBlank()) {
+                this.scope = Arrays.stream(scopeString.split(","))
+                        .filter(x -> !StringUtils.isEmpty(x))
+                        .map(String::trim)
+                        .collect(Collectors.toSet());
+            }
         }
     }
 

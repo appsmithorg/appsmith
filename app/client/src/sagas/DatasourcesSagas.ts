@@ -338,6 +338,10 @@ function* updateDatasourceSaga(
         datasourcePayload,
         "datasourceConfiguration.authentication.mode",
       );
+      datasourcePayload = _.omit(
+        datasourcePayload,
+        "datasourceConfiguration.authentication.scopeStringLimitingSheets",
+      );
     }
 
     const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(

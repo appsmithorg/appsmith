@@ -89,6 +89,18 @@
           "initialValue": "SPECIFIC_SHEETS",
           "schema": [
             {
+              "label": "Scope",
+              "configProperty": "datasourceConfiguration.authentication.scopeStringLimitingSheets",
+              "controlType": "DROP_DOWN",
+              "isRequired": true,
+              "disabled": true,
+              "options": [
+                {
+                  "label": "Read, Edit, Create and Delete Files",
+                  "value": "https://www.googleapis.com/auth/drive.file"
+                }
+              ],
+              "initialValue": "https://www.googleapis.com/auth/drive.file",
               "helpText": "Select the google sheets that you want to use as a data source."
             },
             {
