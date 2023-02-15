@@ -1270,6 +1270,22 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add(
+  "openPropertyPaneByWidgetName",
+  (widgetName, widgetType) => {
+    const selector = `[data-widgetname-cy="${widgetName}"] .t--draggable-${widgetType}`;
+    cy.wait(500);
+    cy.get(selector)
+      .trigger("mouseover", { force: true })
+      .wait(500);
+    cy.get(`${selector} .t--widget-propertypane-toggle > .t--widget-name`)
+      .first()
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+  },
+);
+
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
   if (widgetType === "List1Copy") {
     cy.SearchEntityandOpen(widgetType);
