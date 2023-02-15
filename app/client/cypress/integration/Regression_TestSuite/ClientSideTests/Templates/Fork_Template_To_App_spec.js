@@ -107,4 +107,5 @@ describe("Fork a template to the current app", () => {
       "template added successfully",
     );
   });
+  
 });
