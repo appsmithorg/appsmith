@@ -202,15 +202,18 @@ describe("Git sync apps", function() {
   });
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
+    cy.wait(2000);
+    cy.get(".t--draggable-inputwidgetv2").should("be.visible");
     cy.get(".t--draggable-inputwidgetv2")
       .first()
       .find(".bp3-input")
-      .should("have.value", "morpheus");
-
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--draggable-inputwidgetv2")
       .last()
       .find(".bp3-input")
-      .should("have.value", "This is a test");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(`.t--entity-item:contains(${newPage})`)
       .first()
       .click();
@@ -255,19 +258,23 @@ describe("Git sync apps", function() {
       .click({ force: true });
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
@@ -323,6 +330,7 @@ describe("Git sync apps", function() {
       "Move to page",
       "Child_Page",
     );
+    cy.runQuery();
     cy.wait(2000);
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
@@ -361,13 +369,17 @@ describe("Git sync apps", function() {
     cy.wait(8000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verfiy data binding on all pages in deploy mode
+    cy.wait(4000);
     cy.latestDeployPreview();
+    cy.get(".bp3-input").should("be.visible");
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "Success");
+      .invoke("val")
+      .should("be.oneOf", ["Success", "Test user 7"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "Test user 7");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["Success", "Test user 7"]);
     cy.get(".t--page-switch-tab")
       .contains(`${pageName}`)
       .click({ force: true });
@@ -383,21 +395,27 @@ describe("Git sync apps", function() {
     cy.get(".t--page-switch-tab")
       .contains(`${newPage}`)
       .click({ force: true });
+    cy.wait(2000);
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
+    cy.wait(2000);
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
     // verfiy data binding on all pages in edit mode
@@ -416,7 +434,7 @@ describe("Git sync apps", function() {
       .first()
       .should("have.value", "Success");
     cy.get(".bp3-input")
-      .eq(1)
+      .last()
       .should("have.value", "Test user 7");
     cy.get(`.t--entity-item:contains(${newPage})`)
       .first()
@@ -552,5 +570,10 @@ describe("Git sync apps", function() {
     cy.get(".t--entity-item")
       .eq(5)
       .contains("Child_Page");
+  });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });

@@ -43,3 +43,9 @@ export const getDefaultAdminSettingsPath = (
 export const showAdminSettings = (user?: User): boolean => {
   return (user?.isSuperUser && user?.isConfigurable) || false;
 };
+
+export const getLoginUrl = (method: string): string => {
+  const urls: Record<string, string> = {};
+
+  return urls[method];
+};

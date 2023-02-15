@@ -77,7 +77,6 @@ module.exports = {
         CONFIG_LOG_LEVEL_INDEX > -1
           ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]
           : LOG_LEVELS[1],
-      google: parseConfig("__APPSMITH_GOOGLE_MAPS_API_KEY__"),
       cloudHosting: "CLOUD_HOSTING",
       enableTNCPP: parseConfig("__APPSMITH_TNC_PP__"),
       appVersion: {
