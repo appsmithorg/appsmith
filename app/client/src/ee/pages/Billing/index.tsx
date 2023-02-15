@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-// import { getAllAclUsers } from "@appsmith/selectors/aclSelectors";
 import {
   ACTIVATE,
   ADMIN_BILLING_SETTINGS_SUBTITLE,
@@ -12,11 +10,9 @@ import {
   BILLING_AND_USAGE,
   createMessage,
   LICENSE_EXPIRY_DATE,
-  // NUMBER_OF_SELF_HOSTED_USERS,
   OPEN_CUSTOMER_PORTAL,
   PASTE_LICENSE_KEY,
   UPDATE,
-  // TOTAL_USERS_MESSAGE,
   UPDATE_LICENSE,
   YOUR_LICENSE_KEY,
 } from "@appsmith/constants/messages";
@@ -24,7 +20,6 @@ import { BillingPageHeader } from "./Header";
 import {
   BillingPageWrapper,
   HeaderText,
-  // UserCount,
   StyledDialog,
   DialogWrapper,
   FlexWrapper,
@@ -32,7 +27,7 @@ import {
 } from "./styles";
 import { BillingPageContent } from "./BillingPageContent";
 import { CtaText } from "./CTAText";
-import { BillingDashboardCard, CTATextType } from "./types";
+import { BillingDashboardCard, CTATextType, LICENSE_ORIGIN } from "./types";
 import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
 import { StatusBadge, Status } from "./StatusBadge";
 import {
@@ -40,6 +35,7 @@ import {
   isTrialLicense,
   getLicenseExpiry,
   getLicenseStatus,
+  getLicenseOrigin,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
 
@@ -65,41 +61,19 @@ const statusTextMap: Partial<Record<Status, string>> = {
 };
 
 export function Billing() {
-  const dispatch = useDispatch();
   const licenseKey = useSelector(getLicenseKey);
   const isTrial = useSelector(isTrialLicense);
   const expiryDate = useSelector(getLicenseExpiry);
   const licenseStatus = useSelector(getLicenseStatus);
+  const isSelfServe =
+    useSelector(getLicenseOrigin) !== LICENSE_ORIGIN.ENTERPRISE;
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    // API call to get the total users
-    dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
-  }, []);
+  const cards: BillingDashboardCard[] = [];
 
-  // We will need this later, for now just commenting this out.
-  // const TOTAL_USERS = useSelector(getAllAclUsers)?.length;
-
-  const cards: BillingDashboardCard[] = [
-    /* {
-      icon: "group-line",
-      title: (
-        <HeaderText type={TextType.H3} weight="700">
-          {createMessage(TOTAL_USERS_MESSAGE)}
-        </HeaderText>
-      ),
-      subtitle: (
-        <Text type={TextType.P1}>
-          {createMessage(NUMBER_OF_SELF_HOSTED_USERS)}
-        </Text>
-      ),
-      value: (
-        <UserCount type={TextType.H1} weight="600">
-          {TOTAL_USERS}
-        </UserCount>
-      ),
-    },*/
-    {
+  // Push billing card only if the license is self-serve
+  if (isSelfServe) {
+    cards.push({
       icon: "money-dollar-circle-line",
       title: (
         <HeaderText type={TextType.H3} weight="700">
@@ -107,36 +81,38 @@ export function Billing() {
         </HeaderText>
       ),
       subtitle: <CtaText {...CtaConfig} />,
-    },
-    {
-      icon: "key-2-line",
-      title: (
-        <FlexWrapper align="center" dir="row">
-          <HeaderText type={TextType.H3} weight="700">
-            {createMessage(YOUR_LICENSE_KEY)}
-          </HeaderText>
-          <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
-        </FlexWrapper>
-      ),
-      content: (
-        <FlexWrapper dir="column">
-          <Text type={TextType.H2}>{licenseKey}</Text>
-          {isTrial && (
-            <Text color={Colors.GREEN} type={TextType.P1} weight="500">
-              {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
-            </Text>
-          )}
-        </FlexWrapper>
-      ),
-      subtitle: (
-        <CtaText
-          {...CtaConfig}
-          action={() => setIsOpen(true)}
-          text={createMessage(UPDATE)}
-        />
-      ),
-    },
-  ];
+    });
+  }
+
+  // Push remaining cards
+  cards.push({
+    icon: "key-2-line",
+    title: (
+      <FlexWrapper align="center" dir="row">
+        <HeaderText type={TextType.H3} weight="700">
+          {createMessage(YOUR_LICENSE_KEY)}
+        </HeaderText>
+        <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
+      </FlexWrapper>
+    ),
+    content: (
+      <FlexWrapper dir="column">
+        <Text type={TextType.H2}>{licenseKey}</Text>
+        {isTrial && (
+          <Text color={Colors.GREEN} type={TextType.P1} weight="500">
+            {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
+          </Text>
+        )}
+      </FlexWrapper>
+    ),
+    subtitle: (
+      <CtaText
+        {...CtaConfig}
+        action={() => setIsOpen(true)}
+        text={createMessage(UPDATE)}
+      />
+    ),
+  });
 
   return (
     <BillingPageWrapper>

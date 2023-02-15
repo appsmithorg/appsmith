@@ -107,3 +107,6 @@ export const isAdminUser = (state: AppState) =>
 
 export const isLicenseValidating = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.validatingLicense;
+
+export const getLicenseOrigin = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.origin;

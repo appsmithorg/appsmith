@@ -20,11 +20,13 @@ export interface License {
   key: string;
   type: string;
   id: string;
+  status: string;
   expiry: number;
   showBEBanner: boolean;
   closedBannerAlready: boolean;
   invalidLicenseKeyError: boolean;
   validatingLicense: boolean;
+  origin?: string;
 }
 
 const INITIAL_BRAND_COLOR = "#000";
