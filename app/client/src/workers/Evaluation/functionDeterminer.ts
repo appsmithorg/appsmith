@@ -1,8 +1,8 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import userLogs from "./UserLog";
 import { jsVariableUpdates } from "./JSObject/JSVariableUpdates";
+import userLogs from "./fns/overrides/console";
 
 class FunctionDeterminer {
   private evalContext: EvalContext = {};
@@ -10,8 +10,8 @@ class FunctionDeterminer {
   setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
-      ALLOW_SYNC: true,
-      IS_SYNC: true,
+      $isDataField: true,
+      $isAsync: false,
     };
 
     jsVariableUpdates.disable();
@@ -22,10 +22,7 @@ class FunctionDeterminer {
       isTriggerBased: true,
     });
 
-    assignJSFunctionsToContext({
-      EVAL_CONTEXT: evalContext,
-      resolvedFunctions,
-    });
+    assignJSFunctionsToContext(evalContext, resolvedFunctions, true);
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -48,23 +45,19 @@ class FunctionDeterminer {
   }
 
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {
-    self.TRIGGER_COLLECTOR = [];
-    self.IS_SYNC = true;
-    self.ALLOW_SYNC = true;
+    self["$isDataField"] = true;
+    self["$isAsync"] = false;
 
     return (function() {
       try {
         if (typeof userFunction === "function") {
           if (userFunction.constructor.name === "AsyncFunction") {
             // functions declared with an async keyword
-            self.IS_SYNC = false;
+            self["$isAsync"] = true;
           } else {
             const returnValue = userFunction();
             if (!!returnValue && returnValue instanceof Promise) {
-              self.IS_SYNC = false;
-            }
-            if (self.TRIGGER_COLLECTOR.length) {
-              self.IS_SYNC = false;
+              self["$isAsync"] = true;
             }
           }
         }
@@ -73,7 +66,7 @@ class FunctionDeterminer {
         // logLevel should help us in debugging this.
         logs.push({ error: "Error when determining async function " + e });
       }
-      const isAsync = !self.IS_SYNC;
+      const isAsync = !!self["$isAsync"];
 
       return isAsync;
     })();

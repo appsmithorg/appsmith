@@ -16,6 +16,7 @@ export interface WidgetConfiguration {
   iconSVG?: string;
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
+  eagerRender?: boolean;
   isDeprecated?: boolean;
   replacement?: string;
   isCanvas?: boolean;
@@ -23,6 +24,7 @@ export interface WidgetConfiguration {
   features?: WidgetFeatures;
   canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
+  needsHeightForContent?: boolean;
   properties: {
     config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
@@ -51,12 +53,19 @@ export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
 
-const staticProps = omit(WIDGET_STATIC_PROPS, "children");
+const staticProps = omit(
+  WIDGET_STATIC_PROPS,
+  "children",
+  "topRowBeforeCollapse",
+  "bottomRowBeforeCollapse",
+);
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
   keyof typeof staticProps
 > & {
   children?: CanvasWidgetStructure[];
+  selected?: boolean;
+  onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
 };
 
 export enum FileDataTypes {

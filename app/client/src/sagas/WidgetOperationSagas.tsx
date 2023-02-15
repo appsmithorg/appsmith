@@ -28,6 +28,7 @@ import {
   batchUpdateWidgetProperty,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
+  updateMultipleWidgetPropertiesAction,
   UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
@@ -56,9 +57,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
-  getCanvasHeightOffset,
-  getContainerWidgetSpacesSelector,
   getCurrentPageId,
+  getContainerWidgetSpacesSelector,
 } from "selectors/editorSelectors";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
@@ -78,6 +78,7 @@ import {
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
   WIDGET_COPY,
   WIDGET_CUT,
+  ERROR_WIDGET_CUT_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
 
 import {
@@ -96,7 +97,6 @@ import {
   getNewPositionsForCopiedWidgets,
   getNextWidgetName,
   getOccupiedSpacesFromProps,
-  getParentBottomRowAfterAddingWidget,
   getParentWidgetIdForGrouping,
   getParentWidgetIdForPasting,
   getPastePositionMapFromMousePointer,
@@ -142,58 +142,10 @@ import { flashElementsById } from "utils/helpers";
 import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
-import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-
-export function* updateAllChildCanvasHeights(
-  currentContainerLikeWidgetId: string,
-  topRow: number,
-  bottomRow: number,
-  allWidgets?: CanvasWidgetsReduxState,
-) {
-  const containerLikeWidget: FlattenedWidgetProps = yield select(
-    getWidget,
-    currentContainerLikeWidgetId,
-  );
-  let stateWidgets: CanvasWidgetsReduxState | undefined = allWidgets;
-  if (!stateWidgets) stateWidgets = yield select(getWidgets);
-  const canvasHeightOffset: number = getCanvasHeightOffset(
-    containerLikeWidget.type,
-    containerLikeWidget,
-  );
-  const containerLikeWidgetHeightInPx: number =
-    (bottomRow - topRow - canvasHeightOffset) *
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-  const widgets = { ...stateWidgets };
-  if (Array.isArray(containerLikeWidget.children)) {
-    containerLikeWidget.children.forEach((childWidgetId: string) => {
-      const childWidget = { ...widgets[childWidgetId] };
-      if (Array.isArray(childWidget.children)) {
-        const maxChildBottomRow = childWidget.children.reduce((prev, next) => {
-          return widgets[next].bottomRow > prev
-            ? widgets[next].bottomRow
-            : prev;
-        }, 0);
-        const maxHeightBasedOnChildrenInPx =
-          maxChildBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-        const finalHeight = Math.max(
-          containerLikeWidgetHeightInPx,
-          maxHeightBasedOnChildrenInPx,
-        );
-        widgets[childWidgetId] = {
-          ...childWidget,
-          bottomRow: finalHeight,
-          minHeight: finalHeight,
-        };
-      }
-    });
-  }
-  return widgets;
-}
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -216,7 +168,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
-    let movedWidgets: {
+    const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(
       reflowWidgets,
@@ -224,13 +176,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       widget,
       snapColumnSpace,
       snapRowSpace,
-    );
-
-    movedWidgets = yield updateAllChildCanvasHeights(
-      widgetId,
-      topRow,
-      bottomRow,
-      movedWidgets,
     );
 
     const updatedCanvasBottomRow: number = yield call(
@@ -670,6 +615,7 @@ function* batchUpdateWidgetPropertySaga(
   };
   log.debug(
     "Batch widget property update calculations took: ",
+    action,
     performance.now() - start,
     "ms",
   );
@@ -854,7 +800,7 @@ function* updateCanvasSize(
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
     yield put(
-      updateMultipleWidgetProperties({
+      updateMultipleWidgetPropertiesAction({
         [canvasWidgetId]: [
           {
             propertyPath: "bottomRow",
@@ -1352,7 +1298,6 @@ function* pasteWidgetSaga(
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
   let reflowedMovementMap,
-    bottomMostRow: number | undefined,
     gridProps: GridProps | undefined,
     newPastingPositionMap: SpaceMap | undefined,
     canvasId;
@@ -1386,7 +1331,6 @@ function* pasteWidgetSaga(
     // If there are already widgets inside the selection box even before grouping
     //then we will have to move it down to the bottom most row
     ({
-      bottomMostRow,
       copiedWidgetGroups,
       gridProps,
       reflowedMovementMap,
@@ -1420,7 +1364,6 @@ function* pasteWidgetSaga(
     // new pasting positions, the variables are undefined if the positions cannot be calculated,
     // then it pastes the regular way at the bottom of the canvas
     ({
-      bottomMostRow,
       canvasId,
       gridProps,
       newPastingPositionMap,
@@ -1617,16 +1560,11 @@ function* pasteWidgetSaga(
               // Add the new child to existing children
               parentChildren = parentChildren.concat(widgetChildren);
             }
-            const parentBottomRow = getParentBottomRowAfterAddingWidget(
-              widgets[pastingParentId],
-              widget,
-            );
 
             widgets = {
               ...widgets,
               [pastingParentId]: {
                 ...widgets[pastingParentId],
-                bottomRow: Math.max(parentBottomRow, bottomMostRow || 0),
                 children: parentChildren,
               },
             };
@@ -1741,6 +1679,18 @@ function* cutWidgetSaga() {
   if (!selectedWidgets) {
     Toaster.show({
       text: createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED),
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const allAllowedToCut = selectedWidgets.some((each) => {
+    return allWidgets[each] && !allWidgets[each].disallowCopy;
+  });
+
+  if (!allAllowedToCut) {
+    Toaster.show({
+      text: createMessage(ERROR_WIDGET_CUT_NOT_ALLOWED),
       variant: Variant.info,
     });
     return;
