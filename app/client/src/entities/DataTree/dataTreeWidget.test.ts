@@ -298,6 +298,7 @@ describe("generateDataTreeWidget", () => {
         "meta.text": ["text"],
       },
       privateWidgets: {},
+      isMetaPropDirty: true,
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);
