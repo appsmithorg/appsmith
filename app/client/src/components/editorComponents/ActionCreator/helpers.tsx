@@ -418,28 +418,6 @@ function getApiAndQueryOptions(
     (action) => action.value === AppsmithFunction.integration,
   );
 
-  const apiOptions = actionList.find(
-    (action) => action.value === AppsmithFunction.runAPI,
-  );
-
-  if (apiOptions) {
-    apiOptions.children = [{ ...createQueryObject, label: "New API" }];
-
-    apis.forEach((api) => {
-      (apiOptions.children as TreeDropdownOption[]).push({
-        label: api.config.name,
-        id: api.config.id,
-        value: api.config.name,
-        type: apiOptions.value,
-        icon: getActionConfig(api.config.pluginType)?.getIcon(
-          api.config,
-          plugins[(api as any).config.datasource.pluginId],
-          api.config.pluginType === PluginType.API,
-        ),
-      } as TreeDropdownOption);
-    });
-  }
-
   if (queryOptions) {
     queryOptions.children = [createQueryObject];
 
@@ -452,6 +430,20 @@ function getApiAndQueryOptions(
         icon: getActionConfig(query.config.pluginType)?.getIcon(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
+        ),
+      } as TreeDropdownOption);
+    });
+
+    apis.forEach((api) => {
+      (queryOptions.children as TreeDropdownOption[]).push({
+        label: api.config.name,
+        id: api.config.id,
+        value: api.config.name,
+        type: queryOptions.value,
+        icon: getActionConfig(api.config.pluginType)?.getIcon(
+          api.config,
+          plugins[(api as any).config.datasource.pluginId],
+          api.config.pluginType === PluginType.API,
         ),
       } as TreeDropdownOption);
     });

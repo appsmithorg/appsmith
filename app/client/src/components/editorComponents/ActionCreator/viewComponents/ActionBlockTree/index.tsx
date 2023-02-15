@@ -56,10 +56,9 @@ export const ActionBlockTree: React.FC<Props> = ({
       ({ actionType }) => actionType !== AppsmithFunction.none,
     ).length;
 
-  const areCallbacksApplicable = [
-    AppsmithFunction.runAPI,
-    AppsmithFunction.integration,
-  ].includes(actionType as any);
+  const areCallbacksApplicable = [AppsmithFunction.integration].includes(
+    actionType as any,
+  );
 
   const showCallbacks = selected || actionExpanded;
 

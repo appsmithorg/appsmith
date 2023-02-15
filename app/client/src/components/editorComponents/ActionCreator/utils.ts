@@ -297,9 +297,7 @@ export function codeToAction(
     AppsmithFunction.none) as any;
 
   if (
-    [AppsmithFunction.runAPI, AppsmithFunction.integration].includes(
-      mainActionType,
-    ) &&
+    [AppsmithFunction.integration].includes(mainActionType) &&
     multipleActions
   ) {
     const successCallbacks = getFuncExpressionAtPosition(
@@ -356,9 +354,7 @@ export function actionToCode(
   }
 
   if (
-    [AppsmithFunction.runAPI, AppsmithFunction.integration].includes(
-      actionType as any,
-    ) &&
+    [AppsmithFunction.integration].includes(actionType as any) &&
     multipleActions
   ) {
     const successCallbackCodes = successCallbacks

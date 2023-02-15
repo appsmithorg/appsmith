@@ -48,7 +48,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       let defaultArgs: Array<any> = [];
       switch (type) {
         case AppsmithFunction.integration:
-        case AppsmithFunction.runAPI:
           value = `${value}.run(() => {}, () => {}, {})`;
           break;
         case AppsmithFunction.jsFunction:
@@ -62,11 +61,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       //   return `{{${value}(${defaultArgs})}}`;
       if (defaultParams && defaultParams.length)
         return `{{${value}(${defaultParams})}}`;
-      if (
-        [AppsmithFunction.integration, AppsmithFunction.runAPI].includes(
-          type as any,
-        )
-      )
+      if ([AppsmithFunction.integration].includes(type as any))
         return `{{${value}}}`;
       return `{{${value}()}}`;
     },

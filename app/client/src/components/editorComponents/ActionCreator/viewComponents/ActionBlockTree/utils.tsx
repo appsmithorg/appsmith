@@ -56,9 +56,6 @@ function getIconForAction(
     case AppsmithFunction.jsFunction:
       return ExecuteJs;
 
-    case AppsmithFunction.integration:
-      return ExecuteQuery;
-
     case AppsmithFunction.closeModal:
     case AppsmithFunction.showModal:
       return Modal;
@@ -87,20 +84,26 @@ function getIconForAction(
     case AppsmithFunction.stopWatchGeolocation:
       return StopWatchGeolocation;
 
-    case AppsmithFunction.runAPI:
+    case AppsmithFunction.integration:
       const functionName = getFunctionName(
         getCodeFromMoustache(code),
         self.evaluationVersion,
       );
       const apiName = functionName.split(".")[0];
       const apiAction = actions.find(({ config }) => config.name === apiName);
-      let method: keyof typeof HTTP_METHOD = "GET";
 
       if (apiAction) {
-        method = apiAction.config.actionConfiguration.httpMethod;
+        const method: keyof typeof HTTP_METHOD =
+          apiAction.config.actionConfiguration.httpMethod;
+
+        if (method) {
+          return () => (
+            <ApiMethodIcon height="12px" type={method} width="28px" />
+          );
+        }
       }
 
-      return () => <ApiMethodIcon height="12px" type={method} width="28px" />;
+      return ExecuteQuery;
 
     case AppsmithFunction.postWindowMessage:
       return () => <Icon name="post-message" />;
@@ -140,7 +143,6 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
       );
       return fileName ? fileName : "Add data to download";
 
-    case AppsmithFunction.runAPI:
     case AppsmithFunction.jsFunction:
       return (
         getFunctionName(getCodeFromMoustache(code), self.evaluationVersion) +

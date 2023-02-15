@@ -23,7 +23,6 @@ export enum APPSMITH_NAMESPACED_FUNCTIONS {
 export enum APPSMITH_INTEGRATIONS {
   none = "none",
   integration = "integration",
-  runAPI = "runAPI",
   jsFunction = "jsFunction",
 }
 

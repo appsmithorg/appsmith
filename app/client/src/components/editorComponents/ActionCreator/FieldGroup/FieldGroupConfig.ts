@@ -15,7 +15,6 @@ import {
   POST_MESSAGE,
   REMOVE_VALUE,
   RESET_WIDGET,
-  RUN_API,
   SET_INTERVAL,
   SHOW_MESSAGE,
   STOP_WATCH_GEO_LOCATION,
@@ -44,13 +43,6 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     children: [{ label: "", value: "" }],
     defaultParams: "",
     icon: "execute-js",
-  },
-  [AppsmithFunction.runAPI]: {
-    label: createMessage(RUN_API),
-    fields: [],
-    children: [{ label: "", value: "" }],
-    defaultParams: "",
-    icon: "run-api",
   },
   [AppsmithFunction.navigateTo]: {
     label: createMessage(NAVIGATE_TO),
