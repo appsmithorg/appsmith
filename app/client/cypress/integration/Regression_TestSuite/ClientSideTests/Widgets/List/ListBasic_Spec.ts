@@ -50,7 +50,6 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
   });
 
   it("1. Create new API & verify data on List widget", function() {
-    _.ee.NavigateToSwitcher("widgets")
     _.ee.DragDropWidgetNVerify(WIDGET.LIST, 300, 100);
     _.propPane.UpdatePropertyFieldValue("Items", "{{API1.data}}");
     _.ee.NavigateToSwitcher("explorer");

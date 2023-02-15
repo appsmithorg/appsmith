@@ -16,7 +16,7 @@ export const WIDGET = {
   SELECT: "selectwidget",
   MULTITREESELECT: "multiselecttreewidget",
   RADIO_GROUP: "radiogroupwidget",
-  LIST: "listwidget",
+  LIST: "listwidgetv2",
   RATING: "ratewidget",
   CHECKBOXGROUP: "checkboxgroupwidget",
   CHECKBOX: "checkboxwidget",
