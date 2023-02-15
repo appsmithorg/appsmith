@@ -865,7 +865,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.assertPageSave();
-
+    cy.wait(2000);
     cy.PublishtheApp();
 
     //Verify Background color
@@ -876,7 +876,7 @@ describe("App Theming funtionality", function() {
     ); //new widget with its own color
 
     ////old widgets still conforming to theme color
-    cy.get(".t--widget-buttonwidget:nth-child(2) button").should(
+    cy.get(".t--widget-buttonwidget button").should(
       "have.css",
       "background-color",
       "rgb(126, 34, 206)",

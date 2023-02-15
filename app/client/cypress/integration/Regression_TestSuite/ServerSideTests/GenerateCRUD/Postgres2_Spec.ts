@@ -438,12 +438,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
 
     //Checking Required field validations
-    deployMode.ClearJSONFieldValue("Shipname", 1);
+    deployMode.ClearJSONFieldValue("Shipname", 0);
     cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
-    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 0);
     cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "not.have.attr",
       "disabled",
