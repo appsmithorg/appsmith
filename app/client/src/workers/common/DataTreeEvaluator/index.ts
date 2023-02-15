@@ -44,6 +44,7 @@ import {
   getAllPaths,
   isValidEntity,
   isNewEntity,
+  getStaleMetaStateIds,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -99,10 +100,6 @@ import {
 } from "./validationUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
 import userLogs from "workers/Evaluation/fns/overrides/console";
-import {
-  isMetaWidgetTemplate,
-  isWidgetDefaultPropertyPath,
-} from "entities/DataTree/utils";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
 type SortedDependencies = Array<string>;
@@ -530,6 +527,7 @@ export default class DataTreeEvaluator {
     evaluationOrder: string[],
     nonDynamicFieldValidationOrder: string[],
     unevalUpdates: DataTreeDiff[],
+    metaWidgetIds: string[] = [],
   ): {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
@@ -543,7 +541,12 @@ export default class DataTreeEvaluator {
       this.evalTree,
       this.resolvedFunctions,
       evaluationOrder,
-      { skipRevalidation: false, isFirstTree: false, unevalUpdates },
+      {
+        skipRevalidation: false,
+        isFirstTree: false,
+        unevalUpdates,
+        metaWidgets: metaWidgetIds,
+      },
     );
     const evaluationEndTime = performance.now();
     const reValidateStartTime = performance.now();
@@ -671,7 +674,13 @@ export default class DataTreeEvaluator {
       skipRevalidation: boolean;
       isFirstTree: boolean;
       unevalUpdates: DataTreeDiff[];
-    } = { skipRevalidation: true, isFirstTree: true, unevalUpdates: [] },
+      metaWidgets: string[];
+    } = {
+      skipRevalidation: true,
+      isFirstTree: true,
+      unevalUpdates: [],
+      metaWidgets: [],
+    },
   ): {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
@@ -680,7 +689,12 @@ export default class DataTreeEvaluator {
     const tree = klona(oldUnevalTree);
     errorModifier.updateAsyncFunctions(tree);
     const evalMetaUpdates: EvalMetaUpdates = [];
-    const { isFirstTree, skipRevalidation, unevalUpdates } = options;
+    const {
+      isFirstTree,
+      metaWidgets,
+      skipRevalidation,
+      unevalUpdates,
+    } = options;
     let staleMetaIds: string[] = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
@@ -772,7 +786,12 @@ export default class DataTreeEvaluator {
                 });
               }
               staleMetaIds = staleMetaIds.concat(
-                this.getStaleMetaStateIds(entity, propertyPath),
+                getStaleMetaStateIds({
+                  entity,
+                  propertyPath,
+                  isNewWidget,
+                  metaWidgets,
+                }),
               );
 
               return currentTree;
@@ -840,13 +859,18 @@ export default class DataTreeEvaluator {
         },
         tree,
       );
-      return { evaluatedTree, evalMetaUpdates, staleMetaIds };
+
+      return {
+        evaluatedTree,
+        evalMetaUpdates,
+        staleMetaIds: staleMetaIds,
+      };
     } catch (error) {
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds };
+      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds: [] };
     }
   }
 
@@ -1368,13 +1392,6 @@ export default class DataTreeEvaluator {
         },
       );
     });
-  }
-  // When a default value changes, meta values of metaWidgets not present in the unevalTree becomes stale
-  getStaleMetaStateIds(entity: DataTreeWidget, propertyPath: string) {
-    return isWidgetDefaultPropertyPath(entity, propertyPath) &&
-      isMetaWidgetTemplate(entity)
-      ? (entity.siblingMetaWidgets as string[])
-      : [];
   }
 
   clearErrors() {

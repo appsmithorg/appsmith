@@ -17,6 +17,7 @@ import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
@@ -37,11 +38,16 @@ export const getWidgetsForEval = createSelector(getWidgets, (widgets) => {
   return widgetForEval;
 });
 
+export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
+  return state.entities.metaWidgets;
+};
+
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
 export const getWidgetMetaProps = createSelector(
-  [getWidgetsMeta, (_state: AppState, widgetId: string) => widgetId],
-  (metaState, widgetId: string) => metaState[widgetId],
+  [getWidgetsMeta, (_state: AppState, widget: WidgetProps) => widget],
+  (metaState, widget: WidgetProps) =>
+    metaState[widget.metaWidgetId || widget.widgetId],
 );
 
 export const getWidgetByID = (widgetId: string) => {

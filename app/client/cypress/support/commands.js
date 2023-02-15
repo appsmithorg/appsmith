@@ -1187,7 +1187,9 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 
 Cypress.Commands.add("CheckForPageSaveError", () => {
   // Wait for "saving" status to disappear
-  cy.get(commonlocators.statusSaving).should("not.exist");
+  cy.get(commonlocators.statusSaving, {
+    timeout: 60000,
+  }).should("not.exist");
   // Check for page save error
   cy.get("body").then(($ele) => {
     if ($ele.find(commonlocators.saveStatusError).length) {
@@ -1884,33 +1886,7 @@ Cypress.Commands.add("StartContainer", (path, containerName) => {
 });
 
 Cypress.Commands.add(
-  "StartCEContainer",
-  (url, path, version, containerName) => {
-    let comm =
-      "docker run -d --name " +
-      containerName +
-      ' -p 8081:80 -p 9002:9002 -v "' +
-      path +
-      '/stacks:/appsmith-stacks" -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 ' +
-      version;
-
-    cy.log(comm);
-    cy.request({
-      method: "GET",
-      url: url,
-      qs: {
-        cmd: comm,
-      },
-    }).then((res) => {
-      cy.log("ContainerID", res.body.stdout);
-      cy.log(res.body.stderr);
-      expect(res.status).equal(200);
-    });
-  },
-);
-
-Cypress.Commands.add(
-  "StartEEContainer",
+  "StartNewContainer",
   (url, path, version, containerName) => {
     let comm =
       "docker run -d --name " +
@@ -1928,7 +1904,8 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
-      cy.log(res.body.stdout, res.body.stderr);
+      cy.log("ContainerID", res.body.stdout);
+      cy.log(res.body.stderr);
       expect(res.status).equal(200);
     });
   },
@@ -2030,6 +2007,22 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
   cy.wait(3000);
   initLocalstorage();
 });
+
+Cypress.Commands.add(
+  "RenameWidgetFromPropertyPane",
+  (widgetType, oldName, newName) => {
+    cy.openPropertyPaneByWidgetName(oldName, widgetType);
+    cy.get(".t--property-pane-title").click({ force: true });
+    cy.get(".t--property-pane-title")
+      .type(newName, { delay: 300 })
+      .type("{enter}");
+    cy.wait("@updateWidgetName").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  },
+);
 
 Cypress.Commands.add("execute", (url, command) => {
   cy.request({
