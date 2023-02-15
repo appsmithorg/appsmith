@@ -186,6 +186,7 @@ describe("Entity Explorer tests", () => {
         SelectionRequestType.One,
         ["tabsWidgetId"],
         NavigationMethod.EntityExplorer,
+        undefined,
       );
     });
 
@@ -216,6 +217,7 @@ describe("Entity Explorer tests", () => {
         SelectionRequestType.One,
         ["checkboxWidgetId"],
         NavigationMethod.EntityExplorer,
+        undefined,
       );
 
       act(() => {
@@ -227,6 +229,7 @@ describe("Entity Explorer tests", () => {
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.PushPop,
         ["switchWidgetId"],
+        undefined,
         undefined,
       );
     });
@@ -262,6 +265,7 @@ describe("Entity Explorer tests", () => {
         SelectionRequestType.One,
         ["checkboxWidgetId"],
         NavigationMethod.EntityExplorer,
+        undefined,
       );
 
       act(() => {
@@ -274,6 +278,7 @@ describe("Entity Explorer tests", () => {
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.ShiftSelect,
         ["buttonWidgetId"],
+        undefined,
         undefined,
       );
     });
@@ -340,6 +345,7 @@ describe("Entity Explorer tests", () => {
         SelectionRequestType.One,
         [containerId],
         NavigationMethod.EntityExplorer,
+        undefined,
       );
 
       const collapsible: any = component.container.querySelector(
@@ -360,6 +366,7 @@ describe("Entity Explorer tests", () => {
         SelectionRequestType.ShiftSelect,
         ["buttonWidgetId"],
         undefined,
+        undefined,
       );
 
       const checkBoxWidget: any = component.queryByText(children[0].widgetName);
@@ -372,6 +379,7 @@ describe("Entity Explorer tests", () => {
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.ShiftSelect,
         ["checkboxWidgetId"],
+        undefined,
         undefined,
       );
       const chartWidget: any = component.queryByText(
@@ -386,6 +394,7 @@ describe("Entity Explorer tests", () => {
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.ShiftSelect,
         ["chartWidgetId"],
+        undefined,
         undefined,
       );
     });

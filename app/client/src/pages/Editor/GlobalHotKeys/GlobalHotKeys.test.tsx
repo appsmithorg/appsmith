@@ -154,6 +154,7 @@ describe("Canvas Hot Keys", () => {
         SelectionRequestType.One,
         ["tabsWidgetId"],
         undefined,
+        undefined,
       );
       spyWidgetSelection.mockClear();
 
@@ -299,6 +300,7 @@ describe("Canvas Hot Keys", () => {
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.One,
         ["tabsWidgetId"],
+        undefined,
         undefined,
       );
       spyWidgetSelection.mockClear();
