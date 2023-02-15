@@ -12,6 +12,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import moment from "moment";
 import { DatePickerType } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 function defaultDateValidation(
   value: unknown,
@@ -24,14 +25,19 @@ function defaultDateValidation(
     return {
       isValid: true,
       parsed: "",
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
   if (value === undefined) {
     return {
       isValid: false,
       parsed: "",
-      messages: [`This value does not evaluate to type: Date ${dateFormat}`],
+      messages: [
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message: `This value does not evaluate to type: Date ${dateFormat}`,
+        },
+      ],
     };
   }
 
@@ -42,8 +48,13 @@ function defaultDateValidation(
     parsed: isValid ? value : "",
     messages:
       isValid === false
-        ? [`Value does not match ISO 8601 standard date string`]
-        : [""],
+        ? [
+            {
+              name: ErrorMessageType.TYPE_ERROR,
+              message: `Value does not match ISO 8601 standard date string`,
+            },
+          ]
+        : [{ name: "", message: "" }],
   };
 }
 
@@ -59,7 +70,12 @@ function minDateValidation(
       isValid: false,
       parsed: "",
       messages: [
-        `Value does not match: Date String ` + (dateFormat ? dateFormat : ""),
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message:
+            `Value does not match: Date String ` +
+            (dateFormat ? dateFormat : ""),
+        },
       ],
     };
   }
@@ -70,7 +86,7 @@ function minDateValidation(
     return {
       isValid: isValid,
       parsed: value,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
   const parsedDefaultDate = moment(props.defaultDate, dateFormat);
@@ -87,14 +103,19 @@ function minDateValidation(
       isValid: isValid,
       parsed: "",
       messages: [
-        `Value does not match: Date String ` + (dateFormat ? dateFormat : ""),
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message:
+            `Value does not match: Date String ` +
+            (dateFormat ? dateFormat : ""),
+        },
       ],
     };
   }
   return {
     isValid: isValid,
     parsed: value,
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 }
 
@@ -110,8 +131,12 @@ function maxDateValidation(
       isValid: false,
       parsed: "",
       messages: [
-        `Value does not match type: Date String ` +
-          (dateFormat ? dateFormat : ""),
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message:
+            `Value does not match type: Date String ` +
+            (dateFormat ? dateFormat : ""),
+        },
       ],
     };
   }
@@ -121,7 +146,7 @@ function maxDateValidation(
     return {
       isValid: isValid,
       parsed: value,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
   const parsedDefaultDate = moment(props.defaultDate, dateFormat);
@@ -138,15 +163,19 @@ function maxDateValidation(
       isValid: isValid,
       parsed: "",
       messages: [
-        `Value does not match type: Date String ` +
-          (dateFormat ? dateFormat : ""),
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message:
+            `Value does not match type: Date String ` +
+            (dateFormat ? dateFormat : ""),
+        },
       ],
     };
   }
   return {
     isValid: isValid,
     parsed: value,
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {

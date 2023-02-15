@@ -1021,7 +1021,10 @@ export default class DataTreeEvaluator {
               {
                 raw: dynamicBinding,
                 errorType: PropertyEvaluationErrorType.PARSE,
-                errorMessage: (error as Error).message,
+                errorMessage: {
+                  name: (error as Error).name,
+                  message: (error as Error).message,
+                },
                 severity: Severity.ERROR,
               },
             ],
@@ -1080,7 +1083,10 @@ export default class DataTreeEvaluator {
             errorType: PropertyEvaluationErrorType.PARSE,
             raw: js,
             severity: Severity.ERROR,
-            errorMessage: (error as Error).message,
+            errorMessage: {
+              name: (error as Error).name,
+              message: (error as Error).message,
+            },
           },
         ],
       };
@@ -1190,10 +1196,10 @@ export default class DataTreeEvaluator {
       );
       if (!isValid) {
         const evalErrors: EvaluationError[] =
-          messages?.map((message: string) => {
+          messages?.map((message) => {
             return {
               raw: unEvalPropertyValue,
-              errorMessage: message || "",
+              errorMessage: message || { name: "", text: "" },
               errorType: PropertyEvaluationErrorType.VALIDATION,
               severity: Severity.ERROR,
             };

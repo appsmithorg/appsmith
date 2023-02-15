@@ -25,6 +25,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import equal from "fast-deep-equal/es6";
 import derivedProperties from "./parseDerivedProperties";
 import { Stylesheet } from "entities/AppTheming";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -33,7 +34,7 @@ export function defaultOptionValueValidation(
 ): ValidationResponse {
   let isValid;
   let parsed;
-  let message = "";
+  let message = { name: "", message: "" };
   const isServerSideFiltered = props.serverSideFiltering;
   // TODO: validation of defaultOption is dependent on serverSideFiltering and options, this property should reValidated once the dependencies change
   //this issue is been tracked here https://github.com/appsmithorg/appsmith/issues/15303
@@ -72,8 +73,11 @@ export function defaultOptionValueValidation(
   } else {
     isValid = false;
     parsed = undefined;
-    message =
-      'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }';
+    message = {
+      name: ErrorMessageType.TYPE_ERROR,
+      message:
+        'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }',
+    };
   }
 
   if (isValid && !_.isNil(parsed) && parsed !== "") {
@@ -100,11 +104,17 @@ export function defaultOptionValueValidation(
     if (valueIndex === -1) {
       if (!isServerSideFiltered) {
         isValid = false;
-        message = `Default value is missing in options. Please update the value.`;
+        message = {
+          name: ErrorMessageType.VALIDATION_ERROR,
+          message: `Default value is missing in options. Please update the value.`,
+        };
       } else {
         if (!hasLabelValue(parsed)) {
           isValid = false;
-          message = `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.`;
+          message = {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.`,
+          };
         }
       }
     }

@@ -6,6 +6,7 @@ import {
   ValidationResponse,
 } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -34,7 +35,12 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
         return {
           isValid: false,
           parsed: "",
-          messages: ["Provided URL / Base64 is invalid."],
+          messages: [
+            {
+              name: ErrorMessageType.VALIDATION_ERROR,
+              message: "Provided URL / Base64 is invalid.",
+            },
+          ],
         };
       }
     } else if (base64Regex.test(value as string)) {
@@ -48,7 +54,12 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
       return {
         isValid: false,
         parsed: "",
-        messages: ["Provided URL / Base64 is invalid."],
+        messages: [
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message: "Provided URL / Base64 is invalid.",
+          },
+        ],
       };
     }
   }
@@ -56,7 +67,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
   return {
     isValid: true,
     parsed: "",
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 }
 

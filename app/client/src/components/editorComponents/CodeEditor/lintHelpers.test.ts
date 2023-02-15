@@ -1,4 +1,4 @@
-import { Severity } from "entities/AppsmithConsole";
+import { ErrorMessageType, Severity } from "entities/AppsmithConsole";
 import {
   LintError,
   PropertyEvaluationErrorType,
@@ -51,7 +51,10 @@ describe("getLintAnnotations()", () => {
         raw:
           "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         severity: WARNING,
-        errorMessage: "Expected '===' and instead saw '=='.",
+        errorMessage: {
+          name: ErrorMessageType.LINTING_ERROR,
+          message: "Expected '===' and instead saw '=='.",
+        },
         errorSegment: "    const result =  world == test ",
         originalBinding: " world == test ",
         variables: ["===", "==", null, null],
@@ -64,7 +67,10 @@ describe("getLintAnnotations()", () => {
         raw:
           "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         severity: WARNING,
-        errorMessage: "'world' is not defined.",
+        errorMessage: {
+          name: ErrorMessageType.LINTING_ERROR,
+          message: "'world' is not defined.",
+        },
         errorSegment: "    const result =  world == test ",
         originalBinding: " world == test ",
         variables: ["world", null, null, null],
@@ -73,7 +79,10 @@ describe("getLintAnnotations()", () => {
         ch: 2,
       },
       {
-        errorMessage: "'test' is not defined.",
+        errorMessage: {
+          name: ErrorMessageType.LINTING_ERROR,
+          message: "'test' is not defined.",
+        },
         severity: WARNING,
         raw:
           "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
@@ -135,7 +144,10 @@ describe("getLintAnnotations()", () => {
         raw:
           "\n  function closedFunction () {\n    const result = hss\n    return result;\n  }\n  closedFunction.call(THIS_CONTEXT)\n  ",
         severity: ERROR,
-        errorMessage: "'hss' is not defined.",
+        errorMessage: {
+          name: ErrorMessageType.LINTING_ERROR,
+          message: "'hss' is not defined.",
+        },
         errorSegment: "    const result = hss",
         originalBinding: "{{hss}}",
         variables: ["hss", null, null, null],
@@ -171,7 +183,10 @@ describe("getLintAnnotations()", () => {
         raw:
           "\n  function closedFunction () {\n    const result =  world\n\n    return result;\n  }\n  closedFunction()\n  ",
         severity: ERROR,
-        errorMessage: "'world' is not defined.",
+        errorMessage: {
+          name: ErrorMessageType.LINTING_ERROR,
+          message: "'world' is not defined.",
+        },
         errorSegment: "    const result =  world",
         originalBinding: " world\n",
         variables: ["world", null, null, null],

@@ -38,16 +38,25 @@ import {
 } from "widgets/WidgetUtils";
 import { Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultValueValidation(
   value: any,
   props: CurrencyInputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const NUMBER_ERROR_MESSAGE = "This value must be number";
-  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
-    "Please use . as the decimal separator for default values.";
-  const EMPTY_ERROR_MESSAGE = "";
+  const NUMBER_ERROR_MESSAGE = {
+    name: ErrorMessageType.TYPE_ERROR,
+    message: "This value must be number",
+  };
+  const DECIMAL_SEPARATOR_ERROR_MESSAGE = {
+    name: ErrorMessageType.VALIDATION_ERROR,
+    message: "Please use . as the decimal separator for default values.",
+  };
+  const EMPTY_ERROR_MESSAGE = {
+    name: "",
+    message: "",
+  };
   const localeLang = navigator.languages?.[0] || "en-US";
 
   function getLocaleDecimalSeperator() {
@@ -103,7 +112,11 @@ export function defaultValueValidation(
     if (parsed !== Number(parsed.toFixed(props.decimals))) {
       isValid = false;
       messages = [
-        "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
+        {
+          name: ErrorMessageType.RANGE_ERROR,
+          message:
+            "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
+        },
       ];
     } else {
       isValid = true;

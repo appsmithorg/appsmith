@@ -1,18 +1,14 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
 
-const ErrorNameType = {
-  ReferenceError: "ReferenceError",
-  TypeError: "TypeError",
-};
-
 class ErrorModifier {
   private errorNamesToScan = [
-    ErrorNameType.ReferenceError,
-    ErrorNameType.TypeError,
+    ErrorMessageType.REFERENCE_ERROR,
+    ErrorMessageType.TYPE_ERROR,
   ];
   // Note all regex below groups the async function name
 
@@ -31,11 +27,14 @@ class ErrorModifier {
       this.asyncFunctionsNameMap,
     )) {
       const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
-      if (errorMessage.match(functionNameWithWhiteSpace)) {
-        return UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
-          "{{actionName}}",
-          asyncFunctionFullPath + "()",
-        );
+      if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {
+        return {
+          name: ErrorMessageType.VALIDATION_ERROR,
+          message: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+            "{{actionName}}",
+            asyncFunctionFullPath + "()",
+          ),
+        };
       }
     }
 
@@ -72,5 +71,17 @@ export class ActionCalledInSyncFieldError extends Error {
 }
 
 export const getErrorMessage = (error: Error) => {
+  return error.name
+    ? {
+        name: error.name,
+        message: error.message,
+      }
+    : {
+        name: ErrorMessageType.VALIDATION_ERROR,
+        message: error.message,
+      };
+};
+
+export const getErrorMessageWithType = (error: Error) => {
   return error.name ? `${error.name}: ${error.message}` : error.message;
 };

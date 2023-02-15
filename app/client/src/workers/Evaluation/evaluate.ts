@@ -5,7 +5,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
-import { Severity } from "entities/AppsmithConsole";
+import { ErrorMessageType, Severity } from "entities/AppsmithConsole";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
@@ -341,8 +341,11 @@ export async function evaluateAsync(
     } catch (e) {
       const error = e as Error;
       const errorMessage = error.name
-        ? `${error.name}: ${error.message}`
-        : `UncaughtPromiseRejection: ${error.message}`;
+        ? { name: error.name, message: error.message }
+        : {
+            name: ErrorMessageType.UNCAUGHT_PROMISE_REJECTION,
+            message: `${error.message}`,
+          };
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,

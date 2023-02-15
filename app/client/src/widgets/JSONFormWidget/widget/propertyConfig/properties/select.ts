@@ -12,14 +12,18 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultOptionValueValidation(
   inputValue: unknown,
   props: JSONFormWidgetProps,
   _: any,
 ): ValidationResponse {
-  const DEFAULT_ERROR_MESSAGE =
-    'value should match: string | { "label": "label1", "value": "value1" }';
+  const DEFAULT_ERROR_MESSAGE = {
+    name: ErrorMessageType.TYPE_ERROR,
+    message:
+      'value should match: string | { "label": "label1", "value": "value1" }',
+  };
   let value = inputValue;
 
   const hasLabelValueProperties = (
@@ -40,7 +44,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: inputValue,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -55,7 +59,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -64,7 +68,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 

@@ -15,6 +15,7 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 import { Stylesheet } from "entities/AppTheming";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function selectedTabValidation(
   value: unknown,
@@ -28,7 +29,12 @@ export function selectedTabValidation(
   return {
     isValid: value === "" ? true : tabNames.includes(value as string),
     parsed: value,
-    messages: [`Tab name ${value} does not exist`],
+    messages: [
+      {
+        name: ErrorMessageType.VALIDATION_ERROR,
+        message: `Tab name ${value} does not exist`,
+      },
+    ],
   };
 }
 class TabsWidget extends BaseWidget<
