@@ -11,6 +11,26 @@ import PerformanceTracker, {
 import { WidgetProps } from "widgets/BaseWidget";
 import { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
 
+export enum ALIGN_TYPE {
+  L = "L",
+  R = "R",
+  T = "T",
+  B = "B",
+  C = "C", //horizontally center
+  VC = "VS", //Vertically
+  ONE_L = "ONE_L",
+  ONE_R = "ONE_R",
+  ONE_C = "ONE_C",
+  ONE_T = "ONE_T",
+}
+
+export const handleAlignWidgets = (payload: ALIGN_TYPE) => {
+  return {
+    type: ReduxActionTypes.HANDLE_ALIGN_WIDGETS,
+    payload,
+  };
+};
+
 export const executeTrigger = (
   payload: ExecuteTriggerPayload,
 ): BatchAction<ExecuteTriggerPayload> =>

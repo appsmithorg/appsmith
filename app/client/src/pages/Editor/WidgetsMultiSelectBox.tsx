@@ -8,6 +8,8 @@ import {
   cutWidget,
   groupWidgets,
   deleteSelectedWidget,
+  handleAlignWidgets,
+  ALIGN_TYPE,
 } from "actions/widgetActions";
 import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
@@ -18,13 +20,22 @@ import { getSelectedWidgets } from "selectors/ui";
 
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import { IPopoverSharedProps } from "@blueprintjs/core";
+import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "utils/WidgetFactory";
 import { AppState } from "@appsmith/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
+
+import AlignLeftIcon from "remixicon-react/AlignLeftIcon";
+import AlignCenterIcon from "remixicon-react/AlignCenterIcon";
+import AlignRightIcon from "remixicon-react/AlignRightIcon";
+import AlignTopIcon from "remixicon-react/AlignTopIcon";
+import AlignVerticallyIcon from "remixicon-react/AlignVerticallyIcon";
+import AlignBottomIcon from "remixicon-react/AlignBottomIcon";
+import AlignJustifyIcon from "remixicon-react/AlignJustifyIcon";
+import { Popover2 } from "@blueprintjs/popover2";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
@@ -36,6 +47,22 @@ const StyledActionsContainer = styled.div`
   position: relative;
   height: 100%;
   width: 100%;
+`;
+
+// const StyledActionsContainer = styled.div`
+//   position: relative;
+//   height: 100%;
+//   width: 100%;
+// `;
+
+const TopStyledActions = styled.div`
+  padding: 5px;
+  z-index: ${Layers.contextMenu};
+  position: absolute;
+  background-color: ${(props) => props.theme.colors.appBackground};
+  width: max-content;
+  display: flex;
+  bottom: -40px;
 `;
 
 const StyledActions = styled.div`
@@ -189,17 +216,28 @@ function WidgetsMultiSelectBox(props: {
       .filter(Boolean)
       .map((widget) => widget.parentId);
     const hasCommonParent = parentIDs.every((v) => v === parentIDs[0]);
-    const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
 
     return (
+      selectedWidgetIDs.length > 0 &&
       props.widgetType === WidgetTypes.CANVAS_WIDGET &&
-      isMultipleWidgetsSelected &&
       hasCommonParent &&
       get(selectedWidgets, "0.parentId") === props.widgetId
     );
   }, [selectedWidgets, isDragging]);
+
+  const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
+
   const draggableRef = useRef<HTMLDivElement>(null);
   const { setDraggingState } = useWidgetDragResize();
+
+  const onHandleAlign = (
+    e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
+    envetName: ALIGN_TYPE,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(handleAlignWidgets(envetName));
+  };
 
   const onDragStart = (e: any) => {
     e.preventDefault();
@@ -334,74 +372,200 @@ function WidgetsMultiSelectBox(props: {
         width,
       }}
     >
-      <StyledSelectBoxHandleTop />
-      <StyledSelectBoxHandleLeft />
-      <StyledSelectBoxHandleRight />
-      <StyledSelectBoxHandleBottom />
+      {isMultipleWidgetsSelected ? (
+        <>
+          <StyledSelectBoxHandleTop />
+          <StyledSelectBoxHandleLeft />
+          <StyledSelectBoxHandleRight />
+          <StyledSelectBoxHandleBottom />
+        </>
+      ) : null}
       <StyledActionsContainer>
-        <StyledActions>
-          {/* copy widgets */}
-          <Tooltip
-            boundary="viewport"
-            content={copyHelpText}
-            maxWidth="400px"
-            modifiers={PopoverModifiers}
-            position="right"
-          >
-            <StyledAction
+        <TopStyledActions>
+          <Tooltip content={"align left"} position={Position.TOP}>
+            <span
+              className="p-[5px]  cursor-pointer"
               onClick={stopEventPropagation}
-              onClickCapture={onCopySelectedWidgets}
+              onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.ONE_L)}
             >
-              <CopyIcon color="black" height={16} width={16} />
-            </StyledAction>
+              {/* <Icon name="LAlign" /> */}
+              <AlignLeftIcon size={16} />
+            </span>
           </Tooltip>
-          {/* cut widgets */}
-          <Tooltip
-            boundary="viewport"
-            content={cutHelpText}
-            maxWidth="400px"
-            modifiers={PopoverModifiers}
-            position="right"
-          >
-            <StyledAction
+          <Tooltip content={"align horizontal center"} position={Position.TOP}>
+            <span
+              className="p-[5px]  cursor-pointer"
               onClick={stopEventPropagation}
-              onClickCapture={onCutSelectedWidgets}
+              onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.ONE_C)}
             >
-              <CutIcon color="black" height={16} width={16} />
-            </StyledAction>
+              <AlignCenterIcon size={16} />
+            </span>
           </Tooltip>
-          {/* delete widgets */}
-          <Tooltip
-            boundary="viewport"
-            content={deleteHelpText}
-            maxWidth="400px"
-            modifiers={PopoverModifiers}
-            position="right"
-          >
-            <StyledAction
+          <Tooltip content={"align right"} position={Position.TOP}>
+            <span
+              className="p-[5px]  cursor-pointer"
               onClick={stopEventPropagation}
-              onClickCapture={onDeleteSelectedWidgets}
+              onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.ONE_R)}
             >
-              <DeleteIcon color="black" height={16} width={16} />
-            </StyledAction>
+              <AlignRightIcon size={16} />
+            </span>
           </Tooltip>
-          {/* group widgets */}
-          <Tooltip
-            boundary="viewport"
-            content={groupHelpText}
-            maxWidth="400px"
-            modifiers={PopoverModifiers}
-            position="right"
-          >
-            <StyledAction
+          <Tooltip content={"align above"} position={Position.TOP}>
+            <span
+              className="p-[5px]  cursor-pointer"
               onClick={stopEventPropagation}
-              onClickCapture={onGroupWidgets}
+              onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.ONE_T)}
             >
-              <GroupIcon color="black" height={16} width={16} />
-            </StyledAction>
+              <AlignTopIcon size={16} />
+            </span>
           </Tooltip>
-        </StyledActions>
+        </TopStyledActions>
       </StyledActionsContainer>
+      {isMultipleWidgetsSelected && (
+        <StyledActionsContainer>
+          <StyledActions>
+            {/* copy widgets */}
+            <Tooltip
+              boundary="viewport"
+              content={copyHelpText}
+              maxWidth="400px"
+              modifiers={PopoverModifiers}
+              position="right"
+            >
+              <StyledAction
+                onClick={stopEventPropagation}
+                onClickCapture={onCopySelectedWidgets}
+              >
+                <CopyIcon color="black" height={16} width={16} />
+              </StyledAction>
+            </Tooltip>
+            {/* cut widgets */}
+            <Tooltip
+              boundary="viewport"
+              content={cutHelpText}
+              maxWidth="400px"
+              modifiers={PopoverModifiers}
+              position="right"
+            >
+              <StyledAction
+                onClick={stopEventPropagation}
+                onClickCapture={onCutSelectedWidgets}
+              >
+                <CutIcon color="black" height={16} width={16} />
+              </StyledAction>
+            </Tooltip>
+            {/* delete widgets */}
+            <Tooltip
+              boundary="viewport"
+              content={deleteHelpText}
+              maxWidth="400px"
+              modifiers={PopoverModifiers}
+              position="right"
+            >
+              <StyledAction
+                onClick={stopEventPropagation}
+                onClickCapture={onDeleteSelectedWidgets}
+              >
+                <DeleteIcon color="black" height={16} width={16} />
+              </StyledAction>
+            </Tooltip>
+            {/* group widgets */}
+            <Tooltip
+              boundary="viewport"
+              content={groupHelpText}
+              maxWidth="400px"
+              modifiers={PopoverModifiers}
+              position="right"
+            >
+              <StyledAction
+                onClick={stopEventPropagation}
+                onClickCapture={onGroupWidgets}
+              >
+                <GroupIcon color="black" height={16} width={16} />
+              </StyledAction>
+            </Tooltip>
+            <Popover2
+              content={
+                <div className="flex w-[90px] flex-wrap bg-border-color justify-center">
+                  <Tooltip content={"align left"} position={Position.TOP}>
+                    <span
+                      className="p-[5px]  cursor-pointer"
+                      onClick={stopEventPropagation}
+                      onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.L)}
+                    >
+                      {/* <Icon name="LAlign" /> */}
+                      <AlignLeftIcon size={16} />
+                    </span>
+                  </Tooltip>
+                  <Tooltip
+                    content={"align horizontal center"}
+                    position={Position.TOP}
+                  >
+                    <span
+                      className="p-[5px]  cursor-pointer"
+                      onClick={stopEventPropagation}
+                      onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.C)}
+                    >
+                      <AlignCenterIcon size={16} />
+                    </span>
+                  </Tooltip>
+                  <Tooltip content={"align right"} position={Position.TOP}>
+                    <span
+                      className="p-[5px]  cursor-pointer"
+                      onClick={stopEventPropagation}
+                      onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.R)}
+                    >
+                      <AlignRightIcon size={16} />
+                    </span>
+                  </Tooltip>
+
+                  <Tooltip content={"align above"} position={Position.BOTTOM}>
+                    <span
+                      className="p-[5px]  cursor-pointer"
+                      onClick={stopEventPropagation}
+                      onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.T)}
+                    >
+                      <AlignTopIcon size={16} />
+                    </span>
+                  </Tooltip>
+                  <Tooltip
+                    content={"align vertical center"}
+                    position={Position.BOTTOM}
+                  >
+                    <span
+                      className="p-[5px]  cursor-pointer"
+                      onClick={stopEventPropagation}
+                      onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.VC)}
+                    >
+                      <AlignVerticallyIcon size={16} />
+                    </span>
+                  </Tooltip>
+                  <Tooltip content={"align below"} position={Position.BOTTOM}>
+                    <span
+                      className="p-[5px]  cursor-pointer"
+                      onClick={stopEventPropagation}
+                      onClickCapture={(e) => onHandleAlign(e, ALIGN_TYPE.B)}
+                    >
+                      <AlignBottomIcon size={16} />
+                    </span>
+                  </Tooltip>
+                </div>
+              }
+              interactionKind="hover"
+              position="right"
+            >
+              <StyledAction onClick={stopEventPropagation}>
+                {/* <GroupIcon color="black" height={16} width={16} /> */}
+                <div>
+                  <span className="text-[#000]">
+                    <AlignJustifyIcon />
+                  </span>
+                </div>
+              </StyledAction>
+            </Popover2>
+          </StyledActions>
+        </StyledActionsContainer>
+      )}
     </StyledSelectionBox>
   );
 }

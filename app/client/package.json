@@ -43,6 +43,7 @@
     "classnames": "^2.3.1",
     "codemirror": "^5.59.2",
     "codemirror-graphql": "^1.2.14",
+    "collisions": "^2.0.13",
     "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.9.1",
     "country-flag-emoji-polyfill": "^0.1.4",

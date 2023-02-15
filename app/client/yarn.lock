@@ -5366,6 +5366,11 @@ collect-v8-coverage@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmjs.org/collect-v8-coverage/-/collect-v8-coverage-1.0.1.tgz"
 
+collisions@^2.0.13:
+  version "2.0.13"
+  resolved "https://registry.npmmirror.com/collisions/-/collisions-2.0.13.tgz#ab3d87022f62cd351fa8cbd676857a402fbc3b19"
+  integrity sha512-KOTVGrIlzTkgmZp/OlYruqVpuAuBGcGTWurLp56n4+9c7NHBYWlF3TtNZc6hTr22GiGPE34+frBugQV4OEmFjQ==
+
 color-convert@^1.9.0:
   version "1.9.3"
   resolved "https://registry.npmjs.org/color-convert/-/color-convert-1.9.3.tgz"

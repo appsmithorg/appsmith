@@ -31,6 +31,7 @@ import {
   updateMultipleWidgetPropertiesAction,
   UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
+  updateWidgetPropertyRequest,
 } from "actions/controlActions";
 import {
   DynamicPath,
@@ -43,7 +44,22 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set, uniq } from "lodash";
+import _, {
+  cloneDeep,
+  each,
+  filter,
+  includes,
+  isString,
+  map,
+  max,
+  min,
+  set,
+  sortBy,
+  uniq,
+} from "lodash";
+import Collisions from "collisions";
+import { ALIGN_TYPE } from "actions/widgetActions";
+
 import WidgetFactory from "utils/WidgetFactory";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
@@ -146,6 +162,995 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+
+type Wall = {
+  _max_x: number;
+  _max_y: number;
+  _min_x: number;
+  _min_y: number;
+  [key: string]: any;
+};
+export function* handleAlignWidgets(action: ReduxAction<ALIGN_TYPE>) {
+  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+  const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  // you can now use the alignment operation on only one
+  const isMultipleWidgetsSelected = selectedWidgets.length > 0;
+  // Create a Result object for collecting information about the collisions
+  if (selectedWidgets.length) {
+    // group inward and downward
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.B) {
+      const selectedWidgetBottomColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].bottomRow),
+      ) as number;
+      const sortWidgets = sortBy(
+        selectedWidgets.map((each) => allWidgets[each]),
+        "bottomRow",
+        "topRow",
+      ).reverse();
+      let i = 0;
+      const system = new Collisions();
+      while (i < sortWidgets.length) {
+        const widgetKey = sortWidgets[i].widgetId;
+        let calculationSelectedWidgetRightColumn = selectedWidgetBottomColumn;
+        const { leftColumn, rightColumn } = sortWidgets[i];
+        // maximum face
+        const wall = system.createPolygon(
+          0,
+          0,
+          [
+            [leftColumn, sortWidgets[i].bottomRow],
+            [rightColumn, selectedWidgetBottomColumn],
+            [leftColumn, selectedWidgetBottomColumn],
+            [rightColumn, sortWidgets[i].bottomRow],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+
+        system.update();
+        const potentials: [Wall] = wall.potentials();
+        if (potentials.length) {
+          calculationSelectedWidgetRightColumn = min(
+            potentials.map((v) => v._min_y),
+          ) as number;
+        }
+        wall.remove();
+        const newWall = system.createPolygon(
+          0,
+          0,
+          [
+            [
+              leftColumn,
+              sortWidgets[i].topRow +
+                calculationSelectedWidgetRightColumn -
+                sortWidgets[i].bottomRow,
+            ],
+            [rightColumn, calculationSelectedWidgetRightColumn],
+            [leftColumn, calculationSelectedWidgetRightColumn],
+            [
+              rightColumn,
+              sortWidgets[i].topRow +
+                calculationSelectedWidgetRightColumn -
+                sortWidgets[i].bottomRow,
+            ],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+        newWall.widget = sortWidgets[i];
+        system.update();
+
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "bottomRow",
+            calculationSelectedWidgetRightColumn,
+          ),
+        );
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "topRow",
+            sortWidgets[i].topRow +
+              (calculationSelectedWidgetRightColumn - sortWidgets[i].bottomRow),
+          ),
+        );
+        i++;
+      }
+    }
+
+    // align right;
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.R) {
+      const selectedWidgetRightColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].rightColumn),
+      ) as number;
+      const sortWidgets = sortBy(
+        selectedWidgets.map((each) => allWidgets[each]),
+        "rightColumn",
+        "topRow",
+      ).reverse();
+      // const
+      let i = 0;
+      const system = new Collisions();
+      while (i < sortWidgets.length) {
+        const widgetKey = sortWidgets[i].widgetId;
+        let calculationSelectedWidgetRightColumn = selectedWidgetRightColumn;
+        const { bottomRow, topRow } = sortWidgets[i];
+        const wall = system.createPolygon(
+          0,
+          0,
+          [
+            [sortWidgets[i].rightColumn, topRow],
+            [sortWidgets[i].rightColumn, bottomRow],
+            [selectedWidgetRightColumn, bottomRow],
+            [selectedWidgetRightColumn, topRow],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+
+        system.update();
+        const potentials: [Wall] = wall.potentials();
+        if (potentials.length) {
+          calculationSelectedWidgetRightColumn = min(
+            potentials.map((v) => v._min_x),
+          ) as number;
+        }
+        wall.remove();
+        const newWall = system.createPolygon(
+          0,
+          0,
+          [
+            [
+              sortWidgets[i].leftColumn +
+                calculationSelectedWidgetRightColumn -
+                sortWidgets[i].rightColumn,
+              topRow,
+            ],
+            [
+              sortWidgets[i].leftColumn +
+                calculationSelectedWidgetRightColumn -
+                sortWidgets[i].rightColumn,
+              bottomRow,
+            ],
+            [calculationSelectedWidgetRightColumn, bottomRow],
+            [calculationSelectedWidgetRightColumn, topRow],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+        newWall.widget = sortWidgets[i];
+        system.update();
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "rightColumn",
+            calculationSelectedWidgetRightColumn,
+          ),
+        );
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "leftColumn",
+            sortWidgets[i].leftColumn +
+              (calculationSelectedWidgetRightColumn -
+                sortWidgets[i].rightColumn),
+          ),
+        );
+        i++;
+      }
+    }
+
+    // align left;
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.L) {
+      const selectedWidgetLeftColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].leftColumn),
+      ) as number;
+      const sortWidgets = sortBy(
+        selectedWidgets.map((each) => allWidgets[each]),
+        "leftColumn",
+        "topRow",
+      );
+      // const
+      let i = 0;
+      const system = new Collisions();
+      while (i < sortWidgets.length) {
+        const widgetKey = sortWidgets[i].widgetId;
+        let calculationSelectedWidgetLeftColumn = selectedWidgetLeftColumn;
+        const { bottomRow, topRow } = sortWidgets[i];
+        const wall = system.createPolygon(
+          0,
+          0,
+          [
+            [0, topRow],
+            [0, bottomRow],
+            [sortWidgets[i].leftColumn, bottomRow],
+            [sortWidgets[i].leftColumn, topRow],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+
+        system.update();
+        const potentials: [Wall] = wall.potentials();
+
+        if (potentials.length) {
+          calculationSelectedWidgetLeftColumn = max(
+            potentials.map((v) => v._max_x),
+          ) as number;
+        }
+        wall.remove();
+        const newWall = system.createPolygon(
+          0,
+          0,
+          [
+            [calculationSelectedWidgetLeftColumn, topRow],
+            [calculationSelectedWidgetLeftColumn, bottomRow],
+            [
+              sortWidgets[i].rightColumn -
+                (sortWidgets[i].leftColumn -
+                  calculationSelectedWidgetLeftColumn),
+              bottomRow,
+            ],
+            [
+              sortWidgets[i].rightColumn -
+                (sortWidgets[i].leftColumn -
+                  calculationSelectedWidgetLeftColumn),
+              topRow,
+            ],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+        newWall.widget = sortWidgets[i];
+        system.update();
+
+        //collision detection
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "leftColumn",
+            calculationSelectedWidgetLeftColumn,
+          ),
+        );
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "rightColumn",
+            sortWidgets[i].rightColumn -
+              (sortWidgets[i].leftColumn - calculationSelectedWidgetLeftColumn),
+          ),
+        );
+        i++;
+      }
+    }
+
+    //align top
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.T) {
+      const selectedWidgetTopColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].topRow),
+      ) as number;
+      const sortWidgets = sortBy(
+        selectedWidgets.map((each) => allWidgets[each]),
+        "topRow",
+        "leftColumn",
+      );
+      let i = 0;
+      const system = new Collisions();
+      while (i < sortWidgets.length) {
+        const widgetKey = sortWidgets[i].widgetId;
+        let calculationSelectedWidgetLeftColumn = selectedWidgetTopColumn;
+        const { leftColumn, rightColumn } = sortWidgets[i];
+
+        // 向上方向进行碰撞检测
+        const wall = system.createPolygon(
+          0,
+          0,
+          [
+            [leftColumn, calculationSelectedWidgetLeftColumn],
+            [leftColumn, sortWidgets[i].topRow],
+            [rightColumn, sortWidgets[i].topRow],
+            [rightColumn, calculationSelectedWidgetLeftColumn],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+
+        system.update();
+        const potentials: [Wall] = wall.potentials();
+
+        if (potentials.length) {
+          // get the most appropriate y coordinate
+          calculationSelectedWidgetLeftColumn = max(
+            potentials.map((v) => v._max_y),
+          ) as number;
+        }
+
+        wall.remove();
+
+        // the real wall
+        const newWall = system.createPolygon(
+          0,
+          0,
+          [
+            [leftColumn, calculationSelectedWidgetLeftColumn],
+            [
+              leftColumn,
+              sortWidgets[i].bottomRow -
+                (sortWidgets[i].topRow - calculationSelectedWidgetLeftColumn),
+            ],
+            [
+              rightColumn,
+              sortWidgets[i].bottomRow -
+                (sortWidgets[i].topRow - calculationSelectedWidgetLeftColumn),
+            ],
+            [rightColumn, calculationSelectedWidgetLeftColumn],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+        newWall.widget = sortWidgets[i];
+        system.update();
+
+        //collision detection
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "topRow",
+            calculationSelectedWidgetLeftColumn,
+          ),
+        );
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "bottomRow",
+            sortWidgets[i].bottomRow -
+              (sortWidgets[i].topRow - calculationSelectedWidgetLeftColumn),
+          ),
+        );
+        i++;
+      }
+    }
+
+    // horizontally
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.C) {
+      const selectedWidgetLeftColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].leftColumn),
+      ) as number;
+      const selectedWidgetRightColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].rightColumn),
+      ) as number;
+      const system = new Collisions();
+      const wallMap = new Map();
+      selectedWidgets.forEach((v) => {
+        const { bottomRow, leftColumn, rightColumn, topRow } = allWidgets[v];
+        const xOffset =
+          (selectedWidgetRightColumn -
+            selectedWidgetLeftColumn -
+            (rightColumn - leftColumn)) /
+          2;
+        const wall = system.createPolygon(
+          0,
+          0,
+          [
+            [selectedWidgetLeftColumn + xOffset, topRow],
+            [selectedWidgetLeftColumn + xOffset, bottomRow],
+            [
+              selectedWidgetRightColumn -
+                (leftColumn - (selectedWidgetLeftColumn + xOffset)),
+              bottomRow,
+            ],
+            [
+              selectedWidgetRightColumn -
+                (leftColumn - (selectedWidgetLeftColumn + xOffset)),
+              topRow,
+            ],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+        wall.widget = allWidgets[v];
+        wallMap.set(v, wall);
+      });
+      system.update();
+
+      const initSelectedWidgetLeftColumn = selectedWidgetLeftColumn;
+      const initSelectedWidgetRightColumn = selectedWidgetRightColumn;
+      for (const [, v] of wallMap) {
+        let leftEdgeBorder = initSelectedWidgetLeftColumn;
+        let rightEdgeBorder = initSelectedWidgetRightColumn;
+        const dependSet = new Set(v.potentials());
+        dependSet.forEach((item: any) => {
+          wallMap.delete(item.widget.widgetId);
+          item.potentials().forEach((wall: Wall) => {
+            dependSet.add(wall);
+          });
+        });
+        dependSet.add(v);
+
+        const selectedWidgets = map(
+          [...dependSet],
+          (v: any) => v.widget.widgetId,
+        );
+        const selectedWidgetLeftColumn = min(
+          selectedWidgets.map((each) => allWidgets[each].leftColumn),
+        ) as number;
+        const selectedWidgetTopColumn = min(
+          selectedWidgets.map((each) => allWidgets[each].topRow),
+        ) as number;
+        const selectedWidgetBottomColumn = max(
+          selectedWidgets.map((each) => allWidgets[each].bottomRow),
+        ) as number;
+        const selectedWidgetRightColumn = max(
+          selectedWidgets.map((each) => allWidgets[each].rightColumn),
+        ) as number;
+
+        each(
+          map(selectedWidgets, (each) => allWidgets[each]),
+          (v, k) => {
+            if (
+              !includes(selectedWidgets, k) &&
+              v.widgetId !== "0" &&
+              v.bottomRow > selectedWidgetTopColumn &&
+              v.topRow < selectedWidgetBottomColumn
+            ) {
+              if (
+                v.rightColumn <= selectedWidgetLeftColumn &&
+                v.rightColumn > leftEdgeBorder
+              ) {
+                leftEdgeBorder = v.rightColumn;
+              }
+              if (
+                v.leftColumn >= selectedWidgetRightColumn &&
+                v.leftColumn < rightEdgeBorder
+              ) {
+                rightEdgeBorder = v.leftColumn;
+              }
+            }
+          },
+        );
+        const moveOffset =
+          (rightEdgeBorder -
+            leftEdgeBorder -
+            (selectedWidgetRightColumn - selectedWidgetLeftColumn)) /
+          2;
+
+        let i = 0;
+
+        while (i < selectedWidgets.length) {
+          const widgetKey = selectedWidgets[i];
+          yield call(
+            updateWidgetPropertySaga,
+            updateWidgetPropertyRequest(
+              widgetKey,
+              "leftColumn",
+              allWidgets[widgetKey].leftColumn -
+                (selectedWidgetLeftColumn - (leftEdgeBorder + moveOffset)),
+            ),
+          );
+          yield call(
+            updateWidgetPropertySaga,
+            updateWidgetPropertyRequest(
+              widgetKey,
+              "rightColumn",
+              allWidgets[widgetKey].rightColumn -
+                (selectedWidgetLeftColumn - (leftEdgeBorder + moveOffset)),
+            ),
+          );
+          i++;
+        }
+      }
+      // console.log(system.potentials(), 'potentials');
+    }
+
+    // center vertically
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.VC) {
+      const selectedWidgetTopColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].topRow),
+      ) as number;
+      const selectedWidgetBottomColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].bottomRow),
+      ) as number;
+      const system = new Collisions();
+      const wallMap = new Map();
+      selectedWidgets.forEach((v) => {
+        const { bottomRow, leftColumn, rightColumn, topRow } = allWidgets[v];
+
+        const yOffset =
+          (selectedWidgetBottomColumn -
+            selectedWidgetTopColumn -
+            (topRow - bottomRow)) /
+          2;
+        const wall = system.createPolygon(
+          0,
+          0,
+          [
+            [leftColumn, selectedWidgetTopColumn + yOffset],
+            [
+              leftColumn,
+              selectedWidgetBottomColumn -
+                (topRow - (selectedWidgetTopColumn + yOffset)),
+            ],
+            [rightColumn, bottomRow],
+            [
+              rightColumn,
+              selectedWidgetBottomColumn -
+                (topRow - (selectedWidgetTopColumn + yOffset)),
+            ],
+          ],
+          0,
+          1,
+          1,
+          -0.1,
+        );
+        wall.widget = allWidgets[v];
+        wallMap.set(v, wall);
+      });
+      system.update();
+
+      const initSelectedWidgetTopColumn = selectedWidgetTopColumn;
+      const initSelectedWidgetBottomColumn = selectedWidgetBottomColumn;
+      for (const [, v] of wallMap) {
+        let topEdgeBorder = initSelectedWidgetTopColumn;
+        let bottomEdgeBorder = initSelectedWidgetBottomColumn;
+        const dependSet = new Set(v.potentials());
+        dependSet.forEach((item: any) => {
+          wallMap.delete(item.widget.widgetId);
+          item.potentials().forEach((wall: Wall) => {
+            dependSet.add(wall);
+          });
+        });
+        dependSet.add(v);
+
+        const selectedWidgets = map(
+          [...dependSet],
+          (v: any) => v.widget.widgetId,
+        );
+        const selectedWidgetLeftColumn = min(
+          selectedWidgets.map((each) => allWidgets[each].leftColumn),
+        ) as number;
+        const selectedWidgetTopColumn = min(
+          selectedWidgets.map((each) => allWidgets[each].topRow),
+        ) as number;
+        const selectedWidgetBottomColumn = max(
+          selectedWidgets.map((each) => allWidgets[each].bottomRow),
+        ) as number;
+        const selectedWidgetRightColumn = max(
+          selectedWidgets.map((each) => allWidgets[each].rightColumn),
+        ) as number;
+
+        each(
+          map(selectedWidgets, (each) => allWidgets[each]),
+          (v, k) => {
+            if (
+              !includes(selectedWidgets, k) &&
+              v.widgetId !== "0" &&
+              v.leftColumn > selectedWidgetLeftColumn &&
+              v.rightColumn < selectedWidgetRightColumn
+            ) {
+              if (
+                v.bottomRow <= selectedWidgetTopColumn &&
+                v.bottomRow > topEdgeBorder
+              ) {
+                topEdgeBorder = v.bottomRow;
+              }
+              if (
+                v.topRow >= selectedWidgetBottomColumn &&
+                v.topRow < bottomEdgeBorder
+              ) {
+                bottomEdgeBorder = v.topRow;
+              }
+            }
+          },
+        );
+        const moveOffset =
+          (bottomEdgeBorder -
+            topEdgeBorder -
+            (selectedWidgetBottomColumn - selectedWidgetTopColumn)) /
+          2;
+
+        let i = 0;
+
+        while (i < selectedWidgets.length) {
+          const widgetKey = selectedWidgets[i];
+          yield call(
+            updateWidgetPropertySaga,
+            updateWidgetPropertyRequest(
+              widgetKey,
+              "topRow",
+              allWidgets[widgetKey].topRow -
+                (selectedWidgetTopColumn - (topEdgeBorder + moveOffset)),
+            ),
+          );
+          yield call(
+            updateWidgetPropertySaga,
+            updateWidgetPropertyRequest(
+              widgetKey,
+              "bottomRow",
+              allWidgets[widgetKey].bottomRow -
+                (selectedWidgetTopColumn - (topEdgeBorder + moveOffset)),
+            ),
+          );
+          i++;
+        }
+      }
+      // console.log(system.potentials(), 'potentials');
+    }
+
+    //overall left
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.ONE_L) {
+      const selectedWidgetLeftColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].leftColumn),
+      ) as number;
+      const selectedWidgetTopColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].topRow),
+      ) as number;
+      const selectedWidgetBottomColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].bottomRow),
+      ) as number;
+      const system = new Collisions();
+      const wall = system.createPolygon(
+        0,
+        0,
+        [
+          [0, selectedWidgetTopColumn],
+          [0, selectedWidgetBottomColumn],
+          [selectedWidgetLeftColumn, selectedWidgetBottomColumn],
+          [selectedWidgetLeftColumn, selectedWidgetTopColumn],
+        ],
+        0,
+        1,
+        1,
+        -0.1,
+      );
+
+      each(
+        filter(
+          allWidgets,
+          (v, k) =>
+            !includes(selectedWidgets, k) &&
+            v.widgetId !== "0" &&
+            v.bottomRow > selectedWidgetTopColumn &&
+            v.topRow < selectedWidgetBottomColumn,
+        ),
+        (v) => {
+          const { bottomRow, leftColumn, rightColumn, topRow } = v;
+          const newWall = system.createPolygon(
+            0,
+            0,
+            [
+              [leftColumn, topRow],
+              [leftColumn, bottomRow],
+              [rightColumn, bottomRow],
+              [rightColumn, topRow],
+            ],
+            0,
+            1,
+            1,
+            -0.1,
+          );
+          newWall.widget = v;
+          system.update();
+        },
+      );
+
+      system.update();
+      const potentials: [Wall] = wall.potentials();
+
+      let i = 0;
+      let calculationSelectedWidgetLeftColumn = 0;
+      while (i < selectedWidgets.length) {
+        if (potentials.length) {
+          calculationSelectedWidgetLeftColumn = max(
+            potentials.map((v) => v._max_x),
+          ) as number;
+        }
+        const widgetKey = selectedWidgets[i];
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "leftColumn",
+            allWidgets[widgetKey].leftColumn -
+              (selectedWidgetLeftColumn - calculationSelectedWidgetLeftColumn),
+          ),
+        );
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "rightColumn",
+            allWidgets[widgetKey].rightColumn -
+              (selectedWidgetLeftColumn - calculationSelectedWidgetLeftColumn),
+          ),
+        );
+        i++;
+      }
+    }
+
+    //entire right
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.ONE_R) {
+      const selectedWidgetTopColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].topRow),
+      ) as number;
+      const selectedWidgetBottomColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].bottomRow),
+      ) as number;
+      const selectedWidgetRightColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].rightColumn),
+      ) as number;
+      const system = new Collisions();
+      const wall = system.createPolygon(
+        0,
+        0,
+        [
+          [selectedWidgetRightColumn, selectedWidgetTopColumn],
+          [selectedWidgetRightColumn, selectedWidgetBottomColumn],
+          [64, selectedWidgetBottomColumn],
+          [64, selectedWidgetTopColumn],
+        ],
+        0,
+        1,
+        1,
+        -0.1,
+      );
+
+      each(
+        filter(
+          allWidgets,
+          (v, k) =>
+            !includes(selectedWidgets, k) &&
+            v.widgetId !== "0" &&
+            v.bottomRow > selectedWidgetTopColumn &&
+            v.topRow < selectedWidgetBottomColumn,
+        ),
+        (v) => {
+          const { bottomRow, leftColumn, rightColumn, topRow } = v;
+          const newWall = system.createPolygon(
+            0,
+            0,
+            [
+              [leftColumn, topRow],
+              [leftColumn, bottomRow],
+              [rightColumn, bottomRow],
+              [rightColumn, topRow],
+            ],
+            0,
+            1,
+            1,
+            -0.1,
+          );
+          newWall.widget = v;
+          system.update();
+        },
+      );
+
+      system.update();
+      const potentials: [Wall] = wall.potentials();
+      let calculationSelectedWidgetRightColumn = 64;
+      if (potentials.length) {
+        calculationSelectedWidgetRightColumn = min(
+          potentials.map((v) => v._min_x),
+        ) as number;
+      }
+
+      let i = 0;
+      while (i < selectedWidgets.length) {
+        const widgetKey = selectedWidgets[i];
+        // if (allWidgets[widgetKey].leftColumn > selectedWidgetLeftColumn) {
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "leftColumn",
+            allWidgets[widgetKey].leftColumn +
+              (calculationSelectedWidgetRightColumn -
+                selectedWidgetRightColumn),
+          ),
+        );
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "rightColumn",
+            allWidgets[widgetKey].rightColumn +
+              (calculationSelectedWidgetRightColumn -
+                selectedWidgetRightColumn),
+          ),
+        );
+        i++;
+      }
+    }
+
+    // overall up
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.ONE_T) {
+      const selectedWidgetLeftColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].leftColumn),
+      ) as number;
+      const selectedWidgetTopColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].topRow),
+      ) as number;
+      const selectedWidgetRightColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].rightColumn),
+      ) as number;
+      const system = new Collisions();
+      const wall = system.createPolygon(
+        0,
+        0,
+        [
+          [selectedWidgetLeftColumn, 0],
+          [selectedWidgetLeftColumn, selectedWidgetTopColumn],
+          [selectedWidgetRightColumn, selectedWidgetTopColumn],
+          [selectedWidgetRightColumn, 0],
+        ],
+        0,
+        1,
+        1,
+        -0.1,
+      );
+
+      each(
+        filter(
+          allWidgets,
+          (v, k) =>
+            !includes(selectedWidgets, k) &&
+            v.widgetId !== "0" &&
+            v.rightColumn > selectedWidgetLeftColumn &&
+            v.leftColumn < selectedWidgetRightColumn,
+        ),
+        (v) => {
+          const { bottomRow, leftColumn, rightColumn, topRow } = v;
+          const newWall = system.createPolygon(
+            0,
+            0,
+            [
+              [leftColumn, topRow],
+              [leftColumn, bottomRow],
+              [rightColumn, bottomRow],
+              [rightColumn, topRow],
+            ],
+            0,
+            1,
+            1,
+            -0.1,
+          );
+          newWall.widget = v;
+          system.update();
+        },
+      );
+
+      system.update();
+      const potentials: [Wall] = wall.potentials();
+      let i = 0;
+      let calculationSelectedWidgetTopColumn = 0;
+      while (i < selectedWidgets.length) {
+        if (potentials.length) {
+          calculationSelectedWidgetTopColumn = max(
+            potentials.map((v) => v._max_y),
+          ) as number;
+        }
+        const widgetKey = selectedWidgets[i];
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "topRow",
+            allWidgets[widgetKey].topRow -
+              (selectedWidgetTopColumn - calculationSelectedWidgetTopColumn),
+          ),
+        );
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "bottomRow",
+            allWidgets[widgetKey].bottomRow -
+              (selectedWidgetTopColumn - calculationSelectedWidgetTopColumn),
+          ),
+        );
+        i++;
+      }
+    }
+
+    // center as a whole
+    if (isMultipleWidgetsSelected && action.payload === ALIGN_TYPE.ONE_C) {
+      const selectedWidgetLeftColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].leftColumn),
+      ) as number;
+      const selectedWidgetTopColumn = min(
+        selectedWidgets.map((each) => allWidgets[each].topRow),
+      ) as number;
+      const selectedWidgetBottomColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].bottomRow),
+      ) as number;
+      const selectedWidgetRightColumn = max(
+        selectedWidgets.map((each) => allWidgets[each].rightColumn),
+      ) as number;
+
+      let leftEdgeBorder = 0;
+      let rightEdgeBorder = 64;
+      each(allWidgets, (v, k) => {
+        if (
+          !includes(selectedWidgets, k) &&
+          v.widgetId !== "0" &&
+          v.bottomRow > selectedWidgetTopColumn &&
+          v.topRow < selectedWidgetBottomColumn
+        ) {
+          if (
+            v.rightColumn <= selectedWidgetLeftColumn &&
+            v.rightColumn > leftEdgeBorder
+          ) {
+            leftEdgeBorder = v.rightColumn;
+          }
+          if (
+            v.leftColumn >= selectedWidgetRightColumn &&
+            v.leftColumn < rightEdgeBorder
+          ) {
+            rightEdgeBorder = v.leftColumn;
+          }
+        }
+      });
+      const moveOffset =
+        (rightEdgeBorder -
+          leftEdgeBorder -
+          (selectedWidgetRightColumn - selectedWidgetLeftColumn)) /
+        2;
+
+      let i = 0;
+
+      while (i < selectedWidgets.length) {
+        const widgetKey = selectedWidgets[i];
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "leftColumn",
+            allWidgets[widgetKey].leftColumn -
+              (selectedWidgetLeftColumn - (leftEdgeBorder + moveOffset)),
+          ),
+        );
+        yield call(
+          updateWidgetPropertySaga,
+          updateWidgetPropertyRequest(
+            widgetKey,
+            "rightColumn",
+            allWidgets[widgetKey].rightColumn -
+              (selectedWidgetLeftColumn - (leftEdgeBorder + moveOffset)),
+          ),
+        );
+        i++;
+      }
+    }
+  }
+}
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1867,5 +2872,6 @@ export default function* widgetOperationSagas() {
     takeLeading(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
+    takeEvery(ReduxActionTypes.HANDLE_ALIGN_WIDGETS, handleAlignWidgets),
   ]);
 }
