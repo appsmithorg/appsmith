@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
-import { ErrorMessageType, LOG_CATEGORY } from "entities/AppsmithConsole";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
 import { getTypographyByKey } from "design-system-old";
 import ReactJson from "react-json-view";
 import { Colors } from "constants/Colors";
@@ -88,7 +88,7 @@ export default function LogCollapseData(props: any) {
                   text={
                     props.pluginErrorDetails.downstreamErrorCode
                       ? props.pluginErrorDetails.downstreamErrorCode
-                      : ErrorMessageType.DOWNSTREAM_ERROR
+                      : "DownstreamError"
                   }
                   width="90px"
                 />

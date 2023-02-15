@@ -2,7 +2,6 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { FieldType } from "widgets/JSONFormWidget/constants";
@@ -32,7 +31,7 @@ function defaultOptionValidation(
       parsed: JSON.stringify(value, null, 2),
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value does not evaluate to type: string or number",
         },
       ],
@@ -46,7 +45,7 @@ function defaultOptionValidation(
       parsed: value,
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value does not evaluate to type: string or number",
         },
       ],

@@ -1,4 +1,3 @@
-import { ErrorMessageType } from "entities/AppsmithConsole";
 import _ from "lodash";
 
 import { JSONFormWidgetProps } from "../..";
@@ -24,7 +23,7 @@ describe(".optionsValidation", () => {
       parsed: [],
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: "path:value must be unique. Duplicate values found",
         },
       ],
@@ -43,7 +42,7 @@ describe(".optionsValidation", () => {
       parsed: [],
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: "Invalid entry at index: 0. Missing required key: label",
         },
       ],
@@ -64,7 +63,7 @@ describe(".optionsValidation", () => {
       parsed: [],
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "All value properties in options must have the same type",
         },
       ],
@@ -92,7 +91,7 @@ describe(".optionsValidation", () => {
       parsed: [],
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message:
             'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
         },

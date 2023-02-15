@@ -2,7 +2,6 @@ import _ from "lodash";
 
 import { primaryColumnValidation } from "./propertyConfig";
 import { ListWidgetProps } from ".";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 describe(".primaryColumnValidation", () => {
   it("validates uniqueness of values with valid input", () => {
@@ -49,7 +48,7 @@ describe(".primaryColumnValidation", () => {
       parsed: [],
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message:
             "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
         },
@@ -84,7 +83,7 @@ describe(".primaryColumnValidation", () => {
         parsed: undefined,
         messages: [
           {
-            name: ErrorMessageType.VALIDATION_ERROR,
+            name: "ValidationError",
             message:
               "Use currentItem or currentIndex to find a good data identifier. You can also combine two or more data attributes or columns.",
           },
@@ -115,7 +114,7 @@ describe(".primaryColumnValidation", () => {
         parsed: undefined,
         messages: [
           {
-            name: ErrorMessageType.VALIDATION_ERROR,
+            name: "ValidationError",
             message:
               "Select an option from the dropdown or toggle JS on to define a data identifier.",
           },
@@ -146,7 +145,7 @@ describe(".primaryColumnValidation", () => {
       parsed: [],
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message:
             "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
         },
@@ -176,7 +175,7 @@ describe(".primaryColumnValidation", () => {
       parsed: input,
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message:
             "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
         },
@@ -212,7 +211,7 @@ describe(".primaryColumnValidation", () => {
       parsed: input,
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message:
             "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
         },

@@ -9,7 +9,6 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -33,7 +32,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
           parsed: 0,
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message: `Value must be a number`,
             },
           ],
@@ -52,7 +51,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
         parsed,
         messages: [
           {
-            name: ErrorMessageType.RANGE_ERROR,
+            name: "RangeError",
             message: `This value must be less than or equal to max count`,
           },
         ],
@@ -66,7 +65,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
         parsed,
         messages: [
           {
-            name: ErrorMessageType.VALIDATION_ERROR,
+            name: "ValidationError",
             message: `This value can be a decimal only if 'Allow half' is true`,
           },
         ],
@@ -80,7 +79,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
       parsed: value,
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: `Could not validate `,
         },
       ],

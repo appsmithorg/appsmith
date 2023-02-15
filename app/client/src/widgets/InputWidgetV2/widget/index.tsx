@@ -32,7 +32,6 @@ import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultValueValidation(
   value: any,
@@ -40,11 +39,11 @@ export function defaultValueValidation(
   _?: any,
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = {
-    name: ErrorMessageType.TYPE_ERROR,
+    name: "TypeError",
     message: "This value must be string",
   };
   const NUMBER_ERROR_MESSAGE = {
-    name: ErrorMessageType.TYPE_ERROR,
+    name: "TypeError",
     message: "This value must be number",
   };
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
@@ -133,25 +132,45 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
     return {
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [
+        {
+          name: "",
+          message: "",
+        },
+      ],
     };
   } else if (!Number.isFinite(min)) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be number",
+        },
+      ],
     };
   } else if (max !== undefined && min >= max) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be lesser than max value"],
+      messages: [
+        {
+          name: "RangeError",
+          message: "This value must be lesser than max value",
+        },
+      ],
     };
   } else {
     return {
       isValid: true,
       parsed: Number(min),
-      messages: [""],
+      messages: [
+        {
+          name: "",
+          message: "",
+        },
+      ],
     };
   }
 }
@@ -165,25 +184,45 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
     return {
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [
+        {
+          name: "",
+          message: "",
+        },
+      ],
     };
   } else if (!Number.isFinite(max)) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be number",
+        },
+      ],
     };
   } else if (min !== undefined && max <= min) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be greater than min value"],
+      messages: [
+        {
+          name: "RangeError",
+          message: "This value must be greater than min value",
+        },
+      ],
     };
   } else {
     return {
       isValid: true,
       parsed: Number(max),
-      messages: [""],
+      messages: [
+        {
+          name: "",
+          message: "",
+        },
+      ],
     };
   }
 }

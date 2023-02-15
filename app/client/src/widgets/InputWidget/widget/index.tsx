@@ -31,7 +31,6 @@ import {
 import { LabelPosition } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultValueValidation(
   value: any,
@@ -62,7 +61,7 @@ export function defaultValueValidation(
           parsed: undefined,
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message: "This value must be a number",
             },
           ],
@@ -86,7 +85,7 @@ export function defaultValueValidation(
       parsed: JSON.stringify(value, null, 2),
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value must be string",
         },
       ],
@@ -103,7 +102,7 @@ export function defaultValueValidation(
         parsed: "",
         messages: [
           {
-            name: ErrorMessageType.TYPE_ERROR,
+            name: "TypeError",
             message: "This value must be string",
           },
         ],

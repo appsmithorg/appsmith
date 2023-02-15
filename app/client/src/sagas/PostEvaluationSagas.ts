@@ -1,6 +1,5 @@
 import {
   ENTITY_TYPE,
-  ErrorMessageType,
   Log,
   PLATFORM_ERROR,
   Severity,
@@ -399,7 +398,7 @@ export function* handleJSFunctionExecutionErrorLog(
                       message: errMsgArr.slice(1).join(":"),
                     }
                   : {
-                      name: ErrorMessageType.VALIDATION_ERROR,
+                      name: "ValidationError",
                       message: error.message,
                     };
               }

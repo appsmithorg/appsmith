@@ -9,7 +9,6 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   ENTITY_TYPE,
-  ErrorMessageType,
   Log,
   LOG_CATEGORY,
   PLATFORM_ERROR,
@@ -86,7 +85,7 @@ const logCyclicDependecyErrors = (
           messages: [
             {
               message: {
-                name: ErrorMessageType.CYCLICAL_DEPENDENCY_ERROR,
+                name: "CyclicalDependencyError",
                 message: !!error.message ? error.message : error.errorType,
               },
               type: PLATFORM_ERROR.PLUGIN_EXECUTION,

@@ -1,9 +1,4 @@
-import {
-  Severity,
-  ENTITY_TYPE,
-  LOG_CATEGORY,
-  ErrorMessageType,
-} from "entities/AppsmithConsole";
+import { Severity, ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -21,7 +16,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -83,7 +78,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -171,7 +166,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -283,7 +278,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -395,7 +390,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -533,7 +528,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -621,7 +616,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -671,7 +666,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -714,7 +709,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -789,7 +784,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },
@@ -834,7 +829,7 @@ describe("getFilteredErrors", () => {
           messages: [
             {
               message: {
-                name: ErrorMessageType.TYPE_ERROR,
+                name: "TypeError",
                 message:
                   "Cannot read properties of undefined (reading 'users')",
               },

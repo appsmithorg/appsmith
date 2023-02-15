@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { get } from "lodash";
 import {
-  ErrorMessageType,
   Log,
   LOG_CATEGORY,
   Message,
@@ -239,8 +238,7 @@ function ErrorLogItem(props: LogItemProps) {
           {props.logType &&
             props.logType !== LOG_TYPE.LINT_ERROR &&
             props.messages &&
-            props.messages[0].message.name !==
-              ErrorMessageType.SYNTAX_ERROR && (
+            props.messages[0].message.name !== "SyntaxError" && (
               <LogTimeStamp
                 severity={props.severity}
                 timestamp={props.timestamp}

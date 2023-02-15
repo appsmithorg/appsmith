@@ -16,7 +16,6 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 /**
  * Validation rules:
@@ -49,7 +48,7 @@ export function optionsCustomValidation(
       } else {
         _isValid = false;
         message = {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: "path:value must be unique. Duplicate values found",
         };
         break;
@@ -59,7 +58,7 @@ export function optionsCustomValidation(
       if (!label) {
         _isValid = false;
         message = {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message:
             "Invalid entry at index: " + i + ". Missing required key: label",
         };
@@ -74,7 +73,7 @@ export function optionsCustomValidation(
       ) {
         _isValid = false;
         message = {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message:
             "Invalid entry at index: " +
             i +
@@ -87,7 +86,7 @@ export function optionsCustomValidation(
       if (typeof value !== valueType) {
         _isValid = false;
         message = {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "All value properties in options must have the same type",
         };
         break;
@@ -97,7 +96,7 @@ export function optionsCustomValidation(
       if (_.isNil(value)) {
         _isValid = false;
         message = {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message:
             'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
         };
@@ -117,7 +116,7 @@ export function optionsCustomValidation(
     parsed: [],
     messages: [
       {
-        name: ErrorMessageType.TYPE_ERROR,
+        name: "TypeError",
         message:
           'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
       },
@@ -149,7 +148,7 @@ function defaultOptionValidation(
       parsed: JSON.stringify(value, null, 2),
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value does not evaluate to type: string or number",
         },
       ],
@@ -163,7 +162,7 @@ function defaultOptionValidation(
       parsed: value,
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value does not evaluate to type: string or number",
         },
       ],

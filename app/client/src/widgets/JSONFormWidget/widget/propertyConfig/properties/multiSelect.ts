@@ -12,7 +12,6 @@ import {
 } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { JSONFormWidgetProps } from "../..";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultOptionValueValidation(
   inputValue: unknown,
@@ -20,12 +19,12 @@ export function defaultOptionValueValidation(
   _: any,
 ): ValidationResponse {
   const DEFAULT_ERROR_MESSAGE = {
-    name: ErrorMessageType.TYPE_ERROR,
+    name: "TypeError",
     message:
       "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
   };
   const UNIQUE_ERROR_MESSAGE = {
-    name: ErrorMessageType.VALIDATION_ERROR,
+    name: "ValidationError",
     message: "value must be unique. Duplicate values found",
   };
 

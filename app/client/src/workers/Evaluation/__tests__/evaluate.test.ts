@@ -8,7 +8,6 @@ import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { functionDeterminer } from "../functionDeterminer";
 import { resetJSLibraries } from "workers/common/JSLibrary";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
@@ -70,7 +69,7 @@ describe("evaluateSync", () => {
       errors: [
         {
           errorMessage: {
-            name: ErrorMessageType.REFERENCE_ERROR,
+            name: "ReferenceError",
             message: "wrongJS is not defined",
           },
           errorType: "PARSE",
@@ -92,7 +91,7 @@ describe("evaluateSync", () => {
       errors: [
         {
           errorMessage: {
-            name: ErrorMessageType.TYPE_ERROR,
+            name: "TypeError",
             message: "{}.map is not a function",
           },
           errorType: "PARSE",
@@ -122,7 +121,7 @@ describe("evaluateSync", () => {
       errors: [
         {
           errorMessage: {
-            name: ErrorMessageType.REFERENCE_ERROR,
+            name: "ReferenceError",
             message: "setImmediate is not defined",
           },
           errorType: "PARSE",
@@ -214,7 +213,7 @@ describe("evaluateAsync", () => {
       errors: [
         {
           errorMessage: {
-            name: ErrorMessageType.REFERENCE_ERROR,
+            name: "ReferenceError",
             message: "randomKeyword is not defined",
           },
           errorType: "PARSE",

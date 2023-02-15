@@ -1,4 +1,3 @@
-import { ErrorMessageType } from "entities/AppsmithConsole";
 import _ from "lodash";
 
 import { JSONFormWidgetProps } from "../..";
@@ -108,7 +107,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: {},
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message:
                 'value should match: string | { "label": "label1", "value": "value1" }',
             },
@@ -122,7 +121,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: {},
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message:
                 'value should match: string | { "label": "label1", "value": "value1" }',
             },
@@ -142,7 +141,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: {},
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message:
                 'value should match: string | { "label": "label1", "value": "value1" }',
             },
@@ -158,7 +157,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: {},
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message:
                 'value should match: string | { "label": "label1", "value": "value1" }',
             },
@@ -174,7 +173,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: {},
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message:
                 'value should match: string | { "label": "label1", "value": "value1" }',
             },
@@ -188,7 +187,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: {},
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message:
                 'value should match: string | { "label": "label1", "value": "value1" }',
             },
@@ -202,7 +201,7 @@ describe(".defaultOptionValueValidation", () => {
           parsed: {},
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message:
                 'value should match: string | { "label": "label1", "value": "value1" }',
             },

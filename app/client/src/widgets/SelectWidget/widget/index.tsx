@@ -25,7 +25,6 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import equal from "fast-deep-equal/es6";
 import derivedProperties from "./parseDerivedProperties";
 import { Stylesheet } from "entities/AppTheming";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -74,7 +73,7 @@ export function defaultOptionValueValidation(
     isValid = false;
     parsed = undefined;
     message = {
-      name: ErrorMessageType.TYPE_ERROR,
+      name: "TypeError",
       message:
         'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }',
     };
@@ -105,14 +104,14 @@ export function defaultOptionValueValidation(
       if (!isServerSideFiltered) {
         isValid = false;
         message = {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: `Default value is missing in options. Please update the value.`,
         };
       } else {
         if (!hasLabelValue(parsed)) {
           isValid = false;
           message = {
-            name: ErrorMessageType.VALIDATION_ERROR,
+            name: "ValidationError",
             message: `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.`,
           };
         }

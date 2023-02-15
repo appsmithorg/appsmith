@@ -1,15 +1,11 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
 
 class ErrorModifier {
-  private errorNamesToScan = [
-    ErrorMessageType.REFERENCE_ERROR,
-    ErrorMessageType.TYPE_ERROR,
-  ];
+  private errorNamesToScan = ["ReferenceError", "TypeError"];
   // Note all regex below groups the async function name
 
   private asyncFunctionsNameMap: Record<string, true> = {};
@@ -29,7 +25,7 @@ class ErrorModifier {
       const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
       if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {
         return {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
             "{{actionName}}",
             asyncFunctionFullPath + "()",
@@ -77,7 +73,7 @@ export const getErrorMessage = (error: Error) => {
         message: error.message,
       }
     : {
-        name: ErrorMessageType.VALIDATION_ERROR,
+        name: "ValidationError",
         message: error.message,
       };
 };

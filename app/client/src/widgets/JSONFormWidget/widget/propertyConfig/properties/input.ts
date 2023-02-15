@@ -14,7 +14,6 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { ICON_NAMES } from "widgets/constants";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 function defaultValueValidation(
   value: any,
@@ -57,7 +56,7 @@ function defaultValueValidation(
           parsed: undefined,
           messages: [
             {
-              name: ErrorMessageType.TYPE_ERROR,
+              name: "TypeError",
               message: "This value must be a number",
             },
           ],
@@ -78,7 +77,7 @@ function defaultValueValidation(
       parsed: JSON.stringify(value, null, 2),
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value must be string",
         },
       ],
@@ -97,7 +96,7 @@ function defaultValueValidation(
         parsed: "",
         messages: [
           {
-            name: ErrorMessageType.TYPE_ERROR,
+            name: "TypeError",
             message: "This value must be string",
           },
         ],
@@ -138,7 +137,7 @@ export function minValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value must be number",
         },
       ],
@@ -149,7 +148,7 @@ export function minValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: ErrorMessageType.RANGE_ERROR,
+          name: "RangeError",
           message: "This value must be lesser than max value",
         },
       ],
@@ -189,7 +188,7 @@ export function maxValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value must be number",
         },
       ],
@@ -200,7 +199,7 @@ export function maxValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: ErrorMessageType.RANGE_ERROR,
+          name: "RangeError",
           message: "This value must be greater than min value",
         },
       ],

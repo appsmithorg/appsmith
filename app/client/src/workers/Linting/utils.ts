@@ -50,7 +50,7 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
-import { ErrorMessageType, Severity } from "entities/AppsmithConsole";
+import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
 import { ActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
@@ -184,7 +184,7 @@ function lintBindingPath(
           variables: [],
           raw: entity.body,
           errorMessage: {
-            name: ErrorMessageType.LINTING_ERROR,
+            name: "LintingError",
             message: INVALID_JSOBJECT_START_STATEMENT,
           },
           severity: Severity.ERROR,
@@ -365,7 +365,7 @@ export function getLintingErrors(
       raw: script,
       severity: getLintSeverity(lintError.code),
       errorMessage: {
-        name: ErrorMessageType.LINTING_ERROR,
+        name: "LintingError",
         message: getLintErrorMessage(lintError.reason),
       },
       errorSegment: lintError.evidence,
@@ -463,7 +463,7 @@ function getInvalidPropertyErrorsFromScript(
         raw: script,
         severity: getLintSeverity(CustomLintErrorCode.INVALID_ENTITY_PROPERTY),
         errorMessage: {
-          name: ErrorMessageType.LINTING_ERROR,
+          name: "LintingError",
           message: CUSTOM_LINT_ERRORS[
             CustomLintErrorCode.INVALID_ENTITY_PROPERTY
           ](object.name, propertyName),

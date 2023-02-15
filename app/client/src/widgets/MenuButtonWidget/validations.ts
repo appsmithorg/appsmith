@@ -1,6 +1,5 @@
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationResponse } from "constants/WidgetValidation";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 import { MenuButtonWidgetProps } from "./constants";
 
 /**
@@ -18,7 +17,7 @@ export function sourceDataArrayValidation(
     parsed: [],
     messages: [
       {
-        name: ErrorMessageType.TYPE_ERROR,
+        name: "TypeError",
         message: "This value does not evaluate to type Array",
       },
     ],
@@ -36,7 +35,7 @@ export function sourceDataArrayValidation(
       if (options.length > 10) {
         isValid = false;
         message = {
-          name: ErrorMessageType.RANGE_ERROR,
+          name: "RangeError",
           message: "Source data cannot have more than 10 items",
         };
       }
@@ -71,7 +70,7 @@ export function textForEachRowValidation(
   };
 
   const DEFAULT_MESSAGE = {
-    name: ErrorMessageType.TYPE_ERROR,
+    name: "TypeError",
     message: "The evaluated value should be either a string or a number.",
   };
 
@@ -132,7 +131,7 @@ export function booleanForEachRowValidation(
   };
 
   const DEFAULT_MESSAGE = {
-    name: ErrorMessageType.TYPE_ERROR,
+    name: "TypeError",
     message: "The evaluated value should be a boolean.",
   };
 
@@ -181,7 +180,7 @@ export function iconNamesForEachRowValidation(
   };
 
   const DEFAULT_MESSAGE = {
-    name: ErrorMessageType.TYPE_ERROR,
+    name: "TypeError",
     message:
       "The evaluated value should either be an icon name, undefined, null, or an empty string. We currently use the icons from the Blueprint library. You can see the list of icons at https://blueprintjs.com/docs/#icons",
   };
@@ -240,7 +239,7 @@ export function iconPositionForEachRowValidation(
   };
 
   const DEFAULT_MESSAGE = {
-    name: ErrorMessageType.TYPE_ERROR,
+    name: "TypeError",
     message: `The evaluated value should be one of the allowed values => ${config?.params?.allowedValues?.join(
       ", ",
     )}, undefined, null, or an empty string`,
@@ -300,7 +299,7 @@ export function colorForEachRowValidation(
   };
 
   const DEFAULT_MESSAGE = {
-    name: ErrorMessageType.TYPE_ERROR,
+    name: "TypeError",
     message: `The evaluated value should match ${config?.params?.regex}`,
   };
 

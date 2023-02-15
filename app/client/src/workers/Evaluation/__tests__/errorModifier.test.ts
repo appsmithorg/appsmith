@@ -1,4 +1,3 @@
-import { ErrorMessageType } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { errorModifier } from "../errorModifier";
 
@@ -128,11 +127,11 @@ describe("Test error modifier", () => {
 
   it("TypeError for defined Api in sync field ", () => {
     const error = new Error();
-    error.name = ErrorMessageType.TYPE_ERROR;
+    error.name = "TypeError";
     error.message = "Api2.run is not a function";
     const result = errorModifier.run(error);
     expect(result).toEqual({
-      name: ErrorMessageType.VALIDATION_ERROR,
+      name: "ValidationError",
       message:
         "Found a reference to Api2.run() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to Api2.run() and try again.",
     });
@@ -140,22 +139,22 @@ describe("Test error modifier", () => {
 
   it("TypeError for undefined Api in sync field ", () => {
     const error = new Error();
-    error.name = ErrorMessageType.TYPE_ERROR;
+    error.name = "TypeError";
     error.message = "Api1.run is not a function";
     const result = errorModifier.run(error);
     expect(result).toEqual({
-      name: ErrorMessageType.TYPE_ERROR,
+      name: "TypeError",
       message: "Api1.run is not a function",
     });
   });
 
   it("ReferenceError for platform function in sync field", () => {
     const error = new Error();
-    error.name = ErrorMessageType.REFERENCE_ERROR;
+    error.name = "ReferenceError";
     error.message = "storeValue is not defined";
     const result = errorModifier.run(error);
     expect(result).toEqual({
-      name: ErrorMessageType.VALIDATION_ERROR,
+      name: "ValidationError",
       message:
         "Found a reference to storeValue() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to storeValue() and try again.",
     });
@@ -163,7 +162,7 @@ describe("Test error modifier", () => {
 
   it("ReferenceError for undefined function in sync field", () => {
     const error = new Error();
-    error.name = ErrorMessageType.REFERENCE_ERROR;
+    error.name = "ReferenceError";
     error.message = "storeValue2 is not defined";
     const result = errorModifier.run(error);
     expect(result).toEqual({

@@ -119,23 +119,6 @@ export interface Message {
   // codeSegment?: string;
 }
 
-// Error types for the message.
-export const ErrorMessageType = {
-  TYPE_ERROR: "TypeError",
-  RANGE_ERROR: "RangeError",
-  REFERENCE_ERROR: "ReferenceError",
-  SYNTAX_ERROR: "SyntaxError",
-  EVAL_ERROR: "EvalError",
-  URI_ERROR: "URIError",
-  ERROR: "Error",
-  VALIDATION_ERROR: "ValidationError",
-  LINTING_ERROR: "LintingError",
-  PLUGIN_EXECUTION_ERROR: "PluginExecutionError",
-  DOWNSTREAM_ERROR: "DownstreamError",
-  CYCLICAL_DEPENDENCY_ERROR: "CyclicalDependencyError",
-  UNCAUGHT_PROMISE_REJECTION: "UncaughtPromiseRejection",
-};
-
 export interface Log extends LogActionPayload {
   severity: Severity;
   // Is the log system generated or user generated

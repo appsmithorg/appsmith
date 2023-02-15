@@ -1,4 +1,3 @@
-import { ErrorMessageType } from "entities/AppsmithConsole";
 import _ from "lodash";
 import { sourceDataArrayValidation } from "./validations";
 
@@ -58,7 +57,7 @@ describe("sourceDataArrayValidation", () => {
       parsed: [],
       messages: [
         {
-          name: ErrorMessageType.RANGE_ERROR,
+          name: "RangeError",
           message: "Source data cannot have more than 10 items",
         },
       ],
@@ -84,7 +83,7 @@ describe("sourceDataArrayValidation", () => {
       parsed: [],
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value does not evaluate to type Array",
         },
       ],

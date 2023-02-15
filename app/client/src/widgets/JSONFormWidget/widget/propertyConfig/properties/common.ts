@@ -2,7 +2,6 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
@@ -86,7 +85,7 @@ function accessorValidation(
       parsed: value,
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: "Property Name cannot be empty",
         },
       ],
@@ -104,7 +103,7 @@ function accessorValidation(
       parsed: "",
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: "Property name already in use.",
         },
       ],
@@ -117,7 +116,7 @@ function accessorValidation(
       parsed: "",
       messages: [
         {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: "This is a restricted Property Name",
         },
       ],

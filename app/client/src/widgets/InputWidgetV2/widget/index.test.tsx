@@ -5,7 +5,6 @@ import {
   maxValueValidation,
 } from "./index";
 import _ from "lodash";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 describe("defaultValueValidation", () => {
   let result: any;
@@ -60,7 +59,7 @@ describe("defaultValueValidation", () => {
       parsed: null,
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value must be number",
         },
       ],
@@ -131,7 +130,7 @@ describe("defaultValueValidation", () => {
       parsed: "",
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value must be string",
         },
       ],
@@ -151,7 +150,7 @@ describe("defaultValueValidation", () => {
       parsed: JSON.stringify(value, null, 2),
       messages: [
         {
-          name: ErrorMessageType.TYPE_ERROR,
+          name: "TypeError",
           message: "This value must be string",
         },
       ],

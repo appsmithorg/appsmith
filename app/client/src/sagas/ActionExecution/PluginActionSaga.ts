@@ -33,11 +33,7 @@ import {
 } from "selectors/applicationSelectors";
 import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import {
-  ENTITY_TYPE,
-  ErrorMessageType,
-  PLATFORM_ERROR,
-} from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { Action, PluginType } from "entities/Action";
@@ -404,7 +400,7 @@ export default function* executePluginActionTriggerSaga(
               // Need to stringify cause this gets rendered directly
               // and rendering objects can crash the app
               message: {
-                name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
+                name: "PluginExecutionError",
                 message: !isString(payload.body)
                   ? JSON.stringify(payload.body)
                   : payload.body,
@@ -593,20 +589,20 @@ function* runActionSaga(
 
   const readableError = payload.readableError
     ? {
-        name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
+        name: "PluginExecutionError",
         message: getErrorAsString(payload.readableError),
       }
     : undefined;
 
   const payloadBodyError = payload.body
     ? {
-        name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
+        name: "PluginExecutionError",
         message: getErrorAsString(payload.body),
       }
     : undefined;
 
   const defaultError = {
-    name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
+    name: "PluginExecutionError",
     message: "An unexpected error occurred",
   };
 
@@ -786,7 +782,7 @@ function* executePageLoadAction(pageAction: PageAction) {
     let payload = EMPTY_RESPONSE;
     let isError = true;
     let error = {
-      name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
+      name: "PluginExecutionError",
       message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
     };
     try {
@@ -801,7 +797,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
       if (e instanceof UserCancelledActionExecutionError) {
         error = {
-          name: ErrorMessageType.PLUGIN_EXECUTION_ERROR,
+          name: "PluginExecutionError",
           message: createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name),
         };
       }

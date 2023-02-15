@@ -19,7 +19,6 @@ import { Alignment } from "@blueprintjs/core";
 import { Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -34,17 +33,17 @@ export function defaultOptionValueValidation(
   let options = props.options;
 
   const DEFAULT_ERROR_MESSAGE = {
-    name: ErrorMessageType.TYPE_ERROR,
+    name: "TypeError",
     message:
       "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
   };
   const MISSING_FROM_OPTIONS = {
-    name: ErrorMessageType.VALIDATION_ERROR,
+    name: "ValidationError",
     message:
       "Some or all default values are missing from options. Please update the values.",
   };
   const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
-    name: ErrorMessageType.VALIDATION_ERROR,
+    name: "ValidationError",
     message:
       "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
   };
@@ -107,7 +106,7 @@ export function defaultOptionValueValidation(
       } else {
         parsed = [];
         message = {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: "values must be unique. Duplicate values found",
         };
       }
@@ -121,7 +120,7 @@ export function defaultOptionValueValidation(
       } else {
         parsed = [];
         message = {
-          name: ErrorMessageType.VALIDATION_ERROR,
+          name: "ValidationError",
           message: "path:value must be unique. Duplicate values found",
         };
       }
