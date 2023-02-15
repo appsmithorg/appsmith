@@ -70,8 +70,10 @@ Note that this command doesn't set any username or password on the database so w
 
 MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
 
-### Convert a standalone MongoDB node to a replica set
-- Upgrade the MongoDB version to 4.4 or higher if it’s 4.2 or lower (https://www.mongodb.com/docs/manual/release-notes/4.4/#std-label-4.4-upgrade)
+Please follow this document for enabling the replica set with mongo running inside the docker
+
+### Convert a standalone MongoDB node to a replica set for non docker based set up
+- Upgrade the MongoDB version to 5.0 or higher
 - Close the mongoDB instance running in your local
 - Start the mongoDB in replica set mode and initiate the replica set
     - mongod --port 27017 --dbpath <path/to/db> --replSet <replica-set-name> && mongo --eval “rs.initiate()”
@@ -171,7 +173,7 @@ Note that as you have installed Docker Desktop with WSL based engine, you can ex
 The following command will start a MongoDB docker instance locally:
 
 ```console
-docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo --replSet rs0
 ```
 
 Please change the `/path/to/store/data` to a valid path on your C drive (C:/) of your system (e.g. C:\mongodata). This is where MongoDB will persist it's data across runs of this container.
