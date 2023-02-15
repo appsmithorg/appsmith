@@ -1386,6 +1386,13 @@ function* pasteWidgetSaga(
     }
 
     for (const widgetGroup of copiedWidgetGroups) {
+      //This is required when you cut the widget as CanvasWidgetState doesn't have the widget anymore
+      const widgetType = widgetGroup.list.find(
+        (widget) => widget.widgetId === widgetGroup.widgetId,
+      )?.type;
+
+      if (!widgetType) break;
+
       yield call(
         executeWidgetBlueprintBeforeOperations,
         BlueprintOperationTypes.BEFORE_PASTE,
@@ -1393,7 +1400,7 @@ function* pasteWidgetSaga(
           parentId: pastingIntoWidgetId,
           widgetId: widgetGroup.widgetId,
           widgets,
-          widgetType: widgets[widgetGroup.widgetId].type,
+          widgetType,
         },
       );
     }
