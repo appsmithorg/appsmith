@@ -35,7 +35,20 @@ export const useNavigateToWidget = () => {
       isWidgetSelected?: boolean,
       isMultiSelect?: boolean,
       isShiftSelect?: boolean,
+      /** Don't use unsafeSelect unless absolutely necessary.
+       * This will skip all checks
+       * and navigate to the widget directly and may cause ux issues */
+      unsafeSelect?: boolean,
     ) => {
+      if (unsafeSelect) {
+        selectWidget(
+          SelectionRequestType.UnsafeSelect,
+          [widgetId],
+          navigationMethod,
+          pageId,
+        );
+        return;
+      }
       const allWidgets = getCurrentPageWidgets(store.getState());
       // restrict multi-select across pages
       if (widgetId && (isMultiSelect || isShiftSelect) && !allWidgets[widgetId])

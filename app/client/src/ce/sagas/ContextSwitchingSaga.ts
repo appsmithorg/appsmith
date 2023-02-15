@@ -165,9 +165,11 @@ function shouldSetState(
   if (
     state &&
     state.invokedBy &&
-    state.invokedBy === NavigationMethod.CommandClick
+    [NavigationMethod.CommandClick, NavigationMethod.Omnibar].includes(
+      state.invokedBy,
+    )
   ) {
-    // If it is a command click navigation, we will set the state
+    // If it is a direct navigation, we will set the state
     return true;
   }
   const prevFocusEntityInfo = identifyEntityFromPath(prevPath);

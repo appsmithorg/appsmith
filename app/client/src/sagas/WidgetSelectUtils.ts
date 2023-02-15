@@ -50,6 +50,9 @@ export enum SelectionRequestType {
   /**
    * Unselect specific widgets */
   Unselect = "Unselect",
+  /** Skip checks and just try to select. Page ID can be supplied to select a
+   * widget on another page */
+  UnsafeSelect = "UnsafeSelect",
 }
 
 export type SelectionPayload = string[];

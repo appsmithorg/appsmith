@@ -17,7 +17,10 @@ import {
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
-import { WidgetSelectionRequestPayload } from "actions/widgetSelectionActions";
+import {
+  setSelectedWidgets,
+  WidgetSelectionRequestPayload,
+} from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppState } from "@appsmith/reducers";
@@ -54,7 +57,12 @@ import { APP_MODE } from "entities/App";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
-    const { payload = [], selectionRequestType, invokedBy } = action.payload;
+    const {
+      payload = [],
+      selectionRequestType,
+      invokedBy,
+      pageId,
+    } = action.payload;
 
     if (payload.some(isInvalidSelectionRequest)) {
       // Throw error
@@ -76,6 +84,10 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     switch (selectionRequestType) {
       case SelectionRequestType.Empty: {
         newSelection = [];
+        break;
+      }
+      case SelectionRequestType.UnsafeSelect: {
+        newSelection = payload;
         break;
       }
       case SelectionRequestType.One: {
@@ -149,9 +161,11 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     if (parentId && newSelection.length === 1) {
       yield call(setWidgetAncestry, parentId, allWidgets);
     }
-    if (!areArraysEqual([...newSelection], [...selectedWidgets])) {
-      yield call(appendSelectedWidgetToUrlSaga, newSelection, invokedBy);
+    if (areArraysEqual([...newSelection], [...selectedWidgets])) {
+      yield call(focusOnWidgetSaga, setSelectedWidgets(newSelection));
+      return;
     }
+    yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
@@ -166,10 +180,12 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
 /**
  * Append Selected widgetId as hash to the url path
  * @param selectedWidgets
+ * @param pageId
  * @param invokedBy
  */
 function* appendSelectedWidgetToUrlSaga(
   selectedWidgets: string[],
+  pageId?: string,
   invokedBy?: NavigationMethod,
 ) {
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
@@ -182,12 +198,12 @@ function* appendSelectedWidgetToUrlSaga(
   const currentURL = pathname;
   const newUrl = selectedWidgets.length
     ? widgetURL({
-        pageId: currentPageId,
+        pageId: pageId ?? currentPageId,
         persistExistingParams: true,
         selectedWidgets,
       })
     : builderURL({
-        pageId: currentPageId,
+        pageId: pageId ?? currentPageId,
         persistExistingParams: true,
       });
   if (currentURL !== newUrl) {
