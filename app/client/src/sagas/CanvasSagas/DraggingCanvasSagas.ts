@@ -316,10 +316,12 @@ function* moveWidgetsSaga(
       yield call(
         executeWidgetBlueprintBeforeOperations,
         BlueprintOperationTypes.BEFORE_DROP,
-        allWidgets,
-        dragBlock.widgetId,
-        canvasId,
-        allWidgets[dragBlock.widgetId].type,
+        {
+          parentId: canvasId,
+          widgetId: dragBlock.widgetId,
+          widgets: allWidgets,
+          widgetType: allWidgets[dragBlock.widgetId].type,
+        },
       );
     }
 

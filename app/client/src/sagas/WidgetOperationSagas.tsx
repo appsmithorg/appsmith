@@ -1389,10 +1389,12 @@ function* pasteWidgetSaga(
       yield call(
         executeWidgetBlueprintBeforeOperations,
         BlueprintOperationTypes.BEFORE_PASTE,
-        widgets,
-        widgetGroup.widgetId,
-        pastingIntoWidgetId,
-        widgets[widgetGroup.widgetId].type,
+        {
+          parentId: pastingIntoWidgetId,
+          widgetId: widgetGroup.widgetId,
+          widgets,
+          widgetType: widgets[widgetGroup.widgetId].type,
+        },
       );
     }
 

@@ -308,10 +308,12 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     yield call(
       executeWidgetBlueprintBeforeOperations,
       BlueprintOperationTypes.BEFORE_ADD,
-      stateWidgets,
-      newWidgetId,
-      widgetId,
-      type,
+      {
+        parentId: widgetId,
+        widgetId: newWidgetId,
+        widgets: stateWidgets,
+        widgetType: type,
+      },
     );
 
     const updatedWidgets: {

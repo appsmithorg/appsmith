@@ -246,13 +246,23 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
   return widgets;
 }
 
+type ExecuteWidgetBlueprintBeforeOperationsParams = {
+  parentId: string;
+  widgetId: string;
+  widgets: { [widgetId: string]: FlattenedWidgetProps };
+  widgetType: WidgetType;
+};
+
 export function* executeWidgetBlueprintBeforeOperations(
-  blueprintOperation: BlueprintOperationTypes,
-  widgets: { [widgetId: string]: FlattenedWidgetProps },
-  widgetId: string,
-  parentId: string,
-  widgetType: WidgetType,
+  blueprintOperation: Extract<
+    BlueprintOperationTypes,
+    | BlueprintOperationTypes.BEFORE_ADD
+    | BlueprintOperationTypes.BEFORE_DROP
+    | BlueprintOperationTypes.BEFORE_PASTE
+  >,
+  params: ExecuteWidgetBlueprintBeforeOperationsParams,
 ) {
+  const { parentId, widgetId, widgets, widgetType } = params;
   const blueprintOperations: BlueprintOperation[] =
     WidgetFactory.widgetConfigMap.get(widgetType)?.blueprint?.operations ?? [];
 
