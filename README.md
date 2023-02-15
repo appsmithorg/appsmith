@@ -7,7 +7,7 @@
 </p>
 <br />
 
-<p>Appsmith is an open-source platform to build, deploy, and maintain internal apps. You can build anything from simple CRUD apps, admin panels, dashboards to custom business apps and complicated multi-step workflows.</p>
+<p>Appsmith is an open-source platform to build, deploy, and mainta in internal apps. You can build anything from simple CRUD apps, admin panels, dashboards to custom business apps and complicated multi-step workflows.</p>
 
 <p align="center">
 <a href="https://discord.gg/rBTTVJp">
