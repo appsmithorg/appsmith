@@ -70,7 +70,7 @@ export default abstract class AppEngine {
     if (!apiCalls)
       throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
     const application: ApplicationPayload = yield select(getCurrentApplication);
-    const currentGitBranch: string | undefined = yield select(
+    const currentGitBranch: ReturnType<typeof getCurrentGitBranch> = yield select(
       getCurrentGitBranch,
     );
     yield put(
