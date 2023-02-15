@@ -4,6 +4,7 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
@@ -89,6 +90,8 @@ public class GitServiceCEImplTest {
     ActionPermission actionPermission;
     @MockBean
     WorkspaceService workspaceService;
+    @MockBean
+    RedisUtils redisUtils;
 
     @BeforeEach
     public void setup() {
@@ -97,7 +100,7 @@ public class GitServiceCEImplTest {
                 newPageService, newActionService, actionCollectionService, gitFileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
                 datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
-                actionPermission, workspaceService
+                actionPermission, workspaceService, redisUtils
         );
     }
 
