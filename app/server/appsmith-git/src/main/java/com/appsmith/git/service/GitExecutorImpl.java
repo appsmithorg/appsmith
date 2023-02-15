@@ -169,7 +169,6 @@ public class GitExecutorImpl implements GitExecutor {
                     processStopwatch.stopAndLogTimeInMillis();
                     commitLogs.add(gitLog);
                 });
-
                 return commitLogs;
             }
         })
@@ -341,6 +340,8 @@ public class GitExecutorImpl implements GitExecutor {
                         .getName();
                 processStopwatch.stopAndLogTimeInMillis();
                 return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
+            } catch (Exception e) {
+                throw new Exception(e);
             }
         })
         .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -624,7 +625,6 @@ public class GitExecutorImpl implements GitExecutor {
                         MergeStatusDTO mergeStatus = new MergeStatusDTO();
                         mergeStatus.setMergeAble(false);
                         mergeStatus.setConflictingFiles(((CheckoutConflictException) e).getConflictingPaths());
-                        git.close();
                         processStopwatch.stopAndLogTimeInMillis();
                         return mergeStatus;
                     }

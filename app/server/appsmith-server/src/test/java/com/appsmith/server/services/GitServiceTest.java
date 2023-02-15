@@ -60,6 +60,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.internal.stubbing.answers.AnswersWithDelay;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -2605,22 +2608,23 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
+        Application application1 = createApplicationConnectedToGit("createBranch_cancelledMidway_newApplicationCreated", "master");
         gitService
-                .createBranch(gitConnectedApplication.getId(), createGitBranchDTO, gitConnectedApplication.getGitApplicationMetadata().getBranchName())
+                .createBranch(application1.getId(), createGitBranchDTO, application1.getGitApplicationMetadata().getBranchName())
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
-        Mono<Application> branchedAppMono = Mono.just(gitConnectedApplication)
+        Mono<Application> branchedAppMono = Mono.just(application1)
                 .flatMap(application -> {
                     try {
                         // Before fetching the git connected application, sleep for 5 seconds to ensure that the clone
                         // completes
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     return applicationService
-                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS);
+                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), MANAGE_APPLICATIONS);
                 });
 
         StepVerifier
@@ -2630,7 +2634,7 @@ public class GitServiceTest {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotEqualTo(gitData.getDefaultApplicationId());
-                    assertThat(gitData.getDefaultApplicationId()).isEqualTo(gitConnectedApplication.getId());
+                    assertThat(gitData.getDefaultApplicationId()).isEqualTo(application1.getId());
                     assertThat(gitData.getBranchName()).isEqualTo(createGitBranchDTO.getBranchName());
                     assertThat(gitData.getDefaultBranchName()).isNotEmpty();
                     assertThat(gitData.getRemoteUrl()).isNotEmpty();
@@ -3267,6 +3271,42 @@ public class GitServiceTest {
                     Set<String> branchNames = new HashSet<>();
                     applicationList.forEach(application1 -> branchNames.add(application1.getGitApplicationMetadata().getBranchName()));
                     assertThat(branchNames).doesNotContain(TO_BE_DELETED_BRANCH);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void commitAndPushApplication_WithMultipleUsers_success() throws GitAPIException, IOException {
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setDoPush(true);
+        commitDTO.setCommitMessage("test commit");
+
+        PageDTO page = new PageDTO();
+        page.setApplicationId(gitConnectedApplication.getId());
+        page.setName("commit_WithMultipleUsers_page");
+        applicationPageService.createPage(page).block();
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("committed successfully"));
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("pushed successfully"));
+
+        // First request for commit operation
+        Mono<String> commitMonoReq1 = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        // Second request for commit operation
+        Mono<String> commitMonoReq2 = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+
+        // Both the request to execute completely without the file lock error from jgit.
+        StepVerifier
+                .create(Mono.zip(commitMonoReq1, commitMonoReq2))
+                .assertNext(tuple ->{
+                    assertThat(tuple.getT1()).contains("committed successfully");
+                    assertThat(tuple.getT2()).contains("committed successfully");
                 })
                 .verifyComplete();
     }

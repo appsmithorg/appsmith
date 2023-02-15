@@ -44,7 +44,7 @@ export function* getChildOfContainerLikeWidget(
     // Get the current tabs widget meta
     const tabsMeta: { selectedTabWidgetId: string } | undefined = yield select(
       getWidgetMetaProps,
-      containerLikeWidget.widgetId,
+      containerLikeWidget,
     );
     // If we have a meta for the tabs widget
     if (tabsMeta) return tabsMeta.selectedTabWidgetId;

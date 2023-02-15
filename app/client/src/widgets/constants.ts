@@ -64,6 +64,8 @@ export type CanvasWidgetStructure = Pick<
   keyof typeof staticProps
 > & {
   children?: CanvasWidgetStructure[];
+  selected?: boolean;
+  onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
 };
 
 export enum FileDataTypes {

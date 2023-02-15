@@ -91,7 +91,7 @@ server {
   }
 
   location /rts {
-    proxy_pass http://localhost:8091;
+    proxy_pass http://localhost:${APPSMITH_RTS_PORT:-8091};
     proxy_http_version 1.1;
     proxy_set_header Host \$host;
     proxy_set_header Connection 'upgrade';
