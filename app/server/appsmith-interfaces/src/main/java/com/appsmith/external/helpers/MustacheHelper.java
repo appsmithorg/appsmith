@@ -325,11 +325,7 @@ public class MustacheHelper {
 
         for (MustacheBindingToken token : tokenize(template)) {
             if (token.getValue().startsWith("{{") && token.getValue().endsWith("}}")) {
-                if (keyValueMap.get(token.getValue().substring(2, token.getValue().length() - 2).trim()) != null) {
-                    rendered.append(keyValueMap.get(token.getValue().substring(2, token.getValue().length() - 2).trim()));
-                } else {
-                    rendered.append(token.getValue());
-                }
+                rendered.append(keyValueMap.get(token.getValue().substring(2, token.getValue().length() - 2).trim()));
             } else {
                 rendered.append(token.getValue());
             }
