@@ -75,6 +75,8 @@ public enum AnalyticsEvents {
     UNASSIGNED_USERS_FROM_PERMISSION_GROUP,
     ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP,
     UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP,
+    ACTIVATE_NEW_INSTANCE("Activate_New_Instance"),
+    UPDATE_EXISTING_LICENSE("Update_Existing_License"),
     ;
 
     private final String eventName;
