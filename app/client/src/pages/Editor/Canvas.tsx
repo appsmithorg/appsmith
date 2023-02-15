@@ -10,6 +10,9 @@ import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
+import classNames from "classnames";
+import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
+import { AppSettingsTabs } from "./AppSettingsPane/AppSettings";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -33,6 +36,9 @@ const Canvas = (props: CanvasProps) => {
   const { canvasScale = 1, canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
+  const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
+  const isAppSettingsPaneWithNavigationTabOpen =
+    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
 
   /**
    * background for canvas
@@ -52,7 +58,10 @@ const Canvas = (props: CanvasProps) => {
       <Container
         $canvasScale={canvasScale}
         background={backgroundForCanvas}
-        className="relative mx-auto t--canvas-artboard pb-52"
+        className={classNames({
+          "relative t--canvas-artboard pb-52": true,
+          "mx-auto": !isAppSettingsPaneWithNavigationTabOpen,
+        })}
         data-testid="t--canvas-artboard"
         id="art-board"
         ref={focusRef}

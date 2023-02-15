@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -7,7 +7,7 @@ import {
   getIsFetchingPage,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import PageTabs from "./PageTabs";
+import NavigationPreview from "./NavigationPreview";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -59,6 +59,25 @@ function WidgetsEditor() {
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
+  const navigationPreviewRef = useRef(null);
+  const [navigationHeight, setNavigationHeight] = useState(0);
+  const isAppSettingsPaneWithNavigationTabOpen =
+    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
+
+  useEffect(() => {
+    if (navigationPreviewRef?.current) {
+      const { offsetHeight } = navigationPreviewRef.current;
+
+      setNavigationHeight(offsetHeight);
+    } else {
+      setNavigationHeight(0);
+    }
+  }, [
+    navigationPreviewRef,
+    isPreviewMode,
+    appSettingsPaneContext?.type,
+    currentApplicationDetails?.navigationSetting,
+  ]);
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -127,15 +146,13 @@ function WidgetsEditor() {
   );
 
   const showNavigation = () => {
-    if (
-      isPreviewMode ||
-      AppSettingsTabs.Navigation === appSettingsPaneContext?.type
-    ) {
+    if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
       return (
-        <PageTabs
+        <NavigationPreview
           isAppSettingsPaneWithNavigationTabOpen={
-            AppSettingsTabs.Navigation === appSettingsPaneContext?.type
+            isAppSettingsPaneWithNavigationTabOpen
           }
+          ref={navigationPreviewRef}
         />
       );
     }
@@ -164,16 +181,26 @@ function WidgetsEditor() {
 
                 <PageViewContainer
                   hasPinnedSidebar={
-                    isPreviewMode
+                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
                       ? currentApplicationDetails?.navigationSetting
                           ?.orientation ===
                           NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
                         isAppSidebarPinned
                       : false
                   }
-                  sidebarWidth={isPreviewMode ? sidebarWidth : 0}
+                  sidebarWidth={
+                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+                      ? sidebarWidth
+                      : 0
+                  }
                 >
-                  <CanvasContainer />
+                  <CanvasContainer
+                    isAppSettingsPaneWithNavigationTabOpen={
+                      AppSettingsTabs.Navigation ===
+                      appSettingsPaneContext?.type
+                    }
+                    navigationHeight={navigationHeight}
+                  />
                 </PageViewContainer>
 
                 <CrudInfoModal />
