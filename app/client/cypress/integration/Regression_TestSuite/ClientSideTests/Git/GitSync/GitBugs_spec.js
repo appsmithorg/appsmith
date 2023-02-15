@@ -5,11 +5,14 @@ const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../../locators/Pages.json");
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import datasourceFormData from "../../../../../fixtures/datasources.json";
+
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
 const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
+
 let repoName;
 
 describe("Git sync Bug #10773", function() {
@@ -265,7 +268,6 @@ describe("Git sync Bug #10773", function() {
           );
         });
       _.gitSync.DeleteTestGithubRepo(repoName);
-      //cy.deleteTestGithubRepo(repoName);
     });
   });
 
@@ -299,7 +301,7 @@ describe("Git sync Bug #10773", function() {
           `generateKey-${repoName}`,
         );
         cy.get(gitSyncLocators.gitRepoInput).type(
-          `{selectAll}git@35.154.225.218:CI-Gitea/${repoName}.git`,
+          `{selectAll}${datasourceFormData["GITEA_API_URL_TED"]}/${repoName}.git`,
         );
         // abort git flow after generating key
         cy.get(gitSyncLocators.closeGitSyncModal).click();

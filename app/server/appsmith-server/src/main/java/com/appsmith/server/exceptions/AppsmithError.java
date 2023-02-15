@@ -156,6 +156,7 @@ public enum AppsmithError {
     SERVER_NOT_READY(500, AppsmithErrorCode.SERVER_NOT_READY.getCode(), "Appsmith server is not ready. Please try again in some time.", AppsmithErrorAction.LOG_EXTERNALLY, "Server not ready", ErrorType.INTERNAL_ERROR, null),
     SESSION_BAD_STATE(500, AppsmithErrorCode.SESSION_BAD_STATE.getCode(), "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, "Invalid user session", ErrorType.INTERNAL_ERROR, null),
     INVALID_LICENSE_KEY_ENTERED(400, AppsmithErrorCode.INVALID_LICENSE_KEY_ENTERED.getCode(), "The license key entered is invalid. Please try again.", AppsmithErrorAction.DEFAULT, "Invalid license key", ErrorType.ARGUMENT_ERROR, null),
+    GIT_FILE_IN_USE(500, AppsmithErrorCode.GIT_FILE_IN_USE.getCode(), "File lock in use. Please wait for a few seconds and try again", AppsmithErrorAction.DEFAULT, "File lock in use", ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

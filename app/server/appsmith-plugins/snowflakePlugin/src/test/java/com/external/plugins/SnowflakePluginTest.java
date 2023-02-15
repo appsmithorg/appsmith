@@ -10,6 +10,8 @@ import com.external.plugins.exceptions.SnowflakeErrorMessages;
 import com.external.plugins.exceptions.SnowflakePluginError;
 import com.external.utils.ExecutionUtils;
 import com.external.utils.ValidationUtils;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.extern.slf4j.Slf4j;
 import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 import org.junit.jupiter.api.Test;
@@ -70,10 +72,31 @@ public class SnowflakePluginTest {
                         "Authentication token expired",
                         "",
                         0));
+
+        final HikariPoolMXBean hikariPoolMXBean = mock(HikariPoolMXBean.class);
+        when(hikariPoolMXBean.getActiveConnections())
+                .thenReturn(1);
+        when(hikariPoolMXBean.getIdleConnections())
+                .thenReturn(4);
+        when(hikariPoolMXBean.getTotalConnections())
+                .thenReturn(5);
+        when(hikariPoolMXBean.getThreadsAwaitingConnection())
+                .thenReturn(0);
+
+        final HikariDataSource hikariDataSource = mock(HikariDataSource.class);
+        when(hikariDataSource.getConnection())
+                .thenReturn(connection);
+        when(hikariDataSource.isClosed())
+                .thenReturn(false);
+        when(hikariDataSource.isRunning())
+                .thenReturn(true);
+        when(hikariDataSource.getHikariPoolMXBean())
+                .thenReturn(hikariPoolMXBean);
+
         final ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(testQuery);
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                pluginExecutor.execute(connection, new DatasourceConfiguration(), actionConfiguration);
+                pluginExecutor.execute(hikariDataSource, new DatasourceConfiguration(), actionConfiguration);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof StaleConnectionException)
