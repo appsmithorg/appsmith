@@ -11,6 +11,7 @@ import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { AppTheme } from "entities/AppTheming";
 import log from "loglevel";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
   ActionDispatcher,
@@ -86,6 +87,7 @@ type DataTreeSeed = {
   appData: AppDataState;
   jsActions: JSCollectionDataState;
   theme: AppTheme["properties"];
+  metaWidgets: MetaWidgetsReduxState;
 };
 
 export type DataTreeEntityConfig =
@@ -108,6 +110,7 @@ export class DataTreeFactory {
     appData,
     editorConfigs,
     jsActions,
+    metaWidgets,
     pageList,
     pluginDependencyConfig,
     theme,
@@ -164,6 +167,17 @@ export class DataTreeFactory {
       theme,
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
+
+    const startMetaWidgets = performance.now();
+
+    Object.values(metaWidgets).forEach((widget) => {
+      dataTree[widget.widgetName] = generateDataTreeWidget(
+        widget,
+        widgetsMeta[widget.metaWidgetId || widget.widgetId],
+      );
+    });
+    const endMetaWidgets = performance.now();
+
     const end = performance.now();
 
     const out = {
@@ -171,6 +185,7 @@ export class DataTreeFactory {
       widgets: endWidgets - startWidgets,
       actions: endActions - startActions,
       jsActions: endJsActions - startJsActions,
+      metaWidgets: endMetaWidgets - startMetaWidgets,
     };
 
     log.debug("### Create unevalTree timing", out);

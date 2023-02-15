@@ -46,6 +46,7 @@ export default function(request: EvalWorkerSyncRequest) {
   const {
     allActionValidationConfig,
     forceEvaluation,
+    metaWidgets,
     requiresLinting,
     shouldReplay,
     theme,
@@ -167,6 +168,7 @@ export default function(request: EvalWorkerSyncRequest) {
         nonDynamicFieldValidationOrder,
         configTree,
         unEvalUpdates,
+        Object.keys(metaWidgets),
       );
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,

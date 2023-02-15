@@ -7,6 +7,7 @@ import {
   unEvalAndConfigTree,
 } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 import { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import {
@@ -37,7 +38,9 @@ export interface EvalTreeRequestData {
   };
   requiresLinting: boolean;
   forceEvaluation: boolean;
+  metaWidgets: MetaWidgetsReduxState;
 }
+
 export interface EvalTreeResponseData {
   dataTree: DataTree;
   dependencies: DependencyMap;

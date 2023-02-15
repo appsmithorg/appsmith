@@ -20,7 +20,7 @@ import {
   ConfigTree,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import _, { find, get, isEmpty, set } from "lodash";
+import _, { difference, find, get, isEmpty, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -390,6 +390,12 @@ export function isWidget(
   );
 }
 
+export const shouldSuppressAutoComplete = (widget: DataTreeWidget) =>
+  Boolean(widget.suppressAutoComplete);
+
+export const shouldSuppressDebuggerError = (widget: DataTreeWidget) =>
+  Boolean(widget.suppressDebuggerError);
+
 export function isAction(
   entity: Partial<DataTreeEntity>,
 ): entity is DataTreeAction {
@@ -753,6 +759,33 @@ export const getDataTreeWithoutPrivateWidgets = (
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
 };
+
+const getDataTreeWithoutSuppressedAutoComplete = (
+  dataTree: DataTree,
+): DataTree => {
+  const entityIds = Object.keys(dataTree).filter((entityName) => {
+    const entity = dataTree[entityName];
+    return isWidget(entity) && shouldSuppressAutoComplete(entity);
+  });
+
+  return _.omit(dataTree, entityIds);
+};
+
+export const getDataTreeForAutocomplete = (
+  dataTree: DataTree,
+  configTree: ConfigTree,
+): DataTree => {
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
+    dataTree,
+    configTree,
+  );
+  const treeWithoutSuppressedAutoComplete = getDataTreeWithoutSuppressedAutoComplete(
+    treeWithoutPrivateWidgets,
+  );
+
+  return treeWithoutSuppressedAutoComplete;
+};
+
 /**
  *  overrideWidgetProperties method has logic to update overriddenPropertyPaths when overridingPropertyPaths are evaluated.
  *
@@ -876,7 +909,7 @@ export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
   });
 };
 
-export const widgetPathsNotToOverride = (
+const widgetPathsNotToOverride = (
   isNewWidget: boolean,
   entity: DataTreeWidget,
   propertyPath: string,
@@ -909,3 +942,33 @@ export const widgetPathsNotToOverride = (
   }
   return pathsNotToOverride;
 };
+
+const isWidgetDefaultPropertyPath = (
+  widget: WidgetEntityConfig,
+  propertyPath: string,
+) => {
+  for (const property of Object.keys(widget.propertyOverrideDependency)) {
+    const overrideDependency = widget.propertyOverrideDependency[property];
+    if (overrideDependency.DEFAULT === propertyPath) return true;
+  }
+  return false;
+};
+
+const isMetaWidgetTemplate = (widget: WidgetEntityConfig) => {
+  return !!widget.siblingMetaWidgets;
+};
+
+// When a default value changes in a template(widgets used to generate other widgets), meta values of metaWidgets not present in the unevalTree become stale
+export function getStaleMetaStateIds(args: {
+  entity: WidgetEntityConfig;
+  propertyPath: string;
+  isNewWidget: boolean;
+  metaWidgets: string[];
+}) {
+  const { entity, isNewWidget, metaWidgets, propertyPath } = args;
+  return !isNewWidget &&
+    isWidgetDefaultPropertyPath(entity, propertyPath) &&
+    isMetaWidgetTemplate(entity)
+    ? difference(entity.siblingMetaWidgets, metaWidgets)
+    : [];
+}
