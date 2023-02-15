@@ -4,7 +4,6 @@ import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.external.utils.QueryUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -31,7 +30,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
-import org.mockito.MockedStatic;
 import org.reactivestreams.Publisher;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
@@ -43,7 +41,14 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,9 +63,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static reactor.core.publisher.Mono.zip;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.mockStatic;
 
 @Slf4j
 @Testcontainers
@@ -1498,7 +1502,7 @@ public class MySqlPluginTest {
         }
 
         @Test
-        public void testExecuteCommon(){
+        public void testExecuteCommon_queryWithComments_callValidationCallsAfterRemovingComments(){
                 MySqlPlugin.MySqlPluginExecutor spyPlugin = spy(pluginExecutor);
 
                 dsConfig = createDatasourceConfiguration();
@@ -1510,24 +1514,19 @@ public class MySqlPluginTest {
                 List<Property> pluginSpecifiedTemplates = new ArrayList<>();
                 pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
                 actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
-                Map<String, Object> requestData = new HashMap<>();
+                HashMap<String, Object> requestData = new HashMap<>();
 
-                try (MockedStatic<QueryUtils> mockQueryUtils = mockStatic(QueryUtils.class)) {
-                        mockQueryUtils.when(() -> QueryUtils.removeQueryComments(actionConfiguration.getBody()))
-                            .thenReturn("SELECT id FROM users WHERE id = 1 limit 1");
+                spyPlugin.executeCommon(
+                        dsConnectionMono,
+                        actionConfiguration,
+                        TRUE,
+                        null,
+                        null,
+                        requestData
+                );
 
-                        spyPlugin.executeCommon(
-                                dsConnectionMono,
-                                actionConfiguration,
-                                TRUE,
-                                null,
-                                null,
-                                requestData
-                        );
+                verify(spyPlugin).isIsOperatorUsed("SELECT id FROM users WHERE \nid = 1 limit 1;");
 
-                        verify(spyPlugin).isIsOperatorUsed("SELECT id FROM users WHERE id = 1 limit 1");
-
-                        verify(spyPlugin).getIsSelectOrShowOrDescQuery("SELECT id FROM users WHERE id = 1 limit 1");
-                }
+                verify(spyPlugin).getIsSelectOrShowOrDescQuery("SELECT id FROM users WHERE \nid = 1 limit 1;");
         }
 }
