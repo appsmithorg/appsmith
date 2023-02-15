@@ -72,7 +72,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   const Layers = useContext(LayersContext);
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
-  return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
+  return (
     <StyledDialog
       canEscapeKeyClose
       canOutsideClickClose
@@ -81,11 +81,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
       onClose={onClose}
       onOpening={onOpening}
       title="Product Updates"
-      trigger={
-        props.hideTrigger ? null : (
-          <UpdatesButton newReleasesCount={newReleasesCount} />
-        )
-      }
+      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
       triggerZIndex={Layers.productUpdates}
       width={"580px"}
     >
@@ -96,7 +92,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
       </Container>
       <ScrollIndicator containerRef={containerRef} />
     </StyledDialog>
-  ) : null;
+  );
 }
 
 export default ProductUpdatesModal;
