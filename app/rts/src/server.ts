@@ -35,7 +35,7 @@ if (API_BASE_URL == null || API_BASE_URL === "") {
   process.exit(1);
 }
 
-const PORT = process.env.PORT || 8091;
+const APPSMITH_RTS_PORT = process.env.APPSMITH_RTS_PORT || 8091;
 
 //Disable x-powered-by header to prevent information disclosure
 const app = express();
@@ -62,8 +62,8 @@ app.use(`${RTS_BASE_API_PATH}`, health_check_routes);
 server.headersTimeout = 61000;
 server.keepAliveTimeout = 60000;
 // Run the server
-server.listen(PORT, () => {
-  log.info(`RTS version ${buildVersion} running at http://localhost:${PORT}`);
+server.listen(APPSMITH_RTS_PORT, () => {
+  log.info(`RTS version ${buildVersion} running at http://localhost:${APPSMITH_RTS_PORT}`);
 });
 
 export default server;
