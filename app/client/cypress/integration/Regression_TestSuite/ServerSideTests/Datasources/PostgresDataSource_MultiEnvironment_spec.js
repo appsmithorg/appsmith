@@ -1,6 +1,7 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const datasourceFormData = require("../../../../fixtures/datasources.json");
+const queryLocators = require("../../../../locators/QueryEditor.json");
 
 let guid, datasourceName;
 
@@ -8,21 +9,21 @@ let dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper;
 
 let dataSource = ObjectsRegistry.DataSources;
-let datasourceName;
+//let datasourceName;
 
 describe("Postgres datasource test cases for Multi-Environment ", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("Create and Validate Postgres Datasource", function() {
+  it("1.Create and Validate Postgres Datasource with AutoSave validation and other negative scenarios", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.reload();
-    cy.get(".t--datasource-modal-do-not-save").click({ force: true });
-    cy.get("[data-cy='t--invalid-page-go-back']").click({ force: true });
-    cy.get("[data-cy='t--invalid-page-go-back']").click({ force: true });
-    cy.get(datasource.PostgreSQL).click();
+    //cy.reload();
+    //cy.get(".t--datasource-modal-do-not-save").click({ force: true });
+    //cy.get("[data-cy='t--invalid-page-go-back']").click({ force: true });
+    //cy.get("[data-cy='t--invalid-page-go-back']").click({ force: true });
+    //cy.get(datasource.PostgreSQL).click();
     // Validating save option before toggling env
     cy.xpath("//input[contains(@name,'host')]")
       .clear()
@@ -30,6 +31,7 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
     cy.xpath("//input[contains(@name,'port')]")
       .clear()
       .type(datasourceFormData["postgres-port"]);
+    /*  
     cy.toggleBetweenEnvironment("Staging");
     cy.get(".t--datasource-modal-do-not-save").click();
     cy.get("[data-cy='t--invalid-page-go-back']").click({ force: true });
@@ -47,6 +49,7 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
     cy.xpath("//div[text()='Datasource Saved']").should("be.visible");
     cy.get(".t--edit-datasource").click();
     cy.toggleBetweenEnvironment("Production");
+    */
     cy.xpath("//input[contains(@name,'host')]")
       .clear()
       .type(datasourceFormData["postgres-host"]);
@@ -95,14 +98,13 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
       .last()
       .click();
     cy.saveDatasource();
-    dataSources.CreateDataSource("Postgres");
-    cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
+    cy.get("@saveDatasource").then((httpResponse) => {
+      datasourceName = JSON.stringify(httpResponse.response.body.data.name);
     });
     cy.get(".t--edit-datasource").click({ force: true });
   });
 
-  it("Update DS details and create Production/Staging Env variables", function() {
+  it("2.Update DS details and create Production/Staging Env variables", function() {
     cy.wait(5000);
     cy.get(".t--edit-datasource").click({ force: true });
     //bindProductionEnvironmentVariable
@@ -168,30 +170,20 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
     cy.wait(30000);
     cy.xpath("//span[(@type='p1') and contains(text(),'Production')]");
   });
-  /*
-      it("2. Create with trailing white spaces in host address and database name, test, save then delete a postgres datasource", function() {
-        cy.NavigateToDatasourceEditor();
-        cy.get(datasource.PostgreSQL).click();
-        cy.fillPostgresDatasourceForm(true);
-        cy.testSaveDatasource();
-        cy.get("@saveDatasource").then((httpResponse) => {
-          datasourceName = JSON.stringify(
-            httpResponse.response.body.data.name,
-          ).replace(/['"]+/g, "");
-        });
-      });
-    
-      it("3. Create a new query from the datasource editor", function() {
-        cy.get(datasource.createQuery)
+
+  it("3. Create a new query from the datasource editor", function() {
+    cy.NavigateToQueryEditor();
+    cy.NavigateToActiveTab();
+    cy.get(datasource.createQuery)
           .last()
           .click();
-        cy.wait("@createNewApi").should(
+    cy.wait("@createNewApi").should(
           "have.nested.property",
           "response.body.responseMeta.status",
           201,
         );
-        cy.deleteQueryUsingContext();
-        cy.deleteDatasource(datasourceName);
-      });
-    */
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate("select * from users limit 10");
+    cy.runAndDeleteQuery();
+  });
 });

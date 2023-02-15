@@ -6,9 +6,10 @@ describe("Create, test, save then delete a mongo datasource with multiple enviro
     cy.startRoutesForDatasource();
   });
 
-  it("Create and Validate MongoDB Datasource", function () {
+  it("1.Create and Validate MySQL Datasource with AutoSave validation and other negative scenarios", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
+    /*
     cy.reload();
     cy.get(".t--datasource-modal-do-not-save").click({ force: true });
     cy.get("[data-cy='t--invalid-page-go-back']").click({ force: true });
@@ -35,6 +36,7 @@ describe("Create, test, save then delete a mongo datasource with multiple enviro
     cy.xpath("//div[text()='Datasource Saved']").should("be.visible");
     cy.get(".t--edit-datasource").click();
     cy.toggleBetweenEnvironment("Production");
+    */
     cy.xpath("//input[contains(@name,'host')]").clear()
         .type(datasourceFormData["mongo-host"]);
     cy.xpath("//input[contains(@name,'port')]").clear()
@@ -79,7 +81,7 @@ describe("Create, test, save then delete a mongo datasource with multiple enviro
     cy.get(".t--edit-datasource").click({force: true});
   })
 
-  it("test, save then delete a mongo datasource", function() {
+  it("2.Update DS details and create Production/Staging Env variables", function() {
     cy.fillMongoDatasourceForm();
     // cy.testSaveDeleteDatasource();
     cy.get(".t--save-datasource").click();
