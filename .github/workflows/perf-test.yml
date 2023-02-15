@@ -93,6 +93,7 @@ jobs:
       
       # Set up Node.js cache yarn dependencies
       - name: Set up Node.js
+        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
           node-version: '16.14.0'
