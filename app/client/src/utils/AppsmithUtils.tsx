@@ -85,6 +85,7 @@ export const initializeAnalyticsAndTrackers = () => {
 };
 
 export const initializeSegmentWithoutTracking = () => {
+  console.log("SSK - initializeSegmentWithoutTracking");
   const appsmithConfigs = getAppsmithConfigs();
 
   if (appsmithConfigs.segment.apiKey) {
