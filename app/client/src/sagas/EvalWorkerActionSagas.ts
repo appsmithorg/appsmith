@@ -35,7 +35,6 @@ export type UpdateDataTreeMessageData = {
  * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
  * execution is returned to the worker where it can resolve/reject the current promise.
  */
-
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {

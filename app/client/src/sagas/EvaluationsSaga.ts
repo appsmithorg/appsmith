@@ -22,7 +22,7 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import { getWidgets } from "sagas/selectors";
+import { getMetaWidgets, getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import {

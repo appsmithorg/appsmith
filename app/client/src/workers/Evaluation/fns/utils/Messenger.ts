@@ -53,7 +53,6 @@ export class WorkerMessenger {
       // @ts-expect-error: need to fix type
       responseData.result = getOriginalValueFromProxy(data.result);
     }
-
     try {
       sendMessage.call(self, {
         messageId,
