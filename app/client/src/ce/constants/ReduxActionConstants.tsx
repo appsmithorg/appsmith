@@ -357,6 +357,9 @@ export const ReduxActionTypes = {
   SET_NEW_WIDGET_DRAGGING: "SET_NEW_WIDGET_DRAGGING",
   SET_WIDGET_RESIZING: "SET_WIDGET_RESIZING",
   ADD_SUGGESTED_WIDGET: "ADD_SUGGESTED_WIDGET",
+  MODIFY_META_WIDGETS: "MODIFY_META_WIDGETS",
+  DELETE_META_WIDGETS: "DELETE_META_WIDGETS",
+  UPDATE_META_WIDGET_PROPERTY: "UPDATE_META_WIDGET_PROPERTY",
   SEARCH_APPLICATIONS: "SEARCH_APPLICATIONS",
   UPDATE_PAGE_INIT: "UPDATE_PAGE_INIT",
   UPDATE_PAGE_SUCCESS: "UPDATE_PAGE_SUCCESS",
@@ -1062,6 +1065,7 @@ export interface ApplicationPayload {
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
+  collapseInvisibleWidgets?: boolean;
 }
 
 export type WorkspaceDetails = {
