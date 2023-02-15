@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
+import com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -30,11 +31,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Boolean.TRUE;
 
@@ -114,6 +111,7 @@ public class RestApiPlugin extends BasePlugin {
 
             // Filter out any empty headers
             headerUtils.removeEmptyHeaders(actionConfiguration);
+            headerUtils.setContentTypeHeader(actionConfiguration);
 
             return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters);
         }
