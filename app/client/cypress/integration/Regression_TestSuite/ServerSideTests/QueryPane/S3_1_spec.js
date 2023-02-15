@@ -99,7 +99,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.eq(
-        "Unable to parse content. Expected to receive an object with `data` and `type`",
+        "Unable to parse content. Expected to receive an object with `data` and `type`.",
       );
     });
 
@@ -108,7 +108,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.eq(
-        "Unable to parse content. Expected to receive an object with `data` and `type`",
+        "Unable to parse content. Expected to receive an object with `data` and `type`.",
       );
     });
 
