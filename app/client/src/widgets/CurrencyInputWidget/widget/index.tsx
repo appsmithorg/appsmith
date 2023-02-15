@@ -296,7 +296,7 @@ class CurrencyInputWidget extends BaseInputWidget<
   }
 
   formatText() {
-    if (!!this.props.text) {
+    if (!!this.props.text && !this.isTextFormatted()) {
       try {
         /**
          * Since we are restricting default value to only have "." decimal separator,
@@ -344,6 +344,10 @@ class CurrencyInputWidget extends BaseInputWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+  };
+
+  isTextFormatted = () => {
+    return this.props.text.includes(getLocaleThousandSeparator());
   };
 
   handleFocusChange = (isFocused?: boolean) => {

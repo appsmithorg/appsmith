@@ -549,7 +549,7 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public void datasourceDestroy(ConnectionPool connectionPool) {
             if (connectionPool != null) {
-                Mono.just(connectionPool.disposeLater())
+                connectionPool.disposeLater()
                         .onErrorResume(exception -> {
                             log.debug("In datasourceDestroy function error mode.", exception);
                             return Mono.empty();
