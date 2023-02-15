@@ -70,7 +70,15 @@ Note that this command doesn't set any username or password on the database so w
 
 MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
 
-Please follow this document for enabling the replica set with mongo running inside the docker
+Please follow the below steps for enabling the replica set with mongo running inside the docker
+1. Connect to the mongo db running with a mongo shell. Use the below command
+```
+mongo
+```
+2. Once you are inside the mongo shell run the below command. 
+```
+rs.initiate()
+```
 
 ### Convert a standalone MongoDB node to a replica set for non docker based set up
 - Upgrade the MongoDB version to 5.0 or higher
