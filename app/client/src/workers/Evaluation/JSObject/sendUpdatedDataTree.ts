@@ -1,4 +1,3 @@
-import { Diff } from "deep-diff";
 import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -13,9 +12,7 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import { JSUpdate } from "utils/JSPaneUtils";
 
-export function triggerEvalWithDataTreeDiff(
-  differences: Diff<DataTree, DataTree>[],
-) {
+export function triggerEvalWithPathsChanged(pathsChanged: string[][]) {
   let evalOrder: string[] = [];
   const jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
@@ -31,7 +28,7 @@ export function triggerEvalWithDataTreeDiff(
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse = dataTreeEvaluator?.setupUpdateTreeWithDifferences(
-      differences,
+      pathsChanged,
     );
 
     evalOrder = setupUpdateTreeResponse.evalOrder;

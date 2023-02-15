@@ -50,7 +50,7 @@ function respond(messageId: string, data: Data, timeTaken: number) {
     const responseData = data;
     if (typeof data === "object" && "result" in (data as AsyncEvalResponse)) {
       // @ts-expect-error: need to fix type
-      responseData.result = getOriginalValueFromProxy(data);
+      responseData.result = getOriginalValueFromProxy(data.result);
     }
     sendMessage.call(self, {
       messageId,

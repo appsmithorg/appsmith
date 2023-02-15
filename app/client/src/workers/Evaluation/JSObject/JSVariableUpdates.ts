@@ -1,6 +1,3 @@
-import { diff } from "deep-diff";
-import { jsObjectCollection } from "./Collection";
-import { get } from "lodash";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -45,41 +42,21 @@ class JSVariableUpdates {
 
 export const jsVariableUpdates = new JSVariableUpdates();
 
-export function filterPatches(patches: Patch[]) {
+export function getModifiedPaths(patches: Patch[]) {
   // store exact path to diff
-  const modifiedVariablesSet = new Set<string>();
+  const modifiedVariablesSet = new Set<string[]>();
   for (const patch of patches) {
-    const [jsObjectName, varName] = patch.path.split(".");
-    const dataTree = dataTreeEvaluator?.evalTree as DataTree;
+    const pathArray = patch.path.split(".");
+    const [jsObjectName, varName] = pathArray;
+    const dataTree = (dataTreeEvaluator?.evalTree || {}) as DataTree;
+
     const jsObject = dataTree[jsObjectName];
     if (isJSAction(jsObject)) {
       const variables = jsObject.variables;
       if (variables.includes(varName)) {
-        modifiedVariablesSet.add(`${jsObjectName}.${varName}`);
+        modifiedVariablesSet.add(pathArray);
       }
     }
   }
   return [...modifiedVariablesSet];
-}
-
-export function diffModifiedVariables(modifiedJSVariableList: string[]) {
-  const prevState = jsObjectCollection.getPrevVariableState();
-  const currentState = jsObjectCollection.getCurrentVariableState();
-
-  const variableDiffCollection = [];
-  for (const jsVariablePath of modifiedJSVariableList) {
-    const currentValue = get(currentState, jsVariablePath);
-    const prevValue = get(prevState, jsVariablePath);
-    const variableDiff = diff(prevValue, currentValue);
-
-    if (variableDiff && variableDiff[0]) {
-      const path = jsVariablePath.split(".");
-      if (variableDiff[0].path) {
-        path.concat(variableDiff[0].path);
-      }
-      variableDiff[0] = { ...variableDiff[0], path };
-      variableDiffCollection.push(...variableDiff);
-    }
-  }
-  return variableDiffCollection;
 }
