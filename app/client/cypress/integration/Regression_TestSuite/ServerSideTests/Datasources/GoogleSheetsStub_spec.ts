@@ -22,7 +22,7 @@ describe("Google Sheets datasource test cases", function() {
   //   dataSources.SaveDSFromDialog(false);
   // });
 
-  it.only("1. Create Google Sheets datasource with Limiting Google Sheet Access flow", function() {
+  it("1. Create Google Sheets datasource with Limiting Google Sheet Access flow", function() {
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
     }).as("featureFlags");
