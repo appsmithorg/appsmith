@@ -3,103 +3,103 @@ import { ObjectsRegistry } from "../Objects/Registry";
 export class PeekOverlay {
   private readonly PEEKABLE_ATTRIBUTE = "peek-data";
   private readonly locators = {
-    overlayContainer: "#t--peek-overlay-container",
-    dataContainer: "#t--peek-overlay-data",
-    peekableCode: (peekableAttr: string) =>
+    _overlayContainer: "#t--peek-overlay-container",
+    _dataContainer: "#t--peek-overlay-data",
+    _peekableCode: (peekableAttr: string) =>
       `[${this.PEEKABLE_ATTRIBUTE}="${peekableAttr}"]`,
 
     // react json viewer selectors
-    rjv_variableValue: ".variable-value",
-    rjv_topLevelArrayData:
+    _rjv_variableValue: ".variable-value",
+    _rjv_topLevelArrayData:
       ".pushed-content.object-container .object-content .object-key-val",
-    rjv_firstLevelBraces:
+    _rjv_firstLevelBraces:
       ".pretty-json-container > .object-content:first-of-type > .object-key-val:first-of-type > span",
   };
   private readonly agHelper = ObjectsRegistry.AggregateHelper;
 
-  hoverCode(peekableAttribute: string, visibleText?: string) {
+  HoverCode(peekableAttribute: string, visibleText?: string) {
     (visibleText
       ? this.agHelper.GetNAssertContains(
-          this.locators.peekableCode(peekableAttribute),
+          this.locators._peekableCode(peekableAttribute),
           visibleText,
         )
-      : this.agHelper.GetElement(this.locators.peekableCode(peekableAttribute))
+      : this.agHelper.GetElement(this.locators._peekableCode(peekableAttribute))
     ).realHover();
-    cy.wait(1000);
+    this.agHelper.Sleep();
   }
 
-  isOverlayOpen(checkIsOpen = true) {
+  IsOverlayOpen(checkIsOpen = true) {
     checkIsOpen
-      ? this.agHelper.AssertElementExist(this.locators.overlayContainer)
-      : this.agHelper.AssertElementAbsence(this.locators.overlayContainer);
+      ? this.agHelper.AssertElementExist(this.locators._overlayContainer)
+      : this.agHelper.AssertElementAbsence(this.locators._overlayContainer);
   }
 
-  resetHover() {
+  ResetHover() {
     this.agHelper.GetElement("body").realHover({ position: "bottomLeft" });
-    cy.wait(1000);
+    this.agHelper.Sleep();
   }
 
-  checkPrimitiveData(data: string) {
+  CheckPrimitiveValue(data: string) {
     this.agHelper
-      .GetElement(this.locators.dataContainer)
+      .GetElement(this.locators._dataContainer)
       .children("div")
       .should("have.text", data);
   }
 
-  checkPrimitveArrayInOverlay(array: Array<string | number>) {
+  CheckPrimitveArrayInOverlay(array: Array<string | number>) {
     this.agHelper
-      .GetElement(this.locators.dataContainer)
-      .find(this.locators.rjv_variableValue)
+      .GetElement(this.locators._dataContainer)
+      .find(this.locators._rjv_variableValue)
       .should("have.length", array.length);
     this.agHelper
-      .GetElement(this.locators.dataContainer)
-      .find(this.locators.rjv_firstLevelBraces)
+      .GetElement(this.locators._dataContainer)
+      .find(this.locators._rjv_firstLevelBraces)
       .eq(0)
       .contains("[");
     this.agHelper
-      .GetElement(this.locators.dataContainer)
-      .find(this.locators.rjv_firstLevelBraces)
+      .GetElement(this.locators._dataContainer)
+      .find(this.locators._rjv_firstLevelBraces)
       .eq(1)
       .contains("]");
   }
 
-  checkObjectArrayInOverlay(array: Array<Record<string, any>>) {
+  CheckObjectArrayInOverlay(array: Array<Record<string, any>>) {
     this.agHelper
-      .GetElement(this.locators.dataContainer)
-      .find(this.locators.rjv_topLevelArrayData)
+      .GetElement(this.locators._dataContainer)
+      .find(this.locators._rjv_topLevelArrayData)
       .should("have.length", array.length);
     this.agHelper
-      .GetElement(this.locators.dataContainer)
-      .find(this.locators.rjv_firstLevelBraces)
+      .GetElement(this.locators._dataContainer)
+      .find(this.locators._rjv_firstLevelBraces)
       .eq(0)
       .contains("[");
     this.agHelper
-      .GetElement(this.locators.dataContainer)
-      .find(this.locators.rjv_firstLevelBraces)
+      .GetElement(this.locators._dataContainer)
+      .find(this.locators._rjv_firstLevelBraces)
       .eq(1)
       .contains("]");
   }
 
-  checkBasicObjectInOverlay(object: Record<string, any>) {
+  CheckBasicObjectInOverlay(object: Record<string, string | number>) {
     this.agHelper
-      .GetElement(this.locators.dataContainer)
-      .find(this.locators.rjv_variableValue)
+      .GetElement(this.locators._dataContainer)
+      .find(this.locators._rjv_variableValue)
       .should("have.length", Object.entries(object).length);
     this.agHelper
-      .GetElement(this.locators.dataContainer)
-      .find(this.locators.rjv_firstLevelBraces)
+      .GetElement(this.locators._dataContainer)
+      .find(this.locators._rjv_firstLevelBraces)
       .eq(0)
       .contains("{");
     this.agHelper
-      .GetElement(this.locators.dataContainer)
-      .find(this.locators.rjv_firstLevelBraces)
+      .GetElement(this.locators._dataContainer)
+      .find(this.locators._rjv_firstLevelBraces)
       .eq(1)
       .contains("}");
   }
 
-  verifyDataType(type: string) {
+  VerifyDataType(type: string) {
     this.agHelper
-      .GetElement(this.locators.overlayContainer)
+      .GetElement(this.locators._overlayContainer)
       .children("div")
       .eq(0)
       .should("have.text", type);

@@ -2,10 +2,10 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("peek overlay", () => {
   it("main test", () => {
-    (cy as any).dragAndDropToCanvas("tablewidgetv2", { x: 500, y: 100 });
-    _.apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    _.ee.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
+    _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl);
     _.apiPage.RunAPI();
-    _.apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl);
     _.jsEditor.CreateJSObject(
       `export default {
         numArray: [1, 2, 3],
@@ -38,85 +38,85 @@ describe("peek overlay", () => {
     _.agHelper.Sleep();
 
     // check number array - this keyword
-    _.peekOverlay.hoverCode("JSObject1.numArray");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("array");
-    _.peekOverlay.checkPrimitveArrayInOverlay([1, 2, 3]);
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("JSObject1.numArray");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("array");
+    _.peekOverlay.CheckPrimitveArrayInOverlay([1, 2, 3]);
+    _.peekOverlay.ResetHover();
 
     // check basic object - no this keyword
-    _.peekOverlay.hoverCode("JSObject1.objectData");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("object");
-    _.peekOverlay.checkBasicObjectInOverlay({ x: 123, y: "123" });
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("JSObject1.objectData");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("object");
+    _.peekOverlay.CheckBasicObjectInOverlay({ x: 123, y: "123" });
+    _.peekOverlay.ResetHover();
 
     // check null
-    _.peekOverlay.hoverCode("JSObject1.nullData");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("null");
-    _.peekOverlay.checkPrimitiveData("null");
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("JSObject1.nullData");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("null");
+    _.peekOverlay.CheckPrimitiveValue("null");
+    _.peekOverlay.ResetHover();
 
     // check number
-    _.peekOverlay.hoverCode("JSObject1.numberData");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("number");
-    _.peekOverlay.checkPrimitiveData("1");
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("JSObject1.numberData");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("number");
+    _.peekOverlay.CheckPrimitiveValue("1");
+    _.peekOverlay.ResetHover();
 
     // check undefined
-    _.peekOverlay.hoverCode("Api2.data");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("undefined");
-    _.peekOverlay.checkPrimitiveData("undefined");
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("Api2.data");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("undefined");
+    _.peekOverlay.CheckPrimitiveValue("undefined");
+    _.peekOverlay.ResetHover();
 
     // check boolean
-    _.peekOverlay.hoverCode("Api1.isLoading");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("boolean");
-    _.peekOverlay.checkPrimitiveData("false");
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("Api1.isLoading");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("boolean");
+    _.peekOverlay.CheckPrimitiveValue("false");
+    _.peekOverlay.ResetHover();
 
     // check function
-    _.peekOverlay.hoverCode("Api1.run");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("function");
-    _.peekOverlay.checkPrimitiveData("function () {}");
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("Api1.run");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("function");
+    _.peekOverlay.CheckPrimitiveValue("function () {}");
+    _.peekOverlay.ResetHover();
 
     // check string
-    _.peekOverlay.hoverCode("appsmith.mode");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("string");
-    _.peekOverlay.checkPrimitiveData("EDIT");
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("appsmith.mode");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("string");
+    _.peekOverlay.CheckPrimitiveValue("EDIT");
+    _.peekOverlay.ResetHover();
 
     // check if overlay closes
-    _.peekOverlay.hoverCode("appsmith.store");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.resetHover();
-    _.peekOverlay.isOverlayOpen(false);
+    _.peekOverlay.HoverCode("appsmith.store");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.ResetHover();
+    _.peekOverlay.IsOverlayOpen(false);
 
     // widget object
-    _.peekOverlay.hoverCode("Table1");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("object");
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("Table1");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("object");
+    _.peekOverlay.ResetHover();
 
     // widget property
-    _.peekOverlay.hoverCode("Table1.pageNo");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("number");
-    _.peekOverlay.checkPrimitiveData("1");
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("Table1.pageNo");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("number");
+    _.peekOverlay.CheckPrimitiveValue("1");
+    _.peekOverlay.ResetHover();
 
     // widget property
-    _.peekOverlay.hoverCode("Table1.tableData");
-    _.peekOverlay.isOverlayOpen();
-    _.peekOverlay.verifyDataType("array");
-    _.peekOverlay.checkObjectArrayInOverlay([{}, {}, {}]);
-    _.peekOverlay.resetHover();
+    _.peekOverlay.HoverCode("Table1.tableData");
+    _.peekOverlay.IsOverlayOpen();
+    _.peekOverlay.VerifyDataType("array");
+    _.peekOverlay.CheckObjectArrayInOverlay([{}, {}, {}]);
+    _.peekOverlay.ResetHover();
   });
 });
