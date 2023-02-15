@@ -30,7 +30,11 @@ import "./queryCommands";
 import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
+import "./Pages/AggregateHelper.ts";
 /// <reference types="cypress-xpath" />
+// ok ok
+// Import commands.js using ES2015 syntax:
+// test cypress conflicts
 
 Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
@@ -40,6 +44,10 @@ Cypress.on("uncaught:exception", () => {
 
 Cypress.on("fail", (error) => {
   throw error; // throw error to have test still fail
+});
+
+Cypress.on("openUrl", (error) => {
+  window.open("test"); // throw error to have test still fail
 });
 
 Cypress.env("MESSAGES", MESSAGES);
