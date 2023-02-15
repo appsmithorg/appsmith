@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ee;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -15,6 +16,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import org.junit.jupiter.api.Test;
@@ -59,6 +61,9 @@ public class CacheableRepositoryEETest {
 
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
+
+    @Autowired
+    UserService userService;
 
 
     @Test
@@ -137,5 +142,78 @@ public class CacheableRepositoryEETest {
         userPermissionGroupsPostWorkspaceDelete = cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user).block();
         assertThat(userPermissionGroupsPostWorkspaceDelete).doesNotContain(createdRole.getId());
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testEvictAllPermissionGroupRelatedDetailsForUser() {
+        User apiUser = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(apiUser)).block();
+
+        Long countAllReadablePermissionGroupCache = cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(apiUser).block();
+        Long countAllReadablePermissionGroupActual = permissionGroupRepository.countAllReadablePermissionGroups().block();
+        assertThat(countAllReadablePermissionGroupCache).isEqualTo(countAllReadablePermissionGroupActual);
+
+        userUtils.removeSuperUser(List.of(apiUser)).block();
+
+        Long countAllReadablePermissionGroupAfterAfterRemovingSuperUserCache = cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(apiUser).block();
+        Long countAllReadablePermissionGroupAfterAfterRemovingSuperUserActual = permissionGroupRepository.countAllReadablePermissionGroups().block();
+        assertThat(countAllReadablePermissionGroupAfterAfterRemovingSuperUserCache).isEqualTo(countAllReadablePermissionGroupAfterAfterRemovingSuperUserActual);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testEvictAllPermissionsCreateCustomPermissionGroup() {
+        User apiUser = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(apiUser)).block();
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("PERMISSION GROUP - testEvictAllPermissionsCreateCustomPermissionGroup");
+        Long countAllReadablePermissionGroupCacheBeforeCreation = cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(apiUser).block();
+        Long countAllReadablePermissionGroupActualBeforeCreation = permissionGroupRepository.countAllReadablePermissionGroups().block();
+        assertThat(countAllReadablePermissionGroupActualBeforeCreation).isEqualTo(countAllReadablePermissionGroupCacheBeforeCreation);
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        Long countAllReadablePermissionGroupCacheAfterCreation = cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(apiUser).block();
+        Long countAllReadablePermissionGroupActualAfterCreation = permissionGroupRepository.countAllReadablePermissionGroups().block();
+        assertThat(countAllReadablePermissionGroupActualAfterCreation).isEqualTo(countAllReadablePermissionGroupCacheAfterCreation);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testEvictAllPermissionUserGroupAssociatedToAdminPermission() {
+        User apiUser = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(apiUser)).block();
+        User user = new User();
+        user.setEmail("testEvictAllPermissionUserGroupAssociatedToAdminPermission@appsmith.com");
+        user.setPassword("password");
+        User createdUser = userService.create(user).block();
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("USER GROUP - testEvictAllPermissionUserGroupAssociatedToAdminPermission");
+        userGroup.setUsers(Set.of(createdUser.getId()));
+        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+                .flatMap(ugDTO -> userGroupService.findById(ugDTO.getId(), AclPermission.MANAGE_USER_GROUPS))
+                .block();
+
+        Long readablePermissionCreatedUserBeforeBecomingInstanceAdmin = cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(createdUser).block();
+        assertThat(readablePermissionCreatedUserBeforeBecomingInstanceAdmin).isEqualTo(0);
+        PermissionGroup instanceAdminPg = userUtils.getSuperAdminPermissionGroup().block();
+        System.out.println("Assigning Admin Permission to User Group");
+        permissionGroupService.assignToUserGroup(instanceAdminPg, createdUserGroup).block();
+        Long readablePermissionCreatedUserAfterBecomingInstanceAdmin = cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(createdUser).block();
+        Long countReadablePermissionsForApiUser = permissionGroupRepository.countAllReadablePermissionGroups().block();
+        assertThat(readablePermissionCreatedUserAfterBecomingInstanceAdmin).isEqualTo(countReadablePermissionsForApiUser);
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("PERMISSION GROUP - testEvictAllPermissionUserGroupAssociatedToAdminPermission");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        Long readablePermissionCreatedUserAfterPgCreation = cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(createdUser).block();
+        countReadablePermissionsForApiUser = permissionGroupRepository.countAllReadablePermissionGroups().block();
+        assertThat(readablePermissionCreatedUserAfterPgCreation).isEqualTo(countReadablePermissionsForApiUser);
+
+        PermissionGroup deletedPermissionGroup = permissionGroupService.archiveById(createdPermissionGroup.getId()).block();
+        Long readablePermissionCreatedUserAfterPgDeletion = cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(createdUser).block();
+        Long readablePermissionApiUserAfterPgDeletion = cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(apiUser).block();
+        countReadablePermissionsForApiUser = permissionGroupRepository.countAllReadablePermissionGroups().block();
+        assertThat(readablePermissionApiUserAfterPgDeletion).isEqualTo(countReadablePermissionsForApiUser);
+        assertThat(readablePermissionCreatedUserAfterPgDeletion).isEqualTo(countReadablePermissionsForApiUser);
     }
 }

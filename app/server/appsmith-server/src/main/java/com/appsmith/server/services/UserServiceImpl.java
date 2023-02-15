@@ -126,7 +126,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     // If the user has access to >0 permission groups or >0 user groups, or can read audit logs, then
                     // show them the admin settings page by turning on super admin mode
                     return Mono.zip(
-                            permissionGroupRepository.countAllReadablePermissionGroups(),
+                            permissionGroupRepository.countAllReadablePermissionGroupsForUser(user),
                             userGroupRepository.countAllReadableUserGroups(),
                             tenantService.getDefaultTenant(AclPermission.READ_TENANT_AUDIT_LOGS)
                                     .switchIfEmpty(Mono.just(new Tenant()))

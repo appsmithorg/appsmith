@@ -29,6 +29,7 @@ import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -39,13 +40,16 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import jakarta.validation.Validator;
+import reactor.util.function.Tuple2;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
@@ -169,8 +173,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
                     return Mono.just(permissionGroup);
                 });
-
-        return Mono.zip(
+        Mono<PermissionGroup> createdPermissionMono = Mono.zip(
                         userPermissionGroupMono,
                         tenantService.getDefaultTenant()
                 )
@@ -182,24 +185,46 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                     userPermissionGroup = generateAndSetPermissionGroupPolicies(defaultTenant, userPermissionGroup);
 
                     return super.create(userPermissionGroup);
-                })
-                // make the default workspace roles uneditable
-                .flatMap(permissionGroup1 -> {
-                    // If default workspace id is set, it's a default workspace role and hence shouldn't be editable or deletable
-                    if (permissionGroup1.getDefaultWorkspaceId() != null) {
-                        Set<Policy> policiesWithoutEditPermission = permissionGroup1.getPolicies().stream()
-                                .filter(policy ->
-                                        !policy.getPermission().equals(MANAGE_PERMISSION_GROUPS.getValue())
-                                                &&
-                                                !policy.getPermission().equals(DELETE_PERMISSION_GROUPS.getValue())
-                                )
-                                .collect(Collectors.toSet());
-                        permissionGroup1.setPolicies(policiesWithoutEditPermission);
-                        return repository.save(permissionGroup1);
-                    }
-                    // If this is not a default created role, then return the role as is from the DB
-                    return repository.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS);
-                });
+                }).cache();
+        
+        // make the default workspace roles uneditable
+        Mono<PermissionGroup> ifDefaultPgMakeUneditableMono = createdPermissionMono.flatMap(permissionGroup1 -> {
+            // If default workspace id is set, it's a default workspace role and hence shouldn't be editable or deletable
+            if (permissionGroup1.getDefaultWorkspaceId() != null) {
+                Set<Policy> policiesWithoutEditPermission = permissionGroup1.getPolicies().stream()
+                        .filter(policy ->
+                                !policy.getPermission().equals(MANAGE_PERMISSION_GROUPS.getValue())
+                                        &&
+                                        !policy.getPermission().equals(DELETE_PERMISSION_GROUPS.getValue())
+                        )
+                        .collect(Collectors.toSet());
+                permissionGroup1.setPolicies(policiesWithoutEditPermission);
+                return repository.save(permissionGroup1);
+            } else {
+                // If this is not a default created role, then return the role as is from the DB
+                return repository.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS);
+            }});
+
+        // Clean cache for Users who are assigned to Permission Groups DIRECTLY OR INDIRECTLY(via User Groups)
+        // for all the Permission Groups who have READ ACCESS on the newly created Permission Group.
+        Mono<Void> cleanUserPermissionGroupMono = createdPermissionMono.flatMap(permissionGroup1 -> {
+            Set<String> permissionGroupIdsWithReadAccess = permissionGroup1.getPolicies().stream()
+                    .filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
+                    .findFirst()
+                    .map(Policy::getPermissionGroups).orElse(Set.of());
+            return repository.findAllById(permissionGroupIdsWithReadAccess)
+                    .flatMap(this::getAllDirectlyAndIndirectlyAssignedUserIds)
+                    .collectList()
+                    .map(userIdSetList -> {
+                        Set<String> userIdSet = new HashSet<>();
+                        userIdSetList.forEach(userIds -> userIdSet.addAll(userIds));
+                        return userIdSet;
+                    })
+                    .flatMap(userIdsSet -> cleanPermissionGroupCacheForUsers(userIdsSet.stream().toList()));
+        });
+
+        return Mono.zip(ifDefaultPgMakeUneditableMono, cleanUserPermissionGroupMono.thenReturn(TRUE))
+                .map(Tuple2::getT1);
     }
 
     private PermissionGroup generateAndSetPermissionGroupPolicies(Tenant tenant, PermissionGroup permissionGroup) {
@@ -213,6 +238,23 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         Mono<PermissionGroup> permissionGroupMono = repository.findById(id, DELETE_PERMISSION_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .cache();
+        // Clean cache for Users who are assigned to Permission Groups DIRECTLY OR INDIRECTLY(via User Groups)
+        // for all the Permission Groups who have READ ACCESS on the newly created Permission Group.
+        Mono<Void> cleanUserPermissionGroupMono = permissionGroupMono.flatMap(permissionGroup1 -> {
+            Set<String> permissionGroupIdsWithReadAccess = permissionGroup1.getPolicies().stream()
+                    .filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
+                    .findFirst()
+                    .map(Policy::getPermissionGroups).orElse(Set.of());
+            return repository.findAllById(permissionGroupIdsWithReadAccess)
+                    .flatMap(this::getAllDirectlyAndIndirectlyAssignedUserIds)
+                    .collectList()
+                    .map(userIdSetList -> {
+                        Set<String> userIdSet = new HashSet<>();
+                        userIdSetList.forEach(userIds -> userIdSet.addAll(userIds));
+                        return userIdSet;
+                    })
+                    .flatMap(userIdsSet -> cleanPermissionGroupCacheForUsers(userIdsSet.stream().toList()));
+        });
 
         // TODO : Untested : Please test.
         return permissionGroupMono
@@ -220,7 +262,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
                     return Mono.zip(
                                     bulkUnassignUsersFromPermissionGroupsWithoutPermission(permissionGroup.getAssignedToUserIds(), Set.of(id)),
-                                    bulkUnassignFromUserGroupsWithoutPermission(permissionGroup, permissionGroup.getAssignedToGroupIds())
+                                    bulkUnassignFromUserGroupsWithoutPermission(permissionGroup, permissionGroup.getAssignedToGroupIds()),
+                                    cleanUserPermissionGroupMono.thenReturn(TRUE)
                             )
                             .then(repository.archiveById(id));
                 })
@@ -395,5 +438,28 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     public Mono<Set<String>> getSessionUserPermissionGroupIds() {
         return sessionUserService.getCurrentUser()
                 .flatMap(repository::getAllPermissionGroupsIdsForUser);
+    }
+
+    @Override
+    public Mono<Set<String>> getAllDirectlyAndIndirectlyAssignedUserIds(PermissionGroup permissionGroup) {
+        if (ObjectUtils.isEmpty(permissionGroup.getAssignedToGroupIds())
+                && ObjectUtils.isEmpty(permissionGroup.getAssignedToUserIds())) {
+            return Mono.just(Set.of());
+        }
+        Set<String> directAssignedUserIds = ObjectUtils.isEmpty(permissionGroup.getAssignedToUserIds())
+                ? Set.of()
+                : permissionGroup.getAssignedToUserIds();
+
+        if (ObjectUtils.isNotEmpty(permissionGroup.getAssignedToGroupIds())) {
+            return userGroupRepository.findAllById(permissionGroup.getAssignedToGroupIds())
+                    .collectList()
+                    .map(userGroupList -> userGroupList.stream().map(UserGroup::getUsers)
+                            .flatMap(Collection::stream).collect(Collectors.toSet()))
+                    .map(indirectAssignedUserIds -> {
+                        indirectAssignedUserIds.addAll(directAssignedUserIds);
+                        return indirectAssignedUserIds;
+                    });
+        }
+        return Mono.just(directAssignedUserIds);
     }
 }

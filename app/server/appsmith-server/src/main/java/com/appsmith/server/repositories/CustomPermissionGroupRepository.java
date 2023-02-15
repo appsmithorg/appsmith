@@ -26,7 +26,7 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
     Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission aclPermission);
 
     Mono<Long> countAllReadablePermissionGroups();
-
+    Mono<Long> countAllReadablePermissionGroupsForUser(User user);
     Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user);
 
 }
