@@ -51,7 +51,7 @@ describe("peek overlay", () => {
     _.peekOverlay.CheckBasicObjectInOverlay({ x: 123, y: "123" });
     _.peekOverlay.ResetHover();
 
-    // check null
+    // check null - with this keyword
     _.peekOverlay.HoverCode("JSObject1.nullData");
     _.peekOverlay.IsOverlayOpen();
     _.peekOverlay.VerifyDataType("null");
