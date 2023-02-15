@@ -95,10 +95,10 @@ export const StickyCanvasArena = forwardRef(
       );
       if (isMultiPane) {
         stickyCanvasRef.current.height =
-          entry.intersectionRect.height * canvasScale;
+          entry.intersectionRect.height * canvasScale * scale;
         stickyCanvasRef.current.width =
-          entry.intersectionRect.width * canvasScale;
-        canvasCtx.scale(canvasScale, canvasScale);
+          entry.intersectionRect.width * canvasScale * scale;
+        canvasCtx.scale(canvasScale * scale, canvasScale * scale);
         canvasCtx.transform(canvasScale, 0, 0, canvasScale, 0, 0);
       } else {
         stickyCanvasRef.current.height = entry.intersectionRect.height * scale;

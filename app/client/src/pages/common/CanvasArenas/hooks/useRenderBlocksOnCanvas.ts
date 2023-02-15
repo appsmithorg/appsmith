@@ -38,6 +38,7 @@ export const useRenderBlocksOnCanvas = (
     Y: number;
   },
   isCurrentDraggedCanvas: boolean,
+  scale: number,
 ) => {
   const canvasZoomLevel = useSelector(getZoomLevel);
 
@@ -139,8 +140,8 @@ export const useRenderBlocksOnCanvas = (
       canvasCtx.clearRect(
         0,
         0,
-        stickyCanvasRef.current.width,
-        stickyCanvasRef.current.height,
+        stickyCanvasRef.current.width * scale * canvasZoomLevel,
+        stickyCanvasRef.current.height * scale * canvasZoomLevel,
       );
       isCurrUpdatingRows = false;
       canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
