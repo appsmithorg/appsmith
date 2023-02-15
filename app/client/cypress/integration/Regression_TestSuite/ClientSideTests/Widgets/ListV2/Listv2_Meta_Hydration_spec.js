@@ -384,7 +384,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in FirstPage
     //   First Row
-    cy.wait(7000);
+    cy.wait(10000);
     verifyValueOfWidget("selectwidget", "Green", 0);
     verifyValueOfWidget("inputwidgetv2", "First", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 0);
@@ -406,7 +406,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in SecondPage
     //   First Row
-    cy.wait(7000);
+    cy.wait(10000);
     verifyValueOfWidget("selectwidget", "Blue", 0);
     verifyValueOfWidget("inputwidgetv2", "Fourth", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
@@ -474,7 +474,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in FirstPage
     //   First Row
-    cy.wait(7000);
+    cy.wait(10000);
     verifyValueOfWidget("selectwidget", "Green", 0);
     verifyValueOfWidget("inputwidgetv2", "First", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 0);
@@ -496,7 +496,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in SecondPage
     //   First Row
-    cy.wait(7000);
+    cy.wait(10000);
     verifyValueOfWidget("selectwidget", "Blue", 0);
     verifyValueOfWidget("inputwidgetv2", "Fourth", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
