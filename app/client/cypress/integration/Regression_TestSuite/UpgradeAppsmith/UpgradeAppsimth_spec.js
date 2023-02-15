@@ -33,7 +33,7 @@ describe("Upgrade appsmith version", () => {
     });
 
     //verify the Applications after upgrade only on CE and skip for BE
-    if (Cypress.env("Edition") !== 0) {
+    if (Cypress.env("Edition") === 0) {
       cy.forceVisit(testdata.APPURL);
       agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true);
       agHelper.Sleep(1000);
