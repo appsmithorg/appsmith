@@ -14,7 +14,7 @@ describe("peek overlay", () => {
         nullData: null,
         numberData: 1,
         myFun1: () => {
-          this.numArray; JSObject1.objectData; this.nullData; JSObject1.numberData;
+          JSObject1.numArray; JSObject1.objectData; this.nullData; JSObject1.numberData;
           Api1.run(); Api1.isLoading; Api2.data;
           appsmith.mode; appsmith.store.abc;
           Table1.pageNo; Table1.tableData;
@@ -37,14 +37,14 @@ describe("peek overlay", () => {
     _.jsEditor.RunJSObj();
     _.agHelper.Sleep();
 
-    // check number array - this keyword
+    // check number array
     _.peekOverlay.HoverCode("JSObject1.numArray");
     _.peekOverlay.IsOverlayOpen();
     _.peekOverlay.VerifyDataType("array");
     _.peekOverlay.CheckPrimitveArrayInOverlay([1, 2, 3]);
     _.peekOverlay.ResetHover();
 
-    // check basic object - no this keyword
+    // check basic object
     _.peekOverlay.HoverCode("JSObject1.objectData");
     _.peekOverlay.IsOverlayOpen();
     _.peekOverlay.VerifyDataType("object");
