@@ -79,10 +79,11 @@ export const setWidgetDynamicProperty = (
 
 export const updateMultipleWidgetPropertiesAction = (
   widgetsToUpdate: UpdateWidgetsPayload,
+  shouldEval = false,
 ) => {
   return {
     type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
-    payload: widgetsToUpdate,
+    payload: { widgetsToUpdate, shouldEval },
   };
 };
 
