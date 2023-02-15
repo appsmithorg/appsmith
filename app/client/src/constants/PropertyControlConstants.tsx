@@ -6,6 +6,9 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { AppTheme } from "entities/AppTheming";
+import { WidgetProps } from "widgets/BaseWidget";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { Stylesheet } from "entities/AppTheming";
 import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 
@@ -77,9 +80,7 @@ export type PropertyPaneControlConfig = {
   isTriggerProperty: boolean;
   validation?: ValidationConfig;
   useValidationMessage?: boolean;
-  additionalAutoComplete?: (
-    props: any,
-  ) => Record<string, Record<string, unknown>>;
+  additionalAutoComplete?: (props: any) => AdditionalDynamicDataTree;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
@@ -146,5 +147,5 @@ export type PropertyPaneConfig =
   | PropertyPaneControlConfig;
 
 export interface ActionValidationConfigMap {
-  [configPropety: string]: ValidationConfig;
+  [configProperty: string]: ValidationConfig;
 }

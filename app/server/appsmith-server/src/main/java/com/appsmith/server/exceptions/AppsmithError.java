@@ -145,6 +145,7 @@ public enum AppsmithError {
     GENERIC_JSON_IMPORT_ERROR(400, 4049, "Unable to import application in workspace {0}, {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     FILE_PART_DATA_BUFFER_ERROR(500, 5017, "Failed to upload file with error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     MIGRATION_ERROR(500, 5018, "This action is already migrated", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    GIT_FILE_IN_USE(500, 5020, "File lock in use. Please wait for a few seconds and try again", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
     INVALID_GIT_SSH_URL(400, 4050, "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     REPOSITORY_NOT_FOUND(404, 4051, "Unable to find the repository for application {0}, please refresh the page to auto-sync with the remote. This might take couple of minutes", AppsmithErrorAction.DEFAULT, "Repository Not Found Exception", ErrorType.REPOSITORY_NOT_FOUND, null),
     UNKNOWN_PLUGIN_REFERENCE(400, 4052, " Unable to find the plugin. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
@@ -154,7 +155,8 @@ public enum AppsmithError {
     SCHEMA_MISMATCH_ERROR(500, 5022, "Looks like you skipped some required update(s), please go back to the mandatory upgrade path {0}, or refer to {1} for more info", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     SCHEMA_VERSION_NOT_FOUND_ERROR(500, 5023, "Could not find mandatory instance schema version config. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     SERVER_NOT_READY(500, 5024, "Appsmith server is not ready. Please try again in some time.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
-    SESSION_BAD_STATE(500, 5025, "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null)
+    SESSION_BAD_STATE(500, 5025, "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    INVALID_LICENSE_KEY_ENTERED(400, 4053, "The license key entered is invalid. Please try again.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null)
     ;
 
     private final Integer httpErrorCode;

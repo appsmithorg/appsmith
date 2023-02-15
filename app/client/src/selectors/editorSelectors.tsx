@@ -31,11 +31,14 @@ import { ApplicationVersion } from "actions/applicationActions";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import {
   buildChildWidgetTree,
+  buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { CanvasWidgetStructure } from "widgets/constants";
+import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 const getIsDraggingOrResizing = (state: AppState) =>
@@ -229,6 +232,36 @@ export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
 
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
+export const getMetaWidgets = (state: AppState) => state.entities.metaWidgets;
+
+export const getMetaWidget = (metaWidgetId: string) =>
+  createSelector(getMetaWidgets, (metaWidgets) => {
+    return metaWidgets[metaWidgetId];
+  });
+
+export const getMetaWidgetChildrenStructure = (
+  parentWidgetId: string,
+  type: string,
+  hasMetaWidgets = false,
+) =>
+  createSelector(getMetaWidgets, (metaWidgets) => {
+    if (!hasMetaWidgets) return [];
+
+    const structure: CanvasWidgetStructure[] = [];
+
+    Object.values(metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.parentId === parentWidgetId) {
+        structure.push(
+          denormalize(metaWidget.widgetId, metaWidgets, {
+            widgetTypeForHaltingRecursion: type,
+          }),
+        );
+      }
+    });
+
+    return structure;
+  });
+
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
@@ -344,11 +377,20 @@ export const getCanvasWidgetDsl = createSelector(
 export const getChildWidgets = createSelector(
   [
     getCanvasWidgets,
+    getMetaWidgets,
     getDataTree,
     getLoadingEntities,
     (_state: AppState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
+);
+
+export const getFlattenedChildCanvasWidgets = createSelector(
+  [
+    getCanvasWidgets,
+    (_state: AppState, parentWidgetId: string) => parentWidgetId,
+  ],
+  buildFlattenedChildCanvasWidgets,
 );
 
 const getOccupiedSpacesForContainer = (
@@ -482,14 +524,16 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
     widgets: CanvasWidgetsReduxState,
   ): {
     occupiedSpaces: {
-      [parentCanvasWidgetId: string]: Array<
+      [parentCanvasWidgetId: string]: Record<
+        string,
         OccupiedSpace & { originalTop: number; originalBottom: number }
       >;
     };
     canvasLevelMap: Record<string, number>;
   } => {
     const occupiedSpaces: {
-      [parentCanvasWidgetId: string]: Array<
+      [parentCanvasWidgetId: string]: Record<
+        string,
         OccupiedSpace & { originalTop: number; originalBottom: number }
       >;
     } = {};
@@ -521,7 +565,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
         }
         canvasLevelMap[canvasWidget.widgetId] = level;
         // Initialise the occupied spaces with an empty array
-        occupiedSpaces[canvasWidgetId] = [];
+        occupiedSpaces[canvasWidgetId] = {};
         // If this canvas widget has children
         if (canvasWidget.children && canvasWidget.children.length > 0) {
           // Iterate through all children
@@ -533,7 +577,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
             // (unlike a modal widget or another canvas widget)
             if (!widget.detachFromLayout) {
               // Add the occupied space co-ordinates to the initialised array
-              occupiedSpaces[canvasWidgetId].push({
+              occupiedSpaces[canvasWidgetId][widget.widgetId] = {
                 id: widget.widgetId,
                 parentId: canvasWidgetId,
                 left: widget.leftColumn,
@@ -542,7 +586,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
                 right: widget.rightColumn,
                 originalTop: widget.originalTopRow,
                 originalBottom: widget.originalBottomRow,
-              });
+              };
             }
           });
         }
