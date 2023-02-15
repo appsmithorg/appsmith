@@ -390,7 +390,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: dockerlogs
+          name: dockerlogs-${{ matrix.job }}
           path: ~/dockerlogs.txt
 
       # Set status = failedtest
