@@ -161,7 +161,7 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
 
   return (
-    <EditorContextProvider>
+    <EditorContextProvider renderMode="CANVAS">
       {showOnboardingTasks ? (
         <OnboardingTasks />
       ) : (

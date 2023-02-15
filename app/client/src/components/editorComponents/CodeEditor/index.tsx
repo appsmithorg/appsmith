@@ -70,6 +70,7 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
+  isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import {
   addEventToHighlightedElement,
@@ -205,6 +206,7 @@ export type EditorProps = EditorStyleProps &
     onEditorBlur?: () => void;
     onEditorFocus?: () => void;
     lineCommentString?: string;
+    evaluatedPopUpLabel?: string;
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -217,6 +219,7 @@ type State = {
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
   ctrlPressed: boolean;
+  isDynamic: boolean;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -241,6 +244,7 @@ class CodeEditor extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      isDynamic: false,
       isFocused: false,
       isOpened: false,
       autoCompleteVisible: false,
@@ -739,6 +743,21 @@ class CodeEditor extends Component<Props, State> {
         );
     }
 
+    const value = this.editor?.getValue() || "";
+    if (isDynamicValue(value)) {
+      if (!this.state.isDynamic) {
+        this.setState({
+          isDynamic: true,
+        });
+      }
+    } else {
+      if (this.state.isDynamic) {
+        this.setState({
+          isDynamic: false,
+        });
+      }
+    }
+
     if (this.props.onEditorFocus) {
       this.props.onEditorFocus();
     }
@@ -816,6 +835,23 @@ class CodeEditor extends Component<Props, State> {
       });
       this.props.input.onChange(value);
     }
+
+    // if the value is dynamic and the editor is not in dynamic state
+    if (isDynamicValue(value)) {
+      if (!this.state.isDynamic) {
+        this.setState({
+          isDynamic: true,
+        });
+      }
+    } else {
+      // if previously dynamic, set the editor dynamic state to false
+      if (this.state.isDynamic) {
+        this.setState({
+          isDynamic: false,
+        });
+      }
+    }
+
     if (this.editor) {
       CodeEditor.updateMarkings(
         this.editor,
@@ -1040,6 +1076,7 @@ class CodeEditor extends Component<Props, State> {
       codeEditorVisibleOverflow,
       dataTreePath,
       disabled,
+      evaluatedPopUpLabel,
       evaluatedValue,
       evaluationSubstitutionType,
       expected,
@@ -1073,11 +1110,16 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.isInvalid !== undefined) {
       isInvalid = Boolean(this.props.isInvalid);
     }
-    const showEvaluatedValue =
+
+    // show features like evaluatedvaluepopup or binding prompts
+    const showFeatures =
       this.state.isFocused &&
       !hideEvaluatedValue &&
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!dataTreePath));
+
+    const showEvaluatedValue =
+      showFeatures && (this.state.isDynamic || isInvalid);
 
     return (
       <DynamicAutocompleteInputWrapper
@@ -1104,8 +1146,10 @@ class CodeEditor extends Component<Props, State> {
         )}
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
+          editorRef={this.codeEditorTarget}
           entity={entityInformation}
           errors={errors}
+          evaluatedPopUpLabel={evaluatedPopUpLabel}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
@@ -1161,7 +1205,7 @@ class CodeEditor extends Component<Props, State> {
                 editorTheme={this.props.theme}
                 isOpen={
                   showBindingPrompt(
-                    showEvaluatedValue,
+                    showFeatures,
                     input.value,
                     this.state.hinterOpen,
                   ) && !_.get(this.editor, "state.completionActive")
