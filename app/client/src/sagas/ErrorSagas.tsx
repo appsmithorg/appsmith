@@ -7,7 +7,7 @@ import {
 import log from "loglevel";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { User } from "constants/userConstants";
@@ -31,6 +31,7 @@ import store from "store";
 
 import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "api/ApiUtils";
+import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
 
 /**
  * making with error message with action name
@@ -245,9 +246,22 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
     get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
-    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
-      window.location.href,
-    )}`;
+    const queryParams = new URLSearchParams(window.location.search);
+    const embedQueryParam = queryParams.get("embed");
+    const ssoTriggerQueryParam = queryParams.get("ssoTrigger");
+    const ssoLoginUrl =
+      embedQueryParam === "true" && ssoTriggerQueryParam
+        ? getLoginUrl(ssoTriggerQueryParam || "")
+        : null;
+    if (ssoLoginUrl) {
+      window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
+        window.location.href,
+      )}`;
+    } else {
+      window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+        window.location.href,
+      )}`;
+    }
 
     return false;
   }

@@ -5,8 +5,8 @@ import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
-import { Icon, IconSize } from "design-system";
-import { createMessage } from "design-system/build/constants/messages";
+import { Icon, IconSize } from "design-system-old";
+import { createMessage } from "design-system-old/build/constants/messages";
 import { UPGRADE } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { selectFeatureFlags } from "selectors/usersSelectors";
@@ -193,7 +193,7 @@ export default function LeftPane() {
                 to="/settings/business-edition"
               >
                 <div>
-                  <Icon name="arrow-right-up-line" size={IconSize.XL} />
+                  <Icon name="arrow-up-line" size={IconSize.XL} />
                 </div>
                 <div>{camelCase(createMessage(UPGRADE))}</div>
               </StyledLink>

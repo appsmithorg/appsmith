@@ -12,7 +12,7 @@ import {
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
 import CodeEditor from "../CodeEditor";
-import { Button, Size, TabComponent } from "design-system";
+import { Button, Size, TabComponent } from "design-system-old";
 import {
   evaluateArgument,
   evaluateSnippet,
@@ -36,7 +36,7 @@ import {
   SNIPPET_INSERT,
 } from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
-import { getTypographyByKey, Toaster, Variant } from "design-system";
+import { getTypographyByKey, Toaster, Variant } from "design-system-old";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";

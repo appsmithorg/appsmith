@@ -1,6 +1,7 @@
 import { dataTreeEvaluator } from "./evalTree";
 import { EvalWorkerASyncRequest } from "../types";
 import { createUnEvalTreeForEval } from "@appsmith/workers/Evaluation/dataTreeUtils";
+import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
 export default async function(request: EvalWorkerASyncRequest) {
   const { data } = request;
@@ -15,6 +16,7 @@ export default async function(request: EvalWorkerASyncRequest) {
   if (!dataTreeEvaluator) {
     return { triggers: [], errors: [] };
   }
+  ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
   const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
   const {
     evalOrder,

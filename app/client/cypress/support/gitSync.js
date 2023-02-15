@@ -5,6 +5,11 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
+import { ObjectsRegistry } from "../support/Objects/Registry";
+import datasourceFormData from "../fixtures/datasources.json";
+
+let gitSync = ObjectsRegistry.GitSync,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -45,15 +50,15 @@ Cypress.Commands.add(
     cy.get(homePage.deployPopupOptionTrigger).click();
     cy.get(homePage.connectToGitBtn).click({ force: true });
 
-    cy.intercept(
-      {
-        url: "api/v1/git/connect/app/*",
-        hostname: window.location.host,
-      },
-      (req) => {
-        req.headers["origin"] = "Cypress";
-      },
-    );
+    // cy.intercept(
+    //   {
+    //     url: "api/v1/git/connect/app/*",
+    //     hostname: window.location.host,
+    //   },
+    //   (req) => {
+    //     req.headers["origin"] = "Cypress";
+    //   },
+    // );
 
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       `generateKey-${repo}`,
@@ -94,7 +99,7 @@ Cypress.Commands.add(
 
       if (!assertConnectFailure) {
         // check for connect success
-        cy.wait("@connectGitRepo").should(
+        cy.wait("@connectGitLocalRepo").should(
           "have.nested.property",
           "response.body.responseMeta.status",
           200,
@@ -115,7 +120,7 @@ Cypress.Commands.add(
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     }
   } else {
-    cy.wait("@connectGitRepo").then((interception) => {
+    cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
     });
@@ -156,6 +161,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
+  agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
   cy.wait(1000);
@@ -232,18 +238,20 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
+  agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
   cy.get(gitSyncLocators.commitButton).click();
   if (!assertFailure) {
     // check for commit success
-    cy.wait("@commit").should(
+    //adding timeout since commit is taking longer sometimes
+    cy.wait("@commit", { timeout: 35000 }).should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
     cy.wait(3000);
   } else {
-    cy.wait("@commit").then((interception) => {
+    cy.wait("@commit", { timeout: 35000 }).then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
     });
@@ -284,18 +292,27 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("merge", (destinationBranch) => {
+  agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
-  cy.wait(6000); // wait for git status call to finish
+  //cy.wait(6000); // wait for git status call to finish
   /*cy.wait("@gitStatus").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   ); */
+
+  agHelper.AssertElementEnabledDisabled(
+    gitSyncLocators.mergeBranchDropdownDestination,
+    0,
+    false,
+  );
+  cy.wait(3000);
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
     .click();
-  cy.wait("@mergeStatus").should(
+  agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
+  cy.wait("@mergeStatus", { timeout: 35000 }).should(
     "have.nested.property",
     "response.body.data.isMergeAble",
     true,
@@ -303,11 +320,11 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.wait(2000);
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
-  cy.wait("@mergeBranch").should(
+  cy.wait("@mergeBranch", { timeout: 35000 }).should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
-  );
+  ); //adding timeout since merge is taking longer sometimes
   cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 
@@ -319,37 +336,51 @@ Cypress.Commands.add(
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 
     let generatedKey;
-    cy.intercept(
-      {
-        url: "api/v1/git/connect/app/*",
-        hostname: window.location.host,
-      },
-      (req) => {
-        req.headers["origin"] = "Cypress";
-      },
-    );
+    // cy.intercept(
+    //   {
+    //     url: "api/v1/git/connect/app/*",
+    //     hostname: window.location.host,
+    //   },
+    //   (req) => {
+    //     req.headers["origin"] = "Cypress";
+    //   },
+    // );
     cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
       `generateKey-${repo}`,
     );
     cy.get(gitSyncLocators.gitRepoInput).type(
-      `git@github.com:${owner}/${repo}.git`,
+      //`git@github.com:${owner}/${repo}.git`,
+      `${datasourceFormData["GITEA_API_URL_TED"]}/${repo}.git`,
     );
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
     cy.wait(`@generateKey-${repo}`).then((result) => {
       generatedKey = result.response.body.data.publicKey;
       generatedKey = generatedKey.slice(0, generatedKey.length - 1);
       // fetch the generated key and post to the github repo
+      // cy.request({
+      //   method: "POST",
+      //   url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+      //     "TEST_GITHUB_USER_NAME",
+      //   )}/${repo}/keys`,
+      //   headers: {
+      //     Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+      //   },
+      //   body: {
+      //     title: "key0",
+      //     key: generatedKey,
+      //   },
+      // });
+
       cy.request({
         method: "POST",
-        url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-          "TEST_GITHUB_USER_NAME",
-        )}/${repo}/keys`,
+        url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/repos/Cypress/${repo}/keys`,
         headers: {
-          Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+          Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
         },
         body: {
-          title: "key0",
+          title: "key1",
           key: generatedKey,
+          read_only: false,
         },
       });
 
@@ -433,19 +464,32 @@ Cypress.Commands.add(
           generatedKey = result.response.body.data.publicKey;
           generatedKey = generatedKey.slice(0, generatedKey.length - 1);
           // fetch the generated key and post to the github repo
+          // cy.request({
+          //   method: "POST",
+          //   url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+          //     "TEST_GITHUB_USER_NAME",
+          //   )}/${repo}/keys`,
+          //   headers: {
+          //     Authorization: `token ${Cypress.env(
+          //       "GITHUB_PERSONAL_ACCESS_TOKEN",
+          //     )}`,
+          //   },
+          //   body: {
+          //     title: "key0",
+          //     key: generatedKey,
+          //   },
+          // });
+
           cy.request({
             method: "POST",
-            url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-              "TEST_GITHUB_USER_NAME",
-            )}/${repo}/keys`,
+            url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/repos/Cypress/${repo}/keys`,
             headers: {
-              Authorization: `token ${Cypress.env(
-                "GITHUB_PERSONAL_ACCESS_TOKEN",
-              )}`,
+              Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
             },
             body: {
-              title: "key0",
+              title: "key1",
               key: generatedKey,
+              read_only: false,
             },
           });
 

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import SpinnerLoader from "pages/common/SpinnerLoader";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 
 const LoaderWrapper = styled.div`
   display: flex;

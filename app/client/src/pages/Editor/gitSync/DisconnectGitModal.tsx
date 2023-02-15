@@ -18,7 +18,7 @@ import {
   TextInput,
   TextType,
   Variant,
-} from "design-system";
+} from "design-system-old";
 
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";

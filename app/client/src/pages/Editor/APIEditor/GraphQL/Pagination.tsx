@@ -11,7 +11,7 @@ import {
   Dropdown,
   Checkbox,
   DropdownOption,
-} from "design-system";
+} from "design-system-old";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -270,6 +270,7 @@ function PaginationTypeBasedWrapper({
           className={`${className}Value`}
           dataTreePath={dataTreePath}
           disabled={separateKeyFlag && !separateValueFlag}
+          evaluatedPopUpLabel={valueLabel}
           name={valuePath}
           onChange={onInputChange}
           placeholder={valuePlaceholder || ""}

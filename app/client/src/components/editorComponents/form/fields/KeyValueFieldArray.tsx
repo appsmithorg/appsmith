@@ -11,7 +11,14 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Case, Classes, Icon, IconSize, Text, TextType } from "design-system";
+import {
+  Case,
+  Classes,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+} from "design-system-old";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
@@ -186,6 +193,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         border={CodeEditorBorder.ALL_SIDE}
                         className={`t--${field}.key.${index}`}
                         dataTreePath={`${props.dataTreePath}[${index}].key`}
+                        evaluatedPopUpLabel={"Key"}
                         expected={expected}
                         hoverInteraction
                         name={`${field}.key`}
@@ -211,6 +219,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       border={CodeEditorBorder.ALL_SIDE}
                       className={`t--${field}.key.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].key`}
+                      evaluatedPopUpLabel={"Key"}
                       expected={expected}
                       hoverInteraction
                       name={`${field}.key`}
@@ -227,6 +236,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       border={CodeEditorBorder.ALL_SIDE}
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
+                      evaluatedPopUpLabel={"Value"}
                       expected={expected}
                       hoverInteraction
                       name={`${field}.value`}
@@ -248,6 +258,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           props.actionConfig[index].editable === undefined
                         )
                       }
+                      evaluatedPopUpLabel={"Value"}
                       expected={expected}
                       name={`${field}.value`}
                       placeholder={

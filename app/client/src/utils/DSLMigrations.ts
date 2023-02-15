@@ -25,6 +25,7 @@ import {
   migrateTableWidgetV2ValidationBinding,
   migrateMenuButtonDynamicItemsInsideTableWidget,
   migrateTableWidgetV2SelectOption,
+  migrateColumnFreezeAttributes,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -867,10 +868,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 19) {
     currentDSL.snapColumns = GridDefaults.DEFAULT_GRID_COLUMNS;
-    currentDSL.snapRows = getCanvasSnapRows(
-      currentDSL.bottomRow,
-      currentDSL.detachFromLayout || false,
-    );
+    currentDSL.snapRows = getCanvasSnapRows(currentDSL.bottomRow);
     if (!newPage) {
       currentDSL = migrateToNewLayout(currentDSL);
     }
@@ -1167,6 +1165,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 75) {
     currentDSL = migrateInputWidgetsMultiLineInputType(currentDSL);
+    currentDSL.version = 76;
+  }
+
+  if (currentDSL.version === 76) {
+    currentDSL = migrateColumnFreezeAttributes(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

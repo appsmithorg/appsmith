@@ -10,7 +10,7 @@ import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "actions/controlActions";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import {
@@ -84,6 +84,10 @@ export function* bindDataToWidgetSaga(
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.LIST_WIDGET:
+      propertyPath = "listData";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
+    case WidgetTypes.LIST_WIDGET_V2:
       propertyPath = "listData";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;

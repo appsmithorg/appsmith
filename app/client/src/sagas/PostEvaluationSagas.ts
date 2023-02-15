@@ -8,7 +8,7 @@ import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
-  getDataTreeWithoutPrivateWidgets,
+  getDataTreeForAutocomplete,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -25,7 +25,7 @@ import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -360,11 +360,11 @@ export function* updateTernDefinitions(
 
   if (!shouldUpdate) return;
   const start = performance.now();
-  // remove private widgets from dataTree used for autocompletion
-  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
+  const dataTreeForAutocomplete = getDataTreeForAutocomplete(dataTree);
   const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const { def, entityInfo } = dataTreeTypeDefCreator(
-    treeWithoutPrivateWidgets,
+    dataTreeForAutocomplete,
     !!featureFlags.JS_EDITOR,
     jsData,
   );

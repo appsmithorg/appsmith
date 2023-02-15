@@ -49,9 +49,10 @@ import AppEngine, {
 } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import FeatureFlags from "entities/FeatureFlags";
-import { waitForSegmentInit } from "ce/sagas/userSagas";
+import {
+  waitForSegmentInit,
+  waitForFetchUserSuccess,
+} from "ce/sagas/userSagas";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -119,11 +120,8 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_PAGE_ERROR,
     ];
 
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    if (featureFlags.CUSTOM_JS_LIBRARY) {
-      initActionsCalls.push(fetchJSLibraries(applicationId));
-      successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
-    }
+    initActionsCalls.push(fetchJSLibraries(applicationId));
+    successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
 
     const allActionCalls: boolean = yield call(
       failFastApiCalls,
@@ -137,6 +135,7 @@ export default class AppEditorEngine extends AppEngine {
         `Unable to fetch actions for the application: ${applicationId}`,
       );
 
+    yield call(waitForFetchUserSuccess);
     yield call(waitForSegmentInit, true);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }

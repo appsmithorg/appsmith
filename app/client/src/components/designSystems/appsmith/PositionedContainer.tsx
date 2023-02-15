@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode, useMemo } from "react";
+import React, { CSSProperties, ReactNode, Ref, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
 import {
   CONTAINER_GRID_PADDING,
@@ -47,6 +47,7 @@ export type PositionedContainerProps = {
   parentColumnSpace: number;
   isDisabled?: boolean;
   isVisible?: boolean;
+  widgetName: string;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -55,7 +56,10 @@ export const checkIsDropTarget = memoize(function isDropTarget(
   return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
 });
 
-export function PositionedContainer(props: PositionedContainerProps) {
+export function PositionedContainer(
+  props: PositionedContainerProps,
+  ref: Ref<HTMLDivElement>,
+) {
   const { componentHeight, componentWidth } = props;
 
   // Memoizing the style
@@ -131,14 +135,12 @@ export function PositionedContainer(props: PositionedContainerProps) {
       isDropTarget && effectedByReflow ? { pointerEvents: "none" } : {};
     const reflowedPositionStyles: CSSProperties = hasReflowedPosition
       ? {
-          transform: `translate(${reflowX}px,${reflowY}px)`,
-          transition: `transform 100ms linear`,
+          transform: `translate3d(${reflowX}px,${reflowY}px,0)`,
           boxShadow: `0 0 0 1px rgba(104,113,239,0.5)`,
         }
       : {};
     const reflowDimensionsStyles = hasReflowedDimensions
       ? {
-          transition: `width 0.1s, height 0.1s`,
           boxShadow: `0 0 0 1px rgba(104,113,239,0.5)`,
         }
       : {};
@@ -147,6 +149,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       position: "absolute",
       left: x,
       top: y,
+      transition: `transform 100ms ease, width 100ms ease, height 100ms ease`,
       height:
         reflowHeight || style.componentHeight + (style.heightUnit || "px"),
       width: reflowWidth || style.componentWidth + (style.widthUnit || "px"),
@@ -170,12 +173,14 @@ export function PositionedContainer(props: PositionedContainerProps) {
       className={containerClassName}
       data-hidden={!props.isVisible || undefined}
       data-testid="test-widget"
+      data-widgetname-cy={props.widgetName}
       disabled={props.isDisabled}
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.
       onClick={stopEventPropagation}
       onClickCapture={clickToSelectWidget}
+      ref={ref}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
       zIndexOnHover={onHoverZIndex}
@@ -185,5 +190,4 @@ export function PositionedContainer(props: PositionedContainerProps) {
   );
 }
 
-PositionedContainer.padding = WIDGET_PADDING;
-export default PositionedContainer;
+export default React.forwardRef(PositionedContainer);

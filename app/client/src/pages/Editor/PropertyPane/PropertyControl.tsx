@@ -7,7 +7,7 @@ import {
   ControlPropertyLabelContainer,
   ControlWrapper,
 } from "components/propertyControls/StyledControls";
-import { JSToggleButton } from "design-system";
+import { JSToggleButton } from "design-system-old";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,7 +45,7 @@ import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AppState } from "@appsmith/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import {
@@ -55,6 +55,7 @@ import {
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -531,14 +532,12 @@ const PropertyControl = memo((props: Props) => {
       .join("")
       .toLowerCase();
 
-    let additionAutocomplete:
-      | Record<string, Record<string, unknown>>
-      | undefined = undefined;
+    let additionAutocomplete: AdditionalDynamicDataTree | undefined;
     if (additionalAutoComplete) {
       additionAutocomplete = additionalAutoComplete(widgetProperties);
     } else if (childWidgetAutoCompleteEnhancementFn) {
       additionAutocomplete = childWidgetAutoCompleteEnhancementFn() as
-        | Record<string, Record<string, unknown>>
+        | AdditionalDynamicDataTree
         | undefined;
     }
 

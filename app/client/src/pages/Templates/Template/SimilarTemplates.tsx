@@ -4,7 +4,7 @@ import {
   VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import { FontWeight, TextType, Text, Icon, IconSize } from "design-system";
+import { FontWeight, TextType, Text, Icon, IconSize } from "design-system-old";
 import React from "react";
 import Masonry, { MasonryProps } from "react-masonry-css";
 import styled from "styled-components";
@@ -47,6 +47,7 @@ type SimilarTemplatesProp = {
   onClick: (template: TemplateInterface) => void;
   onFork?: (template: TemplateInterface) => void;
   className?: string;
+  isForkingEnabled: boolean;
 };
 
 function SimilarTemplates(props: SimilarTemplatesProp) {
@@ -73,6 +74,7 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
         >
           {props.similarTemplates.map((template) => (
             <Template
+              isForkingEnabled={props.isForkingEnabled}
               key={template.id}
               onClick={() => props.onClick(template)}
               onForkTemplateClick={props.onFork}

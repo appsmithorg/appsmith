@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
-import { DropdownOption } from "design-system";
+import { DropdownOption } from "design-system-old";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { DSEventDetail, DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
@@ -46,7 +46,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       defaultSelected = [defaultSelected];
     }
 
-    const options = this.props?.options || [];
+    const options =
+      typeof this.props.options === "function"
+        ? this.props.options(this.props.widgetProperties)
+        : this.props?.options || [];
 
     if (this.props.defaultValue) {
       if (this.props.isMultiSelect) {
@@ -69,7 +72,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     } else {
       const computedValue =
         !isNil(this.props.propertyValue) &&
-        isDynamicValue(this.props.propertyValue)
+        isDynamicValue(this.props.propertyValue) &&
+        // "dropdownUsePropertyValue" comes from the property config. This is set to true when
+        // the actual propertyValue (not the evaluated) is to be used for finding the option from "options".
+        !this.props.dropdownUsePropertyValue
           ? this.props.evaluatedValue
           : this.props.propertyValue;
 
@@ -174,10 +180,13 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     config: DropDownControlProps,
     value: any,
   ): boolean {
+    const options =
+      typeof config?.options === "function"
+        ? config?.options(config.widgetProperties)
+        : config?.options || [];
+
     const allowedValues = new Set(
-      config?.options?.map((x: { value: string | number }) =>
-        x.value.toString(),
-      ),
+      options?.map((x: { value: string | number }) => x.value.toString()),
     );
     if (config.isMultiSelect) {
       try {
@@ -196,7 +205,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 }
 
 export interface DropDownControlProps extends ControlProps {
-  options?: any[];
+  options?: any[] | ((props: ControlProps["widgetProperties"]) => any[]);
   defaultValue?: string;
   placeholderText: string;
   searchPlaceholderText: string;
@@ -206,6 +215,7 @@ export interface DropDownControlProps extends ControlProps {
   propertyValue: string;
   optionWidth?: string;
   hideSubText?: boolean;
+  dropdownUsePropertyValue?: boolean;
 }
 
 export default DropDownControl;

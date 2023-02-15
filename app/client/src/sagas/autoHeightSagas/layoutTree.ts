@@ -29,7 +29,7 @@ export function* getLayoutTree(layoutUpdated: boolean) {
     getAutoHeightLayoutTree,
   );
   for (const canvasWidgetId in occupiedSpaces) {
-    if (occupiedSpaces[canvasWidgetId].length > 0) {
+    if (Object.keys(occupiedSpaces[canvasWidgetId]).length > 0) {
       const treeForThisCanvas = generateTree(
         occupiedSpaces[canvasWidgetId],
         !shouldCollapse && layoutUpdated,
@@ -39,7 +39,7 @@ export function* getLayoutTree(layoutUpdated: boolean) {
     }
   }
   log.debug(
-    "Dynamic Height: Tree generation time taken:",
+    "Auto Height: Tree generation time taken:",
     performance.now() - start,
     "ms",
   );
@@ -50,6 +50,7 @@ export function* generateTreeForAutoHeightComputations(
   action: ReduxAction<{
     shouldCheckContainersForAutoHeightUpdates: boolean;
     layoutUpdated: boolean;
+    resettingTabs: boolean;
   }>,
 ) {
   const { canvasLevelMap, tree } = yield getLayoutTree(
@@ -62,7 +63,7 @@ export function* generateTreeForAutoHeightComputations(
     yield put({
       type: ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
     });
-    yield put(checkContainersForAutoHeightAction());
+    yield put(checkContainersForAutoHeightAction(action.payload.resettingTabs));
   }
 
   return tree;
