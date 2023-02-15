@@ -9,6 +9,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
@@ -38,6 +39,7 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +53,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -59,6 +62,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static reactor.core.publisher.Mono.zip;
 
 @Slf4j
 @Testcontainers
@@ -1461,6 +1465,36 @@ public class MySqlPluginTest {
                                 // Verify value
                                 assertEquals(JsonNodeType.NUMBER, node.get("id").getNodeType());
 
+                        })
+                        .verifyComplete();
+        }
+
+        @Test
+        public void testDatasourceDestroy() {
+                dsConfig = createDatasourceConfiguration();
+                Mono<ConnectionPool> connPoolMonoCache = pluginExecutor.datasourceCreate(dsConfig).cache();
+                Mono<DatasourceTestResult> testConnResultMono = connPoolMonoCache
+                        .flatMap(conn -> pluginExecutor.testDatasource(conn));
+                Mono<Tuple2<ConnectionPool, DatasourceTestResult>> zipMono = zip(connPoolMonoCache, testConnResultMono);
+                StepVerifier.create(zipMono)
+                        .assertNext(tuple2 -> {
+                                DatasourceTestResult testDsResult = tuple2.getT2();
+                                assertEquals(0, testDsResult.getInvalids().size());
+
+                                ConnectionPool conn = tuple2.getT1();
+                                pluginExecutor.datasourceDestroy(conn);
+                                try {
+                                    /**
+                                     * We need to wait a few seconds before the next check because
+                                     * `datasourceDestroy` for MySQL Plugin is a non-blocking operation scheduled on
+                                     * a separate thread. We are hoping that by the time sleep ends, the other
+                                     * thread has finished execution.
+                                     */
+                                        sleep(5000);
+                                } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                }
+                                assertTrue(conn.isDisposed());
                         })
                         .verifyComplete();
         }
