@@ -537,7 +537,6 @@ class AnalyticsUtil {
   static removeAnalytics() {
     AnalyticsUtil.blockTrackEvent = false;
     (window as any).analytics = undefined;
-    console.log("SSK Analytics removed");
   }
 }
 
