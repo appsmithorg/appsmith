@@ -31,6 +31,7 @@ import {
 import { LabelPosition } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultValueValidation(
   value: any,
@@ -51,7 +52,7 @@ export function defaultValueValidation(
         return {
           isValid: true,
           parsed: undefined,
-          messages: [""],
+          messages: [{ name: "", message: "" }],
         };
       }
 
@@ -59,7 +60,12 @@ export function defaultValueValidation(
         return {
           isValid: false,
           parsed: undefined,
-          messages: ["This value must be a number"],
+          messages: [
+            {
+              name: ErrorMessageType.TYPE_ERROR,
+              message: "This value must be a number",
+            },
+          ],
         };
       }
     }
@@ -71,14 +77,19 @@ export function defaultValueValidation(
     return {
       isValid: true,
       parsed,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
   if (_.isObject(value)) {
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: ["This value must be string"],
+      messages: [
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message: "This value must be string",
+        },
+      ],
     };
   }
   let parsed = value;
@@ -90,14 +101,19 @@ export function defaultValueValidation(
       return {
         isValid: false,
         parsed: "",
-        messages: ["This value must be string"],
+        messages: [
+          {
+            name: ErrorMessageType.TYPE_ERROR,
+            message: "This value must be string",
+          },
+        ],
       };
     }
   }
   return {
     isValid,
     parsed: parsed,
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 }
 

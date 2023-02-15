@@ -8,6 +8,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { functionDeterminer } from "../functionDeterminer";
 import { resetJSLibraries } from "workers/common/JSLibrary";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
@@ -68,7 +69,10 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
-          errorMessage: "ReferenceError: wrongJS is not defined",
+          errorMessage: {
+            name: ErrorMessageType.REFERENCE_ERROR,
+            message: "wrongJS is not defined",
+          },
           errorType: "PARSE",
           raw: `
   function closedFunction () {
@@ -87,7 +91,10 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
-          errorMessage: "TypeError: {}.map is not a function",
+          errorMessage: {
+            name: ErrorMessageType.TYPE_ERROR,
+            message: "{}.map is not a function",
+          },
           errorType: "PARSE",
           raw: `
   function closedFunction () {
@@ -114,7 +121,10 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
-          errorMessage: "ReferenceError: setImmediate is not defined",
+          errorMessage: {
+            name: ErrorMessageType.REFERENCE_ERROR,
+            message: "setImmediate is not defined",
+          },
           errorType: "PARSE",
           raw: `
   function closedFunction () {
@@ -203,7 +213,10 @@ describe("evaluateAsync", () => {
     expect(result).toStrictEqual({
       errors: [
         {
-          errorMessage: expect.stringContaining("randomKeyword is not defined"),
+          errorMessage: {
+            name: ErrorMessageType.REFERENCE_ERROR,
+            message: "randomKeyword is not defined",
+          },
           errorType: "PARSE",
           originalBinding: expect.stringContaining("Promise"),
           raw: expect.stringContaining("Promise"),

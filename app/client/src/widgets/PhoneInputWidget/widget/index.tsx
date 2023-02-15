@@ -32,14 +32,18 @@ import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultValueValidation(
   value: any,
   props: PhoneInputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const STRING_ERROR_MESSAGE = "This value must be string";
-  const EMPTY_ERROR_MESSAGE = "";
+  const STRING_ERROR_MESSAGE = {
+    name: ErrorMessageType.TYPE_ERROR,
+    message: "This value must be string",
+  };
+  const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
   if (_.isObject(value)) {
     return {
       isValid: false,

@@ -1,5 +1,6 @@
 import { defaultValueValidation, CurrencyInputWidgetProps } from "./index";
 import _ from "lodash";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 describe("defaultValueValidation", () => {
   let result: any;
@@ -10,7 +11,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: "100",
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
 
     result = defaultValueValidation("test", {} as CurrencyInputWidgetProps, _);
@@ -18,7 +19,12 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be number"],
+      messages: [
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message: "This value must be number",
+        },
+      ],
     });
 
     result = defaultValueValidation("", {} as CurrencyInputWidgetProps, _);
@@ -26,7 +32,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
 
@@ -37,7 +43,12 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: ["This value must be number"],
+      messages: [
+        {
+          name: ErrorMessageType.TYPE_ERROR,
+          message: "This value must be number",
+        },
+      ],
     });
   });
 });

@@ -32,15 +32,22 @@ import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 export function defaultValueValidation(
   value: any,
   props: InputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const STRING_ERROR_MESSAGE = "This value must be string";
-  const NUMBER_ERROR_MESSAGE = "This value must be number";
-  const EMPTY_ERROR_MESSAGE = "";
+  const STRING_ERROR_MESSAGE = {
+    name: ErrorMessageType.TYPE_ERROR,
+    message: "This value must be string",
+  };
+  const NUMBER_ERROR_MESSAGE = {
+    name: ErrorMessageType.TYPE_ERROR,
+    message: "This value must be number",
+  };
+  const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
   if (_.isObject(value)) {
     return {
       isValid: false,
