@@ -8,6 +8,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { ErrorMessageType } from "entities/AppsmithConsole";
 
 const MIN_ITEM_SPACING = 0;
 const MAX_ITEM_SPACING = 16;
@@ -35,7 +36,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: [],
         messages: [
-          "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message:
+              "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+          },
         ],
       };
     }
@@ -46,7 +51,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: inputValue, // undefined the chosen key doesn't exist.
         messages: [
-          "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message:
+              "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+          },
         ],
       };
     }
@@ -57,7 +66,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: inputValue,
         messages: [
-          "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message:
+              "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+          },
         ],
       };
     }
@@ -69,7 +82,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: [], // Empty array as the inputValue is an array type
         messages: [
-          "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+          {
+            name: ErrorMessageType.VALIDATION_ERROR,
+            message:
+              "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+          },
         ],
       };
     }
@@ -81,14 +98,14 @@ export const primaryColumnValidation = (
     return {
       isValid: false,
       parsed: undefined, // undefined as we do not know what the data type of inputValue is so "[]" is not an appropriate value to return
-      messages: [message],
+      messages: [{ name: ErrorMessageType.VALIDATION_ERROR, message }],
     };
   }
 
   return {
     isValid: true,
     parsed: inputValue,
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 };
 
