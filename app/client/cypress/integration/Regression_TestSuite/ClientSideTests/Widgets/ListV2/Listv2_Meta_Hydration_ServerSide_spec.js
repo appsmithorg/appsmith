@@ -1,6 +1,5 @@
 const dsl = require("../../../../../fixtures/Listv2/MetaHydrationDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
@@ -88,194 +87,7 @@ describe("List widget v2 - meta hydration tests", () => {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("1. using client side data", () => {
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`).should(
-      "have.length",
-      3,
-    );
-    //FirstPage
-    //   First Row
-    changeValueOfWidget("selectwidget", "Green", 0);
-    changeValueOfWidget("inputwidgetv2", "First", 0);
-    changeValueOfWidget("multiselectwidgetv2", ["Green"], 0);
-
-    //   Second Row
-    changeValueOfWidget("selectwidget", "Blue", 1);
-    changeValueOfWidget("inputwidgetv2", "Second", 1);
-    changeValueOfWidget("multiselectwidgetv2", ["Blue"], 1);
-
-    //   Third Row
-    changeValueOfWidget("selectwidget", "Red", 2);
-    changeValueOfWidget("inputwidgetv2", "Third", 2);
-    changeValueOfWidget("multiselectwidgetv2", ["Red"], 2);
-
-    //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
-
-    //   SecondPage
-    //   First Row
-    changeValueOfWidget("selectwidget", "Blue", 0);
-    changeValueOfWidget("inputwidgetv2", "Fourth", 0);
-    changeValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
-
-    //   Second Row
-    changeValueOfWidget("selectwidget", "Red", 1);
-    changeValueOfWidget("inputwidgetv2", "Fifth", 1);
-    changeValueOfWidget("multiselectwidgetv2", ["Red"], 1);
-
-    //   Third Row
-    changeValueOfWidget("selectwidget", "Green", 2);
-    changeValueOfWidget("inputwidgetv2", "Sixth", 2);
-    changeValueOfWidget("multiselectwidgetv2", ["Green"], 2);
-
-    //   Go to previous page
-    cy.get(commonlocators.listPaginatePrevButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
-
-    //Validate values in FirstPage
-    //   First Row
-    verifyValueOfWidget("selectwidget", "Green", 0);
-    verifyValueOfWidget("inputwidgetv2", "First", 0);
-    verifyValueOfWidget("multiselectwidgetv2", ["Green"], 0);
-
-    //   Second Row
-    verifyValueOfWidget("selectwidget", "Blue", 1);
-    verifyValueOfWidget("inputwidgetv2", "Second", 1);
-    verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 1);
-
-    //   Third Row
-    verifyValueOfWidget("selectwidget", "Red", 2);
-    verifyValueOfWidget("inputwidgetv2", "Third", 2);
-    verifyValueOfWidget("multiselectwidgetv2", ["Red"], 2);
-
-    //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
-
-    //Validate values in SecondPage
-    //   First Row
-    verifyValueOfWidget("selectwidget", "Blue", 0);
-    verifyValueOfWidget("inputwidgetv2", "Fourth", 0);
-    verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
-
-    //   Second Row
-    verifyValueOfWidget("selectwidget", "Red", 1);
-    verifyValueOfWidget("inputwidgetv2", "Fifth", 1);
-    verifyValueOfWidget("multiselectwidgetv2", ["Red"], 1);
-
-    //   Third Row
-    verifyValueOfWidget("selectwidget", "Green", 2);
-    verifyValueOfWidget("inputwidgetv2", "Sixth", 2);
-    verifyValueOfWidget("multiselectwidgetv2", ["Green"], 2);
-  });
-
-  it("2. using client side data in view mode", () => {
-    cy.PublishtheApp();
-
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`).should(
-      "have.length",
-      3,
-    );
-    //FirstPage
-    //   First Row
-    changeValueOfWidget("selectwidget", "Green", 0);
-    changeValueOfWidget("inputwidgetv2", "First", 0);
-    changeValueOfWidget("multiselectwidgetv2", ["Green"], 0);
-
-    //   Second Row
-    changeValueOfWidget("selectwidget", "Blue", 1);
-    changeValueOfWidget("inputwidgetv2", "Second", 1);
-    changeValueOfWidget("multiselectwidgetv2", ["Blue"], 1);
-
-    //   Third Row
-    changeValueOfWidget("selectwidget", "Red", 2);
-    changeValueOfWidget("inputwidgetv2", "Third", 2);
-    changeValueOfWidget("multiselectwidgetv2", ["Red"], 2);
-
-    //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
-
-    //   SecondPage
-    //   First Row
-    changeValueOfWidget("selectwidget", "Blue", 0);
-    changeValueOfWidget("inputwidgetv2", "Fourth", 0);
-    changeValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
-
-    //   Second Row
-    changeValueOfWidget("selectwidget", "Red", 1);
-    changeValueOfWidget("inputwidgetv2", "Fifth", 1);
-    changeValueOfWidget("multiselectwidgetv2", ["Red"], 1);
-
-    //   Third Row
-    changeValueOfWidget("selectwidget", "Green", 2);
-    changeValueOfWidget("inputwidgetv2", "Sixth", 2);
-    changeValueOfWidget("multiselectwidgetv2", ["Green"], 2);
-
-    //   Go to previous page
-    cy.get(commonlocators.listPaginatePrevButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
-
-    //Validate values in FirstPage
-    //   First Row
-    verifyValueOfWidget("selectwidget", "Green", 0);
-    verifyValueOfWidget("inputwidgetv2", "First", 0);
-    verifyValueOfWidget("multiselectwidgetv2", ["Green"], 0);
-
-    //   Second Row
-    verifyValueOfWidget("selectwidget", "Blue", 1);
-    verifyValueOfWidget("inputwidgetv2", "Second", 1);
-    verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 1);
-
-    //   Third Row
-    verifyValueOfWidget("selectwidget", "Red", 2);
-    verifyValueOfWidget("inputwidgetv2", "Third", 2);
-    verifyValueOfWidget("multiselectwidgetv2", ["Red"], 2);
-
-    //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
-
-    //Validate values in SecondPage
-    //   First Row
-    verifyValueOfWidget("selectwidget", "Blue", 0);
-    verifyValueOfWidget("inputwidgetv2", "Fourth", 0);
-    verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
-
-    //   Second Row
-    verifyValueOfWidget("selectwidget", "Red", 1);
-    verifyValueOfWidget("inputwidgetv2", "Fifth", 1);
-    verifyValueOfWidget("multiselectwidgetv2", ["Red"], 1);
-
-    //   Third Row
-    verifyValueOfWidget("selectwidget", "Green", 2);
-    verifyValueOfWidget("inputwidgetv2", "Sixth", 2);
-    verifyValueOfWidget("multiselectwidgetv2", ["Green"], 2);
-
-    cy.get(publishPage.backToEditor).click({ force: true });
-  });
-
-  it("3. using server side data", () => {
-    cy.addDsl(dsl);
+  it("1. using server side data", () => {
     cy.wait(1000);
     cy.NavigateToDatasourceEditor();
 
@@ -422,7 +234,7 @@ describe("List widget v2 - meta hydration tests", () => {
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 2);
   });
 
-  it("4. using server side data in view mode", () => {
+  it("2. using server side data in view mode", () => {
     cy.PublishtheApp();
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`).should(
       "have.length",
