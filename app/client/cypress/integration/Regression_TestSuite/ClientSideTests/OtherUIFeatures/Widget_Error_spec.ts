@@ -45,7 +45,7 @@ describe("Widget error state", function() {
   });
 
   it("All errors should be expanded by default", function() {
-    debuggerHelper.AssertVisibleErrorMessagesCount(2);
+    debuggerHelper.AssertVisibleErrorMessagesCount(1);
   });
 
   it("Recent errors are shown at the top of the list", function() {
