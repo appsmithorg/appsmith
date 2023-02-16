@@ -1505,7 +1505,7 @@ public class MySqlPluginTest {
         public void testExecuteCommon_queryWithComments_callValidationCallsAfterRemovingComments(){
                 MySqlPlugin.MySqlPluginExecutor spyPlugin = spy(pluginExecutor);
 
-                dsConfig = createDatasourceConfiguration();
+                DatasourceConfiguration dsConfig = createDatasourceConfiguration();
                 ConnectionPool dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig).block();
                 ActionConfiguration actionConfiguration = new ActionConfiguration();
                 actionConfiguration
@@ -1516,7 +1516,7 @@ public class MySqlPluginTest {
                 actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
                 HashMap<String, Object> requestData = new HashMap<>();
 
-                spyPlugin.executeCommon(
+                Mono<ActionExecutionResult> resultMono = spyPlugin.executeCommon(
                         dsConnectionMono,
                         actionConfiguration,
                         TRUE,
@@ -1528,5 +1528,9 @@ public class MySqlPluginTest {
                 verify(spyPlugin).isIsOperatorUsed("SELECT id FROM users WHERE \nid = 1 limit 1;");
 
                 verify(spyPlugin).getIsSelectOrShowOrDescQuery("SELECT id FROM users WHERE \nid = 1 limit 1;");
+
+                StepVerifier.create(resultMono).assertNext(result -> {
+                        assertTrue(result.getIsExecutionSuccess());
+                }).verifyComplete();
         }
 }
