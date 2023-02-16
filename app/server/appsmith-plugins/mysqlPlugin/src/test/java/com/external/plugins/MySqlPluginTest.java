@@ -1525,12 +1525,15 @@ public class MySqlPluginTest {
                         requestData
                 );
 
-                verify(spyPlugin).isIsOperatorUsed("SELECT id FROM users WHERE \nid = 1 limit 1;");
-
-                verify(spyPlugin).getIsSelectOrShowOrDescQuery("SELECT id FROM users WHERE \nid = 1 limit 1;");
-
-                StepVerifier.create(resultMono).assertNext(result -> {
+                StepVerifier.create(resultMono)
+                        .assertNext(result -> {
                         assertTrue(result.getIsExecutionSuccess());
-                }).verifyComplete();
+
+                        verify(spyPlugin).isIsOperatorUsed("SELECT id FROM users WHERE \nid = 1 limit 1;");
+
+                        verify(spyPlugin).getIsSelectOrShowOrDescQuery("SELECT id FROM users WHERE \nid = 1 limit 1;");
+
+                        })
+                        .verifyComplete();
         }
 }
