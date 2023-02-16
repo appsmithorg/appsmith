@@ -36,6 +36,7 @@ export interface AppsmithUIConfigs {
     snippetIndex: string;
   };
 
+  enableRapidAPI: boolean;
   disableLoginForm: boolean;
   disableSignup: boolean;
   enableMixpanel: boolean;

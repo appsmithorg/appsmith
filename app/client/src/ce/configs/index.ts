@@ -15,6 +15,7 @@ export interface INJECTED_CONFIGS {
   };
   disableLoginForm: boolean;
   disableSignup: boolean;
+  enableRapidAPI: boolean;
   segment: {
     apiKey: string;
     ceKey: string;
@@ -93,6 +94,9 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         | undefined) || "error",
     enableTNCPP: process.env.REACT_APP_TNC_PP
       ? process.env.REACT_APP_TNC_PP.length > 0
+      : false,
+    enableRapidAPI: process.env.REACT_APP_MARKETPLACE_URL
+      ? process.env.REACT_APP_MARKETPLACE_URL.length > 0
       : false,
     cloudHosting: process.env.REACT_APP_CLOUD_HOSTING
       ? process.env.REACT_APP_CLOUD_HOSTING.length > 0
@@ -228,6 +232,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       enabled: googleRecaptchaSiteKey.enabled,
       apiKey: googleRecaptchaSiteKey.value,
     },
+    enableRapidAPI:
+      ENV_CONFIG.enableRapidAPI || APPSMITH_FEATURE_CONFIGS.enableRapidAPI,
     disableLoginForm:
       ENV_CONFIG.disableLoginForm || APPSMITH_FEATURE_CONFIGS.disableLoginForm,
     disableSignup:
