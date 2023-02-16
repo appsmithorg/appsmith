@@ -8,6 +8,7 @@ import {
   useRowSelect,
   Row as ReactTableRowType,
 } from "react-table";
+import { useSticky } from "react-table-sticky";
 import {
   TableWrapper,
   TableHeaderWrapper,
@@ -22,18 +23,43 @@ import {
   CompactMode,
   CompactModeTypes,
   AddNewRowActions,
+  StickyType,
+  TABLE_SCROLLBAR_WIDTH,
+  MULTISELECT_CHECKBOX_WIDTH,
+  TABLE_SCROLLBAR_HEIGHT,
 } from "./Constants";
 import { Colors } from "constants/Colors";
-
-import { ScrollIndicator } from "design-system-old";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Scrollbars } from "react-custom-scrollbars";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
 import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell, TableVariant } from "../constants";
 import { TableBody } from "./TableBody";
+import { areEqual } from "react-window";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
+import { createGlobalStyle } from "styled-components";
+import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 
+const SCROLL_BAR_OFFSET = 2;
+const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
+
+const PopoverStyles = createGlobalStyle<{
+  widgetId: string;
+  borderRadius: string;
+}>`
+    ${HEADER_MENU_PORTAL_CLASS}-${({ widgetId }) => widgetId}
+    {
+      font-family: var(--wds-font-family) !important;
+  
+      & .${PopOver2Classes.POPOVER2},
+      .${PopOver2Classes.POPOVER2_CONTENT},
+      .bp3-menu {
+        border-radius: ${({ borderRadius }) =>
+          borderRadius >= `1.5rem` ? `0.375rem` : borderRadius} !important;
+      }
+    }   
+`;
 interface TableProps {
   width: number;
   height: number;
@@ -96,6 +122,8 @@ interface TableProps {
     onActionComplete: () => void,
   ) => void;
   disabledAddNewRowSave: boolean;
+  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
+  canFreezeColumn?: boolean;
 }
 
 const defaultColumn = {
@@ -103,21 +131,102 @@ const defaultColumn = {
   width: 150,
 };
 
-function ScrollbarVerticalThumb(props: any) {
-  return <div {...props} className="thumb-vertical" />;
-}
-
-function ScrollbarHorizontalThumb(props: any) {
-  return <div {...props} className="thumb-horizontal" />;
-}
-
-function ScrollbarHorizontalTrack(props: any) {
-  return <div {...props} className="track-horizontal" />;
-}
+type HeaderComponentProps = {
+  enableDrag: () => void;
+  disableDrag: () => void;
+  multiRowSelection?: boolean;
+  handleAllRowSelectClick: (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => void;
+  renderHeaderCheckBoxCell: any;
+  accentColor: string;
+  borderRadius: string;
+  headerGroups: any;
+  canFreezeColumn?: boolean;
+  editMode: boolean;
+  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
+  isResizingColumn: React.MutableRefObject<boolean>;
+  isSortable?: boolean;
+  sortTableColumn: (columnIndex: number, asc: boolean) => void;
+  columns: ReactTableColumnProps[];
+  width: number;
+  subPage: ReactTableRowType<Record<string, unknown>>[];
+  prepareRow: any;
+  headerWidth?: number;
+  rowSelectionState: 0 | 1 | 2 | null;
+  widgetId: string;
+};
+const HeaderComponent = (props: HeaderComponentProps) => {
+  return (
+    <div
+      className="thead"
+      onMouseLeave={props.enableDrag}
+      onMouseOver={props.disableDrag}
+    >
+      {props.headerGroups.map((headerGroup: any, index: number) => {
+        const headerRowProps = {
+          ...headerGroup.getHeaderGroupProps(),
+          style: { display: "flex", width: props.headerWidth },
+        };
+        return (
+          <div {...headerRowProps} className="tr header" key={index}>
+            {props.multiRowSelection &&
+              renderHeaderCheckBoxCell(
+                props.handleAllRowSelectClick,
+                props.rowSelectionState,
+                props.accentColor,
+                props.borderRadius,
+              )}
+            {headerGroup.headers.map((column: any, columnIndex: number) => {
+              const stickyRightModifier = !column.isHidden
+                ? columnIndex !== 0 &&
+                  props.columns[columnIndex - 1].sticky === StickyType.RIGHT &&
+                  props.columns[columnIndex - 1].isHidden
+                  ? "sticky-right-modifier"
+                  : ""
+                : "";
+              return (
+                <HeaderCell
+                  canFreezeColumn={props.canFreezeColumn}
+                  column={column}
+                  columnIndex={columnIndex}
+                  columnName={column.Header}
+                  editMode={props.editMode}
+                  handleColumnFreeze={props.handleColumnFreeze}
+                  isAscOrder={column.isAscOrder}
+                  isHidden={column.isHidden}
+                  isResizingColumn={props.isResizingColumn.current}
+                  isSortable={props.isSortable}
+                  key={columnIndex}
+                  multiRowSelection={props.multiRowSelection}
+                  sortTableColumn={props.sortTableColumn}
+                  stickyRightModifier={stickyRightModifier}
+                  widgetId={props.widgetId}
+                  width={column.width}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
+      {props.headerGroups.length === 0 &&
+        renderEmptyRows(
+          1,
+          props.columns,
+          props.width,
+          props.subPage,
+          props.multiRowSelection,
+          props.accentColor,
+          props.borderRadius,
+          {},
+          props.prepareRow,
+        )}
+    </div>
+  );
+};
 
 export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
-
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnWidthMap = {
       ...props.columnWidthMap,
@@ -167,6 +276,7 @@ export function Table(props: TableProps) {
     pageOptions,
     prepareRow,
     state,
+    totalColumnsWidth,
   } = useTable(
     {
       columns: columns,
@@ -183,6 +293,7 @@ export function Table(props: TableProps) {
     useResizeColumns,
     usePagination,
     useRowSelect,
+    useSticky,
   );
   //Set isResizingColumn as true when column is resizing using table state
   if (state.columnResizing.isResizingColumn) {
@@ -239,13 +350,16 @@ export function Table(props: TableProps) {
     props.isVisiblePagination ||
     props.allowAddNewRow;
 
-  const style = useMemo(
-    () => ({
-      width: props.width,
-      height: 38,
-    }),
-    [props.width],
-  );
+  const scrollContainerStyles = useMemo(() => {
+    return {
+      height: isHeaderVisible
+        ? props.height -
+          tableSizes.TABLE_HEADER_HEIGHT -
+          TABLE_SCROLLBAR_HEIGHT -
+          SCROLL_BAR_OFFSET
+        : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
+    };
+  }, [isHeaderVisible, props.height, tableSizes.TABLE_HEADER_HEIGHT]);
 
   const shouldUseVirtual =
     props.serverSidePaginationEnabled &&
@@ -258,6 +372,51 @@ export function Table(props: TableProps) {
       tableBodyRef.current?.scrollTo({ top: 0 });
     }
   }, [props.isAddRowInProgress]);
+
+  const MemoizedInnerElement = useMemo(
+    () => ({ children, outerRef, style, ...rest }: any) => (
+      <>
+        <HeaderComponent
+          handleAllRowSelectClick={handleAllRowSelectClick}
+          headerGroups={headerGroups}
+          headerWidth={
+            props.multiRowSelection
+              ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
+              : totalColumnsWidth
+          }
+          isResizingColumn={isResizingColumn}
+          prepareRow={prepareRow}
+          renderHeaderCheckBoxCell={renderHeaderCheckBoxCell}
+          rowSelectionState={rowSelectionState}
+          subPage={subPage}
+          {...props}
+        />
+        <div
+          className="tbody body"
+          ref={outerRef}
+          style={{
+            width: props.multiRowSelection
+              ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
+              : totalColumnsWidth,
+          }}
+        >
+          <div {...getTableBodyProps()} {...rest} style={style}>
+            {children}
+          </div>
+        </div>
+      </>
+    ),
+    [
+      areEqual,
+      columns,
+      props.multiRowSelection,
+      rowSelectionState,
+      shouldUseVirtual,
+      totalColumnsWidth,
+      props.canFreezeColumn,
+      props.pageSize,
+    ],
+  );
 
   return (
     <TableWrapper
@@ -272,24 +431,28 @@ export function Table(props: TableProps) {
       isAddRowInProgress={props.isAddRowInProgress}
       isHeaderVisible={isHeaderVisible}
       isResizingColumn={isResizingColumn.current}
+      multiRowSelection={props.multiRowSelection}
       tableSizes={tableSizes}
       triggerRowSelection={props.triggerRowSelection}
       variant={props.variant}
       width={props.width}
     >
+      <PopoverStyles
+        borderRadius={props.borderRadius}
+        widgetId={props.widgetId}
+      />
       {isHeaderVisible && (
-        <TableHeaderWrapper
-          backgroundColor={Colors.WHITE}
-          ref={tableHeaderWrapperRef}
-          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-          tableSizes={tableSizes}
-          width={props.width}
+        <SimpleBar
+          style={{
+            maxHeight: tableSizes.TABLE_HEADER_HEIGHT,
+          }}
         >
-          <Scrollbars
-            renderThumbHorizontal={ScrollbarHorizontalThumb}
-            renderThumbVertical={ScrollbarVerticalThumb}
-            renderTrackHorizontal={ScrollbarHorizontalTrack}
-            style={style}
+          <TableHeaderWrapper
+            backgroundColor={Colors.WHITE}
+            ref={tableHeaderWrapperRef}
+            serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+            tableSizes={tableSizes}
+            width={props.width}
           >
             <TableHeaderInnerWrapper
               backgroundColor={Colors.WHITE}
@@ -334,105 +497,86 @@ export function Table(props: TableProps) {
                 widgetName={props.widgetName}
               />
             </TableHeaderInnerWrapper>
-          </Scrollbars>
-        </TableHeaderWrapper>
+          </TableHeaderWrapper>
+        </SimpleBar>
       )}
       <div
-        className={props.isLoading ? Classes.SKELETON : "tableWrap"}
+        className={
+          props.isLoading
+            ? Classes.SKELETON
+            : shouldUseVirtual
+            ? "tableWrap virtual"
+            : "tableWrap"
+        }
         ref={tableWrapperRef}
       >
-        <Scrollbars
-          renderThumbHorizontal={ScrollbarHorizontalThumb}
-          renderTrackHorizontal={ScrollbarHorizontalTrack}
-          style={{
-            width: props.width,
-            height: isHeaderVisible ? props.height - 48 : props.height,
-          }}
-        >
-          <div {...getTableProps()} className="table">
-            <div
-              className="thead"
-              onMouseLeave={props.enableDrag}
-              onMouseOver={props.disableDrag}
-            >
-              {headerGroups.map((headerGroup: any, index: number) => {
-                const headerRowProps = {
-                  ...headerGroup.getHeaderGroupProps(),
-                  style: { display: "flex" },
-                };
-                return (
-                  <div {...headerRowProps} className="tr" key={index}>
-                    {props.multiRowSelection &&
-                      renderHeaderCheckBoxCell(
-                        handleAllRowSelectClick,
-                        rowSelectionState,
-                        props.accentColor,
-                        props.borderRadius,
-                      )}
-                    {headerGroup.headers.map(
-                      (column: any, columnIndex: number) => {
-                        return (
-                          <HeaderCell
-                            column={column}
-                            columnIndex={columnIndex}
-                            columnName={column.Header}
-                            editMode={props.editMode}
-                            isAscOrder={column.isAscOrder}
-                            isHidden={column.isHidden}
-                            isResizingColumn={isResizingColumn.current}
-                            isSortable={props.isSortable}
-                            key={columnIndex}
-                            sortTableColumn={props.sortTableColumn}
-                            width={column.width}
-                          />
-                        );
-                      },
-                    )}
-                  </div>
-                );
-              })}
-              {headerGroups.length === 0 &&
-                renderEmptyRows(
-                  1,
-                  props.columns,
-                  props.width,
-                  subPage,
-                  props.multiRowSelection,
-                  props.accentColor,
-                  props.borderRadius,
-                  {},
-                  prepareRow,
-                )}
-            </div>
-            <TableBody
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
-              columns={props.columns}
-              getTableBodyProps={getTableBodyProps}
-              height={props.height}
-              isAddRowInProgress={props.isAddRowInProgress}
-              multiRowSelection={!!props.multiRowSelection}
-              pageSize={props.pageSize}
-              prepareRow={prepareRow}
-              primaryColumnId={props.primaryColumnId}
-              ref={tableBodyRef}
-              rows={subPage}
-              selectTableRow={props.selectTableRow}
-              selectedRowIndex={props.selectedRowIndex}
-              selectedRowIndices={props.selectedRowIndices}
-              tableSizes={tableSizes}
-              useVirtual={shouldUseVirtual}
-              width={props.width}
-            />
-          </div>
-        </Scrollbars>
+        <div {...getTableProps()} className="table column-freeze">
+          {!shouldUseVirtual && (
+            <SimpleBar style={scrollContainerStyles}>
+              <HeaderComponent
+                handleAllRowSelectClick={handleAllRowSelectClick}
+                headerGroups={headerGroups}
+                isResizingColumn={isResizingColumn}
+                prepareRow={prepareRow}
+                renderHeaderCheckBoxCell={renderHeaderCheckBoxCell}
+                rowSelectionState={rowSelectionState}
+                subPage={subPage}
+                {...props}
+              />
+              <TableBody
+                accentColor={props.accentColor}
+                borderRadius={props.borderRadius}
+                columns={props.columns}
+                getTableBodyProps={getTableBodyProps}
+                height={props.height}
+                innerElementType={MemoizedInnerElement}
+                isAddRowInProgress={props.isAddRowInProgress}
+                multiRowSelection={!!props.multiRowSelection}
+                pageSize={props.pageSize}
+                prepareRow={prepareRow}
+                primaryColumnId={props.primaryColumnId}
+                ref={tableBodyRef}
+                rows={subPage}
+                selectTableRow={props.selectTableRow}
+                selectedRowIndex={props.selectedRowIndex}
+                selectedRowIndices={props.selectedRowIndices}
+                tableSizes={tableSizes}
+                useVirtual={shouldUseVirtual}
+                width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
+              />
+            </SimpleBar>
+          )}
+
+          {shouldUseVirtual && (
+            <SimpleBar style={scrollContainerStyles}>
+              {({ scrollableNodeRef }) => (
+                <TableBody
+                  accentColor={props.accentColor}
+                  borderRadius={props.borderRadius}
+                  columns={props.columns}
+                  getTableBodyProps={getTableBodyProps}
+                  height={props.height}
+                  innerElementType={MemoizedInnerElement}
+                  isAddRowInProgress={props.isAddRowInProgress}
+                  multiRowSelection={!!props.multiRowSelection}
+                  outerRef={scrollableNodeRef}
+                  pageSize={props.pageSize}
+                  prepareRow={prepareRow}
+                  primaryColumnId={props.primaryColumnId}
+                  ref={tableBodyRef}
+                  rows={subPage}
+                  selectTableRow={props.selectTableRow}
+                  selectedRowIndex={props.selectedRowIndex}
+                  selectedRowIndices={props.selectedRowIndices}
+                  tableSizes={tableSizes}
+                  useVirtual={shouldUseVirtual}
+                  width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
+                />
+              )}
+            </SimpleBar>
+          )}
+        </div>
       </div>
-      <ScrollIndicator
-        containerRef={tableBodyRef}
-        mode="LIGHT"
-        showScrollbarOnlyOnHover
-        top={props.editMode ? "70px" : "73px"}
-      />
     </TableWrapper>
   );
 }
