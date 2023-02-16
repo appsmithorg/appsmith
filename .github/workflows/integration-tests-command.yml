@@ -128,12 +128,12 @@ jobs:
         run: |
           curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
 
-      # Verify CI test failures against known failures
+     # Verify CI test failures against known failures
       - name: Verify CI test failures against known failures
         if: needs.ci-test.result != 'success'
         shell: bash
         run: |
-          new_failed_spec_env=$(comm -1 -3 <(sort  ~/knownfailures) <(sort ~/combined_failed_spec) | sed 's/|cypress|cypress/\n/g')
+          new_failed_spec_env=$(comm -1 -3 <(sort ./release/app/client/cypress/knownfailures) <(sort ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g')
           echo $new_failed_spec_env
           echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$new_failed_spec_env" >> $GITHUB_ENV
@@ -147,25 +147,6 @@ jobs:
           body: |
             <details><summary>The following are new failures, please fix them before merging the PR</summary> ${{ env.new_failed_spec_env }}</details> 
         
-        # Verify CI test failures against known failures
-      - name: Verify CI test failures against known failures
-        if: needs.ci-test.result != 'success'
-        shell: bash
-        run: |
-          new_failed_spec_env=$(comm -1 -3 <(sort ./release/app/client/cypress/knownfailures) <(sort ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g')
-          echo $new_failed_spec_env
-          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
-          echo "$new_failed_spec_env" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Add a comment on the PR with new ci failures
-        if: needs.ci-test.result != 'success'
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ github.event.client_payload.pull_request.number }}
-          body: |
-            The following are new failures, please fix them before merging the PR ${{ env.new_failed_spec_env }}
-
       # Update check run called "ci-test-result"
       - name: Mark ci-test-result job as complete
         uses: actions/github-script@v6
