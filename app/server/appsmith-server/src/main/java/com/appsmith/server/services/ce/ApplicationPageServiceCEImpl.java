@@ -32,7 +32,6 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -92,7 +91,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
-    private final CommentThreadRepository commentThreadRepository;
     private final ThemeService themeService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
@@ -899,10 +897,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 return newActionService.deleteUnpublishedAction(action.getId());
                             }).collectList();
 
-                    Mono<UpdateResult> archiveCommentThreadMono = commentThreadRepository.archiveByPageId(
-                            id, ApplicationMode.EDIT
-                    );
-
                     /**
                      *  Only delete unpublished action collection and not the entire action collection.
                      */
@@ -913,7 +907,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             }).collectList();
 
                     // Page is deleted only after other resources are deleted
-                    return Mono.zip(archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
+                    return Mono.zip(archivedActionsMono, archivedActionCollectionsMono, applicationMono)
                             .map(tuple -> {
                                 List<ActionDTO> actions = tuple.getT1();
                                 final List<ActionCollectionDTO> actionCollections = tuple.getT2();
@@ -1001,9 +995,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Mono<List<NewPage>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
-                                .flatMap(id -> commentThreadRepository.archiveByPageId(id, ApplicationMode.PUBLISHED)
-                                        .then(newPageService.archiveById(id))
-                                )
+                                .flatMap(newPageService::archiveById)
                                 .collectList();
                     } else {
                         archivePageListMono = Mono.just(new ArrayList<>());
