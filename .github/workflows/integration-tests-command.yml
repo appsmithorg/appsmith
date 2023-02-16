@@ -139,7 +139,7 @@ jobs:
           echo "$new_failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Add a comment on the PR with new non CI failures
+      - name: Add a comment on the PR with new CI failures
         if: needs.ci-test.result != 'success'
         uses: peter-evans/create-or-update-comment@v1
         with:
