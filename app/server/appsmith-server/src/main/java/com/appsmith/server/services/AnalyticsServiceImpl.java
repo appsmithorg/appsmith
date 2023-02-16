@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 @Slf4j
 @Service
@@ -45,6 +47,22 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
                     }
                     return super.sendObjectEvent(event, object, properties);
                 });
+    }
+
+    /**
+     * To get non resource events list
+     * @return List of AnanlyticsEvents
+     */
+    @Override
+    public List<AnalyticsEvents> getNonResourceEvents() {
+        List<AnalyticsEvents> nonResourceEvents = new ArrayList<>();
+        nonResourceEvents.addAll(List.of(
+                AnalyticsEvents.ACTIVATE_NEW_INSTANCE,
+                AnalyticsEvents.UPDATE_EXISTING_LICENSE
+        ));
+        nonResourceEvents.addAll(super.getNonResourceEvents());
+
+        return nonResourceEvents;
     }
 
 }

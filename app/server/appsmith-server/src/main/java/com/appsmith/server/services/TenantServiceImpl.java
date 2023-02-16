@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
@@ -9,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.LicenseValidator;
+import org.pf4j.util.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import jakarta.validation.Validator;
+
+import java.util.Map;
 
 @Service
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
@@ -84,17 +88,33 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
                 .flatMap(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    boolean isActivateInstance = true;
+                    if (tenantConfiguration.getLicense() != null && !StringUtils.isNullOrEmpty(tenantConfiguration.getLicense().getKey())) {
+                        isActivateInstance = false;
+                    }
                     tenantConfiguration.setLicense(license);
                     tenant.setTenantConfiguration(tenantConfiguration);
 
-                    return checkTenantLicense(tenant);
+                    return checkTenantLicense(tenant).zipWith(Mono.just(isActivateInstance));
                 })
-                .flatMap(tenant -> {
+                .flatMap(tuple -> {
+                    Tenant tenant = tuple.getT1();
+                    boolean isActivateInstance = tuple.getT2();
+                    AnalyticsEvents analyticsEvent = isActivateInstance ? AnalyticsEvents.ACTIVATE_NEW_INSTANCE : AnalyticsEvents.UPDATE_EXISTING_LICENSE;
+                    TenantConfiguration.License clientPertinentLicense = getClientPertinentTenant(tenant, null).getTenantConfiguration().getLicense();
+                    Map<String, Object> analyticsProperties = Map.of(
+                            FieldName.LICENSE_KEY, clientPertinentLicense.getKey(),
+                            FieldName.LICENSE_VALID, clientPertinentLicense.getStatus() == null ? false : true,
+                            FieldName.LICENSE_TYPE, clientPertinentLicense.getType() == null ? "" : clientPertinentLicense.getType(),
+                            FieldName.LICENSE_STATUS, clientPertinentLicense.getStatus() == null ? "" : clientPertinentLicense.getStatus()
+                    );
+                    Mono<Tenant> analyticsEventMono = analyticsService.sendObjectEvent(analyticsEvent, tenant, analyticsProperties);
                     // Update/save license only in case of a valid license key
                     if (!Boolean.TRUE.equals(tenant.getTenantConfiguration().getLicense().getActive())) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED));
+                        return analyticsEventMono.then(Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED)));
                     }
-                    return this.save(tenant);
+
+                    return analyticsEventMono.then(this.save(tenant));
                 })
                 .map((Tenant dbTenant) -> getClientPertinentTenant(dbTenant, null));
     }

@@ -70,4 +70,8 @@ public class FieldName extends FieldNameCE {
     public static final String DEFAULT_ROLES = "Default Roles";
     public static final String CUSTOM_ROLES = "Custom Roles";
     public static final String KEY = "key";
+    public static final String LICENSE_KEY = "licenseKey";
+    public static final String LICENSE_VALID = "licenseValid";
+    public static final String LICENSE_TYPE = "licenseType";
+    public static final String LICENSE_STATUS = "licenseStatus";
 }
