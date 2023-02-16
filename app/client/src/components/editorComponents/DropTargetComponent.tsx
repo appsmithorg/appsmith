@@ -75,7 +75,6 @@ export const DropTargetContext: Context<{
 const updateHeight = (
   ref: React.MutableRefObject<HTMLDivElement | null>,
   currentRows: number,
-  isMainContainer: boolean,
 ) => {
   if (ref.current) {
     const height = currentRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -83,12 +82,6 @@ const updateHeight = (
     ref.current
       .closest(".scroll-parent")
       ?.scrollTo({ top: height, behavior: "smooth" });
-    if (isMainContainer) {
-      const artboard = document.getElementById("art-board");
-      if (artboard) {
-        artboard.style.height = `${height}px`;
-      }
-    }
   }
 };
 
@@ -156,11 +149,7 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
         // We can't update the height of the "Canvas" or "dropTarget" using this function
         // in the previous if clause, because, there could be more "dropTargets" updating
         // and this information can only be computed using auto height
-        updateHeight(
-          dropTargetRef,
-          rowRef.current,
-          widgetId === MAIN_CONTAINER_WIDGET_ID,
-        );
+        updateHeight(dropTargetRef, rowRef.current);
       }
       return newRows;
     }
@@ -225,11 +214,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows && !isDragging && !isResizing) {
       rowRef.current = snapRows;
-      updateHeight(
-        dropTargetRef,
-        snapRows,
-        props.widgetId === MAIN_CONTAINER_WIDGET_ID,
-      );
+      updateHeight(dropTargetRef, snapRows);
     }
   }, [props.widgetId, props.bottomRow, isDragging, isResizing]);
 
@@ -248,15 +233,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const height = `${rowRef.current * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
 
-  const boxShadow =
-    (isResizing || isDragging || isAutoHeightWithLimitsChanging) &&
-    props.widgetId === MAIN_CONTAINER_WIDGET_ID
-      ? "inset 0px 0px 0px 1px #DDDDDD"
-      : "0px 0px 0px 1px transparent";
-
   const dropTargetStyles = {
     height,
-    boxShadow,
   };
 
   const shouldOnboard =
