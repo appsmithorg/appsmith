@@ -19,4 +19,3 @@ export const inviteModal = ObjectsRegistry.InviteModal;
 export const table = ObjectsRegistry.TableV2;
 export const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 export const templates = ObjectsRegistry.Templates;
-export const table = ObjectsRegistry.TableV2;

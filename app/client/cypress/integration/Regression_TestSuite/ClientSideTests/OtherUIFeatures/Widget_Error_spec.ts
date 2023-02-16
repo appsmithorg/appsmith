@@ -1,14 +1,7 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
 const dsl = require("../../../../fixtures/buttondsl.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
-
-const {
-  DebuggerHelper: debuggerHelper,
-  PropertyPane: propPane,
-} = ObjectsRegistry;
 
 describe("Widget error state", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -31,10 +24,10 @@ describe("Widget error state", function() {
   });
 
   it("2. Check if the current value is shown in the debugger", function() {
-    debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.ClickDebuggerIcon();
     cy.contains(".react-tabs__tab", "Errors").click();
 
-    debuggerHelper.LogStateContains("Test");
+    _.debuggerHelper.LogStateContains("Test");
   });
 
   it("3. Switch to error tab when clicked on the debug button", function() {
@@ -51,24 +44,24 @@ describe("Widget error state", function() {
   });
 
   it("4. All errors should be expanded by default", function() {
-    debuggerHelper.AssertVisibleErrorMessagesCount(2);
+    _.debuggerHelper.AssertVisibleErrorMessagesCount(2);
   });
 
   it("5. Recent errors are shown at the top of the list", function() {
     cy.testJsontext("label", "{{[]}}");
-    debuggerHelper.LogStateContains("text", 0);
+    _.debuggerHelper.LogStateContains("text", 0);
   });
 
   it("6. Clicking on a message should open the search menu", function() {
-    debuggerHelper.ClickErrorMessage(0);
-    debuggerHelper.AssertContextMenuItemVisible();
+    _.debuggerHelper.ClickErrorMessage(0);
+    _.debuggerHelper.AssertContextMenuItemVisible();
   });
 
   it("7. Undoing widget deletion should show errors if present", function() {
     cy.deleteWidget();
-    debuggerHelper.AssertVisibleErrorMessagesCount(0);
+    _.debuggerHelper.AssertVisibleErrorMessagesCount(0);
     cy.get("body").type(`{${modifierKey}}z`);
-    debuggerHelper.AssertVisibleErrorMessagesCount(2);
+    _.debuggerHelper.AssertVisibleErrorMessagesCount(2);
   });
 
   it("8. Bug-2760: Error log on a widget property not clearing out when the widget property is deleted", function() {
@@ -77,9 +70,9 @@ describe("Widget error state", function() {
 
     _.table.AddColumn("customColumn1");
     _.table.EditColumn("customColumn1");
-    propPane.UpdatePropertyFieldValue("Computed Value", "{{test}}");
+    _.propPane.UpdatePropertyFieldValue("Computed Value", "{{test}}");
 
-    debuggerHelper.AssertDebugError(
+    _.debuggerHelper.AssertDebugError(
       "The value at primaryColumns.customColumn1.computedValue is invalid",
       "ReferenceError: test is not defined",
       false,
@@ -87,7 +80,7 @@ describe("Widget error state", function() {
 
     _.table.DeleteColumn("customColumn1");
 
-    debuggerHelper.DebuggerListDoesnotContain(
+    _.debuggerHelper.DebuggerListDoesnotContain(
       "ReferenceError: test is not defined",
     );
   });
