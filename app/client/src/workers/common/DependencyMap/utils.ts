@@ -358,6 +358,7 @@ export function listEntityPathTriggerFieldDependencies(
       triggerFieldDependencies = jsSnippets.filter((jsSnippet) => !!jsSnippet);
     }
   }
+
   return triggerFieldDependencies;
 }
 
