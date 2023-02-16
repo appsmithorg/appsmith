@@ -50,7 +50,7 @@
   "checkboxGroupInput": ".t--draggable-checkboxgroupwidget span.t--widget-name",
   "switchGroupInput": ".t--draggable-switchgroupwidget span.t--widget-name",
   "radioAddButton": ".t--property-control-options button.t--property-control-options-add",
-  "formD": "div[type='FORM_WIDGET']",
+  "formD": ".t--widget-formwidget div.style-container",
   "datepickerFooter": ".bp3-datepicker-footer span",
   "datepickerFooterPublish": ".bp3-datepicker-footer span",
   "disableJs": ".t--property-control-disabled input[type='checkbox']",
