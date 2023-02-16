@@ -76,6 +76,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
   it("4. Login as Workspace owner and Update the Invited user role to Developer", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
+    agHelper.Sleep()
     homePage.UpdateUserRoleInWorkspace(
       workspaceId,
       Cypress.env("TESTUSERNAME1"),
