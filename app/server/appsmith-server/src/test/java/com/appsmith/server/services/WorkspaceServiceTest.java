@@ -534,7 +534,7 @@ public class WorkspaceServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
         workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
         for (String validEmail: validEmails) {
             Mono<Workspace> updateWorkspace = createWorkspace
@@ -568,7 +568,7 @@ public class WorkspaceServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
         workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
         String[] invalidEmails = {"invalid@.com", "@invalid.com"};
         for (String invalidEmail : invalidEmails) {
             Mono<Workspace> updateWorkspace = createWorkspace
@@ -600,7 +600,7 @@ public class WorkspaceServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
         workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
         String[] validWebsites = {"https://www.valid.website.com", "http://www.valid.website.com",
                 "https://valid.website.com", "http://valid.website.com", "www.valid.website.com", "valid.website.com",
                 "valid-website.com", "valid.12345.com", "12345.com", "https://www.valid.website.com/",
@@ -638,7 +638,7 @@ public class WorkspaceServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
         workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
         String[] invalidWebsites = {"htp://www.invalid.website.com", "htp://invalid.website.com", "htp://www", "www",
                 "www."};
         for (String invalidWebsite : invalidWebsites) {
