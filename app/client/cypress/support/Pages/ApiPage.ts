@@ -147,7 +147,7 @@ export class ApiPage {
     this.SelectPaneTab("Body");
     this.SelectSubTab(subTab);
     if (toTrash) {
-      cy.get(this._trashDelete).click();
+      cy.get(this._trashDelete).first().click();
       cy.xpath(this._visibleTextSpan("Add more")).click();
     }
     this.agHelper.EnterValue(bKey, {
