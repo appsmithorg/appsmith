@@ -143,7 +143,9 @@ export function HeaderCell(props: {
         >
           {isColumnEditable && <StyledEditIcon />}
           <Title width={props.width}>
-            {props.columnName.replace(/\s/g, "\u00a0")}
+            {props.columnName
+              ? props.columnName.replace(/\s/g, "\u00a0")
+              : "customColumn"}
           </Title>
         </ColumnNameContainer>
       </div>
