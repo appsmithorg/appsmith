@@ -14,6 +14,7 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
+import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
 
 let pageidcopy = " ";
 
@@ -581,7 +582,7 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
     codeMirrorInput.focus();
     cy.wait(200);
     codeMirrorInput.setValue(value);
-    cy.wait(1000); //time for value to set
+    cy.wait(500); //time for value to set
   });
 });
 
@@ -1270,6 +1271,22 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add(
+  "openPropertyPaneByWidgetName",
+  (widgetName, widgetType) => {
+    const selector = `[data-widgetname-cy="${widgetName}"] .t--draggable-${widgetType}`;
+    cy.wait(500);
+    cy.get(selector)
+      .trigger("mouseover", { force: true })
+      .wait(500);
+    cy.get(`${selector} .t--widget-propertypane-toggle > .t--widget-name`)
+      .first()
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+  },
+);
+
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
   if (widgetType === "List1Copy") {
     cy.SearchEntityandOpen(widgetType);
@@ -1618,7 +1635,9 @@ Cypress.Commands.add("makeColumnEditable", (column) => {
 Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
-  ).clear();
+  )
+    .click({ force: true })
+    .clear({ force: true });
 
   if (text) {
     cy.get(
@@ -1722,4 +1741,72 @@ Cypress.Commands.add("checkMaxDefaultValue", (endp, value) => {
       cy.log(someText);
       expect(someText).to.equal(value);
     });
+});
+
+Cypress.Commands.add("freezeColumnFromDropdown", (columnName, direction) => {
+  cy.get(
+    `[data-header=${columnName}] .header-menu .bp3-popover2-target`,
+  ).click({ force: true });
+  cy.get(".bp3-menu")
+    .contains(`Freeze column ${direction}`)
+    .click({ force: true });
+
+  cy.wait(500);
+});
+
+Cypress.Commands.add("checkIfColumnIsFrozenViaCSS", (rowNum, coumnNum) => {
+  cy.getTableV2DataSelector(rowNum, coumnNum).then((selector) => {
+    cy.get(selector).should("have.css", "position", "sticky");
+  });
+});
+
+Cypress.Commands.add(
+  "checkColumnPosition",
+  (columnName, expectedColumnPosition) => {
+    cy.get(`[data-header]`)
+      .eq(expectedColumnPosition)
+      .then(($elem) => {
+        const dataHeaderAttribute = $elem.attr("data-header");
+        expect(dataHeaderAttribute).to.equal(columnName);
+      });
+  },
+);
+
+Cypress.Commands.add("readLocalColumnOrder", (columnOrderKey) => {
+  const localColumnOrder = window.localStorage.getItem(columnOrderKey) || "";
+  if (localColumnOrder) {
+    const parsedTableConfig = JSON.parse(localColumnOrder);
+    if (parsedTableConfig) {
+      const tableWidgetId = Object.keys(parsedTableConfig)[0];
+      return parsedTableConfig[tableWidgetId];
+    }
+  }
+});
+
+Cypress.Commands.add(
+  "checkLocalColumnOrder",
+  (expectedOrder, direction, columnOrderKey = TABLE_COLUMN_ORDER_KEY) => {
+    cy.wait(1000);
+    cy.readLocalColumnOrder(columnOrderKey).then((tableWidgetOrder) => {
+      if (tableWidgetOrder) {
+        const {
+          leftOrder: observedLeftOrder,
+          rightOrder: observedRightOrder,
+        } = tableWidgetOrder;
+        if (direction === "left") {
+          expect(expectedOrder).to.be.deep.equal(observedLeftOrder);
+        }
+        if (direction === "right") {
+          expect(expectedOrder).to.be.deep.equal(observedRightOrder);
+        }
+      }
+    });
+  },
+);
+Cypress.Commands.add("findAndExpandEvaluatedTypeTitle", () => {
+  cy.get(commonlocators.evaluatedTypeTitle)
+    .first()
+    .next()
+    .find("span")
+    .click();
 });

@@ -78,8 +78,8 @@ describe("PgAdmin Clone App", function() {
     _.agHelper.GetNClick(appPage.addColumn, 0, true);
     _.agHelper.AssertElementVisible(appPage.columnNamefield);
     _.agHelper.AssertElementVisible(appPage.datatypefield);
-    _.agHelper.GetNClick(appPage.addColumnName)
-    _.agHelper.UpdateInput(appPage.addColumnName,"id")
+    _.agHelper.GetNClick(appPage.addColumnName);
+    _.agHelper.UpdateInput(appPage.addColumnName, "id");
     cy.get(appPage.dropdownChevronDown)
       .last()
       .click();
@@ -144,8 +144,8 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.addColumn).click({ force: true });
     cy.xpath(appPage.columnNamefield).should("be.visible");
     cy.xpath(appPage.datatypefield).should("be.visible");
-    _.agHelper.GetNClick(appPage.addColumnName)
-    _.agHelper.UpdateInput(appPage.addColumnName,"id2")
+    _.agHelper.GetNClick(appPage.addColumnName);
+    _.agHelper.UpdateInput(appPage.addColumnName, "id2");
     cy.get(appPage.dropdownChevronDown)
       .last()
       .click();
