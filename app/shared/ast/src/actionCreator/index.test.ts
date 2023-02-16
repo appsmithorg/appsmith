@@ -6,6 +6,8 @@ import {
   getFunctionName,
   getMainAction,
   getThenCatchBlocksFromQuery,
+  setThenBlockInQuery,
+  setCatchBlockInQuery,
 } from "./index";
 
 describe("getFuncExpressionAtPosition", () => {
@@ -25,6 +27,23 @@ describe("getFuncExpressionAtPosition", () => {
 
     expect(result).toEqual("");
   });
+
+  it("should return the arguments from the first property", () => {
+    const value =
+      "Api2.run(() => setAlert('Success'), () => showModal('Modal1')).then(() => {});";
+
+    const result = getFuncExpressionAtPosition(value, 1, 2);
+
+    expect(result).toEqual("() => showModal('Modal1')");
+  });
+
+  it("should return the arguments from the first property", () => {
+    const value = "appsmith.geolocation.getCurrentPosition((location) => {});"
+
+    const result = getFuncExpressionAtPosition(value, 0, 2);
+
+    expect(result).toEqual("location => {}");
+  })
 });
 
 describe("setCallbackFunctionField", () => {
@@ -45,7 +64,9 @@ describe("setCallbackFunctionField", () => {
 
     const result = setCallbackFunctionField(value, functionToAdd, 1, 2);
 
-    expect(result).toEqual("Api1.run(() => showModal('Modal1'), () => setAlert('Success'));");
+    expect(result).toEqual(
+      "Api1.run(() => showModal('Modal1'), () => setAlert('Success'));",
+    );
   });
 
   it("should be able to set Dynamic bindings as argument", () => {
@@ -59,7 +80,8 @@ describe("setCallbackFunctionField", () => {
   });
 
   it("should be able to set empty string as argument", () => {
-    const value = "appsmith.geolocation.getCurrentPosition(() => { console.log('hello'); });"
+    const value =
+      "appsmith.geolocation.getCurrentPosition(() => { console.log('hello'); });";
 
     const callbackFunction = "";
 
@@ -77,7 +99,6 @@ describe("setCallbackFunctionField", () => {
 
     expect(result).toEqual("Api1.run('', () => {});");
   });
-
 
   it("should be able to set empty string as argument", () => {
     const value = "showAlert('hello', '');";
@@ -180,46 +201,77 @@ describe("getFunctionName", () => {
 });
 
 describe("getThenCatchBlocksFromQuery", () => {
-  it ("should return then/catch callbacks appropriately", () => {
+  it("should return then/catch callbacks appropriately", () => {
     const value = "Api1.run().then(() => { a() }).catch(() => { b() });";
 
     const result = getThenCatchBlocksFromQuery(value, 2);
 
-    expect(JSON.stringify(result)).toEqual(JSON.stringify({
-      "catch": "() => {\n  b();\n}",
-      "then": "() => {\n  a();\n}"
-    }))
+    expect(JSON.stringify(result)).toEqual(
+      JSON.stringify({
+        catch: "() => {\n  b();\n}",
+        then: "() => {\n  a();\n}",
+      }),
+    );
   });
 
-  it ("should return then/catch callbacks appropriately", () => {
+  it("should return then/catch callbacks appropriately", () => {
     const value = "Api1.run().catch(() => { a() }).then(() => { b() });";
 
     const result = getThenCatchBlocksFromQuery(value, 2);
 
-    expect(JSON.stringify(result)).toEqual(JSON.stringify({
-      then: `() => {\n  b();\n}`,
-      catch: `() => {\n  a();\n}`
-    }))
+    expect(JSON.stringify(result)).toEqual(
+      JSON.stringify({
+        then: `() => {\n  b();\n}`,
+        catch: `() => {\n  a();\n}`,
+      }),
+    );
   });
 
-  it ("should return then callback appropriately", () => {
+  it("should return then callback appropriately", () => {
     const value = "Api1.run().then(() => { a() });";
 
     const result = getThenCatchBlocksFromQuery(value, 2);
 
-    expect(JSON.stringify(result)).toEqual(JSON.stringify({
-      then: `() => {\n  a();\n}`,
-    }))
+    expect(JSON.stringify(result)).toEqual(
+      JSON.stringify({
+        then: `() => {\n  a();\n}`,
+      }),
+    );
   });
 
-  it ("should return catch callback appropriately", () => {
+  it("should return catch callback appropriately", () => {
     const value = "Api1.run().catch(() => { a() });";
 
     const result = getThenCatchBlocksFromQuery(value, 2);
 
-    expect(JSON.stringify(result)).toEqual(JSON.stringify({
-      catch: `() => {\n  a();\n}`,
-    }))
-
+    expect(JSON.stringify(result)).toEqual(
+      JSON.stringify({
+        catch: `() => {\n  a();\n}`,
+      }),
+    );
   });
-})
+});
+
+describe("setThenBlockInQuery", () => {
+  it("should set then callback when catch block is present", () => {
+    const value = "Api1.run().then(() => { a() }).catch(() => { c() });";
+
+    const result = setThenBlockInQuery(value, "() => { b() }", 2);
+
+    expect(result).toEqual(
+      "Api1.run().then(() => {\n  b();\n}).catch(() => {\n  c();\n});",
+    );
+  });
+});
+
+describe("setCatchBlockInQuery", () => {
+  it("should set catch callback appropriately", () => {
+    const value = "Api2.run().then(() => { a() }).catch(() => { c() });";
+
+    const result = setCatchBlockInQuery(value, "() => { b() }", 2);
+
+    expect(result).toEqual(
+      "Api2.run().then(() => {\n  a();\n}).catch(() => {\n  b();\n});",
+    );
+  });
+});

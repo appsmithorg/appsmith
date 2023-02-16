@@ -12,6 +12,9 @@ import {
   getFuncExpressionAtPosition,
   getFunctionBodyStatements,
   setObjectAtPosition,
+  getThenCatchBlocksFromQuery,
+  setThenBlockInQuery,
+  setCatchBlockInQuery,
 } from "@shared/ast";
 import { TreeDropdownOption } from "design-system-old";
 import { ActionTree } from "./types";
@@ -305,6 +308,21 @@ export function codeToAction(
       0,
       self.evaluationVersion,
     );
+    const { catch: catchBlock, then: thenBlock } = getThenCatchBlocksFromQuery(
+      code,
+      self.evaluationVersion,
+    );
+
+    const thenCallbackBlocks = getFunctionBodyStatements(
+      thenBlock,
+      self.evaluationVersion,
+    );
+
+    const catchCallbackBlocks = getFunctionBodyStatements(
+      catchBlock,
+      self.evaluationVersion,
+    );
+
     const successCallbackBlocks: string[] = getFunctionBodyStatements(
       successCallbacks,
       self.evaluationVersion,
@@ -324,12 +342,14 @@ export function codeToAction(
       // code: getMainAction(jsCode, self.evaluationVersion),
       code: jsCode,
       actionType: mainActionType,
-      successCallbacks: successCallbackBlocks.map((block) =>
-        codeToAction(block, fieldOptions, false),
-      ),
-      errorCallbacks: errorCallbackBlocks.map((block: string) =>
-        codeToAction(block, fieldOptions, false),
-      ),
+      successCallbacks: [
+        ...successCallbackBlocks,
+        ...thenCallbackBlocks,
+      ].map((block) => codeToAction(block, fieldOptions, false)),
+      errorCallbacks: [
+        ...errorCallbackBlocks,
+        ...catchCallbackBlocks,
+      ].map((block: string) => codeToAction(block, fieldOptions, false)),
     };
   }
 
@@ -367,16 +387,14 @@ export function actionToCode(
       .map((callback) => actionToCode(callback, false));
     const errorCallbackCode = errorCallbackCodes.join("");
 
-    const withSuccessCallback = setCallbackFunctionField(
+    const withSuccessCallback = setThenBlockInQuery(
       code,
       `() => { ${successCallbackCode} }`,
-      0,
       self.evaluationVersion,
     );
-    const withSuccessAndErrorCallback = setCallbackFunctionField(
+    const withSuccessAndErrorCallback = setCatchBlockInQuery(
       withSuccessCallback,
       `() => { ${errorCallbackCode} }`,
-      1,
       self.evaluationVersion,
     );
 

@@ -443,8 +443,7 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
-        const wrappedCode = wrapCode(sanitizedScript);
-        ast = getAST(wrappedCode, {
+        ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
             // collect all comments as they are not part of the ast, we will attach them back on line 46
@@ -458,22 +457,31 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node)) {
-                if (node.arguments[argNum]) {
-                    let argument = node.arguments[argNum];
-                    if (argument) {
-                        requiredArgument = `${generate(argument, {comments: true})}`;
-                    }
-                }  else {
-                    // If argument doesn't exist, return empty string
-                    requiredArgument = "";
-                }
+    /**
+     * We need to traverse the ast to find the first callee
+     * For Eg. Api1.run(() => {}, () => {}).then(() => {}).catch(() => {})
+     * We have multiple callee above, the first one is run
+     * Similarly, for eg. appsmith.geolocation.getCurrentPosition(() => {}, () => {});
+     * For this one, the first callee is getCurrentPosition
+     */
+    let nodeToTraverse: Node = astWithComments.body[0].expression;
+    let firstCalleeNode: Node;
 
-            }
-        },
-    });
+    // @ts-ignore
+    while (nodeToTraverse?.callee?.object) {
+        firstCalleeNode = klona(nodeToTraverse);
+        // @ts-ignore
+        nodeToTraverse = nodeToTraverse?.callee?.object;
+    }
+
+    // @ts-ignore
+    const argumentNode = firstCalleeNode?.arguments[argNum];
+    if (argumentNode) {
+        requiredArgument = `${generate(argumentNode, {comments: true})}`;
+    } else {
+        requiredArgument = "";
+    }
+
     return requiredArgument;
 }
 
@@ -717,7 +725,7 @@ export function getThenCatchBlocksFromQuery(value: string, evaluationVersion: nu
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let firstBlock, firstBlockType, secondBlock, secondBlockType;
-    let returnValue;
+    let returnValue: Record<string, string> = {};
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -726,7 +734,7 @@ export function getThenCatchBlocksFromQuery(value: string, evaluationVersion: nu
             onComment: commentArray,
         });
     } catch (error) {
-        return value;
+        return returnValue;
     }
 
     const astWithComments = attachCommentsToAst(ast, commentArray);
@@ -747,4 +755,82 @@ export function getThenCatchBlocksFromQuery(value: string, evaluationVersion: nu
     }
 
     return returnValue;
+}
+
+export function setThenBlockInQuery(
+    value: string,
+    thenBlock: string,
+    evaluationVersion: number,
+): string {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    let requiredQuery: string = "";
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+    } catch (error) {
+        return requiredQuery;
+    }
+
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    const changeValueNodeFound = findNodeAt(astWithComments, 0, undefined, (type) => type === "Program");
+
+    // @ts-ignore
+    const requiredNode = changeValueNodeFound && changeValueNodeFound.node.body[0];
+    const thenBlockNode = getAST(thenBlock, {
+        locations: true,
+        ranges: true,
+        onComment: commentArray,
+    });
+    const thenBlockNodeWithComments = attachCommentsToAst(thenBlockNode, commentArray);
+    // @ts-ignore
+    ((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee.object.arguments[0] = thenBlockNodeWithComments.body[0].expression;
+
+    requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
+
+    return requiredQuery;
+}
+
+export function setCatchBlockInQuery(
+    value: string,
+    catchBlock: string,
+    evaluationVersion: number,
+): string {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    let requiredQuery: string = "";
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+    } catch (error) {
+        return requiredQuery;
+    }
+
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    const changeValueNodeFound = findNodeAt(astWithComments, 0, undefined, (type) => type === "Program");
+
+    // @ts-ignore
+    const requiredNode = changeValueNodeFound && changeValueNodeFound.node.body[0];
+    const catchBlockNode = getAST(catchBlock, {
+        locations: true,
+        ranges: true,
+        onComment: commentArray,
+    });
+    const catchBlockNodeWithComments = attachCommentsToAst(catchBlockNode, commentArray);
+    // @ts-ignore
+    (((requiredNode as ExpressionStatement).expression as CallExpressionNode).arguments[0] = catchBlockNodeWithComments.body[0].expression);
+
+    requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
+
+    return requiredQuery;
 }
