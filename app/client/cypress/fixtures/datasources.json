@@ -50,6 +50,7 @@
   "readonly":"readonly",
   "authenticatedApiUrl": "https://fakeapi.com",
   "graphqlApiUrl": "https://spacex-production.up.railway.app",
-   "GITHUB_API_BASE_TED" : "localhost",
-   "GITHUB_API_PORT_TED": "5001"
+  "GITEA_API_BASE_TED" : "localhost",
+  "GITEA_API_PORT_TED": "3000",
+  "GITEA_API_URL_TED": "git@host.docker.internal:Cypress"
 }
