@@ -178,178 +178,184 @@ export const updateDependencyMap = ({
         case DataTreeDiffEvent.NEW: {
           // If a new entity/property was added,
           // add all the internal bindings for this entity to the global dependency map
-          if (
-            (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
-            !isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
-          ) {
-            const entityDependencyMap: DependencyMap = listEntityDependencies(
-              entity,
-              entityName,
-              dataTreeEvalRef.allKeys,
-            );
-            if (Object.keys(entityDependencyMap).length) {
-              didUpdateDependencyMap = true;
-
-              // The entity might already have some dependencies,
-              // so we just want to update those
-              Object.entries(entityDependencyMap).forEach(
-                ([entityDependent, entityDependencies]) => {
-                  const {
-                    errors,
-                    invalidReferences,
-                    validReferences,
-                  } = extractInfoFromBindings(
-                    entityDependencies,
-                    dataTreeEvalRef.allKeys,
-                  );
-                  // Update dependencyMap
-                  dataTreeEvalRef.dependencyMap[entityDependent] = mergeArrays(
-                    dataTreeEvalRef.dependencyMap[entityDependent],
-                    validReferences,
-                  );
-                  // Update invalidReferencesMap
-                  if (invalidReferences.length) {
-                    dataTreeEvalRef.invalidReferencesMap[
-                      entityDependent
-                    ] = invalidReferences;
-                  } else {
-                    delete dataTreeEvalRef.invalidReferencesMap[
-                      entityDependent
-                    ];
-                  }
-                  errors.forEach((error) => {
-                    dataTreeEvalRef.errors.push(error);
-                  });
-                },
-              );
-            }
-
-            if (isWidget(entity)) {
-              // For widgets,
-              // we need to update the triggerField dependencyMap and validation dependencyMap
-              const triggerFieldDependencies = listTriggerFieldDependencies(
+          if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
+            if (
+              !isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
+            ) {
+              const entityDependencyMap: DependencyMap = listEntityDependencies(
                 entity,
                 entityName,
+                dataTreeEvalRef.allKeys,
               );
-              Object.entries(triggerFieldDependencies).forEach(
-                ([triggerFieldDependent, triggerFieldDependencies]) => {
-                  const {
-                    errors,
-                    invalidReferences,
-                    validReferences,
-                  } = extractInfoFromBindings(
-                    triggerFieldDependencies,
-                    dataTreeEvalRef.allKeys,
-                  );
-                  // Update triggerfield dependencyMap
-                  dataTreeEvalRef.triggerFieldDependencyMap[
-                    triggerFieldDependent
-                  ] = mergeArrays(
+              if (Object.keys(entityDependencyMap).length) {
+                didUpdateDependencyMap = true;
+                // The entity might already have some dependencies,
+                // so we just want to update those
+                Object.entries(entityDependencyMap).forEach(
+                  ([entityDependent, entityDependencies]) => {
+                    const {
+                      errors,
+                      invalidReferences,
+                      validReferences,
+                    } = extractInfoFromBindings(
+                      entityDependencies,
+                      dataTreeEvalRef.allKeys,
+                    );
+                    // Update dependencyMap
+                    dataTreeEvalRef.dependencyMap[
+                      entityDependent
+                    ] = mergeArrays(
+                      dataTreeEvalRef.dependencyMap[entityDependent],
+                      validReferences,
+                    );
+                    // Update invalidReferencesMap
+                    if (invalidReferences.length) {
+                      dataTreeEvalRef.invalidReferencesMap[
+                        entityDependent
+                      ] = invalidReferences;
+                    } else {
+                      delete dataTreeEvalRef.invalidReferencesMap[
+                        entityDependent
+                      ];
+                    }
+                    errors.forEach((error) => {
+                      dataTreeEvalRef.errors.push(error);
+                    });
+                  },
+                );
+              }
+              if (isWidget(entity)) {
+                // For widgets,
+                // we need to update the triggerField dependencyMap and validation dependencyMap
+                const triggerFieldDependencies = listTriggerFieldDependencies(
+                  entity,
+                  entityName,
+                );
+                Object.entries(triggerFieldDependencies).forEach(
+                  ([triggerFieldDependent, triggerFieldDependencies]) => {
+                    const {
+                      errors,
+                      invalidReferences,
+                      validReferences,
+                    } = extractInfoFromBindings(
+                      triggerFieldDependencies,
+                      dataTreeEvalRef.allKeys,
+                    );
+                    // Update triggerfield dependencyMap
                     dataTreeEvalRef.triggerFieldDependencyMap[
                       triggerFieldDependent
-                    ],
-                    validReferences,
-                  );
-                  // Update invalidReferencesMap
-                  if (invalidReferences.length) {
-                    dataTreeEvalRef.invalidReferencesMap[
-                      triggerFieldDependent
-                    ] = invalidReferences;
-                  } else {
-                    delete dataTreeEvalRef.invalidReferencesMap[
-                      triggerFieldDependent
-                    ];
-                  }
-                  errors.forEach((error) => {
-                    dataTreeEvalRef.errors.push(error);
-                  });
-                },
-              );
+                    ] = mergeArrays(
+                      dataTreeEvalRef.triggerFieldDependencyMap[
+                        triggerFieldDependent
+                      ],
+                      validReferences,
+                    );
+                    // Update invalidReferencesMap
+                    if (invalidReferences.length) {
+                      dataTreeEvalRef.invalidReferencesMap[
+                        triggerFieldDependent
+                      ] = invalidReferences;
+                    } else {
+                      delete dataTreeEvalRef.invalidReferencesMap[
+                        triggerFieldDependent
+                      ];
+                    }
+                    errors.forEach((error) => {
+                      dataTreeEvalRef.errors.push(error);
+                    });
+                  },
+                );
 
-              // update validation dependencies
-              dataTreeEvalRef.validationDependencyMap = {
-                ...dataTreeEvalRef.validationDependencyMap,
-                ...listValidationDependencies(entity, entityName),
-              };
-              didUpdateValidationDependencyMap = true;
-            }
-          } else if (
-            (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
-            isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
-          ) {
-            didUpdateDependencyMap = true;
-            const {
-              dependencies: entityPathDependencies,
-              isTrigger,
-            } = listEntityPathDependencies(
-              entity,
-              dataTreeDiff.payload.propertyPath,
-            );
-            if (isTrigger) {
-              dataTreeEvalRef.dependencyMap[
-                dataTreeDiff.payload.propertyPath
-              ] = [];
-              const {
-                errors,
-                invalidReferences,
-                validReferences,
-              } = extractInfoFromBindings(
-                entityPathDependencies,
-                dataTreeEvalRef.allKeys,
-              );
-              // Update dependencyMap
-              dataTreeEvalRef.triggerFieldDependencyMap[
-                dataTreeDiff.payload.propertyPath
-              ] = mergeArrays(
-                dataTreeEvalRef.triggerFieldDependencyMap[
-                  dataTreeDiff.payload.propertyPath
-                ],
-                validReferences,
-              );
-              // Update invalidReferencesMap
-              if (invalidReferences.length) {
-                dataTreeEvalRef.invalidReferencesMap[
-                  dataTreeDiff.payload.propertyPath
-                ] = invalidReferences;
-              } else {
-                delete dataTreeEvalRef.invalidReferencesMap[
-                  dataTreeDiff.payload.propertyPath
-                ];
+                // update validation dependencies
+                dataTreeEvalRef.validationDependencyMap = {
+                  ...dataTreeEvalRef.validationDependencyMap,
+                  ...listValidationDependencies(entity, entityName),
+                };
+                didUpdateValidationDependencyMap = true;
               }
-              errors.forEach((error) => {
-                dataTreeEvalRef.errors.push(error);
-              });
             } else {
+              didUpdateDependencyMap = true;
               const {
-                errors,
-                invalidReferences,
-                validReferences,
-              } = extractInfoFromBindings(
-                entityPathDependencies,
-                dataTreeEvalRef.allKeys,
+                dependencies: entityPathDependencies,
+                isTrigger,
+              } = listEntityPathDependencies(
+                entity,
+                dataTreeDiff.payload.propertyPath,
               );
-              // Update dependencyMap
-              dataTreeEvalRef.dependencyMap[
-                dataTreeDiff.payload.propertyPath
-              ] = mergeArrays(
+              if (isTrigger) {
                 dataTreeEvalRef.dependencyMap[
                   dataTreeDiff.payload.propertyPath
-                ],
-                validReferences,
-              );
-              // Update invalidReferencesMap
-              if (invalidReferences.length) {
-                dataTreeEvalRef.invalidReferencesMap[
+                ] = [];
+                const {
+                  errors,
+                  invalidReferences,
+                  validReferences,
+                } = extractInfoFromBindings(
+                  entityPathDependencies,
+                  dataTreeEvalRef.allKeys,
+                );
+                // Update dependencyMap
+                dataTreeEvalRef.triggerFieldDependencyMap[
                   dataTreeDiff.payload.propertyPath
-                ] = invalidReferences;
+                ] = mergeArrays(
+                  dataTreeEvalRef.triggerFieldDependencyMap[
+                    dataTreeDiff.payload.propertyPath
+                  ],
+                  validReferences,
+                );
+                // Update invalidReferencesMap
+                if (invalidReferences.length) {
+                  dataTreeEvalRef.invalidReferencesMap[
+                    dataTreeDiff.payload.propertyPath
+                  ] = invalidReferences;
+                } else {
+                  delete dataTreeEvalRef.invalidReferencesMap[
+                    dataTreeDiff.payload.propertyPath
+                  ];
+                }
+                errors.forEach((error) => {
+                  dataTreeEvalRef.errors.push(error);
+                });
               } else {
-                delete dataTreeEvalRef.invalidReferencesMap[
+                const {
+                  errors,
+                  invalidReferences,
+                  validReferences,
+                } = extractInfoFromBindings(
+                  entityPathDependencies,
+                  dataTreeEvalRef.allKeys,
+                );
+                // Update dependencyMap
+                dataTreeEvalRef.dependencyMap[
                   dataTreeDiff.payload.propertyPath
-                ];
+                ] = mergeArrays(
+                  dataTreeEvalRef.dependencyMap[
+                    dataTreeDiff.payload.propertyPath
+                  ],
+                  validReferences,
+                );
+                // Update invalidReferencesMap
+                if (invalidReferences.length) {
+                  dataTreeEvalRef.invalidReferencesMap[
+                    dataTreeDiff.payload.propertyPath
+                  ] = invalidReferences;
+                } else {
+                  delete dataTreeEvalRef.invalidReferencesMap[
+                    dataTreeDiff.payload.propertyPath
+                  ];
+                }
+                errors.forEach((error) => {
+                  dataTreeEvalRef.errors.push(error);
+                });
               }
-              errors.forEach((error) => {
-                dataTreeEvalRef.errors.push(error);
-              });
+              if (isWidget(entity)) {
+                // update validation dependencies
+                dataTreeEvalRef.validationDependencyMap = {
+                  ...dataTreeEvalRef.validationDependencyMap,
+                  ...listValidationDependencies(entity, entityName),
+                };
+                didUpdateValidationDependencyMap = true;
+              }
             }
           }
           // Either a new entity or a new property path has been added. Go through the list of invalid references and

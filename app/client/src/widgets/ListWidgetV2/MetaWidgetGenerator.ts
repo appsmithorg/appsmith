@@ -1027,12 +1027,6 @@ class MetaWidgetGenerator {
         Object.values(referencesEntityDef),
       );
     }
-    /**
-     * The above commented out code should be used instead of this
-     * only after the following issue is resolved
-     * https://github.com/appsmithorg/appsmith/issues/20401
-     */
-    // this.addCurrentViewProperty(metaWidget, Object.values(referencesEntityDef));
   };
 
   /**
