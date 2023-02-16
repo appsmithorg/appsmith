@@ -8,12 +8,12 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.addDsl(dsl);
   });
 
-  it("Test_Add users api and execute api", function() {
-    cy.createAndFillApi(this.data.userApi, "/users");
+  it("1. Test_Add users api and execute api", function() {
+    cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
     cy.RunAPI();
   });
 
-  it("selects set interval function", () => {
+  it("2. Selects set interval function", () => {
     cy.SearchEntityandOpen("Button1");
     cy.get(widgetsPage.buttonOnClick)
       .last()
@@ -24,7 +24,7 @@ describe("Test Create Api and Bind to Button widget", function() {
       .click();
   });
 
-  it("Fill setInterval action creator and test code generated", () => {
+  it("3. Fill setInterval action creator and test code generated", () => {
     cy.get(widgetsPage.toggleOnClick)
       .invoke("attr", "class")
       .then((classes) => {
@@ -60,7 +60,7 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.get(widgetsPage.toggleOnClick).click();
   });
 
-  it("works in the published version", () => {
+  it("4. Works in the published version", () => {
     cy.PublishtheApp();
     cy.wait(3000);
     cy.get("span:contains('Submit')")
@@ -81,7 +81,7 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("selects clear interval function", () => {
+  it("5. Selects clear interval function", () => {
     cy.SearchEntityandOpen("Button1");
     cy.get(widgetsPage.buttonOnClick)
       .last()
@@ -92,7 +92,7 @@ describe("Test Create Api and Bind to Button widget", function() {
       .click();
   });
 
-  it("Fill clearInterval action creator and test code generated", () => {
+  it("6. Fill clearInterval action creator and test code generated", () => {
     cy.get("label")
       .contains("Id")
       .parent()

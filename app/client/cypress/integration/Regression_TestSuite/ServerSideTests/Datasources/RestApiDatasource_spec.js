@@ -22,7 +22,7 @@ describe("Create a rest datasource", function() {
     ); //verifying there is no error toast, Bug 14566
     cy.testSelfSignedCertificateSettingsInREST(false);
     cy.saveDatasource();
-    cy.contains(".datasource-highlight", "https://mock-api.appsmith.com"); //failing here since Save as Datasource is broken
+    cy.contains(".datasource-highlight", "http://host.docker.internal:5001"); //failing here since Save as Datasource is broken
     cy.SaveAndRunAPI();
   });
 });

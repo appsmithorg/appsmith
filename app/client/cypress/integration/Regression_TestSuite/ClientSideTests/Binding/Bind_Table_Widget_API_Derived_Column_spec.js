@@ -8,19 +8,19 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.addDsl(dsl);
   });
 
-  it("Create an API and Execute the API and bind with Table", function() {
+  it("1. Create an API and Execute the API and bind with Table", function() {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
-  it("Validate Table with API data and then add a column", function() {
+  it("2. Validate Table with API data and then add a column", function() {
     cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", "{{Api1.data.users}}");
+    cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     cy.SearchEntityandOpen("Text1");
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     cy.SearchEntityandOpen("Table1");
-    cy.readTabledata("0", "0").then((tabData) => {
+    cy.readTabledata("0", "4").then((tabData) => {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });
@@ -28,7 +28,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.addColumn("CustomColumn");
     cy.editColumn("customColumn1");
     cy.editColName("UpdatedColName");
-    cy.readTabledataPublish("0", "5").then((tabData) => {
+    cy.readTabledataPublish("0", "2").then((tabData) => {
       const tabValue = tabData;
       cy.updateComputedValue(testdata.currentRowEmail);
       cy.readTabledataPublish("0", "9").then((tabData) => {

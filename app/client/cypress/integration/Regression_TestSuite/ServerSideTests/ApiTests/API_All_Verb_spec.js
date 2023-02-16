@@ -13,7 +13,7 @@ describe("API Panel Test Functionality", function() {
 
   it("1. PUT Action test API fetaure", function() {
     apiPage.CreateAndFillApi(
-      testdata.baseUrl + testdata.methodput,
+      testdata.mockApiUrl + testdata.methodput,
       "",
       10000,
       "PUT",
@@ -26,7 +26,7 @@ describe("API Panel Test Functionality", function() {
       apiPage.RunAPI();
       cy.validateRequest(
         "Api1",
-        testdata.baseUrl,
+        testdata.mockApiUrl,
         testdata.methodput,
         testdata.Put,
       );
@@ -37,7 +37,7 @@ describe("API Panel Test Functionality", function() {
 
   it("2. Post Action test API fetaure", function() {
     apiPage.CreateAndFillApi(
-      testdata.baseUrl + testdata.methodpost,
+      testdata.mockApiUrl + testdata.methodpost,
       "",
       10000,
       "POST",
@@ -50,7 +50,7 @@ describe("API Panel Test Functionality", function() {
       apiPage.RunAPI();
       cy.validateRequest(
         "Api1",
-        testdata.baseUrl,
+        testdata.mockApiUrl,
         testdata.methodpost,
         testdata.Post,
       );
@@ -61,7 +61,7 @@ describe("API Panel Test Functionality", function() {
 
   it("3. PATCH Action test API fetaure", function() {
     apiPage.CreateAndFillApi(
-      testdata.baseUrl + testdata.methodpatch,
+      testdata.mockApiUrl + testdata.methodpatch,
       "",
       10000,
       "PATCH",
@@ -74,7 +74,7 @@ describe("API Panel Test Functionality", function() {
       apiPage.RunAPI();
       cy.validateRequest(
         "Api1",
-        testdata.baseUrl,
+        testdata.mockApiUrl,
         testdata.methodpatch,
         testdata.Patch,
       );
@@ -85,7 +85,7 @@ describe("API Panel Test Functionality", function() {
 
   it("4. Delete Action test API fetaure", function() {
     apiPage.CreateAndFillApi(
-      testdata.baseUrl + testdata.methoddelete,
+      testdata.mockApiUrl + testdata.methoddelete,
       "",
       10000,
       "DELETE",
@@ -95,7 +95,7 @@ describe("API Panel Test Functionality", function() {
     apiPage.RunAPI();
     cy.validateRequest(
       "Api1",
-      testdata.baseUrl,
+      testdata.mockApiUrl,
       testdata.methoddelete,
       testdata.Delete,
     );
@@ -104,14 +104,14 @@ describe("API Panel Test Functionality", function() {
 
   it("5. Test GET Action for mock API with header and pagination", function() {
     //const apiname = "SecondAPI";
-    apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods);
+    apiPage.CreateAndFillApi(testdata.mockApiUrl + testdata.mockApiMethods);
     apiPage.EnterHeader(testdata.headerKey, testdata.headerValue);
     agHelper.AssertAutoSave();
     apiPage.RunAPI();
     cy.validateRequest(
       "Api1",
-      testdata.baseUrl,
-      testdata.methods,
+      testdata.mockApiUrl,
+      testdata.mockApiMethods,
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
@@ -122,8 +122,8 @@ describe("API Panel Test Functionality", function() {
     cy.clickTest(apiwidget.TestNextUrl);
     cy.validateRequest(
       "Api1",
-      testdata.baseUrl,
-      testdata.methods.concat(testdata.next),
+      testdata.mockApiUrl,
+      testdata.mockApiMethods.concat(testdata.next),
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
@@ -133,8 +133,8 @@ describe("API Panel Test Functionality", function() {
     cy.clickTest(apiwidget.TestPreUrl);
     cy.validateRequest(
       "Api1",
-      testdata.baseUrl,
-      testdata.methods.concat(testdata.prev),
+      testdata.mockApiUrl,
+      testdata.mockApiMethods.concat(testdata.prev),
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);

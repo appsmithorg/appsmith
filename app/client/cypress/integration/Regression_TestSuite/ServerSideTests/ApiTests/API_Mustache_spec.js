@@ -11,7 +11,7 @@ describe("Moustache test Functionality", function() {
   it("Moustache test Functionality", function() {
     cy.openPropertyPane("textwidget");
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
-    cy.testCodeMirror("users");
+    cy.testCodeMirror("mock-api?records=10");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("TestAPINew");

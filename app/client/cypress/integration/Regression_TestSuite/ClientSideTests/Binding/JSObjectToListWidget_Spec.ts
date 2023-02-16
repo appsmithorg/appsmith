@@ -22,7 +22,7 @@ describe("Validate JSObj binding to Table widget", () => {
   });
 
   it("1. Add users api and bind to JSObject", () => {
-    apiPage.CreateAndFillApi(dataSet.userApi + "/users");
+    apiPage.CreateAndFillApi(dataSet.userApi + "/mock-api?records=10");
     apiPage.RunAPI();
     apiPage.ReadApiResponsebyKey("name");
     cy.get("@apiResp").then((value) => {
@@ -30,7 +30,7 @@ describe("Validate JSObj binding to Table widget", () => {
       cy.log("valueToTest to test returned is :" + valueToTest);
       //cy.log("value to test returned is :" + value)
     });
-    jsEditor.CreateJSObject("return Api1.data.users;", {
+    jsEditor.CreateJSObject("return Api1.data;", {
       paste: false,
       completeReplace: false,
       toRun: true,

@@ -23,7 +23,7 @@ describe("Bug 14666: Api Response Test Functionality ", function() {
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     apiPage.CreateAndFillApi(
-      testdata.baseUrl + testdata.methods,
+    testdata.mockApiUrl + testdata.mockApiMethods,
       "TableTestAPI",
     );
     agHelper.AssertAutoSave();

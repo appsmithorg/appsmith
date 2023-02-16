@@ -9,8 +9,9 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("1. Test_Add users api and execute api", function() {
-    cy.createAndFillApi(this.data.userApi, "/users");
+    cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
     cy.RunAPI();
+    cy.get(apiPage.jsonResponseTab).click()
     cy.get(apiPage.responseBody)
       .contains("name")
       .siblings("span")
@@ -27,7 +28,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("2. Test_Validate the Api data is updated on Table widget", function() {
     cy.SearchEntityandOpen("Table1");
     //cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", "{{ Api1.data.users }}");
+    cy.testJsontext("tabledata", "{{ Api1.data}}");
 
     /**
      * readTabledata--> is to read the table contents
