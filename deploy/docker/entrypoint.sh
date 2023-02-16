@@ -174,12 +174,12 @@ init_replica_set() {
 
   if [[ $isUriLocal -gt 0 ]]; then
     if [[ -f /proc/cpuinfo ]] && ! grep --quiet avx /proc/cpuinfo; then
-      echo "===================================================================================================="
-      echo "=="
+      echo "====================================================================================================" >&2
+      echo "==" >&2
       echo "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
       echo "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
-      echo "=="
-      echo "===================================================================================================="
+      echo "==" >&2
+      echo "====================================================================================================" >&2
     fi
 
     echo "Checking Replica Set of external MongoDB"
