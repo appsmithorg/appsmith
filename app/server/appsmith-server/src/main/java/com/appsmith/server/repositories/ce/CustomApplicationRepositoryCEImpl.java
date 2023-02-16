@@ -115,9 +115,14 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         applicationPage.setIsDefault(isDefault);
         applicationPage.setDefaultPageId(defaultPageId);
         applicationPage.setId(pageId);
+        String unpublishedApplicationField = fieldName(QApplication.application.unpublishedApplication);
+        String pagesField = fieldName(QApplication.application.unpublishedApplication.pages);
+
+        String concatField = String.format("%s.%s", unpublishedApplicationField, pagesField);
         return mongoOperations.updateFirst(
                 Query.query(getIdCriteria(applicationId)),
-                new Update().push(fieldName(QApplication.application.pages), applicationPage),
+                new Update().push(concatField, applicationPage),
+
                 Application.class
         );
     }

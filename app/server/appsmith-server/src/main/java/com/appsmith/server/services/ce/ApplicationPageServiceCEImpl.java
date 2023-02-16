@@ -22,6 +22,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ApplicationDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -314,7 +315,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        application.getPublishedApplication().setPages(new ArrayList<>());
+        application.setUnpublishedApplication(new ApplicationDTO());
+//        application.setPublishedApplication(new ApplicationDTO());
+//        application.getPublishedApplication().setPages(new ArrayList<>());
         application.getUnpublishedApplication().setCustomJSLibs(new HashSet<>());
         application.setCollapseInvisibleWidgets(Boolean.TRUE);
 
@@ -333,7 +336,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     // assign the default theme id to edit mode
                     return themeService.getDefaultThemeId().map(themeId -> {
                         application1.getUnpublishedApplication().setThemeId(themeId);
-                        application1.getPublishedApplication().setThemeId(themeId);
+//                        application1.getPublishedApplication().setThemeId(themeId);
                         return themeId;
                     }).then(applicationService.createDefault(application1));
                 })
@@ -962,7 +965,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(application -> {
                     // Update published custom JS lib objects.
                     application.getPublishedApplication().setCustomJSLibs(application.getUnpublishedApplication().getCustomJSLibs());
-                    if (application.getUnpublishedApplication().getCustomJSLibs() != null) {
+                    if (application.getUnpublishedApplication().getCustomJSLibs() != null && !application.getUnpublishedApplication().getCustomJSLibs().isEmpty())  {
                         updatedPublishedJSLibDTOs.addAll(application.getPublishedApplication().getCustomJSLibs());
                     }
 
