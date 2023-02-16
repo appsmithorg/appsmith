@@ -22,7 +22,7 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import { getWidgets } from "sagas/selectors";
+import { getMetaWidgets, getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import {
@@ -55,7 +55,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { difference, get, isEmpty, isUndefined } from "lodash";
+import { get, isEmpty, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -99,6 +99,7 @@ import {
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { lintWorker } from "./LintingSagas";
 import {
   EvalTreeRequestData,
@@ -140,6 +141,7 @@ export function* evaluateTreeSaga(
   } = yield select(getAllActionValidationConfig);
   const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   const isEditMode = appMode === APP_MODE.EDIT;
@@ -156,6 +158,7 @@ export function* evaluateTreeSaga(
     allActionValidationConfig,
     requiresLinting: isEditMode && requiresLinting,
     forceEvaluation,
+    metaWidgets,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -185,10 +188,9 @@ export function* evaluateTreeSaga(
   const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
-  // Replace empty object below with list of current metaWidgets present in the viewport
-  const hiddenStaleMetaIds = difference(staleMetaIds, Object.keys({}));
-  if (!isEmpty(hiddenStaleMetaIds)) {
-    yield put(resetWidgetsMetaState(hiddenStaleMetaIds));
+
+  if (!isEmpty(staleMetaIds)) {
+    yield put(resetWidgetsMetaState(staleMetaIds));
   }
 
   yield put(setEvaluatedTree(updates));
