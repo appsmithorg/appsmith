@@ -1,8 +1,7 @@
 {
   "name": "@wds/components",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "main": "src/index.ts",
   "author": "Valera Melnikov <melnikov.vv@greendatasoft.ru>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "devDependencies": {

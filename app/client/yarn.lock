@@ -8874,6 +8874,11 @@ craco-alias@^2.1.1:
   version "2.1.1"
   resolved "https://registry.npmjs.org/craco-alias/-/craco-alias-2.1.1.tgz"
 
+craco-babel-loader@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/craco-babel-loader/-/craco-babel-loader-1.0.4.tgz#b887dff41f4ad1e8be84f90c1277af16475ada78"
+  integrity sha512-qoCsRWV/cMcucuIe+m09GRudCwAWtEhZl830MR2N0/weXBK+0VybsL19pUQtH0TwC33v9ll4myu/4TGBxnqZeA==
+
 crc-32@^1.2.0:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/crc-32/-/crc-32-1.2.2.tgz#3cad35a934b8bf71f25ca524b6da51fb7eace2ff"

@@ -1,4 +1,6 @@
 const CracoAlias = require("craco-alias");
+const CracoBabelLoader = require("craco-babel-loader");
+const path = require("path");
 
 module.exports = {
   devServer: {
@@ -53,6 +55,12 @@ module.exports = {
         baseUrl: "./src",
         // tsConfigPath should point to the file where "baseUrl" and "paths" are specified
         tsConfigPath: "./tsconfig.path.json",
+      },
+    },
+    {
+      plugin: CracoBabelLoader,
+      options: {
+        includes: [path.resolve("packages")],
       },
     },
     {

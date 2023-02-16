@@ -6,10 +6,11 @@
     "node": "^16.14.0",
     "npm": "^8.5.5"
   },
-  "workspaces": ["packages/**"],
+  "workspaces": [
+    "packages/*"
+  ],
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
-    "@wds/components": "*",
     "@blueprintjs/core": "^3.36.0",
     "@blueprintjs/datetime": "^3.23.6",
     "@blueprintjs/icons": "^3.10.0",
@@ -37,6 +38,7 @@
     "@uppy/react": "^1.11.2",
     "@uppy/url": "^1.5.16",
     "@uppy/webcam": "^1.8.4",
+    "@wds/components": "*",
     "@welldone-software/why-did-you-render": "^4.2.5",
     "acorn-walk": "^8.2.0",
     "algoliasearch": "^4.2.0",
@@ -50,6 +52,7 @@
     "core-js": "^3.9.1",
     "country-flag-emoji-polyfill": "^0.1.4",
     "craco-alias": "^2.1.1",
+    "craco-babel-loader": "^1.0.4",
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
