@@ -357,23 +357,27 @@ describe("JS Function Execution", function() {
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
     // Add settings for each function (according to data)
-    for (const functionSetting of Object.values(
-      FUNCTIONS_SETTINGS_DEFAULT_DATA,
-    )) {
-      jsEditor.EnableDisableAsyncFuncSettings(
-        functionSetting.name,
-        functionSetting.onPageLoad,
-        functionSetting.confirmBeforeExecute,
-      );
-    }
+    Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
+      (functionSetting) => {
+        jsEditor.EnableDisableAsyncFuncSettings(
+          functionSetting.name,
+          functionSetting.onPageLoad,
+          functionSetting.confirmBeforeExecute,
+        );
+      },
+    );
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
     //After JSObj is created - check methods are in alphabetical order
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
+
     agHelper.RefreshPage();
     // click "Yes" button for all onPageload && ConfirmExecute functions
-    agHelper.clickMultipleButtons("Yes");
-    agHelper.Sleep();
+    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
+      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
+      agHelper.ClickButton("Yes");
+      agHelper.Sleep();
+    }
     // Switch to settings tab and assert order
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
@@ -410,10 +414,12 @@ describe("JS Function Execution", function() {
 
     // clone page and assert order of functions
     ee.ClonePage();
-
     // click "Yes" button for all onPageload && ConfirmExecute functions
-    agHelper.clickMultipleButtons("Yes");
-    agHelper.Sleep();
+    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
+      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
+      agHelper.ClickButton("Yes");
+      agHelper.Sleep();
+    }
 
     ee.SelectEntityByName(jsObj, "Queries/JS");
     agHelper.GetNClick(jsEditor._settingsTab);

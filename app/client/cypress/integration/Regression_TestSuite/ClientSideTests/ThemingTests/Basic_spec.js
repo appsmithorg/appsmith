@@ -1121,7 +1121,7 @@ describe("App Theming funtionality", function() {
 
     ////old widgets still conforming to theme color
     cy.get(".t--widget-buttonwidget button")
-      .eq(1)
+      .last()
       .should("have.css", "background-color", "rgb(239, 68, 68)");
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
@@ -1135,7 +1135,7 @@ describe("App Theming funtionality", function() {
       .should("have.css", "border-radius", "6px");
     cy.get(publish.iconWidgetBtn).should("have.css", "border-radius", "24px");
     cy.get(widgetsPage.widgetBtn)
-      .eq(1)
+      .last()
       .should("have.css", "border-radius", "24px");
 
     //Verify Box shadow
@@ -1148,7 +1148,7 @@ describe("App Theming funtionality", function() {
       );
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none");
     cy.get(widgetsPage.widgetBtn)
-      .eq(1)
+      .last()
       .should(
         "have.css",
         "box-shadow",
@@ -1196,10 +1196,10 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
     cy.get(widgetsPage.widgetBtn)
-      .eq(1)
+      .last()
       .should("be.visible");
     cy.get(widgetsPage.widgetBtn)
-      .eq(1)
+      .last()
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
@@ -1211,7 +1211,7 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .should("have.css", "border-radius", "24px"); //Border Radius
     cy.get(widgetsPage.widgetBtn)
-      .eq(1)
+      .last()
       .should("have.css", "border-radius", "24px"); //Border Radius
     cy.get(publish.iconWidgetBtn).should("have.css", "border-radius", "24px"); //Border Radius
 
@@ -1223,7 +1223,7 @@ describe("App Theming funtionality", function() {
         "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
       ); //Shadow
     cy.get(widgetsPage.widgetBtn)
-      .eq(1)
+      .last()
       .should(
         "have.css",
         "box-shadow",
