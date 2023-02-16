@@ -35,7 +35,7 @@ describe("Binding the multiple widgets and validating default data", function() 
       .type("select * from users limit 10");
 
     cy.EvaluateCurrentValue("select * from users limit 10");
-    cy.wait("2000");
+    cy.wait(2000);
     cy.runQuery();
   });
 
