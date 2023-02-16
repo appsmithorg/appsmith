@@ -9,6 +9,7 @@ import {
   batchUpdateWidgetProperty,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
+  updateMultipleWidgetPropertiesAction,
   UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
@@ -67,6 +68,7 @@ import {
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
   WIDGET_COPY,
   WIDGET_CUT,
+  ERROR_WIDGET_CUT_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { Toaster, Variant } from "design-system-old";
@@ -80,7 +82,6 @@ import { validateProperty } from "./EvaluationsSaga";
 
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
-import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { getSlidingArenaName } from "constants/componentClassNameConstants";
@@ -642,6 +643,7 @@ function* batchUpdateWidgetPropertySaga(
   };
   log.debug(
     "Batch widget property update calculations took: ",
+    action,
     performance.now() - start,
     "ms",
   );
@@ -826,7 +828,7 @@ function* updateCanvasSize(
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
     yield put(
-      updateMultipleWidgetProperties({
+      updateMultipleWidgetPropertiesAction({
         [canvasWidgetId]: [
           {
             propertyPath: "bottomRow",
@@ -1743,6 +1745,18 @@ function* cutWidgetSaga() {
   if (!selectedWidgets) {
     Toaster.show({
       text: createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED),
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const allAllowedToCut = selectedWidgets.some((each) => {
+    return allWidgets[each] && !allWidgets[each].disallowCopy;
+  });
+
+  if (!allAllowedToCut) {
+    Toaster.show({
+      text: createMessage(ERROR_WIDGET_CUT_NOT_ALLOWED),
       variant: Variant.info,
     });
     return;

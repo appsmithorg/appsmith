@@ -39,6 +39,7 @@ export interface WidgetConfiguration {
   features?: WidgetFeatures;
   canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
+  needsHeightForContent?: boolean;
   properties: {
     config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
@@ -75,13 +76,20 @@ interface LayoutProps {
   responsiveBehavior?: ResponsiveBehavior;
 }
 
-const staticProps = omit(WIDGET_STATIC_PROPS, "children");
+const staticProps = omit(
+  WIDGET_STATIC_PROPS,
+  "children",
+  "topRowBeforeCollapse",
+  "bottomRowBeforeCollapse",
+);
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
   keyof typeof staticProps
 > &
   LayoutProps & {
     children?: CanvasWidgetStructure[];
+    selected?: boolean;
+    onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
   };
 
 export enum FileDataTypes {

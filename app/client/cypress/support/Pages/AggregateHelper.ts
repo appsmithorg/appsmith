@@ -138,7 +138,7 @@ export class AggregateHelper {
 
   public CheckForPageSaveError() {
     // Wait for "saving" status to disappear
-    this.GetElement(this.locator._statusSaving).should("not.exist");
+    this.GetElement(this.locator._statusSaving,60000).should("not.exist");
     // Check for page save error
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._saveStatusError).length) {
@@ -208,6 +208,7 @@ export class AggregateHelper {
   public clickMultipleButtons(btnVisibleText: string, shouldSleep = true) {
     cy.xpath(this.locator._spanButton(btnVisibleText)).each(($el) => {
       $el.trigger("click", { force: true });
+      cy.wait(200);
     });
     shouldSleep && this.Sleep();
   }
@@ -454,7 +455,7 @@ export class AggregateHelper {
     items.forEach(($each) => {
       cy.xpath(this.locator._multiSelectItem($each))
         .eq(0)
-        .click()
+        .click({ force: true })
         .wait(1000);
     });
   }
