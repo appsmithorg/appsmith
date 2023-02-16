@@ -366,7 +366,6 @@ describe("DependencyMap utils", function() {
           type: "TEXT",
         },
       },
-      ENTITY_TYPE: "WIDGET",
       privateWidgets: {},
       propertyOverrideDependency: {},
       overridingPropertyPaths: {},
