@@ -6,6 +6,7 @@ import {
   isAction,
   isJSAction,
   makeParentsDependOnChildren,
+  isDynamicLeaf,
   isValidEntity,
   getEntityNameAndPropertyPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -176,7 +177,10 @@ export const updateDependencyMap = ({
         case DataTreeDiffEvent.NEW: {
           // If a new entity/property was added,
           // add all the internal bindings for this entity to the global dependency map
-          if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
+          if (
+            (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
+            !isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
+          ) {
             const entityDependencyMap: DependencyMap = listEntityDependencies(
               entity,
               entityName,
