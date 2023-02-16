@@ -459,59 +459,59 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("14. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
-    deployMode.ClearJSONFieldValue("Callsign", 1);
-    deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 1);
+    deployMode.ClearJSONFieldValue("Callsign", 0);
+    deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 0);
 
-    deployMode.ClearJSONFieldValue("Country", 1);
-    deployMode.EnterJSONInputValue("Country", "Malta", 1);
+    deployMode.ClearJSONFieldValue("Country", 0);
+    deployMode.EnterJSONInputValue("Country", "Malta", 0);
 
-    deployMode.ClearJSONFieldValue("Next Port Name", 1);
-    deployMode.EnterJSONInputValue("Next Port Name", "CORFU", 1);
+    deployMode.ClearJSONFieldValue("Next Port Name", 0);
+    deployMode.EnterJSONInputValue("Next Port Name", "CORFU", 0);
 
-    deployMode.ClearJSONFieldValue("Destination", 1);
-    deployMode.EnterJSONInputValue("Destination", "CORFU", 1);
+    deployMode.ClearJSONFieldValue("Destination", 0);
+    deployMode.EnterJSONInputValue("Destination", "CORFU", 0);
 
-    deployMode.SelectJsonFormDropDown("Special Craft", 1);
+    deployMode.SelectJsonFormDropDown("Special Craft", 0);
 
-    deployMode.ClearJSONFieldValue("Timezone", 1);
-    deployMode.EnterJSONInputValue("Timezone", "-12", 1);
+    deployMode.ClearJSONFieldValue("Timezone", 0);
+    deployMode.EnterJSONInputValue("Timezone", "-12", 0);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("Not a valid timezone!"),
     );
-    deployMode.ClearJSONFieldValue("Timezone", 1);
-    deployMode.EnterJSONInputValue("Timezone", "-2", 1);
+    deployMode.ClearJSONFieldValue("Timezone", 0);
+    deployMode.EnterJSONInputValue("Timezone", "-2", 0);
 
-    deployMode.ClearJSONFieldValue("Status Name", 1);
-    deployMode.EnterJSONInputValue("Status Name", "Moored", 1);
+    deployMode.ClearJSONFieldValue("Status Name", 0);
+    deployMode.EnterJSONInputValue("Status Name", "Moored", 0);
 
-    deployMode.ClearJSONFieldValue("Year Built", 1);
-    deployMode.EnterJSONInputValue("Year Built", "1967", 1);
+    deployMode.ClearJSONFieldValue("Year Built", 0);
+    deployMode.EnterJSONInputValue("Year Built", "1967", 0);
 
-    deployMode.ClearJSONFieldValue("Area Code", 1);
-    deployMode.EnterJSONInputValue("Area Code", "USG - Gulf of Mexico", 1);
+    deployMode.ClearJSONFieldValue("Area Code", 0);
+    deployMode.EnterJSONInputValue("Area Code", "USG - Gulf of Mexico", 0);
 
-    deployMode.ClearJSONFieldValue("Speed", 1);
-    deployMode.EnterJSONInputValue("Speed", "0.6", 1);
+    deployMode.ClearJSONFieldValue("Speed", 0);
+    deployMode.EnterJSONInputValue("Speed", "0.6", 0);
 
     agHelper.GetNClick(
       deployMode._jsonFormDatepickerFieldByName("Eta Updated"),
       1,
     );
     agHelper.GetNClick(locator._datePicker(2));
-    agHelper.GetNClick(deployMode._jsonFieldName("Distance To Go"), 1);
+    agHelper.GetNClick(deployMode._jsonFieldName("Distance To Go"), 0);
 
-    deployMode.ClearJSONFieldValue("Distance To Go", 1);
-    deployMode.EnterJSONInputValue("Distance To Go", "18.1", 1);
+    deployMode.ClearJSONFieldValue("Distance To Go", 0);
+    deployMode.EnterJSONInputValue("Distance To Go", "18.1", 0);
 
-    deployMode.ClearJSONFieldValue("Current Port", 1);
-    deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 1);
+    deployMode.ClearJSONFieldValue("Current Port", 0);
+    deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 0);
 
     cy.xpath(deployMode._jsonFormFieldByName("Callsign", true))
       .eq(1)
       .invoke("attr", "type")
       .should("eq", "password");
 
-    deployMode.ClearJSONFieldValue("Shipname", 1);
+    deployMode.ClearJSONFieldValue("Shipname", 0);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("This field is required"),
     );
@@ -519,7 +519,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "have.attr",
       "disabled",
     );
-    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 0);
 
     agHelper.ClickButton("Submit");
     agHelper.AssertContains(
