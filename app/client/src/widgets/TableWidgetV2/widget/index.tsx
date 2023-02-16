@@ -209,7 +209,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         const isHidden = !column.isVisible;
         const columnData = {
           id: column.id,
-          Header: column.label,
+          Header:
+            typeof column.label === "string" ? column.label : "customColumn",
           alias: column.alias,
           accessor: (row: any) => row[column.alias],
           width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
