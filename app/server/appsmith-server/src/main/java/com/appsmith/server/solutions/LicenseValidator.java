@@ -37,6 +37,7 @@ public class LicenseValidator {
     private final CloudServicesConfig cloudServicesConfig;
     private final ConfigService configService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ReleaseNotesService releaseNotesService;
 
     public void check() {
 
@@ -135,6 +136,7 @@ public class LicenseValidator {
         LicenseValidationRequestDTO requestDTO = new LicenseValidationRequestDTO();
         requestDTO.setLicenseKey(license.getKey());
         requestDTO.setTenantId(tenant.getId());
+        requestDTO.setAppsmithVersion(releaseNotesService.getRunningVersion());
 
         return configService.getInstanceId()
                 .flatMap(instanceId -> {
