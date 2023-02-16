@@ -50,6 +50,7 @@ import {
   updateWidgetAutoHeightAction,
 } from "actions/autoHeightActions";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
+import { updateWidgetDimensionAction } from "actions/autoLayoutActions";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -242,6 +243,13 @@ function AppViewer(props: Props) {
     [updateWidgetAutoHeightAction, dispatch],
   );
 
+  const updateWidgetDimensionCallback = useCallback(
+    (widgetId: string, width: number, height: number) => {
+      dispatch(updateWidgetDimensionAction(widgetId, width, height));
+    },
+    [updateWidgetDimensionAction, dispatch],
+  );
+
   const checkContainersForAutoHeightCallback = useCallback(
     () => dispatch(checkContainersForAutoHeightAction()),
     [checkContainersForAutoHeightAction],
@@ -257,6 +265,7 @@ function AppViewer(props: Props) {
           syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
           triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
           updateWidgetAutoHeight: updateWidgetAutoHeightCallback,
+          updateWidgetDimension: updateWidgetDimensionCallback,
           checkContainersForAutoHeight: checkContainersForAutoHeightCallback,
         }}
       >

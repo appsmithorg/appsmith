@@ -29,6 +29,7 @@ import {
   selectWidgetInitAction,
   WidgetSelectionRequest,
 } from "actions/widgetSelectionActions";
+import { updateWidgetDimensionAction } from "actions/autoLayoutActions";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -58,6 +59,11 @@ export type EditorContextType = {
     propertyValue: any,
   ) => void;
   updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
+  updateWidgetDimension?: (
+    widgetId: string,
+    width: number,
+    height: number,
+  ) => void;
   checkContainersForAutoHeight?: () => void;
   selectWidgetRequest?: WidgetSelectionRequest;
 };
@@ -81,6 +87,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     triggerEvalOnMetaUpdate,
     updateWidget,
     updateWidgetAutoHeight,
+    updateWidgetDimension,
     updateWidgetProperty,
   } = props;
 
@@ -98,6 +105,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
       updateWidgetAutoHeight,
+      updateWidgetDimension,
       checkContainersForAutoHeight,
       selectWidgetRequest,
     }),
@@ -112,6 +120,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
       updateWidgetAutoHeight,
+      updateWidgetDimension,
       checkContainersForAutoHeight,
       selectWidgetRequest,
     ],
@@ -143,6 +152,7 @@ const mapDispatchToProps = {
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
   updateWidgetAutoHeight: updateWidgetAutoHeightAction,
+  updateWidgetDimension: updateWidgetDimensionAction,
   checkContainersForAutoHeight: checkContainersForAutoHeightAction,
   selectWidgetRequest: selectWidgetInitAction,
 };
