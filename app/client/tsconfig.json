@@ -25,9 +25,10 @@
     ],
     "sourceMap": true,
     "baseUrl": "./src",
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
   },
   "include": [
-    "./src/**/*"
-  ]
+    "./src/**/*",
+  ],
+  "exclude": ["**/node_modules"]
 }

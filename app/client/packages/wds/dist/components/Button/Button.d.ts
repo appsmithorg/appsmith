@@ -1,0 +1,32 @@
+import React, { HTMLAttributes } from "react";
+export declare const BUTTON_VARIANTS: readonly ["filled", "outline", "light", "subtle", "input"];
+export declare type ButtonVariant = typeof BUTTON_VARIANTS[number];
+export declare type ButtonProps = {
+    accentColor?: string;
+    variant?: ButtonVariant;
+    boxShadow?: string;
+    borderRadius?: string;
+    tooltip?: string;
+    children?: React.ReactNode;
+    isDisabled?: boolean;
+    isLoading?: boolean;
+    className?: string;
+    leadingIcon?: React.ReactNode;
+    trailingIcon?: React.ReactNode;
+    as?: keyof JSX.IntrinsicElements;
+} & HTMLAttributes<HTMLButtonElement>;
+declare const Button: import("styled-components").StyledComponent<"button", any, {
+    accentColor?: string | undefined;
+    variant?: "input" | "filled" | "outline" | "light" | "subtle" | undefined;
+    boxShadow?: string | undefined;
+    borderRadius?: string | undefined;
+    tooltip?: string | undefined;
+    children?: React.ReactNode;
+    isDisabled?: boolean | undefined;
+    isLoading?: boolean | undefined;
+    className?: string | undefined;
+    leadingIcon?: React.ReactNode;
+    trailingIcon?: React.ReactNode;
+    as?: keyof JSX.IntrinsicElements | undefined;
+} & React.HTMLAttributes<HTMLButtonElement>, never>;
+export { Button };

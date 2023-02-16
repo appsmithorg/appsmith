@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../src/components/Spinner/index.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,MAAM,OAAO,CAAC;AAE1B,OAAO,EAAE,aAAa,EAAE,MAAM,gBAAgB,CAAC;AAM/C,MAAM,OAAO,GAAG,CAAC,KAAgB,EAAE,EAAE;IACnC,OAAO,oBAAC,aAAa,oBAAK,KAAK,EAAI,CAAC;AACtC,CAAC,CAAC;AAEF,OAAO,CAAC,WAAW,GAAG,SAAS,CAAC;AAEhC,OAAO,EAAE,OAAO,EAAE,CAAC"}

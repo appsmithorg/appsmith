@@ -1,0 +1,40 @@
+{
+  "name": "@wds/components",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "author": "Valera Melnikov <melnikov.vv@greendatasoft.ru>, Pawan Kumar <pawan@appsmith.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.20.12",
+    "@storybook/addon-actions": "^6.5.16",
+    "@storybook/addon-docs": "^6.5.16",
+    "@storybook/addon-essentials": "^6.5.16",
+    "@storybook/addon-interactions": "^6.5.16",
+    "@storybook/addon-links": "^6.5.16",
+    "@storybook/addon-postcss": "^2.0.0",
+    "@storybook/builder-webpack4": "^6.5.16",
+    "@storybook/builder-webpack5": "^6.5.16",
+    "@storybook/manager-webpack4": "^6.5.16",
+    "@storybook/manager-webpack5": "^6.5.16",
+    "@storybook/react": "^6.5.16",
+    "@storybook/testing-library": "^0.0.13",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "babel-loader": "^8.3.0",
+    "postcss": "^8",
+    "autoprefixer": "^9.0.0",
+    "tsconfig-paths-webpack-plugin": "^3.5.2"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "colorjs.io": "^0.4.3"
+  },
+  "scripts": {
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook",
+    "build": "tsc",
+    "build:watch": "tsc --watch"
+  }
+}

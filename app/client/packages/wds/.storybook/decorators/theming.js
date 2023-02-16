@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { createTokens } from "../../src/components/wds/utils/createTokens";
+import { createTokens } from "../../src/utils/createTokens";
 
 const StyledContainer = styled.div`
   ${createTokens}

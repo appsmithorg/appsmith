@@ -1,0 +1,31 @@
+import React from "react";
+import { ComponentMeta, ComponentStory } from "@storybook/react";
+declare const _default: ComponentMeta<import("styled-components").StyledComponent<"button", any, {
+    accentColor?: string | undefined;
+    variant?: "input" | "filled" | "outline" | "light" | "subtle" | undefined;
+    boxShadow?: string | undefined;
+    borderRadius?: string | undefined;
+    tooltip?: string | undefined;
+    children?: React.ReactNode;
+    isDisabled?: boolean | undefined;
+    isLoading?: boolean | undefined;
+    className?: string | undefined;
+    leadingIcon?: React.ReactNode;
+    trailingIcon?: React.ReactNode;
+    as?: keyof JSX.IntrinsicElements | undefined;
+} & React.HTMLAttributes<HTMLButtonElement>, never>>;
+export default _default;
+export declare const TextStory: ComponentStory<import("styled-components").StyledComponent<"button", any, {
+    accentColor?: string | undefined;
+    variant?: "input" | "filled" | "outline" | "light" | "subtle" | undefined;
+    boxShadow?: string | undefined;
+    borderRadius?: string | undefined;
+    tooltip?: string | undefined;
+    children?: React.ReactNode;
+    isDisabled?: boolean | undefined;
+    isLoading?: boolean | undefined;
+    className?: string | undefined;
+    leadingIcon?: React.ReactNode;
+    trailingIcon?: React.ReactNode;
+    as?: keyof JSX.IntrinsicElements | undefined;
+} & React.HTMLAttributes<HTMLButtonElement>, never>>;
