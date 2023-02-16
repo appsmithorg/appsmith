@@ -5,8 +5,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AuditLog;
-import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
@@ -15,7 +13,6 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.external.models.EnvironmentVariable;
 import com.appsmith.external.models.Environment;
 
 import lombok.Getter;
@@ -130,13 +127,6 @@ public enum AclPermission {
     DELETE_DATASOURCES("delete:datasources", Datasource.class),
     CREATE_DATASOURCE_ACTIONS("create:datasourceActions", Datasource.class),
 
-    COMMENT_ON_THREADS("canComment:commentThreads", CommentThread.class),
-    READ_THREADS("read:commentThreads", CommentThread.class),
-    MANAGE_THREADS("manage:commentThreads", CommentThread.class),
-
-    READ_COMMENTS("read:comments", Comment.class),
-    MANAGE_COMMENTS("manage:comments", Comment.class),
-
     READ_THEMES("read:themes", Theme.class),
     MANAGE_THEMES("manage:themes", Theme.class),
 
@@ -156,15 +146,11 @@ public enum AclPermission {
     ADD_USERS_TO_USER_GROUPS("addUsers:userGroups", UserGroup.class),
     REMOVE_USERS_FROM_USER_GROUPS("removeUsers:userGroups", UserGroup.class),
 
-    MANAGE_ENVIRONMENT_VARIABLES("manage:environmentVariables", EnvironmentVariable.class),
-    READ_ENVIRONMENT_VARIABLES("read:environmentVariables", EnvironmentVariable.class),
-    DELETE_ENVIRONMENT_VARIABLES("delete:environmentVariables", EnvironmentVariable.class),
-    CREATE_ENVIRONMENT_VARIABLES("create:environmentVariables", EnvironmentVariable.class),
+    // Environment Permissions
     MANAGE_ENVIRONMENTS("manage:environments", Environment.class),
     READ_ENVIRONMENTS("read:environments", Environment.class),
     EXECUTE_ENVIRONMENTS("execute:environments", Environment.class),
-    CREATE_ENVIRONMENTS("create:environments", Environment.class),
-    DELETE_ENVIRONMENTS("delete:environments", Environment.class),
+
     // Manage tenant permissions
     MANAGE_TENANT("manage:tenants", Tenant.class),
 

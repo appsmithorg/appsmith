@@ -234,7 +234,18 @@ $(if [[ $use_https == 1 ]]; then echo "
     server {
         listen $http_listen_port default_server;
         server_name $domain;
-        return 301 https://\$host$(if [[ $https_listen_port != 443 ]]; then echo ":$https_listen_port"; fi)\$request_uri;
+
+        location / {
+            return 301 https://\$host$(if [[ $https_listen_port != 443 ]]; then echo ":$https_listen_port"; fi)\$request_uri;
+        }
+
+        location /auth {
+            proxy_pass $backend;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        }
     }
 "; fi)
 
@@ -275,7 +286,6 @@ $(if [[ $use_https == 1 ]]; then echo "
             sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME-}';
             sub_filter __APPSMITH_ALGOLIA_API_KEY__ '${APPSMITH_ALGOLIA_API_KEY-}';
             sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL-}';
-            sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY-}';
             sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP-}';
             sub_filter __APPSMITH_SENTRY_RELEASE__ '${APPSMITH_SENTRY_RELEASE-}';
             sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ '${APPSMITH_SENTRY_ENVIRONMENT-}';
@@ -317,9 +327,14 @@ $(if [[ $use_https == 1 ]]; then echo "
         }
 
         location /auth {
-            proxy_set_header X-Forwarded-Proto \$scheme;
-            proxy_set_header X-Forwarded-Host \$host;
             proxy_pass $backend;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$origin_scheme;
+            proxy_set_header X-Forwarded-Host \$host;
+            # Keycloak sticks big long JWTs in cookies, which makes headers too big. This throws 502 error, unless we have the below.
+            proxy_buffer_size 8k;
         }
     }
 }

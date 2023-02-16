@@ -29,6 +29,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -132,6 +133,8 @@ public class NewActionServiceCEImplTest {
     PagePermission pagePermission;
     @MockBean
     ActionPermission actionPermission;
+    @MockBean
+    ObservationRegistry observationRegistry;
 
     private BodyExtractor.Context context;
 
@@ -162,7 +165,11 @@ public class NewActionServiceCEImplTest {
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                observationRegistry);
+
+        ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
     @BeforeEach
@@ -346,8 +353,8 @@ public class NewActionServiceCEImplTest {
         StepVerifier
                 .create(actionExecutionResultMono)
                 .assertNext(response -> {
-                    assertTrue(response.getIsExecutionSuccess());
                     assertTrue(response instanceof ActionExecutionResult);
+                    assertTrue(response.getIsExecutionSuccess());
                     assertEquals(mockResult.getBody().toString(), response.getBody().toString());
                 })
                 .verifyComplete();
@@ -396,8 +403,8 @@ public class NewActionServiceCEImplTest {
         StepVerifier
                 .create(actionExecutionResultMono)
                 .assertNext(response -> {
-                    assertTrue(response.getIsExecutionSuccess());
                     assertTrue(response instanceof ActionExecutionResult);
+                    assertTrue(response.getIsExecutionSuccess());
                     assertEquals(mockResult.getBody().toString(), response.getBody().toString());
                 })
                 .verifyComplete();

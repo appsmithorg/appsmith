@@ -1,9 +1,8 @@
 export * from "ce/reducers/tenantReducer";
 import {
+  TenantReduxState,
   handlers as CE_Handlers,
   initialState as CE_InitialState,
-  TenantReduxState,
-  defaultBrandingConfig,
 } from "ce/reducers/tenantReducer";
 import {
   ReduxActionTypes,
@@ -11,6 +10,10 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
+import {
+  cachedTenantConfigParsed,
+  createBrandColorsFromPrimaryColor,
+} from "utils/BrandingUtils";
 
 export interface License {
   active: boolean;
@@ -21,13 +24,22 @@ export interface License {
   showBEBanner: boolean;
   closedBannerAlready: boolean;
   invalidLicenseKeyError: boolean;
+  validatingLicense: boolean;
 }
+
+const INITIAL_BRAND_COLOR = "#000";
 
 export const initialState: TenantReduxState<any> = {
   ...CE_InitialState,
   tenantConfiguration: {
     ...CE_InitialState.tenantConfiguration,
-    license: {},
+    brandColors: {
+      ...createBrandColorsFromPrimaryColor(INITIAL_BRAND_COLOR),
+    },
+    ...cachedTenantConfigParsed,
+    license: {
+      validatingLicense: false,
+    },
   },
 };
 
@@ -40,8 +52,8 @@ export const handlers = {
     ...state,
     userPermissions: action.payload.userPermissions || [],
     tenantConfiguration: {
-      ...defaultBrandingConfig,
-      ...action.payload?.tenantConfiguration,
+      ...state.tenantConfiguration,
+      ...action.payload.tenantConfiguration,
       license: {
         ...action.payload.tenantConfiguration?.license,
         showBEBanner:
@@ -56,7 +68,13 @@ export const handlers = {
     state: TenantReduxState<License>,
   ) => ({
     ...state,
-    isLoading: true,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        validatingLicense: true,
+      },
+    },
   }),
   [ReduxActionTypes.VALIDATE_LICENSE_KEY_SUCCESS]: (
     state: TenantReduxState<License>,
@@ -74,9 +92,9 @@ export const handlers = {
         closedBannerAlready:
           state.tenantConfiguration.license?.closedBannerAlready ?? false,
         invalidLicenseKeyError: false,
+        validatingLicense: false,
       },
     },
-    isLoading: false,
   }),
   [ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_ERROR]: (
     state: TenantReduxState<License>,
@@ -87,9 +105,9 @@ export const handlers = {
       license: {
         ...state.tenantConfiguration.license,
         invalidLicenseKeyError: true,
+        validatingLicense: false,
       },
     },
-    isLoading: false,
   }),
   [ReduxActionTypes.STOP_LICENSE_STATUS_CHECK]: (
     state: TenantReduxState<License>,
@@ -113,7 +131,6 @@ export const handlers = {
         closedBannerAlready: true,
       },
     },
-    isLoading: false,
   }),
 };
 

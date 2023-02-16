@@ -75,7 +75,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
         // Only run scheduled tasks with feature flag
         // TODO: Remove this check when usage and billing feature is ready to ship
         Boolean licenseDbEnabled = licenseConfig.getLicenseDbEnabled();
-        if (licenseDbEnabled) {
+        if (Boolean.TRUE.equals(licenseDbEnabled)) {
             log.debug("Initiating Periodic License Check");
             tenantService.checkAndUpdateDefaultTenantLicense()
                     .subscribeOn(Schedulers.boundedElastic())
@@ -91,11 +91,11 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
         // Only run scheduled tasks with feature flag
         // TODO: Remove this check when usage and billing feature is ready to ship
         Boolean licenseDbEnabled = licenseConfig.getLicenseDbEnabled();
-        if (licenseDbEnabled) {
+        if (Boolean.TRUE.equals(licenseDbEnabled)) {
             log.debug("Sending Usage Pulse");
-            while(usagePulseService.sendAndUpdateUsagePulse()
-                    .subscribeOn(Schedulers.boundedElastic())
-                    .block() == true) {
+            while(Boolean.TRUE.equals(usagePulseService.sendAndUpdateUsagePulse()
+                .subscribeOn(Schedulers.boundedElastic())
+                .block())) {
                 // Sleep to delay continues requests
                 Thread.sleep(2000);
             }

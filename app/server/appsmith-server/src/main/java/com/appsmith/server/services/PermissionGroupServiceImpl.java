@@ -15,6 +15,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
@@ -102,23 +103,14 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getAll() {
-        return repository.findAll(READ_PERMISSION_GROUPS)
-                .flatMap(permissionGroup -> Mono.zip(Mono.just(permissionGroup), permissionGroupUtils.isAutoCreated(permissionGroup)))
-                .map(tuple -> {
-                    PermissionGroup permissionGroup = tuple.getT1();
-                    boolean isAutoCreated = tuple.getT2();
-                    PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
-                    permissionGroupInfoDTO.setAutoCreated(isAutoCreated);
-                    return permissionGroupInfoDTO;
-                })
+        return permissionGroupUtils.mapToPermissionGroupInfoDto(repository.findAll(READ_PERMISSION_GROUPS))
+                .sort(AppsmithComparators.permissionGroupInfoComparator())
                 .collectList();
-
     }
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getAllAssignableRoles() {
-        return repository.findAll(ASSIGN_PERMISSION_GROUPS)
-                .map(permissionGroup -> modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class))
+        return permissionGroupUtils.mapToPermissionGroupInfoDto(repository.findAll(ASSIGN_PERMISSION_GROUPS))
                 .collectList();
     }
 

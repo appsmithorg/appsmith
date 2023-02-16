@@ -3,6 +3,7 @@ import { IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch, useSelector } from "react-redux";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 // import { getAllAclUsers } from "@appsmith/selectors/aclSelectors";
 import {
   ACTIVATE,
@@ -14,7 +15,6 @@ import {
   // NUMBER_OF_SELF_HOSTED_USERS,
   OPEN_CUSTOMER_PORTAL,
   PASTE_LICENSE_KEY,
-  PREV_LICENSE_INVALID,
   UPDATE,
   // TOTAL_USERS_MESSAGE,
   UPDATE_LICENSE,
@@ -41,7 +41,6 @@ import {
   getLicenseExpiry,
   getLicenseStatus,
 } from "@appsmith/selectors/tenantSelectors";
-import AppsmithImage from "assets/images/appsmith_logo_square.png";
 import { LicenseForm } from "../setup/LicenseForm";
 
 const headerProps = {
@@ -101,7 +100,7 @@ export function Billing() {
       ),
     },*/
     {
-      icon: "upgrade",
+      icon: "money-dollar-circle-line",
       title: (
         <HeaderText type={TextType.H3} weight="700">
           {createMessage(BILLING_AND_USAGE)}
@@ -148,16 +147,15 @@ export function Billing() {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title=""
-        width="455"
+        width="456px"
       >
         <DialogWrapper>
           <DialogHeaderImg
             className="no-sub-img"
             loading="lazy"
-            src={AppsmithImage}
+            src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
           />
           <Text type={TextType.H1}>{createMessage(UPDATE_LICENSE)}</Text>
-          <Text type={TextType.P1}>{createMessage(PREV_LICENSE_INVALID)}</Text>
           <LicenseForm
             actionBtnText={createMessage(ACTIVATE)}
             placeholder={createMessage(PASTE_LICENSE_KEY)}

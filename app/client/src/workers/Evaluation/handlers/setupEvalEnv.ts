@@ -1,24 +1,19 @@
 import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
-import interceptAndOverrideHttpRequest from "../HTTPRequestOverride";
 import setupDOM from "../SetupDOM";
-import overrideTimeout from "../TimeoutOverride";
 import { EvalWorkerSyncRequest } from "../types";
-import userLogs from "../UserLog";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
-import initLocalStorage from "../fns/LocalStorage";
+import { overrideWebAPIs } from "../fns/overrides";
 
 export default function() {
+  self.$isDataField = false;
   ///// Remove all unsafe functions
   unsafeFunctionForEval.forEach((func) => {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
-  userLogs.overrideConsoleAPI();
-  overrideTimeout();
-  interceptAndOverrideHttpRequest();
   setupDOM();
+  overrideWebAPIs(self);
   addPlatformFunctionsToEvalContext(self);
-  initLocalStorage(self);
   return true;
 }
 

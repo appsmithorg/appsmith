@@ -18,11 +18,11 @@ import java.util.Set;
 public class EnvironmentDTO {
 
     String id;
-
     String name;
-
     String workspaceId;
-
+    // the idea is that only the request payload to update the environment would have the datasourceId
+    // we will use this id to invalidate the cache entries in datasourceContextMap using this datasourceId
+    String datasourceId;
     @Transient
     List<EnvironmentVariable> environmentVariableList;
 

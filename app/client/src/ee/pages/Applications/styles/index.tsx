@@ -8,14 +8,10 @@ export const BannerWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   min-width: 800px;
-  background: linear-gradient(
-    90deg,
-    hsl(39.2, 43.3%, 88.2%) 29%,
-    hsl(35.3, 100%, 96.7%) 100%
-  );
+  background: ${Colors.APPSMITH_BEIGE};
   border-radius: 4px;
   border: 1px solid var(--appsmith-color-orange-100);
-  height: 128px;
+  height: 126px;
   padding: 20px;
   box-shadow: 0px 4px 4px var(--appsmith-color-orange-50);
 `;
@@ -24,13 +20,12 @@ export const BannerContentWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  flex-basis: 60%;
+  flex-basis: 70%;
   width: 100%;
-  gap: 20px;
+  gap: 30px;
   img {
     position: relative;
-    margin-left: 10px;
-    top: -10px;
+    transform: translateY(-26px);
   }
 `;
 
@@ -40,16 +35,17 @@ export const BannerTextWrapper = styled.div`
   align-items: flex-start;
   gap: 12px;
   .main-text {
-    font-size: 24px;
+    font-size: 22px;
     color: ${Colors.CTA_PURPLE};
+    letter-spacing: normal;
   }
   .sub-text {
-    font-size: 20px;
-    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: normal;
     span {
       color: var(--appsmith-color-orange-500);
       font-weight: 700;
-      font-size: 24px;
+      font-size: 22px;
     }
   }
 `;

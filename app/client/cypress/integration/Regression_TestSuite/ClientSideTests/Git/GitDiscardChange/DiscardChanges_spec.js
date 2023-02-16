@@ -96,6 +96,9 @@ describe("Git discard changes:", function() {
       _.gitSync.CreateNConnectToGit(repoName);
       _.gitSync.CreateGitBranch(repoName);
     });
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
+    });
   });
 
   it("2. Add new datasource query, discard changes, verify query is deleted", () => {
@@ -243,5 +246,10 @@ describe("Git discard changes:", function() {
     cy.gitDiscardChanges();
     cy.wait(5000);
     cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
+  });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });

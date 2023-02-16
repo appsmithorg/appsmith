@@ -153,7 +153,7 @@ jobs:
       - name: Upload server build bundle
         uses: actions/upload-artifact@v3
         with:
-          name: build
+          name: server-build
           path: app/server/dist/
 
       - name: Save the status of the run

@@ -17,6 +17,10 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import {
+  ADMIN_BILLING_SETTINGS_TITLE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 function getAclCategory() {
   return Array.from(AclFactory.categories);
@@ -57,7 +61,10 @@ export default function LeftPane() {
 
   const filteredOthersCategories = othersCategories
     ?.map((category) => {
-      if (category.title === "Billing" && !isUsageandBillingEnabled) {
+      if (
+        category.title === createMessage(ADMIN_BILLING_SETTINGS_TITLE) &&
+        !isUsageandBillingEnabled
+      ) {
         return null;
       }
       return category;

@@ -37,7 +37,7 @@ public class EnvironmentController extends EnvironmentControllerCE {
     public Mono<ResponseDTO<EnvironmentDTO>> getEnvironmentById(@PathVariable String envId) {
         log.debug("Going to fetch environment from environment controller with environment id {}", envId);
 
-        return environmentService.findEnvironmentByEnvironmentId(envId)
+        return environmentService.getEnvironmentDTOByEnvironmentId(envId)
                 .map(environmentDTO -> {
                     return new ResponseDTO<>(HttpStatus.OK.value(), environmentDTO, null);
                 });
@@ -48,7 +48,7 @@ public class EnvironmentController extends EnvironmentControllerCE {
     public Mono<ResponseDTO<List<EnvironmentDTO>>> getEnvironmentByWorkspaceId(@PathVariable String workspaceId) {
         log.debug("Going to fetch environments from environment controller with workspace id {}", workspaceId);
 
-        return environmentService.findEnvironmentByWorkspaceId(workspaceId)
+        return environmentService.getEnvironmentDTOByWorkspaceId(workspaceId)
                 .collectList()
                 .map(environmentDTOList -> {
                     return new ResponseDTO<>(HttpStatus.OK.value(), environmentDTOList, null);

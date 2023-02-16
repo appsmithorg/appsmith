@@ -23,7 +23,8 @@ import {
   SaveButtonBar,
   TabsWrapper,
 } from "./components";
-import _ from "lodash";
+import isEqual from "lodash/isEqual";
+import unionWith from "lodash/unionWith";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAclIsEditing,
@@ -383,7 +384,10 @@ export const makeData = ({
           : {
               permissions: enabled,
               hoverMap: enabled.map((a: any, i: number) =>
-                getEntireHoverMap(hoverMap, `${d.id}_${permissions[i]}`),
+                getEntireHoverMap(
+                  hoverMap,
+                  `${d.id}_${permissions[i]}${getExtendedId(d, dt.type)}`,
+                ),
               ),
             }),
         ...(d.children
@@ -421,25 +425,27 @@ export function getSearchData(data: any, searchValue: string) {
   });
 }
 
-export function getEntireHoverMap(
-  hoverMap: any,
-  key: string,
-  includeSelf = true,
-) {
+export function getEntireHoverMap(hoverMap: any, key: string) {
   const currentKeyMap = hoverMap?.[key] || [];
-  let finalMap: any[] = includeSelf
-    ? [
-        {
-          id: key.split("_")[0],
-          p: key.split("_")[1],
-        },
-      ]
-    : [];
+  const keySplit = key.split("_");
+  const type = keySplit.length > 2 ? keySplit[2] : null;
+  let finalMap: any[] = [
+    {
+      id: keySplit[0],
+      p: keySplit[1],
+      ...(type ? { type } : {}),
+    },
+  ];
   for (const map of currentKeyMap) {
-    finalMap = _.unionWith(
+    finalMap = unionWith(
       finalMap,
-      getEntireHoverMap(hoverMap, `${map?.id}_${map?.p}`),
-      _.isEqual,
+      getEntireHoverMap(
+        hoverMap,
+        `${map?.id}_${map?.p}${
+          type && map.id === keySplit[0] ? `_${type}` : ``
+        }`,
+      ),
+      isEqual,
     );
   }
   return finalMap;
@@ -682,6 +688,12 @@ export const getIcon = (iconLocations: any[], pluginId: string) => {
   return <img alt={icon.name} src={icon.iconLocation} />;
 };
 
+export const getExtendedId = (rowData: any, type: string) => {
+  return ["Groups", "Roles"].includes(rowData.name) && type === "Tenant"
+    ? `_Tenant${rowData.name.substring(0, rowData.name.length - 1)}`
+    : ``;
+};
+
 export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
   const {
     dataFromProps,
@@ -801,6 +813,8 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
           [isChecked],
         );
         const [isDisabled, setIsDisabled] = useState(false);
+        const extendedId = getExtendedId(rowData, rowData.type);
+        const checkboxId = `${rowData.id}_${column}${extendedId}`;
 
         useEffect(() => {
           if (disableMap.length > 0 && !isDisabled) {
@@ -808,40 +822,31 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
           }
         }, [disableMap, isChecked]);
 
-        const removeHoverClass = (id: string, rIndex: number) => {
+        const removeHoverClass = () => {
           const values = rowData.hoverMap[i];
           for (const val of values) {
             const allEl = document.querySelectorAll(
-              `[data-cellId="${val.id}_${val.p}"]`,
+              `[data-cellId="${val.id}_${val.p}${
+                val.type ? `_${val.type}` : ``
+              }"]`,
             );
-            const el =
-              allEl.length > 1
-                ? allEl[rIndex]
-                : allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
-                ? allEl[0]
-                : null;
+            const el = allEl.length ? allEl[0] : null;
             el?.classList.remove("hover-state");
           }
         };
 
-        const addHoverClass = useCallback(
-          (id: string, rIndex: number) => {
-            const values = rowData.hoverMap[i];
-            for (const val of values) {
-              const allEl = document.querySelectorAll(
-                `[data-cellId="${val.id}_${val.p}"]`,
-              );
-              const el =
-                allEl.length > 1
-                  ? allEl[rIndex]
-                  : allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
-                  ? allEl[0]
-                  : null;
-              el?.classList.add("hover-state");
-            }
-          },
-          [tabData.hoverMap],
-        );
+        const addHoverClass = useCallback(() => {
+          const values = rowData.hoverMap[i];
+          for (const val of values) {
+            const allEl = document.querySelectorAll(
+              `[data-cellId="${val.id}_${val.p}${
+                val.type ? `_${val.type}` : ``
+              }"]`,
+            );
+            const el = allEl.length ? allEl[0] : null;
+            el?.classList.add("hover-state");
+          }
+        }, [tabData.hoverMap]);
 
         const onChangeHandler = (e: any, cellId: string) => {
           setIsChecked(e);
@@ -868,39 +873,26 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
 
         return rowData.permissions && rowData.permissions[i] !== -1 ? (
           <CheckboxWrapper
-            data-cellid={`${rowData.id}_${column}`}
+            data-cellid={checkboxId}
             data-rowid={parseInt(rowId.split(".")[0])}
-            data-testid={`${rowData.id}_${column}`}
+            data-testid={checkboxId}
           >
-            <div
-              onMouseOut={() =>
-                removeHoverClass(
-                  `${rowData.id}_${column}`,
-                  parseInt(rowId.split(".")[0]),
-                )
-              }
-              onMouseOver={() =>
-                addHoverClass(
-                  `${rowData.id}_${column}`,
-                  parseInt(rowId.split(".")[0]),
-                )
-              }
-            >
+            <div onMouseOut={removeHoverClass} onMouseOver={addHoverClass}>
               <Checkbox
                 className="design-system-checkbox"
                 disabled={!canEditRole || isDisabled}
                 /* indeterminate={row.permissions[i] === 3 ? true : false} */
                 isDefaultChecked={isChecked}
                 onCheckChange={(value: boolean) =>
-                  onChangeHandler(value, `${rowData.id}_${column}`)
+                  onChangeHandler(value, checkboxId)
                 }
-                value={`${rowData.id}_${column}`}
+                value={checkboxId}
               />
             </div>
           </CheckboxWrapper>
         ) : (
           <CheckboxWrapper
-            data-cellid={`${rowData.id}_${column}`}
+            data-cellid={checkboxId}
             data-rowid={parseInt(rowId.split(".")[0])}
           >
             &nbsp;
@@ -1009,19 +1001,17 @@ export function EachTab(
   selected: RoleProps,
   showSaveModal: boolean,
   setShowSaveModal: (val: boolean) => void,
-  isLoading: boolean,
-  currentTab: boolean,
 ) {
   const [tabCount, setTabCount] = useState<number>(0);
   const dataFromProps = useMemo(() => {
-    return currentTab
-      ? makeData({
-          data: [tabs?.data],
-          hoverMap: tabs.hoverMap,
-          permissions: tabs.permissions,
-        }) || []
-      : [];
-  }, [tabs, currentTab]);
+    return (
+      makeData({
+        data: [tabs?.data],
+        hoverMap: tabs.hoverMap,
+        permissions: tabs.permissions,
+      }) || []
+    );
+  }, [tabs]);
 
   useEffect(() => {
     if (!searchValue) {
@@ -1033,11 +1023,7 @@ export function EachTab(
     key,
     title: key,
     count: tabCount,
-    panelComponent: isLoading ? (
-      <CentralizedWrapper>
-        <Spinner size={IconSize.XXL} />
-      </CentralizedWrapper>
-    ) : (
+    panelComponent: (
       <RolesTree
         currentTabName={key}
         dataFromProps={dataFromProps}
@@ -1062,7 +1048,7 @@ export default function RoleTabs(props: {
   const [showSaveModal, setShowSaveModal] = useState(false);
 
   const tabs: TabProp[] = selected?.tabs
-    ? Object.entries(selected?.tabs).map(([key, value], index) =>
+    ? Object.entries(selected?.tabs).map(([key, value]) =>
         EachTab(
           key,
           searchValue,
@@ -1070,8 +1056,6 @@ export default function RoleTabs(props: {
           selected,
           showSaveModal,
           setShowSaveModal,
-          false,
-          selectedTabIndex === index,
         ),
       )
     : [];

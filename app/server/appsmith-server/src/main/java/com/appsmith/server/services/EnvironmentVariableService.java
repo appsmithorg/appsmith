@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.external.models.EnvironmentVariable;
 import com.appsmith.server.services.ce.EnvironmentVariableServiceCE;
 import reactor.core.publisher.Flux;
@@ -10,37 +9,23 @@ import java.util.List;
 
 public interface EnvironmentVariableService extends EnvironmentVariableServiceCE {
     // Read methods for access with different criteria.
-
-    Mono<EnvironmentVariable> findById(String id, AclPermission aclPermission);
-
-    Flux<EnvironmentVariable> findAllByIds(List<String> ids, AclPermission aclPermission);
-
-    Flux<EnvironmentVariable> findByEnvironmentId(String envId, AclPermission aclPermission);
-
-    Flux<EnvironmentVariable> findEnvironmentVariableByEnvironmentId(String environmentId);
-
-    Flux<EnvironmentVariable> findByWorkspaceId(String workspaceId, AclPermission aclPermission);
-
-    Flux<EnvironmentVariable> findEnvironmentVariableByWorkspaceId(String workspaceId);
+    //TODO - With V1.1 of multiple environments we would be adding GAC for environmentVariables as well. for now it resides without policies
+    Mono<EnvironmentVariable> findById(String id);
+    Flux<EnvironmentVariable> findAllByIds(List<String> ids);
+    Flux<EnvironmentVariable> findByEnvironmentId(String envId);
+    Flux<EnvironmentVariable> findByWorkspaceId(String workspaceId);
+    Flux<EnvironmentVariable> findByNameAndWorkspaceId(List<String> envVarNameList, String workspaceId) ;
+    Flux<EnvironmentVariable> findByEnvironmentIdAndVariableNames(String environmentId, List<String> envVarNames) ;
+    Flux<EnvironmentVariable> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 
     // Write methods used for creating new variables as well as updating variables.
-
     Mono<EnvironmentVariable> save(EnvironmentVariable envVariable);
-
     Flux<EnvironmentVariable> saveAll(List<EnvironmentVariable> envVariables);
 
     // Delete/Archive calls for environment variables
-
     Mono<EnvironmentVariable> archive(EnvironmentVariable envVariable);
-
-    Mono<EnvironmentVariable> archiveById(String id, AclPermission aclPermission);
-
+    Mono<EnvironmentVariable> archiveById(String id);
     Mono<Boolean> archiveAllById(List<String> ids);
-
-    // Update calls for environment variables
-    // currently not in use because of decrypting errors while updating.
-    Mono<EnvironmentVariable> update(String id, EnvironmentVariable envVariable);
-
-    Mono<EnvironmentVariable> updateById(String id, EnvironmentVariable environmentVariable, AclPermission aclPermission);
-
+    Mono<EnvironmentVariable> archiveByNameAndEnvironmentId(EnvironmentVariable envVar) ;
+    Mono<Long> archiveByDatasourceIdAndWorkspaceId(String datsourceId, String workspaceId);
 }

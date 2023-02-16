@@ -8,12 +8,15 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import { AppState } from "@appsmith/reducers";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import { getCurrentUser } from "actions/authActions";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import {
+  getCurrentUserLoading,
+  selectFeatureFlags,
+} from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";
@@ -26,6 +29,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import LicenseCheckPage from "./pages/setup/LicenseCheckPage";
 import { LICENSE_CHECK_PATH } from "constants/routes";
+import { requiresLicenseCheck } from "./requiresLicenseCheck";
 
 /*
     We use this polyfill to show emoji flags
@@ -35,19 +39,22 @@ polyfillCountryFlagEmojis();
 
 const loadingIndicator = <PageLoadingBar />;
 
+const EE_Routes = requiresLicenseCheck(() => {
+  return <CE_Routes />;
+});
+
 function AppRouter(props: {
   safeCrash: boolean;
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
-  validateLicense?: () => void;
-  isLoading: boolean;
   isLicenseValid: boolean;
   safeCrashCode?: ERROR_CODES;
   featureFlags: FeatureFlags;
 }) {
   const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
-
+  const tenantIsLoading = useSelector(isTenantLoading);
+  const currentUserIsLoading = useSelector(getCurrentUserLoading);
   const isUsageAndBillingEnabled = props.featureFlags.USAGE_AND_BILLING;
 
   useEffect(() => {
@@ -57,6 +64,23 @@ function AppRouter(props: {
   }, []);
 
   useBrandingTheme();
+
+  // hide the top loader once the tenant is loaded
+  useEffect(() => {
+    if (tenantIsLoading === false && currentUserIsLoading === false) {
+      const loader = document.getElementById("loader") as HTMLDivElement;
+
+      if (loader) {
+        loader.style.width = "100vw";
+
+        setTimeout(() => {
+          loader.style.opacity = "0";
+        });
+      }
+    }
+  }, [tenantIsLoading]);
+
+  if (tenantIsLoading || currentUserIsLoading) return null;
 
   return (
     <Router history={history}>
@@ -75,11 +99,13 @@ function AppRouter(props: {
               <AppHeader />
             )}
             <Switch>
-              <SentryRoute
-                component={LicenseCheckPage}
-                path={LICENSE_CHECK_PATH}
-              />
-              <CE_Routes />
+              {isUsageAndBillingEnabled && !props.isLicenseValid && (
+                <SentryRoute
+                  component={LicenseCheckPage}
+                  path={LICENSE_CHECK_PATH}
+                />
+              )}
+              <EE_Routes />
             </Switch>
           </>
         )}
@@ -92,7 +118,6 @@ const mapStateToProps = (state: AppState) => ({
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
   featureFlags: selectFeatureFlags(state),
-  isLoading: isTenantLoading(state),
   isLicenseValid: isValidLicense(state),
 });
 

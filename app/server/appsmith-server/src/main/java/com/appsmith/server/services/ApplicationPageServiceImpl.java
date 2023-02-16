@@ -11,7 +11,6 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -63,7 +62,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                                       NewActionService newActionService,
                                       ActionCollectionService actionCollectionService,
                                       GitFileUtils gitFileUtils,
-                                      CommentThreadRepository commentThreadRepository,
                                       ThemeService themeService,
                                       ResponseUtils responseUtils,
                                       WorkspacePermission workspacePermission,
@@ -78,7 +76,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
 
         super(workspaceService, applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
                 policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
-                gitFileUtils, commentThreadRepository, themeService, responseUtils, workspacePermission,
+                gitFileUtils, themeService, responseUtils, workspacePermission,
                 applicationPermission, pagePermission, actionPermission);
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;

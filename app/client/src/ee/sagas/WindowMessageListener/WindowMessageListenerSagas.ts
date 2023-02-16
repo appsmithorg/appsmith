@@ -1,8 +1,4 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  WindowMessageListenerDescription,
-  UnlistenWindowMessageDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
 import { Channel, channel, Task } from "redux-saga";
 import { spawn, cancel, take, call } from "redux-saga/effects";
 import {
@@ -11,6 +7,10 @@ import {
 } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import {
+  TUnlistenWindowMessageDescription,
+  TWindowMessageListenerDescription,
+} from "@appsmith/workers/Evaluation/fns/messageListenerFns";
 
 export const __listenersMap__ = new Map<
   string,
@@ -49,7 +49,7 @@ export default function* messageChannelHandler(
 }
 
 export function* windowMessageListener(
-  actionPayload: WindowMessageListenerDescription["payload"],
+  actionPayload: TWindowMessageListenerDescription["payload"],
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {
@@ -108,7 +108,7 @@ export function* windowMessageListener(
 }
 
 export function* unListenWindowMessage(
-  actionPayload: UnlistenWindowMessageDescription["payload"],
+  actionPayload: TUnlistenWindowMessageDescription["payload"],
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {
@@ -181,7 +181,7 @@ export const checkUrlError = (urlString: string) => {
 
 export const checkEventIsFromParent = (
   event: MessageEvent,
-  actionPayload: WindowMessageListenerDescription["payload"],
+  actionPayload: TWindowMessageListenerDescription["payload"],
 ) => {
   if (event.source !== window.parent) return false;
   if (event.type !== "message") return false;
@@ -191,7 +191,7 @@ export const checkEventIsFromParent = (
 };
 
 export const getEventListener = (
-  actionPayload: WindowMessageListenerDescription["payload"],
+  actionPayload: TWindowMessageListenerDescription["payload"],
   messageChannel: Channel<MessageChannelPayload>,
   eventType: EventType,
   triggerMeta: TriggerMeta,

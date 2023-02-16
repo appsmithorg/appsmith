@@ -8,28 +8,36 @@ export const userGroupTableData: GroupProps[] = [
       {
         id: "1",
         name: "devops_eng_nov",
+        autoCreated: false,
       },
       {
         id: "2",
         name: "marketing_nov",
+        autoCreated: false,
       },
       {
         id: "3",
         name: "Administrator",
+        autoCreated: true,
       },
       {
         id: "4",
         name: "App Viewer",
+        autoCreated: true,
       },
     ],
     roles: [
       {
         id: "5",
         name: "HR_Appsmith",
+        userPermissions: ["unassign:permissionGroups"],
+        autoCreated: false,
       },
       {
         id: "6",
         name: "devops_design",
+        userPermissions: [],
+        autoCreated: false,
       },
     ],
     users: [],
@@ -48,28 +56,36 @@ export const userGroupTableData: GroupProps[] = [
       {
         id: "5",
         name: "HR_Appsmith",
+        autoCreated: false,
       },
       {
         id: "6",
         name: "devops_design",
+        autoCreated: false,
       },
       {
         id: "3",
         name: "Administrator",
+        autoCreated: true,
       },
       {
         id: "4",
         name: "App Viewer",
+        autoCreated: true,
       },
     ],
     roles: [
       {
         id: "1",
         name: "devops_eng_nov",
+        userPermissions: ["unassign:permissionGroups"],
+        autoCreated: false,
       },
       {
         id: "2",
         name: "marketing_nov",
+        userPermissions: ["unassign:permissionGroups"],
+        autoCreated: false,
       },
     ],
     users: [
@@ -91,28 +107,36 @@ export const userGroupTableData: GroupProps[] = [
       {
         id: "5",
         name: "HR_Appsmith",
+        autoCreated: false,
       },
       {
         id: "6",
         name: "devops_design",
+        autoCreated: false,
       },
       {
         id: "3",
         name: "Administrator",
+        autoCreated: true,
       },
       {
         id: "4",
         name: "App Viewer",
+        autoCreated: true,
       },
     ],
     roles: [
       {
         id: "1",
         name: "devops_eng_nov",
+        userPermissions: ["unassign:permissionGroups"],
+        autoCreated: false,
       },
       {
         id: "2",
         name: "marketing_nov",
+        userPermissions: ["unassign:permissionGroups"],
+        autoCreated: false,
       },
     ],
     users: [

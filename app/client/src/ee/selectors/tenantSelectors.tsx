@@ -1,6 +1,7 @@
 export * from "ce/selectors/tenantSelectors";
 import { Status } from "@appsmith/pages/Billing/StatusBadge";
 import { AppState } from "@appsmith/reducers";
+import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export const isValidLicense = (state: AppState) => {
@@ -35,14 +36,13 @@ export const getLicenseDetails = (state: AppState) => {
 };
 
 export const getRemainingDays = (state: AppState) => {
-  const presentDate = new Date();
   const expiryDate = getLicenseExpiry(state);
 
   const expiryTimeStamp = new Date(expiryDate).getTime();
-  const presentTimeStamp = presentDate.getTime();
+  const presentTimeStamp = Date.now();
 
-  const diffTime = Math.abs(expiryTimeStamp - presentTimeStamp);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffTime = expiryTimeStamp - presentTimeStamp;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;
 };
 
@@ -83,3 +83,9 @@ export const getLicenseStatus = (state: AppState) => {
     return Status.INACTIVE;
   }
 };
+
+export const isAdminUser = (state: AppState) =>
+  state.tenant?.userPermissions?.includes(EE_PERMISSION_TYPE.MANAGE_TENANTS);
+
+export const isLicenseValidating = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.validatingLicense;

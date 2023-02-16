@@ -1,5 +1,11 @@
 import { AppState } from "@appsmith/reducers";
 
+/**
+ * selects the tenant permissions
+ *
+ * @param state
+ * @returns
+ */
 export const getTenantPermissions = (state: AppState) => {
   return state.tenant?.userPermissions;
 };
@@ -30,3 +36,9 @@ export const isValidLicense = () => {
 export const isTenantLoading = (state: AppState) => {
   return state.tenant?.isLoading;
 };
+
+export const getGoogleMapsApiKey = (state: AppState): string | undefined =>
+  state.tenant?.tenantConfiguration?.googleMapsKey as string | undefined;
+
+export const getInstanceId = (state: AppState): string =>
+  state.tenant?.instanceId;

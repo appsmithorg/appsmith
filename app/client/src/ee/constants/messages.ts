@@ -40,6 +40,10 @@ export const NO_ACTIVE_ENTITIES_MESSAGE = (
 ${entity}s below to add them.`;
 export const EMPTY_ENTITIES_MESSAGE = (entity: string) =>
   `There are no ${entity}s created.`;
+export const NO_PERMISSION_TO_UNASSIGN = () =>
+  `You do not have permission to unassign this role.`;
+export const DEFAULT_ROLES_PILL = () => `D`;
+export const DEFAULT_ROLES_TOGGLE_TEXT = () => `Default Roles`;
 export const BOTTOM_BAR_SAVE_MESSAGE = () => `These changes will affect the users ability to interact with various
 aspects of the application. Are you sure?`;
 export const BOTTOM_BAR_SAVE_BTN = () => `Save Changes`;
@@ -103,9 +107,9 @@ export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
   "Set your organization's logo and brand colors.";
 
 // Billing
-export const ADMIN_BILLING_SETTINGS_TITLE = () => "Billing Information";
+export const ADMIN_BILLING_SETTINGS_TITLE = () => "License & Billing";
 export const ADMIN_BILLING_SETTINGS_SUBTITLE = () =>
-  "See users on this instance and billing related information";
+  "View customer portal to view usage and billing related information, and to manage your subscription.";
 export const NO_ACTIVE_SUBSCRIPTION = () => "No active subscription";
 export const GET_STARTED_MESSAGE = () =>
   "Kindly choose one of the following option to get started";
@@ -117,6 +121,8 @@ export const TRIAL_EXPIRY_WARNING = (gracePeriod: number | string) =>
   `Your trial will expire in <span>${gracePeriod}</span> days.`;
 export const CONTINUE_USING_FEATURES = () =>
   `to continue using all the features.`;
+export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
+  `Please contact your administrator to upgrade and continue using all the features.`;
 export const TOTAL_USERS_MESSAGE = () => `Total Users`;
 export const NUMBER_OF_SELF_HOSTED_USERS = () =>
   ` Number of users on the self-hosted instance`;
@@ -141,3 +147,7 @@ export const ACTIVATE = () => `Activate`;
 export const PASTE_LICENSE_KEY = () => `Paste your license key here`;
 export const LICENSE_EXPIRY_DATE = (date: string) => `Valid until: ${date}`;
 export const UPDATE = () => "UPDATE";
+
+export const LICENSE_ERROR_TITLE = () => `No Active Subscription`;
+export const LICENSE_ERROR_DESCRIPTION = () =>
+  `You currently do not have an Active Subscription. Please contact your instance administrator to activate the instance.`;

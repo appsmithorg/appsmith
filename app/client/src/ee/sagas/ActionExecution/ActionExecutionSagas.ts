@@ -1,6 +1,6 @@
 export * from "ce/sagas/ActionExecution/ActionExecutionSagas";
 
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/workers/Evaluation/fns/index";
 import {
   executeActionTriggers as CE_executeActionTriggers,
   TriggerMeta,

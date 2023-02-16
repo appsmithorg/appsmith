@@ -130,8 +130,8 @@ after(function() {
   //-- LogOut Application---//
   cy.LogOut();
 
-  //Commenting until Upgrade Appsmith cases are fixed
-  // const testUrl = "http://localhost:5001/v1/parent/cmd";
+  // Commenting until Upgrade Appsmith cases are fixed
+  // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");
-  // cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
+  // cy.StartContainer(tedUrl, "appsmith"); // start the old container
 });

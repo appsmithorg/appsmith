@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.LicenseValidationRequestDTO;
@@ -117,14 +118,19 @@ public class LicenseValidator {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (StringUtils.isEmpty(baseUrl)) {
             log.debug("Unable to find cloud services base URL. Shutting down.");
+            // Shutting dwn server as we can't check the license validity without cloud-server
+            // TODO implementation may change after we start supporting air gap environments
             System.exit(1);
         }
-        if (!isLicenseKeyValid(tenant)) {
-            // TODO extract license key from env, and if not present throw an exception
-            log.debug("No License Key Present");
-            return Mono.just(new TenantConfiguration.License());
+
+        TenantConfiguration.License license = isLicenseKeyValid(tenant)
+            ? tenant.getTenantConfiguration().getLicense()
+            : new TenantConfiguration.License();
+
+        if (StringUtils.isEmpty(license.getKey())) {
+            log.debug("License key not found for tenant {}", tenant.getId());
+            return Mono.just(license);
         }
-        TenantConfiguration.License license = tenant.getTenantConfiguration().getLicense();
 
         LicenseValidationRequestDTO requestDTO = new LicenseValidationRequestDTO();
         requestDTO.setLicenseKey(license.getKey());
@@ -145,18 +151,19 @@ public class LicenseValidator {
                                 HttpStatusCode::isError,
                                 response -> Mono.error(new AppsmithException(
                                     AppsmithError.CLOUD_SERVICES_ERROR,
-                                    "unable to connect to cloud-services with error status {}", response.statusCode()))
+                                    "unable to connect to cloud-services with error status ", response.statusCode()))
                             )
                             .bodyToMono(new ParameterizedTypeReference<ResponseDTO<LicenseValidationResponseDTO>>(){});
                     }
                 )
                 .map(ResponseDTO::getData)
                 .map(licenseValidationResponse -> {
+                    log.debug("License validation completed for tenant {}", tenant.getId());
                     license.setActive(licenseValidationResponse.isValid());
                     license.setExpiry(licenseValidationResponse.getExpiry());
                     license.setType(licenseValidationResponse.getLicenseType());
                     license.setStatus(licenseValidationResponse.getLicenseStatus());
-
+                    license.setOrigin(licenseValidationResponse.getOrigin());
                     return license;
                 });
     }

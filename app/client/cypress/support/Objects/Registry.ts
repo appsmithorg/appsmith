@@ -19,6 +19,7 @@ import { GeneralSettings } from "../Pages/AppSettings/GeneralSettings";
 import { PageSettings } from "../Pages/AppSettings/PageSettings";
 import { ThemeSettings } from "../Pages/AppSettings/ThemeSettings";
 import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
+import { Templates } from "../Pages/Templates";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -187,6 +188,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.inviteModal__ = new InviteModal();
     }
     return ObjectsRegistry.inviteModal__;
+  }
+
+  private static templates__: Templates;
+  static get Templates(): Templates {
+    if (ObjectsRegistry.templates__ === undefined) {
+      ObjectsRegistry.templates__ = new Templates();
+    }
+    return ObjectsRegistry.templates__;
   }
 }
 

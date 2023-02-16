@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Icon, IconSize, TooltipComponent } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { ContentWrapper } from "./components";
+import { ContentWrapper, DefaultRolesToggle, MoreInfoPill } from "./components";
 import { HighlightText } from "design-system-old";
 import {
   createMessage,
@@ -12,9 +12,15 @@ import {
   EMPTY_ENTITIES_MESSAGE,
   ADD_ENTITY,
   REMOVE_ENTITY,
+  NO_PERMISSION_TO_UNASSIGN,
+  DEFAULT_ROLES_PILL,
 } from "@appsmith/constants/messages";
-import { ActiveAllGroupsProps, BaseAclProps } from "./types";
+import { ActiveAllGroupsProps, BaseGroupRoleProps } from "./types";
 import { getFilteredData } from "./utils/getFilteredData";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 const ActiveGroups = styled.div``;
 
@@ -22,10 +28,11 @@ const AllGroups = styled.div`
   margin: 24px 0 0;
 `;
 
-const TitleWrapper = styled.div`
+const HeadingWrapper = styled.div`
   display: flex;
+  justify-content: space-between;
   border-bottom: 1px solid var(--appsmith-color-black-200);
-  padding: 0 8px 12px 8px;
+  align-items: center;
 `;
 
 const Title = styled.span`
@@ -88,8 +95,16 @@ const EachGroup = styled.div`
     }
   }
 
-  &[aria-disabled="true"] {
-    pointer-events: none;
+  &.disabled {
+    cursor: not-allowed;
+
+    .remixicon-icon {
+      visibility: visible;
+    }
+
+    > span {
+      opacity: 0.5;
+    }
   }
 `;
 
@@ -99,6 +114,12 @@ const EmptyActiveGroups = styled.div`
   font-size: 16px;
   line-height: 1.5;
   color: var(--appsmith-color-black-700);
+`;
+
+const TitleWrapper = styled.div`
+  display: flex;
+  padding: 0 8px 12px 8px;
+  align-items: center;
 `;
 
 export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
@@ -113,6 +134,22 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
     removedActiveGroups,
     searchValue = "",
   } = props;
+  const [showToggle, setShowToggle] = useState(
+    entityName === "role" ? true : false,
+  );
+  const [isToggleActive, setIsToggleActive] = useState(false);
+
+  const filteredAllGroups = useMemo(
+    () =>
+      isToggleActive || !showToggle
+        ? allGroups
+        : allGroups?.filter((group) => !group.autoCreated),
+    [isToggleActive, allGroups, showToggle],
+  );
+
+  useEffect(() => {
+    setShowToggle(entityName === "role" ? true : false);
+  }, [entityName]);
 
   const handleOnAddRoles = (group: any) => {
     onAddGroup?.(group);
@@ -125,31 +162,54 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
   return (
     <ContentWrapper>
       <ActiveGroups data-testid="t--active-groups">
-        <TitleWrapper>
-          <Icon
-            clickable={false}
-            fillColor={Colors.GREEN}
-            name="oval-check"
-            size={IconSize.XXXL}
-          />
-          <Title data-testid="t--active-groups-title">
-            {props.title ?? createMessage(ACTIVE_ENTITIES, entityName)}
-          </Title>
-        </TitleWrapper>
+        <HeadingWrapper>
+          <TitleWrapper>
+            <Icon
+              clickable={false}
+              fillColor={Colors.GREEN}
+              name="oval-check"
+              size={IconSize.XXXL}
+            />
+            <Title data-testid="t--active-groups-title">
+              {props.title ?? createMessage(ACTIVE_ENTITIES, entityName)}
+            </Title>
+          </TitleWrapper>
+        </HeadingWrapper>
         {activeGroups && activeGroups.length > 0 ? (
-          activeGroups.map((group: BaseAclProps) => {
+          activeGroups.map((group: BaseGroupRoleProps) => {
             const removedGroup =
               getFilteredData(removedActiveGroups, group, true).length > 0;
+            const hasPermission =
+              entityName === "role"
+                ? isPermitted(
+                    group?.userPermissions,
+                    PERMISSION_TYPE.UNASSIGN_PERMISSIONGROUPS,
+                  )
+                : true;
             return (
               <EachGroup
-                className={removedGroup ? "removed" : ""}
+                className={`${removedGroup ? "removed" : ""} ${
+                  hasPermission ? "" : "disabled"
+                }`}
                 data-testid="t--active-group-row"
                 key={`group-${group.id}`}
-                onClick={() => handleOnRemoveRoles(group)}
+                onClick={() => hasPermission && handleOnRemoveRoles(group)}
               >
-                <Icon fillColor={Colors.ERROR_600} name="minus" />
+                {hasPermission ? (
+                  <Icon fillColor={Colors.ERROR_600} name="minus" />
+                ) : (
+                  <Icon
+                    clickable={false}
+                    data-testid="t--lock-icon"
+                    name="lock-2-line"
+                  />
+                )}
                 <TooltipComponent
-                  content={createMessage(REMOVE_ENTITY, entityName)}
+                  content={
+                    hasPermission
+                      ? createMessage(REMOVE_ENTITY, entityName)
+                      : createMessage(NO_PERMISSION_TO_UNASSIGN)
+                  }
                   disabled={removedGroup}
                   hoverOpenDelay={0}
                   minWidth={"180px"}
@@ -158,6 +218,11 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                 >
                   <HighlightText highlight={searchValue} text={group.name} />
                 </TooltipComponent>
+                {group.autoCreated && (
+                  <MoreInfoPill data-testid="t--default-role">
+                    {createMessage(DEFAULT_ROLES_PILL)}
+                  </MoreInfoPill>
+                )}
               </EachGroup>
             );
           })
@@ -169,23 +234,31 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
       </ActiveGroups>
       {!activeOnly && allGroups && (
         <AllGroups data-testid="t--all-groups">
-          <TitleWrapper>
-            <Icon
-              clickable={false}
-              fillColor={Colors.GREY_7}
-              name="group-2-line"
-              size={IconSize.XXXXL}
-            />
-            <Title>{createMessage(ALL_ENTITIES, entityName)}</Title>
-          </TitleWrapper>
-          {allGroups?.length > 0 ? (
-            allGroups?.map((group: BaseAclProps) => {
+          <HeadingWrapper>
+            <TitleWrapper>
+              <Icon
+                clickable={false}
+                fillColor={Colors.GREY_7}
+                name="group-2-line"
+                size={IconSize.XXXXL}
+              />
+              <Title>{createMessage(ALL_ENTITIES, entityName)}</Title>
+            </TitleWrapper>
+            {showToggle && (
+              <DefaultRolesToggle
+                isToggleActive={isToggleActive}
+                setIsToggleActive={setIsToggleActive}
+              />
+            )}
+          </HeadingWrapper>
+          {allGroups?.length > 0 && filteredAllGroups?.length ? (
+            filteredAllGroups?.map((group: BaseGroupRoleProps) => {
               const addedGroup = addedAllGroups
                 ? getFilteredData(addedAllGroups, group, true).length > 0
                 : false;
               return (
                 <EachGroup
-                  className={addedGroup ? "added" : ""}
+                  className={`${addedGroup ? "added" : ""}`}
                   data-testid="t--all-group-row"
                   key={`group-${group.id}`}
                   onClick={() => handleOnAddRoles(group)}
@@ -201,6 +274,11 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                   >
                     <HighlightText highlight={searchValue} text={group.name} />
                   </TooltipComponent>
+                  {group.autoCreated && (
+                    <MoreInfoPill data-testid="t--default-role">
+                      {createMessage(DEFAULT_ROLES_PILL)}
+                    </MoreInfoPill>
+                  )}
                 </EachGroup>
               );
             })

@@ -6,11 +6,10 @@ export const StyledPageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100vh;
   align-items: center;
   justify-content: start;
   gap: 40px;
-  margin: 60px 0;
+  margin: 100px 0;
 `;
 
 export const StyledCardWrapper = styled.div`
@@ -61,6 +60,7 @@ export const IconBadge = styled.div`
   height: 48px;
   border-radius: 50%;
   background-color: var(--appsmith-color-black-100);
+  pointer-events: none;
 
   svg {
     fill: var(--appsmith-color-black-700);

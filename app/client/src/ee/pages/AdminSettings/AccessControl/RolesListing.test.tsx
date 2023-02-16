@@ -53,6 +53,12 @@ function renderComponent() {
   );
 }
 
+const toggleDefaultRoles = async () => {
+  const toggleWrapper = screen.getByTestId("t--toggle-wrapper");
+  const toggleInput = toggleWrapper.getElementsByTagName("input")[0];
+  await fireEvent.click(toggleInput);
+};
+
 describe("<RoleListing />", () => {
   beforeEach(() => {
     container = document.createElement("div");
@@ -63,9 +69,32 @@ describe("<RoleListing />", () => {
     const rolesListing = screen.queryAllByTestId("t--roles-listing-wrapper");
     expect(rolesListing).toHaveLength(1);
   });
+  it("should show only custom roles by default", () => {
+    renderComponent();
+    const role = screen.getAllByTestId("t--roles-cell");
+    const defaultRoles = rolesTableData.filter((r: RoleProps) => r.autoCreated);
+    const customRoles = rolesTableData.filter((r: RoleProps) => !r.autoCreated);
+    expect(customRoles.length).toEqual(role.length);
+    defaultRoles.forEach((r: RoleProps) => {
+      const roleText = screen.queryAllByText(r.name);
+      return expect(roleText).toHaveLength(0);
+    });
+  });
+  it("should show default and custom roles on checking the default roles toggle", () => {
+    renderComponent();
+    toggleDefaultRoles();
+    const role = screen.getAllByTestId("t--roles-cell");
+    const defaultRoles = rolesTableData.filter((r: RoleProps) => r.autoCreated);
+    const customRoles = rolesTableData.filter((r: RoleProps) => !r.autoCreated);
+    expect(defaultRoles.length + customRoles.length).toEqual(role.length);
+    defaultRoles.forEach((r: RoleProps) => {
+      const roleText = screen.queryAllByText(r.name);
+      return expect(roleText).not.toHaveLength(0);
+    });
+  });
   it("should navigate to role edit page on click of role name", async () => {
     renderComponent();
-    const roleEditLink = await screen.getAllByTestId("t--roles-cell");
+    const roleEditLink = screen.getAllByTestId("t--roles-cell");
     await fireEvent.click(roleEditLink[0]);
     expect(window.location.pathname).toBe(
       `/settings/roles/${rolesTableData[0].id}`,
@@ -73,14 +102,15 @@ describe("<RoleListing />", () => {
   });
   it("should render appsmith badge for appsmith provided role", () => {
     renderComponent();
+    toggleDefaultRoles();
     const role = screen.getAllByTestId("t--roles-cell");
-    const appsmithBadge = screen.getAllByTestId("t--appsmith-badge");
+    const appsmithBadge = screen.queryAllByTestId("t--appsmith-badge");
     const appsmithProvided = rolesTableData.filter(
-      (role: RoleProps) => role.autoCreated,
+      (r: RoleProps) => r.autoCreated,
     );
     expect(appsmithBadge.length).toEqual(appsmithProvided.length);
-    rolesTableData.forEach((group: RoleProps, index: number) => {
-      if (!group.autoCreated) {
+    rolesTableData.forEach((r: RoleProps, index: number) => {
+      if (!r.autoCreated) {
         expect(
           role[index].querySelectorAll("[data-testid='t--appsmith-badge']"),
         ).toHaveLength(0);
@@ -158,12 +188,35 @@ describe("<RoleListing />", () => {
       `/settings/roles/${rolesTableData[0].id}`,
     );
   });
+  it("should display icon next to role name based on persmissions", () => {
+    renderComponent();
+    toggleDefaultRoles();
+    const role = screen.getAllByTestId("t--roles-cell");
+    rolesTableData.forEach((r: RoleProps, index: number) => {
+      if (r.userPermissions?.includes("manage:permissionGroups")) {
+        expect(
+          role[index].querySelectorAll("[data-testid='t--edit-icon']"),
+        ).toHaveLength(1);
+        expect(
+          role[index].querySelectorAll("[data-testid='t--crossed-edit-icon']"),
+        ).toHaveLength(0);
+      } else {
+        expect(
+          role[index].querySelectorAll("[data-testid='t--edit-icon']"),
+        ).toHaveLength(0);
+        expect(
+          role[index].querySelectorAll("[data-testid='t--crossed-edit-icon']"),
+        ).toHaveLength(1);
+      }
+    });
+  });
   it("should display only the options which the user is permitted to", async () => {
     const { queryAllByTestId, queryByText } = renderComponent();
+    toggleDefaultRoles();
     const role = queryByText(rolesTableData[2].name);
     expect(role).toBeInTheDocument();
     const moreMenu = queryAllByTestId("actions-cell-menu-icon");
-    expect(moreMenu).toHaveLength(5);
+    expect(moreMenu).toHaveLength(6);
     await fireEvent.click(moreMenu[2]);
     const deleteOption = queryAllByTestId("t--delete-menu-item");
     const editOption = queryAllByTestId("t--edit-menu-item");
@@ -173,10 +226,11 @@ describe("<RoleListing />", () => {
   });
   it("should not display more option if the user doesn't have edit and delete permissions", () => {
     const { queryAllByTestId, queryByText } = renderComponent();
+    toggleDefaultRoles();
     const role = queryByText(rolesTableData[5].name);
     expect(role).toBeInTheDocument();
     const moreMenu = queryAllByTestId("actions-cell-menu-icon");
-    expect(moreMenu).toHaveLength(5);
+    expect(moreMenu).toHaveLength(6);
   });
   it("should disable 'Add role' CTA if the tenat level manage roles permission is absent", () => {
     renderComponent();

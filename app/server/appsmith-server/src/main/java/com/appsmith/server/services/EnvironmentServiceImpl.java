@@ -1,18 +1,13 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.EnvironmentVariable;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.external.dtos.EnvironmentDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.EnvironmentRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.EnvironmentServiceCEImpl;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +20,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
@@ -35,13 +31,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements EnvironmentService {
 
     private final EnvironmentRepository repository;
-
-    private final WorkspaceRepository workspaceRepository;
-
-    private final PolicyGenerator policyGenerator;
-
     private final EnvironmentVariableService environmentVariableService;
-
     private final FeatureFlagService featureFlagService;
 
     @Autowired
@@ -52,15 +42,10 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                                   EnvironmentRepository repository,
                                   AnalyticsService analyticsService,
                                   EnvironmentVariableService environmentVariableService,
-                                  FeatureFlagService featureFlagService,
-                                  WorkspaceRepository workspaceRepository,
-                                  PolicyGenerator policyGenerator) {
-
+                                  FeatureFlagService featureFlagService){
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.environmentVariableService = environmentVariableService;
-        this.workspaceRepository = workspaceRepository;
-        this.policyGenerator = policyGenerator;
         this.featureFlagService = featureFlagService;
     }
 
@@ -75,58 +60,52 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     }
 
     @Override
-    public Mono<EnvironmentDTO> findEnvironmentByEnvironmentId(String envId) {
+    public Flux<Environment> findByWorkspaceIdWithoutPermission(String workspaceId) {
+        return repository.findByWorkspaceId(workspaceId, (AclPermission) null);
+    }
+
+    @Override
+    public Mono<EnvironmentDTO> getEnvironmentDTOByEnvironmentId(String envId) {
 
         return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
-                .flatMap(truth -> {
-
-                    if (Boolean.FALSE.equals(truth)) {
+                .flatMap(isFeatureFlag -> {
+                    if (Boolean.FALSE.equals(isFeatureFlag)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     }
 
-                    return findById(envId, AclPermission.READ_ENVIRONMENTS)
-                            .map(this::createEnvironmentDTO)
-                            .flatMap(environmentDTO -> {
-                                return Mono.zip(Mono.justOrEmpty(environmentDTO),
-                                                environmentVariableService.findByEnvironmentId(envId, AclPermission.READ_ENVIRONMENT_VARIABLES)
-                                                        .collectList())
-                                        .map(tuple -> {
-                                            EnvironmentDTO environmentDTO1 = tuple.getT1();
-                                            List<EnvironmentVariable> environmentVariableList = tuple.getT2();
-                                            environmentDTO1.setEnvironmentVariableList(environmentVariableList);
-                                            return environmentDTO1;
-                                        });
-                            });
-
+                    // This method will be used only for executing environments
+                    return findById(envId, AclPermission.EXECUTE_ENVIRONMENTS)
+                            .flatMap(this::findAndPlugEnvironmentVariableInEnvironmentDTO);
                 });
     }
 
     @Override
-    public Flux<EnvironmentDTO> findEnvironmentByWorkspaceId(String workspaceId) {
+    public Flux<EnvironmentDTO> getEnvironmentDTOByWorkspaceId(String workspaceId) {
 
         return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
-                .flatMapMany(truth -> {
-
-                    if (Boolean.FALSE.equals(truth)) {
+                .flatMapMany(isFeatureFlag -> {
+                    if (Boolean.FALSE.equals(isFeatureFlag)) {
                         return Flux.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     }
 
-                    return findByWorkspaceId(workspaceId, AclPermission.READ_ENVIRONMENTS)
-                            .map(this::createEnvironmentDTO)
-                            .flatMap(environmentDTO -> {
-                                return Mono.zip(Mono.justOrEmpty(environmentDTO),
-                                                environmentVariableService
-                                                        .findByEnvironmentId(environmentDTO.getId(), AclPermission.READ_ENVIRONMENT_VARIABLES)
-                                                        .collectList())
-                                        .map(tuple -> {
-                                            EnvironmentDTO environmentDTO1 = tuple.getT1();
-                                            List<EnvironmentVariable> environmentVariableList = tuple.getT2();
-                                            environmentDTO1.setEnvironmentVariableList(environmentVariableList);
-                                            return environmentDTO1;
-                                        });
+                    // This method will be used only for executing environments
+                    return findByWorkspaceId(workspaceId, AclPermission.EXECUTE_ENVIRONMENTS)
+                            .flatMap(this::findAndPlugEnvironmentVariableInEnvironmentDTO);
+                });
+    }
+
+    private Mono<EnvironmentDTO> findAndPlugEnvironmentVariableInEnvironmentDTO(Environment environment) {
+        return Mono.just(environment)
+                .map(this::createEnvironmentDTO)
+                .flatMap(environmentDTO -> {
+                    String environmentId = environmentDTO.getId();
+                    return environmentVariableService
+                            .findByEnvironmentId(environmentId)
+                            .collectList()
+                            .map(environmentVariableList -> {
+                                environmentDTO.setEnvironmentVariableList(environmentVariableList);
+                                return environmentDTO;
                             });
-
-
                 });
     }
 
@@ -142,119 +121,73 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
 
     @Override
     public Mono<Environment> save(Environment environment) {
-        return create(environment);
+        return repository.save(environment);
     }
 
     @Override
     public Flux<EnvironmentDTO> updateEnvironment(List<EnvironmentDTO> environmentDTOList) {
-
         return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
-                .flatMapMany(truth -> {
-
+                .flatMapMany( truth -> {
                     if (Boolean.FALSE.equals(truth)) {
                         return Flux.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     }
 
-                    final Environment environment = new Environment();
+                    Map<String, EnvironmentDTO> environmentDTOMap = new HashMap<>();
+                    for (EnvironmentDTO environmentDTO: environmentDTOList) {
+                        environmentDTOMap.put(environmentDTO.getId(), environmentDTO);
+                    }
 
-                    return Flux.fromIterable(environmentDTOList)
-                            .flatMap(environmentDTO -> {
-                                return Mono.just(environmentDTO)
-                                        .zipWith(findById(environmentDTO.getId(), AclPermission.READ_ENVIRONMENTS),
-                                                (environmentDTO1, env) -> {
-                                                    environment.setId(env.getId());
-                                                    environment.setPolicies(env.getPolicies());
-                                                    environment.setName(env.getName());
-                                                    environment.setWorkspaceId(env.getWorkspaceId());
-                                                    return environmentDTO1;
-                                                });
-                            })
-                            .flatMap(environmentDTO -> {
-                                EnvironmentDTO environmentDTO1 = new EnvironmentDTO();
-                                environmentDTO1.setId(environment.getId());
-                                environmentDTO1.setName(environment.getName());
-                                environmentDTO1.setWorkspaceId(environment.getWorkspaceId());
+                    return Flux.fromIterable(environmentDTOMap.keySet())
+                            .flatMap(environmentId -> findById(environmentId, AclPermission.MANAGE_ENVIRONMENTS))
+                            .flatMap(environment -> {
+                                EnvironmentDTO environmentDTO = environmentDTOMap.get(environment.getId());
 
-                                return Mono.just(environmentDTO1)
-                                        .zipWith(Flux.fromIterable(environmentDTO.getEnvironmentVariableList())
+                                Flux<EnvironmentVariable> environmentVariableFlux =
+                                        Flux.fromIterable(environmentDTO.getEnvironmentVariableList())
                                                 .flatMap(envVar -> {
+                                                    // The assumption is that variables without an id are new,
+                                                    // and will be created to be saved in DB, if variable has Id,
+                                                    // then without the delete flag, needs to be modified,
+                                                    // and one with delete flag would be deleted.
+
                                                     if (!StringUtils.hasLength(envVar.getId())) {
                                                         // save logic
                                                         envVar.setEnvironmentId(environment.getId());
                                                         envVar.setWorkspaceId(environment.getWorkspaceId());
-                                                        envVar.setPolicies(policyGenerator
-                                                                .getAllChildPolicies(environment.getPolicies(), Environment.class, EnvironmentVariable.class));
-                                                        return environmentVariableService.save(envVar);
+                                                        envVar.setDatasourceId(environmentDTO.getDatasourceId());
+                                                        return environmentVariableService.create(envVar);
+
                                                     } else if (envVar.getDeletedAt() == null) {
                                                         // update logic
                                                         return environmentVariableService
-                                                                .findById(envVar.getId(), AclPermission.MANAGE_ENVIRONMENT_VARIABLES)
+                                                                .findById(envVar.getId())
                                                                 .map(dbEnvVar -> {
+                                                                    // checking if the fetched variable lies within the same environment
+                                                                    if (!dbEnvVar.getEnvironmentId()
+                                                                            .equals(environment.getId())) {
+                                                                        return dbEnvVar;
+                                                                    }
                                                                     envVar.setWorkspaceId(dbEnvVar.getWorkspaceId());
                                                                     envVar.setEnvironmentId(dbEnvVar.getEnvironmentId());
-                                                                    envVar.setPolicies(dbEnvVar.getPolicies());
+                                                                    envVar.setDatasourceId(environmentDTO.getDatasourceId());
                                                                     copyNewFieldValuesIntoOldObject(envVar, dbEnvVar);
                                                                     return dbEnvVar;
                                                                 })
-                                                                .flatMap(dbEnvVar -> environmentVariableService.save(dbEnvVar));
+                                                                .flatMap(environmentVariableService::save);
                                                     } else {
                                                         // archive logic
                                                         return environmentVariableService
-                                                                .archiveById(envVar.getId(), AclPermission.MANAGE_ENVIRONMENT_VARIABLES);
+                                                                .archiveById(envVar.getId());
                                                     }
+                                                });
 
-                                                })
-                                                .collectList(), (environmentDTO2, envVarList) -> {
-                                            environmentDTO2.setEnvironmentVariableList(envVarList);
-                                            return environmentDTO2;
+                                return environmentVariableFlux.collectList()
+                                        .map(envVarList ->{
+                                            EnvironmentDTO responseEnvironmentDTO = createEnvironmentDTO(environment);
+                                            responseEnvironmentDTO.setEnvironmentVariableList(envVarList);
+                                            return responseEnvironmentDTO;
                                         });
                             });
-
-
-                });
-    }
-
-    @Override
-    public Mono<EnvironmentDTO> createNewEnvironment(EnvironmentDTO environmentDTO) {
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
-                .flatMap(truth -> {
-                    if (Boolean.FALSE.equals(truth)) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
-                    }
-
-                    if (!StringUtils.hasLength(environmentDTO.getWorkspaceId())) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-                    }
-
-                    if (!StringUtils.hasLength(environmentDTO.getName())) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
-                    }
-
-                    Mono<List<Environment>> environmentListMono = repository.findByWorkspaceId(environmentDTO.getWorkspaceId(), AclPermission.CREATE_ENVIRONMENTS)
-                            .filter(environment -> environmentDTO.getName()
-                                    .equals(environment.getName()))
-                            .collectList();
-
-                    return environmentListMono
-                            .flatMap(envList -> {
-                                if (!envList.isEmpty()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, FieldName.ENVIRONMENT));
-                                }
-                                return Mono.just(envList);
-                            })
-                            .then(workspaceRepository.findById(environmentDTO.getWorkspaceId(), AclPermission.MANAGE_WORKSPACES))
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE)))
-                            .map(workspace -> {
-                                Set<Policy> environmentPolicy = policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Environment.class);
-                                Environment env = new Environment();
-                                env.setName(environmentDTO.getName());
-                                env.setWorkspaceId(environmentDTO.getWorkspaceId());
-                                env.setPolicies(environmentPolicy);
-                                return env;
-                            })
-                            .flatMap(environment -> create(environment))
-                            .map(this::createEnvironmentDTO);
-
 
                 });
     }

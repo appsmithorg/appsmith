@@ -4,7 +4,7 @@ import {
   PERMISSION_TYPE as CE_PERMISSION_TYPE,
 } from "ce/utils/permissionHelpers";
 
-enum EE_PERMISSION_TYPE {
+export enum EE_PERMISSION_TYPE {
   /* Tenant Permissions */
   CREATE_USERGROUPS = "createUserGroups:tenant",
   CREATE_PERMISSIONGROUPS = "createPermissionGroups:tenant",

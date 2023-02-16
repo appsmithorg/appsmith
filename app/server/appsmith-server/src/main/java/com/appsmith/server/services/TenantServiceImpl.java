@@ -59,8 +59,15 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
     @Override
     public Mono<Tenant> getTenantConfiguration() {
-        return this.getDefaultTenant()
-                .map(this::getClientPertinentTenant);
+        return Mono.zip(
+                        this.getDefaultTenant(),
+                        super.getTenantConfiguration()
+                )
+                .map(tuple -> {
+                    final Tenant dbTenant = tuple.getT1();
+                    final Tenant clientTenant = tuple.getT2();
+                    return getClientPertinentTenant(dbTenant, clientTenant);
+                });
     }
 
     /**
@@ -83,13 +90,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     return checkTenantLicense(tenant);
                 })
                 .flatMap(tenant -> {
-                    // Add license only in case of a valid license key
-                    if (tenant.getTenantConfiguration().getLicense().getActive()) {
-                        return save(tenant);
+                    // Update/save license only in case of a valid license key
+                    if (!Boolean.TRUE.equals(tenant.getTenantConfiguration().getLicense().getActive())) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED));
                     }
-                    return Mono.just(tenant);
+                    return this.save(tenant);
                 })
-                .map(this::getClientPertinentTenant);
+                .map((Tenant dbTenant) -> getClientPertinentTenant(dbTenant, null));
     }
 
     /**
@@ -121,20 +128,25 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
     /**
      * To get the Tenant with values that are pertinent to the client
-     * @param dbTenant
+     * @param dbTenant Original tenant from the database
+     * @param clientTenant Tenant object that is sent to the client, can be null
      * @return Tenant
      */
-    private Tenant getClientPertinentTenant(Tenant dbTenant) {
-        Tenant tenant = new Tenant();
-        TenantConfiguration tenantConfiguration = new TenantConfiguration();
-        TenantConfiguration dbTenantConfiguration = dbTenant.getTenantConfiguration();
+    private Tenant getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
+        TenantConfiguration tenantConfiguration;
+        if (clientTenant == null) {
+            clientTenant = new Tenant();
+            tenantConfiguration = new TenantConfiguration();
+        } else {
+            tenantConfiguration = clientTenant.getTenantConfiguration();
+        }
 
         // Only copy the values that are pertinent to the client
-        tenantConfiguration.copyNonSensitiveValues(dbTenantConfiguration);
-        tenant.setTenantConfiguration(tenantConfiguration);
-        tenant.setUserPermissions(dbTenant.getUserPermissions());
+        tenantConfiguration.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
+        clientTenant.setTenantConfiguration(tenantConfiguration);
+        clientTenant.setUserPermissions(dbTenant.getUserPermissions());
 
-        return tenant;
+        return clientTenant;
     }
 
     /**

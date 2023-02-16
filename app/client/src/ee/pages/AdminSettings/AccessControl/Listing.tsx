@@ -25,6 +25,7 @@ const ListingWrapper = styled.div`
     table-layout: fixed;
     thead {
       background: var(--appsmith-color-black-0);
+      z-index: 1;
       tr {
         background: none;
         th {
