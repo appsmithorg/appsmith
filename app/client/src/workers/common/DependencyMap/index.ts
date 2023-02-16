@@ -28,6 +28,7 @@ import {
   extractInfoFromBindings,
   extractInfoFromReferences,
   listEntityDependencies,
+  listEntityPathDependencies,
   listTriggerFieldDependencies,
   listValidationDependencies,
   mergeArrays,
@@ -271,6 +272,84 @@ export const updateDependencyMap = ({
                 ...listValidationDependencies(entity, entityName),
               };
               didUpdateValidationDependencyMap = true;
+            }
+          } else if (
+            (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
+            isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
+          ) {
+            didUpdateDependencyMap = true;
+            const {
+              dependencies: entityPathDependencies,
+              isTrigger,
+            } = listEntityPathDependencies(
+              entity,
+              dataTreeDiff.payload.propertyPath,
+            );
+            if (isTrigger) {
+              dataTreeEvalRef.dependencyMap[
+                dataTreeDiff.payload.propertyPath
+              ] = [];
+              const {
+                errors,
+                invalidReferences,
+                validReferences,
+              } = extractInfoFromBindings(
+                entityPathDependencies,
+                dataTreeEvalRef.allKeys,
+              );
+              // Update dependencyMap
+              dataTreeEvalRef.triggerFieldDependencyMap[
+                dataTreeDiff.payload.propertyPath
+              ] = mergeArrays(
+                dataTreeEvalRef.triggerFieldDependencyMap[
+                  dataTreeDiff.payload.propertyPath
+                ],
+                validReferences,
+              );
+              // Update invalidReferencesMap
+              if (invalidReferences.length) {
+                dataTreeEvalRef.invalidReferencesMap[
+                  dataTreeDiff.payload.propertyPath
+                ] = invalidReferences;
+              } else {
+                delete dataTreeEvalRef.invalidReferencesMap[
+                  dataTreeDiff.payload.propertyPath
+                ];
+              }
+              errors.forEach((error) => {
+                dataTreeEvalRef.errors.push(error);
+              });
+            } else {
+              const {
+                errors,
+                invalidReferences,
+                validReferences,
+              } = extractInfoFromBindings(
+                entityPathDependencies,
+                dataTreeEvalRef.allKeys,
+              );
+              // Update dependencyMap
+              dataTreeEvalRef.dependencyMap[
+                dataTreeDiff.payload.propertyPath
+              ] = mergeArrays(
+                dataTreeEvalRef.dependencyMap[
+                  dataTreeDiff.payload.propertyPath
+                ],
+                validReferences,
+              );
+              // Update invalidReferencesMap
+              if (invalidReferences.length) {
+                dataTreeEvalRef.invalidReferencesMap[
+                  dataTreeDiff.payload.propertyPath
+                ] = invalidReferences;
+              } else {
+                delete dataTreeEvalRef.invalidReferencesMap[
+                  dataTreeDiff.payload.propertyPath
+                ];
+              }
+              errors.forEach((error) => {
+                dataTreeEvalRef.errors.push(error);
+              });
             }
           }
           // Either a new entity or a new property path has been added. Go through the list of invalid references and

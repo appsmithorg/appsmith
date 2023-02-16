@@ -660,7 +660,7 @@ export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
   // Framework feature: Top level items are never leaves
   if (entityName === propertyPath) return false;
   // Ignore if this was a delete op
-  if (!(entityName in unEvalTree)) return false;
+  if (!unEvalTree.hasOwnProperty(entityName)) return false;
 
   const entity = unEvalTree[entityName];
   if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))

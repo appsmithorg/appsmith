@@ -1,4 +1,4 @@
-import { get, union } from "lodash";
+import { find, get, union } from "lodash";
 import toPath from "lodash/toPath";
 import {
   EvalErrorTypes,
@@ -11,12 +11,14 @@ import { extractIdentifierInfoFromCode } from "@shared/ast";
 import {
   addWidgetPropertyDependencies,
   convertPathToString,
+  getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTreeAction,
+  DataTreeEntity,
   DataTreeJSAction,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
@@ -292,4 +294,80 @@ export function listEntityDependencies(
     }
   }
   return dependencies;
+}
+
+export function listEntityPathDependencies(
+  entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
+  fullPropertyPath: string,
+): {
+  isTrigger: boolean;
+  dependencies: string[];
+} {
+  let dependencies: string[] = [];
+  const isTrigger = false;
+  const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
+  if (isWidget(entity)) {
+    if (isATriggerPath(entity, propertyPath)) {
+      return {
+        isTrigger: true,
+        dependencies: listEntityPathTriggerFieldDependencies(
+          entity,
+          fullPropertyPath,
+        ),
+      };
+    }
+  }
+
+  if (isJSAction(entity)) {
+    if (entity.reactivePaths.hasOwnProperty(propertyPath)) {
+      const unevalPropValue = get(entity, propertyPath);
+      const unevalPropValueString =
+        !!unevalPropValue && unevalPropValue.toString();
+      const { jsSnippets } = getDynamicBindings(unevalPropValueString, entity);
+      dependencies = dependencies.concat(
+        jsSnippets.filter((jsSnippet) => !!jsSnippet),
+      );
+    }
+  }
+
+  if (isAction(entity) || isWidget(entity)) {
+    if (
+      entity.bindingPaths.hasOwnProperty(propertyPath) ||
+      find(entity.dynamicBindingPathList, { key: propertyPath })
+    ) {
+      const unevalPropValue = get(entity, propertyPath);
+      const { jsSnippets } = getDynamicBindings(unevalPropValue);
+      dependencies = dependencies.concat(
+        jsSnippets.filter((jsSnippet) => !!jsSnippet),
+      );
+    }
+  }
+  return { isTrigger, dependencies };
+}
+
+export function listEntityPathTriggerFieldDependencies(
+  entity: DataTreeWidget,
+  fullPath: string,
+) {
+  let triggerFieldDependencies: string[] = [];
+  const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
+  if (isWidget(entity)) {
+    if (isATriggerPath(entity, propertyPath)) {
+      const unevalPropValue = get(entity, propertyPath);
+      const { jsSnippets } = getDynamicBindings(unevalPropValue);
+      triggerFieldDependencies = jsSnippets.filter((jsSnippet) => !!jsSnippet);
+    }
+  }
+  return triggerFieldDependencies;
+}
+
+function isATriggerPath(entity: DataTreeEntity, propertyPath: string) {
+  if (isWidget(entity)) {
+    const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+    const isTriggerPath = find(dynamicTriggerPathlist, { key: propertyPath });
+    if (isTriggerPath) {
+      return true;
+    }
+  }
+  return false;
 }
