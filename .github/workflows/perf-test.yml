@@ -91,7 +91,9 @@ jobs:
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
       
-      # Set up Node.js cache yarn dependencies
+      # Set up Node.js cache yarn dependencies.
+      # actions/setup-node@v3 now support caching of dependencies using actions/cache under the hood
+      # https://github.com/actions/setup-node#caching-global-packages-data
       - name: Set up Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
@@ -99,31 +101,6 @@ jobs:
           node-version: '16.14.0'
           cache: 'yarn'
           cache-dependency-path: 'app/client/yarn.lock'
-
-      # - name: Use Node.js 16.14.0
-      #   if: steps.run_result.outputs.run_result != 'success'
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: "16.14.0"
-
-      # - name: Get yarn cache directory path
-      #   if: steps.run_result.outputs.run_result != 'success'
-      #   id: yarn-dep-cache-dir-path
-      #   run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      # # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
-      # - name: Cache npm dependencies
-      #   # if: steps.run_result.outputs.run_result != 'success'
-      #   id: yarn-dep-cache
-      #   uses: actions/cache@v3
-      #   env:
-      #     cache-name: cache-yarn-dependencies
-      #   with:
-      #     path: | 
-      #       ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
-      #     key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-yarn-dep-
 
       # Install all the dependencies
       - name: Install dependencies
