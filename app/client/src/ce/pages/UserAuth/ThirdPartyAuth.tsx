@@ -45,11 +45,6 @@ const ButtonLogo = styled.img`
   width: 24px;
 `;
 
-export const SocialLoginTypes = {
-  GOOGLE: "google",
-  GITHUB: "github",
-};
-
 type SignInType = "SIGNIN" | "SIGNUP";
 
 function SocialLoginButton(props: {
@@ -93,7 +88,7 @@ function SocialLoginButton(props: {
   );
 }
 
-export function ThirdPartyAuth(props: {
+function ThirdPartyAuth(props: {
   logins: SocialLoginType[];
   type: SignInType;
 }) {

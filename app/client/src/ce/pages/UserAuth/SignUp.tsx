@@ -27,7 +27,6 @@ import {
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
-import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
@@ -36,7 +35,7 @@ import { SignupFormValues } from "pages/UserAuth/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -48,6 +47,7 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
+import { getThirdPartyAuths } from "../../selectors/tenantSelectors";
 
 declare global {
   interface Window {
@@ -90,7 +90,7 @@ export function SignUp(props: SignUpFormProps) {
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-  const socialLoginList = ThirdPartyLoginRegistry.get();
+  const thirdPartyAuths = useSelector(getThirdPartyAuths);
   const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
 
@@ -165,8 +165,8 @@ export function SignUp(props: SignUpFormProps) {
       title={createMessage(SIGNUP_PAGE_TITLE)}
     >
       {showError && <FormMessage intent="danger" message={errorMessage} />}
-      {socialLoginList.length > 0 && (
-        <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
+      {thirdPartyAuths.length > 0 && (
+        <ThirdPartyAuth logins={thirdPartyAuths} type={"SIGNIN"} />
       )}
       {!disableLoginForm && (
         <SpacedSubmitForm

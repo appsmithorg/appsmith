@@ -34,7 +34,6 @@ import {
 import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
-import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "pages/UserAuth/helpers";
 
@@ -52,6 +51,7 @@ import PerformanceTracker, {
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Container from "pages/UserAuth/Container";
+import { getThirdPartyAuths } from "../../selectors/tenantSelectors";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
@@ -90,7 +90,7 @@ export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
-  const socialLoginList = ThirdPartyLoginRegistry.get();
+  const thirdPartyAuths = useSelector(getThirdPartyAuths);
   const queryParams = new URLSearchParams(location.search);
   const invalidCredsForgotPasswordLinkText = createMessage(
     LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
@@ -163,8 +163,8 @@ export function Login(props: LoginFormProps) {
           }
         />
       )}
-      {socialLoginList.length > 0 && (
-        <ThirdPartyAuth logins={socialLoginList} type={"SIGNIN"} />
+      {thirdPartyAuths.length > 0 && (
+        <ThirdPartyAuth logins={thirdPartyAuths} type={"SIGNIN"} />
       )}
       {!disableLoginForm && (
         <>
