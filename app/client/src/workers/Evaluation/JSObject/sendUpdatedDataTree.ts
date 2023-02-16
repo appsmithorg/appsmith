@@ -3,7 +3,7 @@ import { dataTreeEvaluator } from "../handlers/evalTree";
 import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
-import { UserLogObject } from "entities/AppsmithConsole";
+import { LogObject } from "entities/AppsmithConsole";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import { EvalTreeResponseData } from "../types";
 
@@ -21,7 +21,7 @@ export function triggerEvalWithPathsChanged(pathsChanged: string[][]) {
   let dataTree: DataTree = {};
   const errors: EvalError[] = [];
   const logs: any[] = [];
-  const userLogs: UserLogObject[] = [];
+  const userLogs: LogObject[] = [];
   const dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
