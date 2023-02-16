@@ -23,3 +23,8 @@ export type CTATextType = {
 export type HeaderProps = Header;
 export type BillingDashboardProps = { cards: BillingDashboardCard[] };
 export type CTATextProps = CTATextType;
+
+export enum LICENSE_ORIGIN {
+  SELF_HOSTED = "Self Hosted",
+  ENTERPRISE = "Enterprise",
+}
