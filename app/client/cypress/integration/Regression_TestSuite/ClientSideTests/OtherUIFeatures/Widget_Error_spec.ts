@@ -45,6 +45,7 @@ describe("Widget error state", function() {
   });
 
   it("All errors should be expanded by default", function() {
+    //Updated count to 1 as the decision not to show triggerexecution/uncaughtpromise error in - epic 17720
     debuggerHelper.AssertVisibleErrorMessagesCount(1);
   });
 

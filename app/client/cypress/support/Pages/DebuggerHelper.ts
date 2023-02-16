@@ -54,17 +54,23 @@ export class DebuggerHelper {
     );
   }
 
-  ClickDebuggerToggle(
-    index?: number,
-    force?: boolean,
-    waitTimeInterval?: number,
-  ) {
-    this.agHelper.GetNClick(
-      this.locators._debuggerToggle,
-      index,
-      force,
-      waitTimeInterval,
-    );
+  ClickDebuggerToggle(expand = true, index = 0) {
+    cy.get(this.locators._debuggerToggle)
+      .eq(index)
+      .invoke("attr", "data-isOpen")
+      .then((arrow) => {
+        if (expand && arrow == "false")
+          cy.get(this.locators._debuggerToggle)
+            .eq(index)
+            .trigger("click", { multiple: true })
+            .wait(1000);
+        else if (!expand && arrow == "true")
+          cy.get(this.locators._debuggerToggle)
+            .eq(index)
+            .trigger("click", { multiple: true })
+            .wait(1000);
+        else this.agHelper.Sleep(500);
+      });
   }
 
   ClickResponseTab() {

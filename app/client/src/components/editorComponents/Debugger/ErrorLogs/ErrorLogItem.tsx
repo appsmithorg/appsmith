@@ -249,6 +249,7 @@ function ErrorLogItem(props: LogItemProps) {
               className={`${Classes.ICON} debugger-toggle`}
               clickable={collapsable}
               data-cy="t--debugger-toggle"
+              data-isOpen={isOpen}
               fillColor={get(theme, "colors.debugger.collapseIcon")}
               name={"expand-more"}
               onClick={() => setIsOpen(!isOpen)}

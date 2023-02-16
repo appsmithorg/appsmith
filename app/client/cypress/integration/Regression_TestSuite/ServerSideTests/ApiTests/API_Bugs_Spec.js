@@ -177,7 +177,7 @@ describe("Rest Bugs tests", function() {
     agHelper.AssertElementAbsence(
       locator._specificToast("Cyclic dependency found while evaluating"),
     );
-    //cy.ResponseStatusCheck("PE-RST-5000");
+    cy.ResponseStatusCheck("PE-RST-5000");
     cy.get(commonlocators.debugger)
       .should("be.visible")
       .click({ force: true });
