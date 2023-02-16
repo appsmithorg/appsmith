@@ -2251,12 +2251,29 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
     @Override
     public Mono<String> createApplicationSnapshot(String applicationId, String branchName) {
-        return this.exportApplicationById(applicationId, branchName).flatMap(applicationJson -> {
-            ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
-            applicationSnapshot.setApplicationId(applicationId);
-            applicationSnapshot.setBranchName(branchName);
-            applicationSnapshot.setApplicationJson(applicationJson);
-            return applicationSnapshotRepository.save(applicationSnapshot);
-        }).map(BaseDomain::getId);
+        // try to get an existing snapshot or create a new one if not found
+        Mono<ApplicationSnapshot> existingSnapshot = applicationSnapshotRepository.findByApplicationIdAndBranchName(
+                        applicationId, branchName, applicationPermission.getEditPermission()
+                )
+                .defaultIfEmpty(new ApplicationSnapshot());
+
+        return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+                /* SerialiseApplicationObjective=VERSION_CONTROL because this API can be invoked from developers.
+                exportApplicationById method check for MANAGE_PERMISSION if SerialiseApplicationObjective=SHARE.
+                */
+                .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
+                .zipWith(existingSnapshot)
+                .map(objects -> {
+                    ApplicationSnapshot applicationSnapshot = objects.getT2();
+                    applicationSnapshot.setApplicationJson(objects.getT1());
+                    if(StringUtils.isEmpty(applicationSnapshot.getId())) {
+                        applicationSnapshot.setApplicationId(applicationId);
+                        applicationSnapshot.setBranchName(branchName);
+                    }
+                    return applicationSnapshot;
+                })
+                .flatMap(applicationSnapshotRepository::setUserPermissionsInObject)
+                .flatMap(applicationSnapshotRepository::save)
+                .map(BaseDomain::getId);
     }
 }
