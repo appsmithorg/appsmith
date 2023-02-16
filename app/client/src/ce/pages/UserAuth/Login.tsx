@@ -90,7 +90,7 @@ export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
-  const thirdPartyAuths = useSelector(getThirdPartyAuths);
+  const socialLoginList = useSelector(getThirdPartyAuths);
   const queryParams = new URLSearchParams(location.search);
   const invalidCredsForgotPasswordLinkText = createMessage(
     LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
@@ -163,8 +163,8 @@ export function Login(props: LoginFormProps) {
           }
         />
       )}
-      {thirdPartyAuths.length > 0 && (
-        <ThirdPartyAuth logins={thirdPartyAuths} type={"SIGNIN"} />
+      {socialLoginList.length > 0 && (
+        <ThirdPartyAuth logins={socialLoginList} type={"SIGNIN"} />
       )}
       {!disableLoginForm && (
         <>

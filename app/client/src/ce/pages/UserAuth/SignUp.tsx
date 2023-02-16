@@ -90,7 +90,7 @@ export function SignUp(props: SignUpFormProps) {
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-  const thirdPartyAuths = useSelector(getThirdPartyAuths);
+  const socialLoginList = useSelector(getThirdPartyAuths);
   const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
 
@@ -165,8 +165,8 @@ export function SignUp(props: SignUpFormProps) {
       title={createMessage(SIGNUP_PAGE_TITLE)}
     >
       {showError && <FormMessage intent="danger" message={errorMessage} />}
-      {thirdPartyAuths.length > 0 && (
-        <ThirdPartyAuth logins={thirdPartyAuths} type={"SIGNIN"} />
+      {socialLoginList.length > 0 && (
+        <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
       {!disableLoginForm && (
         <SpacedSubmitForm
