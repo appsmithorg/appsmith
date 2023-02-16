@@ -208,6 +208,7 @@ export class AggregateHelper {
   public clickMultipleButtons(btnVisibleText: string, shouldSleep = true) {
     cy.xpath(this.locator._spanButton(btnVisibleText)).each(($el) => {
       $el.trigger("click", { force: true });
+      cy.wait(200);
     });
     shouldSleep && this.Sleep();
   }
