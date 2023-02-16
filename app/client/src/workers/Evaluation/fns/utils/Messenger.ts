@@ -2,6 +2,7 @@
 import { WorkerErrorTypes } from "ce/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
+import { getOriginalValueFromProxy } from "workers/Evaluation/JSObject/Collection";
 import { evaluateAsync } from "workers/Evaluation/evaluate";
 type TPromiseResponse =
   | {
@@ -49,9 +50,13 @@ export class WorkerMessenger {
 
   static respond(messageId: string, data: unknown, timeTaken: number) {
     const responseData = data;
-    if (typeof data === "object" && "result" in (data as AsyncEvalResponse)) {
-      // @ts-expect-error: need to fix type
-      responseData.result = getOriginalValueFromProxy(data.result);
+    if (
+      typeof data === "object" &&
+      (responseData as AsyncEvalResponse).result
+    ) {
+      (responseData as AsyncEvalResponse).result = getOriginalValueFromProxy(
+        (data as AsyncEvalResponse).result,
+      );
     }
     try {
       sendMessage.call(self, {
