@@ -383,7 +383,7 @@ jobs:
         if: always()
         working-directory: "."
         run: |
-          docker logs appsmith 2>&1 > ~/dockerlogs.txt
+          docker logs appsmith 2>&1 > ~/dockerlogs-${{ matrix.job }}.txt
           
       # Upload docker logs
       - name: Upload failed test list artifact
@@ -391,7 +391,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dockerlogs
-          path: ~/dockerlogs.txt
+          path: ~/dockerlogs-${{ matrix.job }}.txt
 
       # Set status = failedtest
       - name: Set fail if there are test failures
