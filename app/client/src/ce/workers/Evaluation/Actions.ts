@@ -12,11 +12,6 @@ import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
 import { jsVarProxy } from "workers/Evaluation/JSObject/JSVariableProxy";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalContext } from "workers/Evaluation/evaluate";
-import { EvaluationVersion } from "api/ApplicationApi";
-import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
-import { set } from "lodash";
 import { entityFns, platformFns } from "@appsmith/workers/Evaluation/fns";
 declare global {
   /** All identifiers added to the worker global scope should also
