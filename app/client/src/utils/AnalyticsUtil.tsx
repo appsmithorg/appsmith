@@ -279,6 +279,8 @@ export type EventName =
   | "BRANDING_SUBMIT_CLICK"
   | "Cmd+Click Navigation"
   | "WIDGET_PROPERTY_SEARCH"
+  | "PEEK_OVERLAY_OPENED"
+  | "PEEK_OVERLAY_COLLAPSE_EXPAND_CLICK"
   | LIBRARY_EVENTS;
 
 export type LIBRARY_EVENTS =

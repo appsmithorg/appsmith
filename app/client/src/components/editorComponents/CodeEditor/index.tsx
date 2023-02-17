@@ -548,7 +548,7 @@ class CodeEditor extends Component<Props, State> {
 
     this.setState({
       peekOverlayProps: {
-        name: peekableAttribute ?? "",
+        name: peekableAttribute,
         position: tokenElementPosition,
         textWidth: tokenElementPosition.width,
         marker,
@@ -556,13 +556,17 @@ class CodeEditor extends Component<Props, State> {
         dataType: typeof dataToShow,
       },
     });
+
+    AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
+      property: peekableAttribute,
+    });
   };
 
   hidePeekOverlay = () => {
     this.state.peekOverlayProps?.marker?.clear();
-    this.setState({
-      peekOverlayProps: undefined,
-    });
+    // this.setState({
+    //   peekOverlayProps: undefined,
+    // });
   };
 
   debounceHandleMouseOver = debounce(
@@ -577,7 +581,10 @@ class CodeEditor extends Component<Props, State> {
     ) {
       const tokenElement = event.target;
       const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
-      if (peekableAttribute) {
+      if (
+        peekableAttribute &&
+        this.state.peekOverlayProps?.name !== peekableAttribute
+      ) {
         const paths = peekableAttribute.split(".");
         if (paths.length) {
           paths.splice(1, 0, "peekData");
