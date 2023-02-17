@@ -334,7 +334,7 @@ export class DataSources {
       username == "" ? datasourceFormData["postgres-username"] : username,
     );
     cy.get(this._password).type(
-      password == "" ? datasourceFormData["postgres-password"] : password,
+      password == "" ? datasourceFormData["postgres-password"] : password, {force:true}
     );
   }
 
