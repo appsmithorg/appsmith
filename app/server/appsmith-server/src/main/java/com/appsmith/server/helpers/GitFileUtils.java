@@ -403,10 +403,17 @@ public class GitFileUtils {
         if (CollectionUtils.isNullOrEmpty(applicationReference.getActions())) {
             applicationJson.setActionList(new ArrayList<>());
         } else {
+            Map<String, String> actionBody = applicationReference.getActionBody();
             List<NewAction> actions = getApplicationResource(applicationReference.getActions(), NewAction.class);
             // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actions, PredicateUtils.notNullPredicate());
             actions.forEach(newAction -> {
+                // With the file version v4 we have split the actions and metadata separately into two files
+                // So we need to set the body to the unpublished action
+                String keyName = newAction.getUnpublishedAction().getName() + newAction.getUnpublishedAction().getPageId();
+                if (actionBody != null && (actionBody.containsKey(keyName))) {
+                    newAction.getUnpublishedAction().getActionConfiguration().setBody(actionBody.get(keyName));
+                }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionDTO will be same, so we create a deep copy for the published version for action from
                 // unpublishedActionDTO

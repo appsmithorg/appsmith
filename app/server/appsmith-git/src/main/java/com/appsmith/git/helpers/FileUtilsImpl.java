@@ -695,7 +695,7 @@ public class FileUtilsImpl implements FileInterface {
         if (directory.isDirectory()) {
             for (File dirFile : Objects.requireNonNull(directory.listFiles())) {
                 String resourceName = dirFile.getName();
-                String body = readFileAsString(directoryPath.resolve(resourceName).resolve( resourceName + CommonConstants.JS_EXTENSION));
+                String body = readFileAsString(directoryPath.resolve(resourceName).resolve( resourceName + CommonConstants.TEXT_FILE_EXTENSION));
                 Object file = readFile(directoryPath.resolve(resourceName).resolve( CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
                 actionCollectionBodyMap.put(resourceName + keySuffix, body);
                 resource.put(resourceName + keySuffix, file);
@@ -776,6 +776,7 @@ public class FileUtilsImpl implements FileInterface {
             }
         }
         applicationGitReference.setActions(actionMap);
+        applicationGitReference.setActionBody(actionBodyMap);
         applicationGitReference.setActionCollections(actionCollectionMap);
         applicationGitReference.setActionCollectionBody(actionCollectionBodyMap);
         applicationGitReference.setPages(pageMap);
