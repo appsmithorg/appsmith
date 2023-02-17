@@ -162,7 +162,6 @@ export function* evaluateTreeSaga(
     requiresLinting: isEditMode && requiresLinting,
     forceEvaluation,
     metaWidgets,
-    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -277,7 +276,6 @@ export function* evaluateAndExecuteDynamicTrigger(
       globalContext,
       eventType,
       triggerMeta,
-      cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
     },
   );
   const { errors = [] } = response as any;

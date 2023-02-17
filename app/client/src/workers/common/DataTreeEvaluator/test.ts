@@ -33,8 +33,6 @@ ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
 
 const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 
-const cloudHosting = false;
-
 describe("DataTreeEvaluator", () => {
   describe("evaluateActionBindings", () => {
     it("handles this.params.property", () => {
@@ -141,7 +139,7 @@ describe("DataTreeEvaluator", () => {
   describe("test updateDependencyMap", () => {
     beforeEach(() => {
       dataTreeEvaluator.setupFirstTree((unEvalTree as unknown) as DataTree);
-      dataTreeEvaluator.evalAndValidateFirstTree(cloudHosting);
+      dataTreeEvaluator.evalAndValidateFirstTree();
     });
 
     it("initial dependencyMap computation", () => {
@@ -156,7 +154,6 @@ describe("DataTreeEvaluator", () => {
         evalOrder,
         nonDynamicFieldValidationOrder,
         unEvalUpdates,
-        cloudHosting,
       );
 
       expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
@@ -216,7 +213,7 @@ describe("DataTreeEvaluator", () => {
     const postMessageMock = jest.fn();
     beforeEach(() => {
       dataTreeEvaluator.setupFirstTree(({} as unknown) as DataTree);
-      dataTreeEvaluator.evalAndValidateFirstTree(cloudHosting);
+      dataTreeEvaluator.evalAndValidateFirstTree();
       self.postMessage = postMessageMock;
     });
     it("set's isAsync tag for cross JsObject references", () => {
@@ -236,7 +233,7 @@ describe("DataTreeEvaluator", () => {
       dataTreeEvaluator.setupFirstTree(
         nestedArrayAccessorCyclicDependency.initUnEvalTree,
       );
-      dataTreeEvaluator.evalAndValidateFirstTree(cloudHosting);
+      dataTreeEvaluator.evalAndValidateFirstTree();
     });
     describe("array of objects", () => {
       // when Text1.text has a binding Api1.data[2].id
@@ -255,7 +252,6 @@ describe("DataTreeEvaluator", () => {
             evalOrder,
             nonDynamicFieldValidationOrder1,
             unEvalUpdates,
-            cloudHosting,
           );
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
@@ -282,7 +278,6 @@ describe("DataTreeEvaluator", () => {
             order,
             nonDynamicFieldValidationOrder2,
             unEvalUpdates2,
-            cloudHosting,
           );
 
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
@@ -314,7 +309,6 @@ describe("DataTreeEvaluator", () => {
           order1,
           nonDynamicFieldValidationOrder3,
           unEvalUpdates,
-          cloudHosting,
         );
 
         // success: response -> [{...}, {...}]
@@ -329,7 +323,6 @@ describe("DataTreeEvaluator", () => {
           order2,
           nonDynamicFieldValidationOrder4,
           unEvalUpdates2,
-          cloudHosting,
         );
 
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
@@ -360,7 +353,6 @@ describe("DataTreeEvaluator", () => {
             order,
             nonDynamicFieldValidationOrder5,
             unEvalUpdates,
-            cloudHosting,
           );
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
@@ -390,7 +382,6 @@ describe("DataTreeEvaluator", () => {
             order1,
             nonDynamicFieldValidationOrder,
             unEvalUpdates2,
-            cloudHosting,
           );
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
@@ -424,7 +415,6 @@ describe("DataTreeEvaluator", () => {
           order,
           nonDynamicFieldValidationOrder,
           unEvalUpdates,
-          cloudHosting,
         );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}] ]
@@ -439,7 +429,6 @@ describe("DataTreeEvaluator", () => {
           order1,
           nonDynamicFieldValidationOrder2,
           unEvalUpdates2,
-          cloudHosting,
         );
 
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
@@ -469,7 +458,6 @@ describe("DataTreeEvaluator", () => {
           order,
           nonDynamicFieldValidationOrder2,
           unEvalUpdates,
-          cloudHosting,
         );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [] ]
@@ -484,7 +472,6 @@ describe("DataTreeEvaluator", () => {
           order1,
           nonDynamicFieldValidationOrder,
           unEvalUpdates2,
-          cloudHosting,
         );
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
           "Api1.data",
@@ -508,7 +495,7 @@ describe("DataTreeEvaluator", () => {
       dataTreeEvaluator.setupFirstTree(
         (lintingUnEvalTree as unknown) as DataTree,
       );
-      dataTreeEvaluator.evalAndValidateFirstTree(cloudHosting);
+      dataTreeEvaluator.evalAndValidateFirstTree();
     });
     it("Creates correct triggerFieldDependencyMap", () => {
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
@@ -530,7 +517,6 @@ describe("DataTreeEvaluator", () => {
         evalOrder,
         nonDynamicFieldValidationOrder2,
         unEvalUpdates,
-        cloudHosting,
       );
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
         "Button3.onClick": ["Api1.run", "Button2.text"],
@@ -549,7 +535,6 @@ describe("DataTreeEvaluator", () => {
         order1,
         nonDynamicFieldValidationOrder3,
         unEvalUpdates2,
-        cloudHosting,
       );
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
         "Button3.onClick": ["Api1.run", "Button2.text", "Api2.run"],
@@ -570,7 +555,6 @@ describe("DataTreeEvaluator", () => {
         order2,
         nonDynamicFieldValidationOrder,
         unEvalUpdates3,
-        cloudHosting,
       );
 
       // delete Button2
@@ -584,7 +568,6 @@ describe("DataTreeEvaluator", () => {
         order3,
         nonDynamicFieldValidationOrder4,
         unEvalUpdates4,
-        cloudHosting,
       );
 
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({

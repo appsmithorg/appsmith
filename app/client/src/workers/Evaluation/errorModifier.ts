@@ -18,8 +18,8 @@ class ErrorModifier {
 
   private asyncFunctionsNameMap: Record<string, true> = {};
 
-  updateAsyncFunctions(dataTree: DataTree, cloudHosting: boolean) {
-    this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree, cloudHosting);
+  updateAsyncFunctions(dataTree: DataTree) {
+    this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree);
   }
 
   run(error: Error) {

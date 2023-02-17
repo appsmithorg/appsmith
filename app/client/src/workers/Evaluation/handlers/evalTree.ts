@@ -83,9 +83,7 @@ export default function(request: EvalWorkerSyncRequest) {
         requiresLinting,
       );
 
-      const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree(
-        request.data.cloudHosting,
-      );
+      const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
@@ -125,9 +123,7 @@ export default function(request: EvalWorkerSyncRequest) {
         requiresLinting,
       );
 
-      const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree(
-        request.data.cloudHosting,
-      );
+      const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
@@ -164,7 +160,6 @@ export default function(request: EvalWorkerSyncRequest) {
         evalOrder,
         nonDynamicFieldValidationOrder,
         unEvalUpdates,
-        request.data.cloudHosting,
         Object.keys(metaWidgets),
       );
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {

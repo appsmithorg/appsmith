@@ -13,6 +13,8 @@ export default function(request: EvalWorkerSyncRequest) {
   });
   setupDOM();
   overrideWebAPIs(self);
+  // @ts-expect-error: Types are not available
+  self.cloudHosting = request.data.cloudHosting;
   addPlatformFunctionsToEvalContext(self, request.data.cloudHosting);
   return true;
 }

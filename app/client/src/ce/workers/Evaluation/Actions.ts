@@ -74,10 +74,7 @@ export const addPlatformFunctionsToEvalContext = (
   }
 };
 
-export const getAllAsyncFunctions = (
-  dataTree: DataTree,
-  cloudHosting: boolean,
-) => {
+export const getAllAsyncFunctions = (dataTree: DataTree) => {
   const asyncFunctionNameMap: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
   for (const [entityName, entity] of dataTreeEntries) {
@@ -87,7 +84,8 @@ export const getAllAsyncFunctions = (
       asyncFunctionNameMap[fullPath] = true;
     }
   }
-  for (const platformFn of getPlatformFunctions(cloudHosting)) {
+  // @ts-expect-error: Types are not available
+  for (const platformFn of getPlatformFunctions(self.cloudHosting)) {
     asyncFunctionNameMap[platformFn.name] = true;
   }
   return asyncFunctionNameMap;

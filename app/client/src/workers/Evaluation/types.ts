@@ -34,7 +34,6 @@ export interface EvalTreeRequestData {
   requiresLinting: boolean;
   forceEvaluation: boolean;
   metaWidgets: MetaWidgetsReduxState;
-  cloudHosting: boolean;
 }
 
 export interface EvalTreeResponseData {
