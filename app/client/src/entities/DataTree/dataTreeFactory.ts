@@ -171,10 +171,12 @@ export class DataTreeFactory {
     const startMetaWidgets = performance.now();
 
     Object.values(metaWidgets).forEach((widget) => {
-      dataTree[widget.widgetName] = generateDataTreeWidget(
+      const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
       );
+      dataTree[widget.widgetName] = unEvalEntity;
+      configTree[widget.widgetName] = configEntity;
     });
     const endMetaWidgets = performance.now();
 
