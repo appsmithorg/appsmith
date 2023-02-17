@@ -3,7 +3,6 @@ import { dataTreeEvaluator } from "../handlers/evalTree";
 import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
-import { LogObject } from "entities/AppsmithConsole";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import { EvalTreeResponseData } from "../types";
 
