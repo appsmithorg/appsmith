@@ -43,8 +43,8 @@ Cypress.Commands.add("renameWorkspace", (workspaceName, newWorkspaceName) => {
 
 Cypress.Commands.add("navigateToWorkspaceSettings", (workspaceName) => {
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
-    .scrollIntoView()
-    .should("be.visible");
+    .should("be.visible")
+    .scrollIntoView();
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
     .closest(homePage.workspaceCompleteSection)
     .find(homePage.workspaceNamePopover)
@@ -61,8 +61,9 @@ Cypress.Commands.add("navigateToWorkspaceSettings", (workspaceName) => {
 
 Cypress.Commands.add("openWorkspaceOptionsPopup", (workspaceName) => {
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
-    .scrollIntoView()
-    .should("be.visible");
+    .should("be.visible")
+    .scrollIntoView();
+
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
     .closest(homePage.workspaceCompleteSection)
     .find(homePage.workspaceNamePopover)
@@ -73,8 +74,9 @@ Cypress.Commands.add("openWorkspaceOptionsPopup", (workspaceName) => {
 Cypress.Commands.add("inviteUserForWorkspace", (workspaceName, email, role) => {
   cy.stubPostHeaderReq();
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
-    .scrollIntoView()
-    .should("be.visible");
+    .should("be.visible")
+    .scrollIntoView();
+
   cy.get(
     homePage.workspaceList
       .concat(workspaceName)
@@ -98,8 +100,9 @@ Cypress.Commands.add("inviteUserForWorkspace", (workspaceName, email, role) => {
 
 Cypress.Commands.add("CheckShareIcon", (workspaceName, count) => {
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
-    .scrollIntoView()
-    .should("be.visible");
+    .should("be.visible")
+    .scrollIntoView();
+
   cy.get(
     homePage.workspaceList
       .concat(workspaceName)
@@ -160,8 +163,9 @@ Cypress.Commands.add("enablePublicAccess", (editMode = false) => {
 
 Cypress.Commands.add("deleteUserFromWorkspace", (workspaceName) => {
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
-    .scrollIntoView()
-    .should("be.visible");
+    .should("be.visible")
+    .scrollIntoView();
+
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
     .closest(homePage.workspaceCompleteSection)
     .find(homePage.workspaceNamePopover)
@@ -194,8 +198,9 @@ Cypress.Commands.add(
   (workspaceName, email, role) => {
     cy.stubPostHeaderReq();
     cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
-      .scrollIntoView()
-      .should("be.visible");
+      .should("be.visible")
+      .scrollIntoView();
+
     cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
       .closest(homePage.workspaceCompleteSection)
       .find(homePage.workspaceNamePopover)
