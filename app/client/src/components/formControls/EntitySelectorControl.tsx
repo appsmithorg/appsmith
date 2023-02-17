@@ -28,38 +28,38 @@ const EntitySelectorContainer = styled.div`
   grid-gap: 16px;
   grid-template-columns: repeat(auto-fill, 280px);
   position: relative;
-
-  & > div:not(:first-child) {
-    padding-left: 14px;
-  }
-
-  & > div:nth-child(2):before {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 10px;
-    height: 60px;
-    top: 60px;
-    left: 4px;
-    border: solid #e0dede;
-    border-width: 0 0 1.8px 1.8px;
-  }
-
-  & > div:nth-child(3):before {
-    content: "";
-    display: block;
-    position: absolute;
-    height: 76px;
-    width: 10px;
-    top: 119px;
-    left: 4px;
-    border: solid #e0dede;
-    border-width: 0 0 1.8px 1.8px;
-  }
 `;
 
-const EntitySelectorWrapper = styled.div<{ marginRight: string }>`
+const EntitySelectorWrapper = styled.div<{
+  marginRight: string;
+  index: number;
+}>`
   margin-right: ${(props) => props.marginRight};
+
+  ${(props) =>
+    props.index !== 0 &&
+    `
+    padding-left: 14px;
+    :before {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 10px;
+      left: 4px;
+      border: solid #e0dede;
+      border-width: 0 0 1.8px 1.8px;
+      height: 76px;
+      top: calc(60px * ${props.index})
+    }
+  `}
+
+  ${(props) =>
+    props.index === 1 &&
+    `
+    :before {
+        height: 60px;
+    }
+  `}
 `;
 
 function EntitySelectorComponent(props: any) {
@@ -80,6 +80,7 @@ function EntitySelectorComponent(props: any) {
             allowedControlTypes.includes(singleSchema.controlType) &&
             !singleSchema.hidden && (
               <EntitySelectorWrapper
+                index={index}
                 key={`ES_FRAG_${singleSchema.configProperty}`}
                 marginRight={index + 1 === visibleSchemas.length ? "" : "1rem"}
               >
