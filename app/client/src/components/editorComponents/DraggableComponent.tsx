@@ -96,6 +96,11 @@ function DraggableComponent(props: DraggableComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
+  const isDraggingSibling = useSelector(
+    (state) =>
+      state.ui.widgetDragResize?.dragDetails?.draggedOn === props.parentId,
+  );
+
   // This state tells us to disable dragging,
   // This is usually true when widgets themselves implement drag/drop
   // This flag resolves conflicting drag/drop triggers.
@@ -107,6 +112,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isResizingOrDragging = !!isResizing || !!isDragging;
   const isCurrentWidgetDragging = isDragging && isSelected;
   const isCurrentWidgetResizing = isResizing && isSelected;
+  const showBoundary = isCurrentWidgetDragging || isDraggingSibling;
 
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
@@ -190,10 +196,12 @@ function DraggableComponent(props: DraggableComponentProps) {
       style={dragWrapperStyle}
     >
       {shouldRenderComponent && props.children}
-      <WidgetBoundaries
-        className={`widget-boundary-${props.widgetId}`}
-        style={dragBoundariesStyle}
-      />
+      {showBoundary && (
+        <WidgetBoundaries
+          className={`widget-boundary-${props.widgetId}`}
+          style={dragBoundariesStyle}
+        />
+      )}
     </DraggableWrapper>
   );
 }
