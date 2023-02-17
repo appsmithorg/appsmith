@@ -15,7 +15,7 @@ export default function(request: EvalWorkerSyncRequest) {
   overrideWebAPIs(self);
   // @ts-expect-error: Types are not available
   self.cloudHosting = request.data.cloudHosting;
-  addPlatformFunctionsToEvalContext(self, request.data.cloudHosting);
+  addPlatformFunctionsToEvalContext(self);
   return true;
 }
 

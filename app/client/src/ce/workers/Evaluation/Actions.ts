@@ -65,11 +65,9 @@ export const addDataTreeToContext = (args: {
   }
 };
 
-export const addPlatformFunctionsToEvalContext = (
-  context: any,
-  cloudHosting: boolean,
-) => {
-  for (const fnDef of getPlatformFunctions(cloudHosting)) {
+export const addPlatformFunctionsToEvalContext = (context: any) => {
+  // @ts-expect-error: Types are not available
+  for (const fnDef of getPlatformFunctions(self.cloudHosting)) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));
   }
 };
