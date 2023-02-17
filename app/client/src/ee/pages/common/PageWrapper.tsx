@@ -36,10 +36,6 @@ const StyledBanner = styled(BannerMessage)`
   display: flex;
   align-items: center;
   justify-content: center;
-  svg {
-    position: relative;
-    top: 2px;
-  }
 `;
 
 const StyledText = styled(Text)<{ color: string; underline?: boolean }>`
@@ -48,13 +44,15 @@ const StyledText = styled(Text)<{ color: string; underline?: boolean }>`
   color: ${(props) => props.color ?? "inherit"};
   letter-spacing: 0.2px;
   line-height: 16px;
-  font-size: 14px;
-  span {
-    font-size: 24px;
-  }
-  button {
-  }
+  font-size: 13px;
 `;
+
+const enum Suffix {
+  DAYS = "days",
+  DAY = "day",
+  HOURS = "hours",
+  HOUR = "hour",
+}
 
 export function PageWrapper(props: PageWrapperProps) {
   const { isFixed = false, isSavable = false } = props;
@@ -66,20 +64,25 @@ export function PageWrapper(props: PageWrapperProps) {
   const features = useSelector(selectFeatureFlags);
 
   const getBannerMessage: any = () => {
+    const lessThanThreeDays =
+      (gracePeriod <= 3 && (suffix === Suffix.DAYS || suffix === Suffix.DAY)) ||
+      suffix === Suffix.HOURS ||
+      suffix === Suffix.HOUR;
+
+    const color = lessThanThreeDays ? Colors.RED_500 : Colors.GRAY_800;
     if (isTrial) {
       return {
-        backgroundColor:
-          gracePeriod > 3
-            ? Colors.WARNING_ORANGE
-            : Colors.DANGER_NO_SOLID_HOVER,
+        backgroundColor: lessThanThreeDays
+          ? Colors.DANGER_NO_SOLID_HOVER
+          : Colors.WARNING_ORANGE,
         className: "t--deprecation-warning banner",
         icon: "warning-line",
-        iconColor: gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500,
+        iconColor: color,
         iconSize: IconSize.XXL,
         message: (
           <>
             <StyledText
-              color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
+              color={color}
               dangerouslySetInnerHTML={{
                 __html: createMessage(() =>
                   TRIAL_EXPIRY_WARNING(gracePeriod, suffix),
@@ -92,7 +95,7 @@ export function PageWrapper(props: PageWrapperProps) {
               <>
                 <StyledText
                   as="button"
-                  color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
+                  color={color}
                   onClick={goToCustomerPortal}
                   type={TextType.P1}
                   underline
@@ -100,11 +103,7 @@ export function PageWrapper(props: PageWrapperProps) {
                 >
                   {capitalize(createMessage(UPGRADE))}
                 </StyledText>{" "}
-                <StyledText
-                  color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
-                  type={TextType.P1}
-                  weight="600"
-                >
+                <StyledText color={color} type={TextType.P1} weight="600">
                   {createMessage(CONTINUE_USING_FEATURES)}
                 </StyledText>
               </>

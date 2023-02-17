@@ -12,12 +12,12 @@ import {
   ADD_KEY,
   createMessage,
   GET_STARTED_MESSAGE,
-  GET_TRIAL_LICENSE,
   LICENSE_KEY_CTA_LABEL,
   LICENSE_KEY_FORM_INPUT_LABEL,
   NO_ACTIVE_SUBSCRIPTION,
   LICENSE_ERROR_TITLE,
   LICENSE_ERROR_DESCRIPTION,
+  VISIT_CUSTOMER_PORTAL,
 } from "@appsmith/constants/messages";
 import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
 import {
@@ -100,7 +100,7 @@ function LicenseCheckPage() {
                 onClick={goToCustomerPortal}
                 size={Size.large}
                 tag="button"
-                text={createMessage(GET_TRIAL_LICENSE)}
+                text={createMessage(VISIT_CUSTOMER_PORTAL)}
                 type="button"
               />
             </StyledCard>

@@ -65,10 +65,14 @@ export const StatusBadgeContainer = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
+  padding: 2px 4px;
   border-radius: 4px;
   height: 24px;
   background-color: ${(props) => props.background};
+`;
+
+export const StatusText = styled(Text)`
+  font-size: 11px;
 `;
 
 export interface StatusBadgeProps {
@@ -86,9 +90,9 @@ export function StatusBadge(props: StatusBadgeProps) {
       background={statusColors.background}
       className={className}
     >
-      <Text color={statusColors.text} type={TextType.P3} weight="600">
+      <StatusText color={statusColors.text} type={TextType.P3} weight="600">
         {statusText.toLocaleUpperCase()}
-      </Text>
+      </StatusText>
     </StatusBadgeContainer>
   );
 }

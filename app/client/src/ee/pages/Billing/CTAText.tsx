@@ -7,7 +7,7 @@ export function CtaText(props: CTATextProps) {
   const { action, icon, text } = props;
   return (
     <CTATextWrapper onClick={action}>
-      <Text as={"button"} className="cta-text" type={TextType.P2} weight="600">
+      <Text as={"button"} className="cta-text" type={TextType.P1} weight="600">
         {text}
       </Text>
       {icon && <Icon {...icon} className="cta-icon" />}

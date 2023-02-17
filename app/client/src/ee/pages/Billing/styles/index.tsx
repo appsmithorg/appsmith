@@ -69,10 +69,6 @@ export const CardRightContent = styled.div`
   align-items: center;
 `;
 
-export const HeaderText = styled(Text)`
-  font-size: 24px;
-`;
-
 export const UserCount = styled(Text)`
   font-size: 24px;
   margin-right: 10px;
@@ -101,7 +97,7 @@ export const FlexWrapper = styled.div<{
   align-items: ${(props) => props.align ?? "initial"};
   justify-content: ${(props) => props.justify ?? "initial"};
   flex-direction: ${(props) => props.dir};
-  gap: 12px;
+  gap: 6px;
 `;
 
 export const StyledButton = styled(Button)`

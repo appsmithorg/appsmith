@@ -19,7 +19,6 @@ import {
 import { BillingPageHeader } from "./Header";
 import {
   BillingPageWrapper,
-  HeaderText,
   StyledDialog,
   DialogWrapper,
   FlexWrapper,
@@ -76,9 +75,9 @@ export function Billing() {
     cards.push({
       icon: "money-dollar-circle-line",
       title: (
-        <HeaderText type={TextType.H3} weight="700">
+        <Text type={TextType.H1} weight="700">
           {createMessage(BILLING_AND_USAGE)}
-        </HeaderText>
+        </Text>
       ),
       subtitle: <CtaText {...CtaConfig} />,
     });
@@ -89,15 +88,15 @@ export function Billing() {
     icon: "key-2-line",
     title: (
       <FlexWrapper align="center" dir="row">
-        <HeaderText type={TextType.H3} weight="700">
+        <Text type={TextType.H1} weight="700">
           {createMessage(YOUR_LICENSE_KEY)}
-        </HeaderText>
+        </Text>
         <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
       </FlexWrapper>
     ),
     content: (
       <FlexWrapper dir="column">
-        <Text type={TextType.H2}>{licenseKey}</Text>
+        <Text type={TextType.P0}>{licenseKey}</Text>
         {isTrial && (
           <Text color={Colors.GREEN} type={TextType.P1} weight="500">
             {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
