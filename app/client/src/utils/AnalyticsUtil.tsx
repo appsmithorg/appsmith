@@ -400,7 +400,9 @@ class AnalyticsUtil {
               },
             },
           });
-          analytics.page();
+          if (!AnalyticsUtil.blockTrackEvent) {
+            analytics.page();
+          }
         }
       })(window);
     });
@@ -469,7 +471,6 @@ class AnalyticsUtil {
         windowDoc.analytics.identify(userId, userProperties);
       } else if (segment.ceKey) {
         // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
-        // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
         if (userId !== AnalyticsUtil.cachedUserId) {
           AnalyticsUtil.cachedAnonymoustId = sha256(userId);
           AnalyticsUtil.cachedUserId = userId;
