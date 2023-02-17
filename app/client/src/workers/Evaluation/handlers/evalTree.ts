@@ -44,7 +44,7 @@ export default function(request: EvalWorkerSyncRequest) {
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
-  let pathsToClearErrorsFor: string[] = [];
+  let pathsToClearErrorsFor: any[] = [];
 
   const {
     allActionValidationConfig,

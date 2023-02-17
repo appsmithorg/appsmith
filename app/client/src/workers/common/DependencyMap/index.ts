@@ -133,7 +133,7 @@ export function createDependencyMap(
 
 interface UpdateDependencyMap {
   dependenciesOfRemovedPaths: string[];
-  pathsToClearErrorsFor: string[];
+  pathsToClearErrorsFor: any[];
   removedPaths: string[];
   /** Some paths do not need to go through evaluation, but require linting
    *  For example:
@@ -158,7 +158,7 @@ export const updateDependencyMap = ({
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<string> = [];
   const extraPathsToLint = new Set<string>();
-  const pathsToClearErrorsFor: Array<string> = [];
+  const pathsToClearErrorsFor: any[] = [];
 
   // This is needed for NEW and DELETE events below.
   // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
@@ -386,10 +386,21 @@ export const updateDependencyMap = ({
 
           const propertyPath = dataTreeDiff.payload.propertyPath;
           const dependencyPath = dataTreeEvalRef.dependencyMap[propertyPath];
-          pathsToClearErrorsFor.push(propertyPath);
 
-          if (dependencyPath) {
-            pathsToClearErrorsFor.push(...dependencyPath);
+          /**There are certain cases where the child paths of the entity could have errors and
+           *  need them to be cleared post evaluations. Therefore we store all the paths that are
+           * removed on deleting the entity and use that reference to clear the error logs post evaluation*/
+          if (isWidget(entity)) {
+            const propertyPaths = [propertyPath];
+
+            if (dependencyPath) {
+              propertyPaths.push(...dependencyPath);
+            }
+
+            pathsToClearErrorsFor.push({
+              widgetId: entity?.widgetId,
+              paths: propertyPaths,
+            });
           }
 
           if (
@@ -721,6 +732,7 @@ export const updateDependencyMap = ({
       }
     }
   });
+
   const diffCalcEnd = performance.now();
   const subDepCalcStart = performance.now();
   if (didUpdateDependencyMap) {
@@ -759,8 +771,10 @@ export const updateDependencyMap = ({
 
   /** We need this in order clear out the paths that could have errors when a property is deleted */
   if (pathsToClearErrorsFor.length) {
-    pathsToClearErrorsFor.forEach((path) => {
-      set(dataTreeEvalRef.evalProps, getEvalErrorPath(path), []);
+    pathsToClearErrorsFor.forEach((error) => {
+      error.paths.forEach((path: string) => {
+        set(dataTreeEvalRef.evalProps, getEvalErrorPath(path), []);
+      });
     });
   }
 

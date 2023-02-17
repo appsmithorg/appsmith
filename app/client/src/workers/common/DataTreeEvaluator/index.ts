@@ -360,7 +360,7 @@ export default class DataTreeEvaluator {
     lintOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
-    pathsToClearErrorsFor: string[];
+    pathsToClearErrorsFor: any[];
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
 
