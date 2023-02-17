@@ -6,6 +6,11 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import {
+  NAVIGATION_CLASSNAME,
+  PEEKABLE_CLASSNAME,
+  PEEK_STYLE_PERSIST_CLASS,
+} from "./markHelpers";
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -163,12 +168,21 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.bindingText};
       font-weight: 700;
     }
-    .navigable-entity-highlight {
-      cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
-      &:hover {
-        text-decoration: underline;
-      }
+    
+    .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
+      background-color:	#F4FFDE;
     }
+
+    .${NAVIGATION_CLASSNAME} {
+      cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
+      ${(props) =>
+        props.ctrlPressed &&
+        `&:hover {
+        text-decoration: underline;
+        background-color:	#FFEFCF;
+      }`}
+    }
+
     .CodeMirror-matchingbracket {
       text-decoration: none;
       color: #ffd600 !important;
