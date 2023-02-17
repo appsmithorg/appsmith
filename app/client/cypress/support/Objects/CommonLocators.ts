@@ -131,7 +131,7 @@ export class CommonLocators {
     "//span[text()='" +
     item +
     "']/ancestor::div[@class ='rc-select-selection-overflow-item']//span[contains(@class, 'remove-icon')]";
-  _listWidget = "div[type='LIST_WIDGET']";
+  _listWidget = ".t--widget-listwidgetv2";
   _dropdownText = ".t--dropdown-option";
   _jsonFormInputField = (fieldName: string) =>
     `.t--jsonformfield-${fieldName} input`;

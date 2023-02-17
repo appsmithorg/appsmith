@@ -76,7 +76,7 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
   it("2. Verify 'onListitemClick' functionality of Show messgage event on deploy mode", function() {
     _.ee.SelectEntityByName("List1");
     _.propPane.EnterJSContext(
-      "onListItemClick",
+      "onItemClick",
       "{{showAlert('ListWidget_' + currentItem.name + '_' + currentItem.email,'success')}}",
       true,
     );
@@ -94,7 +94,7 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.ee.SelectEntityByName("List1", "Widgets");
     _.propPane.UpdatePropertyFieldValue("Items", JSON.stringify(listData));
     _.deployMode.DeployApp();
-    _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
+    _.agHelper.GetElement(_.locators._listWidget);
     _.table.AssertPageNumber_List(1);
     _.table.NavigateToNextPage_List();
     _.table.AssertPageNumber_List(2, true);
@@ -125,30 +125,15 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.agHelper.Sleep();
   });
 
-  it("5. Verify Copy/Paste/Delete the copied List widget", function() {
-    _.ee.SelectEntityByName("List1");
-    _.ee.CopyPasteWidget("List1");
-    _.agHelper.AssertElementExist(_.locators._listWidget, 1);
-    _.agHelper.GetNAssertElementText(
-      _.locators._propertyPaneTitle,
-      "List1Copy",
-      "have.text",
-    );
-    _.agHelper.Sleep();
-
-    _.ee.SelectEntityByName("List1Copy");
-    _.agHelper.GetNClick(_.propPane._deleteWidget);
-  });
-
-  it("6. Verify Pagination in Server side pagination and verify no pagination visible when Server Side Pagination is disabled", function() {
+  it("5. Verify Pagination in Server side pagination and verify no pagination visible when Server Side Pagination is disabled", function() {
     _.ee.NavigateToSwitcher("explorer");
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       _.dataSources.CreateNewQueryInDS(
         dsName,
-        "SELECT * FROM hogwartsstudents LIMIT {{List1.pageSize}} offset {{(List1.pageNo-1)*List1.pageSize}}",
-        "postgres_ssp",
+         "SELECT * FROM hogwartsstudents LIMIT {{List1.pageSize}} offset {{(List1.pageNo-1)*List1.pageSize}}",
+         "postgres_ssp",
       );
       _.dataSources.ToggleUsePreparedStatement(false);
       _.dataSources.RunQuery(true);
@@ -167,6 +152,7 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
       _.table.AssertListPagesPresent(2, false);
       _.table.NavigateToNextPage_List();
       _.table.AssertPageNumber_List(2, false, true);
+      _.agHelper.Sleep();
       _.table.AssertListPagesPresent(1, false);
       _.table.NavigateToPreviousPage_List();
       _.table.AssertPageNumber_List(1, false, true);
@@ -182,18 +168,30 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     });
   });
 
-  it("7. Verify onPageSizeChange functionality in Server Side Pagination of list widget", function() {
+  it("6. Verify onPageSizeChange functionality in Server Side Pagination of list widget", function() {
+    _.ee.ExpandCollapseEntity("List1");
+    _.ee.ExpandCollapseEntity("Container1");
+    _.ee.SelectEntityByName("Text1");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{List1.pageSize}}");
+    _.agHelper.GetNAssertContains(_.locators._textWidget, "3", "exist");
     _.ee.SelectEntityByName("List1");
     _.propPane.ToggleOnOrOff("Server Side Pagination", "On");
-    _.propPane.EnterJSContext(
-      "onPageSizeChange",
-      "{{showAlert('Page size changed ' + List1.pageSize)}}",
-      true,
-    );
-    _.propPane.ToggleOnOrOff("Server Side Pagination", "Off");
-    _.propPane.ToggleOnOrOff("Server Side Pagination", "On");
-    _.agHelper.AssertContains("Page size changed 2");
+    _.agHelper.GetNAssertContains(_.locators._textWidget, "2", "exist");
     _.agHelper.Sleep();
+  });
+
+  it("7. Verify Copy/Paste/Delete the copied List widget", function() {
+    _.ee.CopyPasteWidget("List1");
+    _.agHelper.AssertElementExist(_.locators._listWidget,1);
+    _.agHelper.GetNAssertElementText(
+      _.locators._propertyPaneTitle,
+      "List1Copy",
+      "have.text",
+    );
+    _.agHelper.Sleep();
+
+    _.ee.SelectEntityByName("List1Copy");
+    _.agHelper.GetNClick(_.propPane._deleteWidget);
   });
 
   it("8. Delete the List widget from canvas and verify it", function() {

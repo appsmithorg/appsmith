@@ -52,11 +52,11 @@ export class TableV2 {
   _tableSelectedRow =
     this._tableWrap +
     "//div[contains(@class, 'tbody')]//div[contains(@class, 'selected-row')]/div";
-  _liNextPage = "li[title='Next Page']";
-  _liPreviousPage = "li[title='Previous Page']";
+  _liNextPage = ".t--widget-listwidgetv2 .rc-pagination-next" ;
+  _liPreviousPage = ".t--widget-listwidgetv2 .rc-pagination-prev";
   _liPaginateItem = ".rc-pagination-item";
   _liCurrentSelectedPage =
-    "//div[@type='LIST_WIDGET']//li[contains(@class, 'rc-pagination-item-active')]/a";
+    "//div[contains(@class,'t--widget-listwidgetv2')]//li[contains(@class, 'rc-pagination-item-active')]/a";
   private _searchText = "input[type='search']";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
