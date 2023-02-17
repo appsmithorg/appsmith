@@ -564,9 +564,9 @@ class CodeEditor extends Component<Props, State> {
 
   hidePeekOverlay = () => {
     this.state.peekOverlayProps?.marker?.clear();
-    // this.setState({
-    //   peekOverlayProps: undefined,
-    // });
+    this.setState({
+      peekOverlayProps: undefined,
+    });
   };
 
   debounceHandleMouseOver = debounce(
@@ -1259,7 +1259,7 @@ class CodeEditor extends Component<Props, State> {
           expected={expected}
           hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
-          isOpen={showEvaluatedValue && !!!this.state.peekOverlayProps}
+          isOpen={showEvaluatedValue && !this.state.peekOverlayProps}
           popperPlacement={this.props.popperPlacement}
           popperZIndex={this.props.popperZIndex}
           theme={theme || EditorTheme.LIGHT}
