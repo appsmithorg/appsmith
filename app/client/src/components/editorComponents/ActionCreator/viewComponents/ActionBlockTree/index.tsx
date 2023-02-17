@@ -42,19 +42,18 @@ export const ActionBlockTree: React.FC<Props> = ({
 }) => {
   const [callbacksExpanded, setCallbacksExpanded] = useState(true);
   const [actionExpanded, setActionExpanded] = useState(false);
-  const { actionType, code, errorCallbacks, successCallbacks } = actionTree;
+  const { actionType, code, errorBlocks, successBlocks } = actionTree;
   const { action, actionTypeLabel, Icon: MainActionIcon } = getActionInfo(
     code,
     actionType,
   );
 
   const callBacksLength =
-    successCallbacks.filter(
+    successBlocks.filter(
       ({ actionType }) => actionType !== AppsmithFunction.none,
     ).length +
-    errorCallbacks.filter(
-      ({ actionType }) => actionType !== AppsmithFunction.none,
-    ).length;
+    errorBlocks.filter(({ actionType }) => actionType !== AppsmithFunction.none)
+      .length;
 
   const areCallbacksApplicable = [AppsmithFunction.integration].includes(
     actionType as any,
@@ -66,7 +65,7 @@ export const ActionBlockTree: React.FC<Props> = ({
     {
       label: "On success",
       handleAddBlock: handleAddSuccessBlock,
-      callbacks: successCallbacks,
+      callbacks: successBlocks,
       blockType: "success",
       handleSelection: handleBlockSelection,
       tooltipContent:
@@ -75,7 +74,7 @@ export const ActionBlockTree: React.FC<Props> = ({
     {
       label: "On failure",
       handleAddBlock: handleAddFailureBlock,
-      callbacks: errorCallbacks,
+      callbacks: errorBlocks,
       blockType: "failure",
       handleSelection: handleBlockSelection,
       tooltipContent:
@@ -89,8 +88,8 @@ export const ActionBlockTree: React.FC<Props> = ({
         const { index } = selectedCallbackBlock;
         const callbacks =
           type === "success"
-            ? actionTree.successCallbacks
-            : actionTree.errorCallbacks;
+            ? actionTree.successBlocks
+            : actionTree.errorBlocks;
         return (
           selectedCallbackBlock.type === type &&
           callbacks[index]?.actionType === AppsmithFunction.none

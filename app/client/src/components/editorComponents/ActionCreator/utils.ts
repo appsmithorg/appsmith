@@ -17,7 +17,7 @@ import {
   setCatchBlockInQuery,
 } from "@shared/ast";
 import { TreeDropdownOption } from "design-system-old";
-import { ActionTree } from "./types";
+import { ActionTree, CallbackBlock } from "./types";
 import { AppsmithFunction } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 
@@ -303,7 +303,7 @@ export function codeToAction(
     [AppsmithFunction.integration].includes(mainActionType) &&
     multipleActions
   ) {
-    const successCallbacks = getFuncExpressionAtPosition(
+    const successCallback = getFuncExpressionAtPosition(
       jsCode,
       0,
       self.evaluationVersion,
@@ -324,17 +324,17 @@ export function codeToAction(
     );
 
     const successCallbackBlocks: string[] = getFunctionBodyStatements(
-      successCallbacks,
+      successCallback,
       self.evaluationVersion,
     ).map((block: string) => block);
 
-    const errorCallbacks = getFuncExpressionAtPosition(
+    const errorCallback = getFuncExpressionAtPosition(
       jsCode,
       1,
       self.evaluationVersion,
     );
     const errorCallbackBlocks = getFunctionBodyStatements(
-      errorCallbacks,
+      errorCallback,
       self.evaluationVersion,
     ).map((block: string) => block);
 
@@ -342,22 +342,46 @@ export function codeToAction(
       // code: getMainAction(jsCode, self.evaluationVersion),
       code: jsCode,
       actionType: mainActionType,
-      successCallbacks: [
-        ...successCallbackBlocks,
-        ...thenCallbackBlocks,
-      ].map((block) => codeToAction(block, fieldOptions, false)),
-      errorCallbacks: [
-        ...errorCallbackBlocks,
-        ...catchCallbackBlocks,
-      ].map((block: string) => codeToAction(block, fieldOptions, false)),
+      successBlocks: [
+        ...successCallbackBlocks.map(
+          (block) =>
+            ({
+              ...codeToAction(block, fieldOptions, false),
+              type: "success",
+            } as CallbackBlock),
+        ),
+        ...thenCallbackBlocks.map(
+          (block) =>
+            ({
+              ...codeToAction(block, fieldOptions, false),
+              type: "then",
+            } as CallbackBlock),
+        ),
+      ],
+      errorBlocks: [
+        ...errorCallbackBlocks.map(
+          (block) =>
+            ({
+              ...codeToAction(block, fieldOptions, false),
+              type: "failure",
+            } as CallbackBlock),
+        ),
+        ...catchCallbackBlocks.map(
+          (block) =>
+            ({
+              ...codeToAction(block, fieldOptions, false),
+              type: "catch",
+            } as CallbackBlock),
+        ),
+      ],
     };
   }
 
   return {
     code: jsCode,
     actionType: mainActionType,
-    successCallbacks: [],
-    errorCallbacks: [],
+    successBlocks: [],
+    errorBlocks: [],
   };
 }
 
@@ -365,7 +389,7 @@ export function actionToCode(
   action: ActionTree,
   multipleActions = true,
 ): string {
-  const { actionType, code, errorCallbacks, successCallbacks } = action;
+  const { actionType, code, errorBlocks, successBlocks } = action;
 
   const actionFieldConfig = FIELD_GROUP_CONFIG[actionType];
 
@@ -377,28 +401,71 @@ export function actionToCode(
     [AppsmithFunction.integration].includes(actionType as any) &&
     multipleActions
   ) {
-    const successCallbackCodes = successCallbacks
-      .filter(({ actionType }) => actionType !== AppsmithFunction.none)
+    const successCallbackCodes = successBlocks
+      .filter(
+        ({ actionType, type }) =>
+          actionType !== AppsmithFunction.none && type === "success",
+      )
       .map((callback) => actionToCode(callback, false));
     const successCallbackCode = successCallbackCodes.join("");
 
-    const errorCallbackCodes = errorCallbacks
-      .filter(({ actionType }) => actionType !== AppsmithFunction.none)
+    const thenCallbackCodes = successBlocks
+      .filter(
+        ({ actionType, type }) =>
+          actionType !== AppsmithFunction.none && type === "then",
+      )
+      .map((callback) => actionToCode(callback, false));
+    const thenCallbackCode = thenCallbackCodes.join("");
+
+    const errorCallbackCodes = errorBlocks
+      .filter(
+        ({ actionType, type }) =>
+          actionType !== AppsmithFunction.none && type === "failure",
+      )
       .map((callback) => actionToCode(callback, false));
     const errorCallbackCode = errorCallbackCodes.join("");
 
-    const withSuccessCallback = setThenBlockInQuery(
-      code,
-      `() => { ${successCallbackCode} }`,
-      self.evaluationVersion,
-    );
-    const withSuccessAndErrorCallback = setCatchBlockInQuery(
+    const catchCallbackCodes = errorBlocks
+      .filter(
+        ({ actionType, type }) =>
+          actionType !== AppsmithFunction.none && type === "catch",
+      )
+      .map((callback) => actionToCode(callback, false));
+    const catchCallbackCode = catchCallbackCodes.join("");
+
+    // Set callback function field only if there is a callback code
+    const withSuccessCallback = successCallbackCode
+      ? setCallbackFunctionField(
+          code,
+          `() => { ${successCallbackCode} }`,
+          0,
+          self.evaluationVersion,
+        )
+      : code;
+
+    const withThenCallback = setThenBlockInQuery(
       withSuccessCallback,
-      `() => { ${errorCallbackCode} }`,
+      `() => { ${thenCallbackCode} }`,
       self.evaluationVersion,
     );
 
-    return withSuccessAndErrorCallback;
+    // Set callback function field only if there is a callback code
+    const withErrorCallback = errorCallbackCode
+      ? setCallbackFunctionField(
+          withThenCallback,
+          `() => { ${errorCallbackCode} }`,
+          1,
+          self.evaluationVersion,
+        )
+      : withThenCallback;
+
+    const withCatchCallback = setCatchBlockInQuery(
+      withErrorCallback,
+      `() => { ${catchCallbackCode} }`,
+      self.evaluationVersion,
+    );
+
+    return withCatchCallback;
   }
 
   return code === "" || code.endsWith(";") ? code : code + ";";

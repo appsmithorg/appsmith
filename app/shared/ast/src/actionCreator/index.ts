@@ -710,7 +710,7 @@ export function getFunctionName(value: string, evaluationVersion: number): strin
      * Similarly, for eg. appsmith.geolocation.getCurrentPosition(() => {}, () => {});
      * For this one, the first callee is getCurrentPosition
      */
-    let nodeToTraverse: Node = astWithComments.body[0].expression;
+    let nodeToTraverse: Node = astWithComments.body[0]?.expression;
     let firstCallExpressionNode: Node = nodeToTraverse;
 
     // @ts-ignore
@@ -721,7 +721,7 @@ export function getFunctionName(value: string, evaluationVersion: number): strin
     }
 
     // @ts-ignore
-    const calleeName = firstCallExpressionNode?.callee?.type === NodeTypes.MemberExpression ? firstCallExpressionNode?.callee?.object?.name : firstCallExpressionNode?.callee?.name;
+    const calleeName = (firstCallExpressionNode?.callee?.type === NodeTypes.MemberExpression ? firstCallExpressionNode?.callee?.object?.name : firstCallExpressionNode?.callee?.name) || "";
 
     // @ts-ignore
     const propertyName = firstCallExpressionNode?.callee?.property?.name;

@@ -72,10 +72,10 @@ export const Action: React.FC<Props> = ({
     // Remove all the none actions from the tree
     setActionTree((prev) => {
       const newActionTree = cloneDeep(prev);
-      newActionTree.successCallbacks = newActionTree.successCallbacks.filter(
+      newActionTree.successBlocks = newActionTree.successBlocks.filter(
         (cb) => cb.actionType !== AppsmithFunction.none,
       );
-      newActionTree.errorCallbacks = newActionTree.errorCallbacks.filter(
+      newActionTree.errorBlocks = newActionTree.errorBlocks.filter(
         (cb) => cb.actionType !== AppsmithFunction.none,
       );
 
@@ -112,16 +112,17 @@ export const Action: React.FC<Props> = ({
     setOpen(true);
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
-      newActionTree.successCallbacks.push({
+      newActionTree.successBlocks.push({
         actionType: AppsmithFunction.none,
         code: "",
-        successCallbacks: [],
-        errorCallbacks: [],
+        successBlocks: [],
+        errorBlocks: [],
+        type: "then",
       });
 
       setSelectedCallbackBlock({
         type: "success",
-        index: newActionTree.successCallbacks.length - 1,
+        index: newActionTree.successBlocks.length - 1,
       });
 
       return newActionTree;
@@ -132,16 +133,17 @@ export const Action: React.FC<Props> = ({
     setOpen(true);
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
-      newActionTree.errorCallbacks.push({
+      newActionTree.errorBlocks.push({
         actionType: AppsmithFunction.none,
         code: "",
-        successCallbacks: [],
-        errorCallbacks: [],
+        successBlocks: [],
+        errorBlocks: [],
+        type: "catch",
       });
 
       setSelectedCallbackBlock({
         type: "failure",
-        index: newActionTree.errorCallbacks.length - 1,
+        index: newActionTree.errorBlocks.length - 1,
       });
 
       return newActionTree;
@@ -158,9 +160,9 @@ export const Action: React.FC<Props> = ({
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
       if (type === "success") {
-        newActionTree.successCallbacks.splice(index, 1);
+        newActionTree.successBlocks.splice(index, 1);
       } else {
-        newActionTree.errorCallbacks.splice(index, 1);
+        newActionTree.errorBlocks.splice(index, 1);
       }
       return newActionTree;
     });
@@ -171,8 +173,8 @@ export const Action: React.FC<Props> = ({
     setActionTree({
       code: "",
       actionType: AppsmithFunction.none,
-      successCallbacks: [],
-      errorCallbacks: [],
+      successBlocks: [],
+      errorBlocks: [],
     });
   }, []);
 
@@ -186,14 +188,14 @@ export const Action: React.FC<Props> = ({
 
   const isCallbackBlockSelected = selectedCallbackBlock !== null;
 
-  const { errorCallbacks, successCallbacks } = actionTree;
+  const { errorBlocks, successBlocks } = actionTree;
 
   const callbackBlocks: CallbackBlocks = {
     success: [],
     failure: [],
   };
 
-  callbackBlocks.success = successCallbacks.map((action, index) => {
+  callbackBlocks.success = successBlocks.map((action, index) => {
     const valueWithMoustache = `{{${action.code}}}`;
     return (
       <FieldGroup
@@ -205,7 +207,7 @@ export const Action: React.FC<Props> = ({
         onValueChange={(newValue) => {
           setActionTree((prevActionTree) => {
             const newActionTree = cloneDeep(prevActionTree);
-            const action = newActionTree.successCallbacks[index];
+            const action = newActionTree.successBlocks[index];
             action.code = getCodeFromMoustache(newValue);
             const selectedField = getSelectedFieldFromValue(
               newValue,
@@ -223,7 +225,7 @@ export const Action: React.FC<Props> = ({
     );
   });
 
-  callbackBlocks.failure = errorCallbacks.map((action, index) => {
+  callbackBlocks.failure = errorBlocks.map((action, index) => {
     const valueWithMoustache = `{{${action.code}}}`;
     return (
       <FieldGroup
@@ -235,7 +237,7 @@ export const Action: React.FC<Props> = ({
         onValueChange={(newValue) => {
           setActionTree((prevActionTree) => {
             const newActionTree = cloneDeep(prevActionTree);
-            const action = newActionTree.errorCallbacks[index];
+            const action = newActionTree.errorBlocks[index];
             action.code = getCodeFromMoustache(newValue);
             const selectedField = getSelectedFieldFromValue(
               newValue,
@@ -314,8 +316,8 @@ export const Action: React.FC<Props> = ({
                       return {
                         code: getCodeFromMoustache(newValue),
                         actionType,
-                        successCallbacks: [],
-                        errorCallbacks: [],
+                        successBlocks: [],
+                        errorBlocks: [],
                       };
                     });
                   }}

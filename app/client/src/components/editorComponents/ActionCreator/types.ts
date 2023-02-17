@@ -146,11 +146,15 @@ export type FieldGroupConfig = {
   [key: string]: FieldGroupValueType;
 };
 
+export interface CallbackBlock extends ActionTree {
+  type: "success" | "failure" | "then" | "catch";
+}
+
 export type ActionTree = {
   code: string;
   actionType: typeof AppsmithFunction[keyof typeof AppsmithFunction];
-  successCallbacks: ActionTree[];
-  errorCallbacks: ActionTree[];
+  successBlocks: CallbackBlock[];
+  errorBlocks: CallbackBlock[];
 };
 
 export type SelectedActionBlock = {
