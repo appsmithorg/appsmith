@@ -1332,7 +1332,14 @@ public class RestApiPluginTest {
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals(
+                            "Host not allowed.",
+                            result.getBody(),
+                            "Unexpected error message. Did this fail for a different reason?"
+                    );
+                })
                 .verifyComplete();
     }
 
@@ -1346,7 +1353,10 @@ public class RestApiPluginTest {
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals("Host not allowed.", result.getBody());
+                })
                 .verifyComplete();
     }
 
