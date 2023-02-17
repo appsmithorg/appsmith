@@ -1334,9 +1334,8 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals(
-                            "Host not allowed.",
-                            result.getBody(),
+                    assertTrue(
+                            result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."),
                             "Unexpected error message. Did this fail for a different reason?"
                     );
                 })
@@ -1355,7 +1354,7 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Host not allowed.", result.getBody());
+                    assertTrue(result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."));
                 })
                 .verifyComplete();
     }
