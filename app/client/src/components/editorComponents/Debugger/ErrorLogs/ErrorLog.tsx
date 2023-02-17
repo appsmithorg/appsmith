@@ -28,7 +28,7 @@ function ErrorLog(props: {
     const logItemProps = getLogItemProps(error);
     const messages = error.messages || [];
     const logItems = [];
-    if (messages) {
+    if (messages.length) {
       messages.forEach((message) => {
         logItemProps.messages = [message];
         logItems.push(
