@@ -120,13 +120,7 @@ export function PeekOverlayPopUpContent(
               overflowY: "auto",
             }}
           >
-            <ReactJson
-              src={props.data}
-              {...reactJsonProps}
-              // onSelect={(ev: any) => {
-              //   console.log("peek select rjv", ev);
-              // }}
-            />
+            <ReactJson src={props.data} {...reactJsonProps} />
           </JsonWrapper>
         )}
         {props.dataType === "function" && (
