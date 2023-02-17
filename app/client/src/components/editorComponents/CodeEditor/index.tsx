@@ -527,9 +527,9 @@ class CodeEditor extends Component<Props, State> {
   showPeekOverlay = (
     peekableAttribute: string,
     tokenElement: Element,
+    tokenElementPosition: DOMRect,
     dataToShow: unknown,
   ) => {
-    const tokenElementPosition = tokenElement.getBoundingClientRect();
     const line = tokenElement.getAttribute(PEEKABLE_LINE),
       chStart = tokenElement.getAttribute(PEEKABLE_CH_START),
       chEnd = tokenElement.getAttribute(PEEKABLE_CH_END);
@@ -580,17 +580,26 @@ class CodeEditor extends Component<Props, State> {
       event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
     ) {
       const tokenElement = event.target;
+      const tokenElementPosition = tokenElement.getBoundingClientRect();
       const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
-      if (
-        peekableAttribute &&
-        this.state.peekOverlayProps?.name !== peekableAttribute
-      ) {
+      if (peekableAttribute) {
+        // don't retrigger if hovering over the same token
+        if (
+          this.state.peekOverlayProps?.name === peekableAttribute &&
+          this.state.peekOverlayProps?.position.top ===
+            tokenElementPosition.top &&
+          this.state.peekOverlayProps?.position.left ===
+            tokenElementPosition.left
+        ) {
+          return;
+        }
         const paths = peekableAttribute.split(".");
         if (paths.length) {
           paths.splice(1, 0, "peekData");
           this.showPeekOverlay(
             peekableAttribute,
             tokenElement,
+            tokenElementPosition,
             _.get(this.props.entitiesForNavigation, paths),
           );
         }
