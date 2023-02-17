@@ -60,7 +60,7 @@ function CanvasContainer() {
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
+  const shouldHaveTopMargin = isPreviewMode && pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
 
@@ -107,8 +107,7 @@ function CanvasContainer() {
       }
       className={classNames({
         [`${getCanvasClassName()} scrollbar-thin`]: true,
-        "mt-0": !shouldHaveTopMargin,
-        "mt-4": showCanvasTopSection,
+        "mt-4": !shouldHaveTopMargin,
         "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
       })}
       id={"canvas-viewport"}
