@@ -39,7 +39,9 @@ describe("Test Create Api and Bind to List widget", function() {
         expect(text).to.equal(valueToTest);
       });
     cy.PublishtheApp();
-
+    cy.wait("@postExecute").then((interception) => {
+      valueToTest = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
+    });
     cy.waitUntil(
       () => cy.get(".t--widget-textwidget span").should("be.visible"),
       {
@@ -60,6 +62,9 @@ describe("Test Create Api and Bind to List widget", function() {
 
   it("3. Test_Validate the list widget ", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
+    cy.wait("@postExecute").then((interception) => {
+      valueToTest = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
+    });
     cy.SearchEntityandOpen("List1");
     cy.moveToStyleTab();
     cy.testJsontext("itemspacing\\(px\\)", "50");
@@ -71,6 +76,9 @@ describe("Test Create Api and Bind to List widget", function() {
         expect(text).to.equal(valueToTest);
       });
     cy.PublishtheApp();
+    cy.wait("@postExecute").then((interception) => {
+      valueToTest = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
+    });
     cy.waitUntil(
       () => cy.get(".t--widget-textwidget span").should("be.visible"),
       {
