@@ -184,6 +184,7 @@ describe("Git import flow ", function() {
       .should("be.hidden")
       .invoke("show")
       .click({ force: true });
+      cy.wait(2000);
     cy.get(pages.clonePage).click({ force: true });
     cy.wait("@clonePage").should(
       "have.nested.property",
