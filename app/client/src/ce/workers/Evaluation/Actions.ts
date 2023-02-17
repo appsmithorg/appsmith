@@ -9,7 +9,7 @@ import {
 import set from "lodash/set";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
-import { jsVarProxy } from "workers/Evaluation/JSObject/JSVariableProxy";
+import JSProxy from "workers/Evaluation/JSObject/JSVariableProxy";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import { entityFns, platformFns } from "@appsmith/workers/Evaluation/fns";
@@ -110,7 +110,7 @@ function setEntityToEvalContext(
             return;
           }
 
-          EVAL_CONTEXT[entityName] = jsVarProxy.fromJSObject(
+          EVAL_CONTEXT[entityName] = JSProxy.create(
             entity as DataTreeJSAction,
             entityName,
             varState,
