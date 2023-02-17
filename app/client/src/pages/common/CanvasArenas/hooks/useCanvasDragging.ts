@@ -116,6 +116,7 @@ export const useCanvasDragging = (
     snapRowSpace,
     getSnappedXY,
     isCurrentDraggedCanvas,
+    scale,
   );
 
   useEffect(() => {
