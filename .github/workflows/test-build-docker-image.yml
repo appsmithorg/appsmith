@@ -35,7 +35,7 @@ jobs:
     secrets: inherit
     with:
       pr: 0
-      
+
   perf-test:
     needs: [client-build, server-build, rts-build]
     # Only run if the build step is successful
@@ -219,8 +219,6 @@ jobs:
           context: .
           push: true
           platforms: linux/arm64,linux/amd64
-          build-args: |
-            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
 
@@ -266,8 +264,6 @@ jobs:
         with:
           context: app/server
           push: true
-          build-args: |
-            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
 
