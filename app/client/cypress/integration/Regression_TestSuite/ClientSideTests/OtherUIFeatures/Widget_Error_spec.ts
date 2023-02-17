@@ -49,11 +49,11 @@ describe("Widget error state", function() {
     debuggerHelper.AssertVisibleErrorMessagesCount(1);
   });
 
-  it("Recent errors are shown at the top of the list", function() {
-    cy.testJsontext("label", "{{[]}}");
-    //This feature is disabled in updated error log - epic 17720
-    //debuggerHelper.LogStateContains("text", 0);
-  });
+  //This feature is disabled in updated error log - epic 17720
+  //it("Recent errors are shown at the top of the list", function() {
+  //cy.testJsontext("label", "{{[]}}");
+  //debuggerHelper.LogStateContains("text", 0);
+  //});
 
   //This feature is disabled in updated error log - epic 17720
   // it("Clicking on a message should open the search menu", function() {
