@@ -42,7 +42,7 @@ export function setInterval(
         metaData.triggerMeta,
         metaData.eventType,
       );
-      callback(...args);
+      typeof callback === "function" && callback(...args);
     },
     delay,
     ...args,
