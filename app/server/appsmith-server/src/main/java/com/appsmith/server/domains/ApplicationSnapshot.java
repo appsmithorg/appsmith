@@ -16,6 +16,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class ApplicationSnapshot extends BaseDomain {
     private String applicationId;
-    private String branchName;
     private ApplicationJson applicationJson;
 }

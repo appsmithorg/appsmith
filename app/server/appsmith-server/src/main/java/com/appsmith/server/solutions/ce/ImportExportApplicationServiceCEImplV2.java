@@ -22,7 +22,6 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
@@ -48,11 +47,11 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ce.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
@@ -136,7 +135,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     private final ActionPermission actionPermission;
     private final Gson gson;
     private final TransactionalOperator transactionalOperator;
-    private final ApplicationSnapshotRepository applicationSnapshotRepository;
+    private final ApplicationSnapshotService applicationSnapshotService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -2251,29 +2250,17 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
     @Override
     public Mono<String> createApplicationSnapshot(String applicationId, String branchName) {
-        // try to get an existing snapshot or create a new one if not found
-        Mono<ApplicationSnapshot> existingSnapshot = applicationSnapshotRepository.findByApplicationIdAndBranchName(
-                        applicationId, branchName, applicationPermission.getEditPermission()
-                )
-                .defaultIfEmpty(new ApplicationSnapshot());
-
         return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 /* SerialiseApplicationObjective=VERSION_CONTROL because this API can be invoked from developers.
                 exportApplicationById method check for MANAGE_PERMISSION if SerialiseApplicationObjective=SHARE.
                 */
-                .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
-                .zipWith(existingSnapshot)
-                .map(objects -> {
-                    ApplicationSnapshot applicationSnapshot = objects.getT2();
-                    applicationSnapshot.setApplicationJson(objects.getT1());
-                    if(StringUtils.isEmpty(applicationSnapshot.getId())) {
-                        applicationSnapshot.setApplicationId(applicationId);
-                        applicationSnapshot.setBranchName(branchName);
-                    }
-                    return applicationSnapshot;
-                })
-                .flatMap(applicationSnapshotRepository::setUserPermissionsInObject)
-                .flatMap(applicationSnapshotRepository::save)
+                .flatMap(branchedAppId ->
+                    Mono.zip(
+                            exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL),
+                            Mono.just(branchedAppId)
+                    )
+                )
+                .flatMap(objects -> applicationSnapshotService.createSnapshotForApplication(objects.getT2(), objects.getT1()))
                 .map(BaseDomain::getId);
     }
 }

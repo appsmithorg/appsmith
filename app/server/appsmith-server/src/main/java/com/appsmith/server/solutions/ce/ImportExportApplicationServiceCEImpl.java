@@ -21,7 +21,6 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
@@ -48,11 +47,11 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ce.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
@@ -137,7 +136,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ActionPermission actionPermission;
     private final Gson gson;
     private final TransactionalOperator transactionalOperator;
-    private final ApplicationSnapshotRepository applicationSnapshotRepository;
+    private final ApplicationSnapshotService applicationSnapshotService;
 
     /**
      * This function will give the application resource to rebuild the application in import application flow
@@ -2213,12 +2212,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
     @Override
     public Mono<String> createApplicationSnapshot(String applicationId, String branchName) {
-        return this.exportApplicationById(applicationId, branchName).flatMap(applicationJson -> {
-            ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
-            applicationSnapshot.setApplicationId(applicationId);
-            applicationSnapshot.setBranchName(branchName);
-            applicationSnapshot.setApplicationJson(applicationJson);
-            return applicationSnapshotRepository.save(applicationSnapshot);
-        }).map(BaseDomain::getId);
+        return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+                /* SerialiseApplicationObjective=VERSION_CONTROL because this API can be invoked from developers.
+                exportApplicationById method check for MANAGE_PERMISSION if SerialiseApplicationObjective=SHARE.
+                */
+                .flatMap(branchedAppId ->
+                        Mono.zip(
+                                exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL),
+                                Mono.just(branchedAppId)
+                        )
+                )
+                .flatMap(objects -> applicationSnapshotService.createSnapshotForApplication(objects.getT2(), objects.getT1()))
+                .map(BaseDomain::getId);
     }
 }
