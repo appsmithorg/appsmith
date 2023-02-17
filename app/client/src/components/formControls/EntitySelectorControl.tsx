@@ -27,6 +27,35 @@ const EntitySelectorContainer = styled.div`
   display: grid;
   grid-gap: 16px;
   grid-template-columns: repeat(auto-fill, 280px);
+  position: relative;
+
+  & > div:not(:first-child) {
+    padding-left: 14px;
+  }
+
+  & > div:nth-child(2):before {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 10px;
+    height: 60px;
+    top: 60px;
+    left: 4px;
+    border: solid #e0dede;
+    border-width: 0 0 1.8px 1.8px;
+  }
+
+  & > div:nth-child(3):before {
+    content: "";
+    display: block;
+    position: absolute;
+    height: 76px;
+    width: 10px;
+    top: 119px;
+    left: 4px;
+    border: solid #e0dede;
+    border-width: 0 0 1.8px 1.8px;
+  }
 `;
 
 const EntitySelectorWrapper = styled.div<{ marginRight: string }>`
@@ -39,7 +68,6 @@ function EntitySelectorComponent(props: any) {
   const visibleSchemas = schema.filter(
     (singleSchema: any) => !singleSchema.hidden,
   );
-
   return (
     <EntitySelectorContainer
       className={`t--${configProperty}`}

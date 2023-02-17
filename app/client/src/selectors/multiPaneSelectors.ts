@@ -4,7 +4,7 @@ export const getTabsPaneWidth = (state: AppState) =>
   state.ui.multiPaneConfig.tabsPaneWidth;
 
 export const isMultiPaneActive = (state: AppState) =>
-  state.ui.users.featureFlag.data.MULTIPLE_PANES === true;
+  state.ui.users.featureFlag.data.MULTIPLE_PANES === false;
 
 export const getPaneCount = (state: AppState) =>
   state.ui.multiPaneConfig.paneCount;
