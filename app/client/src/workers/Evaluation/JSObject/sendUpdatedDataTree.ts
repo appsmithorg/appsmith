@@ -21,7 +21,6 @@ export function triggerEvalWithPathsChanged(pathsChanged: string[][]) {
   let dataTree: DataTree = {};
   const errors: EvalError[] = [];
   const logs: any[] = [];
-  const userLogs: LogObject[] = [];
   const dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
@@ -59,7 +58,6 @@ export function triggerEvalWithPathsChanged(pathsChanged: string[][]) {
     evaluationOrder: evalOrder,
     jsUpdates,
     logs,
-    userLogs,
     unEvalUpdates,
     isCreateFirstTree,
     staleMetaIds,

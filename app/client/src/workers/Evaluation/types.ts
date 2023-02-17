@@ -14,7 +14,6 @@ import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { WorkerRequest } from "@appsmith/workers/common/types";
 import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { LogObject } from "entities/AppsmithConsole";
 
 export type EvalWorkerSyncRequest = WorkerRequest<any, EVAL_WORKER_SYNC_ACTION>;
 export type EvalWorkerASyncRequest = WorkerRequest<
@@ -45,7 +44,6 @@ export interface EvalTreeResponseData {
   evaluationOrder: string[];
   jsUpdates: Record<string, JSUpdate>;
   logs: unknown[];
-  userLogs: LogObject[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
   staleMetaIds: string[];
