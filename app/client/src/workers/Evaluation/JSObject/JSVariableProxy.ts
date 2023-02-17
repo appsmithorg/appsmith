@@ -55,7 +55,7 @@ function addPatch(patch: Patch) {
 }
 
 class JSProxy {
-  fromJSObject(
+  static create(
     jsObject: DataTreeJSAction,
     jsObjectName: string,
     varState: Record<string, unknown> = {},
@@ -73,4 +73,4 @@ class JSProxy {
   }
 }
 
-export const jsVarProxy = new JSProxy();
+export default JSProxy;

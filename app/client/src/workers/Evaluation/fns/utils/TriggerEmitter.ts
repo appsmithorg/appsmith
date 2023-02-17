@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
+import { getOriginalValueFromProxy } from "workers/Evaluation/JSObject/Collection";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;
@@ -93,8 +94,9 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
   }>(
     (acc, d: any) => {
       const { data, name } = d;
+      const _data = getOriginalValueFromProxy(data);
       try {
-        acc.JSExecutionData[name] = self.structuredClone(data);
+        acc.JSExecutionData[name] = self.structuredClone(_data);
       } catch (e) {
         acc.JSExecutionErrors[name] = {
           message: `Execution of ${name} returned an unserializable data`,
