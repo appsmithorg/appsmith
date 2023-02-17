@@ -18,6 +18,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
@@ -2811,9 +2812,10 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "042", id = "add-index-to-application-snapshot", author = "")
     public void addIndexToApplicationSnapshot(MongoTemplate mongoTemplate) {
-        Index index = makeIndex(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId))
-                .named("applicationId_index");
-        ensureIndexes(mongoTemplate, ActionCollection.class, index);
+        Index applicationIdIndex = makeIndex(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId))
+                .named("applicationId_unique_index")
+                .unique();
+        ensureIndexes(mongoTemplate, ApplicationSnapshot.class, applicationIdIndex);
     }
 
 }
