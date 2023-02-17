@@ -4105,7 +4105,7 @@ public class DatabaseChangelog1 {
         List<Application> applications = mongoTemplate.find(applicationQuery, Application.class);
 
         for (Application application : applications) {
-            application.getPages().forEach(page -> {
+            application.getUnpublishedApplication().getPages().forEach(page -> {
                 page.setDefaultPageId(page.getId());
             });
 

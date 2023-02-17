@@ -778,8 +778,8 @@ public class DatabaseChangelog2 {
         // Archive the pages which have the applicationId but the connection is missing from the application object.
         for (Application application : applications) {
             Set<String> validPageIds = new HashSet<>();
-            if (!CollectionUtils.isEmpty(application.getPages())) {
-                for (ApplicationPage applicationPage : application.getPages()) {
+            if (!CollectionUtils.isEmpty(application.getUnpublishedApplication().getPages())) {
+                for (ApplicationPage applicationPage : application.getUnpublishedApplication().getPages()) {
                     validPageIds.add(applicationPage.getId());
                 }
             }

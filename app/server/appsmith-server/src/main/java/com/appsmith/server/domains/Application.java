@@ -175,7 +175,7 @@ public class Application extends BaseDomain {
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
-        for (ApplicationPage applicationPage : this.getPages()) {
+        for (ApplicationPage applicationPage : this.getUnpublishedApplication().getPages()) {
             applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
             applicationPage.setDefaultPageId(null);
         }
@@ -225,9 +225,9 @@ public class Application extends BaseDomain {
         return publishedApplication == null ? new ApplicationDTO() : publishedApplication;
     }
 
-    public List<ApplicationPage> getPages() {
-        return Boolean.TRUE.equals(viewMode) ? getPublishedApplication().getPages() : getUnpublishedApplication().getPages();
-    }
+//    public List<ApplicationPage> getPages() {
+//        return Boolean.TRUE.equals(viewMode) ? getPublishedApplication().getPages() : getUnpublishedApplication().getPages();
+//    }
 
     @Data
     @NoArgsConstructor

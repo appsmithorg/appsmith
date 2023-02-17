@@ -322,9 +322,9 @@ public class ResponseUtils {
                 && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
             application.setId(application.getGitApplicationMetadata().getDefaultApplicationId());
         }
-        if (!CollectionUtils.isEmpty(application.getPages())) {
+        if (!CollectionUtils.isEmpty(application.getUnpublishedApplication().getPages())) {
             application
-                    .getPages()
+                    .getUnpublishedApplication().getPages()
                     .forEach(page -> {
                         if (!StringUtils.isEmpty(page.getDefaultPageId())) {
                             page.setId(page.getDefaultPageId());

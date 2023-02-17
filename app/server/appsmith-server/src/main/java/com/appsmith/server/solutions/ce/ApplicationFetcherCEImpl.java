@@ -196,7 +196,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             .map(applicationPageMap -> {
                                 for (WorkspaceApplicationsDTO workspaceApps : userHomepageDTO.getWorkspaceApplications()) {
                                     for (Application application : workspaceApps.getApplications()) {
-                                        setDefaultPageSlug(application, applicationPageMap, Application::getPages, NewPage::getUnpublishedPage);
+                                        setDefaultPageSlug(application, applicationPageMap, app-> app.getUnpublishedApplication().getPages(), NewPage::getUnpublishedPage);
                                         setDefaultPageSlug(application, applicationPageMap, pubApplication -> pubApplication.getPublishedApplication().getPages(), NewPage::getPublishedPage);
                                     }
                                 }

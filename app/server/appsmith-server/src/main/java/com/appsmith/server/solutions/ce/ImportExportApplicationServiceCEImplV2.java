@@ -765,7 +765,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
         final List<ApplicationPage> publishedPages = importedApplication.getPublishedApplication().getPages();
         importedApplication.setViewMode(false);
-        final List<ApplicationPage> unpublishedPages = importedApplication.getPages();
+        final List<ApplicationPage> unpublishedPages = importedApplication.getUnpublishedApplication().getPages();
 
         importedApplication.getUnpublishedApplication().setPages(null);
         importedApplication.getPublishedApplication().setPages(null);
@@ -878,7 +878,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                         // When we are appending the pages to the existing application
                                                         // e.g. import template we are only importing this in unpublished
                                                         // version. At the same time we want to keep the existing page ref
-                                                        unpublishedPages.addAll(existingApplication.getPages());
+                                                        unpublishedPages.addAll(existingApplication.getUnpublishedApplication().getPages());
                                                         return Mono.just(existingApplication);
                                                     }
                                                     importedApplication.setId(existingApplication.getId());
@@ -930,7 +930,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     if (appendToApp) {
                         // add existing pages to importedApplication so that they are not lost
                         // when we update application from importedApplication
-                        importedApplication.getUnpublishedApplication().setPages(savedApp.getPages());
+                        importedApplication.getUnpublishedApplication().setPages(savedApp.getUnpublishedApplication().getPages());
                     }
 
                     // For git-sync this will not be empty

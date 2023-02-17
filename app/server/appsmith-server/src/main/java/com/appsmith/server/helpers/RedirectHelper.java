@@ -60,7 +60,7 @@ public class RedirectHelper {
                         // Get the default page in the application, or if there's no default page, get the first page
                         // in the application and redirect to edit that page.
                         String pageId = null;
-                        for (final ApplicationPage page : application.getPages()) {
+                        for (final ApplicationPage page : application.getUnpublishedApplication().getPages()) {
                             if (pageId == null || page.isDefault()) {
                                 pageId = page.getId();
                             }
@@ -169,8 +169,8 @@ public class RedirectHelper {
 
     public String buildApplicationUrl(Application application, HttpHeaders httpHeaders) {
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
-        if(application != null && application.getPages() != null && application.getPages().size() > 0) {
-            ApplicationPage applicationPage = application.getPages().get(0);
+        if(application != null && application.getUnpublishedApplication().getPages() != null && application.getUnpublishedApplication().getPages().size() > 0) {
+            ApplicationPage applicationPage = application.getUnpublishedApplication().getPages().get(0);
             redirectUrl = String.format(RedirectHelper.APPLICATION_PAGE_URL, application.getId(), applicationPage.getId());
         }
         return fulfillRedirectUrl(redirectUrl, httpHeaders);

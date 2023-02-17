@@ -200,8 +200,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     private Boolean isDuplicatePage(Application application, String pageId) {
-        if (application.getPages() != null) {
-            int count = (int) application.getPages().stream().filter(
+        if (application.getUnpublishedApplication().getPages() != null) {
+            int count = (int) application.getUnpublishedApplication().getPages().stream().filter(
                     applicationPage -> applicationPage.getId().equals(pageId)).count();
             if (count > 0) {
                 return Boolean.FALSE;
@@ -690,7 +690,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 } else {
                                     applicationPage.setDefaultPageId(page.getDefaultResources().getPageId());
                                 }
-                                application.getPages().add(applicationPage);
+                                application.getUnpublishedApplication().getPages().add(applicationPage);
                                 return applicationService.save(application)
                                         .thenReturn(page);
                             });
@@ -769,7 +769,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 return applicationService.createDefault(application1);
                             })
                             // Now fetch the pages of the source application, clone and add them to this new application
-                            .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
+                            .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getUnpublishedApplication().getPages())
                                     .flatMap(applicationPage -> {
                                         String pageId = applicationPage.getId();
                                         Boolean isDefault = applicationPage.getIsDefault();
@@ -862,7 +862,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
                     Mono<Application> applicationMono = applicationService.getById(page.getApplicationId())
                             .flatMap(application -> {
-                                application.getPages().removeIf(p -> p.getId().equals(page.getId()));
+                                application.getUnpublishedApplication().getPages().removeIf(p -> p.getId().equals(page.getId()));
                                 return applicationService.save(application);
                             });
                     Mono<NewPage> newPageMono;
@@ -969,7 +969,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         updatedPublishedJSLibDTOs.addAll(application.getPublishedApplication().getCustomJSLibs());
                     }
 
-                    List<ApplicationPage> pages = application.getPages();
+                    List<ApplicationPage> pages = application.getUnpublishedApplication().getPages();
                     if (pages == null) {
                         pages = new ArrayList<>();
                     }
@@ -1134,7 +1134,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     final NewPage branchedPage = tuple.getT1();
                     Application application = tuple.getT2();
                     // Update the order in unpublished pages here, since this should only ever happen in edit mode.
-                    List<ApplicationPage> pages = application.getPages();
+                    List<ApplicationPage> pages = application.getUnpublishedApplication().getPages();
 
                     ApplicationPage foundPage = null;
                     for (final ApplicationPage page : pages) {

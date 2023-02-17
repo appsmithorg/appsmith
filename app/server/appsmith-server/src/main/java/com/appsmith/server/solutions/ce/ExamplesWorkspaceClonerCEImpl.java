@@ -198,7 +198,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                 .flatMap(application -> {
                     application.setWorkspaceId(toWorkspaceId);
 
-                    final String defaultPageId = application.getPages().stream()
+                    final String defaultPageId = application.getUnpublishedApplication().getPages().stream()
                             .filter(ApplicationPage::isDefault)
                             .map(ApplicationPage::getId)
                             .findFirst()

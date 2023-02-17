@@ -263,7 +263,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     if (Boolean.TRUE.equals(view)) {
                         applicationPages = application.getPublishedApplication().getPages();
                     } else {
-                        applicationPages = application.getPages();
+                        applicationPages = application.getUnpublishedApplication().getPages();
                     }
 
                     for (ApplicationPage applicationPage : applicationPages) {
@@ -284,7 +284,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     if (Boolean.TRUE.equals(view)) {
                         pages = application.getPublishedApplication().getPages();
                     } else {
-                        pages = application.getPages();
+                        pages = application.getUnpublishedApplication().getPages();
                     }
                     return pages.stream().map(page -> page.getId()).collect(Collectors.toList());
                 })
@@ -301,7 +301,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     String defaultPageId = tuple.getT2();
 
                     List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
-                    List<ApplicationPage> pages = tuple.getT3().getPages();
+                    List<ApplicationPage> pages = tuple.getT3().getUnpublishedApplication().getPages();
                     List<ApplicationPage> publishedPages = tuple.getT3().getPublishedApplication().getPages();
                     Map<String, Integer> pagesOrder = new HashMap<>();
                     Map<String, Integer> publishedPagesOrder = new HashMap<>();
@@ -433,7 +433,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         if (Boolean.TRUE.equals(viewMode)) {
             pages = application.getPublishedApplication().getPages();
         } else {
-            pages = application.getPages();
+            pages = application.getUnpublishedApplication().getPages();
         }
 
         return findByApplicationId(application.getId(), pagePermission.getReadPermission(), viewMode)

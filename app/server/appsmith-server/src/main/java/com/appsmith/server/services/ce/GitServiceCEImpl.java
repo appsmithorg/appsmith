@@ -819,8 +819,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application -> {
                     String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                     String defaultPageId = "";
-                    if (!application.getPages().isEmpty()) {
-                        defaultPageId = application.getPages()
+                    if (!application.getUnpublishedApplication().getPages().isEmpty()) {
+                        defaultPageId = application.getUnpublishedApplication().getPages()
                                 .stream()
                                 .filter(applicationPage -> applicationPage.getIsDefault().equals(Boolean.TRUE))
                                 .collect(Collectors.toList())
@@ -1070,7 +1070,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //Remove the parent application branch name from the list
                     branch.remove(tuple.getT4());
                     defaultApplication.setGitApplicationMetadata(null);
-                    defaultApplication.getPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                    defaultApplication.getUnpublishedApplication().getPages().forEach(page -> page.setDefaultPageId(page.getId()));
                     if (!CollectionUtils.isNullOrEmpty(defaultApplication.getPublishedApplication().getPages())) {
                         defaultApplication.getPublishedApplication().getPages().forEach(page -> page.setDefaultPageId(page.getId()));
                     }
@@ -1086,7 +1086,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application ->
                         // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
                         // will be deleted
-                        Flux.fromIterable(application.getPages())
+                        Flux.fromIterable(application.getUnpublishedApplication().getPages())
                                 .flatMap(page -> newPageService.findById(page.getId(), Optional.empty()))
                                 .map(newPage -> {
                                     newPage.setDefaultResources(null);
