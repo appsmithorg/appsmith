@@ -721,12 +721,7 @@ export function getFunctionName(value: string, evaluationVersion: number): strin
     }
 
     // @ts-ignore
-    const calleeName = (firstCallExpressionNode?.callee?.type === NodeTypes.MemberExpression ? firstCallExpressionNode?.callee?.object?.name : firstCallExpressionNode?.callee?.name) || "";
-
-    // @ts-ignore
-    const propertyName = firstCallExpressionNode?.callee?.property?.name;
-
-    return calleeName + (propertyName ? `.${propertyName}` : "");
+    return firstCallExpressionNode ? generate(firstCallExpressionNode?.callee, {comments: true}) : "";
 }
 
 // this function extracts the then/catch blocks when query is in this form

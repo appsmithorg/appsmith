@@ -206,6 +206,22 @@ describe("getFunctionName", () => {
 
     expect(result).toEqual("Api1.run");
   });
+
+  it("should get the main action name for geolocation callback", () => {
+    const value = "appsmith.geolocation.getCurrentPosition((location) => { console.log('hello'); });";
+
+    const result = getFunctionName(value, 2);
+
+    expect(result).toEqual("appsmith.geolocation.getCurrentPosition");
+  });
+
+  it("should return empty string for no action", () => {
+    const value = ";";
+
+    const result = getFunctionName(value, 2);
+
+    expect(result).toEqual("");
+  });
 });
 
 describe("getThenCatchBlocksFromQuery", () => {
