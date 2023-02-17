@@ -421,19 +421,6 @@ function getApiAndQueryOptions(
   if (queryOptions) {
     queryOptions.children = [createQueryObject];
 
-    queries.forEach((query) => {
-      (queryOptions.children as TreeDropdownOption[]).push({
-        label: query.config.name,
-        id: query.config.id,
-        value: query.config.name,
-        type: queryOptions.value,
-        icon: getActionConfig(query.config.pluginType)?.getIcon(
-          query.config,
-          plugins[(query as any).config.datasource.pluginId],
-        ),
-      } as TreeDropdownOption);
-    });
-
     apis.forEach((api) => {
       (queryOptions.children as TreeDropdownOption[]).push({
         label: api.config.name,
@@ -444,6 +431,19 @@ function getApiAndQueryOptions(
           api.config,
           plugins[(api as any).config.datasource.pluginId],
           api.config.pluginType === PluginType.API,
+        ),
+      } as TreeDropdownOption);
+    });
+
+    queries.forEach((query) => {
+      (queryOptions.children as TreeDropdownOption[]).push({
+        label: query.config.name,
+        id: query.config.id,
+        value: query.config.name,
+        type: queryOptions.value,
+        icon: getActionConfig(query.config.pluginType)?.getIcon(
+          query.config,
+          plugins[(query as any).config.datasource.pluginId],
         ),
       } as TreeDropdownOption);
     });
