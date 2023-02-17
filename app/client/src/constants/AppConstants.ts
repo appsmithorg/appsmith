@@ -66,8 +66,7 @@ export const NAVIGATION_SETTINGS = {
   },
   COLOR_STYLE: {
     LIGHT: "light",
-    DARK: "dark",
-    SOLID: "solid",
+    THEME: "theme",
   },
   LOGO_CONFIGURATION: {
     LOGO_AND_APPLICATION_TITLE: "logoAndApplicationTitle",

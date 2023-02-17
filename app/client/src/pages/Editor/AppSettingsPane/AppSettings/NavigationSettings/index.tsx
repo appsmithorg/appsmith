@@ -246,20 +246,11 @@ function NavigationSettings() {
             ),
           },
           {
-            label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.SOLID),
-            value: NAVIGATION_SETTINGS.COLOR_STYLE.SOLID,
+            label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.THEME),
+            value: NAVIGATION_SETTINGS.COLOR_STYLE.THEME,
             icon: (
               <ColorStyleIcon
-                colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.SOLID}
-              />
-            ),
-          },
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.DARK),
-            value: NAVIGATION_SETTINGS.COLOR_STYLE.DARK,
-            icon: (
-              <ColorStyleIcon
-                colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.DARK}
+                colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
               />
             ),
           },

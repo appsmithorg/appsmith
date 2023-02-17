@@ -22,11 +22,9 @@ const ColorStyleIcon = (props: {
   const selectedTheme = useSelector(getSelectedAppTheme);
   let backgroundColor = Colors.WHITE;
 
-  if (props.colorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+  if (props.colorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
     backgroundColor =
       selectedTheme?.properties?.colors?.primaryColor || Colors.WHITE;
-  } else if (props.colorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.DARK) {
-    backgroundColor = Colors.GREY_900;
   } else if (props.colorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     backgroundColor = Colors.WHITE;
   }

@@ -13,7 +13,7 @@ export const getMenuItemBackgroundColorWhenActive = (
 
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     colorHsl.l += 0.35;
-  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
     colorHsl.l = tinycolor(color).isLight()
       ? colorHsl.l + 0.2
       : colorHsl.l - 0.2;
@@ -30,7 +30,7 @@ export const getMenuItemBackgroundColorOnHover = (
 ) => {
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     return Colors.GREY_3;
-  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
     const colorHsl = tinycolor(color).toHsl();
 
     colorHsl.l = tinycolor(color).isLight()
@@ -53,7 +53,7 @@ export const getMenuItemTextColor = (
     colorHsl.l -= 0.13;
 
     return isDefaultState ? Colors.GREY_9 : tinycolor(colorHsl).toHexString();
-  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
     return tinycolor(color).isLight() ? Colors.BLACK : Colors.WHITE;
   }
 };
@@ -66,7 +66,7 @@ export const getMenuContainerBackgroundColor = (
 ) => {
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     return Colors.WHITE;
-  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
     return color;
   }
 };
@@ -78,7 +78,7 @@ export const getApplicationNameTextColor = (
 ) => {
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     return Colors.GREY_9;
-  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
     return tinycolor(color).isLight() ? Colors.BLACK : Colors.WHITE;
   }
 };
@@ -98,7 +98,7 @@ export const getSignInButtonStyles = (
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     styles.background = color;
     styles.color = isLight ? Colors.BLACK : Colors.WHITE;
-  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
     styles.background = isLight ? Colors.BLACK : Colors.WHITE;
     styles.color = isLight ? Colors.WHITE : color;
   }
