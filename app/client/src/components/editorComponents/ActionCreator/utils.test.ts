@@ -392,6 +392,13 @@ describe("Test textSetter", () => {
       argNum: 0,
       value: '{{() => {\n  return "hi";\n}}}',
     },
+    {
+      index: 12,
+      input: "{{JSObject1.myFun1();}}",
+      expected: '{{JSObject1.myFun1("Hello");}}',
+      argNum: 0,
+      value: "Hello",
+    },
   ];
   test.each(
     cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),

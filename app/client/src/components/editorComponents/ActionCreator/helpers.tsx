@@ -253,15 +253,15 @@ function getJsFunctionExecutionFields(
   });
 
   if (argsProps && argsProps.length > 0) {
-    for (const index of argsProps) {
+    argsProps.forEach((arg: { name: string }, index: number) => {
       fields.push({
         field: FieldType.ARGUMENT_KEY_VALUE_FIELD,
         getParentValue,
         value,
-        label: index.name,
+        label: arg.name,
         index: index,
       });
-    }
+    });
   }
   // }
   return fields;
