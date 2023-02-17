@@ -287,7 +287,9 @@ export default class DataTreeEvaluator {
     };
   }
 
-  evalAndValidateFirstTree(): {
+  evalAndValidateFirstTree(
+    cloudHosting: boolean,
+  ): {
     evalTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
@@ -298,6 +300,7 @@ export default class DataTreeEvaluator {
       this.oldUnEvalTree,
       this.resolvedFunctions,
       this.sortedDependencies,
+      cloudHosting,
     );
     const evaluationEndTime = performance.now();
 
@@ -527,6 +530,7 @@ export default class DataTreeEvaluator {
     evaluationOrder: string[],
     nonDynamicFieldValidationOrder: string[],
     unevalUpdates: DataTreeDiff[],
+    cloudHosting: boolean,
     metaWidgetIds: string[] = [],
   ): {
     evalMetaUpdates: EvalMetaUpdates;
@@ -541,6 +545,7 @@ export default class DataTreeEvaluator {
       this.evalTree,
       this.resolvedFunctions,
       evaluationOrder,
+      cloudHosting,
       {
         skipRevalidation: false,
         isFirstTree: false,
@@ -670,6 +675,7 @@ export default class DataTreeEvaluator {
     oldUnevalTree: DataTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
+    cloudHosting: boolean,
     options: {
       skipRevalidation: boolean;
       isFirstTree: boolean;
@@ -687,7 +693,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
-    errorModifier.updateAsyncFunctions(tree);
+    errorModifier.updateAsyncFunctions(tree, cloudHosting);
     const evalMetaUpdates: EvalMetaUpdates = [];
     const {
       isFirstTree,

@@ -4,7 +4,7 @@ import { EvalWorkerSyncRequest } from "../types";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { overrideWebAPIs } from "../fns/overrides";
 
-export default function() {
+export default function(request: EvalWorkerSyncRequest) {
   self.$isDataField = false;
   ///// Remove all unsafe functions
   unsafeFunctionForEval.forEach((func) => {
@@ -13,7 +13,7 @@ export default function() {
   });
   setupDOM();
   overrideWebAPIs(self);
-  addPlatformFunctionsToEvalContext(self);
+  addPlatformFunctionsToEvalContext(self, request.data.cloudHosting);
   return true;
 }
 

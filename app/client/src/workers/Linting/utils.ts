@@ -52,12 +52,13 @@ import {
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
-import { ActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
+import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
   unEvalTree: DataTree,
+  cloudHosting: boolean,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
 
@@ -68,7 +69,9 @@ export function getlintErrorsFromTree(
     skipEntityFunctions: true,
   });
 
-  const platformFnNamesMap = Object.values(ActionTriggerFunctionNames).reduce(
+  const platformFnNamesMap = Object.values(
+    getActionTriggerFunctionNames(cloudHosting),
+  ).reduce(
     (acc, name) => ({ ...acc, [name]: true }),
     {} as { [x: string]: boolean },
   );

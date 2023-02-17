@@ -107,6 +107,9 @@ import {
 } from "workers/Evaluation/types";
 import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
+import { getAppsmithConfigs } from "ce/configs";
+
+const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -159,6 +162,7 @@ export function* evaluateTreeSaga(
     requiresLinting: isEditMode && requiresLinting,
     forceEvaluation,
     metaWidgets,
+    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -273,6 +277,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       globalContext,
       eventType,
       triggerMeta,
+      cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
     },
   );
   const { errors = [] } = response as any;
@@ -542,7 +547,9 @@ function* evaluationChangeListenerSaga(): any {
     call(lintWorker.start),
   ]);
 
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
+    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
+  });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();

@@ -33,12 +33,14 @@ const widgetConfigMap = {};
 
 const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 
+const cloudHosting = false;
+
 describe("test validationDependencyMap", () => {
   beforeAll(() => {
     dataTreeEvaluator.setupFirstTree(
       (unEvalTreeWidgetSelectWidget as unknown) as DataTree,
     );
-    dataTreeEvaluator.evalAndValidateFirstTree();
+    dataTreeEvaluator.evalAndValidateFirstTree(cloudHosting);
   });
 
   it("initial validation dependencyMap computation", () => {
@@ -60,6 +62,7 @@ describe("test validationDependencyMap", () => {
       evalOrder,
       nonDynamicFieldValidationOrder,
       unEvalUpdates,
+      cloudHosting,
     );
 
     expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({});

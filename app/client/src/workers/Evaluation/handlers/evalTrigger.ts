@@ -27,6 +27,7 @@ export default async function(request: EvalWorkerASyncRequest) {
     evalOrder,
     nonDynamicFieldValidationOrder,
     unEvalUpdates,
+    request.data.cloudHosting,
   );
   const evalTree = dataTreeEvaluator.evalTree;
   const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
