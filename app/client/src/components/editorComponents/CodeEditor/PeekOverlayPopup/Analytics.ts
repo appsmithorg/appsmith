@@ -3,7 +3,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const objectCollapseAnalytics: MouseEventHandler = (ev) => {
   /*
-   * Analytics to be logged whenever user clicks on
+   * Analytics events to be logged whenever user clicks on
    * react json viewer's controls to expand or collapse object/array
    */
   const targetNode = ev.target as HTMLElement;
