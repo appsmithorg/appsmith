@@ -72,6 +72,7 @@ import {
 import { executeCommandAction } from "actions/apiPaneActions";
 import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
 import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Form = styled.form`
   position: relative;
@@ -80,16 +81,20 @@ const Form = styled.form`
   flex: 1;
   overflow: hidden;
   width: 100%;
+
   ${FormLabel} {
     padding: ${(props) => props.theme.spaces[3]}px;
   }
+
   ${FormRow} {
     align-items: center;
+
     ${FormLabel} {
       padding: 0;
       width: 100%;
     }
   }
+
   .api-info-row {
     input {
       margin-left: ${(props) => props.theme.spaces[1] + 1}px;
@@ -102,10 +107,12 @@ const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
+
   .api-info-row {
     svg {
       fill: #ffffff;
     }
+
     .t--apiFormHttpMethod:hover {
       background: ${Colors.CODE_GRAY};
     }
@@ -138,6 +145,7 @@ const SecondaryWrapper = styled.div`
   flex-grow: 1;
   height: 100%;
   width: 100%;
+
   ${HelpSection} {
     margin-bottom: 10px;
   }
@@ -149,9 +157,11 @@ export const TabbedViewContainer = styled.div`
   position: relative;
   height: 100%;
   border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
+
     & > * {
       margin-right: 0px;
     }
@@ -162,23 +172,28 @@ export const TabbedViewContainer = styled.div`
       margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
+
       li.react-tabs__tab--selected {
         > div {
           color: ${(props) => props.theme.colors.apiPane.closeIcon};
         }
       }
     }
+
     .react-tabs__tab-panel {
       height: calc(100% - 36px);
       background-color: ${(props) => props.theme.colors.apiPane.tabBg};
+
       .eye-on-off {
         svg {
           fill: ${(props) =>
             props.theme.colors.apiPane.requestTree.header.icon};
+
           &:hover {
             fill: ${(props) =>
               props.theme.colors.apiPane.requestTree.header.icon};
           }
+
           path {
             fill: unset;
           }
@@ -196,6 +211,7 @@ export const BindingText = styled.span`
 const SettingsWrapper = styled.div`
   padding: 18px 30px;
   height: 100%;
+
   ${FormLabel} {
     padding: 0px;
   }
@@ -215,6 +231,7 @@ const CalloutContent = styled.div`
 const Link = styled.a`
   display: flex;
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+
   .${Classes.ICON} {
     margin-left: ${(props) => props.theme.spaces[1] + 1}px;
     margin-top: -2px;
@@ -227,6 +244,7 @@ const Wrapper = styled.div`
   height: calc(100% - 135px);
   position: relative;
 `;
+
 export interface CommonFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -271,6 +289,7 @@ type CommonFormPropsWithExtraParams = CommonFormProps & {
 export const NameWrapper = styled.div`
   display: flex;
   align-items: center;
+
   input {
     margin: 0;
     box-sizing: border-box;
@@ -371,11 +390,14 @@ const FlexContainer = styled.div`
         ${(props) => props.theme.spaces[2]}px
         ${(props) => props.theme.spaces[5]}px;
     }
+
     border-bottom: 0px;
   }
+
   .key-value:nth-child(2) {
     margin-left: ${(props) => props.theme.spaces[4]}px;
   }
+
   .disabled {
     background: #e8e8e8;
     margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
@@ -389,9 +411,11 @@ const KeyValueStackContainer = styled.div`
 `;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
+
   ${FormLabel} {
     width: 100%;
   }
+
   & svg {
     cursor: pointer;
   }
@@ -614,6 +638,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     );
   }
 
+  const isMultiPane = useSelector(isMultiPaneActive);
+
   return (
     <>
       <CloseEditor />
@@ -790,16 +816,18 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               theme={theme}
             />
           </SecondaryWrapper>
-          <DataSourceList
-            actionName={actionName}
-            applicationId={props.applicationId}
-            currentActionDatasourceId={currentActionDatasourceId}
-            currentPageId={props.currentPageId}
-            datasources={props.datasources}
-            hasResponse={props.hasResponse}
-            onClick={updateDatasource}
-            suggestedWidgets={props.suggestedWidgets}
-          />
+          {!isMultiPane && (
+            <DataSourceList
+              actionName={actionName}
+              applicationId={props.applicationId}
+              currentActionDatasourceId={currentActionDatasourceId}
+              currentPageId={props.currentPageId}
+              datasources={props.datasources}
+              hasResponse={props.hasResponse}
+              onClick={updateDatasource}
+              suggestedWidgets={props.suggestedWidgets}
+            />
+          )}
         </Wrapper>
       </Form>
     </>

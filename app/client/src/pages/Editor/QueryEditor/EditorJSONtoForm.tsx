@@ -127,6 +127,7 @@ import {
 } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -135,16 +136,19 @@ const QueryFormContainer = styled.form`
   overflow: hidden;
   padding: 20px 0px 0px 0px;
   width: 100%;
+
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
     color: #2e3d49;
     margin-top: 5px;
   }
+
   .queryInput {
     max-width: 30%;
     padding-right: 10px;
   }
+
   .executeOnLoad {
     display: flex;
     justify-content: flex-end;
@@ -165,23 +169,28 @@ export const TabbedViewContainer = styled.div`
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
+
   .react-tabs__tab-panel {
     overflow: hidden;
   }
+
   .react-tabs__tab-list {
     margin: 0px;
 
   }
+
   &&& {
     ul.react-tabs__tab-list {
       margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
+
     .react-tabs__tab-panel {
       height: calc(100% - 36px);
     }
   }
+
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
   border-top: 1px solid #e8e8e8;
 `;
@@ -212,10 +221,12 @@ const DocumentationLink = styled.a`
   font-weight: 500;
   font-size: 12px;
   line-height: 14px;
+
   span {
     display: flex;
     margin-left: 5px;
   }
+
   &:hover {
     color: black;
   }
@@ -248,13 +259,16 @@ const NoResponseContainer = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
+
   .${Classes.ICON} {
     margin-right: 0px;
+
     svg {
       width: 150px;
       height: 150px;
     }
   }
+
   .${Classes.TEXT} {
     margin-top: ${(props) => props.theme.spaces[9]}px;
   }
@@ -269,13 +283,16 @@ const ErrorContainer = styled.div`
   justify-content: center;
   padding-top: 10px;
   flex-direction: column;
+
   & > .${Classes.ICON} {
     margin-right: 0px;
+
     svg {
       width: 75px;
       height: 75px;
     }
   }
+
   .${Classes.TEXT} {
     margin-top: ${(props) => props.theme.spaces[9]}px;
   }
@@ -297,6 +314,7 @@ const NameWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   input {
     margin: 0;
     box-sizing: border-box;
@@ -348,9 +366,11 @@ const CreateDatasource = styled.div`
   justify-content: center;
   font-weight: 500;
   border-top: 1px solid ${Colors.ATHENS_GRAY};
+
   :hover {
     cursor: pointer;
   }
+
   .createIcon {
     margin-right: 6px;
   }
@@ -360,10 +380,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+
   .plugin-image {
     height: 20px;
     width: auto;
   }
+
   .selected-value {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -387,6 +409,7 @@ const NoDataSourceContainer = styled.div`
   flex-direction: column;
   margin-top: 62px;
   flex: 1;
+
   .font18 {
     width: 50%;
     text-align: center;
@@ -400,23 +423,28 @@ const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
   border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+
   ${thinScrollbar}
   a {
     font-size: 14px;
     line-height: 20px;
     margin-top: 12px;
   }
+
   .react-tabs__tab-panel {
     overflow: auto;
   }
+
   .react-tabs__tab-list {
     margin: 0px;
   }
+
   &&& {
     ul.react-tabs__tab-list {
       margin-left: 24px;
     }
   }
+
   position: relative;
 `;
 
@@ -943,6 +971,7 @@ export function EditorJSONtoForm(props: Props) {
   const setSelectedResponseTab = useCallback((tabKey: string) => {
     dispatch(setQueryPaneResponseSelectedTab(tabKey));
   }, []);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -1155,17 +1184,19 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabbedViewContainer>
           </SecondaryWrapper>
-          <SidebarWrapper
-            show={(hasDependencies || !!output) && !guidedTourEnabled}
-          >
-            <ActionRightPane
-              actionName={actionName}
-              entityDependencies={entityDependencies}
-              hasConnections={hasDependencies}
-              hasResponse={!!output}
-              suggestedWidgets={executedQueryData?.suggestedWidgets}
-            />
-          </SidebarWrapper>
+          {!isMultiPane && (
+            <SidebarWrapper
+              show={(hasDependencies || !!output) && !guidedTourEnabled}
+            >
+              <ActionRightPane
+                actionName={actionName}
+                entityDependencies={entityDependencies}
+                hasConnections={hasDependencies}
+                hasResponse={!!output}
+                suggestedWidgets={executedQueryData?.suggestedWidgets}
+              />
+            </SidebarWrapper>
+          )}
         </Wrapper>
       </QueryFormContainer>
     </>
