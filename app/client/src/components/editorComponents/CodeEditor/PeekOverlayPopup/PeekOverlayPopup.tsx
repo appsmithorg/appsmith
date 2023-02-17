@@ -1,11 +1,11 @@
-import React, { MouseEventHandler, useEffect, useRef } from "react";
+import React, { MutableRefObject, useEffect, useRef } from "react";
 import ReactJson from "react-json-view";
 import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
 import { componentWillAppendToBody } from "react-append-to-body";
 import { MenuDivider } from "design-system-old";
 import { debounce } from "lodash";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
 
 export type PeekOverlayStateProps = {
   name: string;
@@ -34,17 +34,25 @@ export function PeekOverlayPopUpContent(
   },
 ) {
   const CONTAINER_MAX_HEIGHT_PX = 252;
-  const elementRef = useRef(null);
+  const dataWrapperRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
 
   useEffect(() => {
-    const callback = () => {
+    const wheelCallback = () => {
       props.hidePeekOverlay();
     };
-    window.addEventListener("wheel", callback);
+
+    window.addEventListener("wheel", wheelCallback);
     return () => {
-      window.removeEventListener("wheel", callback);
+      window.removeEventListener("wheel", wheelCallback);
     };
   }, []);
+
+  useEffect(() => {
+    if (!dataWrapperRef.current) return;
+    dataWrapperRef.current.addEventListener("copy", textSelectAnalytics);
+    return () =>
+      dataWrapperRef.current?.removeEventListener("copy", textSelectAnalytics);
+  }, [dataWrapperRef, dataWrapperRef.current]);
 
   const debouncedHide = debounce(
     () => props.hidePeekOverlay(),
@@ -96,6 +104,7 @@ export function PeekOverlayPopUpContent(
       <MenuDivider style={{ margin: 0 }} />
       <div
         id="t--peek-overlay-data"
+        ref={dataWrapperRef}
         style={{
           minHeight: "20px",
           padding: "2px 0px 2px 12px",
@@ -105,7 +114,6 @@ export function PeekOverlayPopUpContent(
         {props.dataType === "object" && props.data !== null && (
           <JsonWrapper
             onClick={objectCollapseAnalytics}
-            ref={elementRef}
             style={{
               minHeight: "20px",
               maxHeight: "225px",
@@ -151,35 +159,3 @@ export function PeekOverlayPopUpContent(
     </div>
   );
 }
-
-const objectCollapseAnalytics: MouseEventHandler = (ev) => {
-  /*
-   * Analytics to be logged whenever user clicks on
-   * react json viewer's controls to expand or collapse object/array
-   */
-  const targetNode = ev.target as HTMLElement;
-
-  if (
-    // collapse/expand icon click, object key click
-    targetNode.parentElement?.parentElement?.parentElement?.firstElementChild?.classList.contains(
-      "icon-container",
-    ) ||
-    // : click
-    targetNode.parentElement?.parentElement?.firstElementChild?.classList.contains(
-      "icon-container",
-    ) ||
-    // { click
-    targetNode.parentElement?.firstElementChild?.classList.contains(
-      "icon-container",
-    ) ||
-    // ellipsis click
-    targetNode.classList.contains("node-ellipsis") ||
-    // collapse/expand icon - svg path click
-    targetNode.parentElement?.parentElement?.classList.contains(
-      "collapsed-icon",
-    ) ||
-    targetNode.parentElement?.parentElement?.classList.contains("expanded-icon")
-  ) {
-    AnalyticsUtil.logEvent("PEEK_OVERLAY_COLLAPSE_EXPAND_CLICK");
-  }
-};
