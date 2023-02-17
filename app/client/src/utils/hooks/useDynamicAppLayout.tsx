@@ -23,7 +23,10 @@ import { getAppMode } from "selectors/entitiesSelector";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
-import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
+import {
+  getAppSettingsPaneContext,
+  getIsAppSettingsPaneOpen,
+} from "selectors/appSettingsPaneSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import {
   getPaneCount,
@@ -33,8 +36,10 @@ import {
 import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import {
   getAppSidebarPinned,
+  getCurrentApplication,
   getSidebarWidth,
 } from "selectors/applicationSelectors";
+import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -57,6 +62,10 @@ export const useDynamicAppLayout = () => {
   const paneCount = useSelector(getPaneCount);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
+  const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
+  const isAppSettingsPaneWithNavigationTabOpen =
+    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
+  const currentApplicationDetails = useSelector(getCurrentApplication);
 
   // /**
   //  * calculates min height
@@ -134,9 +143,17 @@ export const useDynamicAppLayout = () => {
 
     /**
      * If there is a sidebar for navigation, and it is pinned, we need
-     * to subtract the sidebar width as well.
+     * to subtract the sidebar width as well in the following modes -
+     * 1. Preview
+     * 2. App settings open with navigation tab
+     * 3. Published
      */
-    if ((appMode === APP_MODE.PUBLISHED || isPreviewMode) && sidebarWidth) {
+    if (
+      (appMode === APP_MODE.PUBLISHED ||
+        isPreviewMode ||
+        isAppSettingsPaneWithNavigationTabOpen) &&
+      sidebarWidth
+    ) {
       calculatedWidth -= sidebarWidth;
     }
 
@@ -220,6 +237,10 @@ export const useDynamicAppLayout = () => {
    *  - explorer is pinned
    *  - theme mode is turned on
    *  - sidebar pin/unpin
+   *  - app settings pane open with navigation tab
+   *  - any of the following navigation settings changes
+   *    - orientation
+   *    - nav style
    */
   useEffect(() => {
     resizeToLayout();
@@ -228,12 +249,15 @@ export const useDynamicAppLayout = () => {
     currentPageId,
     mainCanvasProps?.width,
     isPreviewMode,
+    isAppSettingsPaneWithNavigationTabOpen,
     explorerWidth,
     propertyPaneWidth,
     isExplorerPinned,
     propertyPaneWidth,
     isAppSettingsPaneOpen,
     isAppSidebarPinned,
+    currentApplicationDetails?.navigationSetting?.orientation,
+    currentApplicationDetails?.navigationSetting?.navStyle,
   ]);
 
   return isCanvasInitialized;

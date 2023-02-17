@@ -8,3 +8,8 @@ export const getIsAppSettingsPaneOpen = createSelector(
   getAppSettingsPane,
   (appSettingsPane: AppSettingsPaneReduxState) => appSettingsPane.isOpen,
 );
+
+export const getAppSettingsPaneContext = createSelector(
+  getAppSettingsPane,
+  (appSettingsPane: AppSettingsPaneReduxState) => appSettingsPane.context,
+);

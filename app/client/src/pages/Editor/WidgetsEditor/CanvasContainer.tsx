@@ -33,12 +33,22 @@ import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 
 const Container = styled.section<{
   background: string;
+  isPreviewingNavigation?: boolean;
+  navigationHeight?: number;
 }>`
   width: 100%;
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
   background: ${({ background }) => background};
+
+  ${({ isPreviewingNavigation, navigationHeight }) => {
+    if (isPreviewingNavigation) {
+      return `
+        margin-top: ${navigationHeight}px !important;
+      `;
+    }
+  }}
 
   &:before {
     position: absolute;
@@ -50,7 +60,12 @@ const Container = styled.section<{
   }
 `;
 
-function CanvasContainer() {
+const CanvasContainer = (props: {
+  navigationHeight?: number;
+  isAppSettingsPaneWithNavigationTabOpen?: boolean;
+}) => {
+  const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
+
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -112,11 +127,18 @@ function CanvasContainer() {
         [`${getCanvasClassName()} scrollbar-thin`]: true,
         "mt-0": !shouldHaveTopMargin,
         "mt-4": showCanvasTopSection,
-        "mt-8": shouldHaveTopMargin && !showCanvasTopSection && !isPreviewMode,
-        "mt-11": shouldHaveTopMargin && !showCanvasTopSection && isPreviewMode,
+        "mt-8":
+          shouldHaveTopMargin &&
+          !showCanvasTopSection &&
+          !isPreviewMode &&
+          !isAppSettingsPaneWithNavigationTabOpen,
       })}
       id={"canvas-viewport"}
+      isPreviewingNavigation={
+        isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+      }
       key={currentPageId}
+      navigationHeight={navigationHeight}
       style={{
         height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
         fontFamily: fontFamily,
@@ -134,6 +156,6 @@ function CanvasContainer() {
       {node}
     </Container>
   );
-}
+};
 
 export default CanvasContainer;

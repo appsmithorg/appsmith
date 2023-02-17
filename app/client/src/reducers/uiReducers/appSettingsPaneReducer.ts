@@ -7,6 +7,9 @@ import { createReducer } from "utils/ReducerUtils";
 
 const initialState: AppSettingsPaneReduxState = {
   isOpen: false,
+  context: {
+    type: AppSettingsTabs.General,
+  },
 };
 
 const appSettingsPaneReducer = createReducer(initialState, {
@@ -27,6 +30,16 @@ const appSettingsPaneReducer = createReducer(initialState, {
       ...state,
       isOpen: false,
       context: undefined,
+    };
+  },
+  [ReduxActionTypes.UPDATE_APP_SETTINGS_PANE_SELECTED_TAB]: (
+    state: AppSettingsPaneReduxState,
+    action: ReduxAction<AppSettingsPaneReduxState>,
+  ): AppSettingsPaneReduxState => {
+    return {
+      ...state,
+      isOpen: action.payload.isOpen,
+      context: action.payload.context,
     };
   },
 });

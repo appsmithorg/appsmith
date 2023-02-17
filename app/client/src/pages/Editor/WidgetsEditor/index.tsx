@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
   getCurrentPageId,
   getCurrentPageName,
   getIsFetchingPage,
+  previewModeSelector,
 } from "selectors/editorSelectors";
-import PageTabs from "./PageTabs";
+import NavigationPreview from "./NavigationPreview";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -17,7 +18,11 @@ import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import {
+  getAppSidebarPinned,
+  getCurrentApplication,
+  getSidebarWidth,
+} from "selectors/applicationSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
@@ -32,6 +37,10 @@ import CanvasTopSection from "./EmptyCanvasSection";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
+import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -45,6 +54,30 @@ function WidgetsEditor() {
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
   const canvasWidgets = useSelector(getCanvasWidgets);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const isAppSidebarPinned = useSelector(getAppSidebarPinned);
+  const sidebarWidth = useSelector(getSidebarWidth);
+  const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
+  const navigationPreviewRef = useRef(null);
+  const [navigationHeight, setNavigationHeight] = useState(0);
+  const isAppSettingsPaneWithNavigationTabOpen =
+    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
+
+  useEffect(() => {
+    if (navigationPreviewRef?.current) {
+      const { offsetHeight } = navigationPreviewRef.current;
+
+      setNavigationHeight(offsetHeight);
+    } else {
+      setNavigationHeight(0);
+    }
+  }, [
+    navigationPreviewRef,
+    isPreviewMode,
+    appSettingsPaneContext?.type,
+    currentApplicationDetails?.navigationSetting,
+  ]);
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -112,6 +145,19 @@ function WidgetsEditor() {
     [allowDragToSelect],
   );
 
+  const showNavigation = () => {
+    if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
+      return (
+        <NavigationPreview
+          isAppSettingsPaneWithNavigationTabOpen={
+            isAppSettingsPaneWithNavigationTabOpen
+          }
+          ref={navigationPreviewRef}
+        />
+      );
+    }
+  };
+
   PerformanceTracker.stopTracking();
 
   return (
@@ -125,18 +171,43 @@ function WidgetsEditor() {
             <div className="relative flex flex-col w-full overflow-hidden">
               <CanvasTopSection />
               <div
-                className="relative flex flex-row w-full overflow-hidden"
+                className="relative flex flex-row w-full overflow-hidden justify-center"
                 data-testid="widgets-editor"
                 draggable
                 onClick={handleWrapperClick}
                 onDragStart={onDragStart}
               >
-                <PageTabs />
-                <CanvasContainer />
+                {showNavigation()}
+
+                <PageViewContainer
+                  hasPinnedSidebar={
+                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+                      ? currentApplicationDetails?.navigationSetting
+                          ?.orientation ===
+                          NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+                        isAppSidebarPinned
+                      : false
+                  }
+                  sidebarWidth={
+                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+                      ? sidebarWidth
+                      : 0
+                  }
+                >
+                  <CanvasContainer
+                    isAppSettingsPaneWithNavigationTabOpen={
+                      AppSettingsTabs.Navigation ===
+                      appSettingsPaneContext?.type
+                    }
+                    navigationHeight={navigationHeight}
+                  />
+                </PageViewContainer>
+
                 <CrudInfoModal />
                 <Debugger />
               </div>
             </div>
+
             {!isMultiPane && <PropertyPaneContainer />}
           </div>
         </>
