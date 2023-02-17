@@ -13,7 +13,10 @@ export default function(request: EvalWorkerSyncRequest) {
   });
   setupDOM();
   overrideWebAPIs(self);
-  self.$cloudHosting = request.data.cloudHosting;
+  Object.defineProperty(self, "$cloudHosting", {
+    value: request.data.cloudHosting,
+    enumerable: false,
+  });
   addPlatformFunctionsToEvalContext(self);
   return true;
 }

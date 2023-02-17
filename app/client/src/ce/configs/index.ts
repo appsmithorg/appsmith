@@ -256,8 +256,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       APPSMITH_FEATURE_CONFIGS.enableGoogleOAuth,
     enableMixpanel:
       ENV_CONFIG.enableMixpanel || APPSMITH_FEATURE_CONFIGS.enableMixpanel,
-    cloudHosting:
-      ENV_CONFIG.cloudHosting || APPSMITH_FEATURE_CONFIGS.cloudHosting,
+    cloudHosting: true,
     logLevel: ENV_CONFIG.logLevel || APPSMITH_FEATURE_CONFIGS.logLevel,
     enableTNCPP: ENV_CONFIG.enableTNCPP || APPSMITH_FEATURE_CONFIGS.enableTNCPP,
     appVersion: ENV_CONFIG.appVersion || APPSMITH_FEATURE_CONFIGS.appVersion,
