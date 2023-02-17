@@ -732,6 +732,7 @@ public class FileUtilsImpl implements FileInterface {
 
             case 2:
             case 3:
+            case 4:
                 updateGitApplicationReference(baseRepoPath, gson, applicationGitReference, pageDirectory, fileFormatVersion);
                 break;
 
@@ -762,7 +763,7 @@ public class FileUtilsImpl implements FileInterface {
                 pageMap.put(page.getName(), readFile(page.toPath().resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson));
 
                 if (fileFormatVersion >= 4) {
-                    actionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
+                    actionMap.putAll(readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
                 } else {
                     actionMap.putAll(readFiles(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName()));
                 }
