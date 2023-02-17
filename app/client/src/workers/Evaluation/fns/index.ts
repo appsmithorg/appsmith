@@ -69,7 +69,6 @@ import { isAsyncGuard } from "./utils/fnGuard";
 // cloudHosting -> to use in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getPlatformFunctions = (cloudHosting: boolean) => {
-  console.log("cloud hosting - p", cloudHosting);
   return platformFns;
 };
 
@@ -180,7 +179,6 @@ export const getActionTriggerFunctionNames = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   cloudHosting: boolean,
 ): Record<string, string> => {
-  console.log("cloud hosting - a", cloudHosting);
   return ActionTriggerFunctionNames;
 };
 
