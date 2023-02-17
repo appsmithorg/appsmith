@@ -59,7 +59,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         actionExecutionRequest.setHttpMethod(request.method());
         MultiValueMap<String, String> headers = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
         AtomicBoolean isMultipart = new AtomicBoolean(false);
-        AtomicBoolean isMultipartUserDefined = new AtomicBoolean(false);
+        AtomicBoolean isMultipartContentTypeDefinedByUser = new AtomicBoolean(false);
         request.headers().forEach((header, value) -> {
             if (HttpHeaders.AUTHORIZATION.equalsIgnoreCase(header) || "api_key".equalsIgnoreCase(header)) {
                 headers.add(header, "****");
@@ -67,7 +67,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
                 headers.addAll(header, value);
             }
             if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(header) && MULTIPART_FORM_DATA_VALUE.equalsIgnoreCase(value.get(0))) {
-                isMultipartUserDefined.set(true);
+                isMultipartContentTypeDefinedByUser.set(true);
             }
         });
 
@@ -79,7 +79,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
                 isMultipart.set(true);
             }
         } else {
-            isMultipart = isMultipartUserDefined;
+            isMultipart = isMultipartContentTypeDefinedByUser;
         }
 
         actionExecutionRequest.setHeaders(objectMapper.valueToTree(headers));
