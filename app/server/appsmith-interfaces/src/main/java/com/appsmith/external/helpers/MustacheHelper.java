@@ -328,7 +328,12 @@ public class MustacheHelper {
                 //If there is no entry found for the current token in keyValueMap that means the binding is part of the text
                 //and hence reflecting the value in the rendered string as is.
                 // Example: {{Input.text}} = "This whole string is the value of Input1.text. Even this {{one}}."
-                rendered.append(keyValueMap.getOrDefault(token.getValue().substring(2, token.getValue().length() - 2).trim(), token.getValue()));
+                String bindingValue = keyValueMap.get(token.getValue().substring(2, token.getValue().length() - 2).trim());
+                if (bindingValue != null) {
+                    rendered.append(bindingValue);
+                } else {
+                    rendered.append(token.getValue());
+                }
             } else {
                 rendered.append(token.getValue());
             }
