@@ -18,12 +18,10 @@ import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { useSelector } from "react-redux";
+import { getThirdPartyAuths } from "../../../../selectors/tenantSelectors";
 
-const {
-  disableLoginForm,
-  enableGithubOAuth,
-  enableGoogleOAuth,
-} = getAppsmithConfigs();
+const { disableLoginForm } = getAppsmithConfigs();
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
@@ -31,7 +29,6 @@ const FormAuth: AdminConfigType = {
   title: "Form Login",
   subText: "Enable your workspace to sign in with Appsmith Form.",
   canSave: true,
-  isConnected: false,
   settings: [
     {
       id: "APPSMITH_FORM_LOGIN_DISABLED",
@@ -71,7 +68,6 @@ const GoogleAuth: AdminConfigType = {
   title: "Google Authentication",
   subText: "Enable your workspace to sign in with Google (OAuth).",
   canSave: true,
-  isConnected: enableGoogleOAuth,
   settings: [
     {
       id: "APPSMITH_OAUTH2_GOOGLE_READ_MORE",
@@ -118,7 +114,6 @@ const GithubAuth: AdminConfigType = {
   subText:
     "Enable your workspace to sign in with Github SAML single sign-on (SSO).",
   canSave: true,
-  isConnected: enableGithubOAuth,
   settings: [
     {
       id: "APPSMITH_OAUTH2_GITHUB_READ_MORE",
@@ -159,7 +154,7 @@ export const FormAuthCallout: AuthMethodType = {
   isConnected: !disableLoginForm,
 };
 
-export const GoogleAuthCallout: AuthMethodType = {
+const GoogleAuthCallout: AuthMethodType = {
   id: "APPSMITH_GOOGLE_AUTH",
   category: SettingCategories.GOOGLE_AUTH,
   label: "Google",
@@ -167,10 +162,9 @@ export const GoogleAuthCallout: AuthMethodType = {
     "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).",
   image: Google,
   type: "LINK",
-  isConnected: enableGoogleOAuth,
 };
 
-export const GithubAuthCallout: AuthMethodType = {
+const GithubAuthCallout: AuthMethodType = {
   id: "APPSMITH_GITHUB_AUTH",
   category: SettingCategories.GITHUB_AUTH,
   label: "Github",
@@ -178,7 +172,6 @@ export const GithubAuthCallout: AuthMethodType = {
     "Enable your workspace to sign in with Github (OAuth 2.0) single sign-on (SSO).",
   image: Github,
   type: "LINK",
-  isConnected: enableGithubOAuth,
 };
 
 export const SamlAuthCallout: AuthMethodType = {
@@ -210,6 +203,13 @@ const AuthMethods = [
 ];
 
 function AuthMain() {
+  const socialLoginList = useSelector(getThirdPartyAuths);
+  GoogleAuth.isConnected = GoogleAuthCallout.isConnected = socialLoginList.includes(
+    "google",
+  );
+  GithubAuth.isConnected = GithubAuthCallout.isConnected = socialLoginList.includes(
+    "github",
+  );
   return <AuthPage authMethods={AuthMethods} />;
 }
 
