@@ -18,6 +18,7 @@ declare global {
     $isDataField: boolean;
     $isAsync: boolean;
     $evaluationVersion: EvaluationVersion;
+    $cloudHosting: boolean;
   }
 }
 
@@ -66,8 +67,7 @@ export const addDataTreeToContext = (args: {
 };
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
-  // @ts-expect-error: Types are not available
-  for (const fnDef of getPlatformFunctions(self.cloudHosting)) {
+  for (const fnDef of getPlatformFunctions(self.$cloudHosting)) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));
   }
 };
@@ -82,8 +82,7 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
       asyncFunctionNameMap[fullPath] = true;
     }
   }
-  // @ts-expect-error: Types are not available
-  for (const platformFn of getPlatformFunctions(self.cloudHosting)) {
+  for (const platformFn of getPlatformFunctions(self.$cloudHosting)) {
     asyncFunctionNameMap[platformFn.name] = true;
   }
   return asyncFunctionNameMap;
