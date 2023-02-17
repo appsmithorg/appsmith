@@ -29,6 +29,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QApplicationSnapshot;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
@@ -2807,4 +2808,12 @@ public class DatabaseChangelog2 {
         update.set("datasourceConfiguration.connection.ssl.authType", "DISABLE");
         mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
     }
+
+    @ChangeSet(order = "042", id = "add-index-to-application-snapshot", author = "")
+    public void addIndexToApplicationSnapshot(MongoTemplate mongoTemplate) {
+        Index index = makeIndex(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId))
+                .named("applicationId_index");
+        ensureIndexes(mongoTemplate, ActionCollection.class, index);
+    }
+
 }
