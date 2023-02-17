@@ -5,6 +5,7 @@ import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { FieldType } from "../../constants";
 import {
   flattenOptions,
+  getCodeFromMoustache,
   getSelectedFieldFromValue,
   isEmptyBlock,
 } from "../../utils";
@@ -44,13 +45,15 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
     [],
   );
 
+  const valueWithoutMoustache = getCodeFromMoustache(value);
+
   const selectedOption = getSelectedFieldFromValue(value, options);
 
   const fieldConfig = FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
 
   const actionType = (selectedOption.type || selectedOption.value) as any;
 
-  const { action } = getActionInfo(value, actionType);
+  const { action } = getActionInfo(valueWithoutMoustache, actionType);
 
   useEffect(() => {
     debouncedSetSearchText(searchText);
@@ -80,7 +83,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
       optionTree={filteredOptions}
       popoverClassName="action-selector-dropdown"
       position="bottom"
-      selectedValue={fieldConfig.getter(value)}
+      selectedValue={fieldConfig.getter(valueWithoutMoustache)}
       toggle={
         isOpen ? (
           <TextInput

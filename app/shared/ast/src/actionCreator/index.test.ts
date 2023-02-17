@@ -198,6 +198,14 @@ describe("getFunctionName", () => {
 
     expect(result).toEqual("showAlert");
   });
+
+  it("should return the main action when then/catch blocks are there", () => {
+    const value = "Api1.run(() => setAlert('Success'), () => {}).then(() => {}).catch(() => {});";
+
+    const result = getFunctionName(value, 2);
+
+    expect(result).toEqual("Api1.run");
+  });
 });
 
 describe("getThenCatchBlocksFromQuery", () => {

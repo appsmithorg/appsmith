@@ -465,17 +465,17 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
      * For this one, the first callee is getCurrentPosition
      */
     let nodeToTraverse: Node = astWithComments.body[0].expression;
-    let firstCalleeNode: Node;
+    let firstCallExpressionNode: Node;
 
     // @ts-ignore
     while (nodeToTraverse?.callee?.object) {
-        firstCalleeNode = klona(nodeToTraverse);
+        firstCallExpressionNode = klona(nodeToTraverse);
         // @ts-ignore
         nodeToTraverse = nodeToTraverse?.callee?.object;
     }
 
     // @ts-ignore
-    const argumentNode = firstCalleeNode?.arguments[argNum];
+    const argumentNode = firstCallExpressionNode?.arguments[argNum];
     if (argumentNode) {
         requiredArgument = `${generate(argumentNode, {comments: true})}`;
     } else {
@@ -703,18 +703,30 @@ export function getFunctionName(value: string, evaluationVersion: number): strin
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        ExpressionStatement(node) {
-            simple(node, {
-                CallExpression(node) {
-                    // @ts-ignore
-                    functionName = generate(node.callee, {comments: true}).trim();
-                }
-            })
-        }
-    });
+        /**
+     * We need to traverse the ast to find the first callee
+     * For Eg. Api1.run(() => {}, () => {}).then(() => {}).catch(() => {})
+     * We have multiple callee above, the first one is run
+     * Similarly, for eg. appsmith.geolocation.getCurrentPosition(() => {}, () => {});
+     * For this one, the first callee is getCurrentPosition
+     */
+    let nodeToTraverse: Node = astWithComments.body[0].expression;
+    let firstCallExpressionNode: Node = nodeToTraverse;
 
-    return functionName;
+    // @ts-ignore
+    while (nodeToTraverse?.callee?.object) {
+        firstCallExpressionNode = klona(nodeToTraverse);
+        // @ts-ignore
+        nodeToTraverse = nodeToTraverse?.callee?.object;
+    }
+
+    // @ts-ignore
+    const calleeName = firstCallExpressionNode?.callee?.type === NodeTypes.MemberExpression ? firstCallExpressionNode?.callee?.object?.name : firstCallExpressionNode?.callee?.name;
+
+    // @ts-ignore
+    const propertyName = firstCallExpressionNode?.callee?.property?.name;
+
+    return calleeName + (propertyName ? `.${propertyName}` : "");
 }
 
 // this function extracts the then/catch blocks when query is in this form
