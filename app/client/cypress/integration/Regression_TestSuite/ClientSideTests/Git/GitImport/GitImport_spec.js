@@ -184,7 +184,6 @@ describe("Git import flow ", function() {
       .should("be.hidden")
       .invoke("show")
       .click({ force: true });
-      cy.wait(2000);
     cy.get(pages.clonePage).click({ force: true });
     cy.wait("@clonePage").should(
       "have.nested.property",
@@ -193,6 +192,7 @@ describe("Git import flow ", function() {
     );
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
+    cy.reload();
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
