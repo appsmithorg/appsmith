@@ -3,7 +3,7 @@ import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { ExecutionType } from "@appsmith/workers/Evaluation/Actions";
 import _ from "lodash";
 import uniqueId from "lodash/uniqueId";
-import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
+import { NavigationTargetType_Dep } from "sagas/ActionExecution/NavigateActionSaga";
 
 export type ActionDescriptionWithExecutionType = ActionDescription & {
   executionType: ExecutionType;
@@ -20,7 +20,7 @@ export const PLATFORM_FUNCTIONS: Record<
   navigateTo: function(
     pageNameOrUrl: string,
     params: Record<string, string>,
-    target?: NavigationTargetType,
+    target?: NavigationTargetType_Dep,
   ) {
     return {
       type: "NAVIGATE_TO",

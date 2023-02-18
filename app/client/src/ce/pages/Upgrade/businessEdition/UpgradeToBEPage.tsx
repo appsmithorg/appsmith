@@ -1,7 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import BETextImage from "assets/svg/be-upgrade/upgrade-to-be-text.svg";
-import BECtaImage from "assets/svg/be-upgrade/be-cta.svg";
 import {
   createMessage,
   MOVE_TO_BUSINESS_EDITION,
@@ -9,6 +7,7 @@ import {
 import { FooterComponent } from "../Footer";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { Colors } from "constants/Colors";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export const UpgradeToBEPageWrapper = styled.div`
   width: 100%;
@@ -19,10 +18,10 @@ export const UpgradeToBEPageWrapper = styled.div`
 `;
 
 export const ImageContainer = styled.div`
-  min-width: 400px;
+  margin-right: 32px;
   img {
-    width: 600px;
-    height: 600px;
+    height: calc(100vh - 400px);
+    object-fit: contain;
   }
 `;
 
@@ -33,6 +32,9 @@ export const FooterContainer = styled.div`
     margin-left: 256px;
     height: 90px;
     z-index: 2;
+    .left {
+      min-width: 100px;
+    }
   }
 `;
 
@@ -50,29 +52,26 @@ export const Overlay = styled.div`
 export const FlexContainer = styled.div`
   display: flex;
   align-items: center;
-  height: calc(100% - 96px);
   width: 100%;
+  height: calc(100% - 96px);
   justify-content: center;
-  min-width: 1200px;
 `;
 
 export const LeftWrapper = styled.div`
-  min-width: 700px;
+  margin-left: 32px;
   img {
-    width: 1000px;
-    height: 1000px;
+    object-fit: contain;
+    height: calc(100vh - 200px);
   }
 `;
 
 export const ContentWrapper = styled.div`
   display: flex;
   height: 100%;
-  width: 1000px;
   flex-direction: row;
-  padding: 48px 200px;
   align-items: center;
   justify-content: center;
-  min-width: 900px;
+  overflow: hidden;
 `;
 
 export const UpgradeToBEPage = () => {
@@ -87,10 +86,16 @@ export const UpgradeToBEPage = () => {
         <FlexContainer className="flex-container">
           <ContentWrapper className="content-wrapper">
             <LeftWrapper>
-              <img alt="text-content" src={BETextImage} />
+              <img
+                alt="text-content"
+                src={`${ASSETS_CDN_URL}/business-features.svg`}
+              />
             </LeftWrapper>
             <ImageContainer>
-              <img alt="Upgrade to Business Edition" src={BECtaImage} />
+              <img
+                alt="Upgrade to Business Edition"
+                src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
+              />
             </ImageContainer>
           </ContentWrapper>
         </FlexContainer>
