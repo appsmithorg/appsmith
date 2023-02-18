@@ -1,0 +1,24 @@
+export const accentColor = {
+  name: "Accent Color",
+  description: "Accent Color",
+  defaultValue: "#00aced",
+  toolbar: {
+    icon: "paintbrush",
+    items: [
+      { title: "Blue", value: "#00aced" },
+      { title: "Green", value: "#008744" },
+      { title: "Red", value: "#d62d20" },
+      { title: "Yellow", value: "#ffa700" },
+      { title: "Purple", value: "#5b21b6" },
+      { title: "Orange", value: "#f15a24" },
+      { title: "Pink", value: "#e01f3d" },
+      { title: "Brown", value: "#6d4c41" },
+      { title: "Grey", value: "#808080" },
+      { title: "Black", value: "#000000" },
+      { title: "White", value: "#ffffff" },
+      { title: "Transparent", value: "transparent" },
+    ],
+    showName: false,
+    dynamicTitle: false,
+  },
+};

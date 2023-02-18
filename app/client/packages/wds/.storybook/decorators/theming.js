@@ -13,9 +13,14 @@ const StyledContainer = styled.div`
   justify-content: center;
 `;
 
-export const theming = (Story, { globals }) => {
+export const theming = (Story, args) => {
+  console.log({ args });
+
   return (
-    <StyledContainer accentColor="#553DE9" borderRadius={globals.borderRadius}>
+    <StyledContainer
+      accentColor={args.globals.accentColor}
+      borderRadius={args.globals.borderRadius}
+    >
       <Story />
     </StyledContainer>
   );

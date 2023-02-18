@@ -14,7 +14,7 @@ const HIDDEN_ARGS = [
 ];
 
 export default {
-  title: "Design System/Button",
+  title: "WDS/Button",
   component: Button,
   argTypes: {
     variant: {

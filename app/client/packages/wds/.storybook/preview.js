@@ -1,6 +1,7 @@
 import { resizor } from "./decorators/resizor";
 import { theming } from "./decorators/theming";
 import { borderRadius } from "./globals/borderRadius";
+import { accentColor } from "./globals/accentColor";
 
 import "./styles.css";
 
@@ -19,4 +20,5 @@ export const decorators = [resizor, theming];
 
 export const globalTypes = {
   borderRadius,
+  accentColor,
 };

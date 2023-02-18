@@ -2,6 +2,7 @@ import React, { HTMLAttributes, useMemo, forwardRef } from "react";
 
 import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
+import { Text } from "../Text";
 
 // types
 export const BUTTON_VARIANTS = [
@@ -47,7 +48,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     return (
       <>
         {leadingIcon && <span data-component="leadingIcon">{leadingIcon}</span>}
-        {children && <span data-component="text">{children}</span>}
+        {children && (
+          <span data-component="text">
+            <Text>{children}</Text>
+          </span>
+        )}
         {trailingIcon && (
           <span data-component="trailingIcon">{trailingIcon}</span>
         )}

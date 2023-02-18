@@ -53,16 +53,15 @@ export const StyledButton = styled.button<ButtonProps>`
   align-items: center;
   width: 100%;
   height: 100%;
-  white-space: nowrap;
-  cursor: pointer;
   outline: 0;
+  cursor: pointer;
+  white-space: nowrap;
   gap: var(--wds-v2-spacing-4);
   padding: var(--wds-v2-spacing-2) var(--wds-v2-spacing-4);
   min-height: 32px;
   border-radius: var(--wds-v2-radii);
   box-shadow: var(--wds-v2-shadow);
   border-width: 0;
-  background-clip: padding-box;
 
   ${({ borderRadius }) => borderRadius && `--wds-v2-radii: ${borderRadius};`};
   ${({ boxShadow }) => boxShadow && `--wds-v2-shadow: ${boxShadow};`};

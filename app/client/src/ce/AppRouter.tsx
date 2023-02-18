@@ -66,6 +66,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
+import { Button } from "@wds/components";
 
 /*
     We use this polyfill to show emoji flags
@@ -185,6 +186,7 @@ function AppRouter(props: {
         ) : (
           <>
             <AppHeader />
+            <Button variant="filled">Hello</Button>
             <Routes />
           </>
         )}

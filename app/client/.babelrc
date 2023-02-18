@@ -15,6 +15,7 @@
         "assets": "./src/assets/",
         "sagas": "./src/sagas/",
         "@appsmith": "./src/ee",
+        "@wds/components": ["../packages/wds"]
       }
     }]
   ]
