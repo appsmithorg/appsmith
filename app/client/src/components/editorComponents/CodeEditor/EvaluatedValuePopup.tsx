@@ -495,6 +495,11 @@ function PopoverContent(props: PopoverContentProps) {
     );
   }, [openExpectedDataType, openExpectedExample, openEvaluatedValue]);
 
+  const getErrorMessage = (error: Error) => {
+    return error
+      ? error.message
+      : `This value does not evaluate to type "${expected?.type}".`;
+  };
   return (
     <ContentWrapper
       className="t--CodeEditor-evaluatedValue"
@@ -513,12 +518,14 @@ function PopoverContent(props: PopoverContentProps) {
         <ErrorText>
           <span className="t--evaluatedPopup-error">
             {/* errorMessage could be an empty string */}
-            {error.errorMessage ||
-              `This value does not evaluate to type "${expected?.type}".`}
+            {getErrorMessage(error.errorMessage)}
           </span>
           <EvaluatedValueDebugButton
             entity={props.entity}
-            error={{ type: error.errorType, message: error.errorMessage }}
+            error={{
+              type: error.errorType,
+              message: error.errorMessage,
+            }}
           />
         </ErrorText>
       )}

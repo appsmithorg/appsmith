@@ -2,6 +2,7 @@ package com.appsmith.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -15,6 +16,7 @@ import com.appsmith.external.models.TriggerResultDTO;
 import io.micrometer.observation.ObservationRegistry;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -107,6 +109,10 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
                     final String errorMessage = error.getMessage() == null
                             ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
                             : error.getMessage();
+                            if (error instanceof AppsmithPluginException &&
+                                    StringUtils.hasLength(((AppsmithPluginException) error).getDownstreamErrorMessage())) {
+                                return Mono.just(new DatasourceTestResult(((AppsmithPluginException) error).getDownstreamErrorMessage(), errorMessage));
+                            }
                     return Mono.just(new DatasourceTestResult(errorMessage));
                 })
                 .subscribeOn(Schedulers.boundedElastic());
