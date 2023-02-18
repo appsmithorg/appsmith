@@ -154,6 +154,8 @@ export const LICENSE_ERROR_TITLE = () => `No Active Subscription`;
 export const LICENSE_ERROR_DESCRIPTION = () =>
   `You currently do not have an Active Subscription. Please contact your instance administrator to activate the instance.`;
 export const VISIT_CUSTOMER_PORTAL = () => `VISIT CUSTOMER PORTAL`;
+export const LICENSE_UPDATED_SUCCESSFULLY = () =>
+  `Your license has been updated successfully`;
 export const NOT_AVAILABLE = () => `Not Available`;
 export const ACTIVE = () => `Active`;
 export const TRIAL = () => `Trial`;

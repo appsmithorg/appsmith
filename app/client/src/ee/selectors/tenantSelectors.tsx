@@ -110,3 +110,6 @@ export const isLicenseValidating = (state: AppState) =>
 
 export const getLicenseOrigin = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.origin;
+
+export const isLicenseModalOpen = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.showLicenseModal;

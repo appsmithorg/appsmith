@@ -42,12 +42,17 @@ export const LicenseForm = (props: LicenseFormProps) => {
   useEffect(() => {
     const values = getValues();
 
-    if (isFieldTouched && isInvalid && !isEmptyString(values?.licenseKey)) {
+    if (
+      isFieldTouched &&
+      isInvalid &&
+      !isEmptyString(values?.licenseKey) &&
+      !licenseValidating
+    ) {
       setError("licenseKey", {
         type: "invalid",
       });
     }
-  }, [isInvalid, isFieldTouched, errors]);
+  }, [isInvalid, isFieldTouched, errors, licenseValidating]);
 
   const checkLicenseStatus = (formValues: any) => {
     const { licenseKey } = formValues;

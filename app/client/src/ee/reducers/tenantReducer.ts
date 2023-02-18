@@ -27,6 +27,7 @@ export interface License {
   invalidLicenseKeyError: boolean;
   validatingLicense: boolean;
   origin?: string;
+  showLicenseModal: boolean;
 }
 
 const INITIAL_BRAND_COLOR = "#000";
@@ -131,6 +132,20 @@ export const handlers = {
         ...state.tenantConfiguration.license,
         showBEBanner: action.payload,
         closedBannerAlready: true,
+      },
+    },
+  }),
+  [ReduxActionTypes.SHOW_LICENSE_MODAL]: (
+    state: TenantReduxState<License>,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        showLicenseModal: action.payload,
+        invalidLicenseKeyError: !action.payload && false,
       },
     },
   }),

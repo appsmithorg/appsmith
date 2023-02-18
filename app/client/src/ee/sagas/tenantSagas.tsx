@@ -23,6 +23,7 @@ import { TenantReduxState, License } from "@appsmith/reducers/tenantReducer";
 import localStorage from "utils/localStorage";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
 import {
+  ADMIN_SETTINGS_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
   LICENSE_CHECK_PATH,
@@ -34,6 +35,13 @@ import {
 } from "constants/routes";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { matchPath } from "react-router";
+import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
+import { Toaster, Variant } from "design-system-old";
+import {
+  createMessage,
+  LICENSE_UPDATED_SUCCESSFULLY,
+} from "@appsmith/constants/messages";
+import { showLicenseModal } from "@appsmith/actions/tenantActions";
 
 export function* fetchCurrentTenantConfigSaga(): any {
   try {
@@ -117,6 +125,8 @@ export function* validateLicenseSaga(
   const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
     "enableFirstTimeUserExperience",
   );
+  const adminSettingsPath = `${ADMIN_SETTINGS_PATH}/${SettingCategories.BILLING}`;
+  const shouldRedirectOnUpdate = urlObject?.pathname !== adminSettingsPath;
   try {
     const response: ApiResponse<TenantReduxState<License>> = yield call(
       TenantApi.validateLicense,
@@ -125,7 +135,7 @@ export function* validateLicenseSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       if (response?.data?.tenantConfiguration?.license?.active) {
-        window.location.replace(redirectUrl);
+        shouldRedirectOnUpdate && window.location.replace(redirectUrl);
         if (shouldEnableFirstTimeUserOnboarding) {
           const urlObject = new URL(redirectUrl);
           const match = matchPath<{
@@ -156,6 +166,13 @@ export function* validateLicenseSaga(
         type: ReduxActionTypes.VALIDATE_LICENSE_KEY_SUCCESS,
         payload: response.data,
       });
+      if (!shouldRedirectOnUpdate) {
+        Toaster.show({
+          text: createMessage(LICENSE_UPDATED_SUCCESSFULLY),
+          variant: Variant.success,
+        });
+        yield put(showLicenseModal(false));
+      }
     } else {
       yield put({
         type: ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_ERROR,

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
   ACTIVATE,
@@ -38,9 +38,11 @@ import {
   getLicenseKey,
   isTrialLicense,
   getLicenseStatus,
+  isLicenseModalOpen,
   getExpiry,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
+import { showLicenseModal } from "@appsmith/actions/tenantActions";
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
@@ -69,8 +71,8 @@ export function Billing() {
   const expiryDate = getDateString(expiry * 1000);
   const licenseStatus = useSelector(getLicenseStatus);
 
-  const [isOpen, setIsOpen] = useState(false);
-
+  const isOpen = useSelector(isLicenseModalOpen);
+  const dispatch = useDispatch();
   const cards: BillingDashboardCard[] = [
     {
       icon: "money-dollar-circle-line",
@@ -104,7 +106,7 @@ export function Billing() {
       subtitle: (
         <CtaText
           {...CtaConfig}
-          action={() => setIsOpen(true)}
+          action={() => dispatch(showLicenseModal(true))}
           text={createMessage(UPDATE)}
         />
       ),
@@ -118,7 +120,7 @@ export function Billing() {
       <StyledDialog
         canOutsideClickClose
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => dispatch(showLicenseModal(false))}
         title=""
         width="456px"
       >
