@@ -22,6 +22,13 @@ public interface TenantService extends TenantServiceCE {
     Mono<Tenant> setTenantLicenseKey(String licenseKey);
 
     /**
+     * To refresh the current license status in the DB by making a license validation request to Cloud Services and
+     * return refreshed license
+     * @return Mono of Tenant
+     */
+    Mono<Tenant> refreshAndGetCurrentLicense();
+
+    /**
      * To check and update the status of default tenant's license
      * This can be used for periodic license checks via scheduled jobs
      * @return Mono of Tenant

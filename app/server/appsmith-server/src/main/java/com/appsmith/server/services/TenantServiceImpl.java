@@ -1,8 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -49,7 +51,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
-        // Get the default tenant object from the DB and then populate the relevant user permissions in it
+        // Get the default tenant object from the DB and then populate the relevant user permissions in that
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
         return repository.findBySlug(FieldName.DEFAULT)
                 .flatMap(tenant -> repository.setUserPermissionsInObject(tenant)
@@ -77,7 +79,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     /**
      * To set a license key to the default tenant
      * Only valid license key will get added to the tenant
-     * @param licenseKey
+     * @param licenseKey License key received from client
      * @return Mono of Tenant
      */
     public Mono<Tenant> setTenantLicenseKey(String licenseKey) {
@@ -88,10 +90,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
                 .flatMap(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    boolean isActivateInstance = true;
-                    if (tenantConfiguration.getLicense() != null && !StringUtils.isNullOrEmpty(tenantConfiguration.getLicense().getKey())) {
-                        isActivateInstance = false;
-                    }
+                    boolean isActivateInstance = tenantConfiguration.getLicense() == null || StringUtils.isNullOrEmpty(tenantConfiguration.getLicense().getKey());
                     tenantConfiguration.setLicense(license);
                     tenant.setTenantConfiguration(tenantConfiguration);
 
@@ -100,13 +99,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .flatMap(tuple -> {
                     Tenant tenant = tuple.getT1();
                     boolean isActivateInstance = tuple.getT2();
+                    TenantConfiguration.License license1 = tenant.getTenantConfiguration().getLicense();
                     AnalyticsEvents analyticsEvent = isActivateInstance ? AnalyticsEvents.ACTIVATE_NEW_INSTANCE : AnalyticsEvents.UPDATE_EXISTING_LICENSE;
-                    TenantConfiguration.License clientPertinentLicense = getClientPertinentTenant(tenant, null).getTenantConfiguration().getLicense();
                     Map<String, Object> analyticsProperties = Map.of(
-                            FieldName.LICENSE_KEY, clientPertinentLicense.getKey(),
-                            FieldName.LICENSE_VALID, clientPertinentLicense.getStatus() == null ? false : true,
-                            FieldName.LICENSE_TYPE, clientPertinentLicense.getType() == null ? "" : clientPertinentLicense.getType(),
-                            FieldName.LICENSE_STATUS, clientPertinentLicense.getStatus() == null ? "" : clientPertinentLicense.getStatus()
+                            FieldName.LICENSE_KEY, StringUtils.isNullOrEmpty(license1.getKey()) ? "" : DataTypeStringUtils.maskString(license1.getKey()),
+                            FieldName.LICENSE_VALID, license1.getStatus() != null  && LicenseStatus.ACTIVE.equals(license1.getStatus()),
+                            FieldName.LICENSE_TYPE, license1.getType() == null ? "" : license1.getType(),
+                            FieldName.LICENSE_STATUS, license1.getStatus() == null ? "" : license1.getStatus()
                     );
                     Mono<Tenant> analyticsEventMono = analyticsService.sendObjectEvent(analyticsEvent, tenant, analyticsProperties);
                     // Update/save license only in case of a valid license key
@@ -114,14 +113,29 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                         return analyticsEventMono.then(Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED)));
                     }
 
-                    return analyticsEventMono.then(this.save(tenant));
+                    return this.save(tenant)
+                            .flatMap(analyticsEventMono::thenReturn);
                 })
-                .map((Tenant dbTenant) -> getClientPertinentTenant(dbTenant, null));
+                .map(tenant -> getClientPertinentTenant(tenant, null));
+    }
+
+    /**
+     * To refresh the current license status in the DB by making a license validation request to the Cloud Services and
+     * return latest license status
+     * @return Mono of Tenant
+     */
+    public Mono<Tenant> refreshAndGetCurrentLicense() {
+        // TODO: Update to getCurrentTenant when multi tenancy is introduced
+        return repository.findBySlug(FieldName.DEFAULT, AclPermission.MANAGE_TENANT)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
+                .flatMap(this::checkTenantLicense)
+                .flatMap(this::save)
+                .map(tenant -> getClientPertinentTenant(tenant, null));
     }
 
     /**
      * To check the status of a license key associated with the tenant
-     * @param tenant
+     * @param tenant Tenant
      * @return Mono of Tenant
      */
     private Mono<Tenant> checkTenantLicense(Tenant tenant) {
@@ -172,7 +186,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     /**
      * To check whether a tenant have valid license configuration
      * @param tenant Tenant
-     * @return
+     * @return Boolean
      */
     public Boolean isValidLicenseConfiguration(Tenant tenant) {
         return tenant.getTenantConfiguration() != null &&
