@@ -27,14 +27,6 @@ export type UpdateDataTreeMessageData = {
   unevalTree: UnEvalTree;
 };
 
-/*
- * Used to evaluate and execute dynamic trigger end to end
- * Widget action fields and JS Object run triggers this flow
- *
- * We start a duplex request with the worker and wait till the time we get a 'finished' event from the
- * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
- * execution is returned to the worker where it can resolve/reject the current promise.
- */
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {

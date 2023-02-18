@@ -1,22 +1,24 @@
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { Patch, PatchType, jsVariableUpdates } from "./JSVariableUpdates";
 
-export function jsVariableProxyHandler(
-  updateTracker: (patch: Patch) => void,
+export function jsObjectProxyHandler(
+  addPatch: (patch: Patch) => void,
   path: string,
 ) {
   return {
     get: function(target: any, prop: string): any {
       const value = target[prop];
 
-      if (prop === "__isProxy") return true;
-      if (prop === "__originalValue") return target;
+      // $isProxy property is used to detect if an object is a proxy object or not.
+      if (prop === "$isProxy") return true;
+      // $originalValue property is used to get the target object.
+      if (prop === "$originalValue") return target;
 
       if (value instanceof Function) {
         if (!target.hasOwnProperty(value)) {
           // HACK:
           // Assuming a prototype method call would mutate the property
-          updateTracker({
+          addPatch({
             path,
             method: PatchType.PROTOTYPE_METHOD_CALL,
           });
@@ -24,24 +26,24 @@ export function jsVariableProxyHandler(
         return value.bind(target);
       }
 
-      if (typeof value === "object" && value !== null && !value.__isProxy) {
+      if (typeof value === "object" && value !== null && !value.$isProxy) {
         return new Proxy(
           value,
-          jsVariableProxyHandler(updateTracker, `${path}.${prop}`),
+          jsObjectProxyHandler(addPatch, `${path}.${prop}`),
         );
       }
 
       return target[prop];
     },
     set: function(target: any, prop: string, value: unknown, rec: any) {
-      updateTracker({
+      addPatch({
         path: `${path}.${prop}`,
         method: PatchType.SET,
       });
       return Reflect.set(target, prop, value, rec);
     },
     deleteProperty: function(target: any, prop: string) {
-      updateTracker({
+      addPatch({
         path: `${path}.${prop}`,
         method: PatchType.DELETE,
       });
@@ -54,18 +56,23 @@ function addPatch(patch: Patch) {
   jsVariableUpdates.add(patch);
 }
 
+type ProxiedJSObject = DataTreeJSAction & {
+  $isProxy: boolean;
+  $originalValue: DataTreeJSAction;
+};
+
 class JSProxy {
   static create(
     jsObject: DataTreeJSAction,
     jsObjectName: string,
     varState: Record<string, unknown> = {},
-  ) {
-    let proxiedJSObject = jsObject;
+  ): ProxiedJSObject {
+    let proxiedJSObject = jsObject as ProxiedJSObject;
 
     if (typeof jsObject === "object") {
       proxiedJSObject = new Proxy(
         Object.assign({}, varState),
-        jsVariableProxyHandler(addPatch, jsObjectName),
+        jsObjectProxyHandler(addPatch, jsObjectName),
       );
     }
 

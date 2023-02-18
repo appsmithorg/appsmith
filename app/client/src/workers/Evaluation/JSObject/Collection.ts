@@ -5,8 +5,8 @@ import { get, set } from "lodash";
 export type VariableState = Record<string, Record<string, unknown>>;
 
 export function getOriginalValueFromProxy(obj: Record<string, unknown>) {
-  if (obj && obj.__isProxy) {
-    return obj.__originalValue;
+  if (obj && obj.$isProxy) {
+    return obj.$originalValue;
   }
   return obj;
 }
