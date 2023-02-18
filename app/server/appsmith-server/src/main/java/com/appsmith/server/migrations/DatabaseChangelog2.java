@@ -12,6 +12,7 @@ import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -42,6 +43,7 @@ import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
@@ -2779,4 +2781,14 @@ public class DatabaseChangelog2 {
         update.set("datasourceConfiguration.connection.ssl.authType", "DEFAULT");
         mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
     }
+
+    // Migration to drop usage pulse collection for Appsmith cloud as we will not be logging these pulses unless
+    // multi-tenancy is introduced
+    @ChangeSet(order = "040", id = "remove-usage-pulses-for-appsmith-cloud", author = "")
+    public void removeUsagePulsesForAppsmithCloud(MongoTemplate mongoTemplate, @NonLockGuarded CommonConfig commonConfig) {
+        if (Boolean.TRUE.equals(commonConfig.isCloudHosting())) {
+            mongoTemplate.dropCollection(UsagePulse.class);
+        }
+    }
+
 }

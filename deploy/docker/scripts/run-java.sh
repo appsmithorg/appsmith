@@ -25,7 +25,7 @@ if [[ -z "${NO_PROXY-}" ]]; then
 fi
 
 if [[ $proxy_configured == 1 ]]; then
-  proxy_args+=(-Djava.net.useSystemProxies=true -Dhttp.nonProxyHosts="${NO_PROXY/,/|}")
+  proxy_args+=(-Djava.net.useSystemProxies=true -Dhttp.nonProxyHosts="${NO_PROXY//,/|}")
 fi
 
 # Wait until RTS started and listens on port 8091

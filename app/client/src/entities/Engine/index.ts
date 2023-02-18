@@ -16,6 +16,7 @@ import history from "utils/history";
 import URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 export type AppEnginePayload = {
   applicationId?: string;
@@ -69,7 +70,14 @@ export default abstract class AppEngine {
     if (!apiCalls)
       throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
     const application: ApplicationPayload = yield select(getCurrentApplication);
-    yield put(updateAppStore(getPersistentAppStore(application.id, branch)));
+    const currentGitBranch: ReturnType<typeof getCurrentGitBranch> = yield select(
+      getCurrentGitBranch,
+    );
+    yield put(
+      updateAppStore(
+        getPersistentAppStore(application.id, branch || currentGitBranch),
+      ),
+    );
     const toLoadPageId: string = pageId || (yield select(getDefaultPageId));
     this._urlRedirect = URLGeneratorFactory.create(
       application.applicationVersion,
