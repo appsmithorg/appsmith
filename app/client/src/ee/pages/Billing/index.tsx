@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
   ACTIVATE,
+  ACTIVE,
   ADMIN_BILLING_SETTINGS_SUBTITLE,
   ADMIN_BILLING_SETTINGS_TITLE,
   BILLING_AND_USAGE,
@@ -12,6 +13,7 @@ import {
   LICENSE_EXPIRY_DATE,
   OPEN_CUSTOMER_PORTAL,
   PASTE_LICENSE_KEY,
+  TRIAL,
   UPDATE,
   UPDATE_LICENSE,
   YOUR_LICENSE_KEY,
@@ -27,14 +29,17 @@ import {
 import { BillingPageContent } from "./BillingPageContent";
 import { CtaText } from "./CTAText";
 import { BillingDashboardCard, CTATextType, LICENSE_ORIGIN } from "./types";
-import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
+import {
+  getDateString,
+  goToCustomerPortal,
+} from "@appsmith/utils/billingUtils";
 import { StatusBadge, Status } from "./StatusBadge";
 import {
   getLicenseKey,
   isTrialLicense,
-  getLicenseExpiry,
   getLicenseStatus,
   getLicenseOrigin,
+  getExpiry,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
 
@@ -54,15 +59,15 @@ const CtaConfig: CTATextType = {
 };
 
 const statusTextMap: Partial<Record<Status, string>> = {
-  [Status.ACTIVE]: "Active subscription",
-  [Status.INACTIVE]: "Inactive",
-  [Status.TRIAL]: "Trial version",
+  [Status.ACTIVE]: createMessage(ACTIVE),
+  [Status.TRIAL]: createMessage(TRIAL),
 };
 
 export function Billing() {
   const licenseKey = useSelector(getLicenseKey);
   const isTrial = useSelector(isTrialLicense);
-  const expiryDate = useSelector(getLicenseExpiry);
+  const expiry = useSelector(getExpiry);
+  const expiryDate = getDateString(expiry * 1000);
   const licenseStatus = useSelector(getLicenseStatus);
   const isSelfServe =
     useSelector(getLicenseOrigin) !== LICENSE_ORIGIN.ENTERPRISE;

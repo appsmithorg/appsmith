@@ -10,7 +10,7 @@ import {
 } from "@appsmith/constants/messages";
 
 export const config: AdminConfigType = {
-  icon: "file-list-2-line",
+  icon: "money-dollar-circle-line",
   type: SettingCategories.BILLING,
   controlType: SettingTypes.PAGE,
   component: Billing,
