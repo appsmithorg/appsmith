@@ -28,17 +28,16 @@ import {
 } from "./styles";
 import { BillingPageContent } from "./BillingPageContent";
 import { CtaText } from "./CTAText";
-import { BillingDashboardCard, CTATextType, LICENSE_ORIGIN } from "./types";
 import {
   getDateString,
   goToCustomerPortal,
 } from "@appsmith/utils/billingUtils";
+import { BillingDashboardCard, CTATextType } from "./types";
 import { StatusBadge, Status } from "./StatusBadge";
 import {
   getLicenseKey,
   isTrialLicense,
   getLicenseStatus,
-  getLicenseOrigin,
   getExpiry,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
@@ -69,15 +68,11 @@ export function Billing() {
   const expiry = useSelector(getExpiry);
   const expiryDate = getDateString(expiry * 1000);
   const licenseStatus = useSelector(getLicenseStatus);
-  const isSelfServe =
-    useSelector(getLicenseOrigin) !== LICENSE_ORIGIN.ENTERPRISE;
+
   const [isOpen, setIsOpen] = useState(false);
 
-  const cards: BillingDashboardCard[] = [];
-
-  // Push billing card only if the license is self-serve
-  if (isSelfServe) {
-    cards.push({
+  const cards: BillingDashboardCard[] = [
+    {
       icon: "money-dollar-circle-line",
       title: (
         <Text type={TextType.H1} weight="700">
@@ -85,38 +80,36 @@ export function Billing() {
         </Text>
       ),
       subtitle: <CtaText {...CtaConfig} />,
-    });
-  }
-
-  // Push remaining cards
-  cards.push({
-    icon: "key-2-line",
-    title: (
-      <FlexWrapper align="center" dir="row">
-        <Text type={TextType.H1} weight="700">
-          {createMessage(YOUR_LICENSE_KEY)}
-        </Text>
-        <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
-      </FlexWrapper>
-    ),
-    content: (
-      <FlexWrapper dir="column">
-        <Text type={TextType.P0}>{licenseKey}</Text>
-        {isTrial && (
-          <Text color={Colors.GREEN} type={TextType.P1} weight="500">
-            {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
+    },
+    {
+      icon: "key-2-line",
+      title: (
+        <FlexWrapper align="center" dir="row">
+          <Text type={TextType.H1} weight="700">
+            {createMessage(YOUR_LICENSE_KEY)}
           </Text>
-        )}
-      </FlexWrapper>
-    ),
-    subtitle: (
-      <CtaText
-        {...CtaConfig}
-        action={() => setIsOpen(true)}
-        text={createMessage(UPDATE)}
-      />
-    ),
-  });
+          <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
+        </FlexWrapper>
+      ),
+      content: (
+        <FlexWrapper dir="column">
+          <Text type={TextType.P0}>{licenseKey}</Text>
+          {isTrial && (
+            <Text color={Colors.GREEN} type={TextType.P1} weight="500">
+              {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
+            </Text>
+          )}
+        </FlexWrapper>
+      ),
+      subtitle: (
+        <CtaText
+          {...CtaConfig}
+          action={() => setIsOpen(true)}
+          text={createMessage(UPDATE)}
+        />
+      ),
+    },
+  ];
 
   return (
     <BillingPageWrapper>
