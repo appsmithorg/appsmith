@@ -147,7 +147,9 @@ export class ApiPage {
     this.SelectPaneTab("Body");
     this.SelectSubTab(subTab);
     if (toTrash) {
-      cy.get(this._trashDelete).first().click();
+      cy.get(this._trashDelete)
+        .first()
+        .click();
       cy.xpath(this._visibleTextSpan("Add more")).click();
     }
     this.agHelper.EnterValue(bKey, {
@@ -288,7 +290,11 @@ export class ApiPage {
     selector: string,
     contentToValidate: any,
   ) {
-    cy.get(selector).should("have.text", contentToValidate);
+    this.agHelper.GetNAssertElementText(
+      selector,
+      contentToValidate,
+      "have.text",
+    );
   }
 
   public ValidateImportedKeyValueOverride(index: number, isOverriden = true) {
@@ -330,7 +336,7 @@ export class ApiPage {
   }
 
   public ValidateImportedKeyValueAbsence(selector: string) {
-    cy.get(selector).should("not.exist");
+    this.agHelper.AssertElementAbsence(selector);
   }
 
   ReadApiResponsebyKey(key: string) {
