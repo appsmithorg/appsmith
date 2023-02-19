@@ -208,6 +208,8 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
+    isValid: "bool",
+    isDirty: "bool",
     options: "[$__dropdownOption__$]",
   },
   MULTI_SELECT_WIDGET: {
@@ -252,6 +254,8 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
+    isValid: "bool",
+    isDirty: "bool",
     options: "[$__dropdownOption__$]",
   },
   IMAGE_WIDGET: {
@@ -397,6 +401,8 @@ export const entityDefinitions = {
     isVisible: isVisible,
     files: "[$__file__$]",
     isDisabled: "bool",
+    isValid: "bool",
+    isDirty: "bool",
   },
   LIST_WIDGET: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":
@@ -413,6 +419,34 @@ export const entityDefinitions = {
     listData: generateTypeDef(widget.listData, extraDefsToDefine),
     pageNo: generateTypeDef(widget.pageNo),
     pageSize: generateTypeDef(widget.pageSize),
+  }),
+  LIST_WIDGET_V2: (widget: any, extraDefsToDefine?: ExtraDef) => ({
+    "!doc":
+      "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+    "!url": "https://docs.appsmith.com/widget-reference/list",
+    backgroundColor: {
+      "!type": "string",
+      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+    },
+    isVisible: isVisible,
+    itemSpacing: "number",
+    selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
+    selectedItemView: generateTypeDef(
+      widget.selectedItemView,
+      extraDefsToDefine,
+    ),
+    triggeredItem: generateTypeDef(widget.triggeredItem, extraDefsToDefine),
+    triggeredItemView: generateTypeDef(
+      widget.triggeredItemView,
+      extraDefsToDefine,
+    ),
+    listData: generateTypeDef(widget.listData, extraDefsToDefine),
+    pageNo: generateTypeDef(widget.pageNo),
+    pageSize: generateTypeDef(widget.pageSize),
+    currentItemsView: generateTypeDef(
+      widget.currentItemsView,
+      extraDefsToDefine,
+    ),
   }),
   RATE_WIDGET: {
     "!doc": "Rating widget is used to display ratings in your app.",

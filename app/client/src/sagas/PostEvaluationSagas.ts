@@ -8,7 +8,7 @@ import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
-  getDataTreeWithoutPrivateWidgets,
+  getDataTreeForAutocomplete,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -19,7 +19,6 @@ import {
   EvalErrorTypes,
   EvaluationError,
   getEvalErrorPath,
-  getEvalValuePath,
 } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -77,14 +76,6 @@ function logLatestEvalPropertyErrors(
         }),
         [],
       );
-
-      const evaluatedValue = get(
-        entity,
-        getEvalValuePath(evaluatedPath, {
-          isPopulated: false,
-          fullPath: false,
-        }),
-      );
       const evalErrors: EvaluationError[] = [];
       const evalWarnings: EvaluationError[] = [];
 
@@ -104,6 +95,14 @@ function logLatestEvalPropertyErrors(
         : isAction(entity)
         ? ENTITY_TYPE.ACTION
         : ENTITY_TYPE.JSACTION;
+      const pluginTypeField = isAction(entity)
+        ? entity.pluginType
+        : entity.type;
+      const iconId = isWidget(entity)
+        ? entity.widgetId
+        : isJSAction(entity)
+        ? entity.actionId
+        : entity.pluginId;
       const debuggerKeys = [
         {
           key: `${idField}-${propertyPath}`,
@@ -116,6 +115,8 @@ function logLatestEvalPropertyErrors(
         },
       ];
 
+      const httpMethod = get(entity.config, "httpMethod") || undefined;
+
       for (const { errors, isWarning, key: debuggerKey } of debuggerKeys) {
         // if dataTree has error but debugger does not -> add
         // if debugger has error and data tree has error -> update error
@@ -127,10 +128,7 @@ function logLatestEvalPropertyErrors(
           // Reformatting eval errors here to a format usable by the debugger
           const errorMessages = errors.map((e) => {
             // Error format required for the debugger
-            return {
-              message: e.errorMessage,
-              type: e.errorType,
-            };
+            return { message: e.errorMessage, type: e.errorType };
           });
 
           const analyticsData = isWidget(entity)
@@ -149,6 +147,7 @@ function logLatestEvalPropertyErrors(
             errorsToAdd.push({
               payload: {
                 id: debuggerKey,
+                iconId: iconId,
                 logType: isWarning
                   ? LOG_TYPE.EVAL_WARNING
                   : LOG_TYPE.EVAL_ERROR,
@@ -163,9 +162,8 @@ function logLatestEvalPropertyErrors(
                   name: nameField,
                   type: entityType,
                   propertyPath: logPropertyPath,
-                },
-                state: {
-                  [logPropertyPath]: evaluatedValue,
+                  pluginType: pluginTypeField,
+                  httpMethod,
                 },
                 analytics: analyticsData,
               },
@@ -360,11 +358,11 @@ export function* updateTernDefinitions(
 
   if (!shouldUpdate) return;
   const start = performance.now();
-  // remove private widgets from dataTree used for autocompletion
-  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
+  const dataTreeForAutocomplete = getDataTreeForAutocomplete(dataTree);
   const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const { def, entityInfo } = dataTreeTypeDefCreator(
-    treeWithoutPrivateWidgets,
+    dataTreeForAutocomplete,
     !!featureFlags.JS_EDITOR,
     jsData,
   );
@@ -389,13 +387,29 @@ export function* handleJSFunctionExecutionErrorLog(
             text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
               action.name
             }`,
-            messages: errors.map((error) => ({
-              message: error.errorMessage || error.message,
-              type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
-              subType: error.errorType,
-            })),
+            messages: errors.map((error) => {
+              // TODO: Remove this check once we address uncaught promise errors
+              let errorMessage = error.errorMessage;
+              if (!errorMessage) {
+                const errMsgArr = error.message.split(":");
+                errorMessage = errMsgArr.length
+                  ? {
+                      name: errMsgArr[0],
+                      message: errMsgArr.slice(1).join(":"),
+                    }
+                  : {
+                      name: "ValidationError",
+                      message: error.message,
+                    };
+              }
+              return {
+                message: errorMessage,
+                type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
+                subType: error.errorType,
+              };
+            }),
             source: {
-              id: action.id,
+              id: action.collectionId ? action.collectionId : action.id,
               name: `${collectionName}.${action.name}`,
               type: ENTITY_TYPE.JSACTION,
               propertyPath: `${collectionName}.${action.name}`,
