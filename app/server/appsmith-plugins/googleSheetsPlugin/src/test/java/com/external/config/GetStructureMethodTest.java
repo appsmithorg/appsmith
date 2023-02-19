@@ -1,6 +1,7 @@
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,7 +27,7 @@ public class GetStructureMethodTest {
             JsonNode result = getStructureMethod.transformExecutionResponse(null, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
             assertFalse(result == null);
         } catch (AppsmithPluginException e) {
-            assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getMessage()));
+            assertTrue(ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG.equalsIgnoreCase(e.getMessage()));
         }
     }
 

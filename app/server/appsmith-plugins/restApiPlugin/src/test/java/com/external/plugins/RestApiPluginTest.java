@@ -17,6 +17,7 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.exceptions.RestApiPluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,6 +55,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -658,9 +661,8 @@ public class RestApiPluginTest {
                 dsConfig,
                 actionConfig));
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof IllegalArgumentException);
-                    assertTrue(e.getMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\""));
+                .assertNext(actionExecutionResult -> {
+                    assertTrue(actionExecutionResult.getPluginErrorDetails().getDownstreamErrorMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\""));
                 });
     }
 
@@ -1332,9 +1334,8 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals(
-                            "Host not allowed.",
-                            result.getBody(),
+                    assertTrue(
+                            result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."),
                             "Unexpected error message. Did this fail for a different reason?"
                     );
                 })
@@ -1353,7 +1354,7 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Host not allowed.", result.getBody());
+                    assertTrue(result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."));
                 })
                 .verifyComplete();
     }
@@ -1393,7 +1394,7 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Host not allowed.", result.getBody());
+                    assertTrue(result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."));
                 })
                 .verifyComplete();
     }
@@ -1529,6 +1530,16 @@ public class RestApiPluginTest {
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfRestApiPluginErrorCode() {
+        assert (Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode).distinct().count() == RestApiPluginError.values().length);
+
+        assert (Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RST"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }
 

@@ -35,6 +35,7 @@ import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import SaveOrDiscardRoleModal from "./SaveOrDiscardRoleModal";
+import { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
 let dataToBeSent: any[] = [];
 
@@ -225,8 +226,8 @@ const IconTypes: any = {
   NewPage: (
     <MenuIcons.PAGE_ICON color={Colors.GRAY_700} height="16" width="16" />
   ),
-  NewAction: <ApiMethodIcon type="GET" />,
-  ActionCollection: JsFileIconV2,
+  NewAction: ApiMethodIcon(HTTP_METHOD.GET),
+  ActionCollection: JsFileIconV2(),
 };
 
 function Table({
