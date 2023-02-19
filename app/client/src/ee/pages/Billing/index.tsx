@@ -1,22 +1,21 @@
 import React from "react";
-import { IconSize, Text, TextType } from "design-system-old";
+import { Category, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
   ACTIVATE,
   ACTIVE,
-  ADMIN_BILLING_SETTINGS_SUBTITLE,
   ADMIN_BILLING_SETTINGS_TITLE,
   BILLING_AND_USAGE,
   createMessage,
   LICENSE_EXPIRY_DATE,
-  OPEN_CUSTOMER_PORTAL,
   PASTE_LICENSE_KEY,
+  PORTAL,
   TRIAL,
   UPDATE,
   UPDATE_LICENSE,
-  YOUR_LICENSE_KEY,
+  LICENSE_KEY,
 } from "@appsmith/constants/messages";
 import { BillingPageHeader } from "./Header";
 import {
@@ -32,7 +31,7 @@ import {
   getDateString,
   goToCustomerPortal,
 } from "@appsmith/utils/billingUtils";
-import { BillingDashboardCard, CTATextType } from "./types";
+import { BillingDashboardCard, CTAButtonType } from "./types";
 import { StatusBadge, Status } from "./StatusBadge";
 import {
   getLicenseKey,
@@ -46,17 +45,11 @@ import { showLicenseModal } from "@appsmith/actions/tenantActions";
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
-  subtitle: createMessage(ADMIN_BILLING_SETTINGS_SUBTITLE),
 };
 
-const CtaConfig: CTATextType = {
+const CtaConfig: CTAButtonType = {
   action: goToCustomerPortal,
-  icon: {
-    fillColor: Colors.PURPLE,
-    name: "arrow-forward",
-    size: IconSize.XXL,
-  },
-  text: createMessage(OPEN_CUSTOMER_PORTAL).toLocaleUpperCase(),
+  text: createMessage(PORTAL).toLocaleUpperCase(),
 };
 
 const statusTextMap: Partial<Record<Status, string>> = {
@@ -77,36 +70,48 @@ export function Billing() {
     {
       icon: "money-dollar-circle-line",
       title: (
-        <Text type={TextType.H1} weight="700">
+        <Text color={Colors.SCORPION} type={TextType.P0} weight="500">
           {createMessage(BILLING_AND_USAGE)}
         </Text>
       ),
-      subtitle: <CtaText {...CtaConfig} />,
+      action: (
+        <CtaText
+          category={Category.tertiary}
+          className="portal-btn"
+          icon="share-2"
+          tag={"a"}
+          {...CtaConfig}
+        />
+      ),
     },
     {
       icon: "key-2-line",
       title: (
         <FlexWrapper align="center" dir="row">
-          <Text type={TextType.H1} weight="700">
-            {createMessage(YOUR_LICENSE_KEY)}
+          <Text color={Colors.SCORPION} type={TextType.P0} weight="500">
+            {createMessage(LICENSE_KEY)}
           </Text>
           <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
         </FlexWrapper>
       ),
       content: (
         <FlexWrapper dir="column">
-          <Text type={TextType.P0}>{licenseKey}</Text>
+          <Text color={Colors.GRAY_500} type={TextType.P3} weight="500">
+            {licenseKey}
+          </Text>
           {isTrial && (
-            <Text color={Colors.GREEN} type={TextType.P1} weight="500">
+            <Text color={Colors.GREEN} type={TextType.P3} weight="500">
               {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
             </Text>
           )}
         </FlexWrapper>
       ),
-      subtitle: (
+      action: (
         <CtaText
-          {...CtaConfig}
           action={() => dispatch(showLicenseModal(true))}
+          category={Category.secondary}
+          className="update-license-btn"
+          tag={"button"}
           text={createMessage(UPDATE)}
         />
       ),

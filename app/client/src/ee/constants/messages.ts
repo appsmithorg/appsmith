@@ -159,3 +159,5 @@ export const LICENSE_UPDATED_SUCCESSFULLY = () =>
 export const NOT_AVAILABLE = () => `Not Available`;
 export const ACTIVE = () => `Active`;
 export const TRIAL = () => `Trial`;
+export const PORTAL = () => `Portal`;
+export const LICENSE_KEY = () => `License Key`;
