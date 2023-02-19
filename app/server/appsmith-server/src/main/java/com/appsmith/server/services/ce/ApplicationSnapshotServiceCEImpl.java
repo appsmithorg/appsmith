@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.repositories.ce.ApplicationSnapshotRepository;
+import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
