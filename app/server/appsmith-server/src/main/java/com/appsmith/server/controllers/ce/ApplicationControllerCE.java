@@ -17,6 +17,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
@@ -56,6 +57,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ApplicationForkingService applicationForkingService;
     private final ImportExportApplicationService importExportApplicationService;
     private final ThemeService themeService;
+    private final ApplicationSnapshotService applicationSnapshotService;
 
     @Autowired
     public ApplicationControllerCE(
@@ -63,13 +65,16 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportExportApplicationService importExportApplicationService, ThemeService themeService) {
+            ImportExportApplicationService importExportApplicationService,
+            ThemeService themeService,
+            ApplicationSnapshotService applicationSnapshotService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
         this.importExportApplicationService = importExportApplicationService;
         this.themeService = themeService;
+        this.applicationSnapshotService = applicationSnapshotService;
     }
 
     @PostMapping
@@ -183,7 +188,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to create snapshot with application id: {}, branch: {}", id, branchName);
 
-        return importExportApplicationService.createApplicationSnapshot(id, branchName)
+        return applicationSnapshotService.createApplicationSnapshot(id, branchName)
                 .map(snapshotId -> new ResponseDTO<>(HttpStatus.OK.value(), snapshotId, null));
     }
 

@@ -22,15 +22,6 @@ public interface ImportExportApplicationServiceCE {
      */
     Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor);
 
-    /**
-     * This method will create a new snapshot of the provided applicationId and branch name and store in the
-     * ApplicationSnapshot collection.
-     * @param applicationId ID of the application, default application ID if application is connected to Git
-     * @param branchName name of the Git branch, null or empty if not connected to Git
-     * @return Created snapshot ID
-     */
-    Mono<String> createApplicationSnapshot(String applicationId, String branchName);
-
     Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName);
 
     Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName);

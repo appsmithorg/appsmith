@@ -54,14 +54,12 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               PagePermission pagePermission,
                                               ActionPermission actionPermission,
                                               Gson gson,
-                                              TransactionalOperator transactionalOperator,
-                                              ApplicationSnapshotService applicationSnapshotService) {
+                                              TransactionalOperator transactionalOperator) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
                 actionCollectionService, themeService, analyticsService, customJSLibService, datasourcePermission,
-                workspacePermission, applicationPermission, pagePermission, actionPermission, gson, transactionalOperator,
-                applicationSnapshotService);
+                workspacePermission, applicationPermission, pagePermission, actionPermission, gson, transactionalOperator);
     }
 }

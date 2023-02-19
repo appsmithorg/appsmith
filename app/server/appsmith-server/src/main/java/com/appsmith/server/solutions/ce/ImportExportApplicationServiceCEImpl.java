@@ -51,7 +51,6 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
@@ -136,7 +135,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ActionPermission actionPermission;
     private final Gson gson;
     private final TransactionalOperator transactionalOperator;
-    private final ApplicationSnapshotService applicationSnapshotService;
 
     /**
      * This function will give the application resource to rebuild the application in import application flow
@@ -2208,21 +2206,5 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return analyticsService.sendObjectEvent(event, application, data);
                 });
-    }
-
-    @Override
-    public Mono<String> createApplicationSnapshot(String applicationId, String branchName) {
-        return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
-                /* SerialiseApplicationObjective=VERSION_CONTROL because this API can be invoked from developers.
-                exportApplicationById method check for MANAGE_PERMISSION if SerialiseApplicationObjective=SHARE.
-                */
-                .flatMap(branchedAppId ->
-                        Mono.zip(
-                                exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL),
-                                Mono.just(branchedAppId)
-                        )
-                )
-                .flatMap(objects -> applicationSnapshotService.createSnapshotForApplication(objects.getT2(), objects.getT1()))
-                .map(BaseDomain::getId);
     }
 }

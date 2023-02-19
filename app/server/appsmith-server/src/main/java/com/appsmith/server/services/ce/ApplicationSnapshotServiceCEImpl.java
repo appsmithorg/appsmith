@@ -1,22 +1,41 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.ImportExportApplicationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServiceCE {
     private final ApplicationSnapshotRepository applicationSnapshotRepository;
-
-    @Autowired
-    public ApplicationSnapshotServiceCEImpl(ApplicationSnapshotRepository applicationSnapshotRepository) {
-        this.applicationSnapshotRepository = applicationSnapshotRepository;
-    }
+    private final ApplicationService applicationService;
+    private final ImportExportApplicationService importExportApplicationService;
+    private final ApplicationPermission applicationPermission;
 
     @Override
-    public Mono<ApplicationSnapshot> createSnapshotForApplication(String applicationId, ApplicationJson applicationJson) {
+    public Mono<String> createApplicationSnapshot(String applicationId, String branchName) {
+        return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+                /* SerialiseApplicationObjective=VERSION_CONTROL because this API can be invoked from developers.
+                exportApplicationById method check for MANAGE_PERMISSION if SerialiseApplicationObjective=SHARE.
+                */
+                .flatMap(branchedAppId ->
+                        Mono.zip(
+                                importExportApplicationService.exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL),
+                                Mono.just(branchedAppId)
+                        )
+                )
+                .flatMap(objects -> createOrUpdateSnapshot(objects.getT2(), objects.getT1()))
+                .map(BaseDomain::getId);
+    }
+
+    private Mono<ApplicationSnapshot> createOrUpdateSnapshot(String applicationId, ApplicationJson applicationJson) {
         return applicationSnapshotRepository.findByApplicationId(applicationId)
                 .defaultIfEmpty(new ApplicationSnapshot())
                 .flatMap(applicationSnapshot -> {
