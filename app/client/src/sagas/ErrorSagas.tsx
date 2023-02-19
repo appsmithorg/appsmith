@@ -102,8 +102,9 @@ export function* validateResponse(
     return true;
   }
   if (
-    response.responseMeta.error.code ===
-    SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
+    SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET.includes(
+      response.responseMeta.error.code,
+    )
   ) {
     throw new IncorrectBindingError(response.responseMeta.error.message);
   }
