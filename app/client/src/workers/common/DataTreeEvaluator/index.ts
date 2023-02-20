@@ -456,10 +456,10 @@ export default class DataTreeEvaluator {
       }
     }
 
-    const pathsChanged = [...pathsChangedSet];
+    const updatedValuePaths = [...pathsChangedSet];
 
     return {
-      ...this.updateTreeEvaluation(localUnEvalTree, pathsChanged, {
+      ...this.updateTreeEvaluation(localUnEvalTree, updatedValuePaths, {
         totalUpdateTreeSetupStartTime,
         dependenciesOfRemovedPaths,
         removedPaths,
@@ -472,7 +472,7 @@ export default class DataTreeEvaluator {
 
   updateTreeEvaluation(
     localUnEvalTree: DataTree,
-    pathsChanged: string[][],
+    updatedValuePaths: string[][],
     extraParams?: {
       totalUpdateTreeSetupStartTime?: any;
       dependenciesOfRemovedPaths: string[];
@@ -493,7 +493,7 @@ export default class DataTreeEvaluator {
 
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
-      pathsChanged,
+      updatedValuePaths,
       dependenciesOfRemovedPaths,
       removedPaths,
       localUnEvalTree,
@@ -570,10 +570,10 @@ export default class DataTreeEvaluator {
     };
   }
 
-  setupUpdateTreeWithDifferences(pathsChanged: string[][]) {
+  setupUpdateTreeWithDifferences(updatedValuePaths: string[][]) {
     let localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local un eval tree
-    if (pathsChanged.length === 0) {
+    if (updatedValuePaths.length === 0) {
       return {
         unEvalUpdates: [],
         evalOrder: [],
@@ -583,10 +583,10 @@ export default class DataTreeEvaluator {
       };
     }
     localUnEvalTree = updateUnEvalTreeWithChanges(
-      pathsChanged,
+      updatedValuePaths,
       localUnEvalTree,
     );
-    return this.updateTreeEvaluation(localUnEvalTree, pathsChanged);
+    return this.updateTreeEvaluation(localUnEvalTree, updatedValuePaths);
   }
 
   getDifferencesInJSCollectionBody(localUnEvalTree: DataTree) {

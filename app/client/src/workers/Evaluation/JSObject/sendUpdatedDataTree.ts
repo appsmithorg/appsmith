@@ -11,7 +11,7 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import { JSUpdate } from "utils/JSPaneUtils";
 
-export function triggerEvalWithPathsChanged(pathsChanged: string[][]) {
+export function triggerEvalWithPathsChanged(updatedValuePaths: string[][]) {
   let evalOrder: string[] = [];
   const jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
@@ -26,7 +26,7 @@ export function triggerEvalWithPathsChanged(pathsChanged: string[][]) {
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse = dataTreeEvaluator?.setupUpdateTreeWithDifferences(
-      pathsChanged,
+      updatedValuePaths,
     );
 
     evalOrder = setupUpdateTreeResponse.evalOrder;

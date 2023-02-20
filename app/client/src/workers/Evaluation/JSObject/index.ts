@@ -58,10 +58,10 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
 };
 
 export const updateUnEvalTreeWithChanges = (
-  pathsChanged: string[][],
+  updatedValuePaths: string[][],
   UnEvalTree: DataTree,
 ) => {
-  for (const path of pathsChanged) {
+  for (const path of updatedValuePaths) {
     if (path?.length) {
       const entityName = path[0];
       const entity = UnEvalTree[entityName];
