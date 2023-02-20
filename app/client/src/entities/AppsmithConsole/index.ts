@@ -1,6 +1,8 @@
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import LOG_TYPE from "./logtype";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { PluginType } from "entities/Action";
+import { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -69,6 +71,10 @@ export interface SourceEntity {
   id: string;
   // property path of the child
   propertyPath?: string;
+  // plugin type of the action
+  pluginType?: PluginType;
+  // http method of the api. (Only for api actions)
+  httpMethod?: HTTP_METHOD;
 }
 
 export enum LOG_CATEGORY {
@@ -79,6 +85,8 @@ export enum LOG_CATEGORY {
 export interface LogActionPayload {
   // Log id, used for updating or deleting
   id?: string;
+  // icon id, used in finding appropriate icons.
+  iconId?: string;
   // What is the log about. Is it a datasource update, widget update, eval error etc.
   logType?: LOG_TYPE;
   // This is the preview of the log that the user sees.
@@ -87,6 +95,7 @@ export interface LogActionPayload {
   occurrenceCount?: number;
   // Deconstructed data of the log, this includes the whole nested objects/arrays/strings etc.
   logData?: any[];
+  // messages associated with this event
   messages?: Array<Message>;
   // Time taken for the event to complete
   timeTaken?: string;
@@ -96,13 +105,16 @@ export interface LogActionPayload {
   state?: Record<string, any>;
   // Any other data required for analytics
   analytics?: Record<string, any>;
+  // plugin error details if any (only for plugin errors).
+  pluginErrorDetails?: any;
 }
 
 export interface Message {
   // More contextual message than `text`
-  message: string;
+  message: Error;
   type?: ErrorType;
   subType?: string;
+  lineNumber?: number;
   // The section of code being referred to
   // codeSegment?: string;
 }
