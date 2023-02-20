@@ -35,7 +35,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: [],
         messages: [
-          "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+          {
+            name: "ValidationError",
+            message:
+              "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+          },
         ],
       };
     }
@@ -46,7 +50,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: inputValue, // undefined the chosen key doesn't exist.
         messages: [
-          "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+          {
+            name: "ValidationError",
+            message:
+              "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+          },
         ],
       };
     }
@@ -57,7 +65,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: inputValue,
         messages: [
-          "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+          {
+            name: "ValidationError",
+            message:
+              "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+          },
         ],
       };
     }
@@ -69,7 +81,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: [], // Empty array as the inputValue is an array type
         messages: [
-          "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+          {
+            name: "ValidationError",
+            message:
+              "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+          },
         ],
       };
     }
@@ -81,14 +97,14 @@ export const primaryColumnValidation = (
     return {
       isValid: false,
       parsed: undefined, // undefined as we do not know what the data type of inputValue is so "[]" is not an appropriate value to return
-      messages: [message],
+      messages: [{ name: "ValidationError", message }],
     };
   }
 
   return {
     isValid: true,
     parsed: inputValue,
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 };
 

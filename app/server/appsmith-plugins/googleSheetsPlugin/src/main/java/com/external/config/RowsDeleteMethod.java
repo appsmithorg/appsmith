@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.util.WebClientUtils;
+import com.external.constants.ErrorMessages;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -34,38 +36,40 @@ public class RowsDeleteMethod implements ExecutionMethod, TemplateMethod {
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
         }
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Sheet name");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
         }
         if (methodConfig.getRowIndex() == null || methodConfig.getRowIndex().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Row index");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_ROW_INDEX_ERROR_MSG);
         }
         int rowIndex = 0;
         try {
             rowIndex = Integer.parseInt(methodConfig.getRowIndex());
             if (rowIndex < 0) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unexpected value for row index. Please use a number starting from 0");
+                        ErrorMessages.INVALID_ROW_INDEX_ERROR_MSG);
             }
         } catch (NumberFormatException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    "Unexpected format for row index. Please use a number starting from 0");
+                    ErrorMessages.INVALID_ROW_INDEX_ERROR_MSG,
+                    e.getMessage());
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Unexpected value for table header index. Please use a number starting from 1");
+                            ErrorMessages.INVALID_TABLE_HEADER_INDEX);
                 }
             } catch (NumberFormatException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unexpected format for table header index. Please use a number starting from 1");
+                        ErrorMessages.INVALID_TABLE_HEADER_INDEX,
+                        e.getMessage());
             }
         } else {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    "Unexpected format for table header index. Please use a number starting from 1");
+                    ErrorMessages.INVALID_TABLE_HEADER_INDEX);
         }
         return true;
     }
@@ -91,8 +95,8 @@ public class RowsDeleteMethod implements ExecutionMethod, TemplateMethod {
 
                     if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                                ErrorMessages.RESPONSE_DATA_MAPPING_FAILED_ERROR_MSG));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode sheets = null;
@@ -116,7 +120,7 @@ public class RowsDeleteMethod implements ExecutionMethod, TemplateMethod {
                     }
 
                     if (sheetId == null) {
-                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown Sheet Name"));
+                        throw Exceptions.propagate(new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.UNKNOWN_SHEET_NAME_ERROR_MSG));
                     } else {
                         methodConfig.setSheetId(sheetId);
                     }
@@ -155,8 +159,8 @@ public class RowsDeleteMethod implements ExecutionMethod, TemplateMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing a valid response object.");
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         return this.objectMapper.valueToTree(Map.of("message",

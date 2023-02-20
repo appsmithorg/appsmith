@@ -249,7 +249,7 @@ function JSCollectionItem(props: {
 
   return (
     <>
-      {JsFileIconV2}
+      {JsFileIconV2()}
       <ItemTitle>
         <TextWrapper>
           <Highlight className="text" match={query} text={title} />
