@@ -7,23 +7,29 @@ import {
 } from "@appsmith/constants/messages";
 import { ReactComponent as NavOrientationTopIcon } from "assets/icons/settings/nav-orientation-top.svg";
 import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/nav-orientation-side.svg";
-import { ReactComponent as NavPositionStickyIcon } from "assets/icons/settings/nav-position-sticky.svg";
-import { ReactComponent as NavPositionStaticIcon } from "assets/icons/settings/nav-position-static.svg";
 import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
 import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
 import { ReactComponent as NavStyleSidebarIcon } from "assets/icons/settings/nav-style-sidebar.svg";
-import { ReactComponent as NavStyleMinimalIcon } from "assets/icons/settings/nav-style-minimal.svg";
 import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
 import _, { debounce, isEmpty, isPlainObject } from "lodash";
 import ButtonGroupSetting from "./ButtonGroupSetting";
 import ColorStyleIcon from "./ColorStyleIcon";
-import LogoConfiguration from "./LogoConfiguration";
 import SwitchSetting from "./SwitchSetting";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "actions/applicationActions";
 import { Spinner } from "design-system-old";
+
+/**
+ * TODO - @Dhruvik - ImprovedAppNav
+ * Revisit these imports in v1.1
+ * https://www.notion.so/appsmith/Ship-Faster-33b32ed5b6334810a0b4f42e03db4a5b?pvs=4
+ */
+// import LogoConfiguration from "./LogoConfiguration";
+// import { ReactComponent as NavPositionStickyIcon } from "assets/icons/settings/nav-position-sticky.svg";
+// import { ReactComponent as NavPositionStaticIcon } from "assets/icons/settings/nav-position-static.svg";
+// import { ReactComponent as NavStyleMinimalIcon } from "assets/icons/settings/nav-style-minimal.svg";
 
 export type UpdateSetting = (
   key: keyof NavigationSetting,
@@ -117,196 +123,225 @@ function NavigationSettings() {
         value={navigationSetting?.showNavbar}
       />
 
-      <ButtonGroupSetting
-        heading={createMessage(APP_NAVIGATION_SETTING.orientationLabel)}
-        keyName="orientation"
-        navigationSetting={navigationSetting}
-        options={[
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.TOP),
-            value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
-            icon: <NavOrientationTopIcon />,
-          },
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.SIDE),
-            value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
-            icon: <NavOrientationSideIcon />,
-          },
-        ]}
-        updateSetting={updateSetting}
-      />
+      {navigationSetting?.showNavbar && (
+        <>
+          <ButtonGroupSetting
+            heading={createMessage(APP_NAVIGATION_SETTING.orientationLabel)}
+            keyName="orientation"
+            navigationSetting={navigationSetting}
+            options={[
+              {
+                label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.TOP),
+                value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
+                icon: <NavOrientationTopIcon />,
+              },
+              {
+                label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.SIDE),
+                value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
+                icon: <NavOrientationSideIcon />,
+              },
+            ]}
+            updateSetting={updateSetting}
+          />
 
-      <ButtonGroupSetting
-        heading={createMessage(APP_NAVIGATION_SETTING.navStyleLabel)}
-        keyName="navStyle"
-        navigationSetting={navigationSetting}
-        options={[
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.STACKED),
-            value: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
-            icon: <NavStyleStackedIcon />,
-            hidden:
-              navigationSetting?.orientation ===
-              NAVIGATION_SETTINGS.ORIENTATION.SIDE,
-          },
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.INLINE),
-            value: NAVIGATION_SETTINGS.NAV_STYLE.INLINE,
-            icon: <NavStyleInlineIcon />,
-            hidden:
-              navigationSetting?.orientation ===
-              NAVIGATION_SETTINGS.ORIENTATION.SIDE,
-          },
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR),
-            value: NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
-            icon: <NavStyleSidebarIcon />,
-            hidden:
-              navigationSetting?.orientation ===
-              NAVIGATION_SETTINGS.ORIENTATION.TOP,
-          },
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL),
-            value: NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
-            icon: <NavStyleMinimalIcon />,
-            hidden:
-              navigationSetting?.orientation ===
-              NAVIGATION_SETTINGS.ORIENTATION.TOP,
-          },
-        ]}
-        updateSetting={updateSetting}
-      />
+          {/**
+           * TODO - @Dhruvik - ImprovedAppNav
+           * Remove check for orientation = top in v1.1
+           * https://www.notion.so/appsmith/Ship-Faster-33b32ed5b6334810a0b4f42e03db4a5b
+           */}
+          {navigationSetting?.orientation ===
+            NAVIGATION_SETTINGS.ORIENTATION.TOP && (
+            <ButtonGroupSetting
+              heading={createMessage(APP_NAVIGATION_SETTING.navStyleLabel)}
+              keyName="navStyle"
+              navigationSetting={navigationSetting}
+              options={[
+                {
+                  label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.STACKED),
+                  value: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
+                  icon: <NavStyleStackedIcon />,
+                  hidden:
+                    navigationSetting?.orientation ===
+                    NAVIGATION_SETTINGS.ORIENTATION.SIDE,
+                },
+                {
+                  label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.INLINE),
+                  value: NAVIGATION_SETTINGS.NAV_STYLE.INLINE,
+                  icon: <NavStyleInlineIcon />,
+                  hidden:
+                    navigationSetting?.orientation ===
+                    NAVIGATION_SETTINGS.ORIENTATION.SIDE,
+                },
+                {
+                  label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR),
+                  value: NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
+                  icon: <NavStyleSidebarIcon />,
+                  hidden:
+                    navigationSetting?.orientation ===
+                    NAVIGATION_SETTINGS.ORIENTATION.TOP,
+                },
+                /**
+                 * TODO - @Dhruvik - ImprovedAppNav
+                 * Hiding minimal sidebar for v1
+                 * https://www.notion.so/appsmith/Ship-Faster-33b32ed5b6334810a0b4f42e03db4a5b
+                 */
+                // {
+                //   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL),
+                //   value: NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
+                //   icon: <NavStyleMinimalIcon />,
+                //   hidden:
+                //     navigationSetting?.orientation ===
+                //     NAVIGATION_SETTINGS.ORIENTATION.TOP,
+                // },
+              ]}
+              updateSetting={updateSetting}
+            />
+          )}
 
-      <ButtonGroupSetting
-        heading={
-          createMessage(APP_NAVIGATION_SETTING.positionLabel) +
-          " - [Unavailable atm]"
-        }
-        keyName="position"
-        navigationSetting={navigationSetting}
-        options={[
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.POSITION.STATIC),
-            value: NAVIGATION_SETTINGS.POSITION.STATIC,
-            icon: <NavPositionStaticIcon />,
-          },
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.POSITION.STICKY),
-            value: NAVIGATION_SETTINGS.POSITION.STICKY,
-            icon: <NavPositionStickyIcon />,
-          },
-        ]}
-        updateSetting={updateSetting}
-      />
+          {/**
+           * TODO - @Dhruvik - ImprovedAppNav
+           * Hiding position for v1
+           * https://www.notion.so/appsmith/Logo-configuration-option-can-be-multiselect-2a436598539c4db99d1f030850fd8918?pvs=4
+           */}
+          {/* <ButtonGroupSetting
+            heading={createMessage(APP_NAVIGATION_SETTING.positionLabel)}
+            keyName="position"
+            navigationSetting={navigationSetting}
+            options={[
+              {
+                label: _.startCase(NAVIGATION_SETTINGS.POSITION.STATIC),
+                value: NAVIGATION_SETTINGS.POSITION.STATIC,
+                icon: <NavPositionStaticIcon />,
+              },
+              {
+                label: _.startCase(NAVIGATION_SETTINGS.POSITION.STICKY),
+                value: NAVIGATION_SETTINGS.POSITION.STICKY,
+                icon: <NavPositionStickyIcon />,
+              },
+            ]}
+            updateSetting={updateSetting}
+          /> */}
 
-      <ButtonGroupSetting
-        heading={createMessage(APP_NAVIGATION_SETTING.itemStyleLabel)}
-        keyName="itemStyle"
-        navigationSetting={navigationSetting}
-        options={[
-          {
-            label: "Text + Icon",
-            value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
-            hidden:
-              navigationSetting?.navStyle ===
-              NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
-          },
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT),
-            value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT,
-            hidden:
-              navigationSetting?.navStyle ===
-              NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
-          },
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.ICON),
-            value: NAVIGATION_SETTINGS.ITEM_STYLE.ICON,
-            hidden:
-              navigationSetting?.orientation ===
-                NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
-              navigationSetting?.navStyle ===
-                NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
-          },
-        ]}
-        updateSetting={updateSetting}
-      />
+          {/**
+           * TODO - @Dhruvik - ImprovedAppNav
+           * Hiding item style for v1
+           * https://www.notion.so/appsmith/Logo-configuration-option-can-be-multiselect-2a436598539c4db99d1f030850fd8918?pvs=4
+           */}
+          {/* <ButtonGroupSetting
+            heading={createMessage(APP_NAVIGATION_SETTING.itemStyleLabel)}
+            keyName="itemStyle"
+            navigationSetting={navigationSetting}
+            options={[
+              {
+                label: "Text + Icon",
+                value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
+                hidden:
+                  navigationSetting?.navStyle ===
+                  NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
+              },
+              {
+                label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT),
+                value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT,
+                hidden:
+                  navigationSetting?.navStyle ===
+                  NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
+              },
+              {
+                label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.ICON),
+                value: NAVIGATION_SETTINGS.ITEM_STYLE.ICON,
+                hidden:
+                  navigationSetting?.orientation ===
+                    NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+                  navigationSetting?.navStyle ===
+                    NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
+              },
+            ]}
+            updateSetting={updateSetting}
+          /> */}
 
-      <ButtonGroupSetting
-        heading={createMessage(APP_NAVIGATION_SETTING.colorStyleLabel)}
-        keyName="colorStyle"
-        navigationSetting={navigationSetting}
-        options={[
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT),
-            value: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
-            icon: (
-              <ColorStyleIcon
-                colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
-              />
-            ),
-          },
-          {
-            label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.THEME),
-            value: NAVIGATION_SETTINGS.COLOR_STYLE.THEME,
-            icon: (
-              <ColorStyleIcon
-                colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
-              />
-            ),
-          },
-        ]}
-        updateSetting={updateSetting}
-      />
+          <ButtonGroupSetting
+            heading={createMessage(APP_NAVIGATION_SETTING.colorStyleLabel)}
+            keyName="colorStyle"
+            navigationSetting={navigationSetting}
+            options={[
+              {
+                label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT),
+                value: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+                icon: (
+                  <ColorStyleIcon
+                    colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
+                  />
+                ),
+              },
+              {
+                label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.THEME),
+                value: NAVIGATION_SETTINGS.COLOR_STYLE.THEME,
+                icon: (
+                  <ColorStyleIcon
+                    colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
+                  />
+                ),
+              },
+            ]}
+            updateSetting={updateSetting}
+          />
 
-      <LogoConfiguration
-        navigationSetting={navigationSetting}
-        options={[
-          {
-            label: _.startCase(
-              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
-            ),
-            value:
-              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
-          },
-          {
-            label: _.startCase(
-              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
-            ),
-            value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
-          },
-          {
-            label: _.startCase(
-              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
-            ),
-            value:
-              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
-          },
-          {
-            label: _.startCase(
-              NAVIGATION_SETTINGS.LOGO_CONFIGURATION
-                .NO_LOGO_OR_APPLICATION_TITLE,
-            ),
-            value:
-              NAVIGATION_SETTINGS.LOGO_CONFIGURATION
-                .NO_LOGO_OR_APPLICATION_TITLE,
-          },
-        ]}
-        updateSetting={updateSetting}
-      />
+          {/**
+           * TODO - @Dhruvik - ImprovedAppNav
+           * Hiding logo config for v1
+           * https://www.notion.so/appsmith/Logo-configuration-option-can-be-multiselect-2a436598539c4db99d1f030850fd8918?pvs=4
+           */}
+          {/* <LogoConfiguration
+            navigationSetting={navigationSetting}
+            options={[
+              {
+                label: _.startCase(
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+                ),
+                value:
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+              },
+              {
+                label: _.startCase(
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
+                ),
+                value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
+              },
+              {
+                label: _.startCase(
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
+                ),
+                value:
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
+              },
+              {
+                label: _.startCase(
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                    .NO_LOGO_OR_APPLICATION_TITLE,
+                ),
+                value:
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                    .NO_LOGO_OR_APPLICATION_TITLE,
+              },
+            ]}
+            updateSetting={updateSetting}
+          /> */}
 
-      <SwitchSetting
-        keyName="showSignIn"
-        label={createMessage(APP_NAVIGATION_SETTING.showSignInLabel)}
-        updateSetting={updateSetting}
-        value={navigationSetting?.showSignIn}
-      />
+          <SwitchSetting
+            keyName="showSignIn"
+            label={createMessage(APP_NAVIGATION_SETTING.showSignInLabel)}
+            updateSetting={updateSetting}
+            value={navigationSetting?.showSignIn}
+          />
 
-      <SwitchSetting
-        keyName="showShareApp"
-        label={createMessage(APP_NAVIGATION_SETTING.showShareAppLabel)}
-        updateSetting={updateSetting}
-        value={navigationSetting?.showShareApp}
-      />
+          <SwitchSetting
+            keyName="showShareApp"
+            label={createMessage(APP_NAVIGATION_SETTING.showShareAppLabel)}
+            updateSetting={updateSetting}
+            value={navigationSetting?.showShareApp}
+          />
+        </>
+      )}
     </div>
   );
 }
