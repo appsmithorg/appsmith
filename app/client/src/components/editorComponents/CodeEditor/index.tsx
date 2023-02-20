@@ -26,7 +26,7 @@ import {
 } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _, { isEqual } from "lodash";
+import _, { debounce, isEqual } from "lodash";
 
 import {
   DataTree,
@@ -60,6 +60,11 @@ import {
   bindingMarker,
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
+  PEEKABLE_ATTRIBUTE,
+  PEEKABLE_CH_END,
+  PEEKABLE_CH_START,
+  PEEKABLE_LINE,
+  PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
@@ -128,6 +133,11 @@ import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import {
+  PeekOverlayPopUp,
+  PeekOverlayStateProps,
+  PEEK_OVERLAY_DELAY,
+} from "./PeekOverlayPopup/PeekOverlayPopup";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -222,6 +232,11 @@ type State = {
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
   ctrlPressed: boolean;
+  peekOverlayProps:
+    | (PeekOverlayStateProps & {
+        marker?: CodeMirror.TextMarker;
+      })
+    | undefined;
   isDynamic: boolean;
 };
 
@@ -254,6 +269,7 @@ class CodeEditor extends Component<Props, State> {
       hinterOpen: false,
       changeStarted: false,
       ctrlPressed: false,
+      peekOverlayProps: undefined,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -368,6 +384,11 @@ class CodeEditor extends Component<Props, State> {
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
+        CodeMirror.on(
+          editor.getWrapperElement(),
+          "mousemove",
+          this.debounceHandleMouseOver,
+        );
 
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
@@ -506,6 +527,91 @@ class CodeEditor extends Component<Props, State> {
     this.editor.clearHistory();
   }
 
+  showPeekOverlay = (
+    peekableAttribute: string,
+    tokenElement: Element,
+    tokenElementPosition: DOMRect,
+    dataToShow: unknown,
+  ) => {
+    const line = tokenElement.getAttribute(PEEKABLE_LINE),
+      chStart = tokenElement.getAttribute(PEEKABLE_CH_START),
+      chEnd = tokenElement.getAttribute(PEEKABLE_CH_END);
+
+    this.state.peekOverlayProps?.marker?.clear();
+    let marker: CodeMirror.TextMarker | undefined;
+    if (line && chStart && chEnd) {
+      marker = this.editor.markText(
+        { ch: Number(chStart), line: Number(line) },
+        { ch: Number(chEnd), line: Number(line) },
+        {
+          className: PEEK_STYLE_PERSIST_CLASS,
+        },
+      );
+    }
+
+    this.setState({
+      peekOverlayProps: {
+        name: peekableAttribute,
+        position: tokenElementPosition,
+        textWidth: tokenElementPosition.width,
+        marker,
+        data: dataToShow,
+        dataType: typeof dataToShow,
+      },
+    });
+
+    AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
+      property: peekableAttribute,
+    });
+  };
+
+  hidePeekOverlay = () => {
+    this.state.peekOverlayProps?.marker?.clear();
+    this.setState({
+      peekOverlayProps: undefined,
+    });
+  };
+
+  debounceHandleMouseOver = debounce(
+    (ev) => this.handleMouseOver(ev),
+    PEEK_OVERLAY_DELAY,
+  );
+
+  handleMouseOver = (event: MouseEvent) => {
+    if (
+      event.target instanceof Element &&
+      event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
+    ) {
+      const tokenElement = event.target;
+      const tokenElementPosition = tokenElement.getBoundingClientRect();
+      const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
+      if (peekableAttribute) {
+        // don't retrigger if hovering over the same token
+        if (
+          this.state.peekOverlayProps?.name === peekableAttribute &&
+          this.state.peekOverlayProps?.position.top ===
+            tokenElementPosition.top &&
+          this.state.peekOverlayProps?.position.left ===
+            tokenElementPosition.left
+        ) {
+          return;
+        }
+        const paths = peekableAttribute.split(".");
+        if (paths.length) {
+          paths.splice(1, 0, "peekData");
+          this.showPeekOverlay(
+            peekableAttribute,
+            tokenElement,
+            tokenElementPosition,
+            _.get(this.props.entitiesForNavigation, paths),
+          );
+        }
+      }
+    } else {
+      this.hidePeekOverlay();
+    }
+  };
+
   handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     this.handleCustomGutter(this.editor.lineAtHeight(e.clientY, "window"));
     // this code only runs when we want custom tool tip for any highlighted text inside codemirror instance
@@ -559,6 +665,11 @@ class CodeEditor extends Component<Props, State> {
     this.editor.off("blur", this.handleEditorBlur);
     this.editor.off("postPick", () =>
       this.handleAutocompleteVisibility(this.editor),
+    );
+    CodeMirror.off(
+      this.editor.getWrapperElement(),
+      "mousemove",
+      this.debounceHandleMouseOver,
     );
     // @ts-expect-error: Types are not available
     this.editor.closeHint();
@@ -664,6 +775,7 @@ class CodeEditor extends Component<Props, State> {
                 if (navigationData.type === ENTITY_TYPE.WIDGET) {
                   this.props.selectWidget(navigationData.id);
                 }
+                this.hidePeekOverlay();
               }
             }
           },
@@ -885,6 +997,7 @@ class CodeEditor extends Component<Props, State> {
       });
       this.props.startingEntityUpdate();
     }
+    this.hidePeekOverlay();
     this.handleDebouncedChange(instance, changeObj);
   };
 
@@ -1158,7 +1271,7 @@ class CodeEditor extends Component<Props, State> {
           expected={expected}
           hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
-          isOpen={showEvaluatedValue}
+          isOpen={showEvaluatedValue && !this.state.peekOverlayProps}
           popperPlacement={this.props.popperPlacement}
           popperZIndex={this.props.popperZIndex}
           theme={theme || EditorTheme.LIGHT}
@@ -1187,6 +1300,12 @@ class CodeEditor extends Component<Props, State> {
             ref={this.editorWrapperRef}
             size={size}
           >
+            {this.state.peekOverlayProps && (
+              <PeekOverlayPopUp
+                hidePeekOverlay={() => this.hidePeekOverlay()}
+                {...this.state.peekOverlayProps}
+              />
+            )}
             {this.props.leftIcon && (
               <IconContainer>{this.props.leftIcon}</IconContainer>
             )}

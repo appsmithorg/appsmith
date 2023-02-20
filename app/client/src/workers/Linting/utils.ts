@@ -193,7 +193,10 @@ function lintBindingPath(
           code: entity.body,
           variables: [],
           raw: entity.body,
-          errorMessage: INVALID_JSOBJECT_START_STATEMENT,
+          errorMessage: {
+            name: "LintingError",
+            message: INVALID_JSOBJECT_START_STATEMENT,
+          },
           severity: Severity.ERROR,
         },
       ]);
@@ -372,7 +375,10 @@ export function getLintingErrors(
       errorType: PropertyEvaluationErrorType.LINT,
       raw: script,
       severity: getLintSeverity(lintError.code),
-      errorMessage: getLintErrorMessage(lintError.reason),
+      errorMessage: {
+        name: "LintingError",
+        message: getLintErrorMessage(lintError.reason),
+      },
       errorSegment: lintError.evidence,
       originalBinding,
       // By keeping track of these variables we can highlight the exact text that caused the error.
@@ -467,9 +473,12 @@ function getInvalidPropertyErrorsFromScript(
         errorType: PropertyEvaluationErrorType.LINT,
         raw: script,
         severity: getLintSeverity(CustomLintErrorCode.INVALID_ENTITY_PROPERTY),
-        errorMessage: CUSTOM_LINT_ERRORS[
-          CustomLintErrorCode.INVALID_ENTITY_PROPERTY
-        ](object.name, propertyName),
+        errorMessage: {
+          name: "LintingError",
+          message: CUSTOM_LINT_ERRORS[
+            CustomLintErrorCode.INVALID_ENTITY_PROPERTY
+          ](object.name, propertyName),
+        },
         errorSegment: `${object.name}.${propertyName}`,
         originalBinding,
         variables: [propertyName, null, null, null],

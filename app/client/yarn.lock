@@ -12459,6 +12459,11 @@ react-app-polyfill@^3.0.0:
     regenerator-runtime "^0.13.9"
     whatwg-fetch "^3.6.2"
 
+react-append-to-body@^2.0.26:
+  version "2.0.26"
+  resolved "https://registry.yarnpkg.com/react-append-to-body/-/react-append-to-body-2.0.26.tgz#8ada0cb404462417651bbcd172c99f8100d6470e"
+  integrity sha512-ZFtJH8V1kVV4LR2wrrkFJhoT+pC/MxXCWPh2FAcT4yMMTCh+QXJwkVvr3WHnAi2KvG9LvyFmjLWsvWDlLi9eeA==
+
 react-async-script@^1.1.1:
   version "1.2.0"
   resolved "https://registry.npmjs.org/react-async-script/-/react-async-script-1.2.0.tgz"
