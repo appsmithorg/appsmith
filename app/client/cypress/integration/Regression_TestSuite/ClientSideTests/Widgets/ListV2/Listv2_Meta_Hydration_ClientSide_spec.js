@@ -46,9 +46,8 @@ function verifyValueOfWidget(widgetType, value, index) {
           break;
         case "multiselectwidgetv2":
           cy.get(`${widgetPrefix}${widgetType}`)
-            .find(".rc-select-selection-item-content")
-            .first()
-            .should("have.text", value[0]);
+            .find(`.rc-select-selection-item[title='${value[0]}']`)
+            .should("exist");
           break;
         case "inputwidgetv2":
           cy.get(`${widgetPrefix}${widgetType} input`).should(
