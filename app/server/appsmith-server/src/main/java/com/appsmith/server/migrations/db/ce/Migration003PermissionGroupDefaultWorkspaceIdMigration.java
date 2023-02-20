@@ -36,7 +36,7 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
         UpdateDefinition copyWorkspaceIdToDomainId = AggregationUpdate.update()
                 .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
                 .toValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)));
-        UpdateDefinition addWorkspaceAsDomainReference = AggregationUpdate.update()
+        UpdateDefinition addWorkspaceAsDomainType = AggregationUpdate.update()
                 .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .toValue(Workspace.class.getSimpleName());
         UpdateDefinition makeWorkspaceIdNull = AggregationUpdate.update()
@@ -44,7 +44,7 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
                         .toValue(null);
 
         mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, copyWorkspaceIdToDomainId, PermissionGroup.class);
-        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, addWorkspaceAsDomainReference, PermissionGroup.class);
+        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, addWorkspaceAsDomainType, PermissionGroup.class);
         mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, makeWorkspaceIdNull, PermissionGroup.class);
     }
 }
