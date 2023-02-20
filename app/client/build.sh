@@ -21,6 +21,4 @@ echo "build finished"
 cd ./packages/wds
 yarn build-storybook
 
-echo "storybook build finished"
-
 mv -f ./storybook-static ../../build/static/wds
