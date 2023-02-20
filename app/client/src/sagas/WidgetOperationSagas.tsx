@@ -130,7 +130,9 @@ import {
   getCanvasIdForContainer,
   getContainerIdForCanvas,
   getDefaultCanvas,
+  getFlexLayersForSelectedWidgets,
   getMousePositions,
+  getNewFlexLayers,
   getNewPositionsForCopiedWidgets,
   getNextWidgetName,
   getOccupiedSpacesFromProps,
@@ -155,6 +157,7 @@ import {
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { SelectionRequestType } from "./WidgetSelectUtils";
+import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -837,7 +840,10 @@ function* updateCanvasSize(
   }
 }
 
-function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
+function* createSelectedWidgetsCopy(
+  selectedWidgets: FlattenedWidgetProps[],
+  flexLayers: FlexLayer[],
+) {
   if (!selectedWidgets || !selectedWidgets.length) return;
   const widgetListsToStore: {
     widgetId: string;
@@ -846,7 +852,10 @@ function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
   }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
 
   const saveResult: boolean = yield saveCopiedWidgets(
-    JSON.stringify(widgetListsToStore),
+    JSON.stringify({
+      widgets: widgetListsToStore,
+      flexLayers,
+    }),
   );
   return saveResult;
 }
@@ -885,8 +894,16 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
+  const canvasId = selectedWidgetProps?.[0]?.parentId || "";
+
+  const flexLayers: FlexLayer[] = getFlexLayersForSelectedWidgets(
+    selectedWidgets,
+    canvasId ? allWidgets[canvasId] : undefined,
+  );
+
   const saveResult: boolean = yield createSelectedWidgetsCopy(
     selectedWidgetProps,
+    flexLayers,
   );
 
   selectedWidgetProps.forEach((each) => {
@@ -1313,7 +1330,15 @@ function* pasteWidgetSaga(
     mouseLocation: { x: number; y: number };
   }>,
 ) {
-  let copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
+  const {
+    flexLayers,
+    widgets: copiedWidgets,
+  }: {
+    widgets: CopiedWidgetGroup[];
+    flexLayers: FlexLayer[];
+  } = yield getCopiedWidgets();
+
+  let copiedWidgetGroups = [...copiedWidgets];
   const shouldGroup: boolean = action.payload.groupWidgets;
 
   const newlyCreatedWidgetIds: string[] = [];
@@ -1405,6 +1430,8 @@ function* pasteWidgetSaga(
     if (canvasId) pastingIntoWidgetId = canvasId;
   }
 
+  const widgetIdMap: Record<string, string> = {};
+
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
       call(function*() {
@@ -1452,7 +1479,6 @@ function* pasteWidgetSaga(
 
         // Get a flat list of all the widgets to be updated
         const widgetList = copiedWidgets.list;
-        const widgetIdMap: Record<string, string> = {};
         const reverseWidgetIdMap: Record<string, string> = {};
         const widgetNameMap: Record<string, string> = {};
         const newWidgetList: FlattenedWidgetProps[] = [];
@@ -1650,7 +1676,13 @@ function* pasteWidgetSaga(
            */
           if (widget.parentId) {
             const pastingIntoWidget = widgets[widget.parentId];
-            if (pastingIntoWidget && isStack(widgets, pastingIntoWidget)) {
+            if (
+              pastingIntoWidget &&
+              isStack(widgets, pastingIntoWidget) &&
+              (pastingIntoWidgetId !== pastingIntoWidget.widgetId ||
+                !flexLayers ||
+                flexLayers.length <= 0)
+            ) {
               if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
                 widgets = pasteWidgetInFlexLayers(
                   widgets,
@@ -1685,6 +1717,22 @@ function* pasteWidgetSaga(
       }),
     ),
   );
+
+  if (
+    pastingIntoWidgetId &&
+    widgets[pastingIntoWidgetId] &&
+    flexLayers &&
+    flexLayers.length > 0
+  ) {
+    const newFlexLayers = getNewFlexLayers(flexLayers, widgetIdMap);
+    widgets[pastingIntoWidgetId] = {
+      ...widgets[pastingIntoWidgetId],
+      flexLayers: [
+        ...(widgets[pastingIntoWidgetId]?.flexLayers || []),
+        ...newFlexLayers,
+      ],
+    };
+  }
 
   //calculate the new positions of the reflowed widgets
   const reflowedWidgets = getReflowedPositions(
@@ -1758,8 +1806,16 @@ function* cutWidgetSaga() {
 
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
+  const canvasId = selectedWidgetProps?.[0]?.parentId || "";
+
+  const flexLayers: FlexLayer[] = getFlexLayersForSelectedWidgets(
+    selectedWidgets,
+    canvasId ? allWidgets[canvasId] : undefined,
+  );
+
   const saveResult: boolean = yield createSelectedWidgetsCopy(
     selectedWidgetProps,
+    flexLayers,
   );
 
   selectedWidgetProps.forEach((each) => {

@@ -2,6 +2,7 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { klona } from "klona";
 import { get } from "lodash";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { FlexLayerAlignment } from "utils/autoLayout/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { FlattenedWidgetProps } from "widgets/constants";
 import {
@@ -23,6 +24,8 @@ import {
   getWidgetsFromIds,
   getValueFromTree,
   resizePublishedMainCanvasToLowestWidget,
+  getFlexLayersForSelectedWidgets,
+  getNewFlexLayers,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
@@ -1095,6 +1098,169 @@ describe("WidgetOperationSaga", () => {
         },
       ]),
     ).toBe(false);
+  });
+
+  it("should test getFlexLayersForSelectedWidgets", () => {
+    const parentCanvas = ({
+      flexLayers: [
+        {
+          children: [
+            {
+              id: "1",
+              align: FlexLayerAlignment.Start,
+            },
+            {
+              id: "2",
+              align: FlexLayerAlignment.Start,
+            },
+            {
+              id: "3",
+              align: FlexLayerAlignment.Center,
+            },
+          ],
+        },
+        {
+          children: [
+            {
+              id: "4",
+              align: FlexLayerAlignment.Start,
+            },
+          ],
+        },
+        {
+          children: [
+            {
+              id: "5",
+              align: FlexLayerAlignment.Center,
+            },
+            {
+              id: "6",
+              align: FlexLayerAlignment.End,
+            },
+          ],
+        },
+      ],
+    } as any) as FlattenedWidgetProps;
+
+    const selectedWidgets = ["2", "3", "6"];
+
+    const selectedFlexLayers = [
+      {
+        children: [
+          {
+            id: "2",
+            align: FlexLayerAlignment.Start,
+          },
+          {
+            id: "3",
+            align: FlexLayerAlignment.Center,
+          },
+        ],
+      },
+      {
+        children: [
+          {
+            id: "6",
+            align: FlexLayerAlignment.End,
+          },
+        ],
+      },
+    ];
+
+    expect(
+      getFlexLayersForSelectedWidgets(selectedWidgets, parentCanvas),
+    ).toEqual(selectedFlexLayers);
+  });
+
+  it("should test getNewFlexLayers", () => {
+    const flexLayers = [
+      {
+        children: [
+          {
+            id: "1",
+            align: FlexLayerAlignment.Start,
+          },
+          {
+            id: "2",
+            align: FlexLayerAlignment.Start,
+          },
+          {
+            id: "3",
+            align: FlexLayerAlignment.Center,
+          },
+        ],
+      },
+      {
+        children: [
+          {
+            id: "4",
+            align: FlexLayerAlignment.Start,
+          },
+        ],
+      },
+      {
+        children: [
+          {
+            id: "5",
+            align: FlexLayerAlignment.Center,
+          },
+          {
+            id: "6",
+            align: FlexLayerAlignment.End,
+          },
+        ],
+      },
+    ];
+
+    const widgetIdMap = {
+      "1": "11",
+      "2": "22",
+      "3": "33",
+      "4": "44",
+      "5": "55",
+      "6": "66",
+    };
+
+    const newFlexLayers = [
+      {
+        children: [
+          {
+            id: "11",
+            align: FlexLayerAlignment.Start,
+          },
+          {
+            id: "22",
+            align: FlexLayerAlignment.Start,
+          },
+          {
+            id: "33",
+            align: FlexLayerAlignment.Center,
+          },
+        ],
+      },
+      {
+        children: [
+          {
+            id: "44",
+            align: FlexLayerAlignment.Start,
+          },
+        ],
+      },
+      {
+        children: [
+          {
+            id: "55",
+            align: FlexLayerAlignment.Center,
+          },
+          {
+            id: "66",
+            align: FlexLayerAlignment.End,
+          },
+        ],
+      },
+    ];
+
+    expect(getNewFlexLayers(flexLayers, widgetIdMap)).toEqual(newFlexLayers);
   });
 });
 
