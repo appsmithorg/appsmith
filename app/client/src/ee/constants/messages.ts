@@ -120,9 +120,9 @@ export const LICENSE_KEY_CTA_LABEL = () =>
 export const TRIAL_EXPIRY_WARNING = (gracePeriod: number, suffix: string) =>
   `Your trial will expire in <span>${gracePeriod}</span> ${suffix}. `;
 export const CONTINUE_USING_FEATURES = () =>
-  `to continue using all the features.`;
+  `to continue using Appsmith Business. `;
 export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
-  `Please contact your administrator to upgrade and continue using all the features.`;
+  `Please contact your administrator to upgrade and continue using Appsmith Business. `;
 export const TOTAL_USERS_MESSAGE = () => `Total Users`;
 export const NUMBER_OF_SELF_HOSTED_USERS = () =>
   ` Number of users on the self-hosted instance`;
@@ -161,3 +161,4 @@ export const ACTIVE = () => `Active`;
 export const TRIAL = () => `Trial`;
 export const PORTAL = () => `Portal`;
 export const LICENSE_KEY = () => `License Key`;
+export const ALREADY_UPGRADED = () => `Already upgraded?`;

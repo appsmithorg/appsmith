@@ -17,3 +17,7 @@ export const showLicenseModal = (showLicenseModal: boolean) => ({
   type: ReduxActionTypes.SHOW_LICENSE_MODAL,
   payload: showLicenseModal,
 });
+
+export const forceLicenseCheck = () => ({
+  type: ReduxActionTypes.FORCE_LICENSE_CHECK_INIT,
+});

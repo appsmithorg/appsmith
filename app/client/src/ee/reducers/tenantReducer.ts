@@ -149,6 +149,44 @@ export const handlers = {
       },
     },
   }),
+  [ReduxActionTypes.FORCE_LICENSE_CHECK_INIT]: (
+    state: TenantReduxState<License>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        validatingLicense: true,
+      },
+    },
+  }),
+  [ReduxActionTypes.FORCE_LICENSE_CHECK_SUCCESS]: (
+    state: TenantReduxState<License>,
+    action: ReduxAction<TenantReduxState<License>>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        ...action.payload.tenantConfiguration?.license,
+        validatingLicense: false,
+      },
+    },
+  }),
+  [ReduxActionErrorTypes.FORCE_LICENSE_CHECK_ERROR]: (
+    state: TenantReduxState<License>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        validatingLicense: false,
+      },
+    },
+  }),
 };
 
 export default createReducer(initialState, handlers);

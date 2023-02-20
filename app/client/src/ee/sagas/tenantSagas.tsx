@@ -216,6 +216,41 @@ export function* initLicenseStatusCheckSaga(): unknown {
   }
 }
 
+export function* forceLicenseCheckSaga() {
+  try {
+    const response: ApiResponse<TenantReduxState<License>> = yield call(
+      TenantApi.forceCheckLicense,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FORCE_LICENSE_CHECK_SUCCESS,
+        payload: response.data,
+      });
+      if (response.data?.tenantConfiguration?.license?.type === "PAID") {
+        Toaster.show({
+          text: createMessage(LICENSE_UPDATED_SUCCESSFULLY),
+          variant: Variant.success,
+        });
+      }
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FORCE_LICENSE_CHECK_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FORCE_LICENSE_CHECK_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* tenantSagas() {
   yield all([
     takeLatest(
@@ -230,6 +265,10 @@ export default function* tenantSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
       cacheTenentConfigSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FORCE_LICENSE_CHECK_INIT,
+      forceLicenseCheckSaga,
     ),
   ]);
 }
