@@ -16,6 +16,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MySQLPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -1497,5 +1498,15 @@ public class MySqlPluginTest {
                                 assertTrue(conn.isDisposed());
                         })
                         .verifyComplete();
+        }
+
+        @Test
+        public void verifyUniquenessOfMySQLPluginErrorCode() {
+                assert (Arrays.stream(MySQLPluginError.values()).map(MySQLPluginError::getAppErrorCode).distinct().count() == MySQLPluginError.values().length);
+
+                assert (Arrays.stream(MySQLPluginError.values()).map(MySQLPluginError::getAppErrorCode)
+                        .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-MYS"))
+                        .collect(Collectors.toList()).size() == 0);
+
         }
 }
