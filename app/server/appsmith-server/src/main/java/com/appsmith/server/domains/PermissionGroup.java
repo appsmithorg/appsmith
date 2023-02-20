@@ -29,7 +29,7 @@ public class PermissionGroup extends BaseDomain {
     String defaultWorkspaceId;
 
     String defaultDomainId;
-    DomainReference defaultDomainReference;
+    String defaultDomainType;
 
     Set<Permission> permissions = new HashSet<>();
 

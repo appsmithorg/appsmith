@@ -8,7 +8,6 @@ import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.DomainReference;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -68,7 +67,6 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRI
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
-import static com.appsmith.server.domains.DomainReference.WORKSPACE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -262,7 +260,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         PermissionGroup adminPermissionGroup = new PermissionGroup();
         adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
         adminPermissionGroup.setDefaultDomainId(workspaceId);
-        adminPermissionGroup.setDefaultDomainReference(WORKSPACE);
+        adminPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
         adminPermissionGroup.setPermissions(Set.of());
@@ -271,7 +269,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         PermissionGroup developerPermissionGroup = new PermissionGroup();
         developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
         developerPermissionGroup.setDefaultDomainId(workspaceId);
-        developerPermissionGroup.setDefaultDomainReference(WORKSPACE);
+        developerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
         developerPermissionGroup.setPermissions(Set.of());
@@ -280,7 +278,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         PermissionGroup viewerPermissionGroup = new PermissionGroup();
         viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
         viewerPermissionGroup.setDefaultDomainId(workspaceId);
-        viewerPermissionGroup.setDefaultDomainReference(WORKSPACE);
+        viewerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
         viewerPermissionGroup.setPermissions(Set.of());

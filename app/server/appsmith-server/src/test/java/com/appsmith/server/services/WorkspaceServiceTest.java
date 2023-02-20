@@ -72,7 +72,6 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATION
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
-import static com.appsmith.server.domains.DomainReference.WORKSPACE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -196,7 +195,7 @@ public class WorkspaceServiceTest {
         String workspaceName = user.computeFirstName() + "'s apps";
         Workspace defaultWorkspace = workspaceRepository.findByName(workspaceName).block();
 
-        PermissionGroup permissionGroup = permissionGroupRepository.findByDefaultDomainIdAndDefaultDomainReference(defaultWorkspace.getId(), WORKSPACE)
+        PermissionGroup permissionGroup = permissionGroupRepository.findByDefaultDomainIdAndDefaultDomainType(defaultWorkspace.getId(), Workspace.class.getSimpleName())
                 .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
                 .blockFirst();
 

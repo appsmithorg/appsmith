@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.appsmith.server.domains.DomainReference.WORKSPACE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -78,10 +77,10 @@ public class UserWorkspaceServiceUnitTest {
          */
         Workspace createdWorkspace = workspaceService.create(testWorkspace).block();
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultDomainIdAndDefaultDomainReference(createdWorkspace.getId(), WORKSPACE)
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .flatMap(permissionGroup -> {
                     permissionGroup.setDefaultDomainId(null);
-                    permissionGroup.setDefaultDomainReference(null);
+                    permissionGroup.setDefaultDomainType(null);
                     return permissionGroupRepository.save(permissionGroup);
                 })
                 .collectList()
