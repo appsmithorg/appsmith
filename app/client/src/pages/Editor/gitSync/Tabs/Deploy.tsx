@@ -259,8 +259,9 @@ function Deploy() {
     !isDiscarding &&
     !isCommitting;
   let replaceMessage = "";
-  if (currentBranch) {
-    const jiraIdPattern = new RegExp("([A-Z]+-\\d+)", "ig");
+  const jiraIdPattern = new RegExp("([A-Z]+-\\d+)", "ig");
+  const matchedMessage = commitMessage.match(jiraIdPattern);
+  if (currentBranch && !matchedMessage) {
     const matched = currentBranch.match(jiraIdPattern);
     if (matched && matched.length > 0) {
       matched.forEach((line) => {
