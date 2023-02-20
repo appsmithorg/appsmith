@@ -306,6 +306,7 @@ describe("Table widget Add new row feature's", () => {
       cy.discardTableCellValue(0, 0);
       cy.wait(500);
       cy.get(".t--add-new-row").click();
+      cy.wait(1000);
       cy.enterTableCellValue(0, 0, "3");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");

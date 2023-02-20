@@ -1,19 +1,13 @@
-import React, {
-  RefObject,
-  ReactNode,
-  useRef,
-  useState,
-  useCallback,
-} from "react";
-import styled, { css } from "styled-components";
+import React, { ReactNode, useRef, useState, useCallback } from "react";
+import styled from "styled-components";
 import { MaybeElement } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "widgets/BaseComponent";
-import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
 import { Icon, IconSize } from "design-system-old";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
 import PageTabs from "./PageTabs";
+import { scrollCSS } from "widgets/WidgetUtils";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -36,19 +30,7 @@ interface TabsComponentProps extends ComponentProps {
   width: number;
 }
 
-type ChildrenWrapperProps = Pick<TabsComponentProps, "shouldShowTabs">;
-
-const TAB_CONTAINER_HEIGHT = "44px";
-const CHILDREN_WRAPPER_HEIGHT_WITH_TABS = `calc(100% - ${TAB_CONTAINER_HEIGHT})`;
-const CHILDREN_WRAPPER_HEIGHT_WITHOUT_TABS = "100%";
-
-const scrollContents = css`
-  overflow-y: auto;
-  position: absolute;
-`;
-
 const TabsContainerWrapper = styled.div<{
-  ref: RefObject<HTMLDivElement>;
   borderRadius: string;
   boxShadow?: string;
   borderWidth?: number;
@@ -72,26 +54,6 @@ const TabsContainerWrapper = styled.div<{
   overflow: hidden;
 `;
 
-const ChildrenWrapper = styled.div<ChildrenWrapperProps>`
-  position: relative;
-  height: ${({ shouldShowTabs }) =>
-    shouldShowTabs
-      ? CHILDREN_WRAPPER_HEIGHT_WITH_TABS
-      : CHILDREN_WRAPPER_HEIGHT_WITHOUT_TABS};
-  width: 100%;
-`;
-
-const ScrollableCanvasWrapper = styled.div<
-  TabsWidgetProps<TabContainerWidgetProps> & {
-    ref: RefObject<HTMLDivElement>;
-  }
->`
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  ${(props) => (props.shouldScrollContents ? scrollContents : "")}
-`;
-
 export interface TabsContainerProps {
   isScrollable: boolean;
 }
@@ -99,7 +61,7 @@ export interface TabsContainerProps {
 const Container = styled.div`
   width: 100%;
   align-items: flex-end;
-  height: 44px;
+  height: 40px;
 
   & {
     svg path,
@@ -115,7 +77,7 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
   cursor: pointer;
   display: flex;
   position: absolute;
-  height: 34px;
+  height: 30px;
   padding: 0 10px;
 
   & > span {
@@ -146,12 +108,15 @@ export interface ScrollNavControlProps {
   className?: string;
 }
 
+const ScrollCanvas = styled.div<{ $shouldScrollContents: boolean }>`
+  overflow: hidden;
+  ${(props) => (props.$shouldScrollContents ? scrollCSS : ``)}
+  width: 100%;
+`;
+
 function TabsComponent(props: TabsComponentProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { onTabChange, tabs, width, ...remainingProps } = props;
-  const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
-    null,
-  );
+  const { onTabChange, tabs } = props;
+
   const tabsRef = useRef<HTMLElement | null>(null);
   const [tabsScrollable, setTabsScrollable] = useState(false);
   const [shouldShowLeftArrow, setShouldShowLeftArrow] = useState(false);
@@ -198,7 +163,6 @@ function TabsComponent(props: TabsComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={props.borderWidth}
       boxShadow={props.boxShadow}
-      ref={tabContainerRef}
     >
       {props.shouldShowTabs && (
         <Container className="relative flex px-6 h-9">
@@ -229,16 +193,14 @@ function TabsComponent(props: TabsComponentProps) {
         </Container>
       )}
 
-      <ChildrenWrapper shouldShowTabs={props.shouldShowTabs}>
-        <ScrollableCanvasWrapper
-          {...remainingProps}
-          className={`${
-            props.shouldScrollContents ? getCanvasClassName() : ""
-          } ${generateClassName(props.widgetId)}`}
-        >
-          {props.children}
-        </ScrollableCanvasWrapper>
-      </ChildrenWrapper>
+      <ScrollCanvas
+        $shouldScrollContents={!!props.shouldScrollContents}
+        className={`${
+          props.shouldScrollContents ? getCanvasClassName() : ""
+        } ${generateClassName(props.widgetId)}`}
+      >
+        {props.children}
+      </ScrollCanvas>
     </TabsContainerWrapper>
   );
 }

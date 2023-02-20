@@ -173,17 +173,24 @@ init_replica_set() {
   fi
 
   if [[ $isUriLocal -gt 0 ]]; then
-    # Check mongodb cloud Replica Set
+    if [[ -f /proc/cpuinfo ]] && ! grep --quiet avx /proc/cpuinfo; then
+      echo "====================================================================================================" >&2
+      echo "==" >&2
+      echo "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
+      echo "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
+      echo "==" >&2
+      echo "====================================================================================================" >&2
+    fi
+
     echo "Checking Replica Set of external MongoDB"
 
-    mongo_state="$(mongosh "$APPSMITH_MONGODB_URI" --quiet --eval "rs.status().ok")"
-    if [[ ${mongo_state: -1} -eq 1 ]]; then
-      echo "Mongodb cloud Replica Set is enabled"
+    if appsmithctl check-replica-set; then
+      echo "MongoDB ReplicaSet is enabled"
     else
-      echo -e "\033[0;31m*************************************************************************************************************\033[0m"
-      echo -e "\033[0;31m*      MongoDB Replica Set is not enabled                                                                   *\033[0m"
-      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has `readWrite` and `clusterMonitor` roles.      *\033[0m"
-      echo -e "\033[0;31m*************************************************************************************************************\033[0m"
+      echo -e "\033[0;31m***************************************************************************************\033[0m"
+      echo -e "\033[0;31m*      MongoDB Replica Set is not enabled                                             *\033[0m"
+      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has `readWrite` role.      *\033[0m"
+      echo -e "\033[0;31m***************************************************************************************\033[0m"
       exit 1
     fi
   fi

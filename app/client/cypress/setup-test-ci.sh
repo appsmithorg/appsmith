@@ -48,6 +48,8 @@ echo "Checking if client and server have started"
 ps -ef |grep java 2>&1
 ps -ef |grep  serve 2>&1
 
+echo "status code: $status_code"
+
 if [ "$status_code" -eq "502" ]; then
   echo "Unable to connect to server"
   exit 1

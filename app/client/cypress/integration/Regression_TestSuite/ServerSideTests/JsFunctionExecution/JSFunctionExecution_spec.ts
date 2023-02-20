@@ -182,7 +182,6 @@ describe("JS Function Execution", function() {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
-        toWriteAfterToastsDisappear: true,
       });
 
       // Assert presence of toast message
@@ -508,13 +507,14 @@ return "yes";`;
     agHelper.AssertContains("No signs of trouble here!", "not.exist");
     // Assert presence of typeError
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'id')",
+      "Cannot read properties of undefined (reading 'id')",
       "exist",
     );
+    agHelper.AssertContains("TypeError", "exist");
 
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
-    agHelper.WaitUntilAllToastsDisappear();//for 'Resource not found'
+    agHelper.WaitUntilAllToastsDisappear(); //for 'Resource not found'
     agHelper.RefreshPage();
     jsEditor.RunJSObj();
     //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
@@ -522,7 +522,7 @@ return "yes";`;
     jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'id')",
+      "Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
 
@@ -539,7 +539,7 @@ return "yes";`;
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'id')",
+      "Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
