@@ -19,6 +19,8 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.exceptions.RestApiErrorMessages;
+import com.external.plugins.exceptions.RestApiPluginError;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -94,7 +96,6 @@ public class RestApiPlugin extends BasePlugin {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(e);
-                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         return Mono.just(errorResult);
                     }
 
@@ -141,11 +142,11 @@ public class RestApiPlugin extends BasePlugin {
             try {
                 uri = uriUtils.createUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
                         encodeParamsToggle);
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 ActionExecutionRequest actionExecutionRequest =
                         RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
                 actionExecutionRequest.setUrl(url);
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage(e));
+                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, RestApiErrorMessages.URI_SYNTAX_WRONG_ERROR_MSG, e.getMessage()));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -161,14 +162,14 @@ public class RestApiPlugin extends BasePlugin {
             /* Check for content type */
             final String contentTypeError = headerUtils.verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Invalid value for Content-Type."));
+                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, RestApiErrorMessages.INVALID_CONTENT_TYPE_ERROR_MSG));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));
+                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, RestApiErrorMessages.NO_HTTP_METHOD_ERROR_MSG));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -181,8 +182,30 @@ public class RestApiPlugin extends BasePlugin {
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
-            return restAPIActivateUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
-                    objectMapper, hintMessages, errorResult, requestCaptureFilter);
+            return restAPIActivateUtils.triggerApiCall(
+                        client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+                        objectMapper, hintMessages, errorResult, requestCaptureFilter
+                    )
+                    .map(actionExecutionResult -> {
+                        if (! actionExecutionResult.getIsExecutionSuccess()) {
+                            actionExecutionResult.setErrorInfo(
+                                    new AppsmithPluginException(RestApiPluginError.API_EXECUTION_FAILED,
+                                            RestApiErrorMessages.API_EXECUTION_FAILED_ERROR_MSG,
+                                            actionExecutionResult.getBody(),
+                                            actionExecutionResult.getStatusCode()
+                                    ));
+                        }
+                        return actionExecutionResult;
+                    })
+                    .onErrorResume(error -> {
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
+                        errorResult.setIsExecutionSuccess(false);
+                        if (! (error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(RestApiPluginError.API_EXECUTION_FAILED, RestApiErrorMessages.API_EXECUTION_FAILED_ERROR_MSG, error);
+                        }
+                        errorResult.setErrorInfo(error);
+                        return Mono.just(errorResult);
+                    });
         }
 
         private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
