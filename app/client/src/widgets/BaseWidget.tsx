@@ -574,6 +574,7 @@ abstract class BaseWidget<
         responsiveBehavior={this.props.responsiveBehavior}
         selected={this.props.selected}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         widgetType={this.props.type}
       >
         {content}
