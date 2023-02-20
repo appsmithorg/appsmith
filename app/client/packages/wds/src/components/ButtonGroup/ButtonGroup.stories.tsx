@@ -5,7 +5,7 @@ import { ButtonGroup } from "./index";
 import { Button } from "../Button";
 
 export default {
-  title: "Design System/Button Group",
+  title: "WDS/Button Group",
   component: ButtonGroup,
   argTypes: {
     variant: {

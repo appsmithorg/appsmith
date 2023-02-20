@@ -186,7 +186,6 @@ function AppRouter(props: {
         ) : (
           <>
             <AppHeader />
-            <Button variant="filled">Hello</Button>
             <Routes />
           </>
         )}
