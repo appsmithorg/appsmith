@@ -7,18 +7,15 @@ const appPage = require("../../../locators/PgAdminlocators.json");
 describe("PgAdmin Clone App", function() {
   let datasourceName;
 
-  before(() => {
+  before("Add dsl and create datasource", () => {
     cy.addDsl(dsl);
-  });
-
-  it("1. Add dsl and authenticate datasource", function() {
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
     });
   });
 
-  it("2. Create queries", function() {
+  it("1. Create queries", function() {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     // clicking on new query to write a query
@@ -27,9 +24,7 @@ describe("PgAdmin Clone App", function() {
       .click();
     cy.get(queryLocators.queryNameField).type("get_schema");
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    _.dataSources.ToggleUsePreparedStatement(false);
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.query).click({ force: true });
     // writing query to get the schema
@@ -40,9 +35,8 @@ describe("PgAdmin Clone App", function() {
     // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
     // clicking on new query to write a query
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
+    _.dataSources.CreateQuery(datasourceName);
+
     cy.get(queryLocators.queryNameField).type("get_tables");
     cy.get(queryLocators.templateMenu).click();
     // writing query to get all the tables
@@ -54,9 +48,7 @@ describe("PgAdmin Clone App", function() {
     // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
     // clicking on new query to write a query
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
+    _.dataSources.CreateQuery(datasourceName);
     cy.get(queryLocators.queryNameField).type("get_columns");
     cy.get(queryLocators.templateMenu).click();
     // creating query to get the columns of the table
@@ -92,18 +84,12 @@ describe("PgAdmin Clone App", function() {
     _.agHelper.AssertElementVisible(appPage.addColumn);
     _.agHelper.GetNClick(appPage.closeButton, 0, true);
     _.dataSources.NavigateToActiveTab();
-
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-    cy.get(queryLocators.queryNameField).type("create_table");
+    _.dataSources.CreateQuery(datasourceName);
+    _.agHelper.RenameWithInPane("create_table");
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    _.dataSources.ToggleUsePreparedStatement(false);
     cy.get(queryLocators.templateMenu).click();
     // writing query to create new table
-
     _.dataSources.EnterQuery(
       `CREATE TABLE {{schema_select.selectedOptionValue}}.{{nt_name.text.replaceAll(" ","_")}}({{appsmith.store.nt_col.map((c)=>c.name.replaceAll(" ","_") + " " + c.dtype + (c.nnull ? " NOT NULL " :  "") + (c.pkey ? " PRIMARY KEY " : "")).join(" , ")}})`,
     );
@@ -111,15 +97,11 @@ describe("PgAdmin Clone App", function() {
     // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
     // clicking on new query to write a query
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-    cy.get(queryLocators.queryNameField).type("drop_table");
+    _.dataSources.CreateQuery(datasourceName);
+    _.agHelper.RenameWithInPane("drop_table");
     cy.get(queryLocators.templateMenu).click();
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    _.dataSources.ToggleUsePreparedStatement(false);
     // creating query to delete the table
     _.dataSources.EnterQuery(
       `DROP TABLE {{schema_select.selectedOptionValue}}.{{List1.selectedItem.tablename}};`,
@@ -129,7 +111,7 @@ describe("PgAdmin Clone App", function() {
     cy.get(appPage.dropdownChevronLeft).click();
   });
 
-  it("3. Add new table", function() {
+  it("2. Add new table", function() {
     // clicking on chevron to go back to the application page
     cy.get(appPage.dropdownChevronLeft).click();
     // adding new table
@@ -167,7 +149,7 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.closeButton).click({ force: true });
   });
 
-  it("4.View and Delete table", function() {
+  it("3.View and Delete table", function() {
     cy.xpath(appPage.addNewtable).should("be.visible");
     // viewing the table's columns by clicking on view button
     cy.xpath(appPage.viewButton)
