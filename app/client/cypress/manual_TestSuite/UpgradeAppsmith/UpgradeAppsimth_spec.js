@@ -21,7 +21,7 @@ describe("Upgrade appsmith version", () => {
       //Start a new Container with old stack
       cy.StartNewContainer(
         tedUrl,
-        path + "/oldstack/tempStacks/oldstacks",
+        path + "/oldstack",
         "cicontainer",
         `appsmith-${name}`,
       );
