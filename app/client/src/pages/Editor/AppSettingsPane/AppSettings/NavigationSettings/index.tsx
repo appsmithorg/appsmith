@@ -74,26 +74,30 @@ function NavigationSettings() {
             }
 
             /**
+             * TODO - @Dhruvik - ImprovedAppNav
+             * Uncomment to change these settings automatically in v1.1
+             * https://www.notion.so/appsmith/Ship-Faster-33b32ed5b6334810a0b4f42e03db4a5b
+             *
              * When the orientation is side and nav style changes -
              * 1. to minimal, change the item style to icon
              * 1. to sidebar, change the item style to text + icon
              */
-            if (
-              newSettings.orientation ===
-                NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
-              navigationSetting.navStyle !== newSettings.navStyle
-            ) {
-              if (
-                newSettings.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL
-              ) {
-                newSettings.itemStyle = NAVIGATION_SETTINGS.ITEM_STYLE.ICON;
-              } else if (
-                newSettings.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR
-              ) {
-                newSettings.itemStyle =
-                  NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON;
-              }
-            }
+            // if (
+            //   newSettings.orientation ===
+            //     NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+            //   navigationSetting.navStyle !== newSettings.navStyle
+            // ) {
+            //   if (
+            //     newSettings.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL
+            //   ) {
+            //     newSettings.itemStyle = NAVIGATION_SETTINGS.ITEM_STYLE.ICON;
+            //   } else if (
+            //     newSettings.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR
+            //   ) {
+            //     newSettings.itemStyle =
+            //       NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON;
+            //   }
+            // }
 
             payload.navigationSetting = newSettings as NavigationSetting;
 
