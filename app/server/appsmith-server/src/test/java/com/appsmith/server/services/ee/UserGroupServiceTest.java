@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
@@ -66,6 +67,8 @@ public class UserGroupServiceTest {
 
     @Autowired
     WorkspaceService workspaceService;
+    @Autowired
+    UserGroupRepository userGroupRepository;
 
     User api_user = null;
     User admin_user = null;
@@ -407,7 +410,7 @@ public class UserGroupServiceTest {
                                         permissionGroupInfoDTO.setId(role.getId());
                                         permissionGroupInfoDTO.setName(role.getName());
                                         permissionGroupInfoDTO.setDescription(role.getDescription());
-                                        permissionGroupInfoDTO.setUserPermissions(Set.of());
+                                        permissionGroupInfoDTO.setUserPermissions(role.getUserPermissions());
                                         return permissionGroupInfoDTO;
                                     })
                                     .collect(Collectors.toList())
@@ -749,7 +752,34 @@ public class UserGroupServiceTest {
                 .verifyComplete();
     }
 
-    // TODO: Add tests for groups with roles and then adding users to the group.
+    /**
+     * This test has been added, because there now exists a feature on UI
+     * which disables the Roles in the Active Roles tab in User Group Description page
+     * if the user doesn't have permission to un-assign a role which has been already assigned to the User Group.
+     * The UI feature is dependent on the User Permission present inside Roles DTO inside Group DTO.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetUserGroup_roleHaveUserPermission() {
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("Test Group : testGetUserGroup_roleHaveUserPermission");
+        userGroup.setDescription("Test Group Description : testGetUserGroup_roleHaveUserPermission");
+        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
+                .block();
+        assertThat(createdUserGroup.getId()).isNotNull();
 
+        PermissionGroup permissionGroup = new PermissionGroup();
+        userGroup.setName("Test Role : testGetUserGroup_roleHaveUserPermission");
+        userGroup.setDescription("Test Role Description : testGetUserGroup_roleHaveUserPermission");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        assertThat(createdPermissionGroup.getId()).isNotNull();
 
+        permissionGroupService.assignToUserGroup(createdPermissionGroup, createdUserGroup).block();
+
+        UserGroupDTO updatedUserGroup = userGroupService.getGroupById(createdUserGroup.getId()).block();
+        assertThat(updatedUserGroup.getRoles()).hasSize(1);
+        assertThat(updatedUserGroup.getRoles().get(0).getUserPermissions()).isNotEmpty();
+
+    }
 }
