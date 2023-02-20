@@ -86,7 +86,7 @@ describe("List widget v2 - meta hydration tests", () => {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("1. using server side data", () => {
+  it("1. setup serverside data", () => {
     cy.wait(1000);
     cy.NavigateToDatasourceEditor();
 
@@ -149,6 +149,9 @@ describe("List widget v2 - meta hydration tests", () => {
       "have.length",
       3,
     );
+  });
+
+  it("2. using server side data", () => {
     //FirstPage
     //   First Row
     changeValueOfWidget("selectwidget", "Green", 0);
@@ -232,7 +235,7 @@ describe("List widget v2 - meta hydration tests", () => {
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 2);
   });
 
-  it("2. using server side data in view mode", () => {
+  it("3. using server side data in view mode", () => {
     cy.PublishtheApp();
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`).should(
       "have.length",
