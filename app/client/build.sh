@@ -9,7 +9,7 @@ echo "Sentry Auth Token: $SENTRY_AUTH_TOKEN"
 # build storybook and move to the static folder
 cd ./packages/wds
 yarn build-storybook
-mv -f ./storybook-static ../../build/static/wds
+mv -f ./storybook-static ../../public/static/wds
 cd ../../
 
 # build cra app
