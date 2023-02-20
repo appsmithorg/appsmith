@@ -16,12 +16,21 @@ const props = {
   ],
 };
 
-const DEFAULT_ERROR_MESSAGE =
-  "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
-const MISSING_FROM_OPTIONS =
-  "Some or all default values are missing from options. Please update the values.";
-const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT =
-  "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data";
+const DEFAULT_ERROR_MESSAGE = {
+  name: "TypeError",
+  message:
+    "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+};
+const MISSING_FROM_OPTIONS = {
+  name: "ValidationError",
+  message:
+    "Some or all default values are missing from options. Please update the values.",
+};
+const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
+  name: "ValidationError",
+  message:
+    "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
+};
 
 describe("defaultOptionValueValidation - ", () => {
   it("should get tested with empty string", () => {
@@ -36,7 +45,7 @@ describe("defaultOptionValueValidation - ", () => {
     ).toEqual({
       isValid: true,
       parsed: [],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
 
@@ -87,7 +96,7 @@ describe("defaultOptionValueValidation - ", () => {
     ).toEqual({
       isValid: true,
       parsed: [input],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
   it("should get tested with a string", () => {
@@ -103,7 +112,7 @@ describe("defaultOptionValueValidation - ", () => {
       ).toEqual({
         isValid: true,
         parsed: [input],
-        messages: [""],
+        messages: [{ name: "", message: "" }],
       });
     });
   });
@@ -120,7 +129,7 @@ describe("defaultOptionValueValidation - ", () => {
     ).toEqual({
       isValid: true,
       parsed: ["GREEN", "RED"],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
 
@@ -154,7 +163,7 @@ describe("defaultOptionValueValidation - ", () => {
           value: "RED",
         },
       ],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
 
@@ -171,7 +180,7 @@ describe("defaultOptionValueValidation - ", () => {
     ).toEqual({
       isValid: true,
       parsed: ["GREEN", "RED"],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
     expect(
       defaultOptionValueValidation(
@@ -182,7 +191,7 @@ describe("defaultOptionValueValidation - ", () => {
     ).toEqual({
       isValid: true,
       parsed: ["1", "2"],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
 
@@ -307,7 +316,12 @@ describe("defaultOptionValueValidation - ", () => {
         {
           isValid: false,
           parsed: [],
-          messages: ["values must be unique. Duplicate values found"],
+          messages: [
+            {
+              name: "ValidationError",
+              message: "values must be unique. Duplicate values found",
+            },
+          ],
         },
       ],
       [
@@ -324,7 +338,12 @@ describe("defaultOptionValueValidation - ", () => {
         {
           isValid: false,
           parsed: [],
-          messages: ["path:value must be unique. Duplicate values found"],
+          messages: [
+            {
+              name: "ValidationError",
+              message: "path:value must be unique. Duplicate values found",
+            },
+          ],
         },
       ],
       [
