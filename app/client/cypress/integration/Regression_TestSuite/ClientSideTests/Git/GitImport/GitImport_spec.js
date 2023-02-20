@@ -192,7 +192,7 @@ describe("Git import flow ", function() {
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     _.ee.SelectEntityByName(jsObject);
-    _.jsEditor.RunJSObj();
+    _.jsEditor.RunJSObj(); //Running sync function due to open bug
     _.ee.SelectEntityByName("Page1 Copy");
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
