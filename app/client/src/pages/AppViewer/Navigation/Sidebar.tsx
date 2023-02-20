@@ -108,7 +108,7 @@ export function Sidebar(props: SidebarProps) {
       <StyledHeader>
         {!isMinimal && (
           <ApplicationName
-            appName={currentApplicationDetails?.name || "Application Name"}
+            appName={currentApplicationDetails?.name}
             forSidebar
             navColorStyle={navColorStyle}
             primaryColor={primaryColor}
