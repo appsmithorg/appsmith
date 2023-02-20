@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import com.appsmith.external.models.TokenResponse;
 
 @Slf4j
 @RequestMapping(Url.SAAS_URL)
@@ -40,7 +41,7 @@ public class SaasControllerCE {
     }
 
     @PostMapping("/{datasourceId}/token")
-    public Mono<ResponseDTO<Datasource>> getAccessToken(@PathVariable String datasourceId, @RequestParam String appsmithToken, ServerWebExchange serverWebExchange) {
+    public Mono<ResponseDTO<TokenResponse>> getAccessToken(@PathVariable String datasourceId, @RequestParam String appsmithToken, ServerWebExchange serverWebExchange) {
 
         log.debug("Received callback for an OAuth2 authorization request");
         return authenticationService.getAccessTokenFromCloud(datasourceId, appsmithToken)

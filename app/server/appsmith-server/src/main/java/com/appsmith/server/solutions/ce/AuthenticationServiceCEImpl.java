@@ -8,6 +8,7 @@ import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.TokenResponse;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.configurations.CloudServicesConfig;
@@ -385,7 +386,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 }));
     }
 
-    public Mono<Datasource> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
+    public Mono<TokenResponse> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
         // Check if user has access to manage datasource
         // If yes, check if datasource is in intermediate state
         // If yes, request for token and store in datasource
@@ -437,10 +438,21 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     }
                                 }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                return Mono.just(datasource);
+                                String accessToken = new String("");
+                                if (oAuth2.getMode() != null && oAuth2.getMode().equals("SPECIFIC_SHEETS")) {
+                                    accessToken = (String) tokenResponse.get("access_token");
+                                }
+                                return Mono.just(datasource).zipWith(Mono.just(accessToken));
                             });
                 })
-                .flatMap(datasource -> datasourceService.update(datasource.getId(), datasource))
+                .flatMap(tuple -> {
+                    Datasource datasource = tuple.getT1();
+                    String accessToken = tuple.getT2();
+                    TokenResponse response = new TokenResponse();
+                    response.setDatasource(datasource);
+                    response.setToken(accessToken);
+                    return datasourceService.update(datasource.getId(), datasource).thenReturn(response);
+                })
                 .onErrorMap(ConnectException.class,
                         error -> new AppsmithException(
                                 AppsmithError.AUTHENTICATION_FAILURE,

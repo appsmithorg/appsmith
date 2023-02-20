@@ -89,7 +89,8 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
-  FeatureFlags?: FeatureFlags;
+  featureFlags?: FeatureFlags;
+  gsheetToken?: string;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -263,6 +264,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasourceId,
       featureFlags,
       formData,
+      gsheetToken,
       hiddenHeader,
       pageId,
       plugin,
@@ -381,6 +383,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
+              gsheetToken={gsheetToken}
               isInvalid={this.validate()}
               pageId={pageId}
               shouldDisplayAuthMessage={!isGoogleSheetPlugin}
@@ -441,7 +444,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ...pagePermissions,
   ]);
 
-  const featureFlags: FeatureFlags = selectFeatureFlags(state);
+  const gsheetToken = state.entities.datasources.gsheetToken;
 
   return {
     datasource,
@@ -470,7 +473,8 @@ const mapStateToProps = (state: AppState, props: any) => {
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     canCreateDatasourceActions,
-    featureFlags,
+    featureFlags: selectFeatureFlags(state),
+    gsheetToken,
   };
 };
 

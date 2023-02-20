@@ -104,6 +104,11 @@ export interface Datasource extends BaseDatasource {
   success?: boolean;
 }
 
+export interface TokenResponse {
+  datasource: Datasource;
+  token: string;
+}
+
 export interface MockDatasource {
   name: string;
   description: string;

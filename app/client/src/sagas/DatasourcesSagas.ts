@@ -47,10 +47,11 @@ import {
   removeTempDatasource,
   createDatasourceSuccess,
   resetDefaultKeyValPairFlag,
+  updateDatasource,
 } from "actions/datasourceActions";
 import { ApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
-import { Datasource } from "entities/Datasource";
+import { Datasource, TokenResponse } from "entities/Datasource";
 
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
@@ -457,7 +458,7 @@ function* getOAuthAccessTokenSaga(
   }
   try {
     // Get access token for datasource
-    const response: ApiResponse<Datasource> = yield OAuthApi.getAccessToken(
+    const response: ApiResponse<TokenResponse> = yield OAuthApi.getAccessToken(
       datasourceId,
       appsmithToken,
     );
@@ -465,12 +466,22 @@ function* getOAuthAccessTokenSaga(
       // Update the datasource object
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
-        payload: response.data,
+        payload: response.data.datasource,
       });
-      Toaster.show({
-        text: OAUTH_AUTHORIZATION_SUCCESSFUL,
-        variant: Variant.success,
-      });
+
+      if (!!response.data.token) {
+        yield put({
+          type: ReduxActionTypes.SET_GSHEET_TOKEN,
+          payload: {
+            gsheetToken: response.data.token,
+          },
+        });
+      } else {
+        Toaster.show({
+          text: OAUTH_AUTHORIZATION_SUCCESSFUL,
+          variant: Variant.success,
+        });
+      }
       // Remove the token because it is supposed to be short lived
       localStorage.removeItem(APPSMITH_TOKEN_STORAGE_KEY);
     }
@@ -1152,6 +1163,30 @@ function* initializeFormWithDefaults(
   }
 }
 
+function* filePickerActionCallbackSaga(
+  actionPayload: ReduxAction<{ action: string; datasourceId: string }>,
+) {
+  try {
+    const { action, datasourceId } = actionPayload.payload;
+    yield put({
+      type: ReduxActionTypes.SET_GSHEET_TOKEN,
+      payload: {
+        gsheetToken: "",
+      },
+    });
+
+    if (action === "cancel") {
+      const datasource: Datasource = yield select(getDatasource, datasourceId);
+      _.set(
+        datasource,
+        "datasourceConfiguration.authentication.authenticationStatus",
+        "FAILURE",
+      );
+      yield put(updateDatasource(datasource));
+    }
+  } catch (error) {}
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -1214,5 +1249,9 @@ export function* watchDatasourcesSagas() {
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
+    takeEvery(
+      ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
+      filePickerActionCallbackSaga,
+    ),
   ]);
 }

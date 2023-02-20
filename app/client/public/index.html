@@ -46,6 +46,14 @@
     }
 
   </script>
+  <!-- Adding this Library to access google file picker API in case of limiting google sheet access -->
+  <script
+    async
+    defer
+    id="googleapis"
+    src="https://apis.google.com/js/api.js"
+    onload="gapiLoaded()"
+  ></script>
 </head>
 
 <body class="appsmith-light-theme">
@@ -166,6 +174,10 @@
       hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
       disableIframeWidgetSandbox: parseConfig("__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__"),
     };
+
+    gapiLoaded = () => {
+      window.googleAPIsLoaded = true;
+    }
   </script>
 </body>
 

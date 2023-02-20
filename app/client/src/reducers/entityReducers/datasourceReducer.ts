@@ -26,6 +26,7 @@ export interface DatasourceDataState {
   unconfiguredList: Datasource[];
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
+  gsheetToken: string;
 }
 
 const initialState: DatasourceDataState = {
@@ -43,6 +44,7 @@ const initialState: DatasourceDataState = {
   unconfiguredList: [],
   isDatasourceBeingSaved: false,
   isDatasourceBeingSavedFromPopup: false,
+  gsheetToken: "",
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -453,6 +455,15 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       isDatasourceBeingSavedFromPopup: action.payload.isDSSavedFromPopup,
+    };
+  },
+  [ReduxActionTypes.SET_GSHEET_TOKEN]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ gsheetToken: string }>,
+  ) => {
+    return {
+      ...state,
+      gsheetToken: action.payload.gsheetToken,
     };
   },
 });

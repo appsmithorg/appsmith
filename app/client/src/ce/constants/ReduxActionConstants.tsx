@@ -758,6 +758,8 @@ export const ReduxActionTypes = {
   SEGMENT_INIT_UNCERTAIN: "SEGMENT_INIT_UNCERTAIN",
   SET_TABS_PANE_WIDTH: "SET_TABS_PANE_WIDTH",
   SET_PANE_COUNT: "SET_PANE_COUNT",
+  SET_GSHEET_TOKEN: "SET_GSHEET_TOKEN",
+  FILE_PICKER_CALLBACK_ACTION: "FILE_PICKER_CALLBACK_ACTION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
