@@ -166,6 +166,7 @@ jobs:
         working-directory: "."
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
+          mkdir -p cicontainerlocal/oldstack
 
       - name: Download S3 image
         uses: keithweaver/aws-s3-github-action@v1.0.0
