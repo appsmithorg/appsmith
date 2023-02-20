@@ -95,17 +95,10 @@ const TopHeader = (props: TopHeaderProps) => {
         <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
           {currentApplicationDetails && (
             <div className="hidden space-x-1 md:flex">
-              {/* Since the Backend doesn't have navigationSetting field by default
-                  and we are creating the default values only when any nav settings via the
-                  settings pane has changed, we need to hide the share button ONLY when the showShareApp
-                  setting is explicitly set to false by the user via the settings pane. */}
-              {currentApplicationDetails?.navigationSetting?.showShareApp !==
-                false && (
-                <ShareButton
-                  currentApplicationDetails={currentApplicationDetails}
-                  currentWorkspaceId={currentWorkspaceId}
-                />
-              )}
+              <ShareButton
+                currentApplicationDetails={currentApplicationDetails}
+                currentWorkspaceId={currentWorkspaceId}
+              />
 
               <HeaderRightItemContainer>
                 <PrimaryCTA

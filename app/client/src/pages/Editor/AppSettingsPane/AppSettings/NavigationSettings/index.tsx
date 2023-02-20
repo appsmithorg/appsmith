@@ -333,13 +333,6 @@ function NavigationSettings() {
             updateSetting={updateSetting}
             value={navigationSetting?.showSignIn}
           />
-
-          <SwitchSetting
-            keyName="showShareApp"
-            label={createMessage(APP_NAVIGATION_SETTING.showShareAppLabel)}
-            updateSetting={updateSetting}
-            value={navigationSetting?.showShareApp}
-          />
         </>
       )}
     </div>

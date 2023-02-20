@@ -147,15 +147,12 @@ export function Sidebar(props: SidebarProps) {
       <StyledFooter>
         {currentApplicationDetails && (
           <StyledCtaContainer>
-            {currentApplicationDetails?.navigationSetting?.showShareApp !==
-              false && (
-              <ShareButton
-                currentApplicationDetails={currentApplicationDetails}
-                currentWorkspaceId={currentWorkspaceId}
-                insideSidebar
-                isMinimal={isMinimal}
-              />
-            )}
+            <ShareButton
+              currentApplicationDetails={currentApplicationDetails}
+              currentWorkspaceId={currentWorkspaceId}
+              insideSidebar
+              isMinimal={isMinimal}
+            />
 
             <PrimaryCTA
               className="t--back-to-editor"

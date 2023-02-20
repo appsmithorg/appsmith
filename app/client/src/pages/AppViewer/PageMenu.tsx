@@ -119,7 +119,7 @@ export function PageMenu(props: NavigationProps) {
           ))}
         </div>
         <div className="p-3 space-y-3 border-t">
-          {application && application?.navigationSetting?.showShareApp && (
+          {application && (
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={application.id}
