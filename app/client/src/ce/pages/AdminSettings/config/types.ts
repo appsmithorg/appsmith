@@ -94,6 +94,7 @@ export interface Category {
   isConnected?: boolean;
   children?: Category[];
   icon?: string;
+  needsRestart?: boolean;
 }
 
 export const SettingCategories = {
@@ -129,4 +130,5 @@ export type AdminConfigType = {
   isConnected?: boolean;
   icon?: string;
   needsUpgrade?: boolean;
+  needsRestart?: boolean;
 };

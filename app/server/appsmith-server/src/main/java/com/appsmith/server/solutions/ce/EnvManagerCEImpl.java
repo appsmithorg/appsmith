@@ -9,7 +9,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
+import com.appsmith.server.domains.ce.TenantConfigurationCE;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -296,12 +296,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @return
      */
     private Set<String> allowedTenantConfiguration() {
-        Field[] fields = TenantConfiguration.class.getDeclaredFields();
-        return Arrays.stream(fields)
+        return getTenantConfigurationFields().stream()
                 .map(field -> {
                     JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
                     return jsonProperty == null ? field.getName() : jsonProperty.value();
-                }).collect(Collectors.toSet());
+                })
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -313,8 +313,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @param value
      */
     private void setConfigurationByKey(TenantConfiguration tenantConfiguration, String key, String value) {
-        Field[] fields = tenantConfiguration.getClass().getDeclaredFields();
-        for (Field field : fields) {
+        for (Field field : getTenantConfigurationFields()) {
             JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
             if (jsonProperty != null && jsonProperty.value().equals(key)) {
                 try {
@@ -328,6 +327,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         }
     }
 
+    @NotNull
+    private static List<Field> getTenantConfigurationFields() {
+        final List<Field> fields = Arrays.asList(TenantConfigurationCE.class.getDeclaredFields());
+        fields.addAll(Arrays.asList(TenantConfiguration.class.getDeclaredFields()));
+        return fields;
+    }
 
     private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
@@ -344,7 +349,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
+    public Mono<Boolean> applyChanges(Map<String, String> changes) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant configuration
         return verifyCurrentUserIsSuper().
                 flatMap(user -> validateChanges(user, changes).thenReturn(user))
@@ -368,13 +373,17 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             envFileChanges.remove(key);
                         }
                     }
-                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
 
-                    try {
-                        Files.write(envFilePath, changedContent);
-                    } catch (IOException e) {
-                        log.error("Unable to write to env file " + envFilePath, e);
-                        return Mono.error(e);
+                    if (!envFileChanges.isEmpty()) {
+                        // If there's only tenant configuration changes, env file doesn't have to be written.
+                        final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
+
+                        try {
+                            Files.write(envFilePath, changedContent);
+                        } catch (IOException e) {
+                            log.error("Unable to write to env file " + envFilePath, e);
+                            return Mono.error(e);
+                        }
                     }
 
                     // For configuration variables, save the variables to the config collection instead of .env file
@@ -452,12 +461,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         commonConfig.setTelemetryDisabled("true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
-                    return dependentTasks.thenReturn(new EnvChangesResponseDTO(true));
+                    return dependentTasks.thenReturn(true);
                 });
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
+    public Mono<Boolean> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
         return Flux.fromIterable(formData.entrySet())
                 .flatMap(entry -> {
                     final String key = entry.getKey();

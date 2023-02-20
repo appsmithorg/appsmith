@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.EnvVariables;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -75,23 +76,40 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
     }
 
-    /*
-     * For now, returning just the instance-id, with an empty tenantConfiguration object in this class. Will enhance
-     * this function once we start saving other pertinent environment variables in the tenant collection.
-     */
+    @Override
+    public Mono<Tenant> getDefaultTenant() {
+        // Get the default tenant object from the DB and then populate the relevant user permissions in that
+        // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
+        return repository.findBySlug(FieldName.DEFAULT)
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).thenReturn(tenant));
+    }
+
     @Override
     public Mono<Tenant> getTenantConfiguration() {
-        return configService.getInstanceId()
-                .map(instanceId -> {
-                    final Tenant tenant = new Tenant();
-                    tenant.setInstanceId(instanceId);
+        return Mono.zip(
+                        getDefaultTenant(),
+                        configService.getInstanceId()
+                )
+                .map(tuple -> {
+                    final Tenant dbTenant = tuple.getT1();
+                    final String instanceId = tuple.getT2();
 
-                    final TenantConfiguration config = new TenantConfiguration();
-                    tenant.setTenantConfiguration(config);
+                    final Tenant tenantForClient = new Tenant();
+                    tenantForClient.setInstanceId(instanceId);
 
-                    config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
+                    final TenantConfiguration configForClient = new TenantConfiguration();
+                    tenantForClient.setTenantConfiguration(configForClient);
 
-                    return tenant;
+                    // Only copy the values that are pertinent to the client
+                    configForClient.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
+                    tenantForClient.setUserPermissions(dbTenant.getUserPermissions());
+
+                    if (StringUtils.isEmpty(configForClient.getGoogleMapsKey())) {
+                        configForClient.setGoogleMapsKey(System.getenv(EnvVariables.APPSMITH_GOOGLE_MAPS_API_KEY.name()));
+                    }
+
+                    return tenantForClient;
                 });
     }
+
 }

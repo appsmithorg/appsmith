@@ -2,7 +2,6 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.TenantService;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,7 @@ public class TenantControllerCE {
 
     /**
      * This API returns the tenant configuration for any user (anonymous or logged in). The configurations are set
-     * in {@link com.appsmith.server.controllers.ce.InstanceAdminControllerCE#saveEnvChanges(Map<String,String>)}
+     * in {@link com.appsmith.server.controllers.ce.InstanceAdminControllerCE#saveEnvChangesJSON(Map<String,String>)}
      * <p>
      * The update and retrieval are in different controllers because it would have been weird to fetch the configurations
      * from the InstanceAdminController

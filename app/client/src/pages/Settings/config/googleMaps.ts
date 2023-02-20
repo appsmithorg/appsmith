@@ -12,6 +12,7 @@ export const config: AdminConfigType = {
   controlType: SettingTypes.GROUP,
   title: "Google Maps",
   canSave: true,
+  needsRestart: false,
   settings: [
     {
       id: "APPSMITH_GOOGLE_MAPS_READ_MORE",

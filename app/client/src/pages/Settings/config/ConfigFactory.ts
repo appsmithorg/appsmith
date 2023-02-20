@@ -43,6 +43,7 @@ export class ConfigFactory {
       title: config.title,
       slug: config.type,
       subText: config.subText,
+      needsRestart: config.needsRestart,
       children: config?.children?.map((child) =>
         ConfigFactory.getCategory(child),
       ),
