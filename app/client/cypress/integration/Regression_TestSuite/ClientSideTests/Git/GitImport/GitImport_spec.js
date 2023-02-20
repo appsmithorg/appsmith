@@ -152,8 +152,6 @@ describe("Git import flow ", function() {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
-
-  // skipping below 3 cases due to open bug #18776
   it("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     //cy.createGitBranch(newBranch);
     _.gitSync.CreateGitBranch(newBranch, true);
@@ -193,6 +191,9 @@ describe("Git import flow ", function() {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+    _.ee.SelectEntityByName(jsObject);
+    _.jsEditor.RunJSObj(); //Running sync function due to open bug
+    _.ee.SelectEntityByName("Page1 Copy");
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );

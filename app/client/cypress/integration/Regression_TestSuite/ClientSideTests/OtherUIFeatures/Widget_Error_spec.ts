@@ -27,8 +27,8 @@ describe("Widget error state", function() {
   it("Check if the current value is shown in the debugger", function() {
     debuggerHelper.ClickDebuggerIcon();
     cy.contains(".react-tabs__tab", "Errors").click();
-
-    debuggerHelper.LogStateContains("Test");
+    //This feature is disabled in updated error log - epic 17720
+    //debuggerHelper.LogStateContains("Test");
   });
 
   it("Switch to error tab when clicked on the debug button", function() {
@@ -45,18 +45,21 @@ describe("Widget error state", function() {
   });
 
   it("All errors should be expanded by default", function() {
-    debuggerHelper.AssertVisibleErrorMessagesCount(2);
+    //Updated count to 1 as the decision not to show triggerexecution/uncaughtpromise error in - epic 17720
+    debuggerHelper.AssertVisibleErrorMessagesCount(1);
   });
 
   it("Recent errors are shown at the top of the list", function() {
     cy.testJsontext("label", "{{[]}}");
-    debuggerHelper.LogStateContains("text", 0);
+    //This feature is disabled in updated error log - epic 17720
+    //debuggerHelper.LogStateContains("text", 0);
   });
 
-  it("Clicking on a message should open the search menu", function() {
-    debuggerHelper.ClickErrorMessage(0);
-    debuggerHelper.AssertContextMenuItemVisible();
-  });
+  //This feature is disabled in updated error log - epic 17720
+  // it("Clicking on a message should open the search menu", function() {
+  //   debuggerHelper.ClickErrorMessage(0);
+  //   debuggerHelper.AssertContextMenuItemVisible();
+  // });
 
   it("Undoing widget deletion should show errors if present", function() {
     cy.deleteWidget();
