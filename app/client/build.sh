@@ -23,4 +23,4 @@ yarn build-storybook
 
 echo "storybook build finished"
 
-mv -f ./storybook-static ../../public/static/wds
+mv -f ./storybook-static ../../build/static/wds
