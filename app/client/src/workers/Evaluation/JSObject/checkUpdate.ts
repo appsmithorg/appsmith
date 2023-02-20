@@ -16,11 +16,9 @@ function checkForJsVariableUpdate() {
   registeredTask = false;
 }
 
-export function addJSUpdateCheckTaskInQueue() {
+export function registerJSUpdateCheckTask(task = checkForJsVariableUpdate) {
   if (!registeredTask) {
     registeredTask = true;
-    queueMicrotask(() => {
-      checkForJsVariableUpdate();
-    });
+    queueMicrotask(task);
   }
 }

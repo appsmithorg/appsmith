@@ -16,7 +16,7 @@ import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { updateJSCollectionStateFromContext } from "./JSObject";
 import JSVariableUpdates from "./JSObject/JSVariableUpdates";
-import { addJSUpdateCheckTaskInQueue } from "./JSObject/checkUpdate";
+import { registerJSUpdateCheckTask } from "./JSObject/checkUpdate";
 import { jsObjectCollection } from "./JSObject/Collection";
 
 export type EvalResult = {
@@ -357,7 +357,7 @@ export async function evaluateAsync(
     } finally {
       // Remove this
       updateJSCollectionStateFromContext();
-      addJSUpdateCheckTaskInQueue();
+      registerJSUpdateCheckTask();
 
       return {
         result,
