@@ -263,6 +263,7 @@ describe("Table widget inline editing validation functionality", () => {
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.get(widgetsPage.toastAction).should("not.exist");
       cy.enterTableCellValue(0, 0, "#1");
+      cy.wait(500);
       cy.saveTableCellValue(0, 0);
       cy.get(`.t--inlined-cell-editor`).should("not.exist");
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");

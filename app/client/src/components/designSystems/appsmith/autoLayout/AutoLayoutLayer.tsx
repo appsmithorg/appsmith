@@ -40,7 +40,7 @@ const SubWrapper = styled.div<{
   flexDirection: FlexDirection;
   wrap?: boolean;
 }>`
-  flex: ${({ wrap }) => `1 1 ${wrap ? "100" : "33.3"}%`};
+  flex: ${({ wrap }) => `1 1 ${wrap ? "100" : "33.3333"}%`};
   display: flex;
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
   align-items: flex-start;

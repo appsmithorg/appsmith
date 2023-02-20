@@ -48,6 +48,7 @@ export type PositionedContainerProps = {
   parentColumnSpace: number;
   isDisabled?: boolean;
   isVisible?: boolean;
+  widgetName: string;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -97,9 +98,11 @@ export function PositionedContainer(
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
-      ` ${POSITIONED_WIDGET} ${widgetTypeClassname(props.widgetType)}`
+      ` ${POSITIONED_WIDGET} ${widgetTypeClassname(
+        props.widgetType,
+      )} t--widget-${props.widgetName.toLowerCase()}`
     );
-  }, [props.widgetType, props.widgetId]);
+  }, [props.widgetType, props.widgetId, props.widgetName]);
   const isDropTarget = checkIsDropTarget(props.widgetType);
 
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
@@ -172,6 +175,7 @@ export function PositionedContainer(
       className={containerClassName}
       data-hidden={!props.isVisible || undefined}
       data-testid="test-widget"
+      data-widgetname-cy={props.widgetName}
       disabled={props.isDisabled}
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}

@@ -55,6 +55,7 @@ import { getExpectedValue } from "utils/validation/common";
 import WidgetFactory from "utils/WidgetFactory";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -556,14 +557,12 @@ const PropertyControl = memo((props: Props) => {
       .join("")
       .toLowerCase();
 
-    let additionAutocomplete:
-      | Record<string, Record<string, unknown>>
-      | undefined = undefined;
+    let additionAutocomplete: AdditionalDynamicDataTree | undefined;
     if (additionalAutoComplete) {
       additionAutocomplete = additionalAutoComplete(widgetProperties);
     } else if (childWidgetAutoCompleteEnhancementFn) {
       additionAutocomplete = childWidgetAutoCompleteEnhancementFn() as
-        | Record<string, Record<string, unknown>>
+        | AdditionalDynamicDataTree
         | undefined;
     }
 

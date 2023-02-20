@@ -4,7 +4,6 @@ import {
   FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -39,7 +38,7 @@ import {
 export function deriveHighlightsFromLayers(
   allWidgets: CanvasWidgetsReduxState,
   canvasId: string,
-  mainCanvasWidth = 0,
+  snapColumnSpace: number,
   draggedWidgets: string[] = [],
   hasFillWidget = false,
   isMobile = false,
@@ -48,12 +47,6 @@ export function deriveHighlightsFromLayers(
   const canvas = widgets[canvasId];
   if (!canvas) return [];
 
-  const { canvasWidth, columnSpace } = getCanvasDimensions(
-    canvas,
-    widgets,
-    mainCanvasWidth,
-    isMobile,
-  );
   const layers: FlexLayer[] = canvas.flexLayers || [];
   let highlights: HighlightInfo[] = [];
   let childCount = 0;
@@ -81,9 +74,8 @@ export function deriveHighlightsFromLayers(
       childCount,
       layerIndex,
       offsetTop,
-      canvasWidth,
       canvasId,
-      columnSpace,
+      columnSpace: snapColumnSpace,
       draggedWidgets,
       isMobile,
     });
@@ -98,7 +90,7 @@ export function deriveHighlightsFromLayers(
           childCount,
           layerIndex,
           offsetTop,
-          canvasWidth,
+          snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
           canvasId,
           hasFillWidget,
           childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
@@ -118,7 +110,7 @@ export function deriveHighlightsFromLayers(
       childCount,
       layerIndex,
       offsetTop,
-      canvasWidth,
+      snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
       canvasId,
       hasFillWidget,
       -1,
@@ -143,7 +135,6 @@ export function generateVerticalHighlights(data: {
   childCount: number;
   layerIndex: number;
   offsetTop: number;
-  canvasWidth: number;
   canvasId: string;
   columnSpace: number;
   draggedWidgets: string[];
@@ -151,7 +142,6 @@ export function generateVerticalHighlights(data: {
 }): VerticalHighlightsPayload {
   const {
     canvasId,
-    canvasWidth,
     childCount,
     columnSpace,
     draggedWidgets,
@@ -259,7 +249,6 @@ export function generateVerticalHighlights(data: {
           offsetTop,
           canvasId,
           parentColumnSpace: columnSpace,
-          canvasWidth,
           isMobile,
           avoidInitialHighlight,
           startPosition,
@@ -268,7 +257,7 @@ export function generateVerticalHighlights(data: {
       index += 1;
     }
   }
-  highlights = updateVerticalHighlightDropZone(highlights, canvasWidth);
+  highlights = updateVerticalHighlightDropZone(highlights, columnSpace * 64);
   return { highlights, childCount: count };
 }
 
@@ -288,7 +277,6 @@ export function generateHighlightsForAlignment(data: {
   offsetTop: number;
   canvasId: string;
   parentColumnSpace: number;
-  canvasWidth: number;
   avoidInitialHighlight?: boolean;
   isMobile: boolean;
   startPosition: number | undefined;
@@ -298,7 +286,6 @@ export function generateHighlightsForAlignment(data: {
     arr,
     avoidInitialHighlight,
     canvasId,
-    canvasWidth,
     childCount,
     isMobile,
     layerIndex,
@@ -346,7 +333,6 @@ export function generateHighlightsForAlignment(data: {
           ? getRightColumn(lastChild, isMobile) * parentColumnSpace +
               FLEXBOX_PADDING / 2
           : 0,
-        canvasWidth,
         canvasId,
         parentColumnSpace,
         startPosition,
@@ -382,13 +368,16 @@ function getPositionForInitialHighlight(
   highlights: HighlightInfo[],
   alignment: FlexLayerAlignment,
   posX: number,
-  containerWidth: number,
   canvasId: string,
   columnSpace: number,
   startPosition: number | undefined,
 ): number {
+  const containerWidth = 64 * columnSpace;
   const endPosition =
-    64 * columnSpace - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 6 : -2);
+    containerWidth +
+    (canvasId !== MAIN_CONTAINER_WIDGET_ID
+      ? FLEXBOX_PADDING
+      : FLEXBOX_PADDING / 2);
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
@@ -443,12 +432,11 @@ function generateHorizontalHighlights(
       alignment,
       posX: hasFillWidget
         ? alignment === FlexLayerAlignment.Start
-          ? FLEXBOX_PADDING
-          : containerWidth
-        : width * index +
-          (canvasId === MAIN_CONTAINER_WIDGET_ID
+          ? canvasId === MAIN_CONTAINER_WIDGET_ID
             ? FLEXBOX_PADDING
-            : FLEXBOX_PADDING / 2),
+            : FLEXBOX_PADDING * 1.5
+          : containerWidth
+        : width * index + FLEXBOX_PADDING,
       posY: offsetTop,
       width: hasFillWidget
         ? alignment === FlexLayerAlignment.Start
@@ -463,67 +451,6 @@ function generateHorizontalHighlights(
     });
   });
   return arr;
-}
-
-function getCanvasDimensions(
-  canvas: Widget,
-  widgets: CanvasWidgetsReduxState,
-  mainCanvasWidth: number,
-  isMobile: boolean,
-): { canvasWidth: number; columnSpace: number } {
-  const canvasWidth: number = getCanvasWidth(
-    canvas,
-    widgets,
-    mainCanvasWidth,
-    isMobile,
-  );
-
-  const columnSpace: number = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
-
-  return { canvasWidth: canvasWidth, columnSpace };
-}
-
-export function getCanvasWidth(
-  canvas: Widget,
-  widgets: CanvasWidgetsReduxState,
-  mainCanvasWidth: number,
-  isMobile: boolean,
-): number {
-  if (!mainCanvasWidth) return 0;
-  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID)
-    return mainCanvasWidth - getPadding(canvas);
-  let widget = canvas;
-  let columns = 0;
-  let width = 1;
-  let padding = 0;
-  while (widget.parentId) {
-    columns = getWidgetWidth(widget, isMobile);
-    padding += getPadding(widget);
-    width *= columns > 64 ? 1 : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
-    widget = widgets[widget.parentId];
-  }
-  const totalWidth = width * mainCanvasWidth;
-  if (widget.widgetId === MAIN_CONTAINER_WIDGET_ID)
-    padding += getPadding(widget);
-  return totalWidth - padding;
-}
-
-function getPadding(canvas: Widget): number {
-  let padding = 0;
-  if (
-    canvas.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-    canvas.type === "CONTAINER_WIDGET"
-  ) {
-    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-    padding = FLEXBOX_PADDING * 2;
-  }
-  if (canvas.noPad) {
-    // Widgets like ListWidget choose to have no container padding so will only have widget padding
-    padding = WIDGET_PADDING * 2;
-  }
-  // Account for container border.
-  padding += canvas.type === "CONTAINER_WIDGET" ? 2 : 0;
-  return padding;
 }
 
 /**
