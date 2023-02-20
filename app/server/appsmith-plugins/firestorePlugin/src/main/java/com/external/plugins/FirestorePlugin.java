@@ -19,6 +19,8 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.exceptions.FirestoreErrorMessages;
+import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -108,7 +110,7 @@ public class FirestorePlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Firestore connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(FirestorePluginError.QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -161,7 +163,6 @@ public class FirestorePlugin extends BasePlugin {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(e);
-                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         return Mono.just(errorResult);
                     }
 
@@ -187,8 +188,7 @@ public class FirestorePlugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Mandatory parameter 'Command' is missing. Did you forget to select one of the commands" +
-                                        " from the Command dropdown ?"
+                                FirestoreErrorMessages.MANDATORY_PARAM_COMMAND_MISSING_ERROR_MSG
                         )
                 );
             }
@@ -211,21 +211,21 @@ public class FirestorePlugin extends BasePlugin {
                         if (method == null) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Missing Firestore method."
+                                    FirestoreErrorMessages.MISSING_FIRESTORE_METHOD_ERROR_MSG
                             ));
                         }
 
                         if (isBlank(path)) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Document/Collection path cannot be empty"
+                                    FirestoreErrorMessages.EMPTY_DOC_OR_COLLECTION_PATH_ERROR_MSG
                             ));
                         }
 
                         if (path.startsWith("/") || path.endsWith("/")) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Firestore paths should not begin or end with `/` character."
+                                    FirestoreErrorMessages.FIRESTORE_PATH_INVALID_STARTING_CHAR_ERROR_MSG
                             ));
                         }
 
@@ -251,6 +251,7 @@ public class FirestorePlugin extends BasePlugin {
                         } catch (IOException e) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    FirestoreErrorMessages.QUERY_CONVERSION_TO_HASHMAP_FAILED_ERROR_MSG,
                                     e.getMessage()
                             ));
                         }
@@ -262,7 +263,7 @@ public class FirestorePlugin extends BasePlugin {
                             if (method.isBodyNeeded()) {
                                 return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                        "The method " + method + " needs a non-empty body to work."
+                                        String.format(FirestoreErrorMessages.NON_EMPTY_BODY_REQUIRED_FOR_METHOD_ERROR_MSG, method)
                                 ));
                             }
 
@@ -270,9 +271,7 @@ public class FirestorePlugin extends BasePlugin {
                                     && isTimestampAndDeleteFieldValuePathEmpty(formData)) {
                                 return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                        "The method " + method + " needs at least one of the following " +
-                                                "fields to be non-empty: 'Timestamp Value Path', 'Delete Key Value " +
-                                                "Pair Path', 'Body'"
+                                        String.format(FirestoreErrorMessages.NON_EMPTY_FIELD_REQUIRED_FOR_METHOD_ERROR_MSG, method)
                                 ));
                             }
                         }
@@ -299,10 +298,13 @@ public class FirestorePlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
+                        if (! (error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(FirestorePluginError.QUERY_EXECUTION_FAILED, FirestoreErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
+                        }
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(result -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
@@ -343,9 +345,8 @@ public class FirestorePlugin extends BasePlugin {
             if (!Method.UPDATE_DOCUMENT.equals(method)
                     && !isBlank(PluginUtils.getDataValueSafelyFromFormData(formData, DELETE_KEY_PATH, STRING_TYPE))) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith has found an unexpected query form property - 'Delete Key Value Pair Path'. Please " +
-                                "reach out to Appsmith customer support to resolve this."
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        FirestoreErrorMessages.UNEXPECTED_PROPERTY_DELETE_KEY_PATH_ERROR_MSG
                 );
             }
 
@@ -362,13 +363,13 @@ public class FirestorePlugin extends BasePlugin {
                 } catch (IOException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Appsmith failed to parse the query editor form field 'Delete Key Value Pair Path'. " +
-                                    "Please check out Appsmith's documentation to find the correct syntax."
+                            FirestoreErrorMessages.FAILED_TO_PARSE_DELETE_KEY_PATH_ERROR_MSG,
+                            e.getMessage()
                     );
                 }
 
                 /*
-                 * - Update all of the map body keys that need to be deleted.
+                 * - Update all the map body keys that need to be deleted.
                  * - This way of denoting a nested path via a "." (dot) notation can only be directly used for a update
                  *   operation. e.g. {"key1.key2": FieldValue.delete()}
                  * - dot notation is used with FieldValue.delete() because otherwise it is not possible to delete
@@ -386,9 +387,8 @@ public class FirestorePlugin extends BasePlugin {
             if (isGetOrDeleteMethod(method)
                     && !isBlank(PluginUtils.getDataValueSafelyFromFormData(formData, TIMESTAMP_VALUE_PATH, STRING_TYPE))) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith has found an unexpected query form property - 'Timestamp Value Path'. Please reach " +
-                                "out to Appsmith customer support to resolve this."
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        FirestoreErrorMessages.UNEXPECTED_PROPERTY_TIMESTAMP_ERROR_MSG
                 );
             }
 
@@ -406,8 +406,8 @@ public class FirestorePlugin extends BasePlugin {
                 } catch (IOException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Appsmith failed to parse the query editor form field 'Timestamp Value Path'. " +
-                                    "Please check out Appsmith's documentation to find the correct syntax."
+                            FirestoreErrorMessages.FAILED_TO_PARSE_TIMESTAMP_VALUE_PATH_ERROR_MSG,
+                            e.getMessage()
                     );
                 }
 
@@ -514,15 +514,16 @@ public class FirestorePlugin extends BasePlugin {
                                     return Mono.justOrEmpty(DocumentReference.class.getMethod(methodName, Map.class));
                                 default:
                                     return Mono.error(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
-                                            "Invalid document-level method " + method1.toString()
+                                            FirestorePluginError.QUERY_EXECUTION_FAILED,
+                                            String.format(FirestoreErrorMessages.INVALID_DOCUMENT_LEVEL_METHOD_ERROR_MSG, method1)
                                     ));
                             }
 
                         } catch (NoSuchMethodException e) {
                             return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    "Error getting actual method for operation " + method1.toString()
+                                    FirestorePluginError.QUERY_EXECUTION_FAILED,
+                                    String.format(FirestoreErrorMessages.ACTUAL_METHOD_GETTING_ERROR_MSG, method1),
+                                    e.getMessage()
                             ));
 
                         }
@@ -544,7 +545,7 @@ public class FirestorePlugin extends BasePlugin {
                              * - Printing the stack because e.getMessage() returns null for FieldValue errors.
                              */
                             e.printStackTrace();
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(FirestorePluginError.QUERY_EXECUTION_FAILED, FirestoreErrorMessages.METHOD_INVOCATION_FAILED_ERROR_MSG, e.getMessage()));
 
                         }
 
@@ -556,7 +557,7 @@ public class FirestorePlugin extends BasePlugin {
 
                             return Mono.just(resultFuture.get());
                         } catch (InterruptedException | ExecutionException e) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(FirestorePluginError.QUERY_EXECUTION_FAILED, FirestoreErrorMessages.FAILURE_IN_GETTING_RESULT_FROM_FUTURE_ERROR_MSG, e.getMessage()));
                         }
                     })
                     // Build a response object with the result.
@@ -597,8 +598,8 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             return Mono.error(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Unsupported collection-level command: " + method
+                    FirestorePluginError.QUERY_EXECUTION_FAILED,
+                    String.format(FirestoreErrorMessages.UNSUPPORTED_COLLECTION_METHOD_ERROR_MSG, method)
             ));
         }
 
@@ -656,7 +657,7 @@ public class FirestorePlugin extends BasePlugin {
             if (paginationField != null && CollectionUtils.isEmpty(orderings)) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Cannot do pagination without specifying an ordering."
+                        FirestoreErrorMessages.PAGINATION_WITHOUT_SPECIFYING_ORDERING_ERROR_MSG
                 ));
             }
 
@@ -718,7 +719,7 @@ public class FirestorePlugin extends BasePlugin {
 
                         return Mono.just(query1);
                     })
-                    // Apply limit, always provided, since without it we can inadvertently end up processing too much data.
+                    // Apply limit, always provided, since without it, we can inadvertently end up processing too much data.
                     .map(query1 -> {
                         if (PaginationField.PREV.equals(paginationField) && !CollectionUtils.isEmpty(endBefore)) {
                             return query1.limitToLast(limit);
@@ -732,7 +733,7 @@ public class FirestorePlugin extends BasePlugin {
                         try {
                             return Mono.just(resultFuture.get());
                         } catch (InterruptedException | ExecutionException e) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(FirestorePluginError.QUERY_EXECUTION_FAILED, FirestoreErrorMessages.FAILURE_IN_GETTING_RESULT_FROM_FUTURE_ERROR_MSG, e.getMessage()));
                         }
                     })
                     // Build response object with the results from the Future.
@@ -782,7 +783,8 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.just(future.get());
                         } catch (InterruptedException | ExecutionException e) {
                             return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    FirestorePluginError.QUERY_EXECUTION_FAILED,
+                                    FirestoreErrorMessages.FAILURE_IN_GETTING_RESULT_FROM_FUTURE_ERROR_MSG,
                                     e.getMessage()
                             ));
                         }
@@ -852,8 +854,8 @@ public class FirestorePlugin extends BasePlugin {
 
             } else if (isRoot) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to serialize object of type " + objResult.getClass().getName() + "."
+                        FirestorePluginError.QUERY_EXECUTION_FAILED,
+                        String.format(FirestoreErrorMessages.OBJECT_SERIALIZATION_FAILED_ERROR_MSG, objResult.getClass().getName())
                 );
 
             }
@@ -884,8 +886,8 @@ public class FirestorePlugin extends BasePlugin {
                         } catch (IOException e) {
                             throw Exceptions.propagate(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Validation failed for field 'Service Account Credentials'. Please check the " +
-                                            "value provided in the 'Service Account Credentials' field."
+                                    FirestoreErrorMessages.DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG,
+                                    e.getMessage()
                             ));
                         }
 
@@ -920,21 +922,21 @@ public class FirestorePlugin extends BasePlugin {
             Set<String> invalids = new HashSet<>();
 
             if (authentication == null) {
-                invalids.add("Missing ProjectID and ClientJSON in datasource.");
+                invalids.add(FirestoreErrorMessages.DS_MISSING_PROJECT_ID_AND_CLIENTJSON_ERROR_MSG);
 
             } else {
                 if (StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add("Missing ProjectID in datasource.");
+                    invalids.add(FirestoreErrorMessages.DS_MISSING_PROJECT_ID_ERROR_MSG);
                 }
 
                 if (StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add("Missing ClientJSON in datasource.");
+                    invalids.add(FirestoreErrorMessages.DS_MISSING_CLIENTJSON_ERROR_MSG);
                 }
 
             }
 
             if (isBlank(datasourceConfiguration.getUrl())) {
-                invalids.add("Missing Firestore URL.");
+                invalids.add(FirestoreErrorMessages.DS_MISSING_FIRESTORE_URL_ERROR_MSG);
             }
 
             return invalids;
