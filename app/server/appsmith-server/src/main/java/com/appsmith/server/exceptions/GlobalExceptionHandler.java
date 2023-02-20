@@ -100,9 +100,9 @@ public class GlobalExceptionHandler {
 
         // Do special formatting for this error to run the message string into valid jsonified string
         if (AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getAppErrorCode().equals(e.getError().getAppErrorCode())) {
-            response = new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), "{" + e.getMessage() + "}"));
+            response = new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getErrorType(), "{" + e.getMessage() + "}", e.getTitle()));
         } else {
-            response = new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage(), e.getErrorType(), e.getReferenceDoc()));
+            response = new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getErrorType(), e.getMessage(), e.getTitle(), e.getReferenceDoc()));
         }
 
         return getResponseDTOMono(urlPath, response);
@@ -116,8 +116,8 @@ public class GlobalExceptionHandler {
         doLog(e);
 
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response =  new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(e.getCause().getMessage())));
+        ResponseDTO<ErrorDTO> response =  new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(e.getCause().getMessage()), appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -129,8 +129,8 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(), appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -151,8 +151,8 @@ public class GlobalExceptionHandler {
                             errors.put(fieldName, errorMessage);
                         });
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(errors.toString())));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(errors.toString()), appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -172,8 +172,8 @@ public class GlobalExceptionHandler {
         }
 
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(errorMessage)));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(errorMessage), appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -186,7 +186,7 @@ public class GlobalExceptionHandler {
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
         ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                e.getMessage(), e.getErrorType(), null));
+                e.getMessage(), e.getErrorType(), e.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -199,7 +199,7 @@ public class GlobalExceptionHandler {
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
         ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage()));
+                appsmithError.getErrorType(), appsmithError.getMessage(), appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -211,8 +211,8 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(e.getMessage())));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(e.getMessage()), appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -232,8 +232,8 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(), appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
