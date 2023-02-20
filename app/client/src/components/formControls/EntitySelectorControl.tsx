@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useRef } from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
 import { ControlProps, FormConfigType } from "./BaseControl";
 import { allowedControlTypes } from "components/formControls/utils";
+import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 
 const dropDownFieldConfig: Partial<FormConfigType> = {
   label: "",
@@ -33,10 +34,12 @@ const EntitySelectorContainer = styled.div`
 const EntitySelectorWrapper = styled.div<{
   marginRight: string;
   index: number;
+  size: string;
 }>`
   margin-right: ${(props) => props.marginRight};
 
   ${(props) =>
+    props.size === "small" &&
     props.index !== 0 &&
     `
     padding-left: 14px;
@@ -54,6 +57,7 @@ const EntitySelectorWrapper = styled.div<{
   `}
 
   ${(props) =>
+    props.size === "small" &&
     props.index === 1 &&
     `
     :before {
@@ -64,6 +68,8 @@ const EntitySelectorWrapper = styled.div<{
 
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
+  const targetRef = useRef<HTMLDivElement>(null);
+  const size = useResponsiveBreakpoints(targetRef, [{ small: 575 }]);
 
   const visibleSchemas = schema.filter(
     (singleSchema: any) => !singleSchema.hidden,
@@ -72,6 +78,7 @@ function EntitySelectorComponent(props: any) {
     <EntitySelectorContainer
       className={`t--${configProperty}`}
       key={`ES_${configProperty}`}
+      ref={targetRef}
     >
       {visibleSchemas &&
         visibleSchemas.length > 0 &&
@@ -83,6 +90,7 @@ function EntitySelectorComponent(props: any) {
                 index={index}
                 key={`ES_FRAG_${singleSchema.configProperty}`}
                 marginRight={index + 1 === visibleSchemas.length ? "" : "1rem"}
+                size={size}
               >
                 {singleSchema.controlType === "DROP_DOWN" ? (
                   <FormControl
