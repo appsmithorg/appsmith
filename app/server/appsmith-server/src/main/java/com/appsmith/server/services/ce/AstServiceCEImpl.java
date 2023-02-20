@@ -75,7 +75,7 @@ public class AstServiceCEImpl implements AstServiceCE {
         }
         return webClient
                 .post()
-                .uri(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/multiple-script-data")
+                .uri(commonConfig.getRtsBaseUrl() + "/rts-api/v1/ast/multiple-script-data")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(new GetIdentifiersRequestBulk(bindingValues, evalVersion)))
                 .retrieve()
@@ -102,7 +102,7 @@ public class AstServiceCEImpl implements AstServiceCE {
                     EntityRefactorRequest entityRefactorRequest = new EntityRefactorRequest(bindingValue.getValue(), oldName, newName, evalVersion, isJSObject);
                     return webClient
                             .post()
-                            .uri(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/entity-refactor")
+                            .uri(commonConfig.getRtsBaseUrl() + "/rts-api/v1/ast/entity-refactor")
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(BodyInserters.fromValue(entityRefactorRequest))
                             .retrieve()

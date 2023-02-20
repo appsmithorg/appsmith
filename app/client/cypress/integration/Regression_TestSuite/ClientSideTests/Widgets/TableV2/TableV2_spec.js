@@ -68,7 +68,7 @@ describe("Table Widget V2 Functionality", function() {
       expect(tabValue).to.be.equal("Michael Lawson");
     });
     // Sort Username Column
-    cy.contains('[role="columnheader"]', "userName")
+    cy.contains('[role="columnheader"] .draggable-header', "userName")
       .first()
       .click({
         force: true,

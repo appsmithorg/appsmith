@@ -12,6 +12,8 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.plugins.exceptions.SMTPErrorMessages;
+import com.external.plugins.exceptions.SMTPPluginError;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -76,11 +78,11 @@ public class SmtpPlugin extends BasePlugin {
 
                 if (!StringUtils.hasText(toAddress)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Couldn't find a valid recipient address. Please check your action configuration."));
+                            SMTPErrorMessages.RECIPIENT_ADDRESS_NOT_FOUND_ERROR_MSG));
                 }
                 if (!StringUtils.hasText(fromAddress)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Couldn't find a valid sender address. Please check your action configuration."));
+                            SMTPErrorMessages.SENDER_ADDRESS_NOT_FOUND_ERROR_MSG));
                 }
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress, false));
                 message.setFrom(new InternetAddress(fromAddress));
@@ -126,8 +128,8 @@ public class SmtpPlugin extends BasePlugin {
                         Base64.Decoder decoder = Base64.getDecoder();
                         String attachmentStr = String.valueOf(attachment.getData());
                         if (!attachmentStr.contains(BASE64_DELIMITER)) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                                    "Attachment " + attachment.getName() + " contains invalid data. Unable to send email."));
+                            return Mono.error(new AppsmithPluginException(SMTPPluginError.MAIL_SENDING_FAILED,
+                                    String.format(SMTPErrorMessages.INVALID_ATTACHMENT_ERROR_MSG, attachment.getName())));
                         }
                         byte[] bytes = decoder.decode(attachmentStr.split(BASE64_DELIMITER)[1]);
                         DataSource emailDatasource = new ByteArrayDataSource(bytes, attachment.getType());
@@ -151,11 +153,11 @@ public class SmtpPlugin extends BasePlugin {
 
                 log.debug("Sent the email successfully");
             } catch (MessagingException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to send email because of error: " + e.getMessage()));
+                return Mono.error(new AppsmithPluginException(SMTPPluginError.MAIL_SENDING_FAILED,
+                        SMTPErrorMessages.MAIL_SENDING_FAILED_ERROR_MSG, e.getMessage()));
             } catch (IOException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to parse the email body/attachments because it was an invalid object."));
+                return Mono.error(new AppsmithPluginException(SMTPPluginError.MAIL_SENDING_FAILED,
+                        SMTPErrorMessages.UNPARSABLE_EMAIL_BODY_OR_ATTACHMENT_ERROR_MSG, e.getMessage()));
             }
 
             return Mono.just(result);
@@ -214,13 +216,11 @@ public class SmtpPlugin extends BasePlugin {
             log.debug("Going to validate email datasource");
             Set<String> invalids = new HashSet<>();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
+                invalids.add(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
             } else {
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
                 if (!StringUtils.hasText(endpoint.getHost())) {
-                    invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
+                    invalids.add(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
                 }
             }
 
@@ -246,12 +246,12 @@ public class SmtpPlugin extends BasePlugin {
                             }
                             return invalids;
                         } catch (NoSuchProviderException e) {
-                            invalids.add("Unable to create underlying SMTP protocol. Please contact support");
+                            invalids.add(SMTPErrorMessages.DS_NO_SUCH_PROVIDER_ERROR_MSG);
                         } catch (AuthenticationFailedException e) {
-                            invalids.add("Authentication failed with the SMTP server. Please check your username/password settings.");
+                            invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
                         } catch (MessagingException e) {
                             log.debug(e.getMessage());
-                            invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
+                            invalids.add(SMTPErrorMessages.DS_CONNECTION_FAILED_TO_SMTP_SERVER_ERROR_MSG);
                         }
                         return invalids;
                     })

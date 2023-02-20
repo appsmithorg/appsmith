@@ -249,7 +249,7 @@ $(if [[ $use_https == 1 ]]; then echo "
         server_name _;
 "; fi)
 
-        client_max_body_size 100m;
+        client_max_body_size 150m;
         gzip on;
 
         proxy_ssl_server_name on;
@@ -282,7 +282,6 @@ $(if [[ $use_https == 1 ]]; then echo "
             sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE-}';
             sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID-}';
             sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED-}';
-            sub_filter __APPSMITH_DISABLE_TELEMETRY__ '${APPSMITH_DISABLE_TELEMETRY-}';
             sub_filter __APPSMITH_CLOUD_SERVICES_BASE_URL__ '${APPSMITH_CLOUD_SERVICES_BASE_URL-}';
             sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '${APPSMITH_RECAPTCHA_SITE_KEY-}';
             sub_filter __APPSMITH_DISABLE_INTERCOM__ '${APPSMITH_DISABLE_INTERCOM-}';

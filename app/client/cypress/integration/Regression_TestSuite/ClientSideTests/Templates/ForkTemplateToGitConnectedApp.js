@@ -104,7 +104,7 @@ describe("Fork a template to the current app", () => {
       _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
       cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
       cy.get(gitSyncLocators.commitButton).click();
-      cy.wait(10000);
+      _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
   });

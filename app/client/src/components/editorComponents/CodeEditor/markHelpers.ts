@@ -49,13 +49,24 @@ const hasReference = (token: CodeMirror.Token) => {
   return token.type === "variable" || tokenString === "this";
 };
 
+export const PEEKABLE_CLASSNAME = "peekaboo";
+export const PEEKABLE_ATTRIBUTE = "peek-data";
+export const PEEKABLE_LINE = "peek-line";
+export const PEEKABLE_CH_START = "peek-ch-start";
+export const PEEKABLE_CH_END = "peek-ch-end";
+export const PEEK_STYLE_PERSIST_CLASS = "peek-style-persist";
+
 export const entityMarker: MarkHelper = (
   editor: CodeMirror.Editor,
   entityNavigationData,
 ) => {
   editor
     .getAllMarks()
-    .filter((marker) => marker.className === NAVIGATION_CLASSNAME)
+    .filter(
+      (marker) =>
+        marker.className === NAVIGATION_CLASSNAME ||
+        marker.className === PEEKABLE_CLASSNAME,
+    )
     .forEach((marker) => marker.clear());
 
   editor.eachLine((line: CodeMirror.LineHandle) => {
@@ -79,6 +90,25 @@ export const entityMarker: MarkHelper = (
             title: data.name,
           },
         );
+        if (data.peekable) {
+          editor.markText(
+            { ch: token.start, line: lineNo },
+            { ch: token.end, line: lineNo },
+            {
+              className: PEEKABLE_CLASSNAME,
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              attributes: {
+                [PEEKABLE_ATTRIBUTE]: data.name,
+                [PEEKABLE_CH_START]: token.start,
+                [PEEKABLE_CH_END]: token.end,
+                [PEEKABLE_LINE]: lineNo,
+              },
+              atomic: false,
+              title: data.name,
+            },
+          );
+        }
         addMarksForChildren(
           entityNavigationData[tokenString],
           lineNo,
@@ -117,6 +147,25 @@ const addMarksForChildren = (
             // @ts-ignore
             attributes: {
               [NAVIGATE_TO_ATTRIBUTE]: `${childLink.name}`,
+            },
+            atomic: false,
+            title: childLink.name,
+          },
+        );
+      }
+      if (childLink.peekable) {
+        editor.markText(
+          { ch: token.start, line: lineNo },
+          { ch: token.end, line: lineNo },
+          {
+            className: PEEKABLE_CLASSNAME,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            attributes: {
+              [PEEKABLE_ATTRIBUTE]: childLink.name,
+              [PEEKABLE_CH_START]: token.start,
+              [PEEKABLE_CH_END]: token.end,
+              [PEEKABLE_LINE]: lineNo,
             },
             atomic: false,
             title: childLink.name,
