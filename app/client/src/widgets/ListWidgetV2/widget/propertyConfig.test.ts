@@ -21,7 +21,7 @@ describe(".primaryColumnValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: inputValue,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
 
     const output = primaryColumnValidation(inputValue, props, _);
@@ -47,7 +47,11 @@ describe(".primaryColumnValidation", () => {
       isValid: false,
       parsed: [],
       messages: [
-        "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+        {
+          name: "ValidationError",
+          message:
+            "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+        },
       ],
     };
 
@@ -78,7 +82,11 @@ describe(".primaryColumnValidation", () => {
         isValid: false,
         parsed: undefined,
         messages: [
-          "Use currentItem or currentIndex to find a good data identifier. You can also combine two or more data attributes or columns.",
+          {
+            name: "ValidationError",
+            message:
+              "Use currentItem or currentIndex to find a good data identifier. You can also combine two or more data attributes or columns.",
+          },
         ],
       });
     });
@@ -105,7 +113,11 @@ describe(".primaryColumnValidation", () => {
         isValid: false,
         parsed: undefined,
         messages: [
-          "Select an option from the dropdown or toggle JS on to define a data identifier.",
+          {
+            name: "ValidationError",
+            message:
+              "Select an option from the dropdown or toggle JS on to define a data identifier.",
+          },
         ],
       });
     });
@@ -132,7 +144,11 @@ describe(".primaryColumnValidation", () => {
       isValid: false,
       parsed: [],
       messages: [
-        "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+        {
+          name: "ValidationError",
+          message:
+            "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+        },
       ],
     });
   });
@@ -158,7 +174,11 @@ describe(".primaryColumnValidation", () => {
       isValid: false,
       parsed: input,
       messages: [
-        "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+        {
+          name: "ValidationError",
+          message:
+            "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+        },
       ],
     });
   });
@@ -190,7 +210,11 @@ describe(".primaryColumnValidation", () => {
       isValid: false,
       parsed: input,
       messages: [
-        "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+        {
+          name: "ValidationError",
+          message:
+            "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+        },
       ],
     });
   });
