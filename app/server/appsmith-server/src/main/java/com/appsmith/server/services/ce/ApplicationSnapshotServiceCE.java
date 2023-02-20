@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.domains.ApplicationSnapshot;
 import reactor.core.publisher.Mono;
 
 public interface ApplicationSnapshotServiceCE {
@@ -11,4 +12,6 @@ public interface ApplicationSnapshotServiceCE {
      * @return Created snapshot ID
      */
     Mono<String> createApplicationSnapshot(String applicationId, String branchName);
+
+    Mono<ApplicationSnapshot> getWithoutApplicationJsonByApplicationId(String applicationId, String branchName);
 }

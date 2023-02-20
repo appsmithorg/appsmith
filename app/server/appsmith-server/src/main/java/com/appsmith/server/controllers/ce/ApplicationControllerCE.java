@@ -4,6 +4,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -190,6 +191,15 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
         return applicationSnapshotService.createApplicationSnapshot(id, branchName)
                 .map(snapshotId -> new ResponseDTO<>(HttpStatus.OK.value(), snapshotId, null));
+    }
+
+    @GetMapping("/snapshot/{id}")
+    public Mono<ResponseDTO<ApplicationSnapshot>> getSnapshotWithoutApplicationJson(@PathVariable String id,
+                                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to get snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.getWithoutApplicationJsonByApplicationId(id, branchName)
+                .map(applicationSnapshot -> new ResponseDTO<>(HttpStatus.OK.value(), applicationSnapshot, null));
     }
 
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

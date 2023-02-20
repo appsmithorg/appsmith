@@ -1,10 +1,13 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
+import com.appsmith.server.dtos.ApplicationJson;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.test.context.support.WithUserDetails;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -37,7 +40,8 @@ public class ApplicationSnapshotRepositoryTest {
     }
 
     @Test
-    public void findByApplicationId_WhenMatched_ReturnsMatchedDocument() {
+    @WithUserDetails("api_user")
+    public void findWithoutApplicationJson_WhenMatched_ReturnsMatchedDocumentWithoutApplicationJson() {
         String testAppId1 = UUID.randomUUID().toString(),
                 testAppId2 = UUID.randomUUID().toString();
 
@@ -45,15 +49,41 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot1.setApplicationId(testAppId1);
 
         ApplicationSnapshot snapshot2 = new ApplicationSnapshot();
+        snapshot2.setApplicationJson(new ApplicationJson());
         snapshot2.setApplicationId(testAppId2);
 
         Mono<ApplicationSnapshot> snapshotMono = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2))
-                .then(applicationSnapshotRepository.findByApplicationId(testAppId2));
+                .then(applicationSnapshotRepository.findWithoutApplicationJson(testAppId2));
 
         StepVerifier.create(snapshotMono).assertNext(applicationSnapshot -> {
             assertThat(applicationSnapshot.getApplicationId()).isEqualTo(testAppId2);
+            assertThat(applicationSnapshot.getApplicationJson()).isNull();
         }).verifyComplete();
+    }
 
+    @Test
+    @WithUserDetails("api_user")
+    public void findApplicationJson_WhenMatched_ReturnsMatchedDocumentWithApplicationJson() {
+        String testAppId1 = UUID.randomUUID().toString(),
+                testAppId2 = UUID.randomUUID().toString();
 
+        ApplicationSnapshot snapshot1 = new ApplicationSnapshot();
+        snapshot1.setApplicationId(testAppId1);
+
+        ApplicationJson applicationJson = new ApplicationJson();
+        applicationJson.setExportedApplication(new Application());
+        applicationJson.getExportedApplication().setName("findApplicationJson_test");
+
+        ApplicationSnapshot snapshot2 = new ApplicationSnapshot();
+        snapshot2.setApplicationJson(applicationJson);
+        snapshot2.setApplicationId(testAppId2);
+
+        Mono<ApplicationJson> applicationJsonMono = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2))
+                .then(applicationSnapshotRepository.findApplicationJson(testAppId2));
+
+        StepVerifier.create(applicationJsonMono).assertNext(appJson -> {
+            Application application = appJson.getExportedApplication();
+            assertThat(application.getName()).isEqualTo("findApplicationJson_test");
+        }).verifyComplete();
     }
 }

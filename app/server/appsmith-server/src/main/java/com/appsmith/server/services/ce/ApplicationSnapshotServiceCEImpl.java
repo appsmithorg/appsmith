@@ -1,15 +1,17 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -36,14 +38,22 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     }
 
     private Mono<ApplicationSnapshot> createOrUpdateSnapshot(String applicationId, ApplicationJson applicationJson) {
-        return applicationSnapshotRepository.findByApplicationId(applicationId)
+        return applicationSnapshotRepository.findWithoutApplicationJson(applicationId)
                 .defaultIfEmpty(new ApplicationSnapshot())
                 .flatMap(applicationSnapshot -> {
                     applicationSnapshot.setApplicationJson(applicationJson);
-                    if(!StringUtils.hasLength(applicationSnapshot.getId())) { // it's a new object
-                        applicationSnapshot.setApplicationId(applicationId);
-                    }
+                    applicationSnapshot.setApplicationId(applicationId);
                     return applicationSnapshotRepository.save(applicationSnapshot);
                 });
+    }
+
+    @Override
+    public Mono<ApplicationSnapshot> getWithoutApplicationJsonByApplicationId(String applicationId, String branchName) {
+        // get application first to check the permission
+        return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
+                )
+                .flatMap(applicationSnapshotRepository::findWithoutApplicationJson);
     }
 }
