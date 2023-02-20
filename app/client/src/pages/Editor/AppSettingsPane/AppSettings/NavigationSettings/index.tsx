@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
@@ -40,7 +40,9 @@ function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
   const dispatch = useDispatch();
-  const navigationSetting = application?.navigationSetting;
+  const [navigationSetting, setNavigationSetting] = useState(
+    application?.navigationSetting,
+  );
 
   const updateSetting = useCallback(
     debounce(
@@ -102,6 +104,7 @@ function NavigationSettings() {
             payload.navigationSetting = newSettings as NavigationSetting;
 
             dispatch(updateApplication(applicationId, payload));
+            setNavigationSetting(newSettings);
           }
         }
       },
