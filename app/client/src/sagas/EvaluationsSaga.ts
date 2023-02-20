@@ -290,7 +290,9 @@ export function* evaluateAndExecuteDynamicTrigger(
       errors[0].errorMessage !==
       "UncaughtPromiseRejection: User cancelled action execution"
     ) {
-      const errorMessage = errors[0].errorMessage || errors[0].message;
+      const errorMessage =
+        `${errors[0].errorMessage.name}: ${errors[0].errorMessage.message}` ||
+        errors[0].message;
       throw new UncaughtPromiseError(errorMessage);
     }
   }

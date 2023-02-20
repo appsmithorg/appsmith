@@ -4,7 +4,9 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
+const dataSources = ObjectsRegistry.DataSources;
 let datasourceName;
 
 describe("Binding the multiple widgets and validating default data", function() {
@@ -29,13 +31,11 @@ describe("Binding the multiple widgets and validating default data", function() 
   it("2. Create and runs query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from users limit 10");
+    dataSources.EnterQuery("select * from users limit 10");
 
     cy.EvaluateCurrentValue("select * from users limit 10");
-    cy.runQuery();
+
+    dataSources.RunQuery();
   });
 
   it("3. Button widget test with on action query run", function() {

@@ -393,7 +393,7 @@ export class TableV2 {
 
   public EditColumn(colId: string, shouldReturnToMainPane = true) {
     if (shouldReturnToMainPane) {
-      this.propPane.BackFromPropertyPanel();
+      this.propPane.NavigateBackToPropertyPane();
     }
     cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click(
       {
@@ -405,7 +405,7 @@ export class TableV2 {
   }
 
   public DeleteColumn(colId: string) {
-    this.propPane.BackFromPropertyPanel();
+    this.propPane.NavigateBackToPropertyPane();
     cy.get(
       "[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn",
     ).click({

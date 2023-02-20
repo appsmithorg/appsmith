@@ -377,16 +377,4 @@ export class PropertyPane {
     if (property)
       this.agHelper.AssertElementExist(this._propertyControl(property));
   }
-
-  public BackFromPropertyPanel() {
-    cy.wait(500);
-    cy.get("body").then(($body) => {
-      const count = $body.find(this._goBackToProperty)?.length || 0;
-      if (count > 0) {
-        cy.get(this._goBackToProperty).click({ force: true });
-        cy.wait(500);
-        this.BackFromPropertyPanel();
-      }
-    });
-  }
 }
