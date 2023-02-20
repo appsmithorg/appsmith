@@ -87,7 +87,8 @@ export const LicenseForm = (props: LicenseFormProps) => {
       {label && <label className="license-input-label">{label}</label>}
       <InputWrapper>
         <StyledInput
-          className={`license-input`}
+          className={`license-input `}
+          data-testid="t--license-input"
           placeholder={placeholder ?? createMessage(ADD_KEY)}
           {...register("licenseKey")}
           onChange={handleInputChange}
@@ -99,6 +100,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
         )}
       </InputWrapper>
       <StyledButton
+        data-testid="t--activate-instance-btn"
         disabled={isFieldEmpty}
         fill
         isLoading={licenseValidating}

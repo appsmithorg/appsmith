@@ -55,7 +55,6 @@ function AppRouter(props: {
   const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
-  const isUsageAndBillingEnabled = props.featureFlags.USAGE_AND_BILLING;
 
   useEffect(() => {
     getCurrentUser();
@@ -93,13 +92,9 @@ function AppRouter(props: {
           </>
         ) : (
           <>
-            {isUsageAndBillingEnabled ? (
-              props.isLicenseValid && <AppHeader />
-            ) : (
-              <AppHeader />
-            )}
+            {props.isLicenseValid && <AppHeader />}
             <Switch>
-              {isUsageAndBillingEnabled && !props.isLicenseValid && (
+              {!props.isLicenseValid && (
                 <SentryRoute
                   component={LicenseCheckPage}
                   path={LICENSE_CHECK_PATH}

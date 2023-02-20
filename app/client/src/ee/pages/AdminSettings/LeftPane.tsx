@@ -10,7 +10,7 @@ import {
   Wrapper,
 } from "ce/pages/AdminSettings/LeftPane";
 import { AclFactory, OthersFactory } from "./config";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { Category } from "./config/types";
 import {
   getLicenseOrigin,
@@ -45,8 +45,6 @@ export default function LeftPane() {
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
-  const isUsageandBillingEnabled = useSelector(selectFeatureFlags)
-    ?.USAGE_AND_BILLING;
   const isEnterpriseLicense =
     useSelector(getLicenseOrigin) === LICENSE_ORIGIN.ENTERPRISE;
   const tenantPermissions = useSelector(getTenantPermissions);
@@ -68,7 +66,7 @@ export default function LeftPane() {
     ?.map((category) => {
       if (
         category.title === createMessage(ADMIN_BILLING_SETTINGS_TITLE) &&
-        (!isUsageandBillingEnabled || isEnterpriseLicense)
+        isEnterpriseLicense
       ) {
         return null;
       }

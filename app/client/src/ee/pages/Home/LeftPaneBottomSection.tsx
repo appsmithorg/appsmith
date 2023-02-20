@@ -27,7 +27,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getDefaultAdminSettingsPath,
   showAdminSettings,
@@ -66,12 +66,10 @@ function LeftPaneBottomSection() {
   const tenantPermissions = useSelector(getTenantPermissions);
   const isTrial = useSelector(isTrialLicense);
   const isAdmin = useSelector(isAdminUser);
-  const isUsageAndBillingEnabled = useSelector(selectFeatureFlags)
-    ?.USAGE_AND_BILLING;
 
   return (
     <StyledWrapper>
-      {isUsageAndBillingEnabled && isTrial && isAdmin && (
+      {isTrial && isAdmin && (
         <MenuItem
           className="business-plan-menu-option"
           icon="upload-cloud"

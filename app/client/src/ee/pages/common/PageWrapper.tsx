@@ -37,7 +37,6 @@ import {
 } from "@appsmith/constants/messages";
 import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
 import capitalize from "lodash/capitalize";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import { forceLicenseCheck } from "@appsmith/actions/tenantActions";
 
 const StyledBanner = styled(BannerMessage)`
@@ -120,7 +119,6 @@ export function PageWrapper(props: PageWrapperProps) {
   const isCheckingLicense = useSelector(isLicenseValidating);
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isAdmin = useSelector(isAdminUser);
-  const features = useSelector(selectFeatureFlags);
   const dispatch = useDispatch();
   const getBannerMessage: any = () => {
     const lessThanThreeDays =
@@ -213,12 +211,9 @@ export function PageWrapper(props: PageWrapperProps) {
 
   return (
     <Wrapper isFixed={isFixed}>
-      {features.USAGE_AND_BILLING &&
-        showBanner &&
-        isHomePage &&
-        getBannerMessage && (
-          <StyledBanner {...getBannerMessage()} className="wrapper-container" />
-        )}
+      {showBanner && isHomePage && getBannerMessage && (
+        <StyledBanner {...getBannerMessage()} className="wrapper-container" />
+      )}
       <Helmet>
         <title>{`${
           props.displayName ? `${props.displayName} | ` : ""

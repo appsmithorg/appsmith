@@ -162,3 +162,6 @@ export const TRIAL = () => `Trial`;
 export const PORTAL = () => `Portal`;
 export const LICENSE_KEY = () => `License Key`;
 export const ALREADY_UPGRADED = () => `Already upgraded?`;
+
+// Welcome form EE
+export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";

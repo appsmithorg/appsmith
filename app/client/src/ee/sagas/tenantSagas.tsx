@@ -11,7 +11,6 @@ import {
   delay,
   fork,
   put,
-  select,
   take,
   takeLatest,
 } from "redux-saga/effects";
@@ -33,7 +32,6 @@ import {
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import { matchPath } from "react-router";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { Toaster, Variant } from "design-system-old";
@@ -208,7 +206,6 @@ export function cacheTenentConfigSaga(action: ReduxAction<any>) {
 }
 
 export function* initLicenseStatusCheckSaga(): unknown {
-  const features = yield select(selectFeatureFlags);
   const url = new URL(window.location.href);
 
   const skipLicenseCheck =
@@ -216,7 +213,7 @@ export function* initLicenseStatusCheckSaga(): unknown {
     url.pathname.includes(SETUP) ||
     url.pathname.includes(PAGE_NOT_FOUND_URL);
 
-  if (!skipLicenseCheck && features?.USAGE_AND_BILLING) {
+  if (!skipLicenseCheck) {
     const task = yield fork(startLicenseStatusCheckSaga);
     yield take(ReduxActionTypes.STOP_LICENSE_STATUS_CHECK);
     yield cancel(task);

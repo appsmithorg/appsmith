@@ -18,12 +18,11 @@ import history from "utils/history";
 export const redirectUserAfterSignup = (
   redirectUrl: string,
   shouldEnableFirstTimeUserOnboarding: string | null,
-  isUsageAndBillingEnabled = false,
   validLicense?: boolean,
   dispatch?: any,
 ): any => {
   if (redirectUrl) {
-    if (isUsageAndBillingEnabled && !validLicense) {
+    if (!validLicense) {
       history.replace(
         `${LICENSE_CHECK_PATH}?redirectUrl=${redirectUrl}&enableFirstTimeUserExperience=true`,
       );

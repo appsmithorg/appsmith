@@ -5,7 +5,6 @@ import {
   isValidLicense,
   isTenantLoading,
 } from "@appsmith/selectors/tenantSelectors";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import {
   USER_AUTH_URL,
   USERS_URL,
@@ -41,22 +40,15 @@ export const requiresLicenseCheck = (Component: React.ComponentType) => {
     const location = useLocation();
     const isLicenseValid = useSelector(isValidLicense);
     const isLoading = useSelector(isTenantLoading);
-    const features = useSelector(selectFeatureFlags);
-    const isBillingEnabled = features?.USAGE_AND_BILLING;
 
     const shouldRedirect =
-      isBillingEnabled &&
       !isLoading &&
       !isLicenseValid &&
       !NO_LICENSE_WHITE_LIST.includes(location.pathname);
 
     if (shouldRedirect) {
       return <Redirect to={LICENSE_CHECK_PATH} />;
-    } else if (
-      isBillingEnabled &&
-      isLicenseValid &&
-      location.pathname === LICENSE_CHECK_PATH
-    ) {
+    } else if (isLicenseValid && location.pathname === LICENSE_CHECK_PATH) {
       return <Redirect to={APPLICATIONS_URL} />;
     } else {
       return <Component {...props} />;
