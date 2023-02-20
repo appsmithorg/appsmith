@@ -76,7 +76,7 @@ const TopHeader = (props: TopHeaderProps) => {
           <MobileNavToggle isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} />
 
           <ApplicationName
-            appName={currentApplicationDetails?.name || "Application Name"}
+            appName={currentApplicationDetails?.name}
             navColorStyle={navColorStyle}
             primaryColor={primaryColor}
           />
