@@ -15,6 +15,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MssqlPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -614,7 +615,7 @@ public class MssqlPluginTest {
                     );
 
                     /*
-                     * - Check if all of the duplicate column names are reported.
+                     * - Check if all the duplicate column names are reported.
                      */
                     Set<String> expectedColumnNames = Stream.of("id", "password")
                             .collect(Collectors.toCollection(HashSet::new));
@@ -703,5 +704,15 @@ public class MssqlPluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfMssqlPluginErrorCode() {
+        assert (Arrays.stream(MssqlPluginError.values()).map(MssqlPluginError::getAppErrorCode).distinct().count() == MssqlPluginError.values().length);
+
+        assert (Arrays.stream(MssqlPluginError.values()).map(MssqlPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-MSS"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }

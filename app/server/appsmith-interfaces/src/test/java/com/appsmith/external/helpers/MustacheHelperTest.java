@@ -670,4 +670,15 @@ public class MustacheHelperTest {
         assertThat(rendered).isEqualTo("leading value1 and then value2 tailing.");
     }
 
+    @Test
+    public void whenBindingFoundWithoutValue_doNotReplaceWithNull() {
+        final String rendered = render(
+                "HL7 Result: CODE 5 - {{severity}} - {{institution}} {{accessionNumber}}",
+                Map.of(
+                        "severity", "CRITICAL VALUE"
+                )
+        );
+        assertThat(rendered).isEqualTo("HL7 Result: CODE 5 - CRITICAL VALUE - {{institution}} {{accessionNumber}}");
+    }
+
 }
