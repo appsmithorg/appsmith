@@ -243,6 +243,7 @@ describe("generateDataTreeWidget", () => {
             key: "value",
           },
         ],
+        isMetaPropDirty: true,
         logBlackList: {
           isValid: true,
           value: true,

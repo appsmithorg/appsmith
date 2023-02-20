@@ -65,6 +65,8 @@ export interface TableWidgetProps
   enableClientSideSearch?: boolean;
   hiddenColumns?: string[];
   columnOrder?: string[];
+  frozenColumnIndices: Record<string, number>;
+  canFreezeColumn?: boolean;
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: {
     [key: string]: { type: string; format: string; inputFormat?: string };
@@ -113,6 +115,8 @@ export const PRIMARY_COLUMN_KEY_VALUE = "__primaryKey__";
 export const DEFAULT_COLUMN_WIDTH = 150;
 
 export const COLUMN_MIN_WIDTH = 60;
+
+export const TABLE_COLUMN_ORDER_KEY = "tableWidgetColumnOrder";
 
 export enum ColumnTypes {
   TEXT = "text",

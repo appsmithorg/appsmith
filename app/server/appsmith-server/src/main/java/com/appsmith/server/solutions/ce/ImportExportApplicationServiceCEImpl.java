@@ -575,6 +575,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            log.error("Invalid content type, {}", contentType);
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
         }
 
