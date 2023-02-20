@@ -29,7 +29,12 @@ function defaultOptionValidation(
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: ["This value does not evaluate to type: string or number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string or number",
+        },
+      ],
     };
   }
 
@@ -38,7 +43,12 @@ function defaultOptionValidation(
     return {
       isValid: false,
       parsed: value,
-      messages: ["This value does not evaluate to type: string or number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string or number",
+        },
+      ],
     };
   }
 

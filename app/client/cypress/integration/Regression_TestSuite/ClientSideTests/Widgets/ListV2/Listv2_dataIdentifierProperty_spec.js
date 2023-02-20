@@ -149,7 +149,9 @@ describe("List v2 - Data Identifier property", () => {
     cy.get(commonlocators.debugger)
       .should("be.visible")
       .click({ force: true });
-    cy.get(".debugger-list").contains("The value at primaryKeys is invalid");
+    cy.get(".debugger-list").contains(
+      "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+    );
   });
 
   it("8. pagination should work for non unique data identifier", () => {
