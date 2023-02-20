@@ -30,6 +30,8 @@ import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUti
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { GridDefaults } from "constants/WidgetConstants";
 import { getCanvasWidth } from "utils/autoLayout/highlightUtils";
+import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import { diff } from "deep-diff";
 
 type LayoutUpdatePayload = {
   parentId: string;
@@ -239,7 +241,14 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   const isMobile: boolean = yield select(getIsMobile);
 
   let widgets = allWidgets;
+  const widgets1 = { ...widgets };
   const parentIds = new Set<string>();
+  // Initialise a list of changes so far.
+  // This contains a map of widgetIds with their new topRow and bottomRow
+  const changesSoFar: Record<
+    string,
+    { bottomRow?: number; rightColumn?: number }
+  > = {};
   for (const widgetId in autoLayoutWidgetDimensionUpdateBatch) {
     const { height, width } = autoLayoutWidgetDimensionUpdateBatch[widgetId];
     const widget = allWidgets[widgetId];
@@ -254,12 +263,28 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       mainCanvasWidth,
       isMobile,
     );
+
     const columnSpace = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
+    const newBottomRow = widget.topRow + height / widget.parentRowSpace;
+    const newRightColumn = widget.leftColumn + width / columnSpace;
+
+    if (
+      widget.bottomRow !== newBottomRow ||
+      widget.rightColumn !== newRightColumn
+    ) {
+      changesSoFar[widgetId] = {
+        bottomRow: newBottomRow,
+        rightColumn: newRightColumn,
+      };
+    }
+
     console.log(
       "#### columnSpace",
       widget.widgetName,
+      width,
       widget.parentColumnSpace,
       columnSpace,
+      canvasWidth,
     );
 
     widgets = {
@@ -273,6 +298,10 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   }
 
   for (const parentId of parentIds) {
+    console.log(
+      "#### calling updateWidgetPositions for ",
+      widgets[parentId].widgetName,
+    );
     widgets = updateWidgetPositions(
       widgets,
       parentId,
@@ -280,6 +309,37 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       mainCanvasWidth,
     );
   }
+
+  const widgetsToUpdate: any = [];
+  for (const changedWidgetId in changesSoFar) {
+    widgetsToUpdate[changedWidgetId] = [
+      {
+        propertyPath: "topRow",
+        propertyValue: widgets[changedWidgetId].topRow,
+      },
+      {
+        propertyPath: "bottomRow",
+        propertyValue: changesSoFar[changedWidgetId].bottomRow,
+      },
+      {
+        propertyPath: "leftColumn",
+        propertyValue: widgets[changedWidgetId].leftColumn,
+      },
+      {
+        propertyPath: "rightColumn",
+        propertyValue: changesSoFar[changedWidgetId].rightColumn,
+      },
+    ];
+  }
+
+  console.log("#### difff", diff(widgets, widgets1));
+
+  // Push all updates to the CanvasWidgetsReducer.
+  // Note that we're not calling `UPDATE_LAYOUT`
+  // as we don't need to trigger an eval
+  // yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+
+  // Save the layout
   yield put(updateAndSaveLayout(widgets));
 
   // clear the batch after processing
