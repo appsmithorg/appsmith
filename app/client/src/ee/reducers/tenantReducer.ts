@@ -23,7 +23,6 @@ export interface License {
   status: string;
   expiry: number;
   showBEBanner: boolean;
-  closedBannerAlready: boolean;
   invalidLicenseKeyError: boolean;
   validatingLicense: boolean;
   origin?: string;
@@ -31,6 +30,9 @@ export interface License {
 }
 
 const INITIAL_BRAND_COLOR = "#000";
+
+const showLicenseBanner = localStorage.getItem("showLicenseBanner");
+const parsed = showLicenseBanner !== null && JSON.parse(showLicenseBanner);
 
 export const initialState: TenantReduxState<any> = {
   ...CE_InitialState,
@@ -41,6 +43,7 @@ export const initialState: TenantReduxState<any> = {
     },
     ...cachedTenantConfigParsed,
     license: {
+      showBEBanner: parsed,
       validatingLicense: false,
     },
   },
@@ -58,11 +61,8 @@ export const handlers = {
       ...state.tenantConfiguration,
       ...action.payload.tenantConfiguration,
       license: {
+        showBEBanner: parsed,
         ...action.payload.tenantConfiguration?.license,
-        showBEBanner:
-          action.payload.tenantConfiguration?.license?.type === "TRIAL",
-        closedBannerAlready:
-          state.tenantConfiguration.license?.closedBannerAlready ?? false,
       },
     },
     isLoading: false,
@@ -88,12 +88,6 @@ export const handlers = {
       ...state.tenantConfiguration,
       license: {
         ...action.payload.tenantConfiguration?.license,
-        showBEBanner:
-          action.payload.tenantConfiguration?.license.type === "TRIAL"
-            ? true
-            : false,
-        closedBannerAlready:
-          state.tenantConfiguration.license?.closedBannerAlready ?? false,
         invalidLicenseKeyError: false,
         validatingLicense: false,
       },
@@ -131,7 +125,6 @@ export const handlers = {
       license: {
         ...state.tenantConfiguration.license,
         showBEBanner: action.payload,
-        closedBannerAlready: true,
       },
     },
   }),

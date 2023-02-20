@@ -70,10 +70,8 @@ export const isTrialLicense = (state: AppState) => {
 
 export const isBEBannerVisible = (state: AppState) => {
   const featureFlags = selectFeatureFlags(state);
-  return featureFlags.USAGE_AND_BILLING
-    ? state.tenant?.tenantConfiguration?.license?.showBEBanner &&
-        !state.tenant?.tenantConfiguration?.license?.closedBannerAlready
-    : false;
+  const value = state.tenant?.tenantConfiguration?.license?.showBEBanner;
+  return featureFlags.USAGE_AND_BILLING && value;
 };
 
 export const shouldShowLicenseBanner = (state: AppState) => {

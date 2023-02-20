@@ -41,7 +41,7 @@ import {
   createMessage,
   LICENSE_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
-import { showLicenseModal } from "@appsmith/actions/tenantActions";
+import { setBEBanner, showLicenseModal } from "@appsmith/actions/tenantActions";
 
 export function* fetchCurrentTenantConfigSaga(): any {
   try {
@@ -133,9 +133,16 @@ export function* validateLicenseSaga(
       action?.payload.key,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+    const license = response?.data?.tenantConfiguration?.license;
     if (isValidResponse) {
-      if (response?.data?.tenantConfiguration?.license?.active) {
-        shouldRedirectOnUpdate && window.location.replace(redirectUrl);
+      if (license?.active) {
+        if (shouldRedirectOnUpdate) {
+          if (license?.type === "TRIAL") {
+            localStorage.setItem("showLicenseBanner", JSON.stringify(true));
+            yield put(setBEBanner(true));
+          }
+          window.location.assign(redirectUrl);
+        }
         if (shouldEnableFirstTimeUserOnboarding) {
           const urlObject = new URL(redirectUrl);
           const match = matchPath<{

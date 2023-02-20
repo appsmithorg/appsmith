@@ -29,6 +29,7 @@ export function BEBanner() {
   const isAdmin = useSelector(isAdminUser);
 
   const handleClose = () => {
+    localStorage.setItem("showLicenseBanner", JSON.stringify(false));
     dispatch(setBEBanner(false));
   };
 
