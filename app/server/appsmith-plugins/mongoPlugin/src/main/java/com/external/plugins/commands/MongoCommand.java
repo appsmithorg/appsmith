@@ -1,10 +1,11 @@
 package com.external.plugins.commands;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.external.plugins.exceptions.MongoPluginError;
+import com.external.plugins.exceptions.MongoPluginErrorMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,17 +54,14 @@ public abstract class MongoCommand {
     }
 
     public Document parseCommand() {
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo " +
-                "commands must implement parseCommand");
+        throw new AppsmithPluginException(MongoPluginError.UNSUPPORTED_OPERATION, MongoPluginErrorMessages.UNSUPPORTED_OPERATION_PARSE_COMMAND_ERROR_MSG);
     }
 
     public List<DatasourceStructure.Template> generateTemplate(Map<String, Object> templateConfiguration) {
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo " +
-                "commands must implement generateTemplate");
+        throw new AppsmithPluginException(MongoPluginError.UNSUPPORTED_OPERATION, MongoPluginErrorMessages.UNSUPPORTED_OPERATION_GENERATE_TEMPLATE_ERROR_MSG);
     }
 
     public String getRawQuery() {
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo " +
-                "commands must implement getRawQuery");
+        throw new AppsmithPluginException(MongoPluginError.UNSUPPORTED_OPERATION, MongoPluginErrorMessages.UNSUPPORTED_OPERATION_GET_RAW_QUERY_ERROR_MSG);
     }
 }
