@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 public class TenantConfigurationCE {
 
-    @JsonProperty("APPSMITH_GOOGLE_MAPS_API_KEY")
     private String googleMapsKey;
 
     public void copyNonSensitiveValues(TenantConfiguration source) {

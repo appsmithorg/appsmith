@@ -74,6 +74,7 @@ import java.util.stream.Stream;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_GOOGLE_MAPS_API_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_ENABLED;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
@@ -336,6 +337,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
+
+        // We don't use the below reflection method for this field because we want the client to see the JSON property
+        // as `googleMapsApiKey` and not `APPSMITH_GOOGLE_MAPS_API_KEY`. Besides, once the client moves to using
+        // tenant-update API instead of the env-update API, we can remove this.
+        tenantConfiguration.setGoogleMapsKey(changes.remove(APPSMITH_GOOGLE_MAPS_API_KEY.name()));
+
         // Write the changes to the tenant collection in configuration field
         return Flux.fromIterable(changes.entrySet())
                 .map(map -> {
@@ -642,7 +649,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
                     }
 
-                    return Mono.justOrEmpty(envKeyValueMap);
+                    // Remove the ones that have been migrated to tenant configs. This is temporary. We want to move to
+                    // saving most configs in tenant, and then revisit this.
+                    envKeyValueMap.remove(APPSMITH_GOOGLE_MAPS_API_KEY.name());
+
+                    return Mono.just(envKeyValueMap);
                 });
     }
 
