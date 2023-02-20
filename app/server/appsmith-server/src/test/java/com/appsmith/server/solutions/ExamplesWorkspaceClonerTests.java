@@ -873,9 +873,7 @@ public class ExamplesWorkspaceClonerTests {
                             ),
                             null,
                             null,
-                            false,
-                            "mode",
-                            "scope_for_limiting_gsheets"
+                            false
                     ));
 
                     final Datasource ds3 = new Datasource();

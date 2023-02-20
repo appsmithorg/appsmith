@@ -102,8 +102,6 @@ import {
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
-import FeatureFlags from "entities/FeatureFlags";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -328,21 +326,8 @@ function* updateDatasourceSaga(
 ) {
   try {
     const queryParams = getQueryParams();
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    let datasourcePayload = _.omit(actionPayload.payload, "name");
+    const datasourcePayload = _.omit(actionPayload.payload, "name");
     datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
-
-    // TODO: remove this piece of code, when feature flag is removed
-    if (!featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS) {
-      datasourcePayload = _.omit(
-        datasourcePayload,
-        "datasourceConfiguration.authentication.mode",
-      );
-      datasourcePayload = _.omit(
-        datasourcePayload,
-        "datasourceConfiguration.authentication.scopeStringLimitingSheets",
-      );
-    }
 
     const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
@@ -691,7 +676,6 @@ function* createDatasourceFromFormSaga(
 ) {
   try {
     const workspaceId: string = yield select(getCurrentWorkspaceId);
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     const actionRouteInfo: Partial<{
       apiId: string;
       datasourceId: string;
@@ -712,18 +696,11 @@ function* createDatasourceFromFormSaga(
       formConfig,
     );
 
-    let payload = _.omit(merge(initialValues, actionPayload.payload), [
+    const payload = _.omit(merge(initialValues, actionPayload.payload), [
       "id",
       "new",
       "type",
     ]);
-
-    // TODO: remove this piece of code, when feature flag is removed
-    if (!featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS) {
-      payload = _.omit(payload, [
-        "datasourceConfiguration.authentication.mode",
-      ]);
-    }
 
     payload.isConfigured = true;
 

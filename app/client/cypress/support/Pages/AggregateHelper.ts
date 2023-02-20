@@ -1062,27 +1062,6 @@ export class AggregateHelper {
     }
   }
 
-  public CheckRadioButtonWithValue(
-    selector: ElementType,
-    value: string,
-    index = 0,
-  ) {
-    this.GetElement(selector)
-      .eq(index)
-      .check(value);
-  }
-
-  public VerifyIfRadioOptionChecked(
-    selector: ElementType,
-    value: string,
-    index = 0,
-  ) {
-    this.GetElement(selector)
-      .eq(index)
-      .should("be.checked")
-      .and("have.value", value);
-  }
-
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath

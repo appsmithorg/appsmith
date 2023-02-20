@@ -43,9 +43,6 @@ import EntitySelectorControl, {
   EntitySelectorControlProps,
 } from "components/formControls/EntitySelectorControl";
 import formControlTypes from "./formControlTypes";
-import RadioControl, {
-  RadioControlProps,
-} from "components/formControls/RadioControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -167,11 +164,6 @@ class FormControlRegistry {
             {...controlProps}
           />
         );
-      },
-    });
-    FormControlFactory.registerControlBuilder(formControlTypes.RADIO, {
-      buildPropertyControl(controlProps: RadioControlProps): JSX.Element {
-        return <RadioControl {...controlProps} />;
       },
     });
   }

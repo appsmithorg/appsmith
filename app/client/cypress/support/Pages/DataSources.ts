@@ -112,8 +112,6 @@ export class DataSources {
     "//input[@id='global-search'][@value='" + inputText + "']";
   _gsScopeDropdown =
     "[data-cy='datasourceConfiguration.authentication.scopeString']";
-  _gsScopeDropdownSpecificSheets =
-    "[data-cy='datasourceConfiguration.authentication.scopeStringLimitingSheets']";
   _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
@@ -137,7 +135,6 @@ export class DataSources {
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _deleteDatasourceButton = ".t--delete-datasource";
-  public _gsRadioButton = ".t--form-control-RADIO [type='radio']";
 
   public AssertViewMode() {
     this.agHelper.AssertElementExist(this._editButton);
