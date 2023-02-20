@@ -11,7 +11,6 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {
     return {
       evalTree: {},
-      resolvedFunctions: {},
     };
   },
 }));

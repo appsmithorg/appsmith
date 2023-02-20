@@ -32,7 +32,6 @@ describe("Tests localStorage implementation in worker", () => {
   self["$isDataField"] = false;
   const evalContext = createEvaluationContext({
     dataTree,
-    resolvedFunctions: {},
     isTriggerBased: true,
     context: {},
   });

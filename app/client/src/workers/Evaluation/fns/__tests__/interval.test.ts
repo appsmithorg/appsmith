@@ -29,7 +29,6 @@ const dataTree: DataTree = {
 };
 const evalContext = createEvaluationContext({
   dataTree,
-  resolvedFunctions: {},
   isTriggerBased: true,
   context: {},
 });
@@ -38,7 +37,6 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {
     return {
       evalTree: evalContext,
-      resolvedFunctions: {},
     };
   },
 }));

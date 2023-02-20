@@ -35,7 +35,6 @@ describe("Mutation", () => {
     const evalContext = createEvaluationContext({
       dataTree,
       isTriggerBased: true,
-      resolvedFunctions: {},
       skipEntityFunctions: true,
     });
 

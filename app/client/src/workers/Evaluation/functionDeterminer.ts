@@ -7,7 +7,7 @@ import userLogs from "./fns/overrides/console";
 class FunctionDeterminer {
   private evalContext: EvalContext = {};
 
-  setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
+  setupEval(dataTree: DataTree) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
       $isDataField: true,
@@ -22,7 +22,7 @@ class FunctionDeterminer {
       isTriggerBased: true,
     });
 
-    assignJSFunctionsToContext(evalContext, resolvedFunctions, true);
+    assignJSFunctionsToContext(evalContext, true);
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith

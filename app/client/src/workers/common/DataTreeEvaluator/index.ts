@@ -111,9 +111,6 @@ export type EvalProps = {
   [entityName: string]: DataTreeEvaluationProps;
 };
 
-type CurrentJSCollectionState = Record<string, any>;
-type ResolvedFunctions = Record<string, any>;
-
 export default class DataTreeEvaluator {
   /**
    * dependencyMap: Maintains map of <PATH, list of paths that re-evaluates on the evaluation of the PATH>
@@ -123,8 +120,7 @@ export default class DataTreeEvaluator {
   inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
-  resolvedFunctions: ResolvedFunctions = {};
-  currentJSCollectionState: CurrentJSCollectionState = {};
+
   /**
    * This contains raw evaluated value without any validation or parsing.
    * This is used for revalidation as we do not store the raw validated value.
@@ -303,7 +299,6 @@ export default class DataTreeEvaluator {
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
       this.oldUnEvalTree,
-      this.resolvedFunctions,
       this.sortedDependencies,
     );
     const evaluationEndTime = performance.now();
@@ -338,8 +333,9 @@ export default class DataTreeEvaluator {
 
   updateLocalUnEvalTree(unevalTree: DataTree) {
     //add functions and variables to unevalTree
-    Object.keys(this.currentJSCollectionState).forEach((update) => {
-      const updates = this.currentJSCollectionState[update];
+    const unEvalJSCollection = jsObjectCollection.getUnEvalState();
+    Object.keys(unEvalJSCollection).forEach((update) => {
+      const updates = unEvalJSCollection[update];
       if (!!unevalTree[update]) {
         Object.keys(updates).forEach((key) => {
           const data = get(unevalTree, `${update}.${key}.data`, undefined);
@@ -614,17 +610,12 @@ export default class DataTreeEvaluator {
       evalMetaUpdates,
       evaluatedTree: newEvalTree,
       staleMetaIds,
-    } = this.evaluateTree(
-      this.evalTree,
-      this.resolvedFunctions,
-      evaluationOrder,
-      {
-        skipRevalidation: false,
-        isFirstTree: false,
-        unevalUpdates,
-        metaWidgets: metaWidgetIds,
-      },
-    );
+    } = this.evaluateTree(this.evalTree, evaluationOrder, {
+      skipRevalidation: false,
+      isFirstTree: false,
+      unevalUpdates,
+      metaWidgets: metaWidgetIds,
+    });
     const evaluationEndTime = performance.now();
     const reValidateStartTime = performance.now();
     this.reValidateTree(nonDynamicFieldValidationOrder, newEvalTree);
@@ -745,7 +736,6 @@ export default class DataTreeEvaluator {
 
   evaluateTree(
     oldUnevalTree: DataTree,
-    resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
     options: {
       skipRevalidation: boolean;
@@ -812,7 +802,6 @@ export default class DataTreeEvaluator {
               evalPropertyValue = this.getDynamicValue(
                 unEvalPropertyValue,
                 currentTree,
-                resolvedFunctions,
                 evaluationSubstitutionType,
                 contextData,
                 undefined,
@@ -1021,7 +1010,6 @@ export default class DataTreeEvaluator {
   getDynamicValue(
     dynamicBinding: string,
     data: DataTree,
-    resolvedFunctions: Record<string, any>,
     evaluationSubstitutionType: EvaluationSubstitutionType,
     contextData?: EvaluateContext,
     callBackData?: Array<any>,
@@ -1062,7 +1050,6 @@ export default class DataTreeEvaluator {
           const result = this.evaluateDynamicBoundValue(
             toBeSentForEval,
             data,
-            resolvedFunctions,
             !!entity && isJSAction(entity),
             contextData,
             callBackData,
@@ -1122,7 +1109,6 @@ export default class DataTreeEvaluator {
   async evaluateTriggers(
     userScript: string,
     dataTree: DataTree,
-    resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
   ) {
@@ -1130,7 +1116,6 @@ export default class DataTreeEvaluator {
     return evaluateAsync(
       jsSnippets[0] || userScript,
       dataTree,
-      resolvedFunctions,
       context,
       callbackData,
     );
@@ -1141,20 +1126,12 @@ export default class DataTreeEvaluator {
   evaluateDynamicBoundValue(
     js: string,
     data: DataTree,
-    resolvedFunctions: Record<string, any>,
     isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
   ): EvalResult {
     try {
-      return evaluateSync(
-        js,
-        data,
-        resolvedFunctions,
-        isJSObject,
-        contextData,
-        callbackData,
-      );
+      return evaluateSync(js, data, isJSObject, contextData, callbackData);
     } catch (error) {
       return {
         result: undefined,
@@ -1447,7 +1424,6 @@ export default class DataTreeEvaluator {
       evaluatedExecutionParams = this.getDynamicValue(
         `{{${JSON.stringify(executionParams)}}}`,
         this.evalTree,
-        this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
       );
     }
@@ -1463,7 +1439,6 @@ export default class DataTreeEvaluator {
       return this.getDynamicValue(
         `{{${replacedBinding}}}`,
         this.evalTree,
-        this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"
         {
