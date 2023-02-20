@@ -2,7 +2,7 @@ import React from "react";
 import { TextType, Text, ButtonGroupOption } from "design-system-old";
 // TODO - @Dhruvik - ImprovedAppNav
 // Update the DS package
-import { ButtonGroup } from "design-system-temp-button-fix";
+import { ButtonGroup } from "design-system-old";
 import {
   NavigationSetting,
   StringsFromNavigationSetting,
