@@ -15,7 +15,6 @@ import history from "utils/history";
 export const redirectUserAfterSignup = (
   redirectUrl: string,
   shouldEnableFirstTimeUserOnboarding: string | null,
-  _isUsageAndBillingEnabled: boolean | undefined,
   _validLicense?: boolean,
   dispatch?: any,
 ): any => {

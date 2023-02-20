@@ -138,7 +138,17 @@ function* getChildWidgetProps(
     widget,
     themeConfigWithoutChildStylesheet,
   );
-  widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+
+  if (params.dynamicBindingPathList) {
+    const mergedDynamicBindingPathLists = [
+      ...dynamicBindingPathList,
+      ...params.dynamicBindingPathList,
+    ];
+    widget.dynamicBindingPathList = mergedDynamicBindingPathLists;
+  } else {
+    widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+  }
+
   return widget;
 }
 
@@ -298,6 +308,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     Toaster.clear();
+
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);

@@ -18,16 +18,6 @@ const logLevel: LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL ||
   "debug") as LogLevelDesc;
 log.setLevel(logLevel);
 
-// Verifing Environment Variables
-const MONGODB_URI = process.env.APPSMITH_MONGODB_URI;
-if (
-  MONGODB_URI == null ||
-  MONGODB_URI === "" ||
-  !MONGODB_URI.startsWith("mongodb")
-) {
-  log.error("Please provide a valid value for `APPSMITH_MONGODB_URI`.");
-  process.exit(1);
-}
 
 const API_BASE_URL = process.env.APPSMITH_API_BASE_URL;
 if (API_BASE_URL == null || API_BASE_URL === "") {

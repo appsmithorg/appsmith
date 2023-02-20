@@ -231,7 +231,7 @@ public class MongoPluginQueriesTest {
                     assertNotNull(result);
                     assertFalse(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    assertEquals("unknown top level operator: $is", result.getBody());
+                    assertEquals("unknown top level operator: $is.", result.getPluginErrorDetails().getDownstreamErrorMessage());
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
 
                     /*
