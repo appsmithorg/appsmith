@@ -167,11 +167,10 @@ describe("List widget v2 - meta hydration tests", () => {
     changeValueOfWidget("multiselectwidgetv2", ["Red"], 2);
 
     //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
+    cy.get(commonlocators.listPaginateNextButton).click({
+      force: true,
+    });
+    cy.wait(2000);
 
     //   SecondPage
     //   First Row
@@ -257,11 +256,10 @@ describe("List widget v2 - meta hydration tests", () => {
     changeValueOfWidget("multiselectwidgetv2", ["Red"], 2);
 
     //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
+    cy.get(commonlocators.listPaginateNextButton).click({
+      force: true,
+    });
+    cy.wait(2000);
 
     //   SecondPage
     //   First Row

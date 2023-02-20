@@ -96,11 +96,10 @@ describe("List widget v2 - meta hydration tests", () => {
     changeValueOfWidget("multiselectwidgetv2", ["Red"], 2);
 
     //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
+    cy.get(commonlocators.listPaginateNextButton).click({
+      force: true,
+    });
+    cy.wait(2000);
 
     //   SecondPage
     //   First Row
@@ -119,11 +118,10 @@ describe("List widget v2 - meta hydration tests", () => {
     changeValueOfWidget("multiselectwidgetv2", ["Green"], 2);
 
     //   Go to previous page
-    cy.get(commonlocators.listPaginatePrevButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
+    cy.get(commonlocators.listPaginatePrevButton).click({
+      force: true,
+    });
+    cy.wait(2000);
 
     //Validate values in FirstPage
     //   First Row
@@ -142,11 +140,10 @@ describe("List widget v2 - meta hydration tests", () => {
     verifyValueOfWidget("multiselectwidgetv2", ["Red"], 2);
 
     //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
+    cy.get(commonlocators.listPaginateNextButton).click({
+      force: true,
+    });
+    cy.wait(2000);
 
     //Validate values in SecondPage
     //   First Row
@@ -189,11 +186,10 @@ describe("List widget v2 - meta hydration tests", () => {
     changeValueOfWidget("multiselectwidgetv2", ["Red"], 2);
 
     //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
+    cy.get(commonlocators.listPaginateNextButton).click({
+      force: true,
+    });
+    cy.wait(2000);
 
     //   SecondPage
     //   First Row
@@ -212,11 +208,10 @@ describe("List widget v2 - meta hydration tests", () => {
     changeValueOfWidget("multiselectwidgetv2", ["Green"], 2);
 
     //   Go to previous page
-    cy.get(commonlocators.listPaginatePrevButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
+    cy.get(commonlocators.listPaginatePrevButton).click({
+      force: true,
+    });
+    cy.wait(2000);
 
     //Validate values in FirstPage
     //   First Row
@@ -235,11 +230,10 @@ describe("List widget v2 - meta hydration tests", () => {
     verifyValueOfWidget("multiselectwidgetv2", ["Red"], 2);
 
     //   Go to next page
-    cy.get(commonlocators.listPaginateNextButton)
-      .click({
-        force: true,
-      })
-      .wait(1000);
+    cy.get(commonlocators.listPaginateNextButton).click({
+      force: true,
+    });
+    cy.wait(2000);
 
     //Validate values in SecondPage
     //   First Row
