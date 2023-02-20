@@ -81,6 +81,10 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
       true,
     );
     _.deployMode.DeployApp();
+    cy.wait("@postExecute").then((interception: any) => {
+      userName = JSON.stringify(interception.response.body.data.body[0].name)
+      userEmail = JSON.stringify(interception.response.body.data.body[0].email)
+    });
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
     _.agHelper.GetNClick(_.locators._containerWidget, 0, true);
     _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userEmail);
