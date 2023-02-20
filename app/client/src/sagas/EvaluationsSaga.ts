@@ -97,6 +97,7 @@ import {
   DataTree,
   UnEvalTreeWidget,
   ConfigTree,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
@@ -477,9 +478,9 @@ export function* validateProperty(
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
     getUnevaluatedDataTree,
   );
-  const unevalTree = unEvalAndConfigTree.unEvalTree;
-  const entity = unevalTree[props.widgetName] as UnEvalTreeWidget;
-  const validation = entity?.__config__.validationPaths[property];
+  const configTree = unEvalAndConfigTree.configTree;
+  const entityConfig = configTree[props.widgetName] as WidgetEntityConfig;
+  const validation = entityConfig?.validationPaths[property];
   const response: unknown = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
