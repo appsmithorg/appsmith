@@ -95,7 +95,6 @@ import {
 } from "selectors/entitiesSelector";
 import {
   DataTree,
-  UnEvalTreeWidget,
   ConfigTree,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
