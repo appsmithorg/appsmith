@@ -13,7 +13,11 @@ import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
 } from "utils/autoLayout/AutoLayoutUtils";
-import { FlexLayerAlignment, Positioning } from "utils/autoLayout/constants";
+import {
+  FlexLayerAlignment,
+  FlexVerticalAlignment,
+  Positioning,
+} from "utils/autoLayout/constants";
 import {
   getWidgetWidth,
   getWidgetHeight,
@@ -289,6 +293,8 @@ function processIndividualLayer(
 
   let currChildren: string[] = [];
 
+  let layerHeight = 0;
+
   const alignmentLayerMap: AlignmentLayerMap = {
     start: { widgets: [], width: 0, type: FlexLayerAlignment.Start },
     center: { widgets: [], width: 0, type: FlexLayerAlignment.Center },
@@ -302,6 +308,7 @@ function processIndividualLayer(
     if (widget.detachFromLayout) continue;
 
     currChildren.push(child.id);
+    layerHeight = Math.max(layerHeight, getWidgetHeight(widget, false));
 
     if (child.align === "end") {
       alignmentLayerMap.end.widgets.push(widget);
@@ -320,6 +327,7 @@ function processIndividualLayer(
     widgets,
     alignmentLayerMap,
     currentBottomRow,
+    layerHeight,
   );
 
   currChildren = [...children];
@@ -351,6 +359,7 @@ function placeWidgetsWithoutWrap(
   widgets: CanvasWidgetsReduxState,
   alignmentLayerMap: AlignmentLayerMap,
   currentBottomRow: number,
+  layerHeight: number,
 ): {
   currWidgets: CanvasWidgetsReduxState;
   nextBottomRow: number;
@@ -381,6 +390,7 @@ function placeWidgetsWithoutWrap(
         width,
         type,
         currentBottomRow,
+        layerHeight,
       );
       currWidgets = { ...convertedWidgets };
       children = [...children, ...currChildren];
@@ -409,6 +419,7 @@ function calculateWidgetDimensionForAlignment(
   alignedWidth: number,
   flexLayerAlignment: FlexLayerAlignment,
   currentBottomRow: number,
+  layerHeight: number,
 ): {
   convertedWidgets: CanvasWidgetsReduxState;
   children: string[];
@@ -451,12 +462,18 @@ function calculateWidgetDimensionForAlignment(
       currentAvailableLeftColumn + width,
       GridDefaults.DEFAULT_GRID_COLUMNS,
     );
+    const topRow = getTopRowFromVerticalAlignment(
+      currentBottomRow,
+      widget.flexVerticalAlignment,
+      layerHeight,
+      getWidgetHeight(widget, false),
+    );
 
     //update positions
     currWidgets[widget.widgetId] = {
       ...widget,
-      topRow: currentBottomRow,
-      bottomRow: currentBottomRow + height,
+      topRow,
+      bottomRow: topRow + height,
       leftColumn: leftColumn,
       rightColumn: rightColumn,
     };
@@ -498,5 +515,32 @@ function getCalculatedLeftColumn(
     return Math.ceil((totalWidth - width) / 2);
   } else {
     return totalWidth - width;
+  }
+}
+
+/**
+ * Get topRow based on vertical alignment of widget
+ * @param currentBottomRow
+ * @param flexVerticalAlignment
+ * @param layerHeight
+ * @param widgetHeight
+ * @returns
+ */
+function getTopRowFromVerticalAlignment(
+  currentBottomRow: number,
+  flexVerticalAlignment: FlexVerticalAlignment | undefined,
+  layerHeight: number,
+  widgetHeight: number,
+): number {
+  if (!flexVerticalAlignment || !layerHeight || layerHeight <= widgetHeight) {
+    return currentBottomRow;
+  }
+
+  if (flexVerticalAlignment === FlexVerticalAlignment.Center) {
+    return Math.floor(currentBottomRow + (layerHeight - widgetHeight) / 2);
+  } else if (flexVerticalAlignment === FlexVerticalAlignment.Bottom) {
+    return currentBottomRow + layerHeight - widgetHeight;
+  } else {
+    return currentBottomRow;
   }
 }
