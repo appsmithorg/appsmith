@@ -6,7 +6,7 @@ export type VariableState = Record<string, Record<string, unknown>>;
 
 export function getOriginalValueFromProxy(obj: Record<string, unknown>) {
   if (obj && obj.$isProxy) {
-    return obj.$originalValue;
+    return obj.$targetValue;
   }
   return obj;
 }

@@ -11,8 +11,8 @@ export function jsObjectProxyHandler(
 
       // $isProxy property is used to detect if an object is a proxy object or not.
       if (prop === "$isProxy") return true;
-      // $originalValue property is used to get the target object.
-      if (prop === "$originalValue") return target;
+      // $targetValue property is used to get the target object.
+      if (prop === "$targetValue") return target;
 
       if (value instanceof Function) {
         if (!target.hasOwnProperty(value)) {
@@ -58,7 +58,7 @@ function addPatch(patch: Patch) {
 
 type ProxiedJSObject = DataTreeJSAction & {
   $isProxy: boolean;
-  $originalValue: DataTreeJSAction;
+  $targetValue: DataTreeJSAction;
 };
 
 class JSProxy {
