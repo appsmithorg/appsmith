@@ -48,8 +48,8 @@ const ButtonContainer = styled.div<ButtonContainerProps>`
   .auto-layout & > .bp3-button.bp3-fill {
     display: flex;
     width: auto;
-    max-width: 312px;
-    min-width: 42px;
+    max-width: 352px;
+    min-width: 112px;
   }
 
   position: relative;

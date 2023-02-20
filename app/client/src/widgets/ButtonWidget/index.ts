@@ -47,8 +47,8 @@ export const CONFIG = {
         viewportMinWidth: 0,
         configuration: () => {
           return {
-            minWidth: "42px",
-            maxWidth: "320px",
+            minWidth: "120px",
+            maxWidth: "360px",
           };
         },
       },
