@@ -15,7 +15,7 @@ import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { updateJSCollectionStateFromContext } from "./JSObject";
-import { jsVariableUpdates } from "./JSObject/JSVariableUpdates";
+import JSVariableUpdates from "./JSObject/JSVariableUpdates";
 import { addJSUpdateCheckTaskInQueue } from "./JSObject/checkUpdate";
 import { jsObjectCollection } from "./JSObject/Collection";
 
@@ -241,7 +241,7 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
-    jsVariableUpdates.disable();
+    JSVariableUpdates.disable();
     const errors: EvaluationError[] = [];
     let result;
 
@@ -299,7 +299,7 @@ export default function evaluateSync(
       if (isJSCollection) {
         updateJSCollectionStateFromContext();
       }
-      jsVariableUpdates.enable();
+      JSVariableUpdates.enable();
 
       for (const entityName in evalContext) {
         if (evalContext.hasOwnProperty(entityName)) {

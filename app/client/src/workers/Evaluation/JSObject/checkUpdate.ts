@@ -1,18 +1,18 @@
-import { getModifiedPaths, jsVariableUpdates } from "./JSVariableUpdates";
+import JSVariableUpdates, { getModifiedPaths } from "./JSVariableUpdates";
 import { triggerEvalWithPathsChanged } from "./sendUpdatedDataTree";
 
 let registeredTask = false;
 
 // executes when worker is idle
 function checkForJsVariableUpdate() {
-  const updates = jsVariableUpdates.getAll();
+  const updates = JSVariableUpdates.getAll();
   const modifiedVariablesList = getModifiedPaths(updates);
 
   if (modifiedVariablesList.length > 0) {
     // trigger evaluation
     triggerEvalWithPathsChanged(modifiedVariablesList);
   }
-  jsVariableUpdates.clear();
+  JSVariableUpdates.clear();
   registeredTask = false;
 }
 

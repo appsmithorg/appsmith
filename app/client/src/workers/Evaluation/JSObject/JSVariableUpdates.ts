@@ -15,32 +15,32 @@ export type Patch = {
 };
 
 class JSVariableUpdates {
-  private patches: Patch[] = [];
-  private disableTracking = true;
+  private static patches: Patch[] = [];
+  private static disableTracking = true;
 
-  add(patch: Patch) {
-    if (this.disableTracking) return;
-    this.patches.push(patch);
+  static add(patch: Patch) {
+    if (JSVariableUpdates.disableTracking) return;
+    JSVariableUpdates.patches.push(patch);
   }
 
-  getAll() {
-    return this.patches;
+  static getAll() {
+    return JSVariableUpdates.patches;
   }
 
-  clear() {
-    this.patches = [];
+  static clear() {
+    JSVariableUpdates.patches = [];
   }
 
-  disable() {
-    this.disableTracking = true;
+  static disable() {
+    JSVariableUpdates.disableTracking = true;
   }
 
-  enable() {
-    this.disableTracking = false;
+  static enable() {
+    JSVariableUpdates.disableTracking = false;
   }
 }
 
-export const jsVariableUpdates = new JSVariableUpdates();
+export default JSVariableUpdates;
 
 export function getModifiedPaths(patches: Patch[]) {
   // store exact path to diff

@@ -1,7 +1,7 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { jsVariableUpdates } from "./JSObject/JSVariableUpdates";
+import JSVariableUpdates from "./JSObject/JSVariableUpdates";
 import userLogs from "./fns/overrides/console";
 
 class FunctionDeterminer {
@@ -14,7 +14,7 @@ class FunctionDeterminer {
       $isAsync: false,
     };
 
-    jsVariableUpdates.disable();
+    JSVariableUpdates.disable();
 
     addDataTreeToContext({
       dataTree,
@@ -35,7 +35,7 @@ class FunctionDeterminer {
 
   close() {
     userLogs.enable();
-    jsVariableUpdates.enable();
+    JSVariableUpdates.enable();
     for (const entityName in this.evalContext) {
       if (this.evalContext.hasOwnProperty(entityName)) {
         // @ts-expect-error: Types are not available

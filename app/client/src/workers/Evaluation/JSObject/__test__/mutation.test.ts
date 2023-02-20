@@ -1,8 +1,7 @@
-import { jsVariableUpdates, getModifiedPaths } from "../JSVariableUpdates";
+import JSVariableUpdates, { getModifiedPaths } from "../JSVariableUpdates";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { VariableState, jsObjectCollection } from "../Collection";
-import { updateEvalTreeWithJSCollectionState } from "..";
 
 jest.mock("../../handlers/evalTree", () => {
   return {
@@ -38,7 +37,7 @@ describe("Mutation", () => {
       skipEntityFunctions: true,
     });
 
-    jsVariableUpdates.enable();
+    JSVariableUpdates.enable();
 
     Object.assign(self, evalContext);
 
@@ -50,9 +49,9 @@ describe("Mutation", () => {
     JSObject1.var2.add(3);
     `);
 
-    jsVariableUpdates.disable();
+    JSVariableUpdates.disable();
 
-    expect(jsVariableUpdates.getAll()).toEqual([
+    expect(JSVariableUpdates.getAll()).toEqual([
       { path: "JSObject1.var", method: "SET" },
       { path: "JSObject1.var.b", method: "SET" },
       { path: "JSObject1.var.b.a", method: "SET" },
@@ -60,7 +59,7 @@ describe("Mutation", () => {
       { path: "JSObject1.var2", method: "PROTOTYPE_METHOD_CALL" },
     ]);
 
-    const modifiedVariablesList = getModifiedPaths(jsVariableUpdates.getAll());
+    const modifiedVariablesList = getModifiedPaths(JSVariableUpdates.getAll());
 
     expect(modifiedVariablesList).toEqual([
       ["JSObject1", "var"],

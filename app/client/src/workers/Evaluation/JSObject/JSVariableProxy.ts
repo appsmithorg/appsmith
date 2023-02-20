@@ -1,5 +1,5 @@
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import { Patch, PatchType, jsVariableUpdates } from "./JSVariableUpdates";
+import JSVariableUpdates, { Patch, PatchType } from "./JSVariableUpdates";
 
 export function jsObjectProxyHandler(
   addPatch: (patch: Patch) => void,
@@ -53,7 +53,7 @@ export function jsObjectProxyHandler(
 }
 
 function addPatch(patch: Patch) {
-  jsVariableUpdates.add(patch);
+  JSVariableUpdates.add(patch);
 }
 
 type ProxiedJSObject = DataTreeJSAction & {
