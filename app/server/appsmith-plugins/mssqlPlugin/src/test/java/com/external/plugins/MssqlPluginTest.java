@@ -14,6 +14,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MssqlPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -147,6 +148,12 @@ public class MssqlPluginTest {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
         dsConfig.setEndpoints(List.of(endpoint));
+
+        /* set ssl mode */
+        dsConfig.setConnection(new com.appsmith.external.models.Connection());
+        dsConfig.getConnection().setSsl(new SSLDetails());
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.NO_VERIFY);
+
         return dsConfig;
     }
 
@@ -675,7 +682,8 @@ public class MssqlPluginTest {
         Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig,
+                        actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
