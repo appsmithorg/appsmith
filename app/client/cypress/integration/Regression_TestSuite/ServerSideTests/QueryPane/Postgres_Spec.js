@@ -325,7 +325,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .first()
       .invoke("text")
       .then(($text) => {
-        expect($text).to.eq("Execution failed with status 5005");
+        expect($text).to.eq("Query execution error");
       });
     cy.deleteQueryUsingContext();
   });

@@ -103,6 +103,7 @@
     "rc-tree-select": "^5.4.0",
     "re-reselect": "^3.4.0",
     "react": "^17.0.2",
+    "react-append-to-body": "^2.0.26",
     "react-beautiful-dnd": "^12.2.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-device-detect": "^2.2.2",
