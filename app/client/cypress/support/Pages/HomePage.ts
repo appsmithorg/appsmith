@@ -249,7 +249,7 @@ export class HomePage {
     this.NavigateToHome();
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
-    this.agHelper.ValidateNetworkStatus("@postLogout")
+    this.agHelper.ValidateNetworkStatus("@postLogout");
     this.agHelper.Sleep(); //for logout to complete!
   }
 
@@ -359,7 +359,7 @@ export class HomePage {
     cy.xpath(this._userRoleDropDown(currentRole))
       .first()
       .click({ force: true });
-
+    this.agHelper.Sleep();
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
     cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
