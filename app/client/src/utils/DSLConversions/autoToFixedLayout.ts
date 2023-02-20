@@ -298,6 +298,9 @@ function processIndividualLayer(
   //update alignment layer map by iterating each children within layer
   for (const child of flexChildren) {
     const widget = widgets[child.id];
+
+    if (widget.detachFromLayout) continue;
+
     currChildren.push(child.id);
 
     if (child.align === "end") {
