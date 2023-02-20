@@ -20,4 +20,7 @@ echo "build finished"
 # build storybook and move to the static folder
 cd ./packages/wds
 yarn build-storybook
+
+echo "storybook build finished"
+
 mv -f ./storybook-static ../../public/static/wds
