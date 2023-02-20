@@ -45,14 +45,15 @@ describe("Widget error state", function() {
 
   it("4. All errors should be expanded by default", function() {
     //Updated count to 1 as the decision not to show triggerexecution/uncaughtpromise error in - epic 17720
-    _.debuggerHelper.AssertVisibleErrorMessagesCount(2);
+    _.debuggerHelper.AssertVisibleErrorMessagesCount(1);
   });
 
   it("5. Recent errors are shown at the top of the list", function() {
     cy.testJsontext("label", "{{[]}}");
     //This feature is disabled in updated error log - epic 17720
-    _.debuggerHelper.LogStateContains("text", 0);
+    // _.debuggerHelper.LogStateContains("text", 0);
   });
+
   //This feature is disabled in updated error log - epic 17720
   // it("6. Clicking on a message should open the search menu", function() {
   //   _.debuggerHelper.ClickErrorMessage(0);
@@ -71,19 +72,13 @@ describe("Widget error state", function() {
     _.ee.SelectEntityByName("Table1", "Widgets");
 
     _.table.AddColumn("customColumn1");
-    _.table.EditColumn("customColumn1");
+    _.propPane.OpenTableColumnSettings("customColumn1");
     _.propPane.UpdatePropertyFieldValue("Computed Value", "{{test}}");
 
-    _.debuggerHelper.AssertDebugError(
-      "The value at primaryColumns.customColumn1.computedValue is invalid",
-      "ReferenceError: test is not defined",
-      false,
-    );
+    _.debuggerHelper.AssertDebugError("test is not defined", "", false, false);
 
     _.table.DeleteColumn("customColumn1");
 
-    _.debuggerHelper.DebuggerListDoesnotContain(
-      "ReferenceError: test is not defined",
-    );
+    _.debuggerHelper.DebuggerListDoesnotContain("test is not defined");
   });
 });
