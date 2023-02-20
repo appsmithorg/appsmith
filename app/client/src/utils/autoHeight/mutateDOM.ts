@@ -107,6 +107,7 @@ export function directlyMutateDOMNodes(
 
       if (dropTarget) {
         const dropTargetHeight =
+          4 +
           updates[widgetId].height -
           CONTAINER_GRID_PADDING * 2 -
           (widgetCanvasOffsets[widgetId] || 0) *
