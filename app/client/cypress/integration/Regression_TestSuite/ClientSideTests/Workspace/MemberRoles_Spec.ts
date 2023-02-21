@@ -94,7 +94,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     agHelper.GetNClick(homePage._appHoverIcon("edit"));
     // cy.xpath(homePage._editPageLanding).should("exist");
     agHelper.Sleep(2000);
-    agHelper.GetNClick(homePage._shareWorkspace(workspaceId));
+    agHelper.ClickButton("SHARE");
     agHelper.Sleep();
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
@@ -136,7 +136,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     agHelper.GetNClick(homePage._appHoverIcon("edit"));
     // cy.xpath(homePage._editPageLanding).should("exist");
     agHelper.Sleep(2000);
-    agHelper.GetNClick(homePage._shareWorkspace(workspaceId));
+    agHelper.ClickButton("SHARE");
     agHelper.Sleep();
     agHelper.GetNClick(HomePage.selectRole);
     cy.get(".t--dropdown-option")
