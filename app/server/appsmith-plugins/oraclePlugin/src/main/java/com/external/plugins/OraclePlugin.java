@@ -115,6 +115,7 @@ public class OraclePlugin extends BasePlugin {
      * | test       |         4 | lastname    | varchar     |           1 |            |                |
      * +------------+-----------+-------------+-------------+-------------+------------+----------------+
      */
+    // TODO: check if this is correct
     private static final String COLUMNS_QUERY = "select tab.table_name as table_name,\n" +
             "col.column_id as column_id,\n" +
             "col.column_name as column_name,\n" +
@@ -140,6 +141,7 @@ public class OraclePlugin extends BasePlugin {
      * | PRIMARY         | mytestdb    | test       | p               | id          | NULL           | NULL          | NULL           |
      * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
      */
+    // TODO: check if this is correct
     private static final String KEYS_QUERY = "select \n" +
             "a.constraint_name\n" +
             ", (select name from v$database) as self_schema\n" +
@@ -573,7 +575,9 @@ public class OraclePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
 
-            final DatasourceStructure structure = new DatasourceStructure();
+            // TODO: fix it.
+            return Mono.just(new DatasourceStructure());
+            /*final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
 
             return Mono.fromSupplier(() -> {
@@ -776,10 +780,11 @@ public class OraclePlugin extends BasePlugin {
                         return structure;
                     })
                     .map(resultStructure -> (DatasourceStructure) resultStructure)
-                    .subscribeOn(scheduler);
+                    .subscribeOn(scheduler);*/
         }
 
-        @Override
+        // TODO: fix it
+        /*@Override
         public Object substituteValueInInput(int index,
                                              String binding,
                                              String value,
@@ -904,7 +909,9 @@ public class OraclePlugin extends BasePlugin {
                 default:
                     throw new IllegalArgumentException("Unable to map the computed data type to primitive Oracle type");
             }
-        }
+        }*/
+
+        // TODO: check if this works
         private Set<String> populateHintMessages(List<String> columnNames) {
 
             Set<String> messages = new HashSet<>();
@@ -984,7 +991,8 @@ public class OraclePlugin extends BasePlugin {
             /*
              * - By default, the driver configures SSL in the preferred mode.
              */
-            SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+            // TODO: fix it
+           /* SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
             switch (sslAuthType) {
                 case BASIC:
                     config.addDataSourceProperty("ssl", "true");
@@ -1002,7 +1010,7 @@ public class OraclePlugin extends BasePlugin {
 
                     break;
                 case DEFAULT:
-                    /* do nothing - accept default driver setting */
+                    *//* do nothing - accept default driver setting *//*
 
                     break;
                 default:
@@ -1011,7 +1019,7 @@ public class OraclePlugin extends BasePlugin {
                             "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
                                     " Appsmith customer support to resolve this."
                     );
-            }
+            }*/
 
             String url = urlBuilder.toString();
             config.setJdbcUrl(url);
@@ -1020,6 +1028,7 @@ public class OraclePlugin extends BasePlugin {
             // should get tracked (may be falsely for long running queries) as leaked connection
             config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
 
+            // TODO: check if this works
             // Set read only mode if applicable
             switch (configurationConnection.getMode()) {
                 case READ_WRITE: {
@@ -1063,14 +1072,7 @@ public class OraclePlugin extends BasePlugin {
                 throw new StaleConnectionException();
             }
 
-            java.sql.Connection connection = connectionPool.getConnection();
-
-            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-            if (configurationConnection == null) {
-                return connection;
-            }
-
-            return connection;
+            return connectionPool.getConnection();
         }
 
     }
