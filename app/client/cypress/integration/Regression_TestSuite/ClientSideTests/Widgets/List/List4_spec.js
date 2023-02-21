@@ -157,7 +157,7 @@ describe("Container Widget Functionality", function() {
       "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
     ).click();
     cy.get("body").then(($ele) => {
-      if ($ele.find(commonlocators.toastmsg).length<=0) {
+      if ($ele.find(commonlocators.toastmsg).length <= 0) {
         cy.get(
           "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
         ).click();
