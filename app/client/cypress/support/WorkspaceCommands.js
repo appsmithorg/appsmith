@@ -69,6 +69,7 @@ Cypress.Commands.add("openWorkspaceOptionsPopup", (workspaceName) => {
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
     .closest(homePage.workspaceCompleteSection)
     .find(homePage.workspaceNamePopover)
+    .first()
     .find(homePage.optionsIcon)
     .click({ force: true });
 });
