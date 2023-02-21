@@ -67,20 +67,6 @@ export const RateContainer = styled.div<RateContainerProps>`
 `;
 
 export const Star = styled(Icon)<{ isActive?: boolean; isDisabled?: boolean }>`
-  .auto-layout && {
-    > svg {
-      height: 24px;
-      width: 24px;
-    }
-  }
-
-  .mobile-view .auto-layout && {
-    > svg {
-      height: 20px;
-      width: 20px;
-    }
-  }
-
   path {
     stroke-width: ${(props) => (props.isActive ? "0" : "1px")};
   }

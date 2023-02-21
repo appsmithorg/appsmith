@@ -73,17 +73,6 @@ const TooltipStyles = createGlobalStyle`
 `;
 
 const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
-
-.auto-layout && {
-  height: 50px;
-  min-width: 42px;
-  max-width: 320px;
-}
-
-.mobile-view .auto-layout && {
-  height: 40px;
-}
-
 background-image: none !important;
 font-weight: ${(props) => props.theme.fontWeights[2]};
 outline: none;
