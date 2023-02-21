@@ -477,13 +477,20 @@ export default class DataTreeEvaluator {
   updateTreeEvaluation(
     localUnEvalTree: DataTree,
     updatedValuePaths: string[][],
-    extraParams?: {
+    extraParams: {
       totalUpdateTreeSetupStartTime?: any;
       dependenciesOfRemovedPaths: string[];
       removedPaths: string[];
       extraPathsToLint: string[];
       translatedDiffs: DataTreeDiff[];
       pathsToClearErrorsFor: any[];
+    } = {
+      dependenciesOfRemovedPaths: [],
+      extraPathsToLint: [],
+      removedPaths: [],
+      totalUpdateTreeSetupStartTime: 0,
+      translatedDiffs: [],
+      pathsToClearErrorsFor: [],
     },
   ) {
     const {
@@ -493,7 +500,7 @@ export default class DataTreeEvaluator {
       totalUpdateTreeSetupStartTime,
       translatedDiffs = [],
       pathsToClearErrorsFor,
-    } = extraParams || {};
+    } = extraParams;
 
     updateEvalTreeWithJSCollectionState(this.evalTree);
 
