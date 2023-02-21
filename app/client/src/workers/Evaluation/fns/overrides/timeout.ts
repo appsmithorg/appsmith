@@ -11,7 +11,6 @@ function setTimeout(cb: (...args: any) => any, delay: number, ...args: any) {
     function(...args: any) {
       const evalContext = createEvaluationContext({
         dataTree: dataTreeEvaluator?.evalTree || {},
-        resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,
       });
       self["$isDataField"] = false;

@@ -11,9 +11,27 @@ export function getOriginalValueFromProxy(obj: Record<string, unknown>) {
   return obj;
 }
 
+type CurrentJSCollectionState = Record<string, any>;
+type ResolvedFunctions = Record<string, any>;
+
 class JSObjectCollection {
+  private resolvedFunctions: ResolvedFunctions = {};
+  private unEvalState: CurrentJSCollectionState = {};
+
   private prevVariableState: VariableState = {};
   private currentVariableState: VariableState = {};
+
+  setResolvedFunctions(resolvedFunctions: ResolvedFunctions) {
+    this.resolvedFunctions = resolvedFunctions;
+  }
+
+  getResolvedFunctions() {
+    return this.resolvedFunctions;
+  }
+
+  getUnEvalState() {
+    return this.unEvalState;
+  }
 
   setVariableValue(variableValue: unknown, fullPropertyPath: string) {
     set(

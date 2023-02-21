@@ -29,12 +29,10 @@ export default async function(request: EvalWorkerASyncRequest) {
     unEvalUpdates,
   );
   const evalTree = dataTreeEvaluator.evalTree;
-  const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
     evalTree,
-    resolvedFunctions,
     callbackData,
     {
       globalContext,

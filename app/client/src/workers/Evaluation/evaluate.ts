@@ -15,8 +15,9 @@ import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { updateJSCollectionStateFromContext } from "./JSObject";
-import { jsVariableUpdates } from "./JSObject/JSVariableUpdates";
-import { addJSUpdateCheckTaskInQueue } from "./JSObject/checkUpdate";
+import JSVariableUpdates from "./JSObject/JSVariableUpdates";
+import { registerJSUpdateCheckTask } from "./JSObject/checkUpdate";
+import { jsObjectCollection } from "./JSObject/Collection";
 
 export type EvalResult = {
   result: any;
@@ -118,10 +119,8 @@ export const getScriptToEval = (
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export type EvalContext = Record<string, any>;
-type ResolvedFunctions = Record<string, any>;
 export interface createEvaluationContextArgs {
   dataTree: DataTree;
-  resolvedFunctions: ResolvedFunctions;
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
@@ -140,7 +139,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
-    resolvedFunctions,
     skipEntityFunctions,
   } = args;
 
@@ -161,15 +159,15 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, isTriggerBased);
+  assignJSFunctionsToContext(EVAL_CONTEXT, isTriggerBased);
   return EVAL_CONTEXT;
 };
 
 export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
-  resolvedFunctions: ResolvedFunctions,
   isTriggerBased: boolean,
 ) => {
+  const resolvedFunctions = jsObjectCollection.getResolvedFunctions();
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];
@@ -237,14 +235,13 @@ export const getUserScriptToEvaluate = (
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
-    jsVariableUpdates.disable();
+    JSVariableUpdates.disable();
     const errors: EvaluationError[] = [];
     let result;
 
@@ -253,7 +250,6 @@ export default function evaluateSync(
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
-      resolvedFunctions,
       context,
       evalArguments,
       isTriggerBased: isJSCollection,
@@ -303,7 +299,7 @@ export default function evaluateSync(
       if (isJSCollection) {
         updateJSCollectionStateFromContext();
       }
-      jsVariableUpdates.enable();
+      JSVariableUpdates.enable();
 
       for (const entityName in evalContext) {
         if (evalContext.hasOwnProperty(entityName)) {
@@ -320,7 +316,6 @@ export default function evaluateSync(
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
@@ -332,7 +327,6 @@ export async function evaluateAsync(
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
-      resolvedFunctions,
       context,
       evalArguments,
       isTriggerBased: true,
@@ -363,7 +357,7 @@ export async function evaluateAsync(
     } finally {
       // Remove this
       updateJSCollectionStateFromContext();
-      addJSUpdateCheckTaskInQueue();
+      registerJSUpdateCheckTask();
 
       return {
         result,

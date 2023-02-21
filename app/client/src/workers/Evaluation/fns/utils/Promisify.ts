@@ -30,7 +30,6 @@ export function promisify<P extends ReadonlyArray<unknown>>(
     self["$isDataField"] = false;
     const evalContext = createEvaluationContext({
       dataTree: dataTreeEvaluator.evalTree,
-      resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
       isTriggerBased: true,
     });
     Object.assign(self, evalContext);

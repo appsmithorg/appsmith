@@ -29,6 +29,21 @@ function responseHandler(requestId: string): Promise<TPromiseResponse> {
   });
 }
 
+/**
+ * Convert proxy data to target object
+ * @param data
+ * @returns
+ */
+function sanitizeData(data: unknown) {
+  const responseData = data;
+  if (typeof data === "object" && (responseData as AsyncEvalResponse).result) {
+    (responseData as AsyncEvalResponse).result = getOriginalValueFromProxy(
+      (data as AsyncEvalResponse).result,
+    );
+  }
+  return responseData;
+}
+
 export class WorkerMessenger {
   static async request(payload: any) {
     const messageId = uniqueId(`request-${payload.method}-`);
@@ -49,20 +64,11 @@ export class WorkerMessenger {
   }
 
   static respond(messageId: string, data: unknown, timeTaken: number) {
-    const responseData = data;
-    if (
-      typeof data === "object" &&
-      (responseData as AsyncEvalResponse).result
-    ) {
-      (responseData as AsyncEvalResponse).result = getOriginalValueFromProxy(
-        (data as AsyncEvalResponse).result,
-      );
-    }
     try {
       sendMessage.call(self, {
         messageId,
         messageType: MessageType.RESPONSE,
-        body: { data, timeTaken },
+        body: { data: sanitizeData(data), timeTaken },
       });
     } catch (e) {
       console.error(e);
