@@ -23,6 +23,7 @@ export function triggerEvalWithPathsChanged(updatedValuePaths: string[][]) {
   const dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
+  const pathsToClearErrorsFor: any[] = [];
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse = dataTreeEvaluator?.setupUpdateTreeWithDifferences(
@@ -60,6 +61,7 @@ export function triggerEvalWithPathsChanged(updatedValuePaths: string[][]) {
     unEvalUpdates,
     isCreateFirstTree,
     staleMetaIds,
+    pathsToClearErrorsFor,
   };
 
   const data: UpdateDataTreeMessageData = {
