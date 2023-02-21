@@ -19,7 +19,7 @@ import {
   getWidgetWidth,
   setDimensions,
 } from "./flexWidgetUtils";
-import { getCanvasDimensions } from "./AutoLayoutUtils";
+import { getCanvasWidth } from "./highlightUtils";
 
 export type Widget = WidgetProps & {
   children?: string[] | undefined;
@@ -59,12 +59,13 @@ export function updateWidgetPositions(
     const parent = widgets[parentId];
     if (!parent) return widgets;
 
-    const { columnSpace } = getCanvasDimensions(
+    const canvasWidth = getCanvasWidth(
       parent,
       widgets,
       mainCanvasWidth,
       isMobile,
     );
+    const columnSpace = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
 
     let height = 0;
     if (parent.flexLayers && parent.flexLayers?.length) {

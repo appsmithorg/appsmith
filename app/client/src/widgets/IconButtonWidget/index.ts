@@ -14,8 +14,8 @@ export const CONFIG = {
     buttonVariant: ButtonVariantTypes.PRIMARY,
     isDisabled: false,
     isVisible: true,
-    rows: 5,
-    columns: 5,
+    rows: 4,
+    columns: 4,
     widgetName: "IconButton",
     version: 1,
     animateLoading: true,
@@ -29,18 +29,6 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
-  },
-  autoLayout: {
-    widgetSize: [
-      {
-        viewportMinWidth: 0,
-        configuration: () => {
-          return {
-            minWidth: "40px",
-          };
-        },
-      },
-    ],
   },
 };
 
