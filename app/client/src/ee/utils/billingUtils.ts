@@ -2,9 +2,7 @@ import { createMessage, NOT_AVAILABLE } from "@appsmith/constants/messages";
 import { openInNewTab } from "@appsmith/utils";
 import isNil from "lodash/isNil";
 
-//TODO : Update to customer.appsmith.com when going live
-export const CUSTOMER_PORTAL_URL =
-  "https://release-customer.appsmith.com/plans";
+export const CUSTOMER_PORTAL_URL = "https://customer.appsmith.com/plans";
 
 export const goToCustomerPortal = () => {
   openInNewTab(CUSTOMER_PORTAL_URL);
