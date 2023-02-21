@@ -204,8 +204,8 @@ function renderDropdown(
       if (selectedValue !== tempSelectedValues) {
         // when pre-selected value is not found in dropdown options,
         // initializing dropdown to initial value instead of blank
-        const tempValues = !isNil(props.input?.value)
-          ? (props?.initialValue as string[])
+        const tempValues = !isNil(props?.initialValue)
+          ? (props.initialValue as string[])
           : tempSelectedValues;
         selectedValue = tempValues;
         props.input?.onChange(tempValues);
