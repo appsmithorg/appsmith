@@ -18,6 +18,7 @@ import {
   LoDashStatic,
 } from "lodash";
 import React from "react";
+import { isAutoLayout } from "selectors/mainCanvasSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
@@ -216,6 +217,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               { label: "Top", value: LabelPosition.Top },
               { label: "Auto", value: LabelPosition.Auto },
             ],
+            hidden: isAutoLayout,
             defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
@@ -429,6 +431,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",
