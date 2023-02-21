@@ -105,9 +105,14 @@ export function directlyMutateDOMNodes(
         widgetNode.style.top = `${updates[widgetId].y}px`;
       }
 
+      // In edit mode, the resize handles have this dot which is 4px in size
+      // This dot is not visible in the published mode
+      // So we need to add 4px to the drop target height to accommodate for this
+      const ACCOMMODATE_FOR_RESIZE_HANDLE_DOT = 4;
+
       if (dropTarget) {
         const dropTargetHeight =
-          4 +
+          ACCOMMODATE_FOR_RESIZE_HANDLE_DOT +
           updates[widgetId].height -
           CONTAINER_GRID_PADDING * 2 -
           (widgetCanvasOffsets[widgetId] || 0) *
