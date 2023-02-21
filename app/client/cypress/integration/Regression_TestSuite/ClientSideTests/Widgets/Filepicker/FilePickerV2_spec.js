@@ -67,9 +67,7 @@ describe("File picker widget v2", () => {
     cy.get(widgetsPage.explorerSwitchId).click();
     ee.ExpandCollapseEntity("Queries/JS");
     cy.get(".t--entity-item:contains(Api1)").click();
-    cy.get("[class*='t--actionConfiguration']")
-      .eq(0)
-      .click();
+    cy.focusCodeInput("[class*='t--actionConfiguration']");
     cy.wait(1000);
     cy.validateEvaluatedValue("[]");
   });

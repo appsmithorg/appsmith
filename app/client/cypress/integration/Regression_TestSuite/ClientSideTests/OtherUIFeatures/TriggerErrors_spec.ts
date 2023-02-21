@@ -18,7 +18,8 @@ describe("Trigger errors in the debugger", function() {
     // Click on a row of the table widget
     cy.isSelectRow(1);
     cy.wait(5000);
-    debuggerHelper.AssertErrorCount(2);
+    //should be 2 if we decide to show trigger errors in the debugger.
+    debuggerHelper.AssertErrorCount(1);
     // Fix code
     cy.testJsontext("onrowselected", "{{console.log('test')}}");
     cy.isSelectRow(1);

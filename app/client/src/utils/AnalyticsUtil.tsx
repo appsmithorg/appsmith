@@ -229,6 +229,8 @@ export type EventName =
   | "ADMIN_SETTINGS_ENABLE_AUTH_METHOD"
   | "ADMIN_SETTINGS_UPGRADE_HOOK"
   | "BILLING_UPGRADE_ADMIN_SETTINGS"
+  | "AUDIT_LOGS_UPGRADE_ADMIN_SETTINGS"
+  | "GAC_UPGRADE_CLICK_ADMIN_SETTINGS"
   | "REFLOW_BETA_FLAG"
   | "CONTAINER_JUMP"
   | "CONNECT_GIT_CLICK"
@@ -279,6 +281,9 @@ export type EventName =
   | "BRANDING_SUBMIT_CLICK"
   | "Cmd+Click Navigation"
   | "WIDGET_PROPERTY_SEARCH"
+  | "PEEK_OVERLAY_OPENED"
+  | "PEEK_OVERLAY_COLLAPSE_EXPAND_CLICK"
+  | "PEEK_OVERLAY_VALUE_COPIED"
   | LIBRARY_EVENTS;
 
 export type LIBRARY_EVENTS =
@@ -400,7 +405,9 @@ class AnalyticsUtil {
               },
             },
           });
-          analytics.page();
+          if (!AnalyticsUtil.blockTrackEvent) {
+            analytics.page();
+          }
         }
       })(window);
     });
@@ -469,7 +476,6 @@ class AnalyticsUtil {
         windowDoc.analytics.identify(userId, userProperties);
       } else if (segment.ceKey) {
         // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
-        // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
         if (userId !== AnalyticsUtil.cachedUserId) {
           AnalyticsUtil.cachedAnonymoustId = sha256(userId);
           AnalyticsUtil.cachedUserId = userId;
