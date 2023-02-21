@@ -211,7 +211,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         const columnData = {
           id: column.id,
           Header:
-            typeof column.label === "string"
+            column.hasOwnProperty("label") && typeof column.label === "string"
               ? column.label
               : DEFAULT_COLUMN_NAME,
           alias: column.alias,
