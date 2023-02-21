@@ -60,6 +60,14 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     const parentId: string | undefined =
       widgetId in allWidgets ? allWidgets[widgetId].parentId : undefined;
 
+    if (
+      widgetId &&
+      !allWidgets[widgetId] &&
+      selectionRequestType === SelectionRequestType.One
+    ) {
+      return;
+    }
+
     switch (selectionRequestType) {
       case SelectionRequestType.Empty: {
         newSelection = {
