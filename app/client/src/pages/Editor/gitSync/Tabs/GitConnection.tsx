@@ -1,22 +1,14 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { Space, Subtitle, Title } from "../components/StyledComponents";
 import {
+  CONNECTING_REPO,
   CONNECT_BTN_LABEL,
   CONNECT_TO_GIT,
   CONNECT_TO_GIT_SUBTITLE,
-  CONNECTING_REPO,
   createMessage,
   GENERATE_KEY,
+  IMPORTING_APP_FROM_GIT,
   IMPORT_BTN_LABEL,
   IMPORT_FROM_GIT_REPOSITORY,
   IMPORT_URL_INFO,
-  IMPORTING_APP_FROM_GIT,
   LEARN_MORE,
   PASTE_SSH_URL_INFO,
   REMOTE_URL,
@@ -24,17 +16,6 @@ import {
   REMOTE_URL_INPUT_PLACEHOLDER,
   UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
-import styled from "styled-components";
-import { TextInput, emailValidator } from "design-system-old";
-import UserGitProfileSettings from "../components/UserGitProfileSettings";
-import { AUTH_TYPE_OPTIONS } from "../constants";
-import { Colors } from "constants/Colors";
-import { useDispatch, useSelector } from "react-redux";
-import copy from "copy-to-clipboard";
-import {
-  getCurrentAppGitMetaData,
-  getCurrentApplication,
-} from "selectors/applicationSelectors";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -46,7 +27,37 @@ import {
   setIsGitSyncModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
+import { Colors } from "constants/Colors";
+import copy from "copy-to-clipboard";
+import {
+  Button,
+  Category,
+  emailValidator,
+  Icon,
+  IconSize,
+  ScrollIndicator,
+  Size,
+  Text,
+  TextInput,
+  TextType,
+  TooltipComponent,
+} from "design-system-old";
 import equal from "fast-deep-equal/es6";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getCurrentAppGitMetaData,
+  getCurrentApplication,
+} from "selectors/applicationSelectors";
 import {
   getGitConnectError,
   getGlobalGitConfig,
@@ -57,26 +68,16 @@ import {
   getTempRemoteUrl,
   getUseGlobalProfile,
 } from "selectors/gitSyncSelectors";
-import Statusbar, {
-  StatusbarWrapper,
-} from "pages/Editor/gitSync/components/Statusbar";
-import { ScrollIndicator } from "design-system-old";
-import Keys from "../components/ssh-key";
+import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
-import {
-  Button,
-  Category,
-  Icon,
-  IconSize,
-  Size,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
+import Keys from "../components/ssh-key";
+import { Space, Subtitle, Title } from "../components/StyledComponents";
+import UserGitProfileSettings from "../components/UserGitProfileSettings";
+import { AUTH_TYPE_OPTIONS } from "../constants";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
+import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -552,7 +553,13 @@ function GitConnection({ isImport }: Props) {
           </ButtonContainer>
         </>
       ) : null}
-      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="37px" />
+      <ScrollIndicator
+        alwaysShowScrollbar
+        containerRef={scrollWrapperRef}
+        mode="DARK"
+        showScrollbarOnlyOnHover
+        top="45px"
+      />
     </Container>
   );
 }
