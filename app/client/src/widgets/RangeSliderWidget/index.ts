@@ -1,5 +1,7 @@
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+
+import { LabelPosition } from "components/constants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -26,7 +28,7 @@ export const CONFIG = {
     isDisabled: false,
     tooltipAlwaysOn: false,
     labelText: "Percentage",
-    labelPosition: LabelPosition.Left,
+    labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelWidth: 8,
     labelTextSize: "0.875rem",
@@ -38,6 +40,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     sliderSize: "m",
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -46,6 +49,18 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "150px",
+          };
+        },
+      },
+    ],
   },
 };
 

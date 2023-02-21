@@ -246,6 +246,9 @@ export const NonResizableWidgets = [
   "SWITCH_WIDGET",
   "TEXT_WIDGET",
   "SINGLE_SELECT_TREE_WIDGET",
+  "CATEGORY_SLIDER_WIDGET",
+  "RANGE_SLIDER_WIDGET",
+  "NUMBER_SLIDER_WIDGET",
 ];
 
 export const DefaultFillWidgets = [
@@ -280,6 +283,9 @@ export const DefaultFillWidgets = [
   "TABLE_WIDGET_V2",
   "PROGRESS_WIDGET",
   "SWITCH_WIDGET",
+  "CATEGORY_SLIDER_WIDGET",
+  "RANGE_SLIDER_WIDGET",
+  "NUMBER_SLIDER_WIDGET",
 ];
 
 export function getDefaultResponsiveBehavior(widgetType: string) {
