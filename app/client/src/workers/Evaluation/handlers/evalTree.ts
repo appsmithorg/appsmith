@@ -44,6 +44,7 @@ export default function(request: EvalWorkerSyncRequest) {
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
+  let pathsToClearErrorsFor: any[] = [];
 
   const {
     allActionValidationConfig,
@@ -145,6 +146,7 @@ export default function(request: EvalWorkerSyncRequest) {
       lintOrder = setupUpdateTreeResponse.lintOrder;
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
+      pathsToClearErrorsFor = setupUpdateTreeResponse.pathsToClearErrorsFor;
 
       initiateLinting(
         lintOrder,
@@ -215,6 +217,7 @@ export default function(request: EvalWorkerSyncRequest) {
     unEvalUpdates,
     isCreateFirstTree,
     staleMetaIds,
+    pathsToClearErrorsFor,
   };
 
   return evalTreeResponse;

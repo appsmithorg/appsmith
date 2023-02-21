@@ -12,6 +12,8 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.plugins.exceptions.SMTPErrorMessages;
+import com.external.plugins.exceptions.SMTPPluginError;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -28,6 +30,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -56,11 +59,12 @@ public class SmtpPlugin extends BasePlugin {
     @Extension
     public static class SmtpPluginExecutor implements PluginExecutor<Session> {
 
+        private static final String ENCODING = "UTF-8";
 
         @Override
         public Mono<ActionExecutionResult> execute(Session connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
 
-            Message message = new MimeMessage(connection);
+            MimeMessage message = getMimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
                 String fromAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
@@ -74,11 +78,11 @@ public class SmtpPlugin extends BasePlugin {
 
                 if (!StringUtils.hasText(toAddress)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Couldn't find a valid recipient address. Please check your action configuration."));
+                            SMTPErrorMessages.RECIPIENT_ADDRESS_NOT_FOUND_ERROR_MSG));
                 }
                 if (!StringUtils.hasText(fromAddress)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Couldn't find a valid sender address. Please check your action configuration."));
+                            SMTPErrorMessages.SENDER_ADDRESS_NOT_FOUND_ERROR_MSG));
                 }
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress, false));
                 message.setFrom(new InternetAddress(fromAddress));
@@ -93,16 +97,15 @@ public class SmtpPlugin extends BasePlugin {
                     message.setReplyTo(InternetAddress.parse(replyTo, false));
                 }
 
-                message.setSubject(subject);
+                message.setSubject(subject, ENCODING);
 
                 String msg = StringUtils.hasText(actionConfiguration.getBody()) ? actionConfiguration.getBody() : "";
 
-                MimeBodyPart mimeBodyPart = new MimeBodyPart();
+                MimeBodyPart mimeBodyPart = getMimeBodyPart();
 
                 // By default, all emails sent will be of type HTML. This can be parameterized. For simplification reasons,
                 // use the text/html mime type right now.
-                mimeBodyPart.setContent(msg, "text/html");
-
+                mimeBodyPart.setContent(msg, "text/html; charset=" + ENCODING);
                 Multipart multipart = new MimeMultipart();
                 multipart.addBodyPart(mimeBodyPart);
                 message.setContent(multipart);
@@ -118,15 +121,15 @@ public class SmtpPlugin extends BasePlugin {
 
                     // Iterate over each attachment and add it to the main multipart body of the email
                     for (MultipartFormDataDTO attachment : attachmentData) {
-                        MimeBodyPart attachBodyPart = new MimeBodyPart();
+                        MimeBodyPart attachBodyPart = getMimeBodyPart();
 
                         // Decode the base64 data received in the input by first removing the sequence data:image/png;base64,
                         // from the start of the string.
                         Base64.Decoder decoder = Base64.getDecoder();
                         String attachmentStr = String.valueOf(attachment.getData());
                         if (!attachmentStr.contains(BASE64_DELIMITER)) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                                    "Attachment " + attachment.getName() + " contains invalid data. Unable to send email."));
+                            return Mono.error(new AppsmithPluginException(SMTPPluginError.MAIL_SENDING_FAILED,
+                                    String.format(SMTPErrorMessages.INVALID_ATTACHMENT_ERROR_MSG, attachment.getName())));
                         }
                         byte[] bytes = decoder.decode(attachmentStr.split(BASE64_DELIMITER)[1]);
                         DataSource emailDatasource = new ByteArrayDataSource(bytes, attachment.getType());
@@ -150,14 +153,23 @@ public class SmtpPlugin extends BasePlugin {
 
                 log.debug("Sent the email successfully");
             } catch (MessagingException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to send email because of error: " + e.getMessage()));
+                return Mono.error(new AppsmithPluginException(SMTPPluginError.MAIL_SENDING_FAILED,
+                        SMTPErrorMessages.MAIL_SENDING_FAILED_ERROR_MSG, e.getMessage()));
             } catch (IOException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to parse the email body/attachments because it was an invalid object."));
+                return Mono.error(new AppsmithPluginException(SMTPPluginError.MAIL_SENDING_FAILED,
+                        SMTPErrorMessages.UNPARSABLE_EMAIL_BODY_OR_ATTACHMENT_ERROR_MSG, e.getMessage()));
             }
 
             return Mono.just(result);
+        }
+
+        @NotNull
+        MimeBodyPart getMimeBodyPart() {
+            return new MimeBodyPart();
+        }
+
+        MimeMessage getMimeMessage(Session connection) {
+            return new MimeMessage(connection);
         }
 
         @Override
@@ -204,13 +216,11 @@ public class SmtpPlugin extends BasePlugin {
             log.debug("Going to validate email datasource");
             Set<String> invalids = new HashSet<>();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
+                invalids.add(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
             } else {
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
                 if (!StringUtils.hasText(endpoint.getHost())) {
-                    invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
+                    invalids.add(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
                 }
             }
 
@@ -236,12 +246,12 @@ public class SmtpPlugin extends BasePlugin {
                             }
                             return invalids;
                         } catch (NoSuchProviderException e) {
-                            invalids.add("Unable to create underlying SMTP protocol. Please contact support");
+                            invalids.add(SMTPErrorMessages.DS_NO_SUCH_PROVIDER_ERROR_MSG);
                         } catch (AuthenticationFailedException e) {
-                            invalids.add("Authentication failed with the SMTP server. Please check your username/password settings.");
+                            invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
                         } catch (MessagingException e) {
                             log.debug(e.getMessage());
-                            invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
+                            invalids.add(SMTPErrorMessages.DS_CONNECTION_FAILED_TO_SMTP_SERVER_ERROR_MSG);
                         }
                         return invalids;
                     })

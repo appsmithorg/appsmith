@@ -177,5 +177,6 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       break;
     }
   }
+
   yield call(evalErrorHandler, data?.errors || []);
 }

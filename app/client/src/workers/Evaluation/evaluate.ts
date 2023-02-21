@@ -359,8 +359,11 @@ export async function evaluateAsync(
     } catch (e) {
       const error = e as Error;
       const errorMessage = error.name
-        ? `${error.name}: ${error.message}`
-        : `UncaughtPromiseRejection: ${error.message}`;
+        ? { name: error.name, message: error.message }
+        : {
+            name: "UncaughtPromiseRejection",
+            message: `${error.message}`,
+          };
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
