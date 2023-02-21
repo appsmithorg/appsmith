@@ -227,7 +227,6 @@ export function getLayoutConfig(alignment: Alignment, spacing: Spacing): any[] {
 export const NonResizableWidgets = [
   "AUDIO_WIDGET",
   "BUTTON_WIDGET",
-  "FILE_PICKER_WIDGET_V2",
   "BUTTON_GROUP_WIDGET",
   "CHECKBOX_WIDGET",
   "CURRENCY_INPUT_WIDGET",
@@ -290,7 +289,12 @@ export const DefaultFillWidgets = [
 ];
 
 // TODO(aswathkk): See if this needs to be moved to widget config
-export const WIDGET_WITH_DYNAMIC_WIDTH = ["BUTTON_WIDGET"];
+export const WIDGET_WITH_DYNAMIC_WIDTH = [
+  "BUTTON_WIDGET",
+  "ICON_BUTTON_WIDGET",
+  "MENU_BUTTON_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
+];
 
 // TODO(aswathkk): See if this needs to be moved to widget config
 // This is used only for autoLayout
