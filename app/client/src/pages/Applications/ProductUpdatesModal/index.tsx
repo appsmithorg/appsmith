@@ -72,7 +72,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   const Layers = useContext(LayersContext);
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
-  return (
+  return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
     <StyledDialog
       canEscapeKeyClose
       canOutsideClickClose
@@ -92,7 +92,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
       </Container>
       <ScrollIndicator containerRef={containerRef} />
     </StyledDialog>
-  );
+  ) : null;
 }
 
 export default ProductUpdatesModal;
