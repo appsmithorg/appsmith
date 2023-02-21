@@ -831,7 +831,6 @@ export const overrideWidgetProperties = (params: {
 
     const pathsNotToOverride = widgetPathsNotToOverride(
       isNewWidget,
-      entity,
       propertyPath,
       configEntity,
     );
@@ -911,7 +910,6 @@ export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
 
 const widgetPathsNotToOverride = (
   isNewWidget: boolean,
-  entity: DataTreeWidget,
   propertyPath: string,
   entityConfig: WidgetEntityConfig,
 ) => {
@@ -920,7 +918,7 @@ const widgetPathsNotToOverride = (
     entityConfig.overridingPropertyPaths[propertyPath];
 
   // Check if widget has pre-existing meta values (although newly added to the unevalTree)
-  if (isNewWidget && entity.isMetaPropDirty) {
+  if (isNewWidget && entityConfig.isMetaPropDirty) {
     const overriddenMetaPaths = overriddenPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
     );
@@ -950,20 +948,21 @@ const isWidgetDefaultPropertyPath = (
   return false;
 };
 
-const isMetaWidgetTemplate = (widget: WidgetEntityConfig) => {
+const isMetaWidgetTemplate = (widget: DataTreeWidget) => {
   return !!widget.siblingMetaWidgets;
 };
 
 // When a default value changes in a template(widgets used to generate other widgets), meta values of metaWidgets not present in the unevalTree become stale
 export function getStaleMetaStateIds(args: {
-  entity: WidgetEntityConfig;
+  entity: DataTreeWidget;
+  entityConfig: WidgetEntityConfig;
   propertyPath: string;
   isNewWidget: boolean;
   metaWidgets: string[];
 }) {
-  const { entity, isNewWidget, metaWidgets, propertyPath } = args;
+  const { entity, entityConfig, isNewWidget, metaWidgets, propertyPath } = args;
   return !isNewWidget &&
-    isWidgetDefaultPropertyPath(entity, propertyPath) &&
+    isWidgetDefaultPropertyPath(entityConfig, propertyPath) &&
     isMetaWidgetTemplate(entity)
     ? difference(entity.siblingMetaWidgets, metaWidgets)
     : [];

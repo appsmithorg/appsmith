@@ -824,7 +824,8 @@ export default class DataTreeEvaluator {
               }
               staleMetaIds = staleMetaIds.concat(
                 getStaleMetaStateIds({
-                  entity: entityConfig as WidgetEntityConfig,
+                  entity,
+                  entityConfig: entityConfig as WidgetEntityConfig,
                   propertyPath,
                   isNewWidget,
                   metaWidgets,
