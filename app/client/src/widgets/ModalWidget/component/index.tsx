@@ -281,7 +281,8 @@ export default function ModalComponent(props: ModalComponentProps) {
         hasBackdrop={false}
         isOpen={props.isOpen}
         onClose={props.onClose}
-        usePortal={false}
+        portalContainer={props.portalContainer}
+        usePortal
       >
         <Container
           bottom={props.bottom}

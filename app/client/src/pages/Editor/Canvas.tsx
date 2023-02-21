@@ -8,7 +8,7 @@ import React from "react";
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { getCanvasScale, previewModeSelector } from "selectors/editorSelectors";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 
 interface CanvasProps {
@@ -20,15 +20,19 @@ interface CanvasProps {
 const Container = styled.section<{
   background: string;
   width: number;
+  scale: number;
 }>`
   background: ${({ background }) => background};
   width: ${(props) => props.width}px;
+  transform: scale(${(props) => props.scale});
+  transform-origin: 0 0;
 `;
 
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
+  const canvasScale = useSelector(getCanvasScale);
 
   /**
    * background for canvas
@@ -51,6 +55,7 @@ const Canvas = (props: CanvasProps) => {
         data-testid="t--canvas-artboard"
         id="art-board"
         ref={focusRef}
+        scale={canvasScale}
         width={canvasWidth}
       >
         {props.widgetsStructure.widgetId &&

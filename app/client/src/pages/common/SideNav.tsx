@@ -17,6 +17,7 @@ const Container = styled.div`
   box-shadow: 1px 0 0 #f1f1f1;
   height: 100%;
   border-right: 1px solid #e8e8e8;
+  z-index: 3;
 `;
 
 const Button = styled.div`

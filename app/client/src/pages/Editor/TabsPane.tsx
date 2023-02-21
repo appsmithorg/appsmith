@@ -30,23 +30,13 @@ const TabsPane = (props: Props) => {
   const { onWidthChange, width } = props;
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isPreviewMode = useSelector(previewModeSelector);
-  const [windowWidth] = useWindowDimensions();
 
   const resizer = useHorizontalResize(sidebarRef, onWidthChange);
-
-  useEffect(() => {
-    // Tabs width should be 1/3 of the screen but not less than minimum
-    const initialWidth = Math.max(
-      (windowWidth - SIDE_NAV_WIDTH) / 3,
-      TABS_PANE_MIN_WIDTH,
-    );
-    onWidthChange(initialWidth);
-  }, []);
 
   return (
     <TabsContainer
       className={classNames({
-        "transition-all transform duration-400 border-r border-gray-200": true,
+        "transition-all transform duration-400 border-r border-gray-200 z-[3] bg-white": true,
         "translate-x-0 opacity-0": isPreviewMode,
         "opacity-100": !isPreviewMode,
         [`w-[${width}px] min-w-[${TABS_PANE_MIN_WIDTH}px] translate-x-${width}`]: !isPreviewMode,

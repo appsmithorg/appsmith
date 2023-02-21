@@ -102,7 +102,7 @@ div.bp3-popover-arrow {
 
 
 /* making both the Modal layer and the Dropdown layer */
-.bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
+.bp3-modal-widget, .canvas + .bp3-portal {
   z-index: 2 !important;
 }
 

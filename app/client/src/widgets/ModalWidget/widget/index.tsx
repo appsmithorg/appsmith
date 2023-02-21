@@ -211,8 +211,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   makeModalComponent(content: ReactNode, isEditMode: boolean) {
-    const artBoard = document.getElementById("art-board");
-    const portalContainer = isEditMode && artBoard ? artBoard : undefined;
+    const canvasViewport = document.getElementById("canvas-viewport")
+      ?.parentElement;
+    const portalContainer =
+      isEditMode && canvasViewport ? canvasViewport : undefined;
     const {
       focusedWidget,
       isDragging,
@@ -241,6 +243,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         widgetName={this.props.widgetName}
       />
     ) : null;
+    // TODO: Adjust according to the pane position
+    const leftAdjust = isEditMode ? 600 : 0;
 
     return (
       <ModalComponent
@@ -254,6 +258,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
         isOpen={!!this.props.isVisible}
+        left={leftAdjust}
         maxWidth={this.getMaxModalWidth()}
         minSize={minSize}
         onClose={this.closeModal}

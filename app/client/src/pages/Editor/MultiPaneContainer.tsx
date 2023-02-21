@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import SideNav from "pages/common/SideNav";
+import SideNav, { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import classNames from "classnames";
 import BottomBar from "pages/Editor/BottomBar";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +15,11 @@ import {
 } from "selectors/multiPaneSelectors";
 import { setTabsPaneWidth } from "actions/multiPaneActions";
 import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
-import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import {
+  PaneLayoutOptions,
+  TABS_PANE_MIN_WIDTH,
+} from "reducers/uiReducers/multiPaneReducer";
+import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
 
 const Container = styled.div`
   height: calc(
@@ -41,7 +45,16 @@ const MultiPaneContainer = () => {
   const dispatch = useDispatch();
   const isPreviewMode = useSelector(previewModeSelector);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
-  const updatePaneWidth = (width: number) => dispatch(setTabsPaneWidth(width));
+  const [windowWidth] = useWindowDimensions();
+  const updatePaneWidth = (width: number) => {
+    // Tabs width should be 1/3 of the screen but not less than minimum
+    const minWidth = Math.max(
+      (windowWidth - SIDE_NAV_WIDTH) / 3,
+      TABS_PANE_MIN_WIDTH,
+    );
+    const newWidth = Math.max(minWidth, width);
+    dispatch(setTabsPaneWidth(newWidth));
+  };
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
   const showPropertyPane = isMultiPane

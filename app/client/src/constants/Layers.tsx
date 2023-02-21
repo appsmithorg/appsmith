@@ -63,7 +63,7 @@ export const Layers = {
 
 export const tailwindLayers = {
   propertyPane: "z-[3]",
-  entityExplorer: "z-[3]",
+  entityExplorer: "z-[4]",
   resizer: "z-[4]",
 };
 
