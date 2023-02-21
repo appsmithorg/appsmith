@@ -468,6 +468,7 @@ export default class DataTreeEvaluator {
         removedPaths,
         extraPathsToLint,
         translatedDiffs,
+        pathsToClearErrorsFor,
       }),
       jsUpdates,
     };
@@ -482,6 +483,7 @@ export default class DataTreeEvaluator {
       removedPaths: string[];
       extraPathsToLint: string[];
       translatedDiffs: DataTreeDiff[];
+      pathsToClearErrorsFor: any[];
     },
   ) {
     const {
