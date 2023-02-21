@@ -2792,4 +2792,20 @@ public class DatabaseChangelog2 {
         }
     }
 
+    /**
+     * We are introducing SSL settings config for MSSQL, hence this migration configures older existing datasources
+     * with a setting that matches their current configuration (i.e. set to `disabled` since they have been running
+     * with encryption disabled post the Spring 6 upgrade).
+     *
+     */
+    @ChangeSet(order = "041", id = "add-ssl-mode-settings-for-existing-mssql-datasources", author = "")
+    public void addSslModeSettingsForExistingMssqlDatasource(MongoTemplate mongoTemplate) {
+        Plugin mssqlPlugin = mongoTemplate.findOne(query(where("packageName").is("mssql-plugin")),
+                Plugin.class);
+        Query queryToGetDatasources = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(mssqlPlugin);
+
+        Update update = new Update();
+        update.set("datasourceConfiguration.connection.ssl.authType", "DISABLE");
+        mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
+    }
 }

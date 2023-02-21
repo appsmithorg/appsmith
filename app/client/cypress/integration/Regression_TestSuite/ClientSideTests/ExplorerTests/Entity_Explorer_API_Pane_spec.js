@@ -3,6 +3,7 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pageid = "MyPage";
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
 let ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
@@ -70,6 +71,7 @@ describe("Entity explorer API pane related testcases", function() {
       .click({ force: true });
     ee.ActionContextMenuByEntityName("SecondAPI", "Move to page", pageid);
     cy.wait(500);
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.AssertEntityPresenceInExplorer("SecondAPI");
     /*To be enabled once the bug is fixed
     cy.get(apiwidget.propertyList).then(function($lis) {

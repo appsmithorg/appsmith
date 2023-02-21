@@ -46,7 +46,7 @@ const Container = styled.div`
     position: absolute;
     top: 0px;
     right: 0px;
-    padding: 12px 15px;
+    padding: 9px 11px;
   }
 `;
 
@@ -99,7 +99,7 @@ function DebuggerTabs() {
         className="close-debugger t--close-debugger"
         name="expand-more"
         onClick={onClose}
-        size={IconSize.XXXXL}
+        size={IconSize.MEDIUM}
       />
     </Container>
   );
