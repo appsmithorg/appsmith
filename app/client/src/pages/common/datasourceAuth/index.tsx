@@ -305,7 +305,7 @@ function DatasourceAuth({
 
   useEffect(() => {
     // This loads the picker object in gapi script
-    if (!!gsheetToken) {
+    if (!!gsheetToken && !!gapi) {
       gapi.load("client:picker", async () => {
         await gapi.client.load(
           "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
@@ -316,7 +316,7 @@ function DatasourceAuth({
   }, [scriptLoadedFlag, gsheetToken]);
 
   useEffect(() => {
-    if (!!gsheetToken && scriptLoadedFlag && pickerInitiated) {
+    if (!!gsheetToken && scriptLoadedFlag && pickerInitiated && !!google) {
       createPicker(gsheetToken);
     }
   }, [gsheetToken, scriptLoadedFlag, pickerInitiated]);

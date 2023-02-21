@@ -439,7 +439,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 String accessToken = new String("");
-                                if (oAuth2.getMode() != null && oAuth2.getMode().equals("SPECIFIC_SHEETS")) {
+                                if (oAuth2.getScope() != null && oAuth2.getScope().contains("https://www.googleapis.com/auth/drive.file")) {
                                     accessToken = (String) tokenResponse.get("access_token");
                                 }
                                 return Mono.just(datasource).zipWith(Mono.just(accessToken));

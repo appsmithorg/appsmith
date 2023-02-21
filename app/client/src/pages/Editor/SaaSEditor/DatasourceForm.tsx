@@ -34,6 +34,7 @@ import Connected from "../DataSourceEditor/Connected";
 
 import {
   getCurrentApplicationId,
+  getGsheetToken,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import DatasourceAuth from "pages/common/datasourceAuth";
@@ -444,7 +445,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ...pagePermissions,
   ]);
 
-  const gsheetToken = state.entities.datasources.gsheetToken;
+  const gsheetToken = getGsheetToken(state);
 
   return {
     datasource,
