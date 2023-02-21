@@ -1,7 +1,5 @@
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-const table = ObjectsRegistry.TableV2;
+import { DEFAULT_COLUMN_NAME } from "../../../../../../src/widgets/TableWidgetV2/constants";
 
 describe("tests bug 20663 TypeError: Cannot read properties of undefined", function() {
   before(() => {
@@ -17,8 +15,8 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       // eslint-disable-next-line prettier/prettier
     ).type("{{}{{}appsmith.mode{}}{}}");
-    cy.get(".tableWrap .thead .tr div[role='columnheader']:first-child").should(
-      "contain.text",
+    cy.contains(
+      ".tableWrap .thead .tr div[role='columnheader']:first-child",
       "EDIT",
     );
   });
@@ -32,9 +30,9 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       // eslint-disable-next-line prettier/prettier
     ).type("{{}{{}false{}}{}}");
-    cy.get(".tableWrap .thead .tr div[role='columnheader']:first-child").should(
-      "contain.text",
-      "tableColumn",
+    cy.contains(
+      ".tableWrap .thead .tr div[role='columnheader']:first-child",
+      DEFAULT_COLUMN_NAME,
     );
   });
 
@@ -47,9 +45,9 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       // eslint-disable-next-line prettier/prettier
     ).type("{{}{{}0{}}{}}");
-    cy.get(".tableWrap .thead .tr div[role='columnheader']:first-child").should(
-      "contain.text",
-      "tableColumn",
+    cy.contains(
+      ".tableWrap .thead .tr div[role='columnheader']:first-child",
+      DEFAULT_COLUMN_NAME,
     );
 
     cy.get(
@@ -59,9 +57,9 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       // eslint-disable-next-line prettier/prettier
     ).type("{{}{{}982{}}{}}");
-    cy.get(".tableWrap .thead .tr div[role='columnheader']:first-child").should(
-      "contain.text",
-      "tableColumn",
+    cy.contains(
+      ".tableWrap .thead .tr div[role='columnheader']:first-child",
+      DEFAULT_COLUMN_NAME,
     );
   });
 
@@ -74,9 +72,9 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       // eslint-disable-next-line prettier/prettier
     ).type("{{}{{}appsmith{}}{}}");
-    cy.get(".tableWrap .thead .tr div[role='columnheader']:first-child").should(
-      "contain.text",
-      "tableColumn",
+    cy.contains(
+      ".tableWrap .thead .tr div[role='columnheader']:first-child",
+      DEFAULT_COLUMN_NAME,
     );
   });
 
@@ -89,6 +87,9 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       // eslint-disable-next-line prettier/prettier
     ).type("{{}{{}ap{}}{}}");
-    cy.get(table._tableRow(0, 0)).should("exist");
+    cy.contains(
+      ".tableWrap .thead .tr div[role='columnheader']:first-child",
+      DEFAULT_COLUMN_NAME,
+    );
   });
 });
