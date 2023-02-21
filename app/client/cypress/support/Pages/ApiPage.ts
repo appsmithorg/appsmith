@@ -37,6 +37,8 @@ export class ApiPage {
     verb +
     "')]";
   private _bodySubTab = (subTab: string) => `[data-cy='tab--${subTab}']`;
+  private _suggestedWidget = (widget: string) =>
+    `.t--suggested-widget-${widget}`;
   private _rightPaneTab = (tab: string) => `[data-cy='t--tab-${tab}']`;
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
@@ -392,5 +394,9 @@ export class ApiPage {
 
     if (apiName) this.agHelper.RenameWithInPane(apiName);
     cy.get(this._resourceUrl).should("be.visible");
+  }
+
+  AddSuggestedWidget(widgetName: string) {
+    this.agHelper.GetNClick(this._suggestedWidget(widgetName));
   }
 }

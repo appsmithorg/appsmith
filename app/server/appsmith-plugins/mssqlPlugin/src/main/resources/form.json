@@ -71,6 +71,28 @@
           ]
         }
       ]
+    },
+    {
+      "id": 3,
+      "sectionName": "SSL",
+      "children": [
+        {
+          "label": "SSL Mode",
+          "configProperty": "datasourceConfiguration.connection.ssl.authType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "NO_VERIFY",
+          "options": [
+            {
+              "label": "Disable",
+              "value": "DISABLE"
+            },
+            {
+              "label": "Enabled with no verify",
+              "value": "NO_VERIFY"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
