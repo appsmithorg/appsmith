@@ -12,7 +12,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { builderURL, jsCollectionIdURL, widgetURL } from "RouteBuilder";
+import { jsCollectionIdURL, widgetURL } from "RouteBuilder";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getActionChildrenNavData } from "utils/NavigationSelector/ActionChildren";
 import { createNavData } from "utils/NavigationSelector/common";
