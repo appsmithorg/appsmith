@@ -1,12 +1,9 @@
-import { ReactComponent as CanvasResizer } from "assets/icons/ads/app-icons/canvas-resizer.svg";
 import React, { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import {
   getCanvasScale,
   getCanvasWidth,
-  getCurrentApplicationLayout,
-  getCurrentAppPositioningType,
   getCurrentPageId,
   getIsFetchingPage,
   getViewModePageList,
@@ -30,55 +27,11 @@ import {
 } from "selectors/appThemingSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import {
-  AUTOLAYOUT_RESIZER_WIDTH_BUFFER,
-  useDynamicAppLayout,
-} from "utils/hooks/useDynamicAppLayout";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
-// import { noop } from "utils/AppsmithUtils";
-// import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import { layoutConfigurations } from "constants/WidgetConstants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { CanvasResizer } from "widgets/CanvasResizer";
 import Canvas from "../Canvas";
 
-const AutoLayoutCanvasResizer = styled.div`
-  position: sticky;
-  cursor: col-resize;
-  width: 2px;
-  height: 100%;
-  display: flex;
-  background: #d9d9d9;
-  align-items: center;
-  justify-content: flex-start;
-  z-index: 2;
-  transition: width 300ms ease;
-  transition: background 300ms ease;
-  .canvas-resizer-icon {
-    border-left: 2px solid;
-    border-color: #d7d7d7;
-    transition: border 300ms ease;
-    margin-left: 2px;
-    & > svg {
-      fill: #d7d7d7;
-      transition: fill 300ms ease;
-    }
-  }
-  &:hover,
-  &:active {
-    width: 3px;
-    transition: width 300ms ease;
-    background: #ff9b4e;
-    transition: background 300ms ease;
-    .canvas-resizer-icon {
-      border-color: #ff9b4e;
-      transition: border 300ms ease;
-      & > svg {
-        fill: #ff9b4e;
-        transition: fill 300ms ease;
-      }
-    }
-  }
-`;
 const Container = styled.section<{
   background: string;
 }>`
@@ -145,91 +98,6 @@ function CanvasContainer() {
       />
     );
   }
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
-  const appLayout = useSelector(getCurrentApplicationLayout);
-  useEffect(() => {
-    if (appPositioningType === AppPositioningTypes.AUTO) {
-      let buffer = 0;
-      const ele: any = document.getElementById("canvas-viewport");
-      if (isPreviewMode) {
-        ele.style.width = "inherit";
-        buffer = AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
-      } else {
-        ele.style.width = "100%";
-      }
-      if (appLayout?.type === "FLUID") {
-        const smallestWidth = layoutConfigurations.MOBILE.minWidth;
-        // Query the element
-        const ele: any = document.getElementById("canvas-viewport");
-        let needsInitiation = true;
-        let initialWidth = ele.offsetWidth;
-        // The current position of mouse
-        let x = 0;
-        // let y = 0;
-
-        // The dimension of the element
-        let w = 0;
-        // let h = 0;
-        let events: any = [];
-
-        // Handle the mousedown event
-        // that's triggered when user drags the resizer
-        const mouseDownHandler = function(e: any) {
-          if (needsInitiation) {
-            initialWidth = ele.offsetWidth;
-            needsInitiation = false;
-          }
-          // Get the current mouse position
-          x = e.clientX;
-          // y = e.clientY;
-
-          // Calculate the dimension of element
-          const styles = window.getComputedStyle(ele);
-          w = parseInt(styles.width, 10) + buffer;
-          // h = parseInt(styles.height, 10);
-          const mouseMove = (e: any) => mouseMoveHandler(e);
-          events.push(mouseMove);
-          // Attach the listeners to `document`
-          document.addEventListener("mousemove", mouseMove);
-          document.addEventListener("mouseup", mouseUpHandler);
-          // e.stopPropagation();
-        };
-
-        const mouseMoveHandler = function(e: any) {
-          // How far the mouse has been moved
-          // const multiplier = rightHandle ? 2 : -2;
-          const multiplier = 2;
-          const dx = (e.clientX - x) * multiplier;
-          if (initialWidth >= w + dx && smallestWidth <= w + dx) {
-            // Adjust the dimension of element
-            ele.style.width = `${w + dx}px`;
-          }
-          if (initialWidth < w + dx) {
-            ele.style.width = `${initialWidth}px`;
-          }
-          if (smallestWidth > w + dx) {
-            ele.style.width = `${smallestWidth}px`;
-          }
-          // e.stopPropagation();
-        };
-
-        const mouseUpHandler = function(e: any) {
-          // Remove the handlers of `mousemove` and `mouseup`
-          mouseMoveHandler(e);
-          document.removeEventListener("mousemove", events[0] as any);
-          document.removeEventListener("mouseup", mouseUpHandler);
-          events = [];
-        };
-        const rightResizer: any = ele.querySelectorAll(".resizer-right")[0];
-        const rightMove = (e: any) => mouseDownHandler(e);
-        rightResizer.addEventListener("mousedown", rightMove);
-
-        return () => {
-          rightResizer.removeEventListener("mousedown", rightMove);
-        };
-      }
-    }
-  }, [appLayout, isPreviewMode, currentPageId, appPositioningType]);
 
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
@@ -264,26 +132,9 @@ function CanvasContainer() {
         </div>
       )}
       {node}
-      {appPositioningType === AppPositioningTypes.AUTO && (
-        <AutoLayoutCanvasResizer
-          className="resizer-right"
-          draggable
-          onDragStart={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          style={{
-            left: isPreviewMode
-              ? `calc(100% - ${20}px)`
-              : `calc(100% - ${37}px)`,
-            bottom: isPreviewMode ? "-3px" : "0%",
-          }}
-        >
-          <div className="canvas-resizer-icon">
-            <CanvasResizer />
-          </div>
-        </AutoLayoutCanvasResizer>
-      )}
+      <CanvasResizer
+        isPageInitiated={!isPageInitializing && !!widgetsStructure}
+      />
     </Container>
   );
 }
