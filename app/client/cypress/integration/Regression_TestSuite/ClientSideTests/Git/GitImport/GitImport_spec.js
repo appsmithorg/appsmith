@@ -209,9 +209,9 @@ describe("Git import flow ", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.latestDeployPreview();
-    cy.get(".tbody")
-      .first()
-      .should("contain.text", "Test user 7");
+    _.table.ReadTableRowColumnData(0, 1).then(($text) => {
+      expect($text).to.eq("Test user 7New Config");
+    }); //Checking both tables
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
@@ -220,9 +220,9 @@ describe("Git import flow ", function() {
     cy.get(".t--page-switch-tab")
       .contains("Page1")
       .click({ force: true });
-    cy.get(".tbody")
-      .first()
-      .should("contain.text", "Test user 7");
+    _.table.ReadTableRowColumnData(0, 1).then(($text) => {
+      expect($text).to.eq("Test user 7New Config");
+    }); //Checking both tables
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
