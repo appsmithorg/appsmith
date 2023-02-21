@@ -2,9 +2,6 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-const isMac = Cypress.platform === "darwin";
-const selectAll = `${isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
-
 describe("Checkbox Group Widget Functionality", function() {
   let dsName;
   before(() => {
@@ -15,17 +12,20 @@ describe("Checkbox Group Widget Functionality", function() {
   });
 
   it("1. Check checkbox group with dynamic query", function() {
-    let query = `SELECT * FROM public."country" LIMIT 2;`;
+    let query1 = `SELECT * FROM public."country" LIMIT 10;`;
+    let query2 = `SELECT * FROM public."country" LIMIT 2;`;
+
     // add Query 1 with limit 10
-    _.ee.SelectEntityByName(dsName, "Datasources");
-    _.ee.ExpandCollapseEntity(dsName);
-    _.ee.ActionTemplateMenuByEntityName("public.country", "SELECT"); //Query1
+
+    _.ee.CreateNewDsQuery(dsName);
+    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    _.dataSources.EnterQuery(query1); //Query1
     _.dataSources.RunQuery();
 
     // add Query 2 with limit 2
     _.ee.CreateNewDsQuery(dsName);
     _.agHelper.GetNClick(_.dataSources._templateMenu);
-    _.dataSources.EnterQuery(query);
+    _.dataSources.EnterQuery(query2);
     _.dataSources.RunQuery();
 
     // add checkbox group widget
