@@ -11,6 +11,7 @@ type FeatureFlags = {
   MULTIPLE_PANES?: boolean;
   AUTO_LAYOUT?: boolean;
   LIMITING_GOOGLE_SHEET_ACCESS?: boolean;
+  LAZY_CANVAS_RENDERING?: boolean;
 };
 
 export default FeatureFlags;

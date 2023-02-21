@@ -193,7 +193,7 @@ export default function LeftPane() {
                 to="/settings/business-edition"
               >
                 <div>
-                  <Icon name="arrow-right-up-line" size={IconSize.XL} />
+                  <Icon name="arrow-up-line" size={IconSize.XL} />
                 </div>
                 <div>{camelCase(createMessage(UPGRADE))}</div>
               </StyledLink>

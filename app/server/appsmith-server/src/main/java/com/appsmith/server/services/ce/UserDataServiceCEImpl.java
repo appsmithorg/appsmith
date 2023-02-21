@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QUserData;
@@ -215,11 +214,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                     final Asset uploadedAsset = tuple.getT2();
                     final UserData updates = new UserData();
                     updates.setProfilePhotoAssetId(uploadedAsset.getId());
-                    final Mono<UserData> updateMono = updateForCurrentUser(updates).map(userData -> {
-                        userChangedHandler.publish(userData.getUserId(), uploadedAsset.getId());
-                        return userData;
-                    });
-                    if (StringUtils.isEmpty(oldAssetId)) {
+                    final Mono<UserData> updateMono = updateForCurrentUser(updates);
+                    if (!StringUtils.hasLength(oldAssetId)) {
                         return updateMono;
                     } else {
                         return assetService.remove(oldAssetId).then(updateMono);
@@ -233,7 +229,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .flatMap(userData -> {
                     String profilePhotoAssetId = userData.getProfilePhotoAssetId();
                     userData.setProfilePhotoAssetId(null);
-                    userChangedHandler.publish(userData.getUserId(), null);
                     return repository.save(userData).thenReturn(profilePhotoAssetId);
                 })
                 .flatMap(assetService::remove);
@@ -316,17 +311,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     @Override
     public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
         return featureFlagService.getAllFeatureFlagsForUser();
-    }
-
-    @Override
-    public Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState) {
-        if (commentOnboardingState != CommentOnboardingState.SKIPPED && commentOnboardingState != CommentOnboardingState.ONBOARDED) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, QUserData.userData.commentOnboardingState));
-        }
-        return this.getForCurrentUser().flatMap(userData -> {
-            userData.setCommentOnboardingState(commentOnboardingState);
-            return repository.save(userData);
-        });
     }
 
     /**

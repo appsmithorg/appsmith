@@ -124,7 +124,7 @@ export const useCanvasDragging = (
 
   if (useAutoLayout) {
     setTimeout(() => {
-      calculateHighlights();
+      calculateHighlights(snapColumnSpace);
     }, 0);
 
     if (!isDragging || !isCurrentDraggedCanvas) {
@@ -220,10 +220,13 @@ export const useCanvasDragging = (
         const onMouseUp = () => {
           if (isDragging && canvasIsDragging) {
             if (useAutoLayout) {
-              const dropInfo: HighlightInfo | undefined = getDropInfo({
-                x: currentRectanglesToDraw[0].top,
-                y: currentRectanglesToDraw[0].left,
-              });
+              const dropInfo: HighlightInfo | undefined = getDropInfo(
+                {
+                  x: currentRectanglesToDraw[0].top,
+                  y: currentRectanglesToDraw[0].left,
+                },
+                snapColumnSpace,
+              );
               if (dropInfo !== undefined)
                 updateChildrenPositions(dropInfo, currentRectanglesToDraw);
             } else {
@@ -433,7 +436,7 @@ export const useCanvasDragging = (
 
               if (useAutoLayout && isCurrentDraggedCanvas) {
                 setTimeout(() => {
-                  selectedHighlight = highlightDropPosition(e);
+                  selectedHighlight = highlightDropPosition(e, snapColumnSpace);
                 }, 50);
               }
             }

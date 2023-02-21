@@ -24,7 +24,7 @@ describe("Chart Widget Functionality", function() {
     cy.widgetText(
       "Test",
       viewWidgetsPage.chartWidget,
-      commonlocators.containerInnerText,
+      widgetsPage.widgetNameSpan,
     );
     cy.EnableAllCodeEditors();
     //changing the Chart Title

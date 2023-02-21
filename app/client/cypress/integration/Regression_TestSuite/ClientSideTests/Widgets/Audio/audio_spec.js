@@ -10,7 +10,11 @@ describe("Audio Widget Functionality", function() {
 
   it("Audio Widget play functionality validation", function() {
     cy.openPropertyPane("audiowidget");
-    cy.widgetText("Audio1", widgetsPage.audioWidget, commonlocators.audioInner);
+    cy.widgetText(
+      "Audio1",
+      widgetsPage.audioWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.get(commonlocators.onPlay).click();
     cy.selectShowMsg();
     cy.addSuccessMessage("Play success");
@@ -59,7 +63,7 @@ describe("Audio Widget Functionality", function() {
     cy.widgetText(
       "Button1",
       widgetsPage.buttonWidget,
-      commonlocators.buttonInner,
+      widgetsPage.widgetNameSpan,
     );
     cy.get(commonlocators.onClick).click();
     cy.selectResetWidget();

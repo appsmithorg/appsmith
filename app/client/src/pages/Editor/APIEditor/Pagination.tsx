@@ -190,6 +190,7 @@ export default function Pagination(props: PaginationProps) {
                   <DynamicTextField
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationPrev"
+                    evaluatedPopUpLabel="Previous Url"
                     fill={!!true}
                     focusElementName={`${props.actionName}.actionConfiguration.prev`}
                     height="100%"
@@ -216,6 +217,7 @@ export default function Pagination(props: PaginationProps) {
                   <DynamicTextField
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationNext"
+                    evaluatedPopUpLabel="Next Url"
                     fill={!!true}
                     focusElementName={`${props.actionName}.actionConfiguration.next`}
                     height="100%"

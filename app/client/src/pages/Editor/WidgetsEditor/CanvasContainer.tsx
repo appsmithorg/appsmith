@@ -150,10 +150,12 @@ function CanvasContainer() {
   useEffect(() => {
     if (appPositioningType === AppPositioningTypes.AUTO) {
       let buffer = 0;
+      const ele: any = document.getElementById("canvas-viewport");
       if (isPreviewMode) {
-        const ele: any = document.getElementById("canvas-viewport");
         ele.style.width = "inherit";
         buffer = AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
+      } else {
+        ele.style.width = "100%";
       }
       if (appLayout?.type === "FLUID") {
         const smallestWidth = layoutConfigurations.MOBILE.minWidth;

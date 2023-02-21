@@ -53,7 +53,7 @@ describe("JSEditor tests", function() {
     _.ee.SelectEntityByName("Page1", "Pages");
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
-      .eq(2)
+      .eq(5)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal(
@@ -77,7 +77,7 @@ describe("JSEditor tests", function() {
     cy.wait(2000);
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
-      .eq(2)
+      .eq(5)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal(
@@ -129,7 +129,7 @@ describe("JSEditor tests", function() {
     );
     cy.xpath("//span[text()='Clear store']").click({ force: true });
     cy.get(".t--draggable-textwidget span")
-      .eq(2)
+      .eq(5)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal(

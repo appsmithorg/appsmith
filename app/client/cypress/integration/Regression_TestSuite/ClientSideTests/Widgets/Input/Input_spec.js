@@ -35,7 +35,7 @@ describe("Input Widget Functionality", function() {
      * @param{InputWidget}Mouseover
      * @param{InputPre Css} Assertion
      */
-    cy.widgetText("day", widgetsPage.inputWidget, widgetsPage.inputval);
+    cy.widgetText("day", widgetsPage.inputWidget, widgetsPage.widgetNameSpan);
     cy.get(widgetsPage.datatype)
       .last()
       .click({ force: true })

@@ -20,6 +20,7 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -110,6 +111,7 @@ export class ContainerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
             propertyName: "borderRadius",

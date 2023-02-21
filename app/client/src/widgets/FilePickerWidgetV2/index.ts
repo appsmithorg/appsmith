@@ -1,4 +1,4 @@
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import FileDataTypes from "./constants";
 import IconSVG from "./icon.svg";
@@ -28,7 +28,7 @@ export const CONFIG = {
     isDisabled: false,
     animateLoading: true,
     responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
-    minWidth: FILL_WIDGET_MIN_WIDTH,
+    minWidth: BUTTON_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -38,6 +38,19 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "120px",
+            maxWidth: "360px",
+          };
+        },
+      },
+    ],
   },
 };
 

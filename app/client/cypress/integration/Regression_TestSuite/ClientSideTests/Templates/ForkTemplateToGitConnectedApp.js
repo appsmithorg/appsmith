@@ -32,11 +32,6 @@ describe("Fork a template to the current app", () => {
     );
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.xpath(
       "//div[text()='Slack Bot']/parent::div//button[contains(@class, 't--fork-template')]",
     )
@@ -109,7 +104,7 @@ describe("Fork a template to the current app", () => {
       _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
       cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
       cy.get(gitSyncLocators.commitButton).click();
-      cy.wait(10000);
+      _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
   });

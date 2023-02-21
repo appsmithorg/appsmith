@@ -1,6 +1,9 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, debounce, takeEvery, takeLatest } from "redux-saga/effects";
-import { batchCallsToUpdateWidgetAutoHeightSaga } from "./batcher";
+import {
+  batchCallsToUpdateWidgetAutoHeightSaga,
+  callEvalWithoutReplay,
+} from "./batcher";
 import { dynamicallyUpdateContainersSaga } from "./containers";
 import { generateTreeForAutoHeightComputations } from "./layoutTree";
 import { updateWidgetAutoHeightSaga } from "./widgets";
@@ -33,6 +36,10 @@ export default function* autoHeightSagas() {
     takeLatest(
       ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
       generateTreeForAutoHeightComputations,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
+      callEvalWithoutReplay,
     ),
   ]);
 }

@@ -97,9 +97,21 @@ const updateHeight = (
   }
 };
 
-function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
+function useUpdateRows(
+  bottomRow: number,
+  widgetId: string,
+  parentId?: string,
+  mobileBottomRow?: number,
+  isMobile?: boolean,
+  isAutoLayoutActive?: boolean,
+) {
   // This gives us the number of rows
-  const snapRows = getCanvasSnapRows(bottomRow);
+  const snapRows = getCanvasSnapRows(
+    bottomRow,
+    mobileBottomRow,
+    isMobile,
+    isAutoLayoutActive,
+  );
   // Put the existing snap rows in a ref.
   const rowRef = useRef(snapRows);
 
@@ -139,7 +151,6 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
       occupiedSpacesByChildren,
       widgetId,
     );
-
     // If the current number of rows in the drop target is less
     // than the expected number of rows in the drop target
     if (rowRef.current < newRows) {
@@ -185,11 +196,14 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
 export function DropTargetComponent(props: DropTargetComponentProps) {
   // Get if this is in preview mode.
   const isPreviewMode = useSelector(previewModeSelector);
-
+  const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
   const { contextValue, dropTargetRef, rowRef } = useUpdateRows(
     props.bottomRow,
     props.widgetId,
     props.parentId,
+    props.mobileBottomRow,
+    props.isMobile,
+    isAutoLayoutActive,
   );
 
   // Are we currently resizing?
@@ -202,7 +216,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   );
   // Are we changing the auto height limits by dragging the signifiers?
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
-  const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
   // which canvas is active(being dragged on),
@@ -240,7 +253,14 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         props.widgetId === MAIN_CONTAINER_WIDGET_ID,
       );
     }
-  }, [props.widgetId, props.bottomRow, isDragging, isResizing]);
+  }, [
+    props.widgetId,
+    props.bottomRow,
+    props.mobileBottomRow,
+    props.isMobile,
+    isDragging,
+    isResizing,
+  ]);
 
   const handleFocus = (e: any) => {
     // Making sure that we don't deselect the widget
