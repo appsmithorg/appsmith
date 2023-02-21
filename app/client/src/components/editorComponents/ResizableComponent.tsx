@@ -2,14 +2,18 @@ import { AppState } from "@appsmith/reducers";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Resizable from "resizable/resizenreflow";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { ReflowResizable as AutoLayoutResizable } from "resizable/autolayoutresize";
+import { ReflowResizable as FixedLayoutResizable } from "resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
+  getCurrentAppPositioningType,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -37,11 +41,7 @@ import {
 } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { DropTargetContext } from "./DropTargetComponent";
-import {
-  computeFinalRowCols,
-  computeRowCols,
-  UIElementSize,
-} from "./ResizableUtils";
+import { computeFinalRowCols, UIElementSize } from "./ResizableUtils";
 import {
   BottomHandleStyles,
   BottomLeftHandleStyles,
@@ -64,7 +64,9 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
   const dispatch = useDispatch();
-
+  const isAutoLayout =
+    useSelector(getCurrentAppPositioningType) === AppPositioningTypes.AUTO;
+  const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
 
@@ -126,15 +128,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   };
 
   // onResize handler
-  const getResizedPositions = (
-    newDimensions: UIElementSize,
-    position: XYCord,
-  ) => {
-    const delta: UIElementSize = {
-      height: newDimensions.height - dimensions.height,
-      width: newDimensions.width - dimensions.width,
-    };
-    const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
+  const getResizedPositions = (resizedPositions: OccupiedSpace) => {
     let canResizeVertically = true;
     let canResizeHorizontally = true;
 
@@ -146,27 +140,21 @@ export const ResizableComponent = memo(function ResizableComponent(
       };
 
     if (
-      newRowCols &&
-      (newRowCols.rightColumn > getSnapColumns() ||
-        newRowCols.leftColumn < 0 ||
-        newRowCols.rightColumn - newRowCols.leftColumn < 2)
+      resizedPositions &&
+      (resizedPositions.right > getSnapColumns() ||
+        resizedPositions.left < 0 ||
+        resizedPositions.right - resizedPositions.left < 2)
     ) {
       canResizeHorizontally = false;
     }
 
     if (
-      newRowCols &&
-      (newRowCols.topRow < 0 || newRowCols.bottomRow - newRowCols.topRow < 4)
+      resizedPositions &&
+      (resizedPositions.top < 0 ||
+        resizedPositions.bottom - resizedPositions.top < 4)
     ) {
       canResizeVertically = false;
     }
-    const resizedPositions = {
-      id: props.widgetId,
-      left: newRowCols.leftColumn,
-      top: newRowCols.topRow,
-      bottom: newRowCols.bottomRow,
-      right: newRowCols.rightColumn,
-    };
 
     if (isAutoHeightEnabledForWidget(props)) {
       canResizeVertically = false;
@@ -178,7 +166,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     return {
       canResizeHorizontally,
       canResizeVertically,
-      resizedPositions,
     };
   };
 
