@@ -7,32 +7,7 @@ import {
   HighlighedCodeContainer,
   LazyEditorWrapper,
 } from "./index.layout";
-
-/**
- * Shimming request idle callback as it is not available in Safari browser.
- * If unavailable, then use a timeout to process callback on a separate thread.
- */
-(window as any).requestIdleCallback =
-  (window as any).requestIdleCallback ||
-  function(
-    cb: (arg0: { didTimeout: boolean; timeRemaining: () => number }) => void,
-  ) {
-    const start = Date.now();
-    return setTimeout(function() {
-      cb({
-        didTimeout: false,
-        timeRemaining: function() {
-          return Math.max(0, 50 - (Date.now() - start));
-        },
-      });
-    }, 1);
-  };
-
-(window as any).cancelIdleCallback =
-  (window as any).cancelIdleCallback ||
-  function(id: number) {
-    clearTimeout(id);
-  };
+import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
 
 /**
  * A wrapper to lazily render CodeEditor component.
@@ -102,8 +77,7 @@ function CodeEditor(props: any) {
       handle = (window as any).requestIdleCallback(
         () => setEditorVisibility(true),
         {
-          // if callback hasn't executed in 1500 ms, then trigger it urgently
-          timeout: 1500,
+          timeout: REQUEST_IDLE_CALLBACK_TIMEOUT.highPriority,
         },
       );
     }

@@ -1,5 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -46,6 +47,18 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "240px",
+          };
+        },
+      },
+    ],
   },
 };
 

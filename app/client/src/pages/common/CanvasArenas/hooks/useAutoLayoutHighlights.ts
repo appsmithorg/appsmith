@@ -1,7 +1,6 @@
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
-import { getCanvasWidth } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
@@ -34,7 +33,6 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
-  const canvasWidth: number = useSelector(getCanvasWidth);
   const isMobile = useSelector(getIsMobile);
   let highlights: HighlightInfo[] = [];
   let lastActiveHighlight: HighlightInfo | undefined;
@@ -73,7 +71,7 @@ export const useAutoLayoutHighlights = ({
     return flag;
   };
 
-  const calculateHighlights = (): HighlightInfo[] => {
+  const calculateHighlights = (snapColumnSpace: number): HighlightInfo[] => {
     cleanUpTempStyles();
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
@@ -81,7 +79,7 @@ export const useAutoLayoutHighlights = ({
       highlights = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
-        canvasWidth,
+        snapColumnSpace,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
@@ -100,12 +98,15 @@ export const useAutoLayoutHighlights = ({
    * @param e | MouseMoveEvent
    * @returns HighlightInfo | undefined
    */
-  const highlightDropPosition = (e: any): HighlightInfo | undefined => {
+  const highlightDropPosition = (
+    e: any,
+    snapColumnSpace: number,
+  ): HighlightInfo | undefined => {
     if (!highlights || !highlights.length)
       highlights = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
-        canvasWidth,
+        snapColumnSpace,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
@@ -121,14 +122,17 @@ export const useAutoLayoutHighlights = ({
     return highlight;
   };
 
-  const getDropInfo = (val: Point): HighlightInfo | undefined => {
+  const getDropInfo = (
+    val: Point,
+    snapColumnSpace: number,
+  ): HighlightInfo | undefined => {
     if (lastActiveHighlight) return lastActiveHighlight;
 
     if (!highlights || !highlights.length)
       highlights = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
-        canvasWidth,
+        snapColumnSpace,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,

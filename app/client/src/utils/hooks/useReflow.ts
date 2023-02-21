@@ -1,9 +1,9 @@
+import { AppState } from "@appsmith/reducers";
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { isEmpty, throttle } from "lodash";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getContainerWidgetSpacesSelectorWhileMoving } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import {
   BlockSpace,
@@ -23,10 +23,10 @@ import {
   getSpacesMapFromArray,
   willItCauseUndroppableState,
 } from "reflow/reflowUtils";
-import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import { AppState } from "@appsmith/reducers";
 import { isCurrentCanvasDragging } from "sagas/selectors";
+import { getContainerWidgetSpacesSelectorWhileMoving } from "selectors/editorSelectors";
+import { getIsReflowing } from "selectors/widgetReflowSelectors";
+import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 
 type WidgetCollidingSpace = CollidingSpace & {
   type: string;
@@ -67,6 +67,7 @@ export const useReflow = (
   OGPositions: OccupiedSpace[],
   parentId: string,
   gridProps: GridProps,
+  shouldResize = true,
 ): { reflowSpaces: ReflowInterface; resetReflow: () => void } => {
   const dispatch = useDispatch();
   const isReflowingGlobal = useSelector(getIsReflowing);
@@ -119,7 +120,6 @@ export const useReflow = (
   }, [isReflowingGlobal, isDraggingCanvas]);
 
   // will become a state if we decide that resize should be a "toggle on-demand" feature
-  const shouldResize = true;
   return {
     reflowSpaces: (
       newPositions: BlockSpace[],

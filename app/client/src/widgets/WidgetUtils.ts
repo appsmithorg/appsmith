@@ -27,13 +27,13 @@ import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
 import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
-import { SchemaItem } from "./JSONFormWidget/constants";
-import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import { getLocale } from "utils/helpers";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
+import { rgbaMigrationConstantV56 } from "./constants";
 import { ContainerWidgetProps } from "./ContainerWidget/widget";
+import { SchemaItem } from "./JSONFormWidget/constants";
 
 const punycode = require("punycode/");
 
@@ -743,9 +743,7 @@ export const isAutoHeightEnabledForWidget = (
   props: WidgetProps,
   shouldCheckIfEnabledWithLimits = false,
 ) => {
-  if (props.isFlexChild) {
-    return false;
-  }
+  if (props.isFlexChild) return false;
   if (shouldCheckIfEnabledWithLimits) {
     return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
   }

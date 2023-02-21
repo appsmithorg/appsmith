@@ -1,4 +1,3 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   AlignItems,
   Alignment,
@@ -102,18 +101,18 @@ export const generateResponsiveBehaviorConfig = (
     isBindProperty: false,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
-    additionalAction: (
-      props: any,
-      propertyName?: string,
-      propertyValue?: any,
-    ) => ({
-      type: ReduxActionTypes.UPDATE_FILL_CHILD_LAYER,
-      payload: {
-        widgetId: props.widgetId,
-        responsiveBehavior: propertyValue,
-      },
-    }),
-    dependencies: ["widgetId"],
+    // additionalAction: (
+    //   props: any,
+    //   propertyName?: string,
+    //   propertyValue?: any,
+    // ) => ({
+    //   type: ReduxActionTypes.UPDATE_FILL_CHILD_LAYER,
+    //   payload: {
+    //     widgetId: props.widgetId,
+    //     responsiveBehavior: propertyValue,
+    //   },
+    // }),
+    // dependencies: ["widgetId"],
   };
 };
 
@@ -179,24 +178,24 @@ export const generatePositioningConfig = (
     isBindProperty: true,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
-    additionalAction: (
-      props: any,
-      propertyName?: string,
-      propertyValue?: any,
-    ) => {
-      if (!propertyName || !propertyValue) return;
-      const positioning: Positioning = propertyValue as Positioning;
-      return {
-        type:
-          positioning === Positioning.Vertical
-            ? ReduxActionTypes.ADD_CHILD_WRAPPERS
-            : ReduxActionTypes.REMOVE_CHILD_WRAPPERS,
-        payload: {
-          parentId: props.widgetId,
-        },
-      };
-    },
-    dependencies: ["widgetId"],
+    // additionalAction: (
+    //   props: any,
+    //   propertyName?: string,
+    //   propertyValue?: any,
+    // ) => {
+    //   if (!propertyName || !propertyValue) return;
+    //   const positioning: Positioning = propertyValue as Positioning;
+    //   return {
+    //     type:
+    //       positioning === Positioning.Vertical
+    //         ? ReduxActionTypes.ADD_CHILD_WRAPPERS
+    //         : ReduxActionTypes.REMOVE_CHILD_WRAPPERS,
+    //     payload: {
+    //       parentId: props.widgetId,
+    //     },
+    //   };
+    // },
+    // dependencies: ["widgetId"],
   };
 };
 
@@ -228,6 +227,7 @@ export function getLayoutConfig(alignment: Alignment, spacing: Spacing): any[] {
 export const NonResizableWidgets = [
   "AUDIO_WIDGET",
   "BUTTON_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
   "BUTTON_GROUP_WIDGET",
   "CHECKBOX_WIDGET",
   "CURRENCY_INPUT_WIDGET",
@@ -247,6 +247,9 @@ export const NonResizableWidgets = [
   "SWITCH_WIDGET",
   "TEXT_WIDGET",
   "SINGLE_SELECT_TREE_WIDGET",
+  "CATEGORY_SLIDER_WIDGET",
+  "RANGE_SLIDER_WIDGET",
+  "NUMBER_SLIDER_WIDGET",
 ];
 
 export const DefaultFillWidgets = [
@@ -263,11 +266,11 @@ export const DefaultFillWidgets = [
   "DATE_PICKER_WIDGET2",
   "DIVIDER_WIDGET",
   "FORM_WIDGET",
-  "FILE_PICKER_WIDGET_V2",
   "INPUT_WIDGET_V2",
   "JSON_FORM_WIDGET",
   "LIST_WIDGET",
   "MAP_WIDGET",
+  "MAP_CHART_WIDGET",
   "MULTI_SELECT_TREE_WIDGET",
   "MULTI_SELECT_WIDGET",
   "MULTI_SELECT_WIDGET_V2",
@@ -281,7 +284,17 @@ export const DefaultFillWidgets = [
   "TABLE_WIDGET_V2",
   "PROGRESS_WIDGET",
   "SWITCH_WIDGET",
+  "CATEGORY_SLIDER_WIDGET",
+  "RANGE_SLIDER_WIDGET",
+  "NUMBER_SLIDER_WIDGET",
 ];
+
+// TODO(aswathkk): See if this needs to be moved to widget config
+export const WIDGET_WITH_DYNAMIC_WIDTH = ["BUTTON_WIDGET"];
+
+// TODO(aswathkk): See if this needs to be moved to widget config
+// This is used only for autoLayout
+export const WIDGET_WITH_DYNAMIC_HEIGHT = ["CHECKBOX_GROUP_WIDGET"];
 
 export function getDefaultResponsiveBehavior(widgetType: string) {
   return DefaultFillWidgets.includes(widgetType)

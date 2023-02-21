@@ -1,9 +1,11 @@
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetSizeConfig } from "widgets/constants";
 
-export interface MinSize {
+export interface MinMaxSize {
   minHeight: number | string;
+  maxHeight: number | string;
   minWidth: number | string;
+  maxWidth: number | string;
 }
 
 export function getRightColumn(widget: any, isMobile: boolean): number {
@@ -121,23 +123,25 @@ export function getWidgetRows(widget: any, isMobile: boolean): number {
 }
 
 /**
- * Calculates the minimum size of a widget based on the widget type and the canvas width.
+ * Calculates the minimum & maximum size of a widget based on the widget type and the canvas width.
  * @param widget | Widget props
  * @param canvasWidth | number : main canvas width.
  * @returns MinSize | undefined
  */
-export function getMinSize(
+export function getMinMaxSize(
   widget: any,
   canvasWidth: number,
-): MinSize | undefined {
+): MinMaxSize | undefined {
   // Get the widget size configuration.
   const sizeConfig = getCurrentSizeConfig(widget, canvasWidth);
   if (!sizeConfig) return;
 
-  // Get the minimum size for the widget at this breakpoint.
-  const { minHeight, minWidth } = sizeConfig.configuration(widget);
+  // Get the minimum & maximum size for the widget at this breakpoint.
+  const { maxHeight, maxWidth, minHeight, minWidth } = sizeConfig.configuration(
+    widget,
+  );
 
-  return { minHeight, minWidth };
+  return { maxHeight, maxWidth, minHeight, minWidth };
 }
 
 export function getCurrentSizeConfig(
@@ -167,7 +171,7 @@ export function getMinPixelWidth(
   canvasWidth: number,
 ): number | undefined {
   if (!widget) return;
-  const minSize = getMinSize(widget, canvasWidth);
+  const minSize = getMinMaxSize(widget, canvasWidth);
   if (!minSize) return;
   const arr: string[] =
     typeof minSize.minWidth === "string" ? minSize.minWidth.split("px") : [];
@@ -176,21 +180,51 @@ export function getMinPixelWidth(
     return minSize.minWidth * widget.parentColumnSpace;
 }
 
+function getPxValue(val: string | number, factor: number): number | undefined {
+  const arr: string[] = typeof val === "string" ? val.split("px") : [];
+  if (arr.length) return parseInt(arr[0]);
+  if (typeof val === "number") return val * factor;
+}
+
 /**
- * Return the minimum pixel height of a widget based on the widget type and the canvas width.
- * minSize can be configured in columns (number) or pixels (string).
- * Return an appropriate pixel width based on the minSize type.
+ * Return the widget dimension constraints based on the widget type and the canvas width.
+ * size can be configured in columns (number) or pixels (string).
+ * Return an appropriate pixel width & height based on the size type.
  */
-export function getMinPixelHeight(
+export function getWidgetMinMaxDimensionsInPixel(
   widget: any,
   canvasWidth: number,
-): number | undefined {
-  if (!widget) return;
-  const minSize = getMinSize(widget, canvasWidth);
-  if (!minSize) return;
-  const arr: string[] =
-    typeof minSize.minHeight === "string" ? minSize.minHeight.split("px") : [];
-  if (arr.length) return parseInt(arr[0]);
-  if (typeof minSize.minHeight === "number")
-    return minSize.minHeight * widget.parentRowSpace;
+): { [key in keyof MinMaxSize]: number | undefined } {
+  const returnValue: { [key in keyof MinMaxSize]: number | undefined } = {
+    minWidth: undefined,
+    minHeight: undefined,
+    maxWidth: undefined,
+    maxHeight: undefined,
+  };
+
+  if (!widget) return returnValue;
+  const minMaxSize = getMinMaxSize(widget, canvasWidth);
+  if (!minMaxSize) return returnValue;
+
+  returnValue.minWidth = getPxValue(
+    minMaxSize.minWidth,
+    widget.parentColumnSpace,
+  );
+
+  returnValue.maxWidth = getPxValue(
+    minMaxSize.maxWidth,
+    widget.parentColumnSpace,
+  );
+
+  returnValue.minHeight = getPxValue(
+    minMaxSize.minHeight,
+    widget.parentRowSpace,
+  );
+
+  returnValue.maxHeight = getPxValue(
+    minMaxSize.maxHeight,
+    widget.parentRowSpace,
+  );
+
+  return returnValue;
 }

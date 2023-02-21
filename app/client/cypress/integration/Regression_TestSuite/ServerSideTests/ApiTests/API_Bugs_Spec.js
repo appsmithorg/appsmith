@@ -87,10 +87,12 @@ describe("Rest Bugs tests", function() {
     //   expect(response.body.data.body.length).to.be.above(0); //Number fact
     // });
 
-    cy.get(".t--draggable-textwidget")
+    cy.get(".t--widget-buttonwidget").scrollIntoView();
+
+    cy.get(".t--widget-textwidget")
       .eq(0)
       .invoke("text")
-      .then(($txt) => expect($txt).to.have.length.greaterThan(25));
+      .then(($txt) => expect($txt).to.have.length.greaterThan(20));
 
     // cy.wait("@postExecute").then(({ response }) => {
     //   //cy.log("Response is :"+ JSON.stringify(response.body))

@@ -13,7 +13,7 @@ describe("Select Widget Functionality", function() {
     cy.widgetText(
       "Select1",
       widgetsPage.selectwidget,
-      commonlocators.selectInner,
+      widgetsPage.widgetNameSpan,
     );
   });
 

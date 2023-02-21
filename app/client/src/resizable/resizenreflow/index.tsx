@@ -35,10 +35,7 @@ import {
   LayoutDirection,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import {
-  getMinPixelHeight,
-  getMinPixelWidth,
-} from "utils/autoLayout/flexWidgetUtils";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { getNearestParentCanvas } from "utils/generators";
 import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
@@ -431,8 +428,11 @@ export function ReflowResizable(props: ResizableProps) {
 
   const handles = [];
   const widget = allWidgets[props.widgetId];
-  const widgetMinWidth = getMinPixelWidth(widget, mainCanvasWidth) || 300;
-  const widgetMinHeight = getMinPixelHeight(widget, mainCanvasWidth) || 300;
+
+  const {
+    minHeight: widgetMinHeight = 300,
+    minWidth: widgetMinWidth = 300,
+  } = getWidgetMinMaxDimensionsInPixel(widget, mainCanvasWidth);
 
   if (!(isAutoHeight && widget.leftColumn === 0) && props.handles.left) {
     handles.push({

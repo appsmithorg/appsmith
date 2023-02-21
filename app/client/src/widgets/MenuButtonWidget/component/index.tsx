@@ -148,14 +148,14 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
-    & > span {
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
 
-      max-height: 100%;
+    & > span {
+      display: inline-block;
+      text-overflow: ellipsis;
       overflow: hidden;
+      white-space: nowrap;
+      line-height: normal;
+
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
           ? getComplementaryGrayscaleColor(buttonColor)

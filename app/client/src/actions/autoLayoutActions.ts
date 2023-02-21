@@ -1,17 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export const removeWrappersAction = (parentId: string) => ({
-  type: ReduxActionTypes.REMOVE_CHILD_WRAPPERS,
-  payload: { parentId },
-});
-
-export const addWrappersAction = (parentId: string) => ({
-  type: ReduxActionTypes.ADD_CHILD_WRAPPERS,
-  payload: {
-    parentId,
-  },
-});
-
 export const updateLayoutForMobileBreakpointAction = (
   parentId: string,
   isMobile: boolean,
@@ -31,3 +19,18 @@ export const widgetViolatedMinDimentionsAction = (parentId: string) => ({
     parentId,
   },
 });
+
+export function updateWidgetDimensionAction(
+  widgetId: string,
+  width: number,
+  height: number,
+) {
+  return {
+    type: ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,
+    payload: {
+      widgetId,
+      width,
+      height,
+    },
+  };
+}
