@@ -62,7 +62,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(".t--dropdown-option")
       .should("have.length", 1)
       .and("contain.text", `App Viewer`);
-    cy.get(HomePage.closeBtn).click();
+    _.agHelper.GetNClick(HomePage.closeBtn);
     _.homePage.LaunchAppFromAppHover();
     //_.deployMode.NavigateToHomeDirectly();
     _.homePage.Signout(false);
