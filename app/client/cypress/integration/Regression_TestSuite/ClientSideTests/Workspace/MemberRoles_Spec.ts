@@ -179,7 +179,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
   it("10. Login as App Viewer, Verify leave workspace flow", () => {
     _.homePage.LogintoApp(
       Cypress.env("TESTUSERNAME2"),
-      Cypress.env("TESTPASSWORD2"),
+      Cypress.env("TESTPASSWORD2"), "App Viewer"
     );
     _.homePage.FilterApplication(appid, workspaceId);
     _.homePage.LeaveWorkspace(workspaceId);
