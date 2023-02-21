@@ -69,7 +69,7 @@ const EntitySelectorWrapper = styled.div<{
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
   const targetRef = useRef<HTMLDivElement>(null);
-  const size = useResponsiveBreakpoints(targetRef, [{ small: 575 }]);
+  const size = useResponsiveBreakpoints(targetRef, [{ small: 576 }]);
 
   const visibleSchemas = schema.filter(
     (singleSchema: any) => !singleSchema.hidden,
