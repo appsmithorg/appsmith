@@ -114,6 +114,8 @@ describe("PgAdmin Clone App", function() {
 
   it("2. Add new table from app page, View and Delete table", function() {
     _.deployMode.DeployApp();
+    // adding new table
+    cy.xpath(appPage.addNewtable).click({ force: true });
     cy.wait(500);
     cy.generateUUID().then((UUID) => {
       cy.xpath(appPage.addTablename)
