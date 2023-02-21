@@ -19,13 +19,16 @@ import { Location } from "history";
 import { hasNavigatedOutOfPage } from "@appsmith/pages/Editor/Explorer/helpers";
 import { call } from "redux-saga/effects";
 import { clearAllWindowMessageListeners } from "./WindowMessageListener/WindowMessageListenerSagas";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+export const { cloudHosting } = getAppsmithConfigs();
 
 let previousPath: string;
 export function* EE_handleRouteChange(
   action: ReduxAction<{ location: Location<AppsmithLocationState> }>,
 ) {
   const { pathname } = action.payload.location;
-  if (hasNavigatedOutOfPage(previousPath, pathname)) {
+  if (!cloudHosting && hasNavigatedOutOfPage(previousPath, pathname)) {
     yield call(clearAllWindowMessageListeners);
   }
   previousPath = pathname;

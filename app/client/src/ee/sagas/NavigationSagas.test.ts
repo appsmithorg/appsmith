@@ -3,6 +3,7 @@ import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
 import { call } from "redux-saga/effects";
 import { EE_handleRouteChange } from "./NavigationSagas";
 import { clearAllWindowMessageListeners } from "./WindowMessageListener/WindowMessageListenerSagas";
+import * as constants from "./NavigationSagas";
 
 const hasNavigatedOutOfPage = jest.spyOn(helpers, "hasNavigatedOutOfPage");
 const assertOutOfPageNavigation = (result: boolean, iter: Generator) => {
@@ -18,11 +19,20 @@ const assertOutOfPageNavigation = (result: boolean, iter: Generator) => {
 };
 
 describe("handle EE navigation - hasNavigatedOutOfPage", () => {
+  const cloudHostingOrginalValue = constants.cloudHosting;
+  beforeAll(() => {
+    Object.defineProperty(constants, "cloudHosting", {
+      value: false,
+    });
+  });
   afterEach(() => {
     jest.clearAllMocks();
   });
   afterAll(() => {
     jest.restoreAllMocks();
+    Object.defineProperty(constants, "cloudHosting", {
+      value: cloudHostingOrginalValue,
+    });
   });
   it("1. on page load", () => {
     const iter = EE_handleRouteChange({
