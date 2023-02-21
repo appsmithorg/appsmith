@@ -247,6 +247,9 @@ export const NonResizableWidgets = [
   "SWITCH_WIDGET",
   "TEXT_WIDGET",
   "SINGLE_SELECT_TREE_WIDGET",
+  "CATEGORY_SLIDER_WIDGET",
+  "RANGE_SLIDER_WIDGET",
+  "NUMBER_SLIDER_WIDGET",
 ];
 
 export const DefaultFillWidgets = [
@@ -267,6 +270,7 @@ export const DefaultFillWidgets = [
   "JSON_FORM_WIDGET",
   "LIST_WIDGET",
   "MAP_WIDGET",
+  "MAP_CHART_WIDGET",
   "MULTI_SELECT_TREE_WIDGET",
   "MULTI_SELECT_WIDGET",
   "MULTI_SELECT_WIDGET_V2",
@@ -280,6 +284,9 @@ export const DefaultFillWidgets = [
   "TABLE_WIDGET_V2",
   "PROGRESS_WIDGET",
   "SWITCH_WIDGET",
+  "CATEGORY_SLIDER_WIDGET",
+  "RANGE_SLIDER_WIDGET",
+  "NUMBER_SLIDER_WIDGET",
 ];
 
 // TODO(aswathkk): See if this needs to be moved to widget config

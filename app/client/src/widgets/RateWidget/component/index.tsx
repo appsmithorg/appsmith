@@ -30,6 +30,14 @@ export const RateContainer = styled.div<RateContainerProps>`
   align-content: flex-start;
   overflow: auto;
 
+  .auto-layout && {
+    overflow: unset;
+
+    > span {
+      flex-wrap: nowrap;
+    }
+  }
+
   > span {
     display: flex !important;
     flex-wrap: wrap;

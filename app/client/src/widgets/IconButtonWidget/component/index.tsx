@@ -141,7 +141,7 @@ export const StyledButton = styled((props) => (
     height: 32px;
     width: 32px;
   }
-
+  
   ${({ buttonColor, buttonVariant, compactMode, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
