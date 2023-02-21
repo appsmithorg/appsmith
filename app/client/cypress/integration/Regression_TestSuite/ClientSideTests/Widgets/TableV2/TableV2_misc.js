@@ -13,6 +13,7 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
     ).clear();
     cy.get(
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
+      // For escaping "{" in cypress refer to https://docs.cypress.io/api/commands/type#Arguments
       // eslint-disable-next-line prettier/prettier
     ).type("{{}{{}appsmith.mode{}}{}}");
     cy.contains(
