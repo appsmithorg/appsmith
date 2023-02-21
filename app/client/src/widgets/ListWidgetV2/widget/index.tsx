@@ -786,6 +786,18 @@ class ListWidget extends BaseWidget<
     this.resetTriggeredItemView();
   };
 
+  getPageCount = () => {
+    const defaultValue = 0;
+    const { serverSidePagination, totalRecordsCount } = this.props;
+
+    if (!serverSidePagination) return (this.props.listData || []).length;
+
+    if (typeof totalRecordsCount === "number" && totalRecordsCount > 0)
+      return totalRecordsCount;
+
+    return defaultValue;
+  };
+
   shouldPaginate = () => {
     /**
      * if client side pagination and not infinite scroll and data is more than page size
@@ -943,7 +955,7 @@ class ListWidget extends BaseWidget<
     const disableNextPage = this.shouldDisableNextPage();
     return (
       this.shouldPaginate() &&
-      (serverSidePagination ? (
+      (serverSidePagination && !this.getPageCount() ? (
         <ServerSideListPagination
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
@@ -965,7 +977,7 @@ class ListWidget extends BaseWidget<
           onChange={this.onPageChange}
           pageNo={this.props.pageNo}
           pageSize={this.pageSize}
-          total={(this.props.listData || []).length}
+          total={this.getPageCount()}
         />
       ))
     );
@@ -1089,6 +1101,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
+  totalRecordsCount?: number | string;
 }
 
 export default ListWidget;

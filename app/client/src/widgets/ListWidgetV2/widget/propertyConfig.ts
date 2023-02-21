@@ -8,9 +8,15 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import {
+  LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const MIN_ITEM_SPACING = 0;
 const MAX_ITEM_SPACING = 16;
+const MIN_TOTAL_RECORD_COUNT = 0;
+const MAX_TOTAL_RECORD_COUNT = Number.MAX_SAFE_INTEGER;
 
 const isValidListData = (
   value: unknown,
@@ -239,6 +245,23 @@ export const PropertyPaneContentConfig = [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
+      },
+      {
+        propertyName: "totalRecordsCount",
+        helpText: createMessage(LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP),
+        label: "Total Records",
+        controlType: "INPUT_TEXT",
+        inputType: "INTEGER",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        placeholderText: "Enter total record count",
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: { min: MIN_TOTAL_RECORD_COUNT, max: MAX_TOTAL_RECORD_COUNT },
+        },
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          !props.serverSidePagination,
+        dependencies: ["serverSidePagination"],
       },
       {
         propertyName: "onPageChange",
