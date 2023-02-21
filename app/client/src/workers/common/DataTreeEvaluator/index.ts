@@ -492,6 +492,7 @@ export default class DataTreeEvaluator {
       removedPaths = [],
       totalUpdateTreeSetupStartTime,
       translatedDiffs = [],
+      pathsToClearErrorsFor,
     } = extraParams || {};
 
     updateEvalTreeWithJSCollectionState(this.evalTree);
