@@ -132,7 +132,7 @@ function* updateWidgetDimensionsSaga(
 
   addWidgetToAutoLayoutDimensionUpdateBatch(widgetId, width, height);
   console.log("#### addtobatch done", widget.widgetName, width, height);
-  if (isLayoutUpdating) return;
+  // if (isLayoutUpdating) return;
   yield put({
     type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
   });
@@ -155,6 +155,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   for (const widgetId in autoLayoutWidgetDimensionUpdateBatch) {
     const { height, width } = autoLayoutWidgetDimensionUpdateBatch[widgetId];
     const widget = allWidgets[widgetId];
+    if (!widget) continue;
     console.log("#### parentId", widget.widgetName, widget?.parentId, widget);
     const parentId = widget.parentId;
     if (parentId === undefined) continue;

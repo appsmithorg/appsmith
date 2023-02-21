@@ -50,6 +50,7 @@ const ButtonContainer = styled.div<ButtonContainerProps>`
     width: auto;
     max-width: 352px;
     min-width: 112px;
+    min-height: 32px;
   }
 
   position: relative;
