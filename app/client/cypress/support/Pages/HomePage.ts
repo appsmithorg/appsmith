@@ -20,7 +20,7 @@ export class HomePage {
     ".t--workspace-section:contains(" +
     workspaceName +
     ") .workspace-share-user-icons";
-  private _shareWorkspace = (workspaceName: string) =>
+  _shareWorkspace = (workspaceName: string) =>
     ".t--workspace-section:contains(" +
     workspaceName +
     ") button:contains('Share')";
@@ -35,6 +35,7 @@ export class HomePage {
     "']";
   private _profileMenu = ".t--profile-menu";
   private _signout = ".t--logout-icon";
+  _searchUsersInput = ".search-input";
 
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
@@ -363,8 +364,10 @@ export class HomePage {
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
     cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
-      .click({ force: true });
+      .parent("div")
+      .click();
     this.agHelper.Sleep();
+    this.agHelper.AssertElementVisible(this._userRoleDropDown(newRole));
     this.NavigateToHome();
   }
 

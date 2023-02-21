@@ -21,9 +21,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );
-      cy.xpath(homePage._visibleTextSpan("MANAGE USERS")).click({
-        force: true,
-      });
+      agHelper.GetNClick(homePage._visibleTextSpan("MANAGE USERS"));
       homePage.NavigateToHome();
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 2);
       homePage.CreateAppInWorkspace(workspaceId, appid);
@@ -34,17 +32,17 @@ describe("Create new workspace and invite user & validate all roles", () => {
   it("2. Login as Administrator and search for users using search bar", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
-    cy.xpath("//span[text()='Share']/parent::button").first().click();
-    cy.xpath(homePage._visibleTextSpan("MANAGE USERS")).click({
-      force: true,
-    });
+    agHelper.GetNClick(homePage._shareWorkspace(workspaceId));
+    agHelper.GetNClick(homePage._visibleTextSpan("MANAGE USERS"));
     cy.get(".search-highlight").should("not.exist");
-    cy.get("[data-testid=t--search-input").type(Cypress.env("TESTUSERNAME1"), {
-      delay: 300,
-    });
-    cy.get(".search-highlight").should("exist");
-    cy.get(".search-highlight").contains(Cypress.env("TESTUSERNAME1"));
-    homePage.LogOutviaAPI();
+    agHelper.UpdateInput(
+      homePage._searchUsersInput,
+      Cypress.env("TESTUSERNAME1"),
+    );
+    cy.get(".search-highlight")
+      .should("exist")
+      .contains(Cypress.env("TESTUSERNAME1"));
+    homePage.Signout();
   });
 
   it("3. Login as Invited user and validate Viewer role", function() {
@@ -59,11 +57,9 @@ describe("Create new workspace and invite user & validate all roles", () => {
       .trigger("mouseover");
     cy.get(homePage._appHoverIcon("edit")).should("not.exist");
     // verify only viewer role is visible
-    cy.xpath("//span[text()='Share']")
-      .first()
-      .click();
+    agHelper.GetNClick(homePage._shareWorkspace(workspaceId));
     // click on selet a role
-    cy.wait(2000);
+    agHelper.Sleep(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
       .should("have.length", 1)
@@ -82,7 +78,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "App Viewer",
       "Developer",
     );
-    homePage.LogOutviaAPI();
+    homePage.Signout();
   });
 
   it("5. Login as Invited user and validate Developer role", function() {
@@ -95,19 +91,17 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(homePage._applicationCard)
       .first()
       .trigger("mouseover");
-    cy.get(homePage._appHoverIcon("edit"))
-      .first()
-      .click({ force: true });
+    agHelper.GetNClick(homePage._appHoverIcon("edit"));
     // cy.xpath(homePage._editPageLanding).should("exist");
-    cy.wait(4000);
-    cy.xpath("//span[text()='SHARE']").click();
-    cy.wait(2000);
+    agHelper.Sleep(2000);
+    agHelper.GetNClick(homePage._shareWorkspace(workspaceId));
+    agHelper.Sleep();
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
       .should("have.length", 2)
       .and("contain.text", `App Viewer`, `Developer`);
-    cy.get(HomePage.editModeInviteModalCloseBtn).click();
-    homePage.LogOutviaAPI();
+    agHelper.GetNClick(HomePage.editModeInviteModalCloseBtn);
+    homePage.Signout();
   });
 
   it("6. Login as Workspace owner and Update the Invited user role to Administrator", function() {
@@ -119,7 +113,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "Developer",
       "Administrator",
     );
-    homePage.LogOutviaAPI();
+    homePage.Signout();
   });
 
   it("7. Login as Invited user and validate Administrator role", function() {
@@ -133,26 +127,24 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME2"),
       "App Viewer",
     );
-    cy.get(HomePage.closeBtn).click();
-    cy.wait(2000);
+    agHelper.GetNClick(HomePage.closeBtn);
+    agHelper.Sleep();
     homePage.FilterApplication(appid, workspaceId);
     cy.get(homePage._applicationCard)
       .first()
       .trigger("mouseover");
-    cy.get(homePage._appHoverIcon("edit"))
-      .first()
-      .click({ force: true });
+    agHelper.GetNClick(homePage._appHoverIcon("edit"));
     // cy.xpath(homePage._editPageLanding).should("exist");
-    cy.wait(4000);
-    cy.xpath("//span[text()='SHARE']").click();
-    cy.wait(2000);
-    cy.xpath(HomePage.selectRole).click();
+    agHelper.Sleep(2000);
+    agHelper.GetNClick(homePage._shareWorkspace(workspaceId));
+    agHelper.Sleep();
+    agHelper.GetNClick(HomePage.selectRole);
     cy.get(".t--dropdown-option")
       .should("have.length", 3)
       .should("contain.text", `App Viewer`, `Developer`);
     cy.get(".t--dropdown-option").should("contain.text", `Administrator`);
-    cy.get(HomePage.editModeInviteModalCloseBtn).click();
-    homePage.LogOutviaAPI();
+    agHelper.GetNClick(HomePage.editModeInviteModalCloseBtn);
+    homePage.Signout();
   });
 
   it("8. Login as Workspace owner and verify all 3 users are present", function() {
@@ -182,7 +174,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     );
     homePage.FilterApplication(appid, workspaceId);
     homePage.leaveWorkspace(workspaceId);
-    homePage.LogOutviaAPI();
+    homePage.Signout();
   });
 
   it("10. Login as App Viewer, Verify leave workspace flow", () => {
