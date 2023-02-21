@@ -2,7 +2,7 @@ import {
   AppsmithFunction,
   FieldType,
   ViewTypes,
-  NEW_MODAL_LABEL,
+  DEFAULT_LABELS,
   DEFAULT_SELECTOR_VIEW_TEXT,
 } from "../constants";
 import { Button, TreeDropdownOption } from "design-system-old";
@@ -112,7 +112,10 @@ export function Field(props: FieldProps) {
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: (options as TreeDropdownOption[]).sort(
           (a: TreeDropdownOption, b: TreeDropdownOption) => {
-            if (a.label === NEW_MODAL_LABEL || b.label === NEW_MODAL_LABEL) {
+            if (
+              DEFAULT_LABELS.includes(a.label) ||
+              DEFAULT_LABELS.includes(b.label)
+            ) {
               return 1;
             } else {
               return a.label.localeCompare(b.label);
