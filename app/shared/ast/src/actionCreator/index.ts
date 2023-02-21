@@ -841,3 +841,55 @@ export function setCatchBlockInQuery(
 
     return requiredQuery;
 }
+
+export function getFunctionArguments(value: string, evaluationVersion: number): string {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    let argumentsArray: Array<any> = [];
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+    } catch (error) {
+        return "";
+    }
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    simple(astWithComments, {
+        CallExpression(node) {
+            for (let argument of (node as CallExpressionNode).arguments) {
+                argumentsArray.push((argument as LiteralNode).value);
+            }
+        }
+    });
+
+    return [...argumentsArray].join(", ");
+}
+
+export function getFunctionNameFromJsObjectExpression(value: string, evaluationVersion: number): string {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    let functionName: string = "";
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+    } catch (error) {
+        return functionName;
+    }
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    simple(astWithComments, {
+        MemberExpression(node) {
+            functionName = ((node as MemberExpressionNode).property as IdentifierNode).name;
+        }
+    });
+
+    return functionName;
+}

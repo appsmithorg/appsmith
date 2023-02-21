@@ -3,6 +3,7 @@ import {
   getFuncExpressionAtPosition,
   getFunction,
   replaceActionInQuery,
+  getFunctionNameFromJsObjectExpression,
 } from "@shared/ast";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
@@ -242,7 +243,9 @@ function getJsFunctionExecutionFields(
   // } else if (matches.length) {
   // const entityPropertyPath = matches[0][1];
   const { propertyPath } = getEntityNameAndPropertyPath(value);
-  const path = propertyPath && propertyPath.replace("();", "");
+  const path =
+    propertyPath &&
+    getFunctionNameFromJsObjectExpression(value, self.evaluationVersion);
   const argsProps =
     path && entity.meta && entity.meta[path] && entity.meta[path].arguments;
   fields.push({

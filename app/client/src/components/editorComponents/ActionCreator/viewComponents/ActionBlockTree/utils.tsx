@@ -19,7 +19,7 @@ import { ReactComponent as WatchGeolocation } from "assets/icons/action/watchGeo
 import { AppsmithFunction, FieldType } from "../../constants";
 import { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
-import { getFunctionName } from "@shared/ast";
+import { getFunctionName, getFunctionArguments } from "@shared/ast";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { getCodeFromMoustache } from "../../utils";
 import { ApiMethodIcon } from "pages/Editor/Explorer/ExplorerIcons";
@@ -146,7 +146,7 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
     case AppsmithFunction.jsFunction:
       return (
         getFunctionName(getCodeFromMoustache(code), self.evaluationVersion) +
-        "()"
+        `(${getFunctionArguments(code, self.evaluationVersion)})`
       );
 
     case AppsmithFunction.integration:
