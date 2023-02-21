@@ -29,6 +29,7 @@ export type AutoLayoutProps = {
   responsiveBehavior?: ResponsiveBehavior;
   selected?: boolean;
   widgetId: string;
+  widgetName: string;
   widgetType: WidgetType;
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
@@ -62,9 +63,15 @@ export function FlexComponent(props: AutoLayoutProps) {
     !isSnipingMode && e.stopPropagation();
   };
 
-  const className = `auto-layout-parent-${props.parentId} auto-layout-child-${
-    props.widgetId
-  } ${widgetTypeClassname(props.widgetType)}`;
+  const className = useMemo(
+    () =>
+      `auto-layout-parent-${props.parentId} auto-layout-child-${
+        props.widgetId
+      } ${widgetTypeClassname(
+        props.widgetType,
+      )} t--widget-${props.widgetName.toLowerCase()}`,
+    [props.parentId, props.widgetId, props.widgetType, props.widgetName],
+  );
 
   const isResizing = useSelector(getIsResizing);
 
