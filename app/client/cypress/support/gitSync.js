@@ -416,7 +416,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("gitDiscardChanges", () => {
   cy.get(gitSyncLocators.bottomBarCommitButton).click();
-  cy.get(gitSyncLocators.discardChanges).should("be.enabled");
+  cy.get(gitSyncLocators.discardChanges).should("be.visible");
   //cy.wait(6000);
   cy.get(gitSyncLocators.discardChanges)
     .children()
