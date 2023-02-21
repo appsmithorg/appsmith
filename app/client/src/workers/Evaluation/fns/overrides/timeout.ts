@@ -19,7 +19,7 @@ function setTimeout(cb: (...args: any) => any, delay: number, ...args: any) {
         metaData.triggerMeta,
         metaData.eventType,
       );
-      cb(...args);
+      typeof cb === "function" && cb(...args);
     },
     delay,
     ...args,

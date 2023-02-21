@@ -103,6 +103,9 @@ import {
 } from "workers/Evaluation/types";
 import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
+import { getAppsmithConfigs } from "ce/configs";
+
+const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -134,6 +137,7 @@ export function* updateDataTreeHandler(
     unEvalUpdates,
     isCreateFirstTree = false,
     staleMetaIds,
+    pathsToClearErrorsFor,
   } = data;
 
   const { postEvalActions, unevalTree } = extraData;
@@ -168,7 +172,13 @@ export function* updateDataTreeHandler(
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
-  yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
+  yield call(
+    evalErrorHandler as any,
+    errors,
+    updatedDataTree,
+    evaluationOrder,
+    pathsToClearErrorsFor,
+  );
 
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
@@ -301,7 +311,9 @@ export function* evaluateAndExecuteDynamicTrigger(
       errors[0].errorMessage !==
       "UncaughtPromiseRejection: User cancelled action execution"
     ) {
-      const errorMessage = errors[0].errorMessage || errors[0].message;
+      const errorMessage =
+        `${errors[0].errorMessage.name}: ${errors[0].errorMessage.message}` ||
+        errors[0].message;
       throw new UncaughtPromiseError(errorMessage);
     }
   }
@@ -524,7 +536,9 @@ function* evaluationChangeListenerSaga(): any {
     call(lintWorker.start),
   ]);
 
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
+    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
+  });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();

@@ -354,10 +354,9 @@ export enum PropertyEvaluationErrorType {
   PARSE = "PARSE",
   LINT = "LINT",
 }
-
 export interface DataTreeError {
   raw: string;
-  errorMessage: string;
+  errorMessage: Error;
   severity: Severity.WARNING | Severity.ERROR;
 }
 

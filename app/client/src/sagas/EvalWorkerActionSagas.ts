@@ -151,5 +151,6 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       );
     }
   }
+
   yield call(evalErrorHandler, data?.errors || []);
 }

@@ -12,7 +12,10 @@ import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
 import JSProxy from "workers/Evaluation/JSObject/JSVariableProxy";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
-import { entityFns, platformFns } from "@appsmith/workers/Evaluation/fns";
+import {
+  entityFns,
+  getPlatformFunctions,
+} from "@appsmith/workers/Evaluation/fns";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -23,6 +26,7 @@ declare global {
     $isDataField: boolean;
     $isAsync: boolean;
     $evaluationVersion: EvaluationVersion;
+    $cloudHosting: boolean;
   }
 }
 
@@ -72,7 +76,7 @@ export const addDataTreeToContext = (args: {
 };
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
-  for (const fnDef of platformFns) {
+  for (const fnDef of getPlatformFunctions(self.$cloudHosting)) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));
   }
 };
@@ -87,7 +91,7 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
       asyncFunctionNameMap[fullPath] = true;
     }
   }
-  for (const platformFn of platformFns) {
+  for (const platformFn of getPlatformFunctions(self.$cloudHosting)) {
     asyncFunctionNameMap[platformFn.name] = true;
   }
   return asyncFunctionNameMap;
