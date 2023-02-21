@@ -51,30 +51,8 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 function EditorsRouter() {
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
-  // const [isVisible, setIsVisible] = React.useState(
-  //   () => !matchBuilderPath(pathname),
-  // );
-  // const pageId = useSelector(getCurrentPageId);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
-
-  // useEffect(() => {
-  //   const isOnBuilder = matchBuilderPath(pathname);
-  //   setIsVisible(!isOnBuilder);
-  // }, [pathname]);
-
-  // const handleClose = useCallback(
-  //   (e: React.MouseEvent) => {
-  //     PerformanceTracker.startTracking(
-  //       PerformanceTransactionName.CLOSE_SIDE_PANE,
-  //       { path: pathname },
-  //     );
-  //     e.stopPropagation();
-  //     setIsVisible(false);
-  //     history.replace(builderURL({ pageId }));
-  //   },
-  //   [pathname, pageId],
-  // );
 
   useEffect(() => {
     return () => {
