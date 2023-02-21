@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { tailwindLayers } from "constants/Layers";
@@ -9,8 +9,6 @@ import EditorsRouter from "pages/Editor/routes";
 import * as Sentry from "@sentry/react";
 import { Route } from "react-router";
 import { TABS_PANE_MIN_WIDTH } from "reducers/uiReducers/multiPaneReducer";
-import useWindowDimensions from "utils/hooks/useWindowDimensions";
-import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 
 const TabsContainer = styled.div`
   height: calc(
