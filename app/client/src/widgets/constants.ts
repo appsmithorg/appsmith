@@ -17,7 +17,7 @@ import { WidgetProps } from "./BaseWidget";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
-  configuration: (props: WidgetProps) => { [key: string]: string | number };
+  configuration: (props: any) => { [key: string]: string | number };
 };
 
 export type AutoLayoutConfig = {

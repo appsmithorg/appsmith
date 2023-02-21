@@ -30,18 +30,22 @@ export const CONFIG = {
     tooltips: ["Terrible", "Bad", "Neutral", "Good", "Great"],
     widgetName: "Rating",
   },
-  // A sample widgetSize configuration for AutoLayout
-  widgetSize: [
-    {
-      viewportMinWidth: 0,
-      configuration: (props: RateWidgetProps) => {
-        return {
-          // 20 is the size of a star, 5 is the margin between stars, 8 is the total padding of the widget
-          minWidth: `${props.maxCount * 21 + (props.maxCount + 1) * 5 + 8}px`,
-        };
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: (props: RateWidgetProps) => {
+          let maxCount = props.maxCount;
+          if (typeof maxCount !== "number")
+            maxCount = parseInt(props.maxCount as any, 10);
+          return {
+            // 21 is the size of a star, 5 is the margin between stars
+            minWidth: `${maxCount * 21 + (maxCount + 1) * 5}px`,
+          };
+        },
       },
-    },
-  ],
+    ],
+  },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
