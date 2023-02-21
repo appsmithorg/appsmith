@@ -746,9 +746,29 @@ export function* clonePageSaga(
         },
       });
 
-      yield put(fetchActionsForPage(response.data.id));
-      yield put(fetchJSCollectionsForPage(response.data.id));
+      const triggersAfterPageFetch = [
+        fetchActionsForPage(response.data.id),
+        fetchJSCollectionsForPage(response.data.id),
+      ];
+
+      const afterActionsFetch: unknown = yield failFastApiCalls(
+        triggersAfterPageFetch,
+        [
+          fetchActionsForPageSuccess([]).type,
+          fetchJSCollectionsForPageSuccess([]).type,
+        ],
+        [
+          fetchActionsForPageError().type,
+          fetchJSCollectionsForPageError().type,
+        ],
+      );
+
+      if (!afterActionsFetch) {
+        throw new Error("Failed generating template");
+      }
+
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 
       // TODO: Update URL params here.
 
