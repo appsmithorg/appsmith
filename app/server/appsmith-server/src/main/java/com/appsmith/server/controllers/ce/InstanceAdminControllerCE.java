@@ -56,7 +56,7 @@ public class InstanceAdminControllerCE {
         log.debug("Applying env updates from form data");
         return exchange.getMultipartData()
                 .flatMap(envManager::applyChangesFromMultipartFormData)
-                .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+                .thenReturn(new ResponseDTO<Void>(HttpStatus.OK.value(), null, null));
     }
 
     @PostMapping("/restart")

@@ -301,8 +301,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .map(field -> {
                     JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
                     return jsonProperty == null ? field.getName() : jsonProperty.value();
-                })
-                .collect(Collectors.toSet());
+                }).collect(Collectors.toSet());
     }
 
     /**
@@ -328,7 +327,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         }
     }
 
-    @NotNull
     private static List<Field> getTenantConfigurationFields() {
         final List<Field> fields = Arrays.asList(TenantConfigurationCE.class.getDeclaredFields());
         fields.addAll(Arrays.asList(TenantConfiguration.class.getDeclaredFields()));
@@ -356,7 +354,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<Boolean> applyChanges(Map<String, String> changes) {
+    public Mono<Void> applyChanges(Map<String, String> changes) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant configuration
         return verifyCurrentUserIsSuper().
                 flatMap(user -> validateChanges(user, changes).thenReturn(user))
@@ -468,12 +466,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         commonConfig.setTelemetryDisabled("true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
-                    return dependentTasks.thenReturn(true);
+                    return dependentTasks.then();
                 });
     }
 
     @Override
-    public Mono<Boolean> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
+    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
         return Flux.fromIterable(formData.entrySet())
                 .flatMap(entry -> {
                     final String key = entry.getKey();
