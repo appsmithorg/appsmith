@@ -23,7 +23,9 @@ import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.MethodConfig;
 import com.external.config.TemplateMethod;
 import com.external.config.TriggerMethod;
+import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -123,7 +125,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
             } catch (AppsmithPluginException e) {
                 // Initializing object for error condition
                 ActionExecutionResult errorResult = new ActionExecutionResult();
-                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                 errorResult.setIsExecutionSuccess(false);
                 errorResult.setErrorInfo(e);
                 return Mono.just(errorResult);
@@ -140,7 +141,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
-            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+            errorResult.setStatusCode(GSheetsPluginError.QUERY_EXECUTION_FAILED.getAppErrorCode());
             errorResult.setIsExecutionSuccess(false);
 
             // Check if method is defined
@@ -152,7 +153,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             if (executionMethod == null) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Missing Google Sheets method."
+                        ErrorMessages.MISSING_GSHEETS_METHOD_ERROR_MSG
                 ));
             }
 
@@ -195,7 +196,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         headerInJsonString = objectMapper.writeValueAsString(headers);
                                     } catch (JsonProcessingException e) {
                                         throw Exceptions.propagate(
-                                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                                                new AppsmithPluginException(GSheetsPluginError.RESPONSE_PROCESSING_ERROR, e));
                                     }
 
                                     // Set headers in the result now
@@ -243,6 +244,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                 .onErrorResume(e -> {
                                     errorResult.setBody(Exceptions.unwrap(e).getMessage());
                                     log.debug("Received error on Google Sheets action execution", e);
+                                    if (! (e instanceof AppsmithPluginException)) {
+                                        e = new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e);
+                                    }
+                                    errorResult.setErrorInfo(e);
                                     return Mono.just(errorResult);
                                 });
                     })
@@ -264,7 +269,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
         @Override
         public Mono<ActionExecutionResult> execute(Void connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -354,11 +359,13 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         } else {
                             throw Exceptions.propagate(
                                     new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                                            ErrorMessages.UNSUCCESSFUL_RESPONSE_ERROR_MSG,
                                             jsonNodeBody
                                                     .get("error")
                                                     .get("message")
-                                                    .asText())
+                                                    .asText(),
+                                            "HTTP " + response.getStatusCode())
                             );
                         }
                     });

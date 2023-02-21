@@ -3,7 +3,9 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.services.FilterDataService;
+import com.external.constants.ErrorMessages;
 import com.external.domains.RowObject;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -46,15 +48,15 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Unexpected value for table header index. Please use a number starting from 1");
+                            ErrorMessages.INVALID_TABLE_HEADER_INDEX);
                 }
             } catch (NumberFormatException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unexpected format for table header index. Please use a number starting from 1");
+                        ErrorMessages.INVALID_TABLE_HEADER_INDEX);
             }
         } else {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    "Unexpected format for table header index. Please use a number starting from 1");
+                    ErrorMessages.INVALID_TABLE_HEADER_INDEX);
         }
         return true;
     }
@@ -101,7 +103,7 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
     @Override
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing a valid response object.");
+            throw new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
@@ -191,7 +193,7 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
     @Override
     public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing a valid response object.");
+            throw new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");

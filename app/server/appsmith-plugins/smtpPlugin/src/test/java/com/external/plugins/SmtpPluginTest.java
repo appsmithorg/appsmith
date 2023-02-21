@@ -9,6 +9,8 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.external.plugins.exceptions.SMTPErrorMessages;
+import com.external.plugins.exceptions.SMTPPluginError;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -19,10 +21,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import jakarta.mail.Session;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -94,8 +95,7 @@ public class SmtpPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint("", 25l)));
 
-        assertEquals(Set.of("Could not find host address. Please edit the 'Hostname' field to provide the " +
-                        "desired endpoint."),
+        assertEquals(Set.of(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -112,7 +112,7 @@ public class SmtpPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setAuthentication(null);
 
-        assertEquals(Set.of("Invalid authentication credentials. Please check datasource configuration."),
+        assertEquals(Set.of(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR).getMessage()),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -147,55 +147,54 @@ public class SmtpPluginTest {
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithPluginException &&
-                        e.getMessage().contains(AppsmithPluginError.PLUGIN_ERROR.getMessage("Unable to send email because of error: 535 Invalid username or password")))
+                        ((AppsmithPluginException) e).getDownstreamErrorMessage().contains("535 Invalid username or password"))
                 .verify();
     }
 
     @Test
     public void testBlankFromAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
                 "send.from", "   ");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e ->
                         e instanceof AppsmithPluginException &&
-                                e.getMessage().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Couldn't find a valid sender address. Please check your action configuration."))
-                )
+                                e.getMessage().equals(SMTPErrorMessages.SENDER_ADDRESS_NOT_FOUND_ERROR_MSG))
                 .verify();
     }
 
     @Test
     public void testBlankToAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
                 "send.to", "   ");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e ->
                         e instanceof AppsmithPluginException &&
-                                e.getMessage().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Couldn't find a valid recipient address. Please check your action configuration."))
+                                e.getMessage().equals(SMTPErrorMessages.RECIPIENT_ADDRESS_NOT_FOUND_ERROR_MSG)
                 )
                 .verify();
     }
 
     @Test
     public void testInvalidFromAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
                 "send.from", "invalid");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithPluginException)
@@ -204,13 +203,13 @@ public class SmtpPluginTest {
 
     @Test
     public void testInvalidToAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
                 "send.to", "invalidEmail");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithPluginException)
@@ -219,13 +218,13 @@ public class SmtpPluginTest {
 
     @Test
     public void testNullSubject() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
                 "subject", null);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
@@ -234,13 +233,13 @@ public class SmtpPluginTest {
 
     @Test
     public void testBlankBody() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         actionConfiguration.setBody(null);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
-                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
@@ -313,7 +312,7 @@ public class SmtpPluginTest {
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(e -> e instanceof AppsmithPluginException && e.getMessage().equals("Attachment test-icon-file.png contains invalid data. Unable to send email."))
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException && e.getMessage().equals(String.format(SMTPErrorMessages.INVALID_ATTACHMENT_ERROR_MSG, "test-icon-file.png")))
                 .verify();
     }
 
@@ -356,6 +355,16 @@ public class SmtpPluginTest {
                     assertTrue(result2.getIsExecutionSuccess());
                 })
                 .verifyComplete();
+
+    }
+
+    @Test
+    public void verifyUniquenessOfSMTPPluginErrorCode() {
+        assert (Arrays.stream(SMTPPluginError.values()).map(SMTPPluginError::getAppErrorCode).distinct().count() == SMTPPluginError.values().length);
+
+        assert (Arrays.stream(SMTPPluginError.values()).map(SMTPPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-SMT"))
+                .collect(Collectors.toList()).size() == 0);
 
     }
 }
