@@ -34,7 +34,6 @@ export default function AutoLayoutDimensionObserver(
       const height = entries[0].contentRect.height;
       if (width === 0 || height === 0) return;
       setCurrentDimension({ width, height });
-      onDimensionUpdate(width, height);
     }),
   );
 
@@ -43,25 +42,24 @@ export default function AutoLayoutDimensionObserver(
       props.widgetProps.parentColumnSpace -
     2 * FLEXBOX_PADDING;
 
-  useEffect(() => {
-    const diff = Math.abs(boundingBoxWidth - currentDimension.width);
-    console.log(
-      "##### width",
-      props.widgetProps.widgetName,
-      boundingBoxWidth,
-      currentDimension.width,
-      boundingBoxWidth - currentDimension.width,
-    );
-    if (currentDimension.width === 0 || currentDimension.height === 0) return;
-    if (diff > 2)
-      onDimensionUpdate(currentDimension.width, currentDimension.height);
-  }, [boundingBoxWidth, currentDimension.width]);
+  const boundingBoxHeight =
+    (props.widgetProps.bottomRow - props.widgetProps.topRow) *
+      props.widgetProps.parentRowSpace -
+    2 * FLEXBOX_PADDING;
 
-  console.log(
-    "##### AutoLayoutDimensionObserver",
-    props.widgetProps.widgetName,
-    props.widgetProps.rightColumn,
-  );
+  useEffect(() => {
+    const widthDiff = Math.abs(boundingBoxWidth - currentDimension.width);
+    const heightDiff = Math.abs(boundingBoxHeight - currentDimension.height);
+    if (currentDimension.width === 0 || currentDimension.height === 0) return;
+    if (widthDiff > 2 || heightDiff > 2) {
+      onDimensionUpdate(currentDimension.width, currentDimension.height);
+    }
+  }, [
+    boundingBoxWidth,
+    boundingBoxHeight,
+    currentDimension.width,
+    currentDimension.height,
+  ]);
 
   useEffect(() => {
     if (ref.current) {

@@ -68,6 +68,10 @@ import {
 } from "reducers/entityReducers/metaWidgetsReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
+import {
+  WIDGET_WITH_DYNAMIC_HEIGHT,
+  WIDGET_WITH_DYNAMIC_WIDTH,
+} from "utils/layoutPropertiesUtils";
 
 /***
  * BaseWidget
@@ -624,6 +628,15 @@ abstract class BaseWidget<
       );
     }
     if (this.props.isFlexChild && !this.props.detachFromLayout) {
+      const shouldObserveWidth = WIDGET_WITH_DYNAMIC_WIDTH.includes(
+        this.props.type,
+      );
+      const shouldObserveHeight = WIDGET_WITH_DYNAMIC_HEIGHT.includes(
+        this.props.type,
+      );
+
+      if (!shouldObserveHeight && !shouldObserveWidth) return content;
+
       return (
         <AutoLayoutDimensionObserver
           onDimensionUpdate={this.updateWidgetDimensions}

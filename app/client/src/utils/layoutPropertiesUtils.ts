@@ -282,6 +282,13 @@ export const DefaultFillWidgets = [
   "SWITCH_WIDGET",
 ];
 
+// TODO(aswathkk): See if this needs to be moved to widget config
+export const WIDGET_WITH_DYNAMIC_WIDTH = ["BUTTON_WIDGET"];
+
+// TODO(aswathkk): See if this needs to be moved to widget config
+// This is used only for autoLayout
+export const WIDGET_WITH_DYNAMIC_HEIGHT = ["CHECKBOX_GROUP_WIDGET"];
+
 export function getDefaultResponsiveBehavior(widgetType: string) {
   return DefaultFillWidgets.includes(widgetType)
     ? ResponsiveBehavior.Fill
