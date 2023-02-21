@@ -9,7 +9,7 @@ const StyledButton = styled(Button)`
   margin-right: 16px;
 `;
 
-const StyledSaveButton = styled(StyledButton)`
+export const StyledSaveButton = styled(StyledButton)`
   width: 128px;
   height: 38px;
 
@@ -18,7 +18,7 @@ const StyledSaveButton = styled(StyledButton)`
   }
 `;
 
-const StyledClearButton = styled(StyledButton)`
+export const StyledClearButton = styled(StyledButton)`
   width: 68px;
   height: 38px;
 `;
