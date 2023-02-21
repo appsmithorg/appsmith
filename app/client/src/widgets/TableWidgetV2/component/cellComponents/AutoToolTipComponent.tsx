@@ -28,7 +28,7 @@ export const Content = styled.span`
 `;
 
 const WIDTH_OFFSET = 32;
-const MAX_WIDTH = 300;
+const TOOLTIP_MIN_WIDTH = 300;
 const TOOLTIP_OPEN_DELAY = 500;
 
 function useToolTip(
@@ -80,7 +80,9 @@ function useToolTip(
       autoFocus={false}
       boundary="viewport"
       content={
-        <TooltipContentWrapper width={(tableWidth || MAX_WIDTH) - WIDTH_OFFSET}>
+        <TooltipContentWrapper
+          width={Math.max(tableWidth || 0, TOOLTIP_MIN_WIDTH) - WIDTH_OFFSET}
+        >
           {title}
         </TooltipContentWrapper>
       }

@@ -694,6 +694,10 @@ export const MenuStyledOptionHeader = styled.div`
 export const TooltipContentWrapper = styled.div<{ width?: number }>`
   word-break: break-all;
   max-width: ${(props) => props.width}px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* number of lines to show */
+  -webkit-box-orient: vertical;
 `;
 
 export const EmptyRow = styled.div`
