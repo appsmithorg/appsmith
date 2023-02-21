@@ -62,7 +62,7 @@ import {
 } from "selectors/editorSelectors";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getDataTree, getConfigTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
 import { Toaster, Variant } from "design-system-old";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
@@ -118,7 +118,11 @@ import {
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  ConfigTree,
+  WidgetEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
@@ -764,7 +768,7 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const { widgetId: parentWidgetId } = action.payload;
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const evaluatedDataTree: DataTree = yield select(getDataTree);
-  // const configTree: ConfigTree = yield select(getConfigTree);
+  const configTree: ConfigTree = yield select(getConfigTree);
   const widgetsMeta: MetaState = yield select(getWidgetsMeta);
   const childrenList = getWidgetDescendantToReset(
     canvasWidgets,
@@ -777,13 +781,13 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
     const { evaluatedWidget: childWidget, id: childId } = childrenList[
       childIndex
     ];
-    // const evaluatedWidgetConfig =
-    // childWidget && configTree[childWidget?.widgetId];
+    const evaluatedWidgetConfig =
+      childWidget && configTree[childWidget?.widgetName];
     yield put(
       resetWidgetMetaProperty(
         childId,
         childWidget,
-        // evaluatedWidgetConfig as WidgetEntityConfig,
+        evaluatedWidgetConfig as WidgetEntityConfig,
       ),
     );
   }

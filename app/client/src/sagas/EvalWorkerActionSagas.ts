@@ -35,6 +35,7 @@ export function* lintTreeActionHandler(message: any) {
     payload: {
       pathsToLint: data.lintOrder,
       unevalTree: data.unevalTree,
+      configTree: data.configTree,
     },
   });
 }
