@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let ee = ObjectsRegistry.EntityExplorer,
+const ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor;
 
 describe("Validate basic operations on Entity explorer JSEditor structure", () => {
@@ -41,20 +41,19 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     ee.AddNewPage();
     ee.AssertEntityPresenceInExplorer(newPageId);
     ee.SelectEntityByName(pageId);
-    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName(
       "RenamedJSObjectCopy",
       "Move to page",
       newPageId,
     );
     ee.SelectEntityByName(newPageId);
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
   it("6. Validate Deletion of JSObject", function() {
     ee.SelectEntityByName(pageId);
-    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName(
       "ExplorerRenamed",
       "Delete",
