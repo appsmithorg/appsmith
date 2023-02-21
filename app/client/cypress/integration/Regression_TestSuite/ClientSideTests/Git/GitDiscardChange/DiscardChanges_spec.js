@@ -181,7 +181,6 @@ describe("Git discard changes:", function() {
     // delete query1
     _.ee.SelectEntityByName(query1, "Queries/JS");
     _.ee.ActionContextMenuByEntityName(query1, "Delete");
-    cy.deleteQueryOrJS(query1);
     // verify Query1 is deleted
     cy.get(`.t--entity-name:contains(${query1})`).should("not.exist");
     // discard changes
