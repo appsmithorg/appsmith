@@ -4,7 +4,6 @@ import {
   layoutConfigurations,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
@@ -17,7 +16,6 @@ import {
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import { AlignmentColumnInfo } from "./autoLayoutTypes";
-import { Widget } from "./positionUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
   const container = widgets[containerId];
@@ -518,65 +516,4 @@ export function getAlignmentColumnInfo(
     [FlexLayerAlignment.Center]: center,
     [FlexLayerAlignment.End]: end,
   };
-}
-
-export function getCanvasDimensions(
-  canvas: Widget,
-  widgets: CanvasWidgetsReduxState,
-  mainCanvasWidth: number,
-  isMobile: boolean,
-): { canvasWidth: number; columnSpace: number } {
-  const canvasWidth: number = getCanvasWidth(
-    canvas,
-    widgets,
-    mainCanvasWidth,
-    isMobile,
-  );
-
-  const columnSpace: number = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
-
-  return { canvasWidth: canvasWidth, columnSpace };
-}
-
-function getCanvasWidth(
-  canvas: Widget,
-  widgets: CanvasWidgetsReduxState,
-  mainCanvasWidth: number,
-  isMobile: boolean,
-): number {
-  if (!mainCanvasWidth) return 0;
-  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID)
-    return mainCanvasWidth - getPadding(canvas);
-  let widget = canvas;
-  let columns = 0;
-  let width = 1;
-  let padding = 0;
-  while (widget.parentId) {
-    columns = getWidgetWidth(widget, isMobile);
-    padding += getPadding(widget);
-    width *= columns > 64 ? 1 : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
-    widget = widgets[widget.parentId];
-  }
-  const totalWidth = width * mainCanvasWidth;
-  if (widget.widgetId === MAIN_CONTAINER_WIDGET_ID)
-    padding += getPadding(widget);
-  return totalWidth - padding;
-}
-
-function getPadding(canvas: Widget): number {
-  let padding = 0;
-  if (
-    canvas.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-    canvas.type === "CONTAINER_WIDGET"
-  ) {
-    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-    padding = FLEXBOX_PADDING * 2;
-  }
-  if (canvas.noPad) {
-    // Widgets like ListWidget choose to have no container padding so will only have widget padding
-    padding = WIDGET_PADDING * 2;
-  }
-  // Account for container border.
-  padding += canvas.type === "CONTAINER_WIDGET" ? 2 : 0;
-  return padding;
 }
