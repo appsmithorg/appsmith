@@ -53,4 +53,5 @@ export interface EvalTreeResponseData {
   isCreateFirstTree: boolean;
   configTree: ConfigTree;
   staleMetaIds: string[];
+  pathsToClearErrorsFor: any[];
 }

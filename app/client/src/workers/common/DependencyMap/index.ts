@@ -25,6 +25,7 @@ import {
   isPathADynamicBinding,
   getDynamicBindings,
   isPathDynamicTrigger,
+  getEvalErrorPath,
 } from "utils/DynamicBindingUtils";
 import {
   extractInfoFromBindings,
@@ -35,7 +36,7 @@ import {
   mergeArrays,
 } from "./utils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { difference } from "lodash";
+import { difference, set } from "lodash";
 
 interface CreateDependencyMap {
   dependencyMap: DependencyMap;
@@ -147,6 +148,7 @@ export function createDependencyMap(
 
 interface UpdateDependencyMap {
   dependenciesOfRemovedPaths: string[];
+  pathsToClearErrorsFor: any[];
   removedPaths: string[];
   /** Some paths do not need to go through evaluation, but require linting
    *  For example:
@@ -173,12 +175,14 @@ export const updateDependencyMap = ({
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<string> = [];
   const extraPathsToLint = new Set<string>();
+  const pathsToClearErrorsFor: any[] = [];
 
   // This is needed for NEW and DELETE events below.
   // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
   // TODO: Optimise by only getting paths of changed node
   dataTreeEvalRef.allKeys = getAllPaths(unEvalDataTree);
   // Transform the diff library events to Appsmith evaluator events
+
   translatedDiffs.forEach((dataTreeDiff) => {
     const { entityName } = getEntityNameAndPropertyPath(
       dataTreeDiff.payload.propertyPath,
@@ -410,6 +414,26 @@ export const updateDependencyMap = ({
           // Add to removedPaths as they have been deleted from the evalTree
           removedPaths.push(dataTreeDiff.payload.propertyPath);
           // If an existing entity was deleted, remove all the bindings from the global dependency map
+
+          const propertyPath = dataTreeDiff.payload.propertyPath;
+          const dependencyPath = dataTreeEvalRef.dependencyMap[propertyPath];
+
+          /**There are certain cases where the child paths of the entity could have errors and
+           *  need them to be cleared post evaluations. Therefore we store all the paths that are
+           * removed on deleting the entity and use that reference to clear the error logs post evaluation*/
+          if (isWidget(entity)) {
+            const propertyPaths = [propertyPath];
+
+            if (dependencyPath) {
+              propertyPaths.push(...dependencyPath);
+            }
+
+            pathsToClearErrorsFor.push({
+              widgetId: entity?.widgetId,
+              paths: propertyPaths,
+            });
+          }
+
           if (
             (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
             dataTreeDiff.payload.propertyPath === entityName
@@ -744,6 +768,7 @@ export const updateDependencyMap = ({
       }
     }
   });
+
   const diffCalcEnd = performance.now();
   const subDepCalcStart = performance.now();
   if (didUpdateDependencyMap) {
@@ -780,6 +805,15 @@ export const updateDependencyMap = ({
     );
   }
 
+  /** We need this in order clear out the paths that could have errors when a property is deleted */
+  if (pathsToClearErrorsFor.length) {
+    pathsToClearErrorsFor.forEach((error) => {
+      error.paths.forEach((path: string) => {
+        set(dataTreeEvalRef.evalProps, getEvalErrorPath(path), []);
+      });
+    });
+  }
+
   const updateChangedDependenciesStop = performance.now();
   dataTreeEvalRef.logs.push({
     diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
@@ -790,6 +824,7 @@ export const updateDependencyMap = ({
   });
 
   return {
+    pathsToClearErrorsFor,
     dependenciesOfRemovedPaths,
     removedPaths,
     extraPathsToLint: Array.from(extraPathsToLint),

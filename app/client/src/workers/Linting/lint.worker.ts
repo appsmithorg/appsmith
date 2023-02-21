@@ -66,6 +66,7 @@ function eventRequestHandler({
       const lintTreeResponse: LintTreeResponse = { errors: {} };
       try {
         const {
+          cloudHosting,
           configTree,
           pathsToLint,
           unevalTree,
@@ -74,6 +75,7 @@ function eventRequestHandler({
           pathsToLint,
           unevalTree,
           configTree,
+          cloudHosting,
         );
         lintTreeResponse.errors = lintErrors;
       } catch (e) {}

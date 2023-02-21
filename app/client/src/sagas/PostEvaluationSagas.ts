@@ -59,6 +59,7 @@ function logLatestEvalPropertyErrors(
   dataTree: DataTree,
   evaluationOrder: Array<string>,
   configTree: ConfigTree,
+  pathsToClearErrorsFor?: any[],
 ) {
   const errorsToAdd = [];
   const errorsToDelete = [];
@@ -188,6 +189,25 @@ function logLatestEvalPropertyErrors(
       }
     }
   }
+
+  /* Clear errors for paths that are no longer in the data tree. Since the evaluation order is updated
+  without the paths that are no longer in the data tree, we need to keep track of the paths that
+   were removed during evaluations and use them to clear any errors that were previously added
+  for those paths.
+  */
+
+  if (pathsToClearErrorsFor) {
+    for (const error of pathsToClearErrorsFor) {
+      const widgetId = error.widgetId;
+
+      error.paths.forEach((path: string) => {
+        const { propertyPath } = getEntityNameAndPropertyPath(path);
+
+        errorsToDelete.push({ id: `${widgetId}-${propertyPath}` });
+      });
+    }
+  }
+
   // Add and delete errors from debugger
   AppsmithConsole.addErrors(errorsToAdd);
   AppsmithConsole.deleteErrors(errorsToDelete);
@@ -198,6 +218,7 @@ export function* evalErrorHandler(
   dataTree?: DataTree,
   evaluationOrder?: Array<string>,
   configTree?: ConfigTree,
+  pathsToClearErrorsFor?: any[],
 ): any {
   if (dataTree && evaluationOrder && configTree) {
     const currentDebuggerErrors: Record<string, Log> = yield select(
@@ -209,6 +230,7 @@ export function* evalErrorHandler(
       dataTree,
       evaluationOrder,
       configTree,
+      pathsToClearErrorsFor,
     );
   }
 

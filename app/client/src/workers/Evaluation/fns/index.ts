@@ -63,7 +63,13 @@ import {
 } from "./geolocationFns";
 import { isAsyncGuard } from "./utils/fnGuard";
 
-export const platformFns = [
+// cloudHosting -> to use in EE
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getPlatformFunctions = (cloudHosting: boolean) => {
+  return platformFns;
+};
+
+const platformFns = [
   {
     name: "navigateTo",
     fn: navigateTo,
@@ -162,7 +168,15 @@ export type ActionTriggerKeys =
   | TWatchGeoLocationActionType
   | TStopWatchGeoLocationActionType;
 
-export const ActionTriggerFunctionNames: Record<string, string> = {
+export const getActionTriggerFunctionNames = (
+  // cloudHosting -> to use in ee
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting: boolean,
+): Record<string, string> => {
+  return ActionTriggerFunctionNames;
+};
+
+const ActionTriggerFunctionNames: Record<string, string> = {
   CLEAR_INTERVAL: "clearInterval",
   CLEAR_PLUGIN_ACTION: "action.clear",
   CLOSE_MODAL: "closeModal",
