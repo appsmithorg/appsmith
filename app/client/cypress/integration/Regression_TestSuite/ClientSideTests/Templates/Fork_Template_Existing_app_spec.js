@@ -17,24 +17,24 @@ beforeEach(() => {
 });
 
 describe("Fork a template to the current app from new page popover", () => {
-  it("1. Fork template from page section", () => {
+  it("Fork template button to be visible always", () => {
+    _.agHelper.RefreshPage();
+    cy.AddPageFromTemplate();
+    _.agHelper.AssertElementExist(_.templates.locators._forkApp);
+  });
+  it("Fork template from page section", () => {
     cy.wait(5000);
     cy.AddPageFromTemplate();
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Meeting Scheduler']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
+      .wait(500)
       .click();
     cy.wait(1000);
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait(6000);
     _.agHelper.CheckForErrorToast(
       "Internal server error while processing request",
     );
@@ -51,12 +51,12 @@ describe("Fork a template to the current app from new page popover", () => {
     );
   });
 
-  it("2. Add selected page of template from page section", () => {
+  it("Add selected page of template from page section", () => {
     cy.AddPageFromTemplate();
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
-    cy.xpath("//div[text()='Customer Support Dashboard']").click();
+    cy.xpath("//div[text()='Meeting Scheduler']").click();
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -65,7 +65,7 @@ describe("Fork a template to the current app from new page popover", () => {
     cy.xpath(template.selectAllPages)
       .next()
       .click();
-    cy.xpath("//span[text()='DASHBOARD']")
+    cy.xpath("//span[text()='CALENDAR MOBILE']")
       .parent()
       .next()
       .click();

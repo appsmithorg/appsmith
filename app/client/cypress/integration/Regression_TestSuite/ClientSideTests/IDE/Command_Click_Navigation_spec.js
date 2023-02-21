@@ -51,6 +51,8 @@ const JSInput2TestCode = `export default {
 \t
 }`;
 
+let repoName;
+
 describe("1. CommandClickNavigation", function() {
   it("1. Import the test application", () => {
     homePage.NavigateToHome();
@@ -93,6 +95,7 @@ describe("1. CommandClickNavigation", function() {
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click({
       ctrlKey: true,
+      force: true,
     });
 
     cy.url().should("contain", "/api/");
@@ -141,6 +144,10 @@ describe("1. CommandClickNavigation", function() {
       const repoName = uid;
       _.gitSync.CreateNConnectToGit(repoName);
       _.gitSync.CreateGitBranch(repoName);
+    });
+
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
 
     cy.SearchEntityandOpen("Text1");
@@ -209,5 +216,10 @@ describe("1. CommandClickNavigation", function() {
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Input1"]`)
       .should("have.length", 1)
       .click({ cmdKey: true });
+  });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });

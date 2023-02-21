@@ -839,7 +839,7 @@ public class ActionServiceCE_Test {
 
         AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO, null);
@@ -889,7 +889,7 @@ public class ActionServiceCE_Test {
 
         AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO, null);
@@ -932,7 +932,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.error(new StaleConnectionException())).thenReturn(Mono.error(new StaleConnectionException()));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
@@ -941,8 +941,8 @@ public class ActionServiceCE_Test {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
-                    assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.PLUGIN_ERROR.getTitle());
+                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.STALE_CONNECTION_ERROR.getAppErrorCode());
+                    assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.STALE_CONNECTION_ERROR.getTitle());
                 })
                 .verifyComplete();
     }
@@ -976,7 +976,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
@@ -1061,7 +1061,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody("response-body");
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenThrow(new StaleConnectionException())
                 .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
@@ -1114,7 +1114,7 @@ public class ActionServiceCE_Test {
 
     private Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(executeActionDTO, null);

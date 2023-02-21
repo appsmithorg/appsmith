@@ -357,6 +357,15 @@ export const resetDefaultKeyValPairFlag = () => {
   };
 };
 
+export const initializeDatasourceFormDefaults = (pluginType: string) => {
+  return {
+    type: ReduxActionTypes.INITIALIZE_DATASOURCE_FORM_WITH_DEFAULTS,
+    payload: {
+      pluginType: pluginType,
+    },
+  };
+};
+
 export default {
   fetchDatasources,
   initDatasourcePane,

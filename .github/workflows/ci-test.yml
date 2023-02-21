@@ -128,14 +128,14 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: server-build
           path: app/server/dist/
 
       - name: Download the rts build artifact
@@ -185,15 +185,17 @@ jobs:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
+          sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
-          docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
-          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
+          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3000:3000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_AUDITLOG_ENABLED=true \
+            -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
             cicontainer
@@ -378,17 +380,17 @@ jobs:
           env: "NODE_ENV=development"
 
       - name: Collect CI container logs
-        if: always()
+        if: failure()
         working-directory: "."
         run: |
           docker logs appsmith 2>&1 > ~/dockerlogs.txt
           
       # Upload docker logs
       - name: Upload failed test list artifact
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: dockerlogs
+          name: dockerlogs-${{ matrix.job }}
           path: ~/dockerlogs.txt
 
       # Set status = failedtest

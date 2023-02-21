@@ -33,6 +33,8 @@ export class HomePage {
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role +
     "']";
+  private _profileMenu = ".t--profile-menu";
+  private _signout = ".t--logout-icon";
 
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
@@ -243,6 +245,14 @@ export class HomePage {
     this.agHelper.Sleep(); //for logout to complete!
   }
 
+  public Signout() {
+    this.NavigateToHome();
+    this.agHelper.GetNClick(this._profileMenu);
+    this.agHelper.GetNClick(this._signout);
+    this.agHelper.ValidateNetworkStatus("@postLogout");
+    this.agHelper.Sleep(); //for logout to complete!
+  }
+
   public LogintoApp(
     uname: string,
     pswd: string,
@@ -349,7 +359,7 @@ export class HomePage {
     cy.xpath(this._userRoleDropDown(currentRole))
       .first()
       .click({ force: true });
-
+    this.agHelper.Sleep();
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
     cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
