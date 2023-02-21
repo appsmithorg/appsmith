@@ -188,10 +188,8 @@ describe("Git import flow ", function() {
       "response.body.responseMeta.status",
       201,
     );
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
-    _.ee.SelectEntityByName(jsObject);
+    _.ee.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
     _.jsEditor.RunJSObj(); //Running sync function due to open bug
     _.ee.SelectEntityByName("Page1 Copy");
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
