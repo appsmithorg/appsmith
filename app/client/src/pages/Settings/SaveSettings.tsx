@@ -41,7 +41,6 @@ const SettingsButtonWrapper = styled.div`
 
 type SaveAdminSettingsProps = {
   isSaving?: boolean;
-  needsRestart: boolean;
   onSave?: () => void;
   onClear?: () => void;
   settings: Record<string, string>;
@@ -49,7 +48,7 @@ type SaveAdminSettingsProps = {
 };
 
 const saveAdminSettings = (props: SaveAdminSettingsProps) => {
-  const { isSaving, needsRestart, onClear, onSave, settings, valid } = props;
+  const { isSaving, onClear, onSave, settings, valid } = props;
 
   return (
     <SettingsButtonWrapper>
@@ -60,7 +59,7 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         isLoading={isSaving}
         onClick={onSave}
         tag="button"
-        text={createMessage(() => (needsRestart ? "Save & Restart" : "Save"))}
+        text={createMessage(() => "Save & Restart")}
       />
       <StyledClearButton
         category={Category.secondary}

@@ -87,7 +87,7 @@ export function SettingsForm(
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
-        dispatch(saveSettings(props.settings, details?.needsRestart ?? true));
+        dispatch(saveSettings(props.settings));
       } else {
         saveBlocked();
       }
@@ -201,7 +201,6 @@ export function SettingsForm(
           {isSavable && (
             <SaveAdminSettings
               isSaving={props.isSaving}
-              needsRestart={details?.needsRestart ?? true}
               onClear={onClear}
               onSave={onSave}
               settings={props.settings}
