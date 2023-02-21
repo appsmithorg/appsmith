@@ -1,7 +1,9 @@
 import { isPromise } from "workers/Evaluation/JSObject/utils";
 import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObject/postJSFunctionExecution";
 import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
-
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { WorkerMessenger } from "./Messenger";
 declare global {
   interface Window {
     structuredClone: (
@@ -30,8 +32,33 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
     postJSFunctionExecutionLog,
   ],
 ) {
-  return (...args: P) => {
+  return async (...args: P) => {
     try {
+      const actionName = name.split(".")[1];
+      const calledJsObject = name.split(".")[0];
+
+      // eslint-disable-next-line
+      // @ts-ignore
+      const jsObject = globalThis[calledJsObject];
+      const jsObjectConfig = jsObject?.config?.actions?.find(
+        (action: any) => action.name === actionName,
+      );
+
+      if (jsObjectConfig.confirmBeforeExecute) {
+        const response = await WorkerMessenger.request({
+          method: MAIN_THREAD_ACTION.CONFIRM_BEFORE_EXECUTE_JS_FUNCTION,
+          data: {
+            actionName,
+            calledJsObject,
+            jsObjectConfig,
+          },
+        });
+
+        if (!response.data.confirmed) {
+          return;
+        }
+      }
+
       const result = fn(...args);
       if (isPromise(result)) {
         result.then((res) => {

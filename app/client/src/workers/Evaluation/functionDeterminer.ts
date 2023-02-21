@@ -2,11 +2,16 @@ import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import userLogs from "./fns/overrides/console";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 class FunctionDeterminer {
   private evalContext: EvalContext = {};
 
-  setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
+  setupEval(
+    dataTree: DataTree,
+    resolvedFunctions: Record<string, any>,
+    JSCollectionsForCurrentPage?: JSCollectionData[],
+  ) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
       $isDataField: true,
@@ -19,7 +24,12 @@ class FunctionDeterminer {
       isTriggerBased: true,
     });
 
-    assignJSFunctionsToContext(evalContext, resolvedFunctions, true);
+    assignJSFunctionsToContext(
+      evalContext,
+      resolvedFunctions,
+      true,
+      JSCollectionsForCurrentPage,
+    );
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith

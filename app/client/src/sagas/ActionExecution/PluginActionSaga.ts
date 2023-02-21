@@ -326,6 +326,7 @@ export default function* executePluginActionTriggerSaga(
 ) {
   const { payload: pluginPayload } = pluginAction;
   const { actionId, onError, params } = pluginPayload;
+
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
       "RUN_PLUGIN_ACTION",
@@ -883,6 +884,7 @@ function* executePluginActionSaga(
 ) {
   let pluginAction;
   let actionId;
+
   if (isString(actionOrActionId)) {
     // @ts-expect-error: plugin Action can take many types
     pluginAction = yield select(getAction, actionOrActionId);

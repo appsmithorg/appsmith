@@ -1,8 +1,8 @@
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { WorkerMessenger } from "./Messenger";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
 import ExecutionMetaData from "./ExecutionMetaData";
-import { WorkerMessenger } from "./Messenger";
 
 /**
  * This function is used to promisify the execution of a function

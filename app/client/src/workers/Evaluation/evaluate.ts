@@ -14,6 +14,7 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 export type EvalResult = {
   result: any;
@@ -124,6 +125,7 @@ export interface createEvaluationContextArgs {
   evalArguments?: Array<unknown>;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
+  JSCollectionsForCurrentPage?: JSCollectionData[];
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -137,6 +139,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
+    JSCollectionsForCurrentPage,
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
@@ -158,7 +161,12 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, isTriggerBased);
+  assignJSFunctionsToContext(
+    EVAL_CONTEXT,
+    resolvedFunctions,
+    isTriggerBased,
+    JSCollectionsForCurrentPage,
+  );
 
   return EVAL_CONTEXT;
 };
@@ -167,6 +175,7 @@ export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
   isTriggerBased: boolean,
+  JSCollectionsForCurrentPage: JSCollectionData[] = [],
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
@@ -182,14 +191,21 @@ export const assignJSFunctionsToContext = (
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
       const data = jsObject[fnName]?.data;
       jsObjectFunction[fnName] = isTriggerBased
-        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
+        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName, [])
         : fn;
       if (!!data) {
         jsObjectFunction[fnName]["data"] = data;
       }
     }
 
+    const JSCollectionForCurrentObject = JSCollectionsForCurrentPage.find(
+      (jSCollection) => jSCollection.config?.name === jsObjectName,
+    );
+
     EVAL_CONTEXT[jsObjectName] = Object.assign({}, jsObject, jsObjectFunction);
+    EVAL_CONTEXT[jsObjectName].config = {
+      ...JSCollectionForCurrentObject?.config,
+    };
   }
 };
 
@@ -313,6 +329,7 @@ export async function evaluateAsync(
   resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
+  JSCollectionsForCurrentPage?: JSCollectionData[],
 ) {
   return (async function() {
     resetWorkerGlobalScope();
@@ -326,6 +343,7 @@ export async function evaluateAsync(
       context,
       evalArguments,
       isTriggerBased: true,
+      JSCollectionsForCurrentPage,
     });
 
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);

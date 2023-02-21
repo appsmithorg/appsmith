@@ -19,6 +19,13 @@ import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga"
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import isEmpty from "lodash/isEmpty";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { Toaster, Variant } from "design-system-old";
+import {
+  createMessage,
+  ACTION_EXECUTION_CANCELLED,
+} from "@appsmith/constants/messages";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -90,6 +97,38 @@ export function* processTriggerHandler(message: any) {
     yield call(evalWorker.respond, message.messageId, result);
 }
 
+export function* confirmBeforeExecutingJsFunction(message: any) {
+  const { body } = message;
+  const { data } = body;
+  const { actionName, calledJsObject, jsObjectConfig } = data;
+
+  const modalPayload = {
+    name: actionName,
+    modalOpen: true,
+    modalType: ModalType.RUN_ACTION,
+  };
+
+  const confirmed: unknown = yield call(
+    requestModalConfirmationSaga,
+    modalPayload,
+  );
+  if (!confirmed) {
+    yield put({
+      type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+      payload: { id: jsObjectConfig.id },
+    });
+    Toaster.show({
+      text: createMessage(
+        ACTION_EXECUTION_CANCELLED,
+        `${calledJsObject}.${actionName}`,
+      ),
+      variant: Variant.danger,
+    });
+  }
+
+  yield call(evalWorker.respond, message.messageId, { data: { confirmed } });
+}
+
 export function* handleEvalWorkerMessage(message: TMessage<any>) {
   const { body } = message;
   const { data, method } = body;
@@ -108,6 +147,10 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.PROCESS_TRIGGER: {
       yield call(processTriggerHandler, message);
+      break;
+    }
+    case MAIN_THREAD_ACTION.CONFIRM_BEFORE_EXECUTE_JS_FUNCTION: {
+      yield call(confirmBeforeExecutingJsFunction, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {

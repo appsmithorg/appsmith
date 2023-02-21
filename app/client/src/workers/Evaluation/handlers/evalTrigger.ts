@@ -10,12 +10,16 @@ export default async function(request: EvalWorkerASyncRequest) {
     dynamicTrigger,
     eventType,
     globalContext,
+    JSCollectionsForCurrentPage,
     triggerMeta,
     unEvalTree: __unEvalTree__,
   } = data;
+
   if (!dataTreeEvaluator) {
     return { triggers: [], errors: [] };
   }
+
+  dataTreeEvaluator.JSCollectionsForCurrentPage = JSCollectionsForCurrentPage;
   ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
   const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
   const {
@@ -41,5 +45,6 @@ export default async function(request: EvalWorkerASyncRequest) {
       eventType,
       triggerMeta,
     },
+    JSCollectionsForCurrentPage,
   );
 }
