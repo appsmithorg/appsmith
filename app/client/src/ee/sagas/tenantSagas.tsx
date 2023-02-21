@@ -40,6 +40,7 @@ import {
   LICENSE_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
 import { setBEBanner, showLicenseModal } from "@appsmith/actions/tenantActions";
+import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
 
 export function* fetchCurrentTenantConfigSaga(): any {
   try {
@@ -142,11 +143,14 @@ export function* validateLicenseSaga(
           window.location.assign(redirectUrl);
         }
         if (shouldEnableFirstTimeUserOnboarding) {
-          const urlObject = new URL(redirectUrl);
+          let urlObj;
+          try {
+            urlObj = new URL(redirectUrl);
+          } catch (e) {}
           const match = matchPath<{
             pageId: string;
             applicationId: string;
-          }>(urlObject?.pathname ?? redirectUrl, {
+          }>(urlObj?.pathname ?? redirectUrl, {
             path: [
               BUILDER_PATH,
               BUILDER_PATH_DEPRECATED,
@@ -157,15 +161,14 @@ export function* validateLicenseSaga(
             exact: false,
           });
           const { applicationId, pageId } = match?.params || {};
-          yield put({
-            type: ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
-            payload: {
-              applicationId: applicationId,
-              pageId: pageId,
-            },
-          });
+          if (applicationId || pageId) {
+            yield put(
+              firstTimeUserOnboardingInit(applicationId, pageId as string),
+            );
+          }
         }
       }
+      yield delay(2000);
       initLicenseStatusCheckSaga();
       yield put({
         type: ReduxActionTypes.VALIDATE_LICENSE_KEY_SUCCESS,
