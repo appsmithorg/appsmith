@@ -843,7 +843,7 @@ public class ApplicationServiceCETest {
 
         Mono<PageDTO> pageMono = publicAppMono
                 .flatMap(app -> {
-                    String pageId = app.getPages().get(0).getId();
+                    String pageId = app.getUnpublishedApplication().getPages().get(0).getId();
                     return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
@@ -932,7 +932,7 @@ public class ApplicationServiceCETest {
 
         Mono<PageDTO> pageMono = privateAppMono
                 .flatMap(app -> {
-                    String pageId = app.getPages().get(0).getId();
+                    String pageId = app.getUnpublishedApplication().getPages().get(0).getId();
                     return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
@@ -1013,7 +1013,7 @@ public class ApplicationServiceCETest {
 
         Mono<PageDTO> pageMono = publicAppMono
                 .flatMap(app -> {
-                    String pageId = app.getPages().get(0).getId();
+                    String pageId = app.getUnpublishedApplication().getPages().get(0).getId();
                     return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
@@ -1145,7 +1145,7 @@ public class ApplicationServiceCETest {
                             return applicationService.changeViewAccess(application1.getId(), "testBranch", applicationAccessDTO);
                         })
                         .flatMap(app -> {
-                            String pageId = app.getPages().get(0).getId();
+                            String pageId = app.getUnpublishedApplication().getPages().get(0).getId();
                             return Mono.zip(
                                     Mono.just(app),
                                     newPageService.findPageById(pageId, READ_PAGES, false)
@@ -1208,7 +1208,7 @@ public class ApplicationServiceCETest {
 
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
-        String pageId = createdApplication.getPages().get(0).getId();
+        String pageId = createdApplication.getUnpublishedApplication().getPages().get(0).getId();
 
         Plugin plugin = pluginService.findByPackageName("restapi-plugin").block();
         Datasource datasource = new Datasource();
@@ -1325,11 +1325,11 @@ public class ApplicationServiceCETest {
                 .collectList();
 
         Mono<List<PageDTO>> clonedPageListMono = clonedApplicationMono
-                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMapMany(application -> Flux.fromIterable(application.getUnpublishedApplication().getPages()))
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
-        Mono<List<PageDTO>> srcPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
+        Mono<List<PageDTO>> srcPageListMono = Flux.fromIterable(gitConnectedApp.getUnpublishedApplication().getPages())
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
@@ -1381,7 +1381,7 @@ public class ApplicationServiceCETest {
                     assertThat(clonedApplication.getApplicationVersion()).isNotNull();
                     assertThat(clonedApplication.getApplicationVersion()).isEqualTo(gitConnectedApp.getApplicationVersion());
 
-                    List<ApplicationPage> pages = clonedApplication.getPages();
+                    List<ApplicationPage> pages = clonedApplication.getUnpublishedApplication().getPages();
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> clonedPageIdsFromDb = clonedPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
 
@@ -1402,11 +1402,11 @@ public class ApplicationServiceCETest {
         // verify that Pages are cloned
 
         Mono<List<NewPage>> clonedNewPageListMono = clonedApplicationMono
-                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMapMany(application -> Flux.fromIterable(application.getUnpublishedApplication().getPages()))
                 .flatMap(applicationPage -> newPageRepository.findById(applicationPage.getId()))
                 .collectList();
 
-        Mono<List<NewPage>> srcNewPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
+        Mono<List<NewPage>> srcNewPageListMono = Flux.fromIterable(gitConnectedApp.getUnpublishedApplication().getPages())
                 .flatMap(applicationPage -> newPageService.findByBranchNameAndDefaultPageId(branchName, applicationPage.getDefaultPageId(), READ_PAGES))
                 .collectList();
 
@@ -1479,7 +1479,7 @@ public class ApplicationServiceCETest {
                 })
                 .collectList();
 
-        String pageId = gitConnectedApp.getPages().get(0).getId();
+        String pageId = gitConnectedApp.getUnpublishedApplication().getPages().get(0).getId();
 
         ActionDTO action = new ActionDTO();
         action.setName("Clone App Test action");
@@ -1545,7 +1545,7 @@ public class ApplicationServiceCETest {
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
 
-                    Set<String> clonedPageId = clonedApplication.getPages().stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    Set<String> clonedPageId = clonedApplication.getUnpublishedApplication().getPages().stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> clonedActionIdsFromDb = clonedActionList.stream().map(action1 -> action1.getId()).collect(Collectors.toSet());
                     Set<String> clonedPageIdsInActionFromDb = clonedActionList.stream().map(action1 -> action1.getUnpublishedAction().getPageId()).collect(Collectors.toSet());
                     Set<String> defaultPageIdsInClonedActionFromDb = clonedActionList.stream().map(action1 -> action1.getUnpublishedAction().getDefaultResources().getPageId()).collect(Collectors.toSet());
@@ -1594,14 +1594,14 @@ public class ApplicationServiceCETest {
 
         Map<String, List<String>> originalResourceIds = new HashMap<>();
         Mono<Application> resultMono = originalApplicationMono
-                .zipWhen(application -> newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
+                .zipWhen(application -> newPageService.findPageById(application.getUnpublishedApplication().getPages().get(0).getId(), READ_PAGES, false))
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     PageDTO testPage = tuple.getT2();
 
                     ActionDTO action = new ActionDTO();
                     action.setName("cloneActionTest");
-                    action.setPageId(application.getPages().get(0).getId());
+                    action.setPageId(application.getUnpublishedApplication().getPages().get(0).getId());
                     action.setExecuteOnLoad(true);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
@@ -1640,7 +1640,7 @@ public class ApplicationServiceCETest {
                     // Save actionCollection
                     ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
                     actionCollectionDTO.setName("testCollection1");
-                    actionCollectionDTO.setPageId(application.getPages().get(0).getId());
+                    actionCollectionDTO.setPageId(application.getUnpublishedApplication().getPages().get(0).getId());
                     actionCollectionDTO.setApplicationId(application.getId());
                     actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
                     actionCollectionDTO.setPluginId(testPlugin.getId());
@@ -1685,7 +1685,7 @@ public class ApplicationServiceCETest {
                 .flatMap(tuple -> {
                     List<String> pageIds = new ArrayList<>(), collectionIds = new ArrayList<>();
                     collectionIds.add(tuple.getT1().getId());
-                    tuple.getT4().getPages().forEach(page -> pageIds.add(page.getId()));
+                    tuple.getT4().getUnpublishedApplication().getPages().forEach(page -> pageIds.add(page.getId()));
 
                     originalResourceIds.put("pageIds", pageIds);
                     originalResourceIds.put("collectionIds", collectionIds);
@@ -1748,7 +1748,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
-                    List<ApplicationPage> pages = application.getPages();
+                    List<ApplicationPage> pages = application.getUnpublishedApplication().getPages();
                     Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
 
@@ -1790,7 +1790,7 @@ public class ApplicationServiceCETest {
 
                         ActionDTO action = newAction.getUnpublishedAction();
                         assertThat(action.getDefaultResources()).isNotNull();
-                        assertThat(action.getDefaultResources().getPageId()).isEqualTo(application.getPages().get(0).getId());
+                        assertThat(action.getDefaultResources().getPageId()).isEqualTo(application.getUnpublishedApplication().getPages().get(0).getId());
                         if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
                             assertThat(action.getDefaultResources().getCollectionId()).isEqualTo(action.getCollectionId());
                         }
@@ -1813,7 +1813,7 @@ public class ApplicationServiceCETest {
 
                         assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
                         assertThat(unpublishedCollection.getDefaultResources().getPageId())
-                                .isEqualTo(application.getPages().get(0).getId());
+                                .isEqualTo(application.getUnpublishedApplication().getPages().get(0).getId());
                     });
                 })
                 .verifyComplete();
@@ -1842,13 +1842,13 @@ public class ApplicationServiceCETest {
                 .verifyComplete();
 
         Mono<List<PageDTO>> pageListMono = resultMono
-                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMapMany(application -> Flux.fromIterable(application.getUnpublishedApplication().getPages()))
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         // verify that Pages are cloned
         Mono<List<NewPage>> testPageListMono = originalApplicationMono
-                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMapMany(application -> Flux.fromIterable(application.getUnpublishedApplication().getPages()))
                 .flatMap(applicationPage -> newPageRepository.findById(applicationPage.getId()))
                 .collectList();
 
@@ -1915,14 +1915,14 @@ public class ApplicationServiceCETest {
 
         Map<String, List<String>> originalResourceIds = new HashMap<>();
         Mono<Application> resultMono = originalApplicationMono
-                .zipWhen(application -> newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
+                .zipWhen(application -> newPageService.findPageById(application.getUnpublishedApplication().getPages().get(0).getId(), READ_PAGES, false))
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     PageDTO testPage = tuple.getT2();
 
                     ActionDTO action = new ActionDTO();
                     action.setName("cloneActionTest");
-                    action.setPageId(application.getPages().get(0).getId());
+                    action.setPageId(application.getUnpublishedApplication().getPages().get(0).getId());
                     action.setExecuteOnLoad(true);
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
                     actionConfiguration.setHttpMethod(HttpMethod.GET);
@@ -1933,7 +1933,7 @@ public class ApplicationServiceCETest {
                     // Save actionCollection
                     ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
                     actionCollectionDTO.setName("testCollection1");
-                    actionCollectionDTO.setPageId(application.getPages().get(0).getId());
+                    actionCollectionDTO.setPageId(application.getUnpublishedApplication().getPages().get(0).getId());
                     actionCollectionDTO.setApplicationId(application.getId());
                     actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
                     actionCollectionDTO.setPluginId(testPlugin.getId());
@@ -2025,7 +2025,7 @@ public class ApplicationServiceCETest {
                     List<String> pageIds = new ArrayList<>(), collectionIds = new ArrayList<>();
                     ActionCollectionDTO collectionDTO = tuple.getT1();
                     collectionIds.add(collectionDTO.getId());
-                    tuple.getT4().getPages().forEach(page -> pageIds.add(page.getId()));
+                    tuple.getT4().getUnpublishedApplication().getPages().forEach(page -> pageIds.add(page.getId()));
 
                     originalResourceIds.put("pageIds", pageIds);
                     originalResourceIds.put("collectionIds", collectionIds);
@@ -2094,7 +2094,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
-                    List<ApplicationPage> pages = application.getPages();
+                    List<ApplicationPage> pages = application.getUnpublishedApplication().getPages();
                     Set<String> pageIdsFromApplication = pages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
                     Set<String> pageIdsFromDb = pageList.stream().map(BaseDomain::getId).collect(Collectors.toSet());
 
@@ -2136,7 +2136,7 @@ public class ApplicationServiceCETest {
 
                         ActionDTO action = newAction.getUnpublishedAction();
                         assertThat(action.getDefaultResources()).isNotNull();
-                        assertThat(action.getDefaultResources().getPageId()).isEqualTo(application.getPages().get(0).getId());
+                        assertThat(action.getDefaultResources().getPageId()).isEqualTo(application.getUnpublishedApplication().getPages().get(0).getId());
                         if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
                             assertThat(action.getDefaultResources().getCollectionId()).isEqualTo(action.getCollectionId());
                         }
@@ -2159,7 +2159,7 @@ public class ApplicationServiceCETest {
 
                         assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
                         assertThat(unpublishedCollection.getDefaultResources().getPageId())
-                                .isEqualTo(application.getPages().get(0).getId());
+                                .isEqualTo(application.getUnpublishedApplication().getPages().get(0).getId());
                     });
                 })
                 .verifyComplete();
@@ -2218,7 +2218,7 @@ public class ApplicationServiceCETest {
         StepVerifier
                 .create(forkedApp)
                 .assertNext(application1 -> {
-                    assertThat(application1.getPages().size()).isEqualTo(2);
+                    assertThat(application1.getUnpublishedApplication().getPages().size()).isEqualTo(2);
                 })
                 .verifyComplete();
     }
@@ -2240,7 +2240,7 @@ public class ApplicationServiceCETest {
                 .cache();
 
         Mono<List<NewPage>> applicationPagesMono = applicationMono
-                .map(application -> application.getPages())
+                .map(application -> application.getUnpublishedApplication().getPages())
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
                 .collectList();
@@ -2255,7 +2255,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName()).isEqualTo(appName);
-                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getUnpublishedApplication().getPages()).hasSize(1);
                     assertThat(application.getPublishedApplication().getPages()).hasSize(1);
 
                     assertThat(pages).hasSize(1);
@@ -2406,7 +2406,7 @@ public class ApplicationServiceCETest {
                 .cache();
 
         Mono<List<NewPage>> applicationPagesMono = applicationMono
-                .map(application -> application.getPages())
+                .map(application -> application.getUnpublishedApplication().getPages())
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
                 .collectList();
@@ -2418,7 +2418,7 @@ public class ApplicationServiceCETest {
                     List<NewPage> pages = tuple.getT2();
 
                     assertThat(application).isNotNull();
-                    assertThat(application.getPages().size()).isEqualTo(1);
+                    assertThat(application.getUnpublishedApplication().getPages().size()).isEqualTo(1);
                     assertThat(application.getPublishedApplication().getPages().size()).isEqualTo(1);
 
                     assertThat(pages.size()).isEqualTo(1);
@@ -2452,7 +2452,7 @@ public class ApplicationServiceCETest {
         Mono<Application> applicationMono = applicationPageService.publish(testApplication.getId(), true);
 
         Mono<List<NewPage>> applicationPagesMono = applicationMono
-                .map(application -> application.getPages())
+                .map(application -> application.getUnpublishedApplication().getPages())
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
                 .collectList();
@@ -2466,7 +2466,7 @@ public class ApplicationServiceCETest {
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName()).isEqualTo(appName);
-                    assertThat(application.getPages()).hasSize(2);
+                    assertThat(application.getUnpublishedApplication().getPages()).hasSize(2);
                     assertThat(application.getPublishedApplication().getPages()).hasSize(2);
 
                     assertThat(pages).hasSize(2);
@@ -2519,7 +2519,7 @@ public class ApplicationServiceCETest {
                     assertThat(publishedPages).size().isEqualTo(2);
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
-                    List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
+                    List<ApplicationPage> editedApplicationPages = editedApplication.getUnpublishedApplication().getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(1);
                     assertThat(editedApplicationPages).doesNotContain(applicationPage);
                 })
@@ -2562,7 +2562,7 @@ public class ApplicationServiceCETest {
                     assertThat(publishedPages).size().isEqualTo(2);
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
-                    List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
+                    List<ApplicationPage> editedApplicationPages = editedApplication.getUnpublishedApplication().getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(1);
                     assertThat(editedApplicationPages).doesNotContain(applicationPage);
                 })
@@ -2620,7 +2620,7 @@ public class ApplicationServiceCETest {
                     }
                     assertThat(isFound).isTrue();
 
-                    List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
+                    List<ApplicationPage> editedApplicationPages = editedApplication.getUnpublishedApplication().getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
                     isFound = false;
                     for (ApplicationPage page : editedApplicationPages) {
@@ -2676,7 +2676,7 @@ public class ApplicationServiceCETest {
         StepVerifier
                 .create(viewModeApplicationMono)
                 .assertNext(viewApplication -> {
-                    List<ApplicationPage> editedApplicationPages = viewApplication.getPages();
+                    List<ApplicationPage> editedApplicationPages = viewApplication.getUnpublishedApplication().getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
                     boolean isFound = false;
                     for (ApplicationPage page : editedApplicationPages) {
@@ -2707,7 +2707,7 @@ public class ApplicationServiceCETest {
         Application originalApplication = applicationPageService.createApplication(testApplication, workspaceId)
                 .block();
 
-        String pageId = originalApplication.getPages().get(0).getId();
+        String pageId = originalApplication.getUnpublishedApplication().getPages().get(0).getId();
 
         Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
         Datasource datasource = new Datasource();
@@ -2789,7 +2789,7 @@ public class ApplicationServiceCETest {
 
         // Find all pages in new app
         Mono<List<PageDTO>> pagesMono = clonedAppFromDbMono
-                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMapMany(application -> Flux.fromIterable(application.getUnpublishedApplication().getPages()))
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
@@ -2844,7 +2844,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getPublishedApplication().getPages()).hasSize(1);
 
                     // Assert that the published page and the unpublished page are one and the same
-                    assertThat(application.getPages().get(0).getId()).isEqualTo(application.getPublishedApplication().getPages().get(0).getId());
+                    assertThat(application.getUnpublishedApplication().getPages().get(0).getId()).isEqualTo(application.getPublishedApplication().getPages().get(0).getId());
 
                     // Assert that the published page has 1 layout
                     assertThat(publishedPage.getLayouts()).hasSize(1);
@@ -2917,7 +2917,7 @@ public class ApplicationServiceCETest {
         Application originalApplication = applicationPageService.createApplication(testApplication, workspaceId)
                 .block();
 
-        String pageId = originalApplication.getPages().get(0).getId();
+        String pageId = originalApplication.getUnpublishedApplication().getPages().get(0).getId();
 
         Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
         Datasource datasource = new Datasource();
@@ -2985,7 +2985,7 @@ public class ApplicationServiceCETest {
                 );
 
         Mono<List<PageDTO>> pagesMono = applicationFromDbPostViewChange
-                .flatMapMany(application -> Flux.fromIterable(application.getPages()))
+                .flatMapMany(application -> Flux.fromIterable(application.getUnpublishedApplication().getPages()))
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
