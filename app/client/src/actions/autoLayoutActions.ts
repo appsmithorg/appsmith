@@ -19,3 +19,18 @@ export const widgetViolatedMinDimentionsAction = (parentId: string) => ({
     parentId,
   },
 });
+
+export function updateWidgetDimensionAction(
+  widgetId: string,
+  width: number,
+  height: number,
+) {
+  return {
+    type: ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,
+    payload: {
+      widgetId,
+      width,
+      height,
+    },
+  };
+}

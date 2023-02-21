@@ -227,6 +227,7 @@ export function getLayoutConfig(alignment: Alignment, spacing: Spacing): any[] {
 export const NonResizableWidgets = [
   "AUDIO_WIDGET",
   "BUTTON_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
   "BUTTON_GROUP_WIDGET",
   "CHECKBOX_WIDGET",
   "CURRENCY_INPUT_WIDGET",
@@ -265,7 +266,6 @@ export const DefaultFillWidgets = [
   "DATE_PICKER_WIDGET2",
   "DIVIDER_WIDGET",
   "FORM_WIDGET",
-  "FILE_PICKER_WIDGET_V2",
   "INPUT_WIDGET_V2",
   "JSON_FORM_WIDGET",
   "LIST_WIDGET",
