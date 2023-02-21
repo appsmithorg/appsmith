@@ -18,7 +18,7 @@ export const theming = (Story, args) => {
 
   return (
     <StyledContainer
-      accentColor={args.globals.accentColor}
+      accentColor={args.globals.accentColor || "#553DE9"}
       borderRadius={args.globals.borderRadius}
     >
       <Story />

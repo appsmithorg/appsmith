@@ -1,7 +1,10 @@
+import React from "react";
+import { Icons, IconButton } from "@storybook/components";
+
 export const accentColor = {
   name: "Accent Color",
   description: "Accent Color",
-  defaultValue: "#00aced",
+  defaultValue: null,
   toolbar: {
     icon: "paintbrush",
     items: [
