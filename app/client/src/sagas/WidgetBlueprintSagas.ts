@@ -77,10 +77,17 @@ export type BlueprintOperationChildOperationsFn = (
   },
 ) => ChildOperationFnResponse;
 
+export type BlueprintBeforeOperationsFn = (
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  widgetId: string,
+  parentId: string,
+) => void;
+
 export type BlueprintOperationFunction =
   | BlueprintOperationModifyPropsFn
   | BlueprintOperationAddActionFn
-  | BlueprintOperationChildOperationsFn;
+  | BlueprintOperationChildOperationsFn
+  | BlueprintBeforeOperationsFn;
 
 export type BlueprintOperationType = keyof typeof BlueprintOperationTypes;
 
@@ -237,4 +244,36 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
   }
 
   return widgets;
+}
+
+type ExecuteWidgetBlueprintBeforeOperationsParams = {
+  parentId: string;
+  widgetId: string;
+  widgets: { [widgetId: string]: FlattenedWidgetProps };
+  widgetType: WidgetType;
+};
+
+export function* executeWidgetBlueprintBeforeOperations(
+  blueprintOperation: Extract<
+    BlueprintOperationTypes,
+    | BlueprintOperationTypes.BEFORE_ADD
+    | BlueprintOperationTypes.BEFORE_DROP
+    | BlueprintOperationTypes.BEFORE_PASTE
+  >,
+  params: ExecuteWidgetBlueprintBeforeOperationsParams,
+) {
+  const { parentId, widgetId, widgets, widgetType } = params;
+  const blueprintOperations: BlueprintOperation[] =
+    WidgetFactory.widgetConfigMap.get(widgetType)?.blueprint?.operations ?? [];
+
+  const beforeAddOperation = blueprintOperations.find(
+    (operation) => operation.type === blueprintOperation,
+  );
+
+  if (beforeAddOperation)
+    (beforeAddOperation.fn as BlueprintBeforeOperationsFn)(
+      widgets,
+      widgetId,
+      parentId,
+    );
 }
