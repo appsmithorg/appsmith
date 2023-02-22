@@ -59,23 +59,37 @@ public class DataUtils {
         this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
-    public BodyInserter<?, ?> buildBodyInserter(Object body, String contentType, Boolean encodeParamsToggle) {
+    public BodyInserter<?, ?> buildBodyInserter(Object body, ApiContentType apiContentType,
+                                                Boolean encodeParamsToggle) {
         if (body == null) {
             return BodyInserters.fromValue(new byte[0]);
         }
-        switch (contentType) {
-            case MediaType.APPLICATION_JSON_VALUE:
+
+
+        /**
+         * Seems like DB has many action configs such that apiContentType is not defined. In the interest of time it
+         * looks like it may be better to handle it like this instead of writing a migration to set `apiContentType`
+         * data to `None`.
+         */
+        if (apiContentType == null) {
+            /* This is the default handling when `apiContentType` does not match any non `None` value as shown in the
+            switch block below */
+            return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
+        }
+
+        switch (apiContentType) {
+            case JSON:
                 final Object bodyObject = parseJsonBody(body);
                 return BodyInserters.fromValue(bodyObject);
-            case MediaType.APPLICATION_FORM_URLENCODED_VALUE:
+            case FORM_URLENCODED:
                 final String formData = parseFormData((List<Property>) body, encodeParamsToggle);
                 if ("".equals(formData)) {
                     return BodyInserters.fromValue(new byte[0]);
                 }
                 return BodyInserters.fromValue(formData);
-            case MediaType.MULTIPART_FORM_DATA_VALUE:
+            case MULTIPART_FORM_DATA:
                 return parseMultipartFileData((List<Property>) body);
-            case MediaType.TEXT_PLAIN_VALUE:
+            case RAW:
                 return BodyInserters.fromValue((String) body);
             default:
                 return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
@@ -285,8 +299,8 @@ public class DataUtils {
 
     }
 
-    public Object getRequestBodyObject(ActionConfiguration actionConfiguration, String reqContentType,
-                                       boolean encodeParamsToggle, HttpMethod httpMethod) {
+    public Object getRequestBodyObject(ActionConfiguration actionConfiguration, boolean encodeParamsToggle,
+                                       HttpMethod httpMethod) {
         // We initialize this object to an empty string because body can never be empty
         // Based on the content-type, this Object may be of type MultiValueMap or String
         Object requestBodyObj = "";
@@ -310,12 +324,12 @@ public class DataUtils {
             requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
         }
 
-        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+        if (ApiContentType.FORM_URLENCODED.equals(apiContentType)
+                || ApiContentType.MULTIPART_FORM_DATA.equals(apiContentType)) {
             requestBodyObj = actionConfiguration.getBodyFormData();
         }
 
-        requestBodyObj = this.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
+        requestBodyObj = this.buildBodyInserter(requestBodyObj, apiContentType, encodeParamsToggle);
 
         return requestBodyObj;
     }

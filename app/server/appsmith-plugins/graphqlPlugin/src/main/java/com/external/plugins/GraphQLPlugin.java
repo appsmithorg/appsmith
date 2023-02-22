@@ -270,11 +270,9 @@ public class GraphQLPlugin extends BasePlugin {
             }
 
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
-            Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
-                    encodeParamsToggle,
-                    httpMethod);
-            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
-                    EXCHANGE_STRATEGIES, requestCaptureFilter);
+            Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, encodeParamsToggle, httpMethod);
+            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, actionConfiguration,
+                    apiConnection, EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
             Set<String> hintMessages = new HashSet<>();
