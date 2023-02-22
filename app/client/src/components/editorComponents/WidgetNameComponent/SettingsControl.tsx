@@ -30,7 +30,7 @@ const SettingsWrapper = styled.div<{ widgetWidth: number }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: ${(props) => props.widgetWidth - BORDER_RADIUS / 2}px;
+  max-width: ${(props) => props.widgetWidth - BORDER_RADIUS}px;
   & {
     pre {
       margin: 0 5px 0 0;
