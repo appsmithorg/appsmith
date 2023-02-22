@@ -75,10 +75,10 @@ ff4j:
       enable: true
       description: Have multiple panes in the Appsmith IDE
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emails
-            value: multipanes@appsmith.com,ndx@appsmith.com
+          - name: weight
+            value: 1
 
     - uid: AUTO_LAYOUT
       enable: true
