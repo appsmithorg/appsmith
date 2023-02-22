@@ -35,7 +35,7 @@ export function optionsCustomValidation(
     _: any,
   ) => {
     let _isValid = true;
-    let message = "";
+    let message = { name: "", message: "" };
     let valueType = "";
     const uniqueLabels: Record<string | number, string> = {};
 
@@ -49,15 +49,21 @@ export function optionsCustomValidation(
         uniqueLabels[value] = "";
       } else {
         _isValid = false;
-        message = "path:value must be unique. Duplicate values found";
+        message = {
+          name: "ValidationError",
+          message: "path:value must be unique. Duplicate values found",
+        };
         break;
       }
 
       //Check if the required field "label" is present:
       if (!label) {
         _isValid = false;
-        message =
-          "Invalid entry at index: " + i + ". Missing required key: label";
+        message = {
+          name: "ValidationError",
+          message:
+            "Invalid entry at index: " + i + ". Missing required key: label",
+        };
         break;
       }
 
@@ -68,25 +74,34 @@ export function optionsCustomValidation(
         (typeof label !== "string" && typeof label !== "number")
       ) {
         _isValid = false;
-        message =
-          "Invalid entry at index: " +
-          i +
-          ". Value of key: label is invalid: This value does not evaluate to type string";
+        message = {
+          name: "ValidationError",
+          message:
+            "Invalid entry at index: " +
+            i +
+            ". Value of key: label is invalid: This value does not evaluate to type string",
+        };
         break;
       }
 
       //Check if all the data types for the value prop is the same.
       if (typeof value !== valueType) {
         _isValid = false;
-        message = "All value properties in options must have the same type";
+        message = {
+          name: "TypeError",
+          message: "All value properties in options must have the same type",
+        };
         break;
       }
 
       //Check if the each object has value property.
       if (_.isNil(value)) {
         _isValid = false;
-        message =
-          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>';
+        message = {
+          name: "TypeError",
+          message:
+            'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+        };
         break;
       }
     }
@@ -102,7 +117,11 @@ export function optionsCustomValidation(
     isValid: false,
     parsed: [],
     messages: [
-      'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+      {
+        name: "TypeError",
+        message:
+          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+      },
     ],
   };
   try {
@@ -129,7 +148,12 @@ function defaultOptionValidation(
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: ["This value does not evaluate to type: string or number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string or number",
+        },
+      ],
     };
   }
 
@@ -138,7 +162,12 @@ function defaultOptionValidation(
     return {
       isValid: false,
       parsed: value,
-      messages: ["This value does not evaluate to type: string or number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string or number",
+        },
+      ],
     };
   }
 

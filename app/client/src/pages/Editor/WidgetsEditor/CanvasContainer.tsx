@@ -2,7 +2,6 @@ import React, { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import {
-  getCanvasScale,
   getCanvasWidth,
   getCurrentPageId,
   getIsFetchingPage,
@@ -65,7 +64,6 @@ function CanvasContainer() {
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
-  const canvasScale = useSelector(getCanvasScale);
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -91,7 +89,6 @@ function CanvasContainer() {
   if (!isPageInitializing && widgetsStructure) {
     node = (
       <Canvas
-        canvasScale={canvasScale}
         canvasWidth={canvasWidth}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}

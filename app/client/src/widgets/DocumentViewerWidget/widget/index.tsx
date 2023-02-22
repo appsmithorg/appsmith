@@ -35,7 +35,12 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
         return {
           isValid: false,
           parsed: "",
-          messages: ["Provided URL / Base64 is invalid."],
+          messages: [
+            {
+              name: "ValidationError",
+              message: "Provided URL / Base64 is invalid.",
+            },
+          ],
         };
       }
     } else if (base64Regex.test(value as string)) {
@@ -49,7 +54,12 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
       return {
         isValid: false,
         parsed: "",
-        messages: ["Provided URL / Base64 is invalid."],
+        messages: [
+          {
+            name: "ValidationError",
+            message: "Provided URL / Base64 is invalid.",
+          },
+        ],
       };
     }
   }
@@ -57,7 +67,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
   return {
     isValid: true,
     parsed: "",
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 }
 
