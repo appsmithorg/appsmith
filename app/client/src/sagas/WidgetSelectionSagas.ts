@@ -3,14 +3,21 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
 import {
-  setLastSelectedWidget,
   setSelectedWidgets,
   WidgetSelectionRequestPayload,
 } from "actions/widgetSelectionActions";
@@ -18,10 +25,18 @@ import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppState } from "@appsmith/reducers";
 import { closeAllModals, showModal } from "actions/widgetActions";
-import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { builderURL } from "RouteBuilder";
-import { getParentModalId } from "selectors/entitiesSelector";
+import history, { NavigationMethod } from "utils/history";
+import {
+  getCurrentPageId,
+  getIsEditorInitialized,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
+import { builderURL, widgetURL } from "RouteBuilder";
+import {
+  getAppMode,
+  getCanvasWidgets,
+  getParentModalId,
+} from "selectors/entitiesSelector";
 import {
   assertParentId,
   isInvalidSelectionRequest,
@@ -36,12 +51,18 @@ import {
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
+import { APP_MODE } from "entities/App";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
-    const { payload = [], selectionRequestType } = action.payload;
+    const {
+      payload = [],
+      selectionRequestType,
+      invokedBy,
+      pageId,
+    } = action.payload;
 
     if (payload.some(isInvalidSelectionRequest)) {
       // Throw error
@@ -60,12 +81,21 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     const parentId: string | undefined =
       widgetId in allWidgets ? allWidgets[widgetId].parentId : undefined;
 
+    if (
+      widgetId &&
+      !allWidgets[widgetId] &&
+      selectionRequestType === SelectionRequestType.One
+    ) {
+      return;
+    }
+
     switch (selectionRequestType) {
       case SelectionRequestType.Empty: {
-        newSelection = {
-          widgets: [],
-          lastWidgetSelected: MAIN_CONTAINER_WIDGET_ID,
-        };
+        newSelection = [];
+        break;
+      }
+      case SelectionRequestType.UnsafeSelect: {
+        newSelection = payload;
         break;
       }
       case SelectionRequestType.One: {
@@ -121,32 +151,29 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       [SelectionRequestType.PushPop, SelectionRequestType.ShiftSelect].includes(
         selectionRequestType,
       ) &&
-      newSelection.widgets[0] in allWidgets
+      newSelection[0] in allWidgets
     ) {
-      const selectionWidgetId = newSelection.widgets[0];
+      const selectionWidgetId = newSelection[0];
       const parentId = allWidgets[selectionWidgetId].parentId;
       if (parentId) {
         const selectionSiblingWidgets: string[] = yield select(
           getWidgetImmediateChildren,
           parentId,
         );
-        newSelection.widgets = newSelection.widgets.filter((each) =>
+        newSelection = newSelection.filter((each) =>
           selectionSiblingWidgets.includes(each),
         );
       }
     }
-    if (!areArraysEqual(newSelection.widgets, selectedWidgets)) {
-      yield put(setSelectedWidgets(newSelection.widgets));
-    }
-    if (parentId && newSelection.widgets.length === 1) {
+
+    if (parentId && newSelection.length === 1) {
       yield call(setWidgetAncestry, parentId, allWidgets);
     }
-    if (
-      newSelection.lastWidgetSelected &&
-      newSelection.lastWidgetSelected !== lastSelectedWidget
-    ) {
-      yield put(setLastSelectedWidget(newSelection.lastWidgetSelected));
+    if (areArraysEqual([...newSelection], [...selectedWidgets])) {
+      yield call(focusOnWidgetSaga, setSelectedWidgets(newSelection));
+      return;
     }
+    yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
@@ -160,34 +187,35 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
 
 /**
  * Append Selected widgetId as hash to the url path
- * @param action
+ * @param selectedWidgets
+ * @param pageId
+ * @param invokedBy
  */
 function* appendSelectedWidgetToUrlSaga(
-  action: ReduxAction<{ selectedWidgets: string[] }>,
+  selectedWidgets: string[],
+  pageId?: string,
+  invokedBy?: NavigationMethod,
 ) {
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
-  if (guidedTourEnabled) return;
-  const { hash, pathname } = window.location;
-  const { selectedWidgets } = action.payload;
+  const isSnipingMode: boolean = yield select(snipingModeSelector);
+  const appMode: APP_MODE = yield select(getAppMode);
+  const viewMode = appMode === APP_MODE.PUBLISHED;
+  if (guidedTourEnabled || isSnipingMode || viewMode) return;
+  const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
-
-  const currentURL = hash ? `${pathname}${hash}` : pathname;
-  let canvasEditorURL;
-  if (selectedWidgets.length === 1) {
-    canvasEditorURL = `${builderURL({
-      pageId: currentPageId,
-      hash: selectedWidgets[0],
-      persistExistingParams: true,
-    })}`;
-  } else {
-    canvasEditorURL = `${builderURL({
-      pageId: currentPageId,
-      persistExistingParams: true,
-    })}`;
-  }
-
-  if (currentURL !== canvasEditorURL) {
-    history.replace(canvasEditorURL);
+  const currentURL = pathname;
+  const newUrl = selectedWidgets.length
+    ? widgetURL({
+        pageId: pageId ?? currentPageId,
+        persistExistingParams: true,
+        selectedWidgets,
+      })
+    : builderURL({
+        pageId: pageId ?? currentPageId,
+        persistExistingParams: true,
+      });
+  if (currentURL !== newUrl) {
+    history.push(newUrl, { invokedBy });
   }
 }
 
@@ -202,6 +230,11 @@ function* canPerformSelectionSaga(saga: any, action: any) {
 
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   if (action.payload.widgetIds.length !== 1) return;
+
+  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+  if (!isEditorInitialized) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+  }
 
   const selectedWidget = action.payload.widgetIds[0];
 
@@ -232,6 +265,25 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   yield put(closeAllModals());
 }
 
+function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
+  if (action.payload.widgetIds.length > 1) return;
+  const widgetId = action.payload.widgetIds[0];
+  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+  if (!isEditorInitialized) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+  }
+  const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
+  if (widgetId) {
+    setTimeout(() => {
+      // Scrolling will hide some part of the content at the top during guided tour. To avoid that
+      // we skip scrolling altogether during guided tour as we don't have
+      // too many widgets during the same
+      flashElementsById(widgetId);
+      quickScrollToWidget(widgetId, allWidgets);
+    }, 0);
+  }
+}
+
 export function* widgetSelectionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
@@ -240,10 +292,6 @@ export function* widgetSelectionSagas() {
       canPerformSelectionSaga,
       openOrCloseModalSaga,
     ),
-    takeLatest(
-      ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
-      canPerformSelectionSaga,
-      appendSelectedWidgetToUrlSaga,
-    ),
+    takeLatest(ReduxActionTypes.SET_SELECTED_WIDGETS, focusOnWidgetSaga),
   ]);
 }

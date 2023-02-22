@@ -30,6 +30,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -58,11 +59,12 @@ public class SmtpPlugin extends BasePlugin {
     @Extension
     public static class SmtpPluginExecutor implements PluginExecutor<Session> {
 
+        private static final String ENCODING = "UTF-8";
 
         @Override
         public Mono<ActionExecutionResult> execute(Session connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
 
-            Message message = new MimeMessage(connection);
+            MimeMessage message = getMimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
                 String fromAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
@@ -95,16 +97,15 @@ public class SmtpPlugin extends BasePlugin {
                     message.setReplyTo(InternetAddress.parse(replyTo, false));
                 }
 
-                message.setSubject(subject);
+                message.setSubject(subject, ENCODING);
 
                 String msg = StringUtils.hasText(actionConfiguration.getBody()) ? actionConfiguration.getBody() : "";
 
-                MimeBodyPart mimeBodyPart = new MimeBodyPart();
+                MimeBodyPart mimeBodyPart = getMimeBodyPart();
 
                 // By default, all emails sent will be of type HTML. This can be parameterized. For simplification reasons,
                 // use the text/html mime type right now.
-                mimeBodyPart.setContent(msg, "text/html");
-
+                mimeBodyPart.setContent(msg, "text/html; charset=" + ENCODING);
                 Multipart multipart = new MimeMultipart();
                 multipart.addBodyPart(mimeBodyPart);
                 message.setContent(multipart);
@@ -120,7 +121,7 @@ public class SmtpPlugin extends BasePlugin {
 
                     // Iterate over each attachment and add it to the main multipart body of the email
                     for (MultipartFormDataDTO attachment : attachmentData) {
-                        MimeBodyPart attachBodyPart = new MimeBodyPart();
+                        MimeBodyPart attachBodyPart = getMimeBodyPart();
 
                         // Decode the base64 data received in the input by first removing the sequence data:image/png;base64,
                         // from the start of the string.
@@ -160,6 +161,15 @@ public class SmtpPlugin extends BasePlugin {
             }
 
             return Mono.just(result);
+        }
+
+        @NotNull
+        MimeBodyPart getMimeBodyPart() {
+            return new MimeBodyPart();
+        }
+
+        MimeMessage getMimeMessage(Session connection) {
+            return new MimeMessage(connection);
         }
 
         @Override
