@@ -1,12 +1,12 @@
+import React from "react";
 import { Alignment } from "@blueprintjs/core";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isString, xor } from "lodash";
-import React from "react";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-
+import { isAutoLayout } from "selectors/mainCanvasSelectors";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { Stylesheet } from "entities/AppTheming";
@@ -106,6 +106,7 @@ class SwitchGroupWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },

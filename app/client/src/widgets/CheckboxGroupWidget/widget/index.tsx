@@ -22,6 +22,7 @@ import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { isAutoLayout } from "selectors/mainCanvasSelectors";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -143,6 +144,7 @@ class CheckboxGroupWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
