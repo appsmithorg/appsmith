@@ -37,6 +37,7 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -123,7 +124,11 @@ public class RestAPIActivateUtils {
                          */
                         if (contentType.includes(MediaType.APPLICATION_JSON)) {
                             try {
-                                String jsonBody = new String(body, StandardCharsets.UTF_8);
+                                Charset charset = contentType.getCharset();
+                                if(charset==null) {
+                                    charset = StandardCharsets.UTF_8;
+                                }
+                                String jsonBody = new String(body, charset);
                                 result.setBody(objectMapper.readTree(jsonBody));
                                 responseDataType = ResponseDataType.JSON;
                             } catch (IOException e) {
