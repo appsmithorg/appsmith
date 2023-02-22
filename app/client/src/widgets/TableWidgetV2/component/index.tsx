@@ -270,6 +270,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     });
   }, [
     props.columns.map((column) => column.alias).toString(),
+    props.columns.map((column) => column.sticky).toString(),
+    props.columns.map((column) => column.isAscOrder).toString(),
     props.serverSidePaginationEnabled,
     props.searchKey,
     props.multiRowSelection,
