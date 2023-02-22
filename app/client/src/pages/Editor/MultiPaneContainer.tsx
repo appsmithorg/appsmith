@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import SideNav, { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import classNames from "classnames";
@@ -46,13 +46,18 @@ const MultiPaneContainer = () => {
   const isPreviewMode = useSelector(previewModeSelector);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const [windowWidth] = useWindowDimensions();
-  const updatePaneWidth = (width: number) => {
+
+  useEffect(() => {
     // Tabs width should be 1/3 of the screen but not less than minimum
-    const minWidth = Math.max(
+    const onLoadWidth = Math.max(
       (windowWidth - SIDE_NAV_WIDTH) / 3,
       TABS_PANE_MIN_WIDTH,
     );
-    const newWidth = Math.max(minWidth, width);
+    dispatch(setTabsPaneWidth(onLoadWidth));
+  }, []);
+
+  const updatePaneWidth = (width: number) => {
+    const newWidth = Math.max(TABS_PANE_MIN_WIDTH, width);
     dispatch(setTabsPaneWidth(newWidth));
   };
   const isMultiPane = useSelector(isMultiPaneActive);

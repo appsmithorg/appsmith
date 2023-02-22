@@ -19,6 +19,7 @@ import {
   JS_COLLECTION_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_ID_PATH,
+  WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
@@ -32,6 +33,7 @@ import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
 import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
 import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import TabsEmptyState from "./TabsPane/EmptyState";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -70,11 +72,16 @@ function EditorsRouter() {
   return (
     <Wrapper isVisible>
       <Switch key={path}>
+        <SentryRoute
+          component={showPropertyPane ? PropertyPaneContainer : TabsEmptyState}
+          exact
+          path={BUILDER_CUSTOM_PATH}
+        />
         {showPropertyPane && (
           <SentryRoute
             component={PropertyPaneContainer}
             exact
-            path={BUILDER_CUSTOM_PATH}
+            path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
           />
         )}
         <SentryRoute
