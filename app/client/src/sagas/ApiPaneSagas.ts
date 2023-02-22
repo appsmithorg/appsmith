@@ -66,7 +66,6 @@ import {
 } from "@appsmith/constants/messages";
 import {
   getContentTypeHeaderValue,
-  getIndextoUpdate,
   parseUrlForQueryParams,
   queryParamsRegEx,
 } from "utils/ApiPaneUtils";
