@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApplicationSnapshotRepositoryTest {
     @Autowired
     private ApplicationSnapshotRepository applicationSnapshotRepository;
+
+    @Autowired
+    private Gson gson;
 
     @Test
     public void save_WhenSameApplicationId_DuplicateExceptionThrown() {
@@ -49,7 +53,7 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot1.setApplicationId(testAppId1);
 
         ApplicationSnapshot snapshot2 = new ApplicationSnapshot();
-        snapshot2.setApplicationJson(new ApplicationJson());
+        snapshot2.setApplicationJson("{}");
         snapshot2.setApplicationId(testAppId2);
 
         Mono<ApplicationSnapshot> snapshotMono = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2))
@@ -75,14 +79,15 @@ public class ApplicationSnapshotRepositoryTest {
         applicationJson.getExportedApplication().setName("findApplicationJson_test");
 
         ApplicationSnapshot snapshot2 = new ApplicationSnapshot();
-        snapshot2.setApplicationJson(applicationJson);
+        snapshot2.setApplicationJson(gson.toJson(applicationJson));
         snapshot2.setApplicationId(testAppId2);
 
-        Mono<ApplicationJson> applicationJsonMono = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2))
+        Mono<String> applicationJsonMono = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2))
                 .then(applicationSnapshotRepository.findApplicationJson(testAppId2));
 
-        StepVerifier.create(applicationJsonMono).assertNext(appJson -> {
-            Application application = appJson.getExportedApplication();
+        StepVerifier.create(applicationJsonMono).assertNext(jsonString -> {
+            ApplicationJson applicationJson1 = gson.fromJson(jsonString, ApplicationJson.class);
+            Application application = applicationJson1.getExportedApplication();
             assertThat(application.getName()).isEqualTo("findApplicationJson_test");
         }).verifyComplete();
     }

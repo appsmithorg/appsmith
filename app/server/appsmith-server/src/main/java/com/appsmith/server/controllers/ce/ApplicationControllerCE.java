@@ -195,11 +195,20 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @GetMapping("/snapshot/{id}")
     public Mono<ResponseDTO<ApplicationSnapshot>> getSnapshotWithoutApplicationJson(@PathVariable String id,
-                                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService.getWithoutApplicationJsonByApplicationId(id, branchName)
                 .map(applicationSnapshot -> new ResponseDTO<>(HttpStatus.OK.value(), applicationSnapshot, null));
+    }
+
+    @PostMapping("/snapshot/{id}/restore")
+    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id,
+                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.restoreSnapshot(id, branchName)
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.QApplicationSnapshot;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -34,7 +33,7 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
     }
 
     @Override
-    public Mono<ApplicationJson> findApplicationJson(String applicationId) {
+    public Mono<String> findApplicationJson(String applicationId) {
         List<Criteria> criteriaList = new ArrayList<>();
         criteriaList.add(Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId)).is(applicationId));
         List<String> fieldNames = List.of(

@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -11,6 +12,7 @@ import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -20,6 +22,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     private final ApplicationService applicationService;
     private final ImportExportApplicationService importExportApplicationService;
     private final ApplicationPermission applicationPermission;
+    private final Gson gson;
 
     @Override
     public Mono<String> createApplicationSnapshot(String applicationId, String branchName) {
@@ -41,7 +44,8 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
         return applicationSnapshotRepository.findWithoutApplicationJson(applicationId)
                 .defaultIfEmpty(new ApplicationSnapshot())
                 .flatMap(applicationSnapshot -> {
-                    applicationSnapshot.setApplicationJson(applicationJson);
+                    String json = gson.toJson(applicationJson);
+                    applicationSnapshot.setApplicationJson(json);
                     applicationSnapshot.setApplicationId(applicationId);
                     return applicationSnapshotRepository.save(applicationSnapshot);
                 });
@@ -49,11 +53,34 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
 
     @Override
     public Mono<ApplicationSnapshot> getWithoutApplicationJsonByApplicationId(String applicationId, String branchName) {
-        // get application first to check the permission
+        // get application first to check the permission and get child aka branched application ID
         return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
-                .flatMap(applicationSnapshotRepository::findWithoutApplicationJson);
+                .flatMap(applicationSnapshotRepository::findWithoutApplicationJson)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
+                );
+    }
+
+    @Override
+    public Mono<Application> restoreSnapshot(String applicationId, String branchName) {
+        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
+                )
+                .flatMap(
+                        application -> applicationSnapshotRepository.findApplicationJson(application.getId())
+                                .zipWith(Mono.just(application))
+                )
+                .flatMap(objects -> {
+                    String applicationJsonString = objects.getT1();
+                    Application application = objects.getT2();
+                    ApplicationJson applicationJson = gson.fromJson(applicationJsonString, ApplicationJson.class);
+                    return importExportApplicationService.importApplicationInWorkspace(
+                            application.getWorkspaceId(), applicationJson, application.getId(), null
+                    );
+                });
     }
 }

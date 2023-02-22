@@ -1,7 +1,6 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.DateUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class ApplicationSnapshot extends BaseDomain {
     private String applicationId;
-    private ApplicationJson applicationJson;
+    private String applicationJson;
 
     /**
      * Adding this method as updatedAt field in BaseDomain is annotated with @JsonIgnore
