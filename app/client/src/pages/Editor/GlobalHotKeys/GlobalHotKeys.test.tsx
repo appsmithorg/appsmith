@@ -544,7 +544,6 @@ describe("Cut/Copy/Paste hotkey", () => {
     });
     expect(spyPaste).toBeCalled();
 
-    await component.findByTestId("t--selection-box");
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,
