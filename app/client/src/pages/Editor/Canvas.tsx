@@ -15,6 +15,7 @@ interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
   pageId: string;
   canvasWidth: number;
+  isAutoLayout?: boolean;
   canvasScale?: number;
 }
 
@@ -22,13 +23,14 @@ const Container = styled.section<{
   background: string;
   width: number;
   $canvasScale: number;
+  $isAutoLayout: boolean;
 }>`
   background: ${({ background }) => background};
-  width: ${(props) => props.width}px;
+  width: ${({ $isAutoLayout, width }) =>
+    $isAutoLayout ? `100%` : `${width}px`};
   transform: scale(${(props) => props.$canvasScale});
   transform-origin: "0 0";
 `;
-
 const Canvas = (props: CanvasProps) => {
   const { canvasScale = 1, canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
@@ -47,12 +49,15 @@ const Canvas = (props: CanvasProps) => {
 
   const focusRef = useWidgetFocus();
 
+  const marginHorizontalClass = props.isAutoLayout ? `mx-0` : `mx-auto`;
+
   try {
     return (
       <Container
         $canvasScale={canvasScale}
+        $isAutoLayout={!!props.isAutoLayout}
         background={backgroundForCanvas}
-        className="relative mx-auto t--canvas-artboard pb-52"
+        className={`relative t--canvas-artboard pb-52 ${marginHorizontalClass}`}
         data-testid="t--canvas-artboard"
         id="art-board"
         ref={focusRef}

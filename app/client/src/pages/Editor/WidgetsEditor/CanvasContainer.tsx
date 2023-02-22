@@ -35,11 +35,12 @@ import {
   useDynamicAppLayout,
 } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
-// import { noop } from "utils/AppsmithUtils";
-// import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { layoutConfigurations } from "constants/WidgetConstants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import Canvas from "../Canvas";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
+
+const CANVAS_WIDTH_OFFSET = 40;
 
 const AutoLayoutCanvasResizer = styled.div`
   position: sticky;
@@ -50,6 +51,7 @@ const AutoLayoutCanvasResizer = styled.div`
   background: #d9d9d9;
   align-items: center;
   justify-content: flex-start;
+  margin-left: 2px;
   z-index: 2;
   transition: width 300ms ease;
   transition: background 300ms ease;
@@ -79,10 +81,13 @@ const AutoLayoutCanvasResizer = styled.div`
     }
   }
 `;
+
 const Container = styled.section<{
+  $isAutoLayout: boolean;
   background: string;
 }>`
-  width: 100%;
+  width: ${({ $isAutoLayout }) =>
+    $isAutoLayout ? `calc(100% - ${CANVAS_WIDTH_OFFSET}px)` : `100%`};
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
@@ -103,6 +108,7 @@ function CanvasContainer() {
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const canvasWidth = useSelector(getCanvasWidth);
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
@@ -116,6 +122,7 @@ function CanvasContainer() {
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
+
   useEffect(() => {
     return () => {
       dispatch(forceOpenWidgetPanel(false));
@@ -140,6 +147,7 @@ function CanvasContainer() {
       <Canvas
         canvasScale={canvasScale}
         canvasWidth={canvasWidth}
+        isAutoLayout={isAutoLayout}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}
       />
@@ -149,20 +157,20 @@ function CanvasContainer() {
   const appLayout = useSelector(getCurrentApplicationLayout);
   useEffect(() => {
     if (appPositioningType === AppPositioningTypes.AUTO) {
-      let buffer = 0;
+      const buffer = isPreviewMode ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;
+      const fullWidthCSS = `calc(100% - ${CANVAS_WIDTH_OFFSET}px)`;
+      const wrapperElement: any = document.getElementById("widgets-editor");
       const ele: any = document.getElementById("canvas-viewport");
-      if (isPreviewMode) {
-        ele.style.width = "inherit";
-        buffer = AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
-      } else {
-        ele.style.width = "100%";
+
+      let maxWidth = wrapperElement.offsetWidth - CANVAS_WIDTH_OFFSET;
+
+      if (ele && ele.offsetWidth >= maxWidth) {
+        ele.style.width = fullWidthCSS;
       }
+
       if (appLayout?.type === "FLUID") {
         const smallestWidth = layoutConfigurations.MOBILE.minWidth;
-        // Query the element
-        const ele: any = document.getElementById("canvas-viewport");
-        let needsInitiation = true;
-        let initialWidth = ele.offsetWidth;
+
         // The current position of mouse
         let x = 0;
         // let y = 0;
@@ -175,10 +183,8 @@ function CanvasContainer() {
         // Handle the mousedown event
         // that's triggered when user drags the resizer
         const mouseDownHandler = function(e: any) {
-          if (needsInitiation) {
-            initialWidth = ele.offsetWidth;
-            needsInitiation = false;
-          }
+          maxWidth = wrapperElement.offsetWidth - CANVAS_WIDTH_OFFSET;
+
           // Get the current mouse position
           x = e.clientX;
           // y = e.clientY;
@@ -200,12 +206,12 @@ function CanvasContainer() {
           // const multiplier = rightHandle ? 2 : -2;
           const multiplier = 2;
           const dx = (e.clientX - x) * multiplier;
-          if (initialWidth >= w + dx && smallestWidth <= w + dx) {
+          if (maxWidth >= w + dx && smallestWidth <= w + dx) {
             // Adjust the dimension of element
             ele.style.width = `${w + dx}px`;
           }
-          if (initialWidth < w + dx) {
-            ele.style.width = `${initialWidth}px`;
+          if (maxWidth < w + dx) {
+            ele.style.width = fullWidthCSS;
           }
           if (smallestWidth > w + dx) {
             ele.style.width = `${smallestWidth}px`;
@@ -220,12 +226,14 @@ function CanvasContainer() {
           document.removeEventListener("mouseup", mouseUpHandler);
           events = [];
         };
-        const rightResizer: any = ele.querySelectorAll(".resizer-right")[0];
+        const rightResizer: any = document.querySelectorAll(
+          ".resizer-right",
+        )[0];
         const rightMove = (e: any) => mouseDownHandler(e);
-        rightResizer.addEventListener("mousedown", rightMove);
+        rightResizer?.addEventListener("mousedown", rightMove);
 
         return () => {
-          rightResizer.removeEventListener("mousedown", rightMove);
+          rightResizer?.removeEventListener("mousedown", rightMove);
         };
       }
     }
@@ -234,36 +242,40 @@ function CanvasContainer() {
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
   const heightWithTopMargin = `calc(100vh - 2.25rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
+  const resizerTop = `calc(2.25rem + ${theme.smallHeaderHeight})`;
   return (
-    <Container
-      background={
-        isPreviewMode
-          ? selectedTheme.properties.colors.backgroundColor
-          : "initial"
-      }
-      className={classNames({
-        [`${getCanvasClassName()} scrollbar-thin`]: true,
-        "mt-0": !shouldHaveTopMargin,
-        "mt-4": showCanvasTopSection,
-        "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
-      })}
-      id={"canvas-viewport"}
-      key={currentPageId}
-      style={{
-        height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
-        fontFamily: fontFamily,
-      }}
-    >
-      <WidgetGlobaStyles
-        fontFamily={selectedTheme.properties.fontFamily.appFont}
-        primaryColor={selectedTheme.properties.colors.primaryColor}
-      />
-      {isAppThemeChanging && (
-        <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
-          <Spinner size={IconSize.XXL} />
-        </div>
-      )}
-      {node}
+    <>
+      <Container
+        $isAutoLayout={isAutoLayout}
+        background={
+          isPreviewMode
+            ? selectedTheme.properties.colors.backgroundColor
+            : "initial"
+        }
+        className={classNames({
+          [`${getCanvasClassName()} scrollbar-thin`]: true,
+          "mt-0": !shouldHaveTopMargin,
+          "mt-4": showCanvasTopSection,
+          "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
+        })}
+        id={"canvas-viewport"}
+        key={currentPageId}
+        style={{
+          height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
+          fontFamily: fontFamily,
+        }}
+      >
+        <WidgetGlobaStyles
+          fontFamily={selectedTheme.properties.fontFamily.appFont}
+          primaryColor={selectedTheme.properties.colors.primaryColor}
+        />
+        {isAppThemeChanging && (
+          <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
+            <Spinner size={IconSize.XXL} />
+          </div>
+        )}
+        {node}
+      </Container>
       {appPositioningType === AppPositioningTypes.AUTO && (
         <AutoLayoutCanvasResizer
           className="resizer-right"
@@ -273,9 +285,8 @@ function CanvasContainer() {
             e.stopPropagation();
           }}
           style={{
-            left: isPreviewMode
-              ? `calc(100% - ${20}px)`
-              : `calc(100% - ${37}px)`,
+            top: resizerTop,
+            height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
             bottom: isPreviewMode ? "-3px" : "0%",
           }}
         >
@@ -284,7 +295,7 @@ function CanvasContainer() {
           </div>
         </AutoLayoutCanvasResizer>
       )}
-    </Container>
+    </>
   );
 }
 CanvasContainer.whyDidYouRender = {
