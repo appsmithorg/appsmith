@@ -98,9 +98,11 @@ export function PositionedContainer(
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
-      ` ${POSITIONED_WIDGET} ${widgetTypeClassname(props.widgetType)}`
+      ` ${POSITIONED_WIDGET} ${widgetTypeClassname(
+        props.widgetType,
+      )} t--widget-${props.widgetName.toLowerCase()}`
     );
-  }, [props.widgetType, props.widgetId]);
+  }, [props.widgetType, props.widgetId, props.widgetName]);
   const isDropTarget = checkIsDropTarget(props.widgetType);
 
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(

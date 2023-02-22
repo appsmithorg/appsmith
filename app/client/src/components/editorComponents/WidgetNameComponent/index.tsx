@@ -6,7 +6,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { RESIZE_BORDER_BUFFER } from "resizable/resizenreflow";
+import { RESIZE_BORDER_BUFFER } from "resizable/common";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
