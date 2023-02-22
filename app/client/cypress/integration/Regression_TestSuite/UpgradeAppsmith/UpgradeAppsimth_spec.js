@@ -5,7 +5,7 @@ import { ObjectsRegistry } from "../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
 const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
-describe.skip("Upgrade appsmith version", () => {
+describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
     const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
