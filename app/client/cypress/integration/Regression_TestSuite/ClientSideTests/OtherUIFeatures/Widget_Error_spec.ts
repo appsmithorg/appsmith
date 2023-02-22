@@ -71,13 +71,13 @@ describe("Widget error state", function() {
     _.ee.DragDropWidgetNVerify(WIDGET.TABLE, 150, 300);
     _.ee.SelectEntityByName("Table1", "Widgets");
 
-    _.table.AddColumn("customColumn1");
+    _.tableV2.AddColumn("customColumn1");
     _.propPane.OpenTableColumnSettings("customColumn1");
     _.propPane.UpdatePropertyFieldValue("Computed Value", "{{test}}");
 
     _.debuggerHelper.AssertDebugError("test is not defined", "", false, false);
 
-    _.table.DeleteColumn("customColumn1");
+    _.tableV2.DeleteColumn("customColumn1");
 
     _.debuggerHelper.DebuggerListDoesnotContain("test is not defined");
   });
