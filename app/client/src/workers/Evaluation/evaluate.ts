@@ -292,7 +292,6 @@ export default function evaluateSync(
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
     Object.assign(self, evalContext);
-
     try {
       result = indirectEval(script);
       if (result instanceof Promise) {

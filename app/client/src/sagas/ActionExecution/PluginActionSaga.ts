@@ -718,33 +718,13 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
       (action) => action.id === pageAction.id,
     );
     if (!!jsAction) {
-      if (jsAction.confirmBeforeExecute) {
-        const modalPayload = {
-          name: pageAction.name,
-          modalOpen: true,
-          modalType: ModalType.RUN_ACTION,
-        };
+      //Hacky way to wait for 1 second to ensure that evaluations are run before the page load action
+      yield new Promise((res) => {
+        setTimeout(() => {
+          res(null);
+        }, 1000);
+      });
 
-        const confirmed: unknown = yield call(
-          requestModalConfirmationSaga,
-          modalPayload,
-        );
-        if (!confirmed) {
-          yield put({
-            type: ReduxActionTypes.RUN_ACTION_CANCELLED,
-            payload: { id: pageAction.id },
-          });
-          Toaster.show({
-            text: createMessage(
-              ACTION_EXECUTION_CANCELLED,
-              `${collection.name}.${jsAction.name}`,
-            ),
-            variant: Variant.danger,
-          });
-          // Don't proceed to executing the js function
-          return;
-        }
-      }
       const data = {
         collectionName: collection.name,
         action: jsAction,

@@ -374,6 +374,11 @@ export function* handleExecuteJSFunctionSaga(data: {
       action,
       collectionId,
     );
+
+    if (result === "cancelled") {
+      return;
+    }
+
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -460,24 +465,7 @@ export function* handleStartExecuteJSFunctionSaga(
   }>,
 ): any {
   const { action, collectionId, collectionName, from } = data.payload;
-  const actionId = action.id;
-  if (action.confirmBeforeExecute) {
-    const modalPayload = {
-      name: collectionName + "." + action.name,
-      modalOpen: true,
-      modalType: ModalType.RUN_ACTION,
-    };
 
-    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
-
-    if (!confirmed) {
-      yield put({
-        type: ReduxActionTypes.RUN_ACTION_CANCELLED,
-        payload: { id: actionId },
-      });
-      throw new UserCancelledActionExecutionError();
-    }
-  }
   AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_RUN", {
     name: action.name,
     num_params: action.actionConfiguration?.jsArguments?.length,

@@ -55,7 +55,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
         });
 
         if (!response.data.confirmed) {
-          return;
+          return "cancelled";
         }
       }
 
@@ -72,6 +72,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
       } else {
         postProcessors.forEach((p) => p(name, result));
       }
+
       return result;
     } catch (e) {
       postProcessors.forEach((postProcessor) => {
