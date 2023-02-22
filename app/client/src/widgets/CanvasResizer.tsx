@@ -22,6 +22,7 @@ const AutoLayoutCanvasResizer = styled.div`
   align-items: center;
   justify-content: flex-start;
   z-index: 2;
+  margin-left: 2px;
   transition: width 300ms ease;
   transition: background 300ms ease;
   .canvas-resizer-icon {
@@ -51,9 +52,15 @@ const AutoLayoutCanvasResizer = styled.div`
   }
 `;
 export function CanvasResizer({
+  heightWithTopMargin,
   isPageInitiated,
+  resizerTop,
+  shouldHaveTopMargin,
 }: {
+  heightWithTopMargin: string;
   isPageInitiated: boolean;
+  resizerTop: string;
+  shouldHaveTopMargin: boolean;
 }) {
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
@@ -61,25 +68,22 @@ export function CanvasResizer({
   const appPositioningType = useSelector(getCurrentAppPositioningType);
   const ref = useRef(null);
   useEffect(() => {
-    let ele: any = document.getElementById("canvas-viewport");
-    if (
-      isPageInitiated &&
-      ele &&
-      appPositioningType === AppPositioningTypes.AUTO
-    ) {
-      let buffer = 0;
-      if (isPreviewMode) {
-        ele.style.width = "inherit";
-        buffer = AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
-      } else {
-        ele.style.width = "100%";
+    const ele: any = document.getElementById("canvas-viewport");
+
+    if (isPageInitiated && appPositioningType === AppPositioningTypes.AUTO) {
+      const buffer = isPreviewMode ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;
+      const fullWidthCSS = `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`;
+      const wrapperElement: any = document.getElementById("widgets-editor");
+
+      let maxWidth =
+        wrapperElement.offsetWidth - AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
+
+      if (ele && ele.offsetWidth >= maxWidth) {
+        ele.style.width = fullWidthCSS;
       }
+
       if (appLayout?.type === "FLUID") {
         const smallestWidth = layoutConfigurations.MOBILE.minWidth;
-        // Query the element
-        ele = document.getElementById("canvas-viewport");
-        let needsInitiation = true;
-        let initialWidth = ele.offsetWidth;
         // The current position of mouse
         let x = 0;
         // let y = 0;
@@ -92,10 +96,8 @@ export function CanvasResizer({
         // Handle the mousedown event
         // that's triggered when user drags the resizer
         const mouseDownHandler = function(e: any) {
-          if (needsInitiation) {
-            initialWidth = ele.offsetWidth;
-            needsInitiation = false;
-          }
+          maxWidth =
+            wrapperElement.offsetWidth - AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
           // Get the current mouse position
           x = e.clientX;
           // y = e.clientY;
@@ -117,12 +119,12 @@ export function CanvasResizer({
           // const multiplier = rightHandle ? 2 : -2;
           const multiplier = 2;
           const dx = (e.clientX - x) * multiplier;
-          if (initialWidth >= w + dx && smallestWidth <= w + dx) {
+          if (maxWidth >= w + dx && smallestWidth <= w + dx) {
             // Adjust the dimension of element
             ele.style.width = `${w + dx}px`;
           }
-          if (initialWidth < w + dx) {
-            ele.style.width = `${initialWidth}px`;
+          if (maxWidth < w + dx) {
+            ele.style.width = fullWidthCSS;
           }
           if (smallestWidth > w + dx) {
             ele.style.width = `${smallestWidth}px`;
@@ -146,6 +148,8 @@ export function CanvasResizer({
             rightResizer.removeEventListener("mousedown", rightMove);
         };
       }
+    } else {
+      ele.style.removeProperty("width");
     }
   }, [
     appLayout,
@@ -164,7 +168,8 @@ export function CanvasResizer({
       }}
       ref={ref}
       style={{
-        left: isPreviewMode ? `calc(100% - ${20}px)` : `calc(100% - ${37}px)`,
+        top: resizerTop,
+        height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
         bottom: isPreviewMode ? "-3px" : "0%",
       }}
     >
