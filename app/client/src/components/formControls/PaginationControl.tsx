@@ -23,6 +23,12 @@ export const FormControlContainer = styled.div`
   margin-right: 1rem;
 `;
 
+const PaginationContainer = styled.div`
+  display: grid;
+  grid-gap: 8px 16px;
+  grid-template-columns: repeat(auto-fill, 280px);
+`;
+
 // using query dynamic input text for both so user can dynamically change these values.
 const valueFieldConfig: any = {
   key: "value",
@@ -82,12 +88,7 @@ export function Pagination(props: {
   };
 
   return (
-    <div
-      data-cy={name}
-      style={{
-        display: "flex",
-      }}
-    >
+    <PaginationContainer data-cy={name}>
       {/*  form control for Limit field */}
       <FormControlContainer>
         <FormControl
@@ -127,7 +128,7 @@ export function Pagination(props: {
           No. of rows to be skipped before querying
         </StyledFormLabel>
       </FormControlContainer>
-    </div>
+    </PaginationContainer>
   );
 }
 
