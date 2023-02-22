@@ -18,8 +18,6 @@ fi
 echo "build finished"
 
 # build storybook and move to the static folder
-cd ./packages/wds
-yarn build-storybook
-mv -f ./storybook-static ../../build/wds
-cd ../../
+yarn --cwd packages/wds build-storybook
+mv -f ./packages/wds/storybook-static ./build/wds
 

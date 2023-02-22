@@ -14,8 +14,6 @@ const StyledContainer = styled.div`
 `;
 
 export const theming = (Story, args) => {
-  console.log({ args });
-
   return (
     <StyledContainer
       accentColor={args.globals.accentColor || "#553DE9"}

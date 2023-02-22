@@ -2,7 +2,7 @@
   "name": "@wds/components",
   "version": "1.0.0",
   "main": "src/index.ts",
-  "author": "Valera Melnikov <melnikov.vv@greendatasoft.ru>, Pawan Kumar <pawan@appsmith.com>",
+  "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.20.12",
@@ -38,8 +38,6 @@
   },
   "scripts": {
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build-storybook": "build-storybook"
   }
 }

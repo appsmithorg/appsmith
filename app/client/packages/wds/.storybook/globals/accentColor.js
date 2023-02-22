@@ -19,7 +19,6 @@ export const accentColor = {
       { title: "Grey", value: "#808080" },
       { title: "Black", value: "#000000" },
       { title: "White", value: "#ffffff" },
-      { title: "Transparent", value: "transparent" },
     ],
     showName: false,
     dynamicTitle: false,

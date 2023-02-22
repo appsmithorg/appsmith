@@ -14,8 +14,7 @@
         "api": "./src/api/",
         "assets": "./src/assets/",
         "sagas": "./src/sagas/",
-        "@appsmith": "./src/ee",
-        "@wds/components": ["../packages/wds"]
+        "@appsmith": "./src/ee"
       }
     }]
   ]
