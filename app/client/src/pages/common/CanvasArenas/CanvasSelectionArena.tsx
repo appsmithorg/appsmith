@@ -351,7 +351,11 @@ export function CanvasSelectionArena({
           stickyCanvasRef.current.style.zIndex = "";
           slidingArenaRef.current.style.zIndex = "";
           slidingArenaRef.current.style.cursor = "";
-          dispatch(setCanvasSelectionStateAction(false, widgetId));
+          //moving triggering action to the end of queue,
+          // to avoid selecting the widget being dragged on
+          setTimeout(() => {
+            dispatch(setCanvasSelectionStateAction(false, widgetId));
+          }, 0);
         }
       };
       const onMouseMove = (e: any) => {
