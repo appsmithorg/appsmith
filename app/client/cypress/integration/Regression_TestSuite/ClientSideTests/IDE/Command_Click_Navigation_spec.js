@@ -23,33 +23,8 @@ const JSInputTestCode = `export default {
   }
 }`;
 
-const JSInput2TestCode = `export default {
-\tmyVar1: [],
-\tmyVar2: {},
-\tmyFun1: () => {
-\t\t
-\t\t//write code here
-\t},
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-\t
-}`;
+const JSInput2TestCode =
+  "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n}";
 
 let repoName;
 
@@ -66,7 +41,7 @@ describe("1. CommandClickNavigation", function() {
         cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
           force: true,
         });
-        cy.wait(2000);
+        agHelper.Sleep(2000);
       } else {
         homePage.AssertImportToast();
       }
@@ -89,6 +64,7 @@ describe("1. CommandClickNavigation", function() {
   });
 
   it("3. Assert navigation only when cmd or ctrl is pressed", () => {
+    agHelper.Sleep();
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click();
 
     cy.url().should("not.contain", "/api/");
@@ -106,6 +82,7 @@ describe("1. CommandClickNavigation", function() {
       ".t--dataSourceField",
       "https://www.test.com/{{ SQL_Query.data }}",
     );
+    agHelper.Sleep();
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="SQL_Query"]`)
       .should("have.length", 1)
@@ -119,6 +96,7 @@ describe("1. CommandClickNavigation", function() {
       ".t--actionConfiguration\\.body",
       "SELECT * from {{ Button3.text }}",
     );
+    agHelper.Sleep();
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Button3"]`)
       .should("have.length", 1)
       .click({ cmdKey: true });
@@ -131,7 +109,7 @@ describe("1. CommandClickNavigation", function() {
       `${commonLocators._propertyControl}tooltip`,
       "{{ Image1.image }}",
     );
-
+    agHelper.Sleep();
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Image1"]`)
       .should("have.length", 1)
       .click({ cmdKey: true });
@@ -153,13 +131,14 @@ describe("1. CommandClickNavigation", function() {
     cy.SearchEntityandOpen("Text1");
     cy.updateCodeInput(".t--property-control-text", "{{ JSObject1.myFun1() }}");
 
-    cy.wait(1000);
+    agHelper.Sleep();
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
       ctrlKey: true,
     });
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 1, line: 3 });
+    agHelper.Sleep();
 
     // Assert context switching works when going back to canvas
     ee.SelectEntityByName("Page1", "Pages");
@@ -175,7 +154,7 @@ describe("1. CommandClickNavigation", function() {
 
   it("8. Will navigate within Js Object properly", () => {
     cy.updateCodeInput(".js-editor", JSInputTestCode);
-    cy.wait(1000);
+    agHelper.Sleep(2000);
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myVar1"]`).click({
       ctrlKey: true,
     });
@@ -184,7 +163,7 @@ describe("1. CommandClickNavigation", function() {
       codeMirrorInput.focus();
     });
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 1 });
-    cy.wait(1000);
+    agHelper.Sleep();
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
       ctrlKey: true,
     });
@@ -194,7 +173,7 @@ describe("1. CommandClickNavigation", function() {
     });
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
-    cy.wait(1000);
+    agHelper.Sleep();
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject2.myFun1"]`).click({
       ctrlKey: true,
     });
@@ -213,6 +192,7 @@ describe("1. CommandClickNavigation", function() {
       PROPERTY_SELECTOR.onClick,
       "{{ resetWidget('Input1') }}",
     );
+    agHelper.Sleep();
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Input1"]`)
       .should("have.length", 1)
       .click({ cmdKey: true });
