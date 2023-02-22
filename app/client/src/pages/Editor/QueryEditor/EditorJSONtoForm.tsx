@@ -1,22 +1,13 @@
 import React, { RefObject, useCallback, useRef } from "react";
 import { InjectedFormProps } from "redux-form";
-import { Icon, Tag } from "@blueprintjs/core";
+import { Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
-import {
-  components,
-  MenuListComponentProps,
-  OptionProps,
-  OptionTypeBase,
-  SingleValueProps,
-} from "react-select";
 import { Datasource } from "entities/Datasource";
-import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import FormControl from "../FormControl";
-import { Action, QueryAction, SaaSAction, SlashCommand } from "entities/Action";
+import { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
@@ -27,7 +18,6 @@ import {
   Classes,
   Icon as AdsIcon,
   IconSize,
-  SearchSnippet,
   Size,
   Spinner,
   TabComponent,
@@ -74,7 +64,6 @@ import {
   INVALID_FORM_CONFIGURATION,
   ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF,
   ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF,
-  CREATE_NEW_DATASOURCE,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import { AppState } from "@appsmith/reducers";
@@ -87,7 +76,6 @@ import ActionRightPane, {
 import { SuggestedWidget } from "api/ActionAPI";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
@@ -114,7 +102,6 @@ import {
   hasExecuteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
-import { executeCommandAction } from "actions/apiPaneActions";
 import {
   getQueryPaneConfigSelectedTabIndex,
   getQueryPaneResponsePaneHeight,
@@ -134,7 +121,7 @@ const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 20px 0px 0px 0px;
+  padding: 20px 0 0 0;
   width: 100%;
 
   .statementTextArea {
@@ -164,24 +151,23 @@ const ErrorMessage = styled.p`
 `;
 
 export const TabbedViewContainer = styled.div`
-  ${ResizerCSS}
   height: ${ActionExecutionResizerHeight}px;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
+  ${ResizerCSS}
 
   .react-tabs__tab-panel {
     overflow: hidden;
   }
 
   .react-tabs__tab-list {
-    margin: 0px;
-
+    margin: 0;
   }
 
   &&& {
     ul.react-tabs__tab-list {
-      margin: 0px ${(props) => props.theme.spaces[11]}px;
+      margin: 0 ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
@@ -333,64 +319,6 @@ const ActionsWrapper = styled.div`
 
   button:last-child {
     margin-left: ${(props) => props.theme.spaces[7]}px;
-  }
-`;
-
-const DropdownSelect = styled.div`
-  font-size: 14px;
-  margin-right: 10px;
-
-  .t--switch-datasource > div {
-    min-height: 30px;
-    height: 30px;
-
-    & > div {
-      height: 100%;
-    }
-
-    & .appsmith-select__input > input {
-      position: relative;
-      bottom: 4px;
-    }
-
-    & .appsmith-select__input > input[value=""] {
-      caret-color: transparent;
-    }
-  }
-`;
-
-const CreateDatasource = styled.div`
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-  border-top: 1px solid ${Colors.ATHENS_GRAY};
-
-  :hover {
-    cursor: pointer;
-  }
-
-  .createIcon {
-    margin-right: 6px;
-  }
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  .plugin-image {
-    height: 20px;
-    width: auto;
-  }
-
-  .selected-value {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: no-wrap;
-    margin-left: 6px;
   }
 `;
 
@@ -588,50 +516,6 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   const dispatch = useDispatch();
-
-  function MenuList(props: MenuListComponentProps<{ children: Node }>) {
-    return (
-      <>
-        <components.MenuList {...props}>{props.children}</components.MenuList>
-        {canCreateDatasource ? (
-          <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-            <Icon className="createIcon" icon="plus" iconSize={11} />
-            {createMessage(CREATE_NEW_DATASOURCE)}
-          </CreateDatasource>
-        ) : null}
-      </>
-    );
-  }
-
-  function SingleValue(props: SingleValueProps<OptionTypeBase>) {
-    return (
-      <components.SingleValue {...props}>
-        <Container>
-          <img
-            alt="Datasource"
-            className="plugin-image"
-            src={props.data.image}
-          />
-          <div className="selected-value">{props.children}</div>
-        </Container>
-      </components.SingleValue>
-    );
-  }
-
-  function CustomOption(props: OptionProps<OptionTypeBase>) {
-    return (
-      <components.Option {...props}>
-        <Container className="t--datasource-option">
-          <img
-            alt="Datasource"
-            className="plugin-image"
-            src={props.data.image}
-          />
-          <div style={{ marginLeft: "6px" }}>{props.children}</div>
-        </Container>
-      </components.Option>
-    );
-  }
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -937,28 +821,7 @@ export function EditorJSONtoForm(props: Props) {
     props.actionName,
   );
 
-  const pluginImages = useSelector(getPluginImages);
-
-  type DATASOURCES_OPTIONS_TYPE = {
-    label: string;
-    value: string;
-    image: string;
-  };
-
   // Filtering the datasources for listing the similar datasources only rather than having all the active datasources in the list, which on switching resulted in error.
-  const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> = dataSources.reduce(
-    (acc: Array<DATASOURCES_OPTIONS_TYPE>, dataSource: Datasource) => {
-      if (dataSource.pluginId === plugin?.id) {
-        acc.push({
-          label: dataSource.name,
-          value: dataSource.id,
-          image: pluginImages[dataSource.pluginId],
-        });
-      }
-      return acc;
-    },
-    [],
-  );
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
@@ -997,34 +860,6 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
-            <SearchSnippet
-              className="search-snippets"
-              entityId={currentActionConfig?.id}
-              entityType={ENTITY_TYPE.ACTION}
-              onClick={() => {
-                dispatch(
-                  executeCommandAction({
-                    actionType: SlashCommand.NEW_SNIPPET,
-                    args: {
-                      entityId: currentActionConfig?.id,
-                      entityType: ENTITY_TYPE.ACTION,
-                    },
-                  }),
-                );
-              }}
-            />
-            <DropdownSelect>
-              <DropdownField
-                className={"t--switch-datasource"}
-                components={{ MenuList, Option: CustomOption, SingleValue }}
-                isDisabled={!isChangePermitted}
-                maxMenuHeight={200}
-                name="datasource.id"
-                options={DATASOURCES_OPTIONS}
-                placeholder="Datasource"
-                width={232}
-              />
-            </DropdownSelect>
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"

@@ -9,12 +9,7 @@ import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationField, SuggestedWidget } from "api/ActionAPI";
-import {
-  Action,
-  isGraphqlPlugin,
-  PaginationType,
-  SlashCommand,
-} from "entities/Action";
+import { Action, isGraphqlPlugin, PaginationType } from "entities/Action";
 import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
@@ -36,7 +31,6 @@ import {
   Classes,
   Icon,
   IconSize,
-  SearchSnippet,
   Size,
   TabComponent,
   Text,
@@ -58,7 +52,6 @@ import { Datasource } from "entities/Datasource";
 import equal from "fast-deep-equal/es6";
 
 import { Colors } from "constants/Colors";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
@@ -69,7 +62,6 @@ import {
   hasExecuteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
-import { executeCommandAction } from "actions/apiPaneActions";
 import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
 import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
@@ -195,7 +187,7 @@ export const TabbedViewContainer = styled.div`
           }
 
           path {
-            fill: unset;
+            fill: none;
           }
         }
       }
@@ -626,18 +618,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
   };
 
-  function handleSearchSnippetClick() {
-    dispatch(
-      executeCommandAction({
-        actionType: SlashCommand.NEW_SNIPPET,
-        args: {
-          entityId: currentActionConfig?.id,
-          entityType: ENTITY_TYPE.ACTION,
-        },
-      }),
-    );
-  }
-
   const isMultiPane = useSelector(isMultiPaneActive);
 
   return (
@@ -657,11 +637,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 isDeletePermitted={isDeletePermitted}
                 name={currentActionConfig ? currentActionConfig.name : ""}
                 pageId={pageId}
-              />
-              <SearchSnippet
-                entityId={currentActionConfig?.id}
-                entityType={ENTITY_TYPE.ACTION}
-                onClick={handleSearchSnippetClick}
               />
               <Button
                 className="t--apiFormRunBtn"

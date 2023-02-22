@@ -8,11 +8,7 @@ import React, {
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
-import {
-  DropdownOnSelect,
-  SearchSnippet,
-  TabComponent,
-} from "design-system-old";
+import { DropdownOnSelect, TabComponent } from "design-system-old";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
@@ -33,7 +29,6 @@ import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
 import { AppState } from "@appsmith/reducers";
 import {
@@ -69,8 +64,6 @@ import {
   hasExecuteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
-import { executeCommandAction } from "actions/apiPaneActions";
-import { SlashCommand } from "entities/Action";
 import {
   setCodeEditorCursorAction,
   setFocusableInputField,
@@ -300,21 +293,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 isDeletePermitted={isDeletePermitted}
                 name={currentJSCollection.name}
                 pageId={pageId}
-              />
-              <SearchSnippet
-                entityId={currentJSCollection?.id}
-                entityType={ENTITY_TYPE.JSACTION}
-                onClick={() => {
-                  dispatch(
-                    executeCommandAction({
-                      actionType: SlashCommand.NEW_SNIPPET,
-                      args: {
-                        entityId: currentJSCollection?.id,
-                        entityType: ENTITY_TYPE.JSACTION,
-                      },
-                    }),
-                  );
-                }}
               />
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}

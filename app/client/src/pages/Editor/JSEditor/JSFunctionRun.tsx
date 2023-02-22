@@ -78,7 +78,7 @@ export function JSFunctionRun({
         selectedHighlightBg={RUN_BUTTON_DEFAULTS.DROPDOWN_HIGHLIGHT_BG}
         showLabelOnly
         truncateOption
-        width="232px"
+        width="150px"
       />
 
       <Tooltip
