@@ -38,7 +38,7 @@
     "@uppy/react": "^1.11.2",
     "@uppy/url": "^1.5.16",
     "@uppy/webcam": "^1.8.4",
-    "@wds/components": "*",
+    "@design-system/wds": "*",
     "@welldone-software/why-did-you-render": "^4.2.5",
     "acorn-walk": "^8.2.0",
     "algoliasearch": "^4.2.0",
