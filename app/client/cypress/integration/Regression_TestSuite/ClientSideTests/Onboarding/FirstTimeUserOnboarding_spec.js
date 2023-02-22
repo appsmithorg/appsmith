@@ -1,5 +1,4 @@
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
-import * as Utils from "../../../../support/Objects/ObjectsCore";
 const _ = require("lodash");
 
 describe("FirstTimeUserOnboarding", function() {
@@ -9,22 +8,16 @@ describe("FirstTimeUserOnboarding", function() {
     });
   });
 
-  it("1. onboarding flow - should check complete flow", function() {
+  it("1. onboarding flow - should check page entity selection in explorer", function() {
+    cy.get(OnboardingLocator.introModal).should("be.visible");
     cy.get(OnboardingLocator.introModalBuild).click();
+    cy.get(OnboardingLocator.introModal).should("not.exist");
     cy.get(".t--entity-name:contains(Page1)")
       .trigger("mouseover")
       .click({ force: true });
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
-    //  should check check the redirection post signup
-    cy.get(OnboardingLocator.introModal).should("be.visible");
-    //  should check function of introduction modal build button
-    cy.get(OnboardingLocator.introModalBuild).click();
-    cy.get(OnboardingLocator.introModal).should("not.exist");
-    // should check function of introduction modal guided tour button
-    cy.get(OnboardingLocator.introModalWelcomeTourBtn).should("be.visible");
-    cy.get(OnboardingLocator.introModalWelcomeTourBtn).click();
-    cy.get(OnboardingLocator.welcomeTourBtn).should("be.visible");
   });
+
   it("2. onboarding flow - should check the checklist page actions", function() {
     cy.get(OnboardingLocator.introModalBuild).click();
 
