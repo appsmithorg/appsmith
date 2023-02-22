@@ -918,7 +918,6 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 640,
           responsiveBehavior: ResponsiveBehavior.Fill,
-          parentId: "4",
           flexLayers: [
             {
               children: [{ id: "4", align: FlexLayerAlignment.Start }],
