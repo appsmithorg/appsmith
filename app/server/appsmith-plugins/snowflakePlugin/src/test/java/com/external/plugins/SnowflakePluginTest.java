@@ -6,8 +6,12 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import com.external.plugins.exceptions.SnowflakeErrorMessages;
+import com.external.plugins.exceptions.SnowflakePluginError;
 import com.external.utils.ExecutionUtils;
 import com.external.utils.ValidationUtils;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.extern.slf4j.Slf4j;
 import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 import org.junit.jupiter.api.Test;
@@ -19,12 +23,8 @@ import reactor.test.StepVerifier;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -49,12 +49,12 @@ public class SnowflakePluginTest {
         datasourceConfiguration.setAuthentication(auth);
         datasourceConfiguration.setProperties(List.of(new Property(), new Property()));
         Set<String> output = pluginExecutor.validateDatasource(datasourceConfiguration);
-        assertTrue(output.contains("Missing username for authentication."));
-        assertTrue(output.contains("Missing password for authentication."));
-        assertTrue(output.contains("Missing Snowflake URL."));
-        assertTrue(output.contains("Missing warehouse name."));
-        assertTrue(output.contains("Missing database name."));
-        assertTrue(output.contains("Missing schema name."));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_USERNAME_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_WAREHOUSE_NAME_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_SCHEMA_NAME_ERROR_MSG));
     }
 
     @Test
@@ -72,10 +72,31 @@ public class SnowflakePluginTest {
                         "Authentication token expired",
                         "",
                         0));
+
+        final HikariPoolMXBean hikariPoolMXBean = mock(HikariPoolMXBean.class);
+        when(hikariPoolMXBean.getActiveConnections())
+                .thenReturn(1);
+        when(hikariPoolMXBean.getIdleConnections())
+                .thenReturn(4);
+        when(hikariPoolMXBean.getTotalConnections())
+                .thenReturn(5);
+        when(hikariPoolMXBean.getThreadsAwaitingConnection())
+                .thenReturn(0);
+
+        final HikariDataSource hikariDataSource = mock(HikariDataSource.class);
+        when(hikariDataSource.getConnection())
+                .thenReturn(connection);
+        when(hikariDataSource.isClosed())
+                .thenReturn(false);
+        when(hikariDataSource.isRunning())
+                .thenReturn(true);
+        when(hikariDataSource.getHikariPoolMXBean())
+                .thenReturn(hikariPoolMXBean);
+
         final ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(testQuery);
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                pluginExecutor.execute(connection, new DatasourceConfiguration(), actionConfiguration);
+                pluginExecutor.execute(hikariDataSource, new DatasourceConfiguration(), actionConfiguration);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof StaleConnectionException)
@@ -115,5 +136,15 @@ public class SnowflakePluginTest {
                 ". Please provide a valid database by editing the Database field in the datasource " +
                 "configuration page.");
         assertEquals(expectedInvalids, invalids);
+    }
+
+    @Test
+    public void verifyUniquenessOfSnowflakePluginErrorCode() {
+        assert (Arrays.stream(SnowflakePluginError.values()).map(SnowflakePluginError::getAppErrorCode).distinct().count() == SnowflakePluginError.values().length);
+
+        assert (Arrays.stream(SnowflakePluginError.values()).map(SnowflakePluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-SNW"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }

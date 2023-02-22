@@ -8,6 +8,7 @@ import com.appsmith.util.WebClientUtils;
 import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.external.domains.RowObject;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,43 +49,45 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
         }
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Sheet name");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Unexpected value for table header index. Please use a number starting from 1");
+                            ErrorMessages.INVALID_TABLE_HEADER_INDEX);
                 }
             } catch (NumberFormatException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unexpected format for table header index. Please use a number starting from 1");
+                        ErrorMessages.INVALID_TABLE_HEADER_INDEX);
             }
         } else {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    "Unexpected format for table header index. Please use a number starting from 1");
+                    ErrorMessages.INVALID_TABLE_HEADER_INDEX);
         }
         JsonNode bodyNode;
         try {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (IllegalArgumentException e) {
             if (!StringUtils.hasLength(methodConfig.getRowObjects())) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
             }
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
-                    "Unable to parse request body. Expected a row object.");
+                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                    methodConfig.getRowObjects(),
+                    ErrorMessages.PARSING_FAILED_EXPECTED_A_ROW_OBJECT_ERROR_MSG  + " Error: " + e.getMessage()
+            );
         }
 
         if (bodyNode.isArray()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR, "Request body was an array. Expected a row object.");
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.EXPECTED_ROW_OBJECT_BUT_FOUND_ARRAY_ERROR_MSG);
         }
         return true;
     }
@@ -128,8 +131,8 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
 
                     if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Expected to receive a response body."));
+                                GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                                ErrorMessages.NULL_RESPONSE_BODY_ERROR_MSG));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody;
@@ -144,19 +147,19 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
                     }
                     if (jsonNodeBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Expected to receive a response of existing headers."));
+                                GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                                ErrorMessages.EXPECTED_EXISTING_HEADERS_IN_RESPONSE_ERROR_MSG));
                     }
 
                     if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
                         if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") != null) {
                             throw Exceptions.propagate(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                                    GSheetsPluginError.QUERY_EXECUTION_FAILED,   jsonNodeBody.get("error").get("message").toString()));
                         }
 
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                                ErrorMessages.RESPONSE_DATA_MAPPING_FAILED_ERROR_MSG));
                     }
 
                     ArrayNode valueRanges = (ArrayNode) jsonNodeBody.get("valueRanges");
@@ -181,8 +184,8 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
                                 finalRowObjectFromBody.setValueMap(valueMap);
                             } else {
                                 throw Exceptions.propagate(new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        "Could not map values to existing data."));
+                                        GSheetsPluginError.RESPONSE_PROCESSING_ERROR,
+                                        ErrorMessages.RESPONSE_DATA_MAPPING_FAILED_ERROR_MSG));
                             }
                             methodConfig.setBody(finalRowObjectFromBody);
                             return methodConfig;
@@ -236,8 +239,8 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing a valid response object.");
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         return this.objectMapper.valueToTree(Map.of("message", "Inserted row successfully!"));
@@ -246,12 +249,12 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
     private RowObject getRowObjectFromBody(JsonNode body) {
 
         if (body.isArray()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     ErrorMessages.EXPECTED_ROW_OBJECT_MESSAGE);
         }
 
         if (body.isEmpty()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
         }
 

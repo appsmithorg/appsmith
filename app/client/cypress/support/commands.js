@@ -14,10 +14,12 @@ const {
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
+
 const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
+
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
@@ -518,29 +520,37 @@ Cypress.Commands.add("clickTest", (testbutton) => {
   cy.wait("@postExecute");
 });
 
-Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(3000);
-  cy.get(commonlocators.evaluatedCurrentValue)
-    .first()
-    .should("be.visible")
-    .should("not.have.text", "undefined");
-  cy.get(commonlocators.evaluatedCurrentValue)
-    .first()
-    //.should("be.visible")
-    .click({ force: true })
-    .then(($text) => {
-      if ($text.text()) expect($text.text()).to.eq(currentValue);
-    });
-});
+Cypress.Commands.add(
+  "EvaluateCurrentValue",
+  (currentValue, isValueToBeEvaluatedDynamic = false) => {
+    // if the value is not dynamic, evaluated popup must be hidden
+    if (!isValueToBeEvaluatedDynamic) {
+      cy.get(commonlocators.evaluatedCurrentValue).should("not.exist");
+    } else {
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(3000);
+      cy.get(commonlocators.evaluatedCurrentValue)
+        .first()
+        .should("be.visible")
+        .should("not.have.text", "undefined");
+      cy.get(commonlocators.evaluatedCurrentValue)
+        .first()
+        //.should("be.visible")
+        .click({ force: true })
+        .then(($text) => {
+          if ($text.text()) expect($text.text()).to.eq(currentValue);
+        });
+    }
+  },
+);
 
-Cypress.Commands.add("PublishtheApp", () => {
+Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  cy.assertPageSave();
+  cy.assertPageSave(validateSavedState);
 
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {
@@ -747,10 +757,13 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   cy.get(selector)
     .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
+
+  const option = { eventConstructor: "MouseEvent" };
+
   cy.get(explorer.dropHere)
-    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-    .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+    .trigger("mousemove", x, y, option)
+    .trigger("mousemove", x, y, option)
+    .trigger("mouseup", x, y, option);
   cy.assertPageSave();
 });
 
@@ -1016,7 +1029,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
   cy.intercept("GET", "/api/v1/app-templates").as("fetchTemplate");
   cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
-  cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
+  cy.intercept("GET", /\/api\/v1\/app-templates\/(?!(filters)).*/).as(
+    "getTemplatePages",
+  );
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
   cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
   cy.intercept(
@@ -1172,7 +1187,9 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 
 Cypress.Commands.add("CheckForPageSaveError", () => {
   // Wait for "saving" status to disappear
-  cy.get(commonlocators.statusSaving).should("not.exist");
+  cy.get(commonlocators.statusSaving, {
+    timeout: 60000,
+  }).should("not.exist");
   // Check for page save error
   cy.get("body").then(($ele) => {
     if ($ele.find(commonlocators.saveStatusError).length) {
@@ -1181,11 +1198,13 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
   });
 });
 
-Cypress.Commands.add("assertPageSave", () => {
-  cy.CheckForPageSaveError();
-  cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-    timeout: 30000,
-  });
+Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
+  if (validateSavedState) {
+    cy.CheckForPageSaveError();
+    cy.get(commonlocators.saveStatusContainer).should("not.exist", {
+      timeout: 30000,
+    });
+  }
   //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
@@ -1409,24 +1428,46 @@ Cypress.Commands.add(
 // the way we target form controls from now on has to change
 // we would be getting the form controls by their class names and not their xpaths.
 // the xpath method is flaky and highly subjected to change.
-Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
-  cy.wait(2000);
-  if (fieldName) {
-    cy.get(fieldName).then(($field) => {
-      cy.updateCodeInput($field, valueToType);
-    });
-  } else {
-    cy.xpath("//div[@class='CodeEditorTarget']").then(($field) => {
-      cy.updateCodeInput($field, valueToType);
-    });
-  }
-  cy.EvaluateCurrentValue(valueToType);
-  // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
-  //   textF = fieldValue.innerText
-  //   fieldValue.innerText = ""
-  // }).then(() => {
-  //   cy.log("current field value is : '" + textF + "'")
-  // })
+Cypress.Commands.add(
+  "typeValueNValidate",
+  (valueToType, fieldName = "", isDynamic = false) => {
+    cy.wait(2000);
+    if (fieldName) {
+      cy.get(fieldName).then(($field) => {
+        cy.updateCodeInput($field, valueToType);
+      });
+    } else {
+      cy.xpath("//div[@class='CodeEditorTarget']").then(($field) => {
+        cy.updateCodeInput($field, valueToType);
+      });
+    }
+    cy.EvaluateCurrentValue(valueToType, isDynamic);
+    // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
+    //   textF = fieldValue.innerText
+    //   fieldValue.innerText = ""
+    // }).then(() => {
+    //   cy.log("current field value is : '" + textF + "'")
+    // })
+  },
+);
+
+Cypress.Commands.add("checkCodeInputValue", (selector) => {
+  let inputVal = "";
+  cy.get(selector).then(($field) => {
+    cy.wrap($field)
+      .find(".CodeMirror-code span")
+      .first()
+      .invoke("text")
+      .then((text1) => {
+        inputVal = text1;
+        cy.log("checkCodeInputValue is:::: " + inputVal);
+        //  const input = ins[0].CodeMirror;
+        //   inputVal = input.getValue();
+      });
+
+    // to be chained with another cy command.
+    return cy.wrap(inputVal);
+  });
 });
 
 Cypress.Commands.add("clickButton", (btnVisibleText, toForceClick = true) => {
@@ -1499,22 +1540,38 @@ Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
 Cypress.Commands.add(
   "EvaluatFieldValue",
   (fieldName = "", currentValue = "") => {
-    let toValidate = false;
-    if (currentValue) toValidate = true;
+    let val = "";
     if (fieldName) {
       cy.get(fieldName).click();
+      val = cy.get(fieldName).then(($field) => {
+        cy.wrap($field)
+          .find(".CodeMirror-code span")
+          .first()
+          .invoke("text");
+      });
     } else {
       cy.xpath("//div[@class='CodeMirror-code']")
         .first()
         .click();
+      val = cy
+        .xpath(
+          "//div[@class='CodeMirror-code']//span[contains(@class,'cm-m-javascript')]",
+        )
+        .then(($field) => {
+          cy.wrap($field).invoke("text");
+        });
     }
-    cy.wait(3000); //Increasing wait time to evaluate non-undefined values
-    const val = cy
-      .get(commonlocators.evaluatedCurrentValue)
-      .first()
-      .should("be.visible")
-      .invoke("text");
-    if (toValidate) expect(val).to.eq(currentValue);
+    //cy.wait(3000); //Increasing wait time to evaluate non-undefined values
+    // if (isDynamicValue) {
+    //   const val = cy
+    //     .get(commonlocators.evaluatedCurrentValue)
+    //     .first()
+    //     .should("be.visible")
+    //     .invoke("text");
+    //   if (toValidate) expect(val).to.eq(currentValue);
+    // }
+    if (currentValue) expect(val).to.eq(currentValue);
+
     return val;
   },
 );
@@ -1792,7 +1849,7 @@ Cypress.Commands.add("restoreLocalStorageCache", () => {
   });
 });
 
-Cypress.Commands.add("StopTheContainer", (path, containerName) => {
+Cypress.Commands.add("StopContainer", (path, containerName) => {
   cy.request({
     method: "GET",
     url: path,
@@ -1800,8 +1857,7 @@ Cypress.Commands.add("StopTheContainer", (path, containerName) => {
       cmd: "docker stop " + containerName,
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
+    cy.log(res.body.stdout, res.body.stderr);
     expect(res.status).equal(200);
   });
 });
@@ -1818,31 +1874,28 @@ Cypress.Commands.add("StopAllContainer", (path) => {
   });
 });
 
-Cypress.Commands.add("StartTheContainer", (path, containerName) => {
+Cypress.Commands.add("StartContainer", (path, containerName) => {
   cy.request({
     method: "GET",
     url: path,
     qs: {
-      cmd: "docker start " + containerName,
+      cmd: "docker restart " + containerName,
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
+    cy.log(res.body.stdout, res.body.stderr);
     expect(res.status).equal(200);
   });
 });
 
 Cypress.Commands.add(
-  "CreateAContainer",
+  "StartNewContainer",
   (url, path, version, containerName) => {
     let comm =
-      "cd " +
-      path +
-      ";docker run -d --name " +
+      "docker run -d --name " +
       containerName +
-      ' -p 80:80 -p 9001:9001 -v "' +
+      ' -p 8081:80 -p 9002:9002 -v "' +
       path +
-      '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
+      '/stacks:/appsmith-stacks" ' +
       version;
 
     cy.log(comm);
@@ -1853,36 +1906,8 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
+      cy.log("ContainerID", res.body.stdout);
       cy.log(res.body.stderr);
-      cy.log(res.body.stdout);
-      expect(res.status).equal(200);
-    });
-  },
-);
-
-Cypress.Commands.add(
-  "CreateEEContainer",
-  (url, path, version, containerName) => {
-    let comm =
-      "cd " +
-      path +
-      ";docker run -d --name " +
-      containerName +
-      ' -p 80:80 -p 9001:9001 -v "' +
-      path +
-      '/stacks:/appsmith-stacks" appsmith/appsmith-ee:' +
-      version;
-
-    cy.log(comm);
-    cy.request({
-      method: "GET",
-      url: url,
-      qs: {
-        cmd: comm,
-      },
-    }).then((res) => {
-      cy.log(res.body.stderr);
-      cy.log(res.body.stdout);
       expect(res.status).equal(200);
     });
   },
@@ -1924,10 +1949,8 @@ Cypress.Commands.add("GetAndVerifyLogs", (path, containerName) => {
       cmd: "docker logs " + containerName + " 2>&1 | grep 'APPLIED'",
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
     expect(res.status).equal(200);
-    // expect(res.body.stdout).not.equal("");
+    //expect(res.body.stdout).not.equal("");
   });
 });
 
@@ -1985,4 +2008,107 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
   cy.wait("@getMe");
   cy.wait(3000);
   initLocalstorage();
+});
+
+Cypress.Commands.add(
+  "RenameWidgetFromPropertyPane",
+  (widgetType, oldName, newName) => {
+    cy.openPropertyPaneByWidgetName(oldName, widgetType);
+    cy.get(".t--property-pane-title").click({ force: true });
+    cy.get(".t--property-pane-title")
+      .type(newName, { delay: 300 })
+      .type("{enter}");
+    cy.wait("@updateWidgetName").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  },
+);
+
+Cypress.Commands.add("execute", (url, command) => {
+  cy.request({
+    method: "GET",
+    url: url,
+    qs: {
+      cmd: command,
+    },
+  }).then((res) => {
+    cy.log(res.body.stdout, res.body.error);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("forceVisit", (url) => {
+  cy.window().then((win) => {
+    return win.open(url, "_self");
+  });
+});
+
+Cypress.Commands.add("SelectDropDown", (dropdownOption) => {
+  cy.get(".t--widget-selectwidget button")
+    .first()
+    .scrollIntoView()
+    .click();
+  cy.get(".t--widget-selectwidget button .cancel-icon")
+    .first()
+    .click({ force: true })
+    .wait(1000);
+  cy.get(".t--widget-selectwidget button")
+    .first()
+    .click({ force: true });
+  cy.document()
+    .its("body")
+    .find(".menu-item-link:contains('" + dropdownOption + "')")
+    .click({
+      force: true,
+    })
+    .wait(1000);
+});
+
+Cypress.Commands.add("RemoveMultiSelectItems", (dropdownOptions) => {
+  dropdownOptions.forEach(($each) => {
+    cy.get(`.rc-select-selection-overflow-item [title=${$each}] .remove-icon`)
+      .eq(0)
+      .click({ force: true })
+      .wait(1000);
+  });
+});
+
+Cypress.Commands.add("SelectFromMultiSelect", (options) => {
+  const option = (value) =>
+    `.rc-select-item-option[title=${value}] input[type='checkbox']`;
+  cy.get(" .t--widget-multiselectwidgetv2 div.rc-select-selector")
+    .eq(0)
+    .scrollIntoView()
+    .then(($element) => {
+      // here, we try to click on downArrow in dropdown of multiSelect.
+      // the position is calculated from top left of the element
+      const dropdownCenterPosition = +$element.height / 2;
+      const dropdownArrowApproxPosition = +$element.width - 10;
+      cy.get($element).click(
+        dropdownArrowApproxPosition,
+        dropdownCenterPosition,
+        {
+          force: true,
+        },
+      );
+    });
+
+  options.forEach(($each) => {
+    cy.document()
+      .its("body")
+      .find(".rc-select-dropdown.multi-select-dropdown")
+      .not(".rc-select-dropdown-hidden")
+      .find(option($each))
+      .check({ force: true })
+      .wait(1000);
+    cy.document()
+      .its("body")
+      .find(option($each))
+      .should("be.checked");
+  });
+  cy.document()
+    .its("body")
+    .type("{esc}");
 });

@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
 import { TabComponent, TabProp, TabTitle } from "design-system-old";
-import { Tab, TabList, Tabs } from "react-tabs";
+import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
@@ -120,6 +120,8 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
             </Tab>
           )}
         </TabList>
+        {props.contentComponent && <TabPanel />}
+        {props.styleComponent && <TabPanel />}
       </StyledTabs>
       <StyledTabComponent selectedIndex={selectedIndex} tabs={tabs} />
     </>

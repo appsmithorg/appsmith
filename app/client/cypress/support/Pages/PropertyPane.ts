@@ -233,6 +233,34 @@ export class PropertyPane {
         this.agHelper.ValidateCodeEditorContent($field, valueToValidate);
       },
     );
+    return cy.wrap(valueToValidate);
+  }
+
+  public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
+    let val: any;
+    if (fieldName) {
+      cy.xpath(this.locator._existingFieldValueByName(fieldName))
+        .eq(0)
+        .click();
+      val = cy.get(fieldName).then(($field) => {
+        cy.wrap($field)
+          .find(".CodeMirror-code span")
+          .first()
+          .invoke("text");
+      });
+    } else {
+      cy.xpath(this.locator._codeMirrorCode).click();
+      val = cy
+        .xpath(
+          "//div[@class='CodeMirror-code']//span[contains(@class,'cm-m-javascript')]",
+        )
+        .then(($field) => {
+          cy.wrap($field).invoke("text");
+        });
+    }
+    this.agHelper.Sleep(); //Increasing wait time to evaluate non-undefined values
+    if (currentValue) expect(val).to.eq(currentValue);
+    return val;
   }
 
   public RemoveText(endp: string, toVerifySave = true) {

@@ -25,6 +25,7 @@ export type WorkspaceUser = {
   permissionGroupName: string;
   isDeleting: boolean;
   isChangingRole: boolean;
+  photoId?: string;
 };
 
 export type Workspaces = {
