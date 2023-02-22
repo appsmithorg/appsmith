@@ -24,12 +24,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.external.plugins.exceptions.MongoPluginError;
+import com.external.plugins.exceptions.MongoPluginErrorMessages;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -421,7 +420,7 @@ public class MongoPluginErrorsTest {
                     if (sameClass) {
                         var ape = ((AppsmithPluginException) throwable);
                         return ape.getError().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR)
-                                && ape.getArgs()[0].equals("Pipeline stage is not a valid JSON object.");
+                                && ape.getArgs()[0].equals(MongoPluginErrorMessages.PIPELINE_STAGE_NOT_VALID_ERROR_MSG);
                     }
                     return false;
                 })
@@ -530,6 +529,16 @@ public class MongoPluginErrorsTest {
         actionConfiguration.setFormData(configMap);
         // Run the delete command
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
+    }
+
+    @Test
+    public void verifyUniquenessOfMongoPluginErrorCode() {
+        assert (Arrays.stream(MongoPluginError.values()).map(MongoPluginError::getAppErrorCode).distinct().count() == MongoPluginError.values().length);
+
+        assert (Arrays.stream(MongoPluginError.values()).map(MongoPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-MNG"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 
 }

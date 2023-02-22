@@ -25,7 +25,10 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { traverseTreeAndExecuteBlueprintChildOperations } from "sagas/WidgetBlueprintSagas";
+import {
+  executeWidgetBlueprintBeforeOperations,
+  traverseTreeAndExecuteBlueprintChildOperations,
+} from "sagas/WidgetBlueprintSagas";
 import {
   getCanvasWidth,
   getCurrentAppPositioningType,
@@ -37,6 +40,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { updateRelationships } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "widgets/constants";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -316,6 +320,20 @@ function* moveWidgetsSaga(
   const { canvasId, draggedBlocksToUpdate } = actionPayload.payload;
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+    for (const dragBlock of draggedBlocksToUpdate) {
+      yield call(
+        executeWidgetBlueprintBeforeOperations,
+        BlueprintOperationTypes.BEFORE_DROP,
+        {
+          parentId: canvasId,
+          widgetId: dragBlock.widgetId,
+          widgets: allWidgets,
+          widgetType: allWidgets[dragBlock.widgetId].type,
+        },
+      );
+    }
+
     const appPositioningType: AppPositioningTypes = yield select(
       getCurrentAppPositioningType,
     );
