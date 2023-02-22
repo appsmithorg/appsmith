@@ -18,6 +18,8 @@
     "@storybook/manager-webpack5": "^6.5.16",
     "@storybook/react": "^6.5.16",
     "@storybook/testing-library": "^0.0.13",
+    "@storybook/node-logger": "^6.5.16",
+    "@storybook/preset-create-react-app": "^4.1.2",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.2",
     "autoprefixer": "^9.0.0",
@@ -31,7 +33,8 @@
     "@capsizecss/metrics": "^1.0.1",
     "colorjs.io": "^0.4.3",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "re-resizable": "^6.9.9"
   },
   "scripts": {
     "storybook": "start-storybook -p 6006",
