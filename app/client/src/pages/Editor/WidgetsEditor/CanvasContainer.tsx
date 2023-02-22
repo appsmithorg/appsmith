@@ -2,7 +2,6 @@ import React, { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import {
-  getCanvasScale,
   getCanvasWidth,
   getCurrentPageId,
   getIsFetchingPage,
@@ -27,9 +26,12 @@ import {
 } from "selectors/appThemingSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import {
+  AUTOLAYOUT_RESIZER_WIDTH_BUFFER,
+  useDynamicAppLayout,
+} from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
-import { CanvasResizer, CANVAS_WIDTH_OFFSET } from "widgets/CanvasResizer";
+import { CanvasResizer } from "widgets/CanvasResizer";
 import Canvas from "../Canvas";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 
@@ -38,7 +40,9 @@ const Container = styled.section<{
   background: string;
 }>`
   width: ${({ $isAutoLayout }) =>
-    $isAutoLayout ? `calc(100% - ${CANVAS_WIDTH_OFFSET}px)` : `100%`};
+    $isAutoLayout
+      ? `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`
+      : `100%`};
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
@@ -69,7 +73,6 @@ function CanvasContainer() {
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
-  const canvasScale = useSelector(getCanvasScale);
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -96,7 +99,6 @@ function CanvasContainer() {
   if (!isPageInitializing && widgetsStructure) {
     node = (
       <Canvas
-        canvasScale={canvasScale}
         canvasWidth={canvasWidth}
         isAutoLayout={isAutoLayout}
         pageId={params.pageId}

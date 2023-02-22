@@ -16,23 +16,19 @@ interface CanvasProps {
   pageId: string;
   canvasWidth: number;
   isAutoLayout?: boolean;
-  canvasScale?: number;
 }
 
 const Container = styled.section<{
   background: string;
   width: number;
-  $canvasScale: number;
   $isAutoLayout: boolean;
 }>`
   background: ${({ background }) => background};
   width: ${({ $isAutoLayout, width }) =>
     $isAutoLayout ? `100%` : `${width}px`};
-  transform: scale(${(props) => props.$canvasScale});
-  transform-origin: "0 0";
 `;
 const Canvas = (props: CanvasProps) => {
-  const { canvasScale = 1, canvasWidth } = props;
+  const { canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
 
@@ -54,7 +50,6 @@ const Canvas = (props: CanvasProps) => {
   try {
     return (
       <Container
-        $canvasScale={canvasScale}
         $isAutoLayout={!!props.isAutoLayout}
         background={backgroundForCanvas}
         className={`relative t--canvas-artboard pb-52 ${marginHorizontalClass}`}

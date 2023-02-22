@@ -28,11 +28,15 @@ import { generateReactKey } from "utils/generators";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  GRID_DENSITY_MIGRATION_V1,
+} from "widgets/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidget, getWidgets } from "./selectors";
 import {
   buildWidgetBlueprint,
+  executeWidgetBlueprintBeforeOperations,
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
@@ -147,7 +151,17 @@ function* getChildWidgetProps(
     widget,
     themeConfigWithoutChildStylesheet,
   );
-  widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+
+  if (params.dynamicBindingPathList) {
+    const mergedDynamicBindingPathLists = [
+      ...dynamicBindingPathList,
+      ...params.dynamicBindingPathList,
+    ];
+    widget.dynamicBindingPathList = mergedDynamicBindingPathLists;
+  } else {
+    widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+  }
+
   return widget;
 }
 
@@ -307,6 +321,20 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     Toaster.clear();
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const { newWidgetId, type, widgetId } = addChildAction.payload;
+
+    yield call(
+      executeWidgetBlueprintBeforeOperations,
+      BlueprintOperationTypes.BEFORE_ADD,
+      {
+        parentId: widgetId,
+        widgetId: newWidgetId,
+        widgets: stateWidgets,
+        widgetType: type,
+      },
+    );
+
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);

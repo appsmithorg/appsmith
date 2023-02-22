@@ -213,15 +213,12 @@ export function ReflowResizable(props: ResizableProps) {
 
         //if it should not resize horizontally, we keep keep the previous horizontal dimensions
         if (!canHorizontalMove || !canResizeHorizontally) {
-          console.log("I cannot move", { resizedPositions });
           newRect = {
             ...newRect,
             width: prevState.width,
             x: prevState.x,
             X: prevState.X,
           };
-        } else {
-          console.log("I can move", { resizedPositions });
         }
 
         //if it should not resize vertically, we keep keep the previous vertical dimensions
@@ -238,7 +235,6 @@ export function ReflowResizable(props: ResizableProps) {
           props.updateBottomRow(bottomMostRow);
         }
 
-        console.log({ newRect });
         return newRect;
       });
     }
