@@ -294,14 +294,14 @@ export function Item(props: {
   label: string;
   textType: TextType;
   icon?: IconName;
-  isFetchingApplications: boolean;
+  isFetchingApplications?: boolean;
 }) {
   return (
     <ItemWrapper>
       {props.icon && <StyledIcon />}
       <Text
         className={
-          props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
+          !!props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
         }
         type={props.textType}
       >
@@ -331,12 +331,7 @@ export function LeftPaneSection(props: {
 }) {
   return (
     <LeftPaneDataSection isBannerVisible={props.isBannerVisible}>
-      {/* <MenuItem text={props.heading}/> */}
-      <Item
-        isFetchingApplications={props.isFetchingApplications}
-        label={props.heading}
-        textType={TextType.SIDE_HEAD}
-      />
+      <Item label={props.heading} textType={TextType.SIDE_HEAD} />
       {props.children}
     </LeftPaneDataSection>
   );
@@ -442,28 +437,24 @@ export function LeftPane(props: LeftPaneProps) {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {!isFetchingApplications &&
-            fetchedUserWorkspaces &&
-            canCreateWorkspace && (
-              <MenuItem
-                cypressSelector="t--workspace-new-workspace-auto-create"
-                icon="plus"
-                onSelect={() =>
-                  submitCreateWorkspaceForm(
-                    {
-                      name: getNextEntityName(
-                        "Untitled workspace ",
-                        fetchedUserWorkspaces.map(
-                          (el: any) => el.workspace.name,
-                        ),
-                      ),
-                    },
-                    dispatch,
-                  )
-                }
-                text={CREATE_WORKSPACE_FORM_NAME}
-              />
-            )}
+          {canCreateWorkspace && (
+            <MenuItem
+              cypressSelector="t--workspace-new-workspace-auto-create"
+              icon="plus"
+              onSelect={() =>
+                submitCreateWorkspaceForm(
+                  {
+                    name: getNextEntityName(
+                      "Untitled workspace ",
+                      fetchedUserWorkspaces.map((el: any) => el.workspace.name),
+                    ),
+                  },
+                  dispatch,
+                )
+              }
+              text={CREATE_WORKSPACE_FORM_NAME}
+            />
+          )}
           {userWorkspaces &&
             userWorkspaces.map((workspace: any) => (
               <WorkspaceMenuItem
