@@ -10,6 +10,10 @@ public class TenantConfigurationCE {
     private String googleMapsKey;
 
     public void copyNonSensitiveValues(TenantConfiguration source) {
+        if (source == null) {
+            return;
+        }
+
         googleMapsKey = source.getGoogleMapsKey();
     }
 
