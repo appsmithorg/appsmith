@@ -74,14 +74,21 @@ function* logNavigationAnalytics(payload: {
 function* setSelectedWidgetsSaga() {
   const pathname = window.location.pathname;
   const entityInfo = identifyEntityFromPath(pathname);
-  let widgets: string[] = [];
-  let lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
+  let widgets: string[] | undefined;
+  let lastSelectedWidget: string | undefined;
   if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
     widgets = entityInfo.id.split(",");
     if (widgets.length) {
       lastSelectedWidget = widgets[widgets.length - 1];
     }
+  } else if (entityInfo.entity === FocusEntity.CANVAS) {
+    widgets = [];
+    lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
   }
-  yield put(setSelectedWidgets(widgets));
-  yield put(setLastSelectedWidget(lastSelectedWidget));
+  if (Array.isArray(widgets)) {
+    yield put(setSelectedWidgets(widgets));
+  }
+  if (lastSelectedWidget) {
+    yield put(setLastSelectedWidget(lastSelectedWidget));
+  }
 }
