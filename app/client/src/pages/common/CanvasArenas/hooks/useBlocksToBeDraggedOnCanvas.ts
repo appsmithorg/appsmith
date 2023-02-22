@@ -1,7 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
 import { stopReflowAction } from "actions/reflowActions";
-import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
@@ -17,11 +16,14 @@ import { useContext, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
 import { snapToGrid } from "utils/helpers";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import {
@@ -30,8 +32,6 @@ import {
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { XYCord } from "./useRenderBlocksOnCanvas";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -267,9 +267,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
         alignment: dropPayload.alignment,
       },
     };
-    setTimeout(() => {
-      selectWidget(widgetPayload.newWidgetId);
-    }, 100);
     dispatch({
       type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
       payload: {
@@ -281,6 +278,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
         direction,
       },
     });
+    setTimeout(() => {
+      selectWidget(SelectionRequestType.One, [widgetPayload.newWidgetId]);
+    }, 100);
   };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],
