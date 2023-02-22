@@ -59,7 +59,7 @@ describe("Dynamic input autocomplete", () => {
             );
           });
       });
-    cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
+    cy.evaluateErrorMessage("garbage is not defined");
   });
 
   it("2. Test if action inside non event field throws error & open current value popup", () => {

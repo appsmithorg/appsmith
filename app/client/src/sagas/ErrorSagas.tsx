@@ -31,6 +31,7 @@ import store from "store";
 
 import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "api/ApiUtils";
+import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
 
 /**
  * making with error message with action name
@@ -50,9 +51,10 @@ export function* callAPI(apiCall: any, requestPayload: any) {
 }
 
 /**
- * transforn server errors to client error codes
+ * transform server errors to client error codes
  *
  * @param code
+ * @param resourceType
  */
 const getErrorMessage = (code: number, resourceType = "") => {
   switch (code) {
@@ -76,6 +78,7 @@ export class IncorrectBindingError extends Error {}
  * @throws {Error}
  * @param response
  * @param show
+ * @param logToSentry
  */
 export function* validateResponse(
   response: ApiResponse | any,
@@ -101,8 +104,9 @@ export function* validateResponse(
     return true;
   }
   if (
-    response.responseMeta.error.code ===
-    SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
+    SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET.includes(
+      response.responseMeta.error.code,
+    )
   ) {
     throw new IncorrectBindingError(response.responseMeta.error.message);
   }
@@ -245,9 +249,22 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
     get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
-    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
-      window.location.href,
-    )}`;
+    const queryParams = new URLSearchParams(window.location.search);
+    const embedQueryParam = queryParams.get("embed");
+    const ssoTriggerQueryParam = queryParams.get("ssoTrigger");
+    const ssoLoginUrl =
+      embedQueryParam === "true" && ssoTriggerQueryParam
+        ? getLoginUrl(ssoTriggerQueryParam || "")
+        : null;
+    if (ssoLoginUrl) {
+      window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
+        window.location.href,
+      )}`;
+    } else {
+      window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+        window.location.href,
+      )}`;
+    }
 
     return false;
   }

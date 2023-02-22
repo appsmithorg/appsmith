@@ -5,8 +5,10 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
   DATA_SOURCES_EDITOR_ID_PATH,
+  INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
+  WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_DATASOURCE_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
@@ -23,6 +25,10 @@ export enum FocusEntity {
   NONE = "NONE",
 }
 
+export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
+  [FocusEntity.PROPERTY_PANE]: FocusEntity.CANVAS,
+};
+
 export type FocusEntityInfo = {
   entity: FocusEntity;
   id: string;
@@ -30,12 +36,12 @@ export type FocusEntityInfo = {
 };
 
 /**
- * Method to indicate if the URL is of type API, Query etc,
+ * Method to indicate if the URL is of type API, Query etc.,
  * and not anything else
  * @param path
  * @returns
  */
-export function shouldStoreURLforFocus(path: string) {
+export function shouldStoreURLForFocus(path: string) {
   const entityTypesToStore = [
     FocusEntity.QUERY,
     FocusEntity.API,
@@ -76,14 +82,7 @@ export function isSameBranch(
   return previousBranch === currentBranch;
 }
 
-export function identifyEntityFromPath(
-  path: string,
-  hash?: string,
-): FocusEntityInfo {
-  let appPath = path;
-  if (hash) {
-    appPath = path.split("#")[0];
-  }
+export function identifyEntityFromPath(path: string): FocusEntityInfo {
   const match = matchPath<{
     apiId?: string;
     datasourceId?: string;
@@ -92,7 +91,9 @@ export function identifyEntityFromPath(
     appId?: string;
     pageId?: string;
     collectionId?: string;
-  }>(appPath, {
+    widgetIds?: string;
+    selectedTab?: string; // Datasource creation/list screen
+  }>(path, {
     path: [
       BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
       BUILDER_PATH + API_EDITOR_ID_PATH,
@@ -103,6 +104,9 @@ export function identifyEntityFromPath(
       BUILDER_PATH_DEPRECATED + DATA_SOURCES_EDITOR_ID_PATH,
       BUILDER_PATH + DATA_SOURCES_EDITOR_ID_PATH,
       BUILDER_CUSTOM_PATH + DATA_SOURCES_EDITOR_ID_PATH,
+      BUILDER_PATH_DEPRECATED + INTEGRATION_EDITOR_PATH,
+      BUILDER_PATH + INTEGRATION_EDITOR_PATH,
+      BUILDER_CUSTOM_PATH + INTEGRATION_EDITOR_PATH,
       BUILDER_PATH + SAAS_EDITOR_DATASOURCE_ID_PATH,
       BUILDER_CUSTOM_PATH + SAAS_EDITOR_DATASOURCE_ID_PATH,
       BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
@@ -111,6 +115,9 @@ export function identifyEntityFromPath(
       BUILDER_PATH_DEPRECATED + JS_COLLECTION_ID_PATH,
       BUILDER_PATH + JS_COLLECTION_ID_PATH,
       BUILDER_CUSTOM_PATH + JS_COLLECTION_ID_PATH,
+      BUILDER_PATH + WIDGETS_EDITOR_ID_PATH,
+      BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH,
+      BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH,
       BUILDER_PATH_DEPRECATED,
       BUILDER_PATH,
       BUILDER_CUSTOM_PATH,
@@ -118,7 +125,7 @@ export function identifyEntityFromPath(
     exact: true,
   });
   if (!match) {
-    return { entity: FocusEntity.NONE, id: "" };
+    return { entity: FocusEntity.NONE, id: "", pageId: "" };
   }
   if (match.params.apiId) {
     if (match.params.pluginPackageName) {
@@ -141,6 +148,13 @@ export function identifyEntityFromPath(
       pageId: match.params.pageId,
     };
   }
+  if (match.params.selectedTab) {
+    return {
+      entity: FocusEntity.DATASOURCE,
+      id: match.params.selectedTab,
+      pageId: match.params.pageId,
+    };
+  }
   if (match.params.queryId) {
     return {
       entity: FocusEntity.QUERY,
@@ -155,10 +169,10 @@ export function identifyEntityFromPath(
       pageId: match.params.pageId,
     };
   }
-  if (match.params.pageId && hash) {
+  if (match.params.widgetIds) {
     return {
       entity: FocusEntity.PROPERTY_PANE,
-      id: hash,
+      id: match.params.widgetIds,
       pageId: match.params.pageId,
     };
   }

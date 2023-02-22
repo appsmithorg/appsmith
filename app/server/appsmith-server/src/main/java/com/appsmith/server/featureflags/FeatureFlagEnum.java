@@ -33,8 +33,8 @@ public enum FeatureFlagEnum {
     DATASOURCE_ENVIRONMENTS,
     AUTO_LAYOUT,
     LIMITING_GOOGLE_SHEET_ACCESS,
+    LAZY_CANVAS_RENDERING,
 
     // Put EE flags below this line, to avoid conflicts.
     RBAC,
-    USAGE_AND_BILLING,
 }
