@@ -546,13 +546,13 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("PublishtheApp", () => {
+Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  cy.assertPageSave();
+  cy.assertPageSave(validateSavedState);
 
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {
@@ -1200,11 +1200,13 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
   });
 });
 
-Cypress.Commands.add("assertPageSave", () => {
-  cy.CheckForPageSaveError();
-  cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-    timeout: 30000,
-  });
+Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
+  if (validateSavedState) {
+    cy.CheckForPageSaveError();
+    cy.get(commonlocators.saveStatusContainer).should("not.exist", {
+      timeout: 30000,
+    });
+  }
   //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
