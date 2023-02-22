@@ -9,7 +9,9 @@ import io.netty.util.concurrent.Promise;
 import io.netty.util.internal.SocketUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
@@ -26,6 +28,14 @@ public class WebClientUtils {
     private static final Set<String> DISALLOWED_HOSTS = Set.of(
             "169.254.169.254",
             "metadata.google.internal"
+    );
+
+    public static final String HOST_NOT_ALLOWED = "Host not allowed.";
+
+    public static final ExchangeFilterFunction IP_CHECK_FILTER = ExchangeFilterFunction.ofRequestProcessor(request ->
+            DISALLOWED_HOSTS.contains(request.url().getHost())
+                    ? Mono.error(new UnknownHostException(HOST_NOT_ALLOWED))
+                    : Mono.just(request)
     );
 
     private WebClientUtils() {
@@ -68,6 +78,7 @@ public class WebClientUtils {
 
     public static WebClient.Builder builder(HttpClient httpClient) {
         return WebClient.builder()
+                .filter(IP_CHECK_FILTER)
                 .clientConnector(new ReactorClientHttpConnector(makeSafeHttpClient(httpClient)));
     }
 
@@ -92,7 +103,7 @@ public class WebClientUtils {
         if (DISALLOWED_HOSTS.contains(host)) {
             log.warn("Host {} is disallowed. Failing the request.", host);
             if (promise != null) {
-                promise.setFailure(new UnknownHostException("Host not allowed."));
+                promise.setFailure(new UnknownHostException(HOST_NOT_ALLOWED));
             }
             return true;
         }
