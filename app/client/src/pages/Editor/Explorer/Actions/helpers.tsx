@@ -73,7 +73,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         !isGraphql
       ) {
         const method = action?.actionConfiguration?.httpMethod;
-        if (method) return <ApiMethodIcon type={method} />;
+        if (method) return ApiMethodIcon(method);
       }
       if (plugin && plugin.iconLocation)
         return (

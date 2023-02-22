@@ -250,7 +250,6 @@ const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
   cursor: pointer;
-  width: 38px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
