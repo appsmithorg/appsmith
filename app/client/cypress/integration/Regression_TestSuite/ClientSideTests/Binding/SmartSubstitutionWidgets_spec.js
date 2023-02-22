@@ -24,7 +24,6 @@ describe("Text-Table Binding Functionality", function() {
 
   it("1. Update table data and assert", function() {
     cy.openPropertyPane("tablewidget");
-
     cy.get(widgetLocators.tabedataField).then(($el) => {
       cy.updateCodeInput($el, updateData);
       cy.readTabledata("1", "0").then((cellData) => {
@@ -49,9 +48,8 @@ describe("Text-Table Binding Functionality", function() {
     });
   });
 
-  //Skipped due to issue #20581
-  it.skip("3. Publish and assert", function() {
-    cy.PublishtheApp();
+  it("3. Publish and assert", function() {
+    cy.PublishtheApp(false);
     cy.readTabledata("1", "0").then((cellData) => {
       cy.wrap(cellData).should("equal", "Product2");
     });
