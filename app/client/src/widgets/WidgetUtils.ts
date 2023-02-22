@@ -743,6 +743,7 @@ export const isAutoHeightEnabledForWidget = (
   props: WidgetProps,
   shouldCheckIfEnabledWithLimits = false,
 ) => {
+  if (props.isFlexChild) return false;
   if (shouldCheckIfEnabledWithLimits) {
     return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
   }
