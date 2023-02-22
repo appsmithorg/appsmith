@@ -377,7 +377,7 @@ public class DatabaseChangelogEE {
      * Discussion on why @Value is not supported in Mongock: https://github.com/mongock/mongock/discussions/525
      * @param mongoTemplate
      */
-    @ChangeSet(order = "013", id = "move-license-key-to-db", author = "")
+    @ChangeSet(order = "013", id = "move-license-key-to-db", author = "", runAlways = true)
     public void moveLicenseKeyToDB(MongoTemplate mongoTemplate, @NonLockGuarded LicenseConfig licenseConfig) {
 
         // Get default tenant as we only have single entry in tenant collection (before multi-tenancy is introduced)
@@ -387,8 +387,12 @@ public class DatabaseChangelogEE {
                 ? new TenantConfiguration()
                 : tenant.getTenantConfiguration();
 
-        if (tenantConfiguration.getLicense() == null || !StringUtils.hasText(tenantConfiguration.getLicense().getKey())) {
-                String licenseKey = licenseConfig.getLicenseKey();
+        String licenseKey = licenseConfig.getLicenseKey();
+        if (StringUtils.hasLength(licenseKey)
+            && (tenantConfiguration.getLicense() == null
+                || !StringUtils.hasText(tenantConfiguration.getLicense().getKey()))) {
+
+                log.info("Moving license key to DB");
                 TenantConfiguration.License license = new TenantConfiguration.License();
                 license.setActive(true);
                 license.setStatus(LicenseStatus.ACTIVE);
@@ -397,6 +401,10 @@ public class DatabaseChangelogEE {
                 tenantConfiguration.setLicense(license);
                 tenant.setTenantConfiguration(tenantConfiguration);
                 mongoTemplate.save(tenant);
+        }
+
+        if (!StringUtils.hasLength(licenseKey)) {
+            log.info("Unable to find license key in docker.env");
         }
     }
 
