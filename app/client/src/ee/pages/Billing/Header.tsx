@@ -7,7 +7,7 @@ export function BillingPageHeader(props: HeaderProps) {
   const { subtitle, title } = props;
   return (
     <PageHeader>
-      <Text className="header-text" type={TextType.H1} weight="500">
+      <Text className="header-text" type={TextType.H1} weight="600">
         {title}
       </Text>
       {subtitle && (

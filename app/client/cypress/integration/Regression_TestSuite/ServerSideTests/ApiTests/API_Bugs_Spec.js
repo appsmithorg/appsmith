@@ -151,7 +151,7 @@ describe("Rest Bugs tests", function() {
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
       .then(($text) => {
-        expect($text).to.eq("Execution failed");
+        expect($text).to.eq("An unexpected error occurred");
       });
   });
 
@@ -177,7 +177,7 @@ describe("Rest Bugs tests", function() {
     agHelper.AssertElementAbsence(
       locator._specificToast("Cyclic dependency found while evaluating"),
     );
-    cy.ResponseStatusCheck("404 NOT_FOUND");
+    cy.ResponseStatusCheck("PE-RST-5000");
     cy.get(commonlocators.debugger)
       .should("be.visible")
       .click({ force: true });
@@ -187,7 +187,14 @@ describe("Rest Bugs tests", function() {
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
       .then(($text) => {
-        expect($text).to.eq("Execution failed with status 404 NOT_FOUND");
+        expect($text).to.eq("API execution error");
+      });
+    cy.get(commonlocators.debuggerToggle).click();
+    cy.wait(1000);
+    cy.get(commonlocators.debuggerDownStreamErrCode)
+      .invoke("text")
+      .then(($text) => {
+        expect($text).to.eq("[404 NOT_FOUND]");
       });
   });
 

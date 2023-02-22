@@ -117,11 +117,11 @@ public class TenantServiceTest {
                 .verifyComplete();
 
         // Verify getTenantConfiguration() has license details after setting a valid license
-        StepVerifier.create(tenantService.getTenantConfiguration())
+        StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
-                    assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey));
+                    assertThat(savedLicense.getKey()).isEqualTo(licenseKey);
                     assertThat(savedLicense.getActive()).isTrue();
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());

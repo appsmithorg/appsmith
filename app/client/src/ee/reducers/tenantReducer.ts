@@ -23,13 +23,16 @@ export interface License {
   status: string;
   expiry: number;
   showBEBanner: boolean;
-  closedBannerAlready: boolean;
   invalidLicenseKeyError: boolean;
   validatingLicense: boolean;
   origin?: string;
+  showLicenseModal: boolean;
 }
 
 const INITIAL_BRAND_COLOR = "#000";
+
+const showLicenseBanner = localStorage.getItem("showLicenseBanner");
+const parsed = showLicenseBanner !== null && JSON.parse(showLicenseBanner);
 
 export const initialState: TenantReduxState<any> = {
   ...CE_InitialState,
@@ -40,6 +43,7 @@ export const initialState: TenantReduxState<any> = {
     },
     ...cachedTenantConfigParsed,
     license: {
+      showBEBanner: parsed,
       validatingLicense: false,
     },
   },
@@ -57,11 +61,8 @@ export const handlers = {
       ...state.tenantConfiguration,
       ...action.payload.tenantConfiguration,
       license: {
+        showBEBanner: parsed,
         ...action.payload.tenantConfiguration?.license,
-        showBEBanner:
-          action.payload.tenantConfiguration?.license?.type === "TRIAL",
-        closedBannerAlready:
-          state.tenantConfiguration.license?.closedBannerAlready ?? false,
       },
     },
     isLoading: false,
@@ -87,12 +88,6 @@ export const handlers = {
       ...state.tenantConfiguration,
       license: {
         ...action.payload.tenantConfiguration?.license,
-        showBEBanner:
-          action.payload.tenantConfiguration?.license.type === "TRIAL"
-            ? true
-            : false,
-        closedBannerAlready:
-          state.tenantConfiguration.license?.closedBannerAlready ?? false,
         invalidLicenseKeyError: false,
         validatingLicense: false,
       },
@@ -130,7 +125,58 @@ export const handlers = {
       license: {
         ...state.tenantConfiguration.license,
         showBEBanner: action.payload,
-        closedBannerAlready: true,
+      },
+    },
+  }),
+  [ReduxActionTypes.SHOW_LICENSE_MODAL]: (
+    state: TenantReduxState<License>,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        showLicenseModal: action.payload,
+        invalidLicenseKeyError: !action.payload && false,
+      },
+    },
+  }),
+  [ReduxActionTypes.FORCE_LICENSE_CHECK_INIT]: (
+    state: TenantReduxState<License>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        validatingLicense: true,
+      },
+    },
+  }),
+  [ReduxActionTypes.FORCE_LICENSE_CHECK_SUCCESS]: (
+    state: TenantReduxState<License>,
+    action: ReduxAction<TenantReduxState<License>>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        ...action.payload.tenantConfiguration?.license,
+        validatingLicense: false,
+      },
+    },
+  }),
+  [ReduxActionErrorTypes.FORCE_LICENSE_CHECK_ERROR]: (
+    state: TenantReduxState<License>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        validatingLicense: false,
       },
     },
   }),

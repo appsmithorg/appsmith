@@ -303,6 +303,7 @@ class ListWidget extends BaseWidget<
       data: listData,
       itemSpacing: this.props.itemSpacing || 0,
       infiniteScroll: this.props.infiniteScroll ?? false,
+      level: this.props.level ?? 1,
       levelData: this.props.levelData,
       nestedViewIndex: this.props.nestedViewIndex,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,

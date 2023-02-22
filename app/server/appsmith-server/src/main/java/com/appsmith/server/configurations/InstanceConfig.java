@@ -53,10 +53,6 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        // On startup, check the license key
-        // TODO update license for all tenants after multi-tenancy is introduced
-        licenseValidator.check();
-
         Mono<Void> registrationAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(registerInstance())

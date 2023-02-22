@@ -12,12 +12,12 @@ import {
   ADD_KEY,
   createMessage,
   GET_STARTED_MESSAGE,
-  GET_TRIAL_LICENSE,
   LICENSE_KEY_CTA_LABEL,
   LICENSE_KEY_FORM_INPUT_LABEL,
   NO_ACTIVE_SUBSCRIPTION,
   LICENSE_ERROR_TITLE,
   LICENSE_ERROR_DESCRIPTION,
+  VISIT_CUSTOMER_PORTAL,
 } from "@appsmith/constants/messages";
 import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
 import {
@@ -70,13 +70,22 @@ function LicenseCheckPage() {
               src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
               width="180"
             />
-            <Text type={TextType.H1} weight="600">
+            <Text
+              data-testid="t--no-active-subscription-text"
+              type={TextType.H1}
+              weight="600"
+            >
               {createMessage(NO_ACTIVE_SUBSCRIPTION)}
             </Text>
-            <Text type={TextType.P1}>{createMessage(GET_STARTED_MESSAGE)}</Text>
+            <Text
+              data-testid="t--choose-one-option-license-text"
+              type={TextType.P1}
+            >
+              {createMessage(GET_STARTED_MESSAGE)}
+            </Text>
           </StyledBannerWrapper>
-          <StyledCardWrapper>
-            <StyledCard>
+          <StyledCardWrapper data-testid="t--license-check-card-wrapper">
+            <StyledCard data-testid="t--license-check-form-card">
               <IconBadge>
                 <Icon name="key-2-line" size={IconSize.XXXXL} />
               </IconBadge>
@@ -86,21 +95,22 @@ function LicenseCheckPage() {
                 placeholder={createMessage(ADD_KEY)}
               />
             </StyledCard>
-            <StyledCard noField>
+            <StyledCard data-testid="t--get-trial-license-card-wrapper" noField>
               <IconBadge>
                 <Icon name="arrow-up-line" size={IconSize.XXXXL} />
               </IconBadge>
-              <StyledContent>
+              <StyledContent data-testid="t--get-license-key-label">
                 {createMessage(LICENSE_KEY_CTA_LABEL)}
               </StyledContent>
               <StyledButton
                 category={Category.secondary}
+                data-testid="t--customer-portal-cta"
                 icon="share-2"
                 iconPosition="left"
                 onClick={goToCustomerPortal}
                 size={Size.large}
                 tag="button"
-                text={createMessage(GET_TRIAL_LICENSE)}
+                text={createMessage(VISIT_CUSTOMER_PORTAL)}
                 type="button"
               />
             </StyledCard>

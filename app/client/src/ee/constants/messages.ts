@@ -118,11 +118,11 @@ export const LICENSE_KEY_FORM_INPUT_LABEL = () =>
 export const LICENSE_KEY_CTA_LABEL = () =>
   "If you do not have a license key, please visit our customer portal to start trial or buy a subscription";
 export const TRIAL_EXPIRY_WARNING = (gracePeriod: number, suffix: string) =>
-  `Your trial will expire in <span>${gracePeriod}</span> ${suffix}.`;
+  `Your trial will expire in <span>${gracePeriod}</span> ${suffix}. `;
 export const CONTINUE_USING_FEATURES = () =>
-  `to continue using all the features.`;
+  `to continue using Appsmith Business. `;
 export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
-  `Please contact your administrator to upgrade and continue using all the features.`;
+  `Please contact your administrator to upgrade and continue using Appsmith Business. `;
 export const TOTAL_USERS_MESSAGE = () => `Total Users`;
 export const NUMBER_OF_SELF_HOSTED_USERS = () =>
   ` Number of users on the self-hosted instance`;
@@ -153,3 +153,15 @@ export const UPDATE = () => "UPDATE";
 export const LICENSE_ERROR_TITLE = () => `No Active Subscription`;
 export const LICENSE_ERROR_DESCRIPTION = () =>
   `You currently do not have an Active Subscription. Please contact your instance administrator to activate the instance.`;
+export const VISIT_CUSTOMER_PORTAL = () => `VISIT CUSTOMER PORTAL`;
+export const LICENSE_UPDATED_SUCCESSFULLY = () =>
+  `Your license has been updated successfully`;
+export const NOT_AVAILABLE = () => `Not Available`;
+export const ACTIVE = () => `Active`;
+export const TRIAL = () => `Trial`;
+export const PORTAL = () => `Portal`;
+export const LICENSE_KEY = () => `License Key`;
+export const ALREADY_UPGRADED = () => `Already upgraded?`;
+
+// Welcome form EE
+export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";

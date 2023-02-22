@@ -81,7 +81,7 @@ server {
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
   proxy_set_header X-Forwarded-Host \$origin_host;
 
-  client_max_body_size 100m;
+  client_max_body_size 150m;
 
   gzip on;
   gzip_types *;

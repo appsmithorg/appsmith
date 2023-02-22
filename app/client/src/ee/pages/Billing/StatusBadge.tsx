@@ -23,32 +23,17 @@ export function getStatusColor(status: Status) {
   switch (status) {
     case Status.ACTIVE:
       return {
-        background: Colors.GREEN_3,
+        background: Colors.LIGHT_GREEN_CYAN,
         text: Colors.GREEN,
       };
-    case Status.INACTIVE:
+    case Status.TRIAL:
       return {
-        background: Colors.GREEN_3,
-        text: Colors.GREEN,
-      };
-    case Status.PENDING:
-      return {
-        background: Colors.GREEN_3,
-        text: Colors.GREEN,
-      };
-    case Status.EXPIRED:
-      return {
-        background: Colors.GREEN_3,
-        text: Colors.GREEN,
-      };
-    case Status.ACTIVE:
-      return {
-        background: Colors.GREEN_3,
+        background: Colors.LIGHT_GREEN_CYAN,
         text: Colors.GREEN,
       };
     default:
       return {
-        background: Colors.GREEN_3,
+        background: Colors.LIGHT_GREEN_CYAN,
         text: Colors.GREEN,
       };
   }
@@ -65,10 +50,13 @@ export const StatusBadgeContainer = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
+  padding: 0px 4px;
   border-radius: 4px;
-  height: 24px;
   background-color: ${(props) => props.background};
+`;
+
+export const StatusText = styled(Text)`
+  font-size: 11px;
 `;
 
 export interface StatusBadgeProps {
@@ -86,9 +74,9 @@ export function StatusBadge(props: StatusBadgeProps) {
       background={statusColors.background}
       className={className}
     >
-      <Text color={statusColors.text} type={TextType.P3} weight="600">
+      <StatusText color={statusColors.text} type={TextType.P3} weight="600">
         {statusText.toLocaleUpperCase()}
-      </Text>
+      </StatusText>
     </StatusBadgeContainer>
   );
 }

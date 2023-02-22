@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import explorer from "../../../../locators/explorerlocators.json";
 
 const dsl = require("../../../../fixtures/editorContextdsl.json");
 
@@ -23,6 +24,10 @@ describe("Canvas context widget selection", function() {
 
   beforeEach(() => {
     agHelper.RefreshPage();
+    // Deselect all widgets
+    cy.get(`#div-selection-0`).click({
+      force: true,
+    });
   });
 
   it("1. Widget should be selected while switching back and forth between pages", function() {

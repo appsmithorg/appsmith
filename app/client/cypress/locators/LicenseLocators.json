@@ -1,0 +1,10 @@
+{
+  "noSubscriptionText": "[data-testid=t--no-active-subscription-text]",
+  "licenseCheckPageSubHeaderText": "[data-testid=t--choose-one-option-license-text]",
+  "licenseCheckForm": "[data-testid=t--license-check-form-card]",
+  "licenseFormInput": "[data-testid=t--license-input]",
+  "activeInstanceBtn": "[data-testid=t--activate-instance-btn]",
+  "getTrialLicenseCard": "[data-testid=t--get-trial-license-card-wrapper]",
+  "getTrialLicenseLabel": "[data-testid=t--get-license-key-label]",
+  "getTrialLicenseBtn": "[data-testid=t--customer-portal-cta]"
+}

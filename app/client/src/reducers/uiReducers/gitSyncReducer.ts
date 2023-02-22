@@ -509,7 +509,7 @@ export type GitStatusData = {
 };
 
 type GitErrorPayloadType = {
-  code: number;
+  code: number | string;
   errorType?: string;
   message: string;
   referenceDoc?: string;

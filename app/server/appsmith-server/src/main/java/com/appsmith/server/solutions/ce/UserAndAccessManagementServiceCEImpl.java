@@ -145,7 +145,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                 // Email template parameters initialization below.
                                 Map<String, String> params = userService.getEmailParams(workspace, currentUser, originHeader, false);
 
-                                return userService.updateTenantLogoInParams(params)
+                                return userService.updateTenantLogoInParams(params, originHeader)
                                         .flatMap(updatedParams ->
                                                 emailSender.sendMail(
                                                         existingUser.getEmail(),

@@ -260,7 +260,7 @@ $(if [[ $use_https == 1 ]]; then echo "
         server_name _;
 "; fi)
 
-        client_max_body_size 100m;
+        client_max_body_size 150m;
         gzip on;
 
         proxy_ssl_server_name on;

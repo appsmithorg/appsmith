@@ -3,7 +3,6 @@ import { Status } from "@appsmith/pages/Billing/StatusBadge";
 import { AppState } from "@appsmith/reducers";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { createSelector } from "reselect";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export const isValidLicense = (state: AppState) => {
   return state.tenant?.tenantConfiguration?.license?.active;
@@ -69,18 +68,14 @@ export const isTrialLicense = (state: AppState) => {
 };
 
 export const isBEBannerVisible = (state: AppState) => {
-  const featureFlags = selectFeatureFlags(state);
-  return featureFlags.USAGE_AND_BILLING
-    ? state.tenant?.tenantConfiguration?.license?.showBEBanner &&
-        !state.tenant?.tenantConfiguration?.license?.closedBannerAlready
-    : false;
+  const value = state.tenant?.tenantConfiguration?.license?.showBEBanner;
+  return value;
 };
 
 export const shouldShowLicenseBanner = (state: AppState) => {
   const trialLicense = isTrialLicense(state);
   const isBEBanner = isBEBannerVisible(state);
-  const featureFlags = selectFeatureFlags(state);
-  return featureFlags.USAGE_AND_BILLING ? !isBEBanner && trialLicense : false;
+  return !isBEBanner && trialLicense;
 };
 
 export const hasInvalidLicenseKeyError = (state: AppState) => {
@@ -110,3 +105,6 @@ export const isLicenseValidating = (state: AppState) =>
 
 export const getLicenseOrigin = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.origin;
+
+export const isLicenseModalOpen = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.showLicenseModal;

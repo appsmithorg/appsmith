@@ -30,7 +30,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -153,21 +152,10 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     }
 
     @Override
-    public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params) {
-        final Mono<String> originMono = Mono.deferContextual(contextView -> {
-                    if (contextView.hasKey(ServerWebExchange.class)) {
-                        return Mono.justOrEmpty(
-                                contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst("Origin")
-                        );
-                    }
-                    return Mono.empty();
-                })
-                .defaultIfEmpty("");
-
-        return Mono.zip(originMono, tenantService.getDefaultTenant())
-                .map(tuple -> {
-                    final String origin = tuple.getT1();
-                    final TenantConfiguration tenantConfiguration = tuple.getT2().getTenantConfiguration();
+    public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin) {
+        return tenantService.getDefaultTenant()
+                .map(tenant -> {
+                    final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     String logoUrl = null;
                     String primaryColor = DEFAULT_PRIMARY_COLOR;
                     String backgroundColor = DEFAULT_BACKGROUND_COLOR;
