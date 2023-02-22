@@ -239,10 +239,9 @@ class ListWidget extends BaseWidget<
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
-      const maxPageNo = Math.max(
-        Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
-        1,
-      );
+      const totalRecords = this.getTotalDataCount();
+
+      const maxPageNo = Math.max(Math.ceil(totalRecords / this.pageSize), 1);
 
       this.onPageChange(maxPageNo);
     }
@@ -530,12 +529,10 @@ class ListWidget extends BaseWidget<
   };
 
   isCurrPageNoGreaterThanMaxPageNo = () => {
-    if (
-      this.props.listData &&
-      !this.props.infiniteScroll &&
-      !this.props.serverSidePagination
-    ) {
-      const maxPageNo = Math.ceil(this.props.listData?.length / this.pageSize);
+    const totalRecords = this.getTotalDataCount();
+
+    if (totalRecords && !this.props.infiniteScroll) {
+      const maxPageNo = Math.ceil(totalRecords / this.pageSize);
 
       return maxPageNo < this.props.pageNo;
     }
@@ -786,7 +783,7 @@ class ListWidget extends BaseWidget<
     this.resetTriggeredItemView();
   };
 
-  getPageCount = () => {
+  getTotalDataCount = () => {
     const defaultValue = 0;
     const { serverSidePagination, totalRecordsCount } = this.props;
 
@@ -953,9 +950,10 @@ class ListWidget extends BaseWidget<
   renderPaginationUI = () => {
     const { isLoading, pageNo, serverSidePagination } = this.props;
     const disableNextPage = this.shouldDisableNextPage();
+    const totalDataCount = this.getTotalDataCount();
     return (
       this.shouldPaginate() &&
-      (serverSidePagination && !this.getPageCount() ? (
+      (serverSidePagination && !totalDataCount ? (
         <ServerSideListPagination
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
@@ -977,7 +975,7 @@ class ListWidget extends BaseWidget<
           onChange={this.onPageChange}
           pageNo={this.props.pageNo}
           pageSize={this.pageSize}
-          total={this.getPageCount()}
+          total={totalDataCount}
         />
       ))
     );

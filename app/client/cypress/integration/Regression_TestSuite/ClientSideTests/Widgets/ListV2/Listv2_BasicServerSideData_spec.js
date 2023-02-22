@@ -211,7 +211,40 @@ describe("List widget v2 - Basic server side data tests", () => {
     });
   });
 
-  it("5. no of items rendered should be equal to page size", () => {
+  it("5. Total Record Count", () => {
+    cy.openPropertyPane("listwidgetv2");
+
+    cy.updateCodeInput(".t--property-control-totalrecords", `{{10}}`);
+
+    // With Page Size of 3 and total record count of 10, we should have total page of 4
+    cy.get(".rc-pagination .rc-pagination-item-1").should("exist");
+    cy.get(".rc-pagination .rc-pagination-item-2").should("exist");
+    cy.get(".rc-pagination .rc-pagination-item-3").should("exist");
+    cy.get(".rc-pagination .rc-pagination-item-4")
+      .should("exist")
+      .click({ force: true });
+
+    cy.wait(2000);
+
+    cy.get(commonlocators.listPaginateActivePage).should("have.text", "4");
+    cy.get(commonlocators.listPaginateNextButtonDisabled).should("exist");
+
+    // When I clear total Record Count the Page Number should remain the same
+    // Although pagination control should only display the active page number
+    cy.testJsontextclear("totalrecords");
+    cy.get(".rc-pagination .rc-pagination-item-1").should("not.exist");
+    cy.get(".rc-pagination .rc-pagination-item-2").should("not.exist");
+    cy.get(".rc-pagination .rc-pagination-item-3").should("not.exist");
+
+    //When I reduce the total record count, it should revert to the next max page number and trigger on page change
+    cy.updateCodeInput(".t--property-control-totalrecords", `{{3}}`);
+
+    cy.wait(200);
+    cy.get(commonlocators.listPaginateActivePage).should("have.text", "1");
+    cy.get(commonlocators.toastmsg).should("exist");
+  });
+
+  it("6. no of items rendered should be equal to page size", () => {
     cy.NavigateToDatasourceEditor();
 
     // Click on sample(mock) user database.
