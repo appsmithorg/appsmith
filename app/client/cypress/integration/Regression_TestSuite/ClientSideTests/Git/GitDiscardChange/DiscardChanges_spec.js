@@ -177,13 +177,10 @@ describe("Git discard changes:", function() {
 
   it("5. Delete Query1 and trigger discard flow, Query1 will be recovered", () => {
     // navigate to Page1
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-item:contains("Page1")`)
-      .first()
-      .click();
-    cy.wait("@getPage");
+    _.ee.SelectEntityByName("Page1", "Pages");
     // delete query1
-    cy.deleteQueryOrJS(query1);
+    _.ee.SelectEntityByName(query1, "Queries/JS");
+    _.ee.ActionContextMenuByEntityName(query1, "Delete");
     // verify Query1 is deleted
     cy.get(`.t--entity-name:contains(${query1})`).should("not.exist");
     // discard changes

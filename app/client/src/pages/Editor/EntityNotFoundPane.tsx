@@ -20,17 +20,20 @@ const Wrapper = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
+
   .page-details {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 450px;
   }
+
   .bold-text {
     font-weight: ${(props) => props.theme.fontWeights[3]};
     font-size: 24px;
     margin-top: 20px;
   }
+
   .page-message {
     margin-top: 14px;
     color: #716e6e;
@@ -38,9 +41,11 @@ const Wrapper = styled.div`
     line-height: 17px;
     letter-spacing: 0.733333px;
   }
+
   .page-unavailable-img {
     width: 72px;
   }
+
   .button-position {
     margin-top: 14px;
   }
@@ -62,6 +67,10 @@ function EntityNotFoundPane(props: Props) {
       <div className="page-details">
         <p className="bold-text">{createMessage(INVALID_URL_ERROR)}</p>
         <p className="page-message">{createMessage(PAGE_NOT_FOUND_ERROR)}</p>
+        <p>Pathname: {history.location.pathname}</p>
+        <p>Search: {history.location.search}</p>
+        <p>Hash: {history.location.hash}</p>
+        <p>Action: {history.action}</p>
         <Button
           category={Category.secondary}
           className="button-position"
