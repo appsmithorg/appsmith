@@ -52,6 +52,7 @@ import {
   TableWidgetProps,
   TABLE_COLUMN_ORDER_KEY,
   TransientDataPayload,
+  DEFAULT_COLUMN_NAME,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
@@ -223,7 +224,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         const columnData = {
           id: column.id,
-          Header: column.label,
+          Header:
+            column.hasOwnProperty("label") && typeof column.label === "string"
+              ? column.label
+              : DEFAULT_COLUMN_NAME,
           alias: column.alias,
           accessor: (row: any) => row[column.alias],
           width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
