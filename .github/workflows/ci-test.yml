@@ -171,6 +171,7 @@ jobs:
       - name: Download the oldstack
         uses: actions/checkout@v3
         with:
+          ref: main
           repository: appsmithorg/ci-oldstack
           token: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           submodules: 'recursive'
