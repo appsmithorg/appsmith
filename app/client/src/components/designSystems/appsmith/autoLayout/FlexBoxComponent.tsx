@@ -51,8 +51,6 @@ export const FlexContainer = styled.div<{
   width: 100%;
   height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
 
-  overflow: hidden;
-
   padding: ${({ leaveSpaceForWidgetName }) =>
     leaveSpaceForWidgetName
       ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px 22px ${FLEXBOX_PADDING}px;`

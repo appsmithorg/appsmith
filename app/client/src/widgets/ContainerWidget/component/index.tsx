@@ -26,7 +26,8 @@ const StyledContainerComponent = styled.div<
 >`
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow-y: hidden;
+  
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
 
   ${(props) => (props.shouldScrollContents ? scrollCSS : ``)}
@@ -135,7 +136,9 @@ function ContainerComponentWrapper(
       backgroundColor={props.backgroundColor}
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
-      } ${generateClassName(props.widgetId)} container-with-scrollbar ${
+      } ${generateClassName(
+        props.widgetId,
+      )} hidden-scrollbar container-with-scrollbar ${
         appPositioningType === AppPositioningTypes.AUTO &&
         props.widgetId === MAIN_CONTAINER_WIDGET_ID
           ? "auto-layout"
