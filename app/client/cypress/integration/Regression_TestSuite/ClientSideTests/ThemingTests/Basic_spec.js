@@ -938,7 +938,7 @@ describe("App Theming funtionality", function() {
     //the new widget with reverted styles also conforming to theme
     cy.PublishtheApp();
 
-    cy.wait(2000); //for theme to settle
+    cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Montserrat"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
@@ -1186,7 +1186,7 @@ describe("App Theming funtionality", function() {
     //the new widget with reverted styles also conforming to theme
     cy.PublishtheApp();
 
-    cy.wait(2000); //for theme to settle
+    cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Rubik"); //Font for Rounded theme
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
