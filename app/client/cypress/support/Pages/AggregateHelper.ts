@@ -827,7 +827,7 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
-      .type(this.selectAll)
+      //.type(this.selectAll)
       .type(value, { delay: 1 });
     // .type(selectAllJSObjectContentShortcut)
     // .then((ins: any) => {

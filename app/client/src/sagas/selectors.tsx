@@ -23,6 +23,10 @@ export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
 
+export const getWidgetsByName = createSelector(getWidgets, (widgets) => {
+  return _.keyBy(widgets, "widgetName");
+});
+
 export const getWidgetsForEval = createSelector(getWidgets, (widgets) => {
   const widgetForEval: CanvasWidgetsReduxState = {};
   for (const key of Object.keys(widgets)) {
