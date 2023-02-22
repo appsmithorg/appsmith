@@ -329,6 +329,31 @@ const jsActionsReducer = createReducer(initialState, {
       }
       return a;
     }),
+
+  [ReduxActionTypes.EXECUTE_JS_FUNCTION_CANCELLED]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      collectionId: string;
+      actionId: string;
+      isDirty: boolean;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.collectionId) {
+        return {
+          ...a,
+          isExecuting: {
+            ...a.isExecuting,
+            [action.payload.actionId]: false,
+          },
+          isDirty: {
+            ...a.isDirty,
+            [action.payload.actionId]: action.payload.isDirty,
+          },
+        };
+      }
+      return a;
+    }),
   [ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA]: (
     state: JSCollectionDataState,
     action: ReduxAction<BatchedJSExecutionData>,

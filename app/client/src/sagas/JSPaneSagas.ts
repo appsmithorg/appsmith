@@ -376,6 +376,14 @@ export function* handleExecuteJSFunctionSaga(data: {
     );
 
     if (result === "cancelled") {
+      yield put({
+        type: ReduxActionTypes.EXECUTE_JS_FUNCTION_CANCELLED,
+        payload: {
+          collectionId,
+          actionId,
+          isDirty,
+        },
+      });
       return;
     }
 

@@ -112,6 +112,7 @@ export function* confirmBeforeExecutingJsFunction(message: any) {
     requestModalConfirmationSaga,
     modalPayload,
   );
+
   if (!confirmed) {
     yield put({
       type: ReduxActionTypes.RUN_ACTION_CANCELLED,

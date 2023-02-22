@@ -277,9 +277,11 @@ export const updateActionProperty = (
   });
 };
 
-export const executePageLoadActions = (): ReduxActionWithoutPayload => ({
-  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-});
+export const executePageLoadActions = (): ReduxActionWithoutPayload => {
+  return {
+    type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+  };
+};
 
 export const setActionsToExecuteOnPageLoad = (
   actions: Array<{
