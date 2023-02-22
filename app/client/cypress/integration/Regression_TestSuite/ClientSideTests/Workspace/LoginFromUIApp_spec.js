@@ -9,7 +9,7 @@ describe("Login from UI and check the functionality", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appname);
     cy.get("#loading").should("not.exist");
-    cy.wait(30000);
+    cy.wait(5000);
     cy.generateUUID().then((uid) => {
       pageid = uid;
       cy.Createpage(pageid);
@@ -30,13 +30,9 @@ describe("Login from UI and check the functionality", function() {
     cy.DeleteApp(appname);
     cy.wait("@deleteApplication");
     cy.get("@deleteApplication").should("have.property", "status", 200);
-  });
-
-  it("Login/Logout click Appsmith logo should route to login page", function() {
+    // login/Logout click Appsmith logo should route to login page
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
   });
 });

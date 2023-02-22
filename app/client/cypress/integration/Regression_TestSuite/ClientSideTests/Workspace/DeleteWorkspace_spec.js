@@ -6,7 +6,7 @@ let HomePage = ObjectsRegistry.HomePage;
 describe("Delete workspace test spec", function() {
   let newWorkspaceName;
 
-  it("should delete the workspace", function() {
+  it("1. Should delete the workspace", function() {
     cy.visit("/applications");
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -22,7 +22,7 @@ describe("Delete workspace test spec", function() {
     });
   });
 
-  it("should show option to delete workspace for an admin user", function() {
+  it("2. Should show option to delete workspace for an admin user", function() {
     cy.visit("/applications");
     cy.wait(2000);
     cy.createWorkspace();

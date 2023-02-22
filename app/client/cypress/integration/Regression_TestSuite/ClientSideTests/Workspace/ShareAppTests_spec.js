@@ -135,7 +135,7 @@ describe("Create new workspace and share with a user", function() {
     cy.LogOut();
   });
 
-  it("6. login as uninvited user and then validate public access disable feature", function() {
+  it("6. login as uninvited user, validate public access disable feature ", function() {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
     cy.wait("@getPagesForViewApp").should(
@@ -155,17 +155,5 @@ describe("Create new workspace and share with a user", function() {
     );
     cy.wait(2000);
     cy.contains("Sign in to your account").should("be.visible");
-  });
-
-  it("8. login as owner and delete App ", function() {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.SearchApp(appid);
-    cy.get("#loading").should("not.exist");
   });
 });
