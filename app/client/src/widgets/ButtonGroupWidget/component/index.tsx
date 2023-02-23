@@ -99,6 +99,10 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
         ? `0px ${borderRadius} ${borderRadius} 0`
         : `0px 0px ${borderRadius} ${borderRadius}`};
   }
+
+  .auto-layout & {
+    // flex-wrap: wrap;
+  }
 `;
 
 const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
@@ -180,6 +184,11 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   justify-content: stretch;
   align-items: center;
   padding: 0px 10px;
+
+  .auto-layout & {
+    min-height: 32px;
+    min-width: 120px;
+  }
 
   &:hover,
   &:active,

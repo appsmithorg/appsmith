@@ -6,7 +6,7 @@ import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
-import Widget from "./widget";
+import Widget, { ButtonGroupWidgetProps } from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -141,6 +141,24 @@ export const CONFIG = {
         },
       ],
     },
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: (props: ButtonGroupWidgetProps) => {
+          let minWidth = 128;
+          const buttonLength = Object.keys(props.groupButtons).length;
+          if (props.orientation === "horizontal") {
+            // 120 is the width of the button, 8 is widget padding, 1 is the gap between buttons
+            minWidth = 120 * buttonLength + 8 + (buttonLength - 1) * 1;
+          }
+          return {
+            minWidth: `${minWidth}px`,
+          };
+        },
+      },
+    ],
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
