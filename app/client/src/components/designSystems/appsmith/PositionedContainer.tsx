@@ -5,7 +5,6 @@ import {
   CSSUnits,
   PositionTypes,
   WidgetType,
-  widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
@@ -22,6 +21,7 @@ import {
 } from "selectors/widgetReflowSelectors";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
 
 const PositionedWidget = styled.div<{
   zIndexOnHover: number;
