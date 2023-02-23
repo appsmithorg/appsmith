@@ -295,10 +295,6 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      // Remove below code
-      if (isJSCollection) {
-        updateJSCollectionStateFromContext();
-      }
       JSVariableUpdates.enable();
 
       for (const entityName in evalContext) {
