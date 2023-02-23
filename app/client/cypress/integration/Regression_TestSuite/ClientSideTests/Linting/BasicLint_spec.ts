@@ -73,7 +73,7 @@ describe("Linting", () => {
       }()}}`,
     );
 
-    propPane.UpdatePropertyFieldValue("Tooltip", "{{Api1.name}}");
+    propPane.UpdatePropertyFieldValue("Tooltip", "{{Api1.config.httpMethod}}");
     clickButtonAndAssertLintError(true);
 
     // create Api1
@@ -191,7 +191,7 @@ describe("Linting", () => {
       }
     }()}}`,
     );
-    propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.name}}`);
+    propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.ENTITY_TYPE}}`);
     clickButtonAndAssertLintError(true);
 
     createMySQLDatasourceQuery();
@@ -238,7 +238,7 @@ describe("Linting", () => {
     );
     propPane.UpdatePropertyFieldValue(
       "Tooltip",
-      `{{Api1.name + JSObject1.myVar1 + Query1.name}}`,
+      `{{Api1.config.httpMethod + JSObject1.myVar1 + Query1.ENTITY_TYPE}}`,
     );
 
     clickButtonAndAssertLintError(false);
