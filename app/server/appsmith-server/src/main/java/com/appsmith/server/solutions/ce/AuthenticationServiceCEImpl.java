@@ -8,7 +8,7 @@ import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.TokenResponse;
+import com.appsmith.external.models.OAuthResponseDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.configurations.CloudServicesConfig;
@@ -86,6 +86,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
     private final PagePermission pagePermission;
+    private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+    private static final String ACCESS_TOKEN_KEY = "access_token";
 
     /**
      * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
@@ -386,7 +388,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 }));
     }
 
-    public Mono<TokenResponse> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
+    public Mono<OAuthResponseDTO> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
         // Check if user has access to manage datasource
         // If yes, check if datasource is in intermediate state
         // If yes, request for token and store in datasource
@@ -438,17 +440,17 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     }
                                 }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                String accessToken = new String("");
-                                if (oAuth2.getScope() != null && oAuth2.getScope().contains("https://www.googleapis.com/auth/drive.file")) {
-                                    accessToken = (String) tokenResponse.get("access_token");
+                                String accessToken = "";
+                                if (oAuth2.getScope() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                    accessToken = (String) tokenResponse.get(ACCESS_TOKEN_KEY);
                                 }
-                                return Mono.just(datasource).zipWith(Mono.just(accessToken));
+                                return Mono.zip(Mono.just(datasource), Mono.just(accessToken));
                             });
                 })
                 .flatMap(tuple -> {
                     Datasource datasource = tuple.getT1();
                     String accessToken = tuple.getT2();
-                    TokenResponse response = new TokenResponse();
+                    OAuthResponseDTO response = new OAuthResponseDTO();
                     response.setDatasource(datasource);
                     response.setToken(accessToken);
                     return datasourceService.update(datasource.getId(), datasource).thenReturn(response);

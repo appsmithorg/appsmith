@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.TokenResponse;
+import com.appsmith.external.models.OAuthResponseDTO;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import reactor.core.publisher.Mono;
@@ -31,7 +31,7 @@ public interface AuthenticationServiceCE {
 
     Mono<String> getAppsmithToken(String datasourceId, String pageId, String branchName, ServerHttpRequest request, String importForGit);
 
-    Mono<TokenResponse> getAccessTokenFromCloud(String datasourceId, String appsmithToken);
+    Mono<OAuthResponseDTO> getAccessTokenFromCloud(String datasourceId, String appsmithToken);
 
     Mono<Datasource> refreshAuthentication(Datasource datasource);
 
