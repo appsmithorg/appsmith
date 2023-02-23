@@ -210,7 +210,7 @@ describe("Git import flow ", function() {
     cy.wait(2000);
     cy.latestDeployPreview();
     _.table.ReadTableRowColumnData(0, 1).then(($text) => {
-      expect($text).to.eq("Test user 7New Config");
+      expect($text).to.eq("New Config");
     }); //Checking both tables
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
@@ -221,7 +221,7 @@ describe("Git import flow ", function() {
       .contains("Page1")
       .click({ force: true });
     _.table.ReadTableRowColumnData(0, 1).then(($text) => {
-      expect($text).to.eq("Test user 7New Config");
+      expect($text).to.eq("New Config");
     }); //Checking both tables
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
