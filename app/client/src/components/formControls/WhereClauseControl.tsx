@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import FormControl from "pages/Editor/FormControl";
 import { Icon, IconSize } from "design-system-old";
 import styled from "styled-components";
@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 import { WhereClauseSubComponent } from "./utils";
 import { TooltipComponent as Tooltip } from "design-system-old";
+import useResponsiveBreakpoints from "utils/hooks/useResizeObserver";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
@@ -56,16 +57,23 @@ const logicalFieldConfig: any = {
   initialValue: "EQ",
 };
 
-const LogicalFieldValue: any = styled.p<{ width: string | undefined }>`
+const LogicalFieldValue: any = styled.p<{
+  width: string | undefined;
+  size: string;
+}>`
   ${(props) => (props.width ? "width: " + props.width + ";" : "")}
-  height: 38px;
-  line-height: 36px;
   margin: 4px 0px;
   border: solid 1.2px transparent;
   text-align: right;
   color: var(--appsmith-color-black-400);
   font-size: 14px;
   flex-shrink: 0;
+
+  ${(props) =>
+    props.size === "small" &&
+    `
+    text-align: left;
+  `}
 `;
 
 // Component for the delete Icon
@@ -74,8 +82,6 @@ const CenteredIcon = styled(Icon)<{
   top?: string;
 }>`
   position: relative;
-  margin-left: 4px;
-  margin-right: 8px;
   align-self: ${(props) => (props.alignSelf ? props.alignSelf : "center")};
   top: ${(props) => (props.top ? props.top : "0px")};
   &.hide {
@@ -85,39 +91,73 @@ const CenteredIcon = styled(Icon)<{
 `;
 
 // Wrapper inside the main box, contains the dropdown and ConditionWrapper
-const SecondaryBox = styled.div<{ showBorder: boolean }>`
+const SecondaryBox = styled.div<{ showBorder: boolean; size: string }>`
   display: flex;
   flex-direction: column;
   position: relative;
   border: solid 1.2px #e0dede;
-  width: max-content;
   border-width: ${(props) => (props?.showBorder ? "1.2px" : "0px")};
   margin: ${(props) => (props?.showBorder ? "0px 8px" : "0px")};
   padding: ${(props) => (props?.showBorder ? "8px" : "0px")};
   padding-bottom: 24px;
+
+  ${(props) =>
+    props.size === "small" &&
+    `
+    width: 100%;
+  `}
 `;
 
 // Wrapper to contain either a ConditionComponent or ConditionBlock
-const ConditionWrapper = styled.div`
+const ConditionWrapper = styled.div<{ size: string }>`
   display: flex;
   flex-direction: row;
+  align-items: center;
   width: 100%;
   justify-content: space-between;
+  gap: 8px;
+
+  ${(props) =>
+    props.size === "small" &&
+    `
+    gap: 0px;
+    flex-direction: column;
+    align-items: start;
+  `}
 `;
 
 // Wrapper to contain a single condition statement
-const ConditionBox = styled.div`
-  display: flex;
-  flex-direction: row;
+const ConditionBox = styled.div<{ size?: string }>`
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  grid-column-gap: 8px;
+  grid-row-gap: 8px;
   width: 100%;
   margin: 4px 0px;
+
   :first-child {
     margin-top: 0px;
   }
+
+  ${(props) =>
+    props.size === "small" &&
+    `
+    grid-template-columns: repeat(2, max-content);
+    grid-template-rows: repeat(3, max-content);
+
+    & :not(:nth-child(4)) {
+      grid-column-start: 1;
+    }
+  
+    & :nth-child(4) {
+      grid-column-start: 2;
+      grid-row-start: 2;
+    }
+  `}
 `;
 
 // Box containing the action buttons to add more filters
-const ActionBox = styled.div<{ marginLeft: string }>`
+const ActionBox = styled.div`
   display: flex;
   margin-top: 16px;
   flex-direction: row;
@@ -128,7 +168,6 @@ const ActionBox = styled.div<{ marginLeft: string }>`
   text-transform: uppercase;
   background-color: inherit;
   bottom: 0px;
-  margin-left: ${(props) => props.marginLeft};
 `;
 
 // The final button to add more filters/ filter groups
@@ -143,6 +182,12 @@ const AddMoreAction = styled.div<{ isDisabled?: boolean }>`
   margin-right: 20px;
   color: ${(props) =>
     props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
+`;
+
+const GroupConditionBox = styled.div`
+  display: flex;
+  flex-direction: row;
+  margin: 8px 0px;
 `;
 
 const StyledTooltip = styled(Tooltip)`
@@ -183,15 +228,11 @@ function ConditionComponent(props: any, index: number) {
   ] / 2}px`;
 
   return (
-    <ConditionBox key={index}>
+    <ConditionBox key={index} size={props.size}>
       {/* Component to input the LHS for single condition */}
       <FormControl
         config={{
           ...keyFieldConfig,
-          customStyles: {
-            width: `calc(${flexWidth})`,
-            margin: "0 8px",
-          },
           configProperty: keyPath,
         }}
         formName={props.formName}
@@ -200,10 +241,6 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...conditionFieldConfig,
-          customStyles: {
-            width: `${OperatorDropdownWidth}px`,
-            margin: "0 8px",
-          },
           configProperty: conditionPath,
           options: props.comparisonTypes,
           initialValue: props.comparisonTypes[0].value,
@@ -214,10 +251,6 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...valueFieldConfig,
-          customStyles: {
-            width: `calc(${flexWidth})`,
-            margin: "0 8px",
-          },
           configProperty: valuePath,
         }}
         formName={props.formName}
@@ -239,6 +272,8 @@ function ConditionComponent(props: any, index: number) {
 
 // This is the block which contains an operator and multiple conditions/ condition blocks
 function ConditionBlock(props: any) {
+  const targetRef = useRef<HTMLDivElement>(null);
+  const size = useResponsiveBreakpoints(targetRef, [{ small: 776 }]);
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
@@ -278,17 +313,19 @@ function ConditionBlock(props: any) {
   return (
     <SecondaryBox
       className={`t--${props?.configProperty}`}
+      ref={targetRef}
       showBorder={props.currentNestingLevel >= 1}
+      size={size}
     >
       {props.fields &&
         props.fields.length > 0 &&
         props.fields.map((field: any, index: number) => {
           const fieldValue: whereClauseValueType = props.fields.get(index);
           return (
-            <ConditionWrapper key={`where-${index}`}>
+            <ConditionWrapper key={`where-${index}`} size={size}>
               {/* Component to render the joining operator between multiple conditions */}
               {index == 0 ? (
-                <LogicalFieldValue width={`${DropdownWidth}px`}>
+                <LogicalFieldValue size={size} width={`${DropdownWidth}px`}>
                   Where
                 </LogicalFieldValue>
               ) : index == 1 ? (
@@ -307,12 +344,12 @@ function ConditionBlock(props: any) {
                   formName={props.formName}
                 />
               ) : (
-                <LogicalFieldValue width={`${DropdownWidth}px`}>
+                <LogicalFieldValue size={size} width={`${DropdownWidth}px`}>
                   {logicalFieldValue}
                 </LogicalFieldValue>
               )}
               {!!fieldValue && "children" in fieldValue ? (
-                <ConditionBox>
+                <GroupConditionBox className="GroupCondition">
                   <FieldArray
                     component={ConditionBlock}
                     key={`${field}.children`}
@@ -341,7 +378,7 @@ function ConditionBlock(props: any) {
                     size={IconSize.SMALL}
                     top={"24px"}
                   />
-                </ConditionBox>
+                </GroupConditionBox>
               ) : (
                 ConditionComponent(
                   {
@@ -351,6 +388,7 @@ function ConditionBlock(props: any) {
                     comparisonTypes: props.comparisonTypes,
                     maxWidth: props.maxWidth,
                     currentNestingLevel: props.currentNestingLevel,
+                    size,
                   },
                   index,
                 )
@@ -359,7 +397,7 @@ function ConditionBlock(props: any) {
           );
         })}
 
-      <ActionBox marginLeft={`${DropdownWidth + Margin}px`}>
+      <ActionBox>
         <AddMoreAction
           className={`t--where-add-condition[${props?.currentNestingLevel}]`}
           onClick={
