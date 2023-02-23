@@ -880,3 +880,9 @@ export const scrollCSS = css`
     background: transparent !important;
   }
 `;
+
+export const widgetTypeClassname = (widgetType: string): string =>
+  `t--widget-${widgetType
+    .split("_")
+    .join("")
+    .toLowerCase()}`;

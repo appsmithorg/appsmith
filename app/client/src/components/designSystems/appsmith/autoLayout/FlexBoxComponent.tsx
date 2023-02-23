@@ -1,11 +1,9 @@
 import { isArray } from "lodash";
-import React, { ReactNode } from "react";
-import styled from "styled-components";
+import React, { CSSProperties, ReactNode, useMemo } from "react";
 
 import {
   FlexLayerAlignment,
   LayoutDirection,
-  Overflow,
 } from "utils/autoLayout/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
@@ -25,39 +23,11 @@ export interface FlexBoxProps {
   useAutoLayout: boolean;
   children?: ReactNode;
   widgetId: string;
-  overflow: Overflow;
   flexLayers: FlexLayer[];
   isMobile?: boolean;
 }
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
-
-export const FlexContainer = styled.div<{
-  useAutoLayout?: boolean;
-  direction?: LayoutDirection;
-  stretchHeight: boolean;
-  overflow: Overflow;
-  leaveSpaceForWidgetName: boolean;
-  isMobile?: boolean;
-}>`
-  display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
-  flex-direction: ${({ direction }) =>
-    direction === LayoutDirection.Vertical ? "column" : "row"};
-  justify-content: flex-start;
-  align-items: flex-start;
-  flex-wrap: ${({ overflow }) =>
-    overflow?.indexOf("wrap") > -1 ? overflow : "nowrap"};
-
-  width: 100%;
-  height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
-
-  overflow: hidden;
-
-  padding: ${({ leaveSpaceForWidgetName }) =>
-    leaveSpaceForWidgetName
-      ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px 22px ${FLEXBOX_PADDING}px;`
-      : "0px;"};
-`;
 
 function FlexBoxComponent(props: FlexBoxProps) {
   const direction: LayoutDirection =
@@ -143,18 +113,32 @@ function FlexBoxComponent(props: FlexBoxProps) {
     );
   }
 
+  const flexBoxStyle: CSSProperties = useMemo(() => {
+    return {
+      display: !!props.useAutoLayout ? "flex" : "block",
+      flexDirection:
+        props.direction === LayoutDirection.Vertical ? "column" : "row",
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+      flexWrap: "nowrap",
+      width: "100%",
+      height: props.stretchHeight ? "100%" : "auto",
+      overflow: "hidden",
+      padding: leaveSpaceForWidgetName
+        ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px 22px ${FLEXBOX_PADDING}px`
+        : "0px",
+    };
+  }, [
+    props.useAutoLayout,
+    props.direction,
+    props.stretchHeight,
+    leaveSpaceForWidgetName,
+  ]);
+
   return (
-    <FlexContainer
-      className={`flex-container-${props.widgetId}`}
-      direction={direction}
-      isMobile={isMobile}
-      leaveSpaceForWidgetName={leaveSpaceForWidgetName}
-      overflow={props.overflow}
-      stretchHeight={props.stretchHeight}
-      useAutoLayout={props.useAutoLayout}
-    >
-      <>{renderChildren()}</>
-    </FlexContainer>
+    <div className={`flex-container-${props.widgetId}`} style={flexBoxStyle}>
+      {renderChildren()}
+    </div>
   );
 }
 

@@ -7,11 +7,7 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
-import {
-  WidgetType,
-  widgetTypeClassname,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
@@ -23,8 +19,9 @@ import {
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
-import { widgetViolatedMinDimentionsAction } from "actions/autoLayoutActions";
+import { widgetViolatedMinDimensionsAction } from "actions/autoLayoutActions";
 import { debounce } from "lodash";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -86,7 +83,7 @@ export function FlexComponent(props: AutoLayoutProps) {
 
   const widgetReachedMinWidth = useCallback(
     debounce((parentId) => {
-      dispatch(widgetViolatedMinDimentionsAction(parentId));
+      dispatch(widgetViolatedMinDimensionsAction(parentId));
     }, 50),
     [],
   );
