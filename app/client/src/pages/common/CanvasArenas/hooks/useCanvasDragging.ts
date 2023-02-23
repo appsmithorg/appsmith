@@ -660,6 +660,7 @@ export const useCanvasDragging = (
     blocksToDraw,
     snapRows,
     canExtend,
+    scale,
     useAutoLayout,
   ]);
   return {

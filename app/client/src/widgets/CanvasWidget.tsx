@@ -1,8 +1,4 @@
-import {
-  LayoutDirection,
-  Overflow,
-  Positioning,
-} from "utils/autoLayout/constants";
+import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
@@ -133,11 +129,6 @@ class CanvasWidget extends ContainerWidget {
         direction={direction}
         flexLayers={this.props.flexLayers || []}
         isMobile={this.props.isMobile}
-        overflow={
-          direction === LayoutDirection.Horizontal
-            ? Overflow.Wrap
-            : Overflow.NoWrap
-        }
         stretchHeight={stretchFlexBox}
         useAutoLayout={this.props.useAutoLayout || false}
         widgetId={this.props.widgetId}

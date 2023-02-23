@@ -12,6 +12,8 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.plugins.exceptions.RedisErrorMessages;
+import com.external.plugins.exceptions.RedisPluginError;
 import com.external.utils.RedisURIUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -67,11 +69,16 @@ public class RedisPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null
                     , null, null));
 
-            Jedis jedis = jedisPool.getResource();
+            Jedis jedis;
+            try {
+                 jedis = jedisPool.getResource();
+            } catch (Exception e) {
+                return Mono.error(new AppsmithPluginException(RedisPluginError.QUERY_EXECUTION_FAILED, RedisErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage()));
+            }
             return Mono.fromCallable(() -> {
                         if (StringUtils.isNullOrEmpty(query)) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    String.format("Body is null or empty [%s]", query)));
+                                    String.format(RedisErrorMessages.BODY_IS_NULL_OR_EMPTY_ERROR_MSG, query)));
                         }
 
                         Map cmdAndArgs = getCommandAndArgs(query.trim());
@@ -79,8 +86,7 @@ public class RedisPlugin extends BasePlugin {
                             return Mono.error(
                                     new AppsmithPluginException(
                                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                            "Appsmith server has failed to parse your Redis query. Are you sure it's" +
-                                                    " been formatted correctly."
+                                            RedisErrorMessages.QUERY_PARSING_FAILED_ERROR_MSG
                                     )
                             );
                         }
@@ -91,7 +97,7 @@ public class RedisPlugin extends BasePlugin {
                             command = Protocol.Command.valueOf((String) cmdAndArgs.get(CMD_KEY));
                         } catch (IllegalArgumentException exc) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    String.format("Not a valid Redis command: %s", cmdAndArgs.get(CMD_KEY))));
+                                    String.format(RedisErrorMessages.INVALID_REDIS_COMMAND_ERROR_MSG, cmdAndArgs.get(CMD_KEY))));
                         }
 
                         Object commandOutput;
@@ -114,10 +120,13 @@ public class RedisPlugin extends BasePlugin {
                         error.printStackTrace();
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
+                        if (! (error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(RedisPluginError.QUERY_EXECUTION_FAILED, RedisErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error.getMessage());
+                        }
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
@@ -267,15 +276,14 @@ public class RedisPlugin extends BasePlugin {
 
             if (isEndpointMissing(datasourceConfiguration.getEndpoints())) {
                 invalids.add(
-                        "Could not find host address. Please edit the 'Host Address' field to provide the desired " +
-                                "endpoint."
+                        RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG
                 );
             }
 
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (isAuthenticationMissing(auth)) {
                 invalids.add(
-                        "Could not find password. Please edit the 'Password' field to provide the password."
+                        RedisErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG
                 );
             }
 
@@ -323,7 +331,7 @@ public class RedisPlugin extends BasePlugin {
 
             if (!"PONG".equals(pingResponse)) {
                 return Mono.error(new RuntimeException(
-                        String.format("Expected PONG in response of PING but got %s", pingResponse)));
+                        String.format(RedisErrorMessages.NO_PONG_RESPONSE_ERROR_MSG, pingResponse)));
             }
 
             return Mono.empty();

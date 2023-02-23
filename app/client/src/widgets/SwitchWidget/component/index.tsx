@@ -57,6 +57,13 @@ const SwitchLabel = styled.div<{
 
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
+
+  .auto-layout & {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
+  }
 `;
 
 export const StyledSwitch = styled(Switch)<{

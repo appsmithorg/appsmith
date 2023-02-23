@@ -101,18 +101,6 @@ export const generateResponsiveBehaviorConfig = (
     isBindProperty: false,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
-    // additionalAction: (
-    //   props: any,
-    //   propertyName?: string,
-    //   propertyValue?: any,
-    // ) => ({
-    //   type: ReduxActionTypes.UPDATE_FILL_CHILD_LAYER,
-    //   payload: {
-    //     widgetId: props.widgetId,
-    //     responsiveBehavior: propertyValue,
-    //   },
-    // }),
-    // dependencies: ["widgetId"],
   };
 };
 
@@ -178,24 +166,6 @@ export const generatePositioningConfig = (
     isBindProperty: true,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
-    // additionalAction: (
-    //   props: any,
-    //   propertyName?: string,
-    //   propertyValue?: any,
-    // ) => {
-    //   if (!propertyName || !propertyValue) return;
-    //   const positioning: Positioning = propertyValue as Positioning;
-    //   return {
-    //     type:
-    //       positioning === Positioning.Vertical
-    //         ? ReduxActionTypes.ADD_CHILD_WRAPPERS
-    //         : ReduxActionTypes.REMOVE_CHILD_WRAPPERS,
-    //     payload: {
-    //       parentId: props.widgetId,
-    //     },
-    //   };
-    // },
-    // dependencies: ["widgetId"],
   };
 };
 
@@ -227,7 +197,6 @@ export function getLayoutConfig(alignment: Alignment, spacing: Spacing): any[] {
 export const NonResizableWidgets = [
   "AUDIO_WIDGET",
   "BUTTON_WIDGET",
-  "FILE_PICKER_WIDGET_V2",
   "BUTTON_GROUP_WIDGET",
   "CHECKBOX_WIDGET",
   "CURRENCY_INPUT_WIDGET",
@@ -290,11 +259,29 @@ export const DefaultFillWidgets = [
 ];
 
 // TODO(aswathkk): See if this needs to be moved to widget config
-export const WIDGET_WITH_DYNAMIC_WIDTH = ["BUTTON_WIDGET"];
+export const WIDGET_WITH_DYNAMIC_WIDTH = [
+  "BUTTON_WIDGET",
+  "ICON_BUTTON_WIDGET",
+  "MENU_BUTTON_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
+  "RATE_WIDGET",
+];
 
 // TODO(aswathkk): See if this needs to be moved to widget config
 // This is used only for autoLayout
-export const WIDGET_WITH_DYNAMIC_HEIGHT = ["CHECKBOX_GROUP_WIDGET"];
+export const WIDGET_WITH_DYNAMIC_HEIGHT = [
+  "CHECKBOX_GROUP_WIDGET",
+  "CHECKBOX_WIDGET",
+  "SWITCH_WIDGET",
+  "TEXT_WIDGET",
+  "INPUT_WIDGET_V2",
+  "PHONE_INPUT_WIDGET",
+  "CURRENCY_INPUT_WIDGET",
+  "SELECT_WIDGET",
+  "MULTI_SELECT_TREE_WIDGET",
+  "SINGLE_SELECT_TREE_WIDGET",
+  "MULTI_SELECT_WIDGET_V2",
+];
 
 export function getDefaultResponsiveBehavior(widgetType: string) {
   return DefaultFillWidgets.includes(widgetType)

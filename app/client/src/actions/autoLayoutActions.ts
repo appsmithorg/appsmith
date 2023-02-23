@@ -13,7 +13,7 @@ export const updateLayoutForMobileBreakpointAction = (
   },
 });
 
-export const widgetViolatedMinDimentionsAction = (parentId: string) => ({
+export const widgetViolatedMinDimensionsAction = (parentId: string) => ({
   type: ReduxActionTypes.WIDGET_VIOLATED_MIN_DIMENSIONS,
   payload: {
     parentId,

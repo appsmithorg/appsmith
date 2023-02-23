@@ -637,10 +637,17 @@ abstract class BaseWidget<
 
       if (!shouldObserveHeight && !shouldObserveWidth) return content;
 
+      const { componentHeight, componentWidth } = this.getComponentDimensions();
+
       return (
         <AutoLayoutDimensionObserver
+          height={componentHeight}
+          isFillWidget={
+            this.props.responsiveBehavior === ResponsiveBehavior.Fill
+          }
           onDimensionUpdate={this.updateWidgetDimensions}
-          widgetProps={this.props}
+          widgetName={this.props.widgetName}
+          width={componentWidth}
         >
           {content}
         </AutoLayoutDimensionObserver>

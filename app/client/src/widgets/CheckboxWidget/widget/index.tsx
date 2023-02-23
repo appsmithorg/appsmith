@@ -4,6 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import React from "react";
+import { isAutoLayout } from "selectors/mainCanvasSelectors";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
@@ -168,6 +169,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",

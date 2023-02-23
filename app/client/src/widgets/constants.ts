@@ -17,7 +17,7 @@ import { WidgetProps } from "./BaseWidget";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
-  configuration: (props: WidgetProps) => { [key: string]: string | number };
+  configuration: (props: any) => { [key: string]: string | number };
 };
 
 export type AutoLayoutConfig = {
@@ -58,6 +58,9 @@ export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
   ADD_ACTION = "ADD_ACTION",
   CHILD_OPERATIONS = "CHILD_OPERATIONS",
+  BEFORE_DROP = "BEFORE_DROP",
+  BEFORE_PASTE = "BEFORE_PASTE",
+  BEFORE_ADD = "BEFORE_ADD",
 }
 
 export type FlattenedWidgetProps = WidgetProps & {

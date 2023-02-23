@@ -18,6 +18,8 @@ import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
+// import { diff } from "deep-diff";
+// import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -139,6 +141,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   const isMobile: boolean = yield select(getIsMobile);
 
   let widgets = allWidgets;
+  // const widgetsOld = { ...widgets };
   const parentIds = new Set<string>();
   // Initialise a list of changes so far.
   // This contains a map of widgetIds with their new topRow and bottomRow
@@ -168,6 +171,17 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       widget.bottomRow !== newBottomRow ||
       widget.rightColumn !== newRightColumn
     ) {
+      // console.log(
+      //   "#### change",
+      //   widget.widgetName,
+      //   { width, columnSpace, leftColumn: widget.leftColumn },
+      //   "rightColumn",
+      //   widget.rightColumn,
+      //   newRightColumn,
+      //   "bottomRow",
+      //   widget.bottomRow,
+      //   newBottomRow,
+      // );
       changesSoFar[widgetId] = {
         bottomRow: newBottomRow,
         rightColumn: newRightColumn,
@@ -215,7 +229,25 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     ];
   }
 
-  // TODO(aswathkk): Use updateMultipleWidgetPropertiesAction instead of updateAndSaveLayout
+  // const d = diff(widgetsOld, widgets);
+
+  // console.log(
+  //   "#### process",
+  //   { widgetsToUpdate, widgets, widgetsOld },
+  //   d?.map((x: any) => ({
+  //     path: `${widgets[x.path[0]]?.widgetName}.${x.path[1]}`,
+  //     lhs: x?.lhs,
+  //     rhs: x?.rhs,
+  //   })),
+  // );
+
+  /**
+   * TODO(aswathkk): Use updateMultipleWidgetPropertiesAction instead of updateAndSaveLayout
+   * But, using updateMultipleWidgetPropertiesAction is causing following issues
+   * 1. Highlights are getting broken
+   * 2. widget's posision are not properly getting updated
+   */
+
   // Push all updates to the CanvasWidgetsReducer.
   // Note that we're not calling `UPDATE_LAYOUT`
   // as we don't need to trigger an eval

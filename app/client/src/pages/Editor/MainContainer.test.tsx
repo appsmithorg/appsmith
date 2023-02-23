@@ -26,6 +26,7 @@ import { getAbsolutePixels } from "utils/helpers";
 import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
+import * as uiSelectors from "selectors/ui";
 
 const renderNestedComponent = () => {
   const initialState = (store.getState() as unknown) as Partial<AppState>;
@@ -146,6 +147,7 @@ describe("Drag and Drop widgets into Main container", () => {
         bottomRow: 5,
         leftColumn: 5,
         rightColumn: 5,
+        widgetId: "tabsWidgetId",
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
@@ -182,6 +184,10 @@ describe("Drag and Drop widgets into Main container", () => {
     act(() => {
       fireEvent.mouseOver(tabsWidget);
     });
+
+    jest
+      .spyOn(uiSelectors, "getSelectedWidgets")
+      .mockReturnValue(["tabsWidgetId"]);
 
     act(() => {
       fireEvent.dragStart(tabsWidget);
@@ -462,6 +468,7 @@ describe("Drag and Drop widgets into Main container", () => {
         bottomRow: 25,
         leftColumn: 5,
         rightColumn: 15,
+        widgetId: "tableWidgetId",
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
@@ -496,6 +503,10 @@ describe("Drag and Drop widgets into Main container", () => {
     act(() => {
       fireEvent.mouseOver(tabsWidget);
     });
+
+    jest
+      .spyOn(uiSelectors, "getSelectedWidgets")
+      .mockReturnValue(["tableWidgetId"]);
 
     act(() => {
       fireEvent.dragStart(tabsWidget);
@@ -715,6 +726,10 @@ describe("Drag and Drop widgets into Main container", () => {
       top: widget.style.top,
     };
 
+    jest
+      .spyOn(uiSelectors, "getSelectedWidgets")
+      .mockReturnValue([containerId]);
+
     act(() => {
       fireEvent.dragStart(draggableWidget);
     });
@@ -805,6 +820,10 @@ describe("Drag in a nested container", () => {
 
     const component = renderNestedComponent();
 
+    jest
+      .spyOn(uiSelectors, "getSelectedWidgets")
+      .mockReturnValue(["container-id"]);
+
     const containerWidget: any = component.container.querySelector(
       ".t--widget-containerwidget",
     );
@@ -872,6 +891,10 @@ describe("Drag in a nested container", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = renderNestedComponent();
+
+    jest
+      .spyOn(uiSelectors, "getSelectedWidgets")
+      .mockReturnValue(["text-widget"]);
 
     const textWidget: any = component.container.querySelector(
       ".t--widget-textwidget",
