@@ -108,6 +108,8 @@ import {
 import WidgetFactory from "utils/WidgetFactory";
 import {
   addChildToPastedFlexLayers,
+  getFlexLayersForSelectedWidgets,
+  getNewFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
 } from "../utils/autoLayout/AutoLayoutUtils";
@@ -127,9 +129,7 @@ import {
   getCanvasIdForContainer,
   getContainerIdForCanvas,
   getDefaultCanvas,
-  getFlexLayersForSelectedWidgets,
   getMousePositions,
-  getNewFlexLayers,
   getNewPositionsForCopiedWidgets,
   getNextWidgetName,
   getOccupiedSpacesFromProps,

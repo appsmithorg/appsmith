@@ -55,7 +55,6 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { MetaState } from "reducers/entityReducers/metaReducer";
-import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1799,72 +1798,3 @@ const updateListWidgetBindings = (
 
   return widgets;
 };
-
-/**
- * This method preserves the flexLayers of the parent canvas,
- * but only for the selected widgets
- * @param selectedWidgets
- * @param parentCanvas
- * @returns
- */
-export function getFlexLayersForSelectedWidgets(
-  selectedWidgets: string[],
-  parentCanvas: FlattenedWidgetProps | undefined,
-): FlexLayer[] {
-  if (
-    !parentCanvas ||
-    !parentCanvas.flexLayers ||
-    parentCanvas.flexLayers.length <= 0
-  )
-    return [];
-
-  const currFlexLayers: FlexLayer[] = parentCanvas.flexLayers;
-
-  const selectedFlexLayers: FlexLayer[] = [];
-
-  for (const flexLayer of currFlexLayers) {
-    const layerChildren = [];
-
-    for (const layerChild of flexLayer.children) {
-      if (selectedWidgets.indexOf(layerChild.id) > -1) {
-        layerChildren.push(layerChild);
-      }
-    }
-
-    if (layerChildren.length > 0) {
-      selectedFlexLayers.push({ children: layerChildren });
-    }
-  }
-
-  return selectedFlexLayers;
-}
-
-/**
- * This method helps in Converting the widgetId inside flexLayers
- * to the new corresponding widgetIds in widgetIdMap
- * @param flexLayers
- * @param widgetIdMap
- * @returns
- */
-export function getNewFlexLayers(
-  flexLayers: FlexLayer[],
-  widgetIdMap: Record<string, string>,
-) {
-  const newFlexLayers: FlexLayer[] = [];
-
-  for (const flexLayer of flexLayers) {
-    const newChildren = [];
-
-    for (const layerChild of flexLayer.children) {
-      if (widgetIdMap[layerChild.id]) {
-        newChildren.push({
-          id: widgetIdMap[layerChild.id],
-          align: layerChild.align,
-        });
-      }
-    }
-    newFlexLayers.push({ children: newChildren });
-  }
-
-  return newFlexLayers;
-}
