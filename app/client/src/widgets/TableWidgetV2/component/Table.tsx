@@ -409,6 +409,7 @@ export function Table(props: TableProps) {
     [
       areEqual,
       columns.map((column) => column.alias).toString(),
+      columns.map((column) => column.Header).toString(),
       columns.map((column) => column.sticky).toString(),
       columns.map((column) => column.isAscOrder).toString(),
       props.multiRowSelection,

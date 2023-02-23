@@ -273,6 +273,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   }, [
     props.columns.map((column) => column.alias).toString(),
     props.columns.map((column) => column.sticky).toString(),
+    props.columns.map((column) => column.Header).toString(),
     props.columns.map((column) => column.isAscOrder).toString(),
     columnWidth,
     props.isVisibleDownload,
