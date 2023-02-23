@@ -23,6 +23,10 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
+  getWidgetHeight,
+  getWidgetWidth,
+} from "utils/autoLayout/flexWidgetUtils";
+import {
   useShowPropertyPane,
   useShowTableFilterPane,
   useWidgetDragResize,
@@ -100,31 +104,14 @@ export const ResizableComponent = memo(function ResizableComponent(
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
     width:
-      ((props.isFlexChild &&
-      props.isMobile &&
-      props.mobileRightColumn !== undefined
-        ? props.mobileRightColumn
-        : props.rightColumn) -
-        (props.isFlexChild &&
-        props.isMobile &&
-        props.mobileLeftColumn !== undefined
-          ? props.mobileLeftColumn
-          : props.leftColumn)) *
+      getWidgetWidth(props, !!props.isFlexChild ? !!props.isMobile : false) *
         props.parentColumnSpace -
       2 * props.paddingOffset,
     height:
-      ((props.isFlexChild &&
-      props.isMobile &&
-      props.mobileBottomRow !== undefined
-        ? props.mobileBottomRow
-        : props.bottomRow) -
-        (props.isFlexChild && props.isMobile && props.mobileTopRow !== undefined
-          ? props.mobileTopRow
-          : props.topRow)) *
+      getWidgetHeight(props, !!props.isFlexChild ? !!props.isMobile : false) *
         props.parentRowSpace -
       2 * props.paddingOffset,
   };
-
   // onResize handler
   const getResizedPositions = (
     newDimensions: UIElementSize,

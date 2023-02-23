@@ -7,8 +7,6 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { AppTheme } from "entities/AppTheming";
-import { WidgetProps } from "widgets/BaseWidget";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -94,11 +92,6 @@ export type PropertyPaneControlConfig = {
   // TODO(abhinav): To fix this, rename the options property of the controls which use this
   // Alternatively, create a new structure
   options?: any;
-  additionalAction?: (
-    props: any,
-    propertyName?: string,
-    propertyValue?: any,
-  ) => ReduxAction<any>;
   // The following should ideally be used internally
   postUpdateAction?: ReduxActionType;
   onBlur?: () => void;
