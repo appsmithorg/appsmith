@@ -13,6 +13,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
 import { ColumnTypes, EditableCell, TableVariant } from "../constants";
 import { useCallback } from "react";
+import { sum } from "lodash";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -161,6 +162,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
+  const columnWidth = sum(props.columns.map((column) => column.width));
   const { hiddenColumns } = useMemo(() => {
     const hidden: string[] = [];
     columns.forEach((item) => {
@@ -272,6 +274,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     props.columns.map((column) => column.alias).toString(),
     props.columns.map((column) => column.sticky).toString(),
     props.columns.map((column) => column.isAscOrder).toString(),
+    columnWidth,
     props.isVisibleDownload,
     props.isVisibleFilters,
     props.isVisiblePagination,
