@@ -6,10 +6,9 @@ const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export default function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
-    let { email, username } = user || {};
+    let { email } = user || {};
     let name;
     if (!cloudHosting) {
-      username = sha256(username || "");
       // keep email undefined so that users are prompted to enter it when they reach out on intercom
       email = undefined;
     } else {
@@ -18,7 +17,7 @@ export default function bootIntercom(user?: User) {
 
     window.Intercom("boot", {
       app_id: intercomAppID,
-      user_id: username,
+      user_id: user?.username,
       email,
       // keep name undefined instead of an empty string so that intercom auto assigns a name
       name,
