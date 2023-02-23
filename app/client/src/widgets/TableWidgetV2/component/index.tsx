@@ -272,7 +272,12 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     props.columns.map((column) => column.alias).toString(),
     props.columns.map((column) => column.sticky).toString(),
     props.columns.map((column) => column.isAscOrder).toString(),
+    props.isVisibleDownload,
+    props.isVisibleFilters,
+    props.isVisiblePagination,
+    props.isVisiblePagination,
     props.serverSidePaginationEnabled,
+    props.allowAddNewRow,
     props.searchKey,
     props.multiRowSelection,
   ]);
