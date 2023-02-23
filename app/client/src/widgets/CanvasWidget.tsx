@@ -1,8 +1,4 @@
-import {
-  LayoutDirection,
-  Overflow,
-  Positioning,
-} from "utils/autoLayout/constants";
+import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
