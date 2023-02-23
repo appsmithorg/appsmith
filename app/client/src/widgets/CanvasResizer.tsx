@@ -1,7 +1,7 @@
 import { ReactComponent as CanvasResizerIcon } from "assets/icons/ads/app-icons/canvas-resizer.svg";
 import { layoutConfigurations } from "constants/WidgetConstants";
 import React, { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationLayout,
@@ -9,6 +9,7 @@ import {
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import { setAutoCanvasResizing } from "actions/autoLayoutActions";
 import styled from "styled-components";
 import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "utils/hooks/useDynamicAppLayout";
 
@@ -67,6 +68,7 @@ export function CanvasResizer({
   const appLayout = useSelector(getCurrentApplicationLayout) || "FLUID";
   const appPositioningType = useSelector(getCurrentAppPositioningType);
   const ref = useRef(null);
+  const dispatch = useDispatch();
   useEffect(() => {
     const ele: any = document.getElementById("canvas-viewport");
 
@@ -104,6 +106,7 @@ export function CanvasResizer({
 
           // Calculate the dimension of element
           const styles = window.getComputedStyle(ele);
+          dispatch(setAutoCanvasResizing(true));
           w = parseInt(styles.width, 10) + buffer;
           // h = parseInt(styles.height, 10);
           const mouseMove = (e: any) => mouseMoveHandler(e);
@@ -135,6 +138,7 @@ export function CanvasResizer({
         const mouseUpHandler = function(e: any) {
           // Remove the handlers of `mousemove` and `mouseup`
           mouseMoveHandler(e);
+          dispatch(setAutoCanvasResizing(false));
           document.removeEventListener("mousemove", events[0] as any);
           document.removeEventListener("mouseup", mouseUpHandler);
           events = [];
