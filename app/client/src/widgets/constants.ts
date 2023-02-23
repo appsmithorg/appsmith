@@ -295,7 +295,6 @@ export const dateFormatOptions = [
   },
 ];
 
-export const DRAG_MARGIN = 4;
 export type ThemeProp = {
   theme: Theme;
 };
