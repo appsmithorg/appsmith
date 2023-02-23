@@ -7,8 +7,13 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { change, getFormValues, initialize } from "redux-form";
-import _, { merge, isEmpty } from "lodash";
+import {
+  change,
+  getFormInitialValues,
+  getFormValues,
+  initialize,
+} from "redux-form";
+import _, { merge, isEmpty, get, set } from "lodash";
 import equal from "fast-deep-equal/es6";
 import {
   ReduxAction,
@@ -41,6 +46,7 @@ import {
   createTempDatasourceFromForm,
   removeTempDatasource,
   createDatasourceSuccess,
+  resetDefaultKeyValPairFlag,
 } from "actions/datasourceActions";
 import { ApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -1110,6 +1116,42 @@ function* executeDatasourceQuerySaga(
   }
 }
 
+function* initializeFormWithDefaults(
+  action: ReduxAction<{ pluginType: string }>,
+) {
+  const formName =
+    action?.payload?.pluginType === "API"
+      ? DATASOURCE_REST_API_FORM
+      : DATASOURCE_DB_FORM;
+  const initialValue: Datasource = yield select(getFormInitialValues(formName));
+  const defaultKeyValueArrayConfig: string[] = yield select(
+    (state) => state?.ui?.datasourcePane?.defaultKeyValueArrayConfig,
+  );
+
+  if (
+    defaultKeyValueArrayConfig &&
+    defaultKeyValueArrayConfig?.length > 0 &&
+    !!initialValue
+  ) {
+    const restAPIFormData: Datasource = yield select(
+      getFormValues(DATASOURCE_REST_API_FORM),
+    );
+    const formData: Datasource = yield select(
+      getFormValues(DATASOURCE_DB_FORM),
+    );
+
+    const formDataObj: Datasource =
+      action?.payload?.pluginType === "API" ? restAPIFormData : formData;
+    for (const prop of defaultKeyValueArrayConfig) {
+      const propPath: string[] = prop.split("[*].");
+      const newValues = get(formDataObj, propPath[0], []);
+      set(initialValue, propPath[0], newValues);
+    }
+
+    yield put(resetDefaultKeyValPairFlag());
+  }
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -1163,6 +1205,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
       executeDatasourceQuerySaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.INITIALIZE_DATASOURCE_FORM_WITH_DEFAULTS,
+      initializeFormWithDefaults,
     ),
     // Intercepting the redux-form change actionType to update drafts and track change history
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

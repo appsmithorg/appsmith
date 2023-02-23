@@ -57,7 +57,6 @@ class SwitchControl extends BaseControl<ControlProps> {
         <StyledSwitch
           checked={this.props.propertyValue}
           className={this.props.propertyValue ? "checked" : "unchecked"}
-          defaultChecked={this.props.propertyValue}
           large
           onChange={this.onToggle}
         />

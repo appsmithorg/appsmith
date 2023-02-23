@@ -16,13 +16,12 @@ describe("Modal Widget Functionality", function() {
     cy.get("span:contains('Close')")
       .closest("div")
       .should("not.be.visible");
-    cy.get(".t--modal-widget")
-      .scrollTo("bottom")
-      .wait(1000);
+    cy.get(".t--modal-widget").then(($el) => $el[0].scrollTo(0, 500));
+
     cy.get("span:contains('Close')")
       .closest("div")
       .should("be.visible");
-    cy.get(".t--modal-widget").scrollTo("top");
+    cy.get(".t--modal-widget").then(($el) => $el[0].scrollTo(0, 0));
     cy.get("span:contains('Close')")
       .closest("div")
       .should("not.be.visible");

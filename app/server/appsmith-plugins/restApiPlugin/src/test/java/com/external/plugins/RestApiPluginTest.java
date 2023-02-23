@@ -17,6 +17,7 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.exceptions.RestApiPluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,6 +55,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -658,9 +661,8 @@ public class RestApiPluginTest {
                 dsConfig,
                 actionConfig));
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof IllegalArgumentException);
-                    assertTrue(e.getMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\""));
+                .assertNext(actionExecutionResult -> {
+                    assertTrue(actionExecutionResult.getPluginErrorDetails().getDownstreamErrorMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\""));
                 });
     }
 
@@ -1330,7 +1332,13 @@ public class RestApiPluginTest {
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertTrue(
+                            result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."),
+                            "Unexpected error message. Did this fail for a different reason?"
+                    );
+                })
                 .verifyComplete();
     }
 
@@ -1344,7 +1352,10 @@ public class RestApiPluginTest {
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertTrue(result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."));
+                })
                 .verifyComplete();
     }
 
@@ -1383,7 +1394,7 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Host not allowed.", result.getBody());
+                    assertTrue(result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."));
                 })
                 .verifyComplete();
     }
@@ -1479,6 +1490,56 @@ public class RestApiPluginTest {
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void whenBindingFoundWithoutValue_doNotReplaceWithNull() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        final List<Property> headers = List.of(new Property("content-type", "application/json"));
+        actionConfig.setHeaders(headers);
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "{\"inputValue\":\"{{Input1.text}}\"}";
+        actionConfig.setBody(requestBody);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("This TC is for this {{bug11688}}. HL7 Result: CODE 5 - CRITICAL VALUE - {{institution}} {{accessionNumber}}");
+        param.setClientDataType(ClientDataType.STRING);
+        List<Param> params = new ArrayList<>();
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
+                    assertEquals(requestBody.replace("{{Input1.text}}", param.getValue()), data.toString());
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals("https://postman-echo.com/post", request.getUrl());
+                    assertEquals(HttpMethod.POST, request.getHttpMethod());
+                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    fields.forEachRemaining(field -> {
+                        if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
+                            assertEquals("application/json", field.getValue().get(0).asText());
+                        }
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfRestApiPluginErrorCode() {
+        assert (Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode).distinct().count() == RestApiPluginError.values().length);
+
+        assert (Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RST"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }
 

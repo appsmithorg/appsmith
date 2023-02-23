@@ -610,22 +610,13 @@ function* deleteDebuggerErrorLogsSaga(
 }
 
 // takes a log object array and stores it in the redux store
-export function* storeLogs(
-  logs: LogObject[],
-  entityName: string,
-  entityType: ENTITY_TYPE,
-  entityId: string,
-) {
+export function* storeLogs(logs: LogObject[]) {
   AppsmithConsole.addLogs(
     logs.map((log: LogObject) => {
       return {
         text: createLogTitleString(log.data),
         logData: log.data,
-        source: {
-          type: entityType,
-          name: entityName,
-          id: entityId,
-        },
+        source: log.source,
         severity: log.severity,
         timestamp: log.timestamp,
         category: LOG_CATEGORY.USER_GENERATED,

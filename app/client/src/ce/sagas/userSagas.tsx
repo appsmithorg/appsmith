@@ -110,7 +110,6 @@ export function* createUserSaga(
 
 export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
   if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
-  yield call(waitForFetchUserSuccess);
   const currentUser: User | undefined = yield select(getCurrentUser);
   const segmentState: SegmentState | undefined = yield select(getSegmentState);
   const appsmithConfig = getAppsmithConfigs();
@@ -165,56 +164,10 @@ export function* getCurrentUserSaga() {
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      //@ts-expect-error: response is of type unknown
-      const { enableTelemetry } = response.data;
-
-      if (enableTelemetry) {
-        const promise = initializeAnalyticsAndTrackers();
-
-        if (promise instanceof Promise) {
-          const result: boolean = yield promise;
-
-          if (result) {
-            yield put(segmentInitSuccess());
-          } else {
-            yield put(segmentInitUncertain());
-          }
-        }
-      }
-
-      if (
-        //@ts-expect-error: response is of type unknown
-        !response.data.isAnonymous &&
-        //@ts-expect-error: response is of type unknown
-        response.data.username !== ANONYMOUS_USERNAME
-      ) {
-        //@ts-expect-error: response is of type unknown
-        enableTelemetry && AnalyticsUtil.identifyUser(response.data);
-      }
-
-      /*
-       * Forking it as we don't want to block application flow
-       */
-      yield fork(initiateUsageTracking, {
-        //@ts-expect-error: response is of type unknown
-        isAnonymousUser: response.data.isAnonymous,
-        enableTelemetry,
-      });
-      yield put(initAppLevelSocketConnection());
-      yield put(initPageLevelSocketConnection());
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
       });
-
-      //@ts-expect-error: response is of type unknown
-      if (response.data.emptyInstance) {
-        history.replace(SETUP);
-      }
-
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.USER_ME_API,
-      );
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -235,6 +188,50 @@ export function* getCurrentUserSaga() {
       },
     });
   }
+}
+
+export function* runUserSideEffectsSaga() {
+  const currentUser: User = yield select(getCurrentUser);
+  const { enableTelemetry } = currentUser;
+
+  if (enableTelemetry) {
+    const promise = initializeAnalyticsAndTrackers();
+
+    if (promise instanceof Promise) {
+      const result: boolean = yield promise;
+
+      if (result) {
+        yield put(segmentInitSuccess());
+      } else {
+        yield put(segmentInitUncertain());
+      }
+    }
+  }
+
+  if (
+    //@ts-expect-error: response is of type unknown
+    !currentUser.isAnonymous &&
+    currentUser.username !== ANONYMOUS_USERNAME
+  ) {
+    enableTelemetry && AnalyticsUtil.identifyUser(currentUser);
+  }
+
+  /*
+   * Forking it as we don't want to block application flow
+   */
+  yield fork(initiateUsageTracking, {
+    //@ts-expect-error: response is of type unknown
+    isAnonymousUser: currentUser.isAnonymous,
+    enableTelemetry,
+  });
+  yield put(initAppLevelSocketConnection());
+  yield put(initPageLevelSocketConnection());
+
+  if (currentUser.emptyInstance) {
+    history.replace(SETUP);
+  }
+
+  PerformanceTracker.stopAsyncTracking(PerformanceTransactionName.USER_ME_API);
 }
 
 export function* forgotPasswordSaga(

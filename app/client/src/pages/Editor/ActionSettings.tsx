@@ -22,9 +22,6 @@ const ActionSettingsWrapper = styled.div`
   .form-config-top {
     flex-grow: 1;
   }
-  .t--form-control-INPUT_TEXT > div {
-    width: 520px !important;
-  }
   .t--form-control-SWITCH {
     display: flex;
     flex-shrink: 0;

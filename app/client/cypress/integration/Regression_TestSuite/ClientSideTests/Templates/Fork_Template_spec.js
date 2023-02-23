@@ -9,9 +9,10 @@ describe("Fork a template to an workspace", () => {
     cy.get(templateLocators.templatesTab).click();
     cy.wait(1000);
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      "//div[text()='Customer Support Dashboard']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
+      .wait(500)
       .click();
     cy.get("body").then(($ele) => {
       if ($ele.find(templateLocators.templateViewForkButton).length) {

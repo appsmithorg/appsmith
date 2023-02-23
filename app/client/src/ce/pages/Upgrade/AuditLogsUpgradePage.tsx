@@ -23,7 +23,7 @@ import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
 export function AuditLogsUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
-    logEventName: "ADMIN_SETTINGS_UPGRADE_HOOK",
+    logEventName: "AUDIT_LOGS_UPGRADE_ADMIN_SETTINGS",
     logEventData: { source: "AuditLogs" },
     intercomMessage: createMessage(UPGRADE_TO_EE_FEATURE, "Audit Logs"),
   });

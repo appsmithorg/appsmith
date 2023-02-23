@@ -2,17 +2,11 @@ import { ActionResponse } from "api/ActionAPI";
 import { PluginId } from "api/PluginApi";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { ActionConfig, PluginType } from "entities/Action";
-import {
-  ActionDescription,
-  ClearPluginActionDescription,
-  RunPluginActionDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { Variable } from "entities/JSCollection";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 
-export type ActionDispatcher = (
-  ...args: any[]
-) => Promise<unknown> | ActionDescription;
+export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -32,11 +26,8 @@ export interface ActionEntityEvalTree {
   actionId: string;
   isLoading: boolean;
   data: ActionResponse["body"];
-  run: ActionDispatcher | RunPluginActionDescription | Record<string, unknown>;
-  clear:
-    | ActionDispatcher
-    | ClearPluginActionDescription
-    | Record<string, unknown>;
+  run: ActionDispatcher | Record<string, unknown>;
+  clear: ActionDispatcher | Record<string, unknown>;
   responseMeta: {
     statusCode?: string;
     isExecutionSuccess: boolean;

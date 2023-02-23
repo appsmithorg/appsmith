@@ -5,6 +5,7 @@ import Clusterer from "./Clusterer";
 import SearchBox from "./SearchBox";
 import { MapComponentProps } from ".";
 import PickMyLocation from "./PickMyLocation";
+import Markers from "./Markers";
 
 const Wrapper = styled.div`
   position: relative;
@@ -12,10 +13,10 @@ const Wrapper = styled.div`
 `;
 
 const StyledMap = styled.div<Pick<MapProps, "borderRadius" | "boxShadow">>`
-  height: 100%;
   width: 100%;
-  border-radius: ${(props) => props.borderRadius};
+  height: 100%;
   box-shadow: ${(props) => props.boxShadow};
+  border-radius: ${(props) => props.borderRadius};
 `;
 
 type MapProps = {
@@ -35,10 +36,12 @@ type MapProps = {
   | "boxShadow"
   | "clickedMarkerCentered"
   | "enableDrag"
+  | "allowClustering"
 >;
 
 const Map = (props: MapProps) => {
   const {
+    allowClustering,
     borderRadius,
     boxShadow,
     center,
@@ -112,6 +115,8 @@ const Map = (props: MapProps) => {
     }
   }, [map, onClickOnMap]);
 
+  const MarkersOrCluster = allowClustering ? Clusterer : Markers;
+
   return (
     <Wrapper onMouseLeave={enableDrag}>
       <StyledMap
@@ -120,13 +125,18 @@ const Map = (props: MapProps) => {
         id="map"
         ref={mapRef}
       />
-      <Clusterer
-        map={map}
-        markers={markers}
-        selectMarker={selectMarker}
-        updateCenter={updateCenter}
-        updateMarker={updateMarker}
-      />
+      {map && (
+        <MarkersOrCluster
+          key={`markers-${allowClustering ? "cluster" : "markers"}-${
+            markers?.length
+          }`}
+          map={map}
+          markers={markers}
+          selectMarker={selectMarker}
+          updateCenter={updateCenter}
+          updateMarker={updateMarker}
+        />
+      )}
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<any>, {

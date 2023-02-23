@@ -62,6 +62,7 @@ function VariableEditor(props: VariableProps) {
       <DynamicTextField
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={`${props.actionName}.config.pluginSpecifiedTemplates[1].value`}
+        evaluatedPopUpLabel={"Query Variables"}
         expected={EXPECTED_VARIABLE}
         height="100%"
         mode={EditorModes.JSON_WITH_BINDING}

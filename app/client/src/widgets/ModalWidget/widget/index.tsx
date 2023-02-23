@@ -17,6 +17,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { Stylesheet } from "entities/AppTheming";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import { get } from "lodash";
 
 const minSize = 100;
 
@@ -201,11 +204,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   makeModalSelectable(content: ReactNode): ReactNode {
     // substitute coz the widget lacks draggable and position containers.
     return (
-      <ClickContentToOpenPropPane
-        backgroundColor={this.props.backgroundColor}
-        borderRadius={this.props.borderRadius}
-        widgetId={this.props.widgetId}
-      >
+      <ClickContentToOpenPropPane widgetId={this.props.widgetId}>
         {content}
       </ClickContentToOpenPropPane>
     );
@@ -231,8 +230,22 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const isResizeEnabled =
       !isDragging && isWidgetFocused && isEditMode && !isSnipingMode;
 
+    const settingsComponent = isEditMode ? (
+      <WidgetNameComponent
+        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+        parentId={this.props.parentId}
+        showControls
+        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+        type={this.props.type}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
+      />
+    ) : null;
+
     return (
       <ModalComponent
+        background={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
@@ -248,6 +261,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
+        settingsComponent={settingsComponent}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         width={this.getModalWidth(this.props.width)}
@@ -260,8 +274,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   getCanvasView() {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
-    children = this.showWidgetName(children, true);
-
     return this.makeModalComponent(children, true);
   }
 

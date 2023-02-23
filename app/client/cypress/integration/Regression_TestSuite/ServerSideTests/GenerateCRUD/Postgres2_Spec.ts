@@ -300,16 +300,26 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.ClearJSONFieldValue("Current Port");
 
     agHelper.ClickButton("Update");
-    agHelper.AssertContains(
-      `null value in column "vessel_type" violates not-null constraint`,
-    );
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(
+        'ERROR: null value in column "vessel_type" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , null, null, , null, , null, null, 0, ).',
+      );
+    });
     deployMode.SelectJsonFormDropDown("Passenger");
 
     deployMode.ClearJSONFieldValue("Distance To Go");
     agHelper.ClickButton("Update");
-    agHelper.AssertContains(
-      `null value in column "distance_to_go" violates not-null constraint`,
-    );
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(
+        'ERROR: null value in column "distance_to_go" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , Passenger, null, , null, , null, null, null, ).',
+      );
+    });
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
     agHelper.WaitUntilAllToastsDisappear(); //for previous case toasts for next Update to be Success!!
 
@@ -453,7 +463,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.ClearJSONFieldValue("Ship Id");
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage(
-      `null value in column "ship_id" violates not-null constraint`,
+      `Error while inserting resource!\n Your PostgreSQL query failed to execute. Please check more information in the error details.`,
     );
     deployMode.EnterJSONInputValue("Ship Id", "159196");
   });
@@ -522,9 +532,14 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
 
     agHelper.ClickButton("Submit");
-    agHelper.AssertContains(
-      `duplicate key value violates unique constraint "vessels_pkey"`,
-    );
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(
+        'ERROR: duplicate key value violates unique constraint "vessels_pkey"\n  Detail: Key (ship_id)=(159196) already exists.',
+      );
+    });
 
     deployMode.ClearJSONFieldValue("Ship Id");
     deployMode.EnterJSONInputValue("Ship Id", "159180");
@@ -541,7 +556,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("15. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
     table.SelectTableRow(0);
-    agHelper.Sleep(2000);//since table taking time to display JSON form
+    agHelper.Sleep(2000); //since table taking time to display JSON form
 
     //validating update happened fine!
     dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180"); //Validaing new record got inserted in 1st position due to id used
@@ -609,12 +624,13 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("18. Verify application does not break when user runs the query with wrong table name", function() {
     ee.SelectEntityByName("DropVessels", "Queries/JS");
-    dataSources.RunQuery(false);
-    agHelper
-      .GetText(dataSources._queryError)
-      .then(($errorText) =>
-        expect($errorText).to.contain(`table "vessels" does not exist`),
-      );
+    dataSources.RunQuery(false, false);
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(`table "vessels" does not exist`);
+    });
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
@@ -691,7 +707,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
-    agHelper.AssertElementAbsence(locator._spinner, 10000);//10 secs for update to reflect!
+    agHelper.AssertElementAbsence(locator._spinner, 10000); //10 secs for update to reflect!
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex); //Validate Primary key column selection

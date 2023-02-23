@@ -40,7 +40,6 @@ import {
 } from "actions/onboardingActions";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -73,8 +72,6 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { User } from "constants/userConstants";
 import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import { shouldBeDefined } from "utils/helpers";
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
 import store from "store";
@@ -359,17 +356,11 @@ function* selectWidgetSaga(
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
-  const pageId = shouldBeDefined<string>(
-    yield select(getCurrentPageId),
-    "Page not found in state.entities.pageList.currentPageId",
-  );
   const widget = Object.values(widgets).find((widget) => {
     return widget.widgetName === action.payload.widgetName;
   });
 
   if (widget) {
-    // Navigate to the widget as well, usefull especially when we are not on the canvas
-    navigateToCanvas(pageId, widget.widgetId);
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [widget.widgetId]),
     );

@@ -59,7 +59,7 @@ describe("Dynamic input autocomplete", () => {
             );
           });
       });
-    cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
+    cy.evaluateErrorMessage("garbage is not defined");
   });
 
   it("test if action inside non event field throws error", () => {
@@ -77,16 +77,5 @@ describe("Dynamic input autocomplete", () => {
         "storeValue()",
       ),
     );
-  });
-
-  it("opens current value popup", () => {
-    // Test on api pane
-    cy.NavigateToAPI_Panel();
-    cy.get(apiwidget.createapi).click({ force: true });
-    cy.wait("@createNewApi");
-    cy.get(apiwidget.headerValue).within(() => {
-      cy.get("textarea").click({ force: true });
-    });
-    cy.assertEvaluatedValuePopup("string");
   });
 });

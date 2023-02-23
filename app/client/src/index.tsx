@@ -15,7 +15,7 @@ import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { StyledToastContainer } from "design-system-old";
 import "./assets/styles/index.css";
-import "./polyfills/corejs-add-on";
+import "./polyfills";
 import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";

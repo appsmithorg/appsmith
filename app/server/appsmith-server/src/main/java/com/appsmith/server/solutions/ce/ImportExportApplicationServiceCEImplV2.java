@@ -78,6 +78,8 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -132,6 +134,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final Gson gson;
+    private final TransactionalOperator transactionalOperator;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -601,6 +604,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         }
 
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            log.error("Invalid content type, {}", contentType);
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
         }
 
@@ -1231,12 +1235,9 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 })
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application ", throwable.getMessage());
-                    if (importedApplication.getId() != null && applicationId == null) {
-                        return applicationPageService.deleteApplication(importedApplication.getId())
-                                .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
-                    }
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
-                });
+                })
+                .as(transactionalOperator::transactional);
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow
