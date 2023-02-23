@@ -15,7 +15,6 @@ import {
 } from "actions/controlActions";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ControlData } from "components/propertyControls/BaseControl";
 import {
