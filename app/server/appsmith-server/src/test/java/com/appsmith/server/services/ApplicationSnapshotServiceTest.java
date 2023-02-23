@@ -1,9 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.PageDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApplicationSnapshotServiceTest {
     @Autowired
     private ApplicationPageService applicationPageService;
+
+    @Autowired
+    private NewPageService newPageService;
 
     @Autowired
     private ApplicationSnapshotService applicationSnapshotService;
@@ -123,5 +129,58 @@ public class ApplicationSnapshotServiceTest {
                     assertThat(applicationSnapshot.getApplicationId()).isEqualTo(application.getId());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void restoreSnapshot_WhenNewPagesAddedAfterSnapshotTaken_NewPagesRemovedAfterSnapshotIsRestored() {
+        String uniqueString = UUID.randomUUID().toString();
+        String testDefaultAppId = "default-app-" + uniqueString;
+        String testBranchName = "hello/world";
+
+        // create a new workspace
+        Workspace workspace = new Workspace();
+        workspace.setName("Test workspace " + uniqueString);
+
+        Mono<Application> applicationMono = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("App before snapshot");
+                    return applicationPageService.createApplication(testApplication, workspace.getId());
+                }).cache();
+
+        Mono<ApplicationPagesDTO> pagesBeforeSnapshot = applicationMono
+                .flatMap(createdApp -> {
+                    // add a page to the application
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("Home");
+                    pageDTO.setApplicationId(createdApp.getId());
+                    return applicationPageService.createPage(pageDTO)
+                            .then(newPageService.findApplicationPages(createdApp.getId(), null, null, ApplicationMode.EDIT));
+                });
+
+        Mono<ApplicationPagesDTO> pagesAfterSnapshot = applicationMono.flatMap(application -> { // create a snapshot
+            return applicationSnapshotService.createApplicationSnapshot(application.getId(), null)
+                    .thenReturn(application);
+        }).flatMap(application -> { // add a new page to the application
+            PageDTO pageDTO = new PageDTO();
+            pageDTO.setName("About");
+            pageDTO.setApplicationId(application.getId());
+            return applicationPageService.createPage(pageDTO)
+                    .then(applicationSnapshotService.restoreSnapshot(application.getId(), null))
+                    .then(newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT));
+        });
+
+        // not using Mono.zip because we want pagesBeforeSnapshot to finish first
+        Mono<Tuple2<ApplicationPagesDTO, ApplicationPagesDTO>> tuple2Mono = pagesBeforeSnapshot
+                .flatMap(applicationPagesDTO -> pagesAfterSnapshot.zipWith(Mono.just(applicationPagesDTO)));
+
+        StepVerifier.create(tuple2Mono)
+            .assertNext(objects -> {
+                ApplicationPagesDTO beforePages = objects.getT2();
+                ApplicationPagesDTO afterPages = objects.getT1();
+                assertThat(beforePages.getPages().size()).isEqualTo(afterPages.getPages().size());
+            })
+            .verifyComplete();
     }
 }
