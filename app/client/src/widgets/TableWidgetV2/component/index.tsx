@@ -275,7 +275,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     props.isVisibleDownload,
     props.isVisibleFilters,
     props.isVisiblePagination,
-    props.isVisiblePagination,
     props.serverSidePaginationEnabled,
     props.allowAddNewRow,
     props.searchKey,
