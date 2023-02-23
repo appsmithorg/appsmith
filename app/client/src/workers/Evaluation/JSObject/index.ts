@@ -331,12 +331,25 @@ export function updateJSCollectionStateFromContext() {
   jsObjectCollection.setVariableState(newVarState);
 }
 
+export function removeProxyObject(objOrArr: any) {
+  const newObjOrArr = objOrArr;
+  if (typeof objOrArr === "object") {
+    for (const key in objOrArr) {
+      newObjOrArr[key] = removeProxyObject(
+        getOriginalValueFromProxy(objOrArr[key]),
+      );
+    }
+  }
+  return newObjOrArr;
+}
+
 export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
   // loop through jsCollectionState and set all values to evalTree
   const jsCollections = jsObjectCollection.getCurrentVariableState();
   const jsCollectionEntries = Object.entries(jsCollections);
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
-    const newJSObject = merge(evalTree[jsObjectName], variableState);
+    const sanitizedState = removeProxyObject(variableState);
+    const newJSObject = merge(evalTree[jsObjectName], sanitizedState);
     evalTree[jsObjectName] = newJSObject;
   }
 }

@@ -2,7 +2,7 @@
 import { WorkerErrorTypes } from "ce/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
-import { getOriginalValueFromProxy } from "workers/Evaluation/JSObject/Collection";
+import { removeProxyObject } from "workers/Evaluation/JSObject";
 import { evaluateAsync } from "workers/Evaluation/evaluate";
 type TPromiseResponse =
   | {
@@ -37,10 +37,11 @@ function responseHandler(requestId: string): Promise<TPromiseResponse> {
 function sanitizeData(data: unknown) {
   const responseData = data;
   if (typeof data === "object" && (responseData as AsyncEvalResponse).result) {
-    (responseData as AsyncEvalResponse).result = getOriginalValueFromProxy(
+    (responseData as AsyncEvalResponse).result = removeProxyObject(
       (data as AsyncEvalResponse).result,
     );
   }
+
   return responseData;
 }
 
