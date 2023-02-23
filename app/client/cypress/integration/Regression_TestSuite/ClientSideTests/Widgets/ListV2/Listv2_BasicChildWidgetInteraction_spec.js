@@ -7,6 +7,9 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
 
+const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
+const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
+
 function dragAndDropToWidget(widgetType, destinationWidget, { x, y }) {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(800);
@@ -23,6 +26,20 @@ function dragAndDropToWidget(widgetType, destinationWidget, { x, y }) {
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
 }
 
+function deleteAllWidgetsInContainer() {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+  cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+    .first()
+    .click({
+      force: true,
+    });
+  cy.get("body").type(`{${modifierKey}}{a}`);
+  cy.get("body").type("{del}");
+
+  cy.wait(200);
+}
+
 function checkSelectedRadioValue(selector, value) {
   /**
    * This function checks if the radio button is checked.
@@ -33,20 +50,24 @@ function checkSelectedRadioValue(selector, value) {
 }
 
 describe("List widget v2 - Basic Child Widget Interaction", () => {
+  before(() => {
+    cy.addDsl(emptyListDSL);
+  });
+
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
-    cy.addDsl(emptyListDSL);
     cy.get(publishLocators.containerWidget).should("have.length", 3);
   });
 
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
+    deleteAllWidgetsInContainer();
   });
 
   it("1. Input widget", () => {
     // Drop Input widget
     dragAndDropToWidget("inputwidgetv2", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
@@ -67,7 +88,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
   it("2. Select widget", () => {
     // Drop Select widget
     dragAndDropToWidget("selectwidget", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
@@ -94,7 +115,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
   it("3. Checkbox group widget", () => {
     // Drop Select widget
     dragAndDropToWidget("checkboxgroupwidget", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
@@ -130,7 +151,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
   it("4. Switch widget", () => {
     // Drop Select widget
     dragAndDropToWidget("switchwidget", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
@@ -161,7 +182,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
   it("5. Radio group widget", () => {
     // Drop Select widget
     dragAndDropToWidget("radiogroupwidget", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
