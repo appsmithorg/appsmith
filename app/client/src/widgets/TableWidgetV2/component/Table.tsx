@@ -408,7 +408,9 @@ export function Table(props: TableProps) {
     ),
     [
       areEqual,
-      columns,
+      columns.map((column) => column.alias).toString(),
+      columns.map((column) => column.sticky).toString(),
+      columns.map((column) => column.isAscOrder).toString(),
       props.multiRowSelection,
       rowSelectionState,
       shouldUseVirtual,
