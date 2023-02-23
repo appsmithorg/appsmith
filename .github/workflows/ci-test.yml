@@ -173,7 +173,7 @@ jobs:
         with:
           ref: main
           repository: appsmithorg/ci-oldstack
-          token: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
           submodules: 'recursive'
           path: cicontainerlocal/oldstack
 
