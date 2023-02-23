@@ -2,8 +2,6 @@ import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import React, { useState } from "react";
 import { PropsWithChildren, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import { WidgetProps } from "widgets/BaseWidget";
 
 const SimpleContainer = styled.div`
   width: fit-content;
@@ -14,7 +12,12 @@ const SimpleContainer = styled.div`
 
 interface AutoLayoutDimensionObserverProps {
   onDimensionUpdate: (width: number, height: number) => void;
-  widgetProps: WidgetProps;
+  // widgetProps: WidgetProps;
+  width: number;
+  height: number;
+  isFillWidget: boolean;
+  // TODO(aswathkk): Remove this since this is being only used for debuggind
+  widgetName: string;
 }
 
 export default function AutoLayoutDimensionObserver(
@@ -34,29 +37,33 @@ export default function AutoLayoutDimensionObserver(
       const height = entries[0].contentRect.height;
       if (width === 0 || height === 0) return;
       setCurrentDimension({ width, height });
+      onDimensionUpdate(width, height);
     }),
   );
 
-  const boundingBoxWidth =
-    (props.widgetProps.rightColumn - props.widgetProps.leftColumn) *
-      props.widgetProps.parentColumnSpace -
-    2 * FLEXBOX_PADDING;
-
-  const boundingBoxHeight =
-    (props.widgetProps.bottomRow - props.widgetProps.topRow) *
-      props.widgetProps.parentRowSpace -
-    2 * FLEXBOX_PADDING;
-
   useEffect(() => {
-    const widthDiff = Math.abs(boundingBoxWidth - currentDimension.width);
-    const heightDiff = Math.abs(boundingBoxHeight - currentDimension.height);
     if (currentDimension.width === 0 || currentDimension.height === 0) return;
+    const widthDiff = Math.abs(
+      props.width - 2 * FLEXBOX_PADDING - currentDimension.width,
+    );
+    const heightDiff = Math.abs(
+      props.height - 2 * FLEXBOX_PADDING - currentDimension.height,
+    );
     if (widthDiff > 2 || heightDiff > 2) {
+      // console.log(
+      //   "#### dimensionUpdateObserver",
+      //   props.widgetName,
+      //   "dWidth",
+      //   widthDiff,
+      //   "dHeight",
+      //   heightDiff,
+      //   currentDimension,
+      // );
       onDimensionUpdate(currentDimension.width, currentDimension.height);
     }
   }, [
-    boundingBoxWidth,
-    boundingBoxHeight,
+    props.width,
+    props.height,
     currentDimension.width,
     currentDimension.height,
   ]);
@@ -74,9 +81,7 @@ export default function AutoLayoutDimensionObserver(
   return (
     <SimpleContainer
       className={`auto-layout-dimension-observer ${
-        props.widgetProps.responsiveBehavior === ResponsiveBehavior.Fill
-          ? "fill-widget"
-          : ""
+        props.isFillWidget ? "fill-widget" : ""
       }`}
       ref={ref}
     >
