@@ -109,8 +109,8 @@ function CanvasContainer() {
 
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
-  const heightWithTopMargin = `calc(100vh - 2.25rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
-  const resizerTop = `calc(2.25rem + ${theme.smallHeaderHeight})`;
+  const heightWithTopMargin = `calc(100vh - 2rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
+  const resizerTop = `calc(2rem + ${theme.smallHeaderHeight})`;
   return (
     <>
       <Container
