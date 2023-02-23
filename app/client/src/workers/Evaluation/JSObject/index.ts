@@ -332,7 +332,7 @@ export function updateJSCollectionStateFromContext() {
 }
 
 export function removeProxyObject(objOrArr: any) {
-  const newObjOrArr = objOrArr;
+  const newObjOrArr: any = getOriginalValueFromProxy(objOrArr);
   if (typeof objOrArr === "object") {
     for (const key in objOrArr) {
       newObjOrArr[key] = removeProxyObject(
