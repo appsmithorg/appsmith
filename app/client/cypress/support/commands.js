@@ -2075,6 +2075,14 @@ Cypress.Commands.add("RemoveMultiSelectItems", (dropdownOptions) => {
   });
 });
 
+Cypress.Commands.add("RemoveAllSelections", () => {
+  cy.get(`.rc-select-selection-overflow-item .remove-icon`).each(($each) => {
+    cy.wrap($each)
+      .click({ force: true })
+      .wait(1000);
+  });
+});
+
 Cypress.Commands.add("SelectFromMultiSelect", (options) => {
   const option = (value) =>
     `.rc-select-item-option[title=${value}] input[type='checkbox']`;
