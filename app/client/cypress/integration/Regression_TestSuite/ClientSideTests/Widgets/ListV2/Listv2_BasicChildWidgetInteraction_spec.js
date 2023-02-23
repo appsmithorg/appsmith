@@ -120,7 +120,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(1000);
+    cy.wait(3000);
 
     // select green
     cy.get(publishLocators.checkboxGroupWidget)

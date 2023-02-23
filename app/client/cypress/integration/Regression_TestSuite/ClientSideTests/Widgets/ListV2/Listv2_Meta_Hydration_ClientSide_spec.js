@@ -80,6 +80,7 @@ describe("List widget v2 - meta hydration tests", () => {
     );
     //FirstPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     changeValueOfWidget("selectwidget", "Green", 0);
     changeValueOfWidget("inputwidgetv2", "First", 0);
     changeValueOfWidget("multiselectwidgetv2", ["Green"], 0);
@@ -102,6 +103,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //   SecondPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     changeValueOfWidget("selectwidget", "Blue", 0);
     changeValueOfWidget("inputwidgetv2", "Fourth", 0);
     changeValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
