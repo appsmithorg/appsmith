@@ -170,11 +170,7 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(
-    widgetType: string,
-    x: number = 200,
-    y: number = 200,
-  ) {
+  public DragDropWidgetNVerify(widgetType: string, x = 200, y = 200) {
     this.NavigateToSwitcher("widgets");
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))
@@ -189,9 +185,10 @@ export class EntityExplorer {
     cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
   }
 
-  public ClonePage(pageName = "Page1") {
+  public ClonePage(pageName = "Page1", index = 0) {
     this.ExpandCollapseEntity("Pages");
     cy.get(this.getPageLocator(pageName))
+      .eq(index)
       .trigger("mouseover")
       .click({ force: true });
     cy.xpath(this._moreOptionsPopover)

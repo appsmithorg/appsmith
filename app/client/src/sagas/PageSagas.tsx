@@ -764,7 +764,7 @@ export function* clonePageSaga(
       );
 
       if (!afterActionsFetch) {
-        throw new Error("Failed generating template");
+        throw new Error("Failed cloning page");
       }
 
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
