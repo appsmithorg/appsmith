@@ -450,12 +450,6 @@ describe("4. translateDiffEvent", () => {
 
     const expectedTranslations: DataTreeDiff[] = [
       {
-        event: DataTreeDiffEvent.DELETE,
-        payload: {
-          propertyPath: "JsObject.myFun1.data",
-        },
-      },
-      {
         event: DataTreeDiffEvent.EDIT,
         payload: {
           propertyPath: "JsObject.myFun1",
