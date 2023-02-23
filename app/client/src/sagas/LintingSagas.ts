@@ -15,6 +15,9 @@ import {
   LINT_WORKER_ACTIONS,
 } from "workers/Linting/types";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 export const lintWorker = new GracefulWorkerService(
   new Worker(new URL("../workers/Linting/lint.worker.ts", import.meta.url), {
@@ -43,6 +46,7 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   const lintTreeRequestData: LintTreeRequest = {
     pathsToLint,
     unevalTree,
+    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
   };
 
   const { errors }: LintTreeResponse = yield call(

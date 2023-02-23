@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
+import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -55,7 +56,7 @@ public class WorkspaceControllerTest {
                         "        \"status\": 400,\n" +
                         "        \"success\": false,\n" +
                         "        \"error\": {\n" +
-                        "            \"code\": 4028,\n" +
+                        "            \"code\": "+ AppsmithErrorCode.VALIDATION_FAILURE.getCode() +",\n" +
                         "            \"message\": \"Validation Failure(s): {name=Name is mandatory}\"\n" +
                         "        }\n" +
                         "    }\n" +
