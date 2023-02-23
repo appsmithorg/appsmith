@@ -23,8 +23,8 @@ import {
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import { XYCord } from "./hooks/useRenderBlocksOnCanvas";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
+import { XYCord } from "./hooks/useRenderBlocksOnCanvas";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 
 export interface SelectedArenaDimensions {
@@ -75,7 +75,7 @@ export function CanvasSelectionArena({
     getWidget(state, widgetId),
   );
   const currentPageId = useSelector(getCurrentPageId);
-  const appLayout = useSelector(getCurrentApplicationLayout) || "FLUID";
+  const appLayout = useSelector(getCurrentApplicationLayout);
   const throttledWidgetSelection = useCallback(
     throttle(
       (
