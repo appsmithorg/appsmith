@@ -27,7 +27,10 @@ import {
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getDragDetails } from "sagas/selectors";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
-import { updateDOMDirectlyBasedOnAutoHeightAction } from "actions/autoHeightActions";
+import {
+  checkContainersForAutoHeightAction,
+  updateDOMDirectlyBasedOnAutoHeightAction,
+} from "actions/autoHeightActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 type DropTargetComponentProps = PropsWithChildren<{
@@ -225,9 +228,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       // In these scenarios, the parent's height needs to be updated
       // in the same way as the auto height would have done
       if (props.parentId) {
-        dispatch(
-          updateDOMDirectlyBasedOnAutoHeightAction(props.parentId, snapRows),
-        );
+        dispatch(checkContainersForAutoHeightAction());
       }
     }
   }, [props.widgetId, props.bottomRow, isDragging, isResizing, props.parentId]);
