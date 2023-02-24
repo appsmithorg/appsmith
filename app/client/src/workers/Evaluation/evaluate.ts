@@ -9,15 +9,11 @@ import { Severity } from "entities/AppsmithConsole";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { updateJSCollectionStateFromContext } from "./JSObject";
 import JSVariableUpdates from "./JSObject/JSVariableUpdates";
-import { registerJSUpdateCheckTask } from "./JSObject/checkUpdate";
-import { jsObjectCollection } from "./JSObject/Collection";
 
 export type EvalResult = {
   result: any;
@@ -71,9 +67,11 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
   return acc;
 }, {} as any);
 
-function resetWorkerGlobalScope() {
+function resetWorkerGlobalScope(dataTree: DataTree) {
   self.$isDataField = false;
   for (const key of Object.keys(self)) {
+    if (dataTree[key]) continue;
+
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     //TODO: Remove this once we have a better way to handle this
     if (["evaluationVersion", "window", "document", "location"].includes(key))
@@ -159,39 +157,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, isTriggerBased);
   return EVAL_CONTEXT;
-};
-
-export const assignJSFunctionsToContext = (
-  EVAL_CONTEXT: EvalContext,
-  isTriggerBased: boolean,
-) => {
-  const resolvedFunctions = jsObjectCollection.getResolvedFunctions();
-  const jsObjectNames = Object.keys(resolvedFunctions || {});
-  for (const jsObjectName of jsObjectNames) {
-    const resolvedObject = resolvedFunctions[jsObjectName];
-    const jsObject = EVAL_CONTEXT[jsObjectName];
-    const jsObjectFunction: Record<string, Record<"data", unknown>> = {};
-    if (!jsObject) continue;
-    for (const fnName of Object.keys(resolvedObject)) {
-      const fn = resolvedObject[fnName];
-      if (typeof fn !== "function") continue;
-      // Investigate promisify of JSObject function confirmation
-      // Task: https://github.com/appsmithorg/appsmith/issues/13289
-      // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
-      const data = jsObject[fnName]?.data;
-      jsObjectFunction[fnName] = isTriggerBased
-        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
-        : fn;
-      if (!!data) {
-        jsObjectFunction[fnName]["data"] = data;
-      }
-    }
-
-    // TODO: check this once again
-    Object.assign(EVAL_CONTEXT[jsObjectName], jsObjectFunction);
-  }
 };
 
 export function sanitizeScript(js: string) {
@@ -240,7 +206,7 @@ export default function evaluateSync(
   evalArguments?: Array<any>,
 ): EvalResult {
   return (function() {
-    resetWorkerGlobalScope();
+    resetWorkerGlobalScope(dataTree);
     JSVariableUpdates.disable();
     const errors: EvaluationError[] = [];
     let result;
@@ -295,14 +261,8 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
+      console.log("$$$-SYNC-EVAL_COMPLETED");
       JSVariableUpdates.enable();
-
-      for (const entityName in evalContext) {
-        if (evalContext.hasOwnProperty(entityName)) {
-          // @ts-expect-error: Types are not available
-          delete self[entityName];
-        }
-      }
       self["$isDataField"] = false;
     }
     return { result, errors };
@@ -316,9 +276,10 @@ export async function evaluateAsync(
   evalArguments?: Array<any>,
 ) {
   return (async function() {
-    resetWorkerGlobalScope();
+    resetWorkerGlobalScope(dataTree);
     const errors: EvaluationError[] = [];
     let result;
+    JSVariableUpdates.disable();
 
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
@@ -335,6 +296,8 @@ export async function evaluateAsync(
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
     Object.assign(self, evalContext);
+
+    JSVariableUpdates.enable();
 
     try {
       result = await indirectEval(script);
@@ -355,9 +318,7 @@ export async function evaluateAsync(
       });
     } finally {
       // Remove this
-      updateJSCollectionStateFromContext();
-      registerJSUpdateCheckTask();
-
+      console.log("$$$-ASYNC-EVAL_COMPLETED");
       return {
         result,
         errors,

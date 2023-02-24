@@ -92,7 +92,6 @@ import {
   updateUnEvalTreeWithChanges,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
-  updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
 import { getFixedTimeDifference } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
@@ -502,8 +501,6 @@ export default class DataTreeEvaluator {
       pathsToClearErrorsFor,
     } = extraParams;
 
-    updateEvalTreeWithJSCollectionState(this.evalTree);
-
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
       updatedValuePaths,
@@ -911,32 +908,15 @@ export default class DataTreeEvaluator {
           } else if (isJSAction(entity)) {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
-              // TODO: To update JSObject variable value on modification remove picking value from currentEvaluatedValue logic.
-              const currentEvaluatedValue = get(
+              set(
                 this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
                 }),
+                evalPropertyValue,
               );
-              const evalValue = currentEvaluatedValue
-                ? currentEvaluatedValue
-                : evalPropertyValue;
-              if (!currentEvaluatedValue) {
-                set(
-                  this.evalProps,
-                  getEvalValuePath(fullPropertyPath, {
-                    isPopulated: true,
-                    fullPath: true,
-                  }),
-                  evalPropertyValue,
-                );
-                jsObjectCollection.setVariableValue(
-                  evalValue,
-                  fullPropertyPath,
-                );
-              }
-              set(currentTree, fullPropertyPath, evalValue);
+              set(currentTree, fullPropertyPath, evalPropertyValue);
             }
             return currentTree;
           } else {

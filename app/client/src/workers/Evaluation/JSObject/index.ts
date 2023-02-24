@@ -1,5 +1,5 @@
 import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import { get, isEmpty, merge, set } from "lodash";
+import { get, isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
@@ -17,8 +17,10 @@ import {
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
-import { dataTreeEvaluator } from "../handlers/evalTree";
+import evalTree, { dataTreeEvaluator } from "../handlers/evalTree";
 import { getOriginalValueFromProxy, jsObjectCollection } from "./Collection";
+import { Patch } from "./JSVariableUpdates";
+import { klona } from "klona/full";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -68,11 +70,12 @@ export const updateUnEvalTreeWithChanges = (
       if (isJSAction(entity)) {
         const variableName = path[1];
         const fullPath = `${entityName}.${variableName}`;
-        const newJSObject = jsObjectCollection.getCurrentVariableState(
-          entityName,
-        );
-        const latestValue = newJSObject[variableName];
-        set(UnEvalTree, fullPath, latestValue);
+        const evalTree = dataTreeEvaluator?.evalTree;
+        if (evalTree) {
+          const newJSObject = evalTree[entityName] as DataTreeJSAction;
+          const latestValue = newJSObject[variableName];
+          set(UnEvalTree, fullPath, latestValue);
+        }
       }
     }
   }
@@ -304,31 +307,55 @@ export function getJSEntities(dataTree: DataTree) {
   return jsCollections;
 }
 
-export function updateJSCollectionStateFromContext() {
-  const newVarState = {};
+export function updateEvalTreeValueFromContext(paths: string[][]) {
+  console.log("$$$-UPDATE_EVAL_TREE-START", paths);
+  const currentEvalContext = self;
+
+  const oldUnEvalTree = dataTreeEvaluator?.oldUnEvalTree || {};
+  const evalTree = dataTreeEvaluator?.evalTree;
+
+  if (!evalTree) return;
+
+  for (const fullPathArray of paths) {
+    const [jsObjectName, variableName] = fullPathArray;
+    const entity = oldUnEvalTree[jsObjectName] as DataTreeJSAction;
+    if (jsObjectName && variableName && isJSObject(entity)) {
+      const variableValue = get(currentEvalContext, [
+        jsObjectName,
+        variableName,
+      ]);
+      set(
+        evalTree,
+        [jsObjectName, variableName],
+        klona(removeProxyObject(variableValue)),
+      );
+      console.log("$$$-UPDATE_EVAL_TREE-END", fullPathArray, variableValue);
+    }
+  }
+}
+
+export function updateEvalTreeFromContext() {
   const currentEvalContext = self;
 
   const unEvalJSCollection = jsObjectCollection.getUnEvalState();
   const oldUnEvalTree = dataTreeEvaluator?.oldUnEvalTree || {};
   const jsObjectNames = Object.keys(unEvalJSCollection || {});
+  const evalTree = dataTreeEvaluator?.evalTree;
+
   for (const jsObjectName of jsObjectNames) {
     const jsObjectEntity = oldUnEvalTree[jsObjectName] as DataTreeJSAction;
-    if (isJSObject(jsObjectEntity)) {
+    if (isJSObject(jsObjectEntity) && evalTree) {
       const variables = jsObjectEntity.variables;
       for (const variableName of variables) {
         const variableValue = get(currentEvalContext, [
           jsObjectName,
           variableName,
         ]);
-        set(
-          newVarState,
-          [jsObjectName, variableName],
-          getOriginalValueFromProxy(variableValue),
-        );
+        const sanitizedValue = getOriginalValueFromProxy(variableValue);
+        set(evalTree, [jsObjectName, variableName], sanitizedValue);
       }
     }
   }
-  jsObjectCollection.setVariableState(newVarState);
 }
 
 export function removeProxyObject(objOrArr: any) {
@@ -341,15 +368,4 @@ export function removeProxyObject(objOrArr: any) {
     }
   }
   return newObjOrArr;
-}
-
-export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
-  // loop through jsCollectionState and set all values to evalTree
-  const jsCollections = jsObjectCollection.getCurrentVariableState();
-  const jsCollectionEntries = Object.entries(jsCollections);
-  for (const [jsObjectName, variableState] of jsCollectionEntries) {
-    const sanitizedState = removeProxyObject(variableState);
-    const newJSObject = merge(evalTree[jsObjectName], sanitizedState);
-    evalTree[jsObjectName] = newJSObject;
-  }
 }

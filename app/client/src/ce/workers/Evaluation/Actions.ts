@@ -8,7 +8,6 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import set from "lodash/set";
 import { EvalContext } from "workers/Evaluation/evaluate";
-import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
 import JSProxy from "workers/Evaluation/JSObject/JSVariableProxy";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
@@ -16,6 +15,8 @@ import {
   entityFns,
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
+import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
+import { jsObjectFunctionFactory } from "workers/Evaluation/fns/utils/jsObjectFnFactory";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -54,7 +55,7 @@ export const addDataTreeToContext = (args: {
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
   for (const [entityName, entity] of dataTreeEntries) {
-    setEntityToEvalContext(entity, entityName, EVAL_CONTEXT);
+    setEntityToEvalContext(entity, entityName, EVAL_CONTEXT, isTriggerBased);
 
     if (skipEntityFunctions || !isTriggerBased) continue;
     for (const entityFn of entityFns) {
@@ -101,28 +102,51 @@ function setEntityToEvalContext(
   entity: DataTreeEntity,
   entityName: string,
   EVAL_CONTEXT: EvalContext,
+  isTriggerBased: boolean,
 ) {
   const dataTreeObjectEntity = entity as DataTreeObjectEntity;
 
-  if (dataTreeObjectEntity.ENTITY_TYPE) {
-    switch (dataTreeObjectEntity.ENTITY_TYPE) {
-      case ENTITY_TYPE.JSACTION: {
-        const varState = jsObjectCollection.getCurrentVariableState(entityName);
-        if (varState) {
-          if (self.$isDataField) {
-            EVAL_CONTEXT[entityName] = varState;
-            return;
-          }
+  if (dataTreeObjectEntity.ENTITY_TYPE !== ENTITY_TYPE.JSACTION) {
+    EVAL_CONTEXT[entityName] = entity;
+    return;
+  }
 
-          EVAL_CONTEXT[entityName] = JSProxy.create(
-            entity as DataTreeJSAction,
-            entityName,
-            varState,
-          );
-          return;
-        }
+  const resolvedFunctions = jsObjectCollection.getResolvedFunctions();
+  const resolvedObject = resolvedFunctions[entityName];
+  let jsObjectInEval: Record<string, any> = {};
+
+  // Add variables
+  for (const varName of dataTreeObjectEntity.variables) {
+    jsObjectInEval[varName] = dataTreeObjectEntity[varName];
+  }
+
+  // If AsyncEval then add proxy
+  if (!self.$isDataField) {
+    jsObjectInEval = JSProxy.create(
+      entity as DataTreeJSAction,
+      entityName,
+      jsObjectInEval,
+    );
+  }
+
+  // Add functions
+  if (resolvedObject) {
+    for (const fnName of Object.keys(resolvedObject)) {
+      const fn = resolvedObject[fnName];
+      if (typeof fn !== "function") continue;
+      // Investigate promisify of JSObject function confirmation
+      // Task: https://github.com/appsmithorg/appsmith/issues/13289
+      // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
+      const data = dataTreeObjectEntity[fnName]?.data;
+      jsObjectInEval[fnName] = isTriggerBased
+        ? jsObjectFunctionFactory(fn, entityName + "." + fnName)
+        : fn;
+      if (!!data) {
+        jsObjectInEval[fnName]["data"] = data;
       }
     }
   }
-  EVAL_CONTEXT[entityName] = entity;
+
+  // set to evalContext
+  EVAL_CONTEXT[entityName] = jsObjectInEval;
 }

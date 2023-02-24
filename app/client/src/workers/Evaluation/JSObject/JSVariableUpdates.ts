@@ -1,6 +1,7 @@
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { registerJSUpdateCheckTask } from "./checkUpdate";
 
 export enum PatchType {
   "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
@@ -21,6 +22,7 @@ class JSVariableUpdates {
   static add(patch: Patch) {
     if (JSVariableUpdates.disableTracking) return;
     JSVariableUpdates.patches.push(patch);
+    registerJSUpdateCheckTask();
   }
 
   static getAll() {

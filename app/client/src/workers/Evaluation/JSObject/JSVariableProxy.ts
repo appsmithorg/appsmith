@@ -21,6 +21,7 @@ export function jsObjectProxyHandler(
           addPatch({
             path,
             method: PatchType.PROTOTYPE_METHOD_CALL,
+            value,
           });
         }
         return value.bind(target);
@@ -36,10 +37,13 @@ export function jsObjectProxyHandler(
       return target[prop];
     },
     set: function(target: any, prop: string, value: unknown, rec: any) {
-      addPatch({
-        path: `${path}.${prop}`,
-        method: PatchType.SET,
-      });
+      if (typeof value !== "function") {
+        addPatch({
+          path: `${path}.${prop}`,
+          method: PatchType.SET,
+          value,
+        });
+      }
       return Reflect.set(target, prop, value, rec);
     },
     deleteProperty: function(target: any, prop: string) {
@@ -53,6 +57,7 @@ export function jsObjectProxyHandler(
 }
 
 function addPatch(patch: Patch) {
+  if (patch.path.split(".").length === 1) return;
   JSVariableUpdates.add(patch);
 }
 

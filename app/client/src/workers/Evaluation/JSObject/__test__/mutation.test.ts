@@ -29,7 +29,7 @@ describe("Mutation", () => {
       },
     } as unknown) as DataTree;
 
-    jsObjectCollection.setVariableState((dataTree as unknown) as VariableState);
+    // jsObjectCollection.setVariableState((dataTree as unknown) as VariableState);
 
     const evalContext = createEvaluationContext({
       dataTree,
