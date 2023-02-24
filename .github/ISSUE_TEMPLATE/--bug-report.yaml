@@ -46,7 +46,7 @@ body:
   validations:
     required: false
 - type: dropdown
-  id: version
+  id: environment
   attributes:
     label: Environment
     description: "Instance where the issue is reproducible"
