@@ -131,6 +131,7 @@ export type UserProps = BaseAclProps & {
   allRoles: BaseGroupRoleProps[];
   username: string;
   userPermissions?: string[];
+  photoId?: string;
 };
 
 export type UserEditProps = {

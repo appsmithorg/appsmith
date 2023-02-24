@@ -173,8 +173,8 @@ describe("<RoleAddEdit />", () => {
     await fireEvent.change(searchInput[0], { target: { value: "chart" } });
     expect(searchInput[0]).toHaveValue("chart");
 
-    await waitFor(() => {
-      const highlighted = screen.queryAllByTestId("t--highlighted-text");
+    waitFor(async () => {
+      const highlighted = await screen.getAllByTestId("t--highlighted-text");
       expect(highlighted).toHaveLength(3);
       const tabCount = screen.queryAllByTestId("t--tab-count");
       expect(tabCount).toHaveLength(1);

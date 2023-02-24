@@ -280,8 +280,8 @@ describe("<UserEdit />", () => {
     fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
     let saveButton;
-    await waitFor(async () => {
-      saveButton = screen.getAllByTestId("t--admin-settings-save-button");
+    waitFor(async () => {
+      saveButton = await screen.getAllByTestId("t--admin-settings-save-button");
       expect(saveButton).toHaveLength(1);
       await fireEvent.click(saveButton[0]);
       const errorMessage = document.getElementsByClassName("cs-text");
