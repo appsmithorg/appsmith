@@ -221,7 +221,6 @@ public class MySqlPlugin extends BasePlugin {
                                                          List<MustacheBindingToken> mustacheValuesInOrder,
                                                          ExecuteActionDTO executeActionDTO,
                                                          Map<String, Object> requestData) {
-
             String query = actionConfiguration.getBody();
 
             /**
@@ -231,7 +230,9 @@ public class MySqlPlugin extends BasePlugin {
              * integers with IS keyword.
              * - I have raised an issue with r2dbc to track it: https://github.com/mirromutth/r2dbc-mysql/issues/200
              */
-            if (preparedStatement && isIsOperatorUsed(query)) {
+            String finalQuery = QueryUtils.removeQueryComments(query);
+
+            if (preparedStatement && isIsOperatorUsed(finalQuery)) {
                 return Mono.error(
                         new AppsmithPluginException(
                                 MySQLPluginError.IS_KEYWORD_NOT_ALLOWED_IN_PREPARED_STATEMENT,
@@ -239,8 +240,6 @@ public class MySqlPlugin extends BasePlugin {
                         )
                 );
             }
-
-            String finalQuery = QueryUtils.removeQueryComments(query);
 
             boolean isSelectOrShowOrDescQuery = getIsSelectOrShowOrDescQuery(finalQuery);
 
@@ -523,7 +522,7 @@ public class MySqlPlugin extends BasePlugin {
          * select query rows are returned, whereas, in case of any other query the number of updated rows is
          * returned.
          */
-        private boolean getIsSelectOrShowOrDescQuery(String query) {
+        boolean getIsSelectOrShowOrDescQuery(String query) {
             String[] queries = query.split(";");
 
             String lastQuery = queries[queries.length - 1].trim();
