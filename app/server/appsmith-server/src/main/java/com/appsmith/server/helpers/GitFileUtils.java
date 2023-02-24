@@ -193,6 +193,7 @@ public class GitFileUtils {
                     // This is a special case where we are handling JS actions as we don't want to commit the body of JS actions
                     if (newAction.getPluginType().equals(PluginType.JS)) {
                         newAction.getUnpublishedAction().getActionConfiguration().setBody(null);
+                        newAction.getUnpublishedAction().setJsonPathKeys(null);
                     } else {
                         // For the regular actions we save the body field to git repo
                         resourceMapBody.put(prefix, body);
