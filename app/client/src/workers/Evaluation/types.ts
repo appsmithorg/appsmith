@@ -47,4 +47,5 @@ export interface EvalTreeResponseData {
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
   staleMetaIds: string[];
+  pathsToClearErrorsFor: any[];
 }

@@ -4,13 +4,19 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { useCallback } from "react";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { NavigationMethod } from "utils/history";
 
 export const useWidgetSelection = () => {
   const dispatch = useDispatch();
   return {
     selectWidget: useCallback(
-      (type: SelectionRequestType, payload?: string[]) => {
-        dispatch(selectWidgetInitAction(type, payload));
+      (
+        type: SelectionRequestType,
+        payload?: string[],
+        invokedBy?: NavigationMethod,
+        pageId?: string,
+      ) => {
+        dispatch(selectWidgetInitAction(type, payload, invokedBy, pageId));
       },
       [dispatch],
     ),
