@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -21,8 +22,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRepositoryCEImpl
         implements CustomPermissionGroupRepository {
 
-    public CustomPermissionGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter,
-                                               CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomPermissionGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
@@ -92,5 +92,16 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
 
     public Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user) {
         return super.getAllPermissionGroupsForUser(user);
+    }
+
+    @Override
+    public Mono<Long> countAllReadablePermissionGroupsForUser(User user) {
+        return cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(user);
+    }
+
+    @Override
+    public Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId) {
+        return Mono.when(super.evictAllPermissionGroupCachesForUser(email, tenantId),
+                cacheableRepositoryHelper.evictGetAllReadablePermissionGroupsForUser(email, tenantId)).then();
     }
 }

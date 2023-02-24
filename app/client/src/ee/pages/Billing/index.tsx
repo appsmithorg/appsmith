@@ -1,30 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { IconSize, Text, TextType } from "design-system-old";
+import React from "react";
+import { Category, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-// import { getAllAclUsers } from "@appsmith/selectors/aclSelectors";
 import {
   ACTIVATE,
-  ADMIN_BILLING_SETTINGS_SUBTITLE,
+  ACTIVE,
   ADMIN_BILLING_SETTINGS_TITLE,
   BILLING_AND_USAGE,
   createMessage,
   LICENSE_EXPIRY_DATE,
-  // NUMBER_OF_SELF_HOSTED_USERS,
-  OPEN_CUSTOMER_PORTAL,
   PASTE_LICENSE_KEY,
+  PORTAL,
+  TRIAL,
   UPDATE,
-  // TOTAL_USERS_MESSAGE,
   UPDATE_LICENSE,
-  YOUR_LICENSE_KEY,
+  LICENSE_KEY,
 } from "@appsmith/constants/messages";
 import { BillingPageHeader } from "./Header";
 import {
   BillingPageWrapper,
-  HeaderText,
-  // UserCount,
   StyledDialog,
   DialogWrapper,
   FlexWrapper,
@@ -32,106 +27,91 @@ import {
 } from "./styles";
 import { BillingPageContent } from "./BillingPageContent";
 import { CtaText } from "./CTAText";
-import { BillingDashboardCard, CTATextType } from "./types";
-import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
+import {
+  getDateString,
+  goToCustomerPortal,
+} from "@appsmith/utils/billingUtils";
+import { BillingDashboardCard, CTAButtonType } from "./types";
 import { StatusBadge, Status } from "./StatusBadge";
 import {
   getLicenseKey,
   isTrialLicense,
-  getLicenseExpiry,
   getLicenseStatus,
+  isLicenseModalOpen,
+  getExpiry,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
+import { showLicenseModal } from "@appsmith/actions/tenantActions";
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
-  subtitle: createMessage(ADMIN_BILLING_SETTINGS_SUBTITLE),
 };
 
-const CtaConfig: CTATextType = {
+const CtaConfig: CTAButtonType = {
   action: goToCustomerPortal,
-  icon: {
-    fillColor: Colors.PURPLE,
-    name: "arrow-forward",
-    size: IconSize.XXL,
-  },
-  text: createMessage(OPEN_CUSTOMER_PORTAL).toLocaleUpperCase(),
+  text: createMessage(PORTAL).toLocaleUpperCase(),
 };
 
 const statusTextMap: Partial<Record<Status, string>> = {
-  [Status.ACTIVE]: "Active subscription",
-  [Status.INACTIVE]: "Inactive",
-  [Status.TRIAL]: "Trial version",
+  [Status.ACTIVE]: createMessage(ACTIVE),
+  [Status.TRIAL]: createMessage(TRIAL),
 };
 
 export function Billing() {
-  const dispatch = useDispatch();
   const licenseKey = useSelector(getLicenseKey);
   const isTrial = useSelector(isTrialLicense);
-  const expiryDate = useSelector(getLicenseExpiry);
+  const expiry = useSelector(getExpiry);
+  const expiryDate = getDateString(expiry * 1000);
   const licenseStatus = useSelector(getLicenseStatus);
-  const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    // API call to get the total users
-    dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
-  }, []);
-
-  // We will need this later, for now just commenting this out.
-  // const TOTAL_USERS = useSelector(getAllAclUsers)?.length;
-
+  const isOpen = useSelector(isLicenseModalOpen);
+  const dispatch = useDispatch();
   const cards: BillingDashboardCard[] = [
-    /* {
-      icon: "group-line",
-      title: (
-        <HeaderText type={TextType.H3} weight="700">
-          {createMessage(TOTAL_USERS_MESSAGE)}
-        </HeaderText>
-      ),
-      subtitle: (
-        <Text type={TextType.P1}>
-          {createMessage(NUMBER_OF_SELF_HOSTED_USERS)}
-        </Text>
-      ),
-      value: (
-        <UserCount type={TextType.H1} weight="600">
-          {TOTAL_USERS}
-        </UserCount>
-      ),
-    },*/
     {
       icon: "money-dollar-circle-line",
       title: (
-        <HeaderText type={TextType.H3} weight="700">
+        <Text color={Colors.SCORPION} type={TextType.P0} weight="500">
           {createMessage(BILLING_AND_USAGE)}
-        </HeaderText>
+        </Text>
       ),
-      subtitle: <CtaText {...CtaConfig} />,
+      action: (
+        <CtaText
+          category={Category.tertiary}
+          className="portal-btn"
+          icon="share-2"
+          tag={"a"}
+          {...CtaConfig}
+        />
+      ),
     },
     {
       icon: "key-2-line",
       title: (
         <FlexWrapper align="center" dir="row">
-          <HeaderText type={TextType.H3} weight="700">
-            {createMessage(YOUR_LICENSE_KEY)}
-          </HeaderText>
+          <Text color={Colors.SCORPION} type={TextType.P0} weight="500">
+            {createMessage(LICENSE_KEY)}
+          </Text>
           <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
         </FlexWrapper>
       ),
       content: (
         <FlexWrapper dir="column">
-          <Text type={TextType.H2}>{licenseKey}</Text>
+          <Text color={Colors.GRAY_500} type={TextType.P3} weight="500">
+            {licenseKey}
+          </Text>
           {isTrial && (
-            <Text color={Colors.GREEN} type={TextType.P1} weight="500">
+            <Text color={Colors.GREEN} type={TextType.P3} weight="500">
               {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
             </Text>
           )}
         </FlexWrapper>
       ),
-      subtitle: (
+      action: (
         <CtaText
-          {...CtaConfig}
-          action={() => setIsOpen(true)}
+          action={() => dispatch(showLicenseModal(true))}
+          category={Category.secondary}
+          className="update-license-btn"
+          tag={"button"}
           text={createMessage(UPDATE)}
         />
       ),
@@ -145,7 +125,7 @@ export function Billing() {
       <StyledDialog
         canOutsideClickClose
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => dispatch(showLicenseModal(false))}
         title=""
         width="456px"
       >

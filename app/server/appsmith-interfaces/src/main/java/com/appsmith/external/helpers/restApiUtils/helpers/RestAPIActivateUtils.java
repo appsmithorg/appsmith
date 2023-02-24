@@ -49,12 +49,16 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 @NoArgsConstructor
 public class RestAPIActivateUtils {
 
-    public static String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
-    public static String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
-    public static int MAX_REDIRECTS = 5;
-    public static Set BINARY_DATA_TYPES = Set.of("application/zip", "application/octet-stream", "application/pdf",
-            "application/pkcs8", "application/x-binary");
-
+    public static final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+    public static final String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
+    public static final int MAX_REDIRECTS = 5;
+    public static final Set BINARY_DATA_TYPES = Set.of(
+                                                    "application/zip",
+                                                    "application/octet-stream",
+                                                    "application/pdf",
+                                                    "application/pkcs8",
+                                                    "application/x-binary"
+                                            );
     public static HeaderUtils headerUtils = new HeaderUtils();
 
     public Mono<ActionExecutionResult> triggerApiCall(WebClient client, HttpMethod httpMethod, URI uri,
@@ -93,7 +97,7 @@ public class RestAPIActivateUtils {
                     try {
                         headerInJsonString = objectMapper.writeValueAsString(headers);
                     } catch (JsonProcessingException e) {
-                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                        throw Exceptions.propagate(e);
                     }
 
                     // Set headers in the result now
@@ -163,12 +167,6 @@ public class RestAPIActivateUtils {
 
                     result.setMessages(hintMessages);
                     return result;
-                })
-                .onErrorResume(error -> {
-                    errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
-                    errorResult.setIsExecutionSuccess(false);
-                    errorResult.setErrorInfo(error);
-                    return Mono.just(errorResult);
                 });
 
     }
@@ -190,7 +188,6 @@ public class RestAPIActivateUtils {
                 .uri(uri)
                 .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
                 .exchange()
-                .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                 .flatMap(response -> {
                     if (response.statusCode().is3xxRedirection()) {
                         String redirectUrl = response.headers().header("Location").get(0);

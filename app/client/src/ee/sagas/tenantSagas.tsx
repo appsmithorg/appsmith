@@ -11,7 +11,6 @@ import {
   delay,
   fork,
   put,
-  select,
   take,
   takeLatest,
 } from "redux-saga/effects";
@@ -23,6 +22,7 @@ import { TenantReduxState, License } from "@appsmith/reducers/tenantReducer";
 import localStorage from "utils/localStorage";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
 import {
+  ADMIN_SETTINGS_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
   LICENSE_CHECK_PATH,
@@ -32,8 +32,15 @@ import {
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import { matchPath } from "react-router";
+import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
+import { Toaster, Variant } from "design-system-old";
+import {
+  createMessage,
+  LICENSE_UPDATED_SUCCESSFULLY,
+} from "@appsmith/constants/messages";
+import { setBEBanner, showLicenseModal } from "@appsmith/actions/tenantActions";
+import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
 
 export function* fetchCurrentTenantConfigSaga(): any {
   try {
@@ -117,21 +124,33 @@ export function* validateLicenseSaga(
   const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
     "enableFirstTimeUserExperience",
   );
+  const adminSettingsPath = `${ADMIN_SETTINGS_PATH}/${SettingCategories.BILLING}`;
+  const shouldRedirectOnUpdate = urlObject?.pathname !== adminSettingsPath;
   try {
     const response: ApiResponse<TenantReduxState<License>> = yield call(
       TenantApi.validateLicense,
       action?.payload.key,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+    const license = response?.data?.tenantConfiguration?.license;
     if (isValidResponse) {
-      if (response?.data?.tenantConfiguration?.license?.active) {
-        window.location.replace(redirectUrl);
+      if (license?.active) {
+        if (shouldRedirectOnUpdate) {
+          if (license?.type === "TRIAL") {
+            localStorage.setItem("showLicenseBanner", JSON.stringify(true));
+            yield put(setBEBanner(true));
+          }
+          window.location.assign(redirectUrl);
+        }
         if (shouldEnableFirstTimeUserOnboarding) {
-          const urlObject = new URL(redirectUrl);
+          let urlObj;
+          try {
+            urlObj = new URL(redirectUrl);
+          } catch (e) {}
           const match = matchPath<{
             pageId: string;
             applicationId: string;
-          }>(urlObject?.pathname ?? redirectUrl, {
+          }>(urlObj?.pathname ?? redirectUrl, {
             path: [
               BUILDER_PATH,
               BUILDER_PATH_DEPRECATED,
@@ -142,20 +161,26 @@ export function* validateLicenseSaga(
             exact: false,
           });
           const { applicationId, pageId } = match?.params || {};
-          yield put({
-            type: ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
-            payload: {
-              applicationId: applicationId,
-              pageId: pageId,
-            },
-          });
+          if (applicationId || pageId) {
+            yield put(
+              firstTimeUserOnboardingInit(applicationId, pageId as string),
+            );
+          }
         }
       }
+      yield delay(2000);
       initLicenseStatusCheckSaga();
       yield put({
         type: ReduxActionTypes.VALIDATE_LICENSE_KEY_SUCCESS,
         payload: response.data,
       });
+      if (!shouldRedirectOnUpdate) {
+        Toaster.show({
+          text: createMessage(LICENSE_UPDATED_SUCCESSFULLY),
+          variant: Variant.success,
+        });
+        yield put(showLicenseModal(false));
+      }
     } else {
       yield put({
         type: ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_ERROR,
@@ -184,7 +209,6 @@ export function cacheTenentConfigSaga(action: ReduxAction<any>) {
 }
 
 export function* initLicenseStatusCheckSaga(): unknown {
-  const features = yield select(selectFeatureFlags);
   const url = new URL(window.location.href);
 
   const skipLicenseCheck =
@@ -192,10 +216,45 @@ export function* initLicenseStatusCheckSaga(): unknown {
     url.pathname.includes(SETUP) ||
     url.pathname.includes(PAGE_NOT_FOUND_URL);
 
-  if (!skipLicenseCheck && features?.USAGE_AND_BILLING) {
+  if (!skipLicenseCheck) {
     const task = yield fork(startLicenseStatusCheckSaga);
     yield take(ReduxActionTypes.STOP_LICENSE_STATUS_CHECK);
     yield cancel(task);
+  }
+}
+
+export function* forceLicenseCheckSaga() {
+  try {
+    const response: ApiResponse<TenantReduxState<License>> = yield call(
+      TenantApi.forceCheckLicense,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FORCE_LICENSE_CHECK_SUCCESS,
+        payload: response.data,
+      });
+      if (response.data?.tenantConfiguration?.license?.type === "PAID") {
+        Toaster.show({
+          text: createMessage(LICENSE_UPDATED_SUCCESSFULLY),
+          variant: Variant.success,
+        });
+      }
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FORCE_LICENSE_CHECK_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FORCE_LICENSE_CHECK_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }
 
@@ -213,6 +272,10 @@ export default function* tenantSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
       cacheTenentConfigSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FORCE_LICENSE_CHECK_INIT,
+      forceLicenseCheckSaga,
     ),
   ]);
 }

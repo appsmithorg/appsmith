@@ -201,5 +201,6 @@
     "filepickerwidgetv2": ".t--widget-filepickerwidgetv2",
     "filepickerwidgetv2CancelBtn": "button.uppy-DashboardContent-back",
     "filepickerwidgetv2CloseModalBtn": "button.uppy-Dashboard-close",
-    "codescannerwidget": ".t--widget-codescannerwidget"
+    "codescannerwidget": ".t--widget-codescannerwidget",
+    "listWidgetv2":".t--widget-listwidgetv2"
 }

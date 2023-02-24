@@ -13,7 +13,7 @@ import {
   APPSMITH_DISPLAY_VERSION,
   createMessage,
   DOCUMENTATION,
-  UPGRADE_TO_BUSINESS,
+  UPGRADE,
   WELCOME_TOUR,
 } from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
@@ -27,7 +27,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getDefaultAdminSettingsPath,
   showAdminSettings,
@@ -38,6 +38,7 @@ import {
   isTrialLicense,
 } from "@appsmith/selectors/tenantSelectors";
 import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
+import capitalize from "lodash/capitalize";
 
 const StyledWrapper = styled(Wrapper)`
   .business-plan-menu-option {
@@ -46,6 +47,11 @@ const StyledWrapper = styled(Wrapper)`
     }
     svg path {
       fill: var(--appsmith-color-orange-700);
+    }
+    &:hover {
+      svg path {
+        fill: var(--appsmith-color-orange-700);
+      }
     }
   }
 `;
@@ -60,17 +66,15 @@ function LeftPaneBottomSection() {
   const tenantPermissions = useSelector(getTenantPermissions);
   const isTrial = useSelector(isTrialLicense);
   const isAdmin = useSelector(isAdminUser);
-  const isUsageAndBillingEnabled = useSelector(selectFeatureFlags)
-    ?.USAGE_AND_BILLING;
 
   return (
     <StyledWrapper>
-      {isUsageAndBillingEnabled && isTrial && isAdmin && (
+      {isTrial && isAdmin && (
         <MenuItem
           className="business-plan-menu-option"
           icon="upload-cloud"
           onSelect={goToCustomerPortal}
-          text={createMessage(UPGRADE_TO_BUSINESS)}
+          text={capitalize(createMessage(UPGRADE))}
         />
       )}
       {showAdminSettings(user) && !isFetchingApplications && (

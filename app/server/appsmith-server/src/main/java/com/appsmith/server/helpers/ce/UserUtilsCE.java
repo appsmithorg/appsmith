@@ -83,7 +83,7 @@ public class UserUtilsCE {
                 })
                 .then(Mono.just(users))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(user -> cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId()))
+                .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(user.getEmail(), user.getTenantId()))
                 .then(Mono.just(Boolean.TRUE));
     }
 
@@ -98,7 +98,7 @@ public class UserUtilsCE {
                 })
                 .then(Mono.just(users))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(user -> cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId()))
+                .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(user.getEmail(), user.getTenantId()))
                 .then(Mono.just(Boolean.TRUE));
     }
 

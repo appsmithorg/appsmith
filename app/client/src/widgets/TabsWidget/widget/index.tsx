@@ -28,7 +28,12 @@ export function selectedTabValidation(
   return {
     isValid: value === "" ? true : tabNames.includes(value as string),
     parsed: value,
-    messages: [`Tab name ${value} does not exist`],
+    messages: [
+      {
+        name: "ValidationError",
+        message: `Tab name ${value} does not exist`,
+      },
+    ],
   };
 }
 class TabsWidget extends BaseWidget<
@@ -239,6 +244,7 @@ class TabsWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
             propertyName: "borderRadius",

@@ -55,5 +55,6 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
     Mono<Boolean> bulkAssignToUsersWithoutPermission(PermissionGroup pg, List<User> users);
 
     Mono<Set<String>> getSessionUserPermissionGroupIds();
+    Mono<Set<String>> getAllDirectlyAndIndirectlyAssignedUserIds(PermissionGroup permissionGroup);
 
 }

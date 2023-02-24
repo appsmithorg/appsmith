@@ -19,7 +19,7 @@ map \$http_x_forwarded_proto \$origin_scheme {
 server {
     listen 80;
 $NGINX_SSL_CMNT    server_name $custom_domain ;
-    client_max_body_size 100m;
+    client_max_body_size 150m;
 
     gzip on;
 
@@ -77,7 +77,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
 $NGINX_SSL_CMNT server {
 $NGINX_SSL_CMNT    listen 443 ssl;
 $NGINX_SSL_CMNT    server_name $custom_domain;
-$NGINX_SSL_CMNT    client_max_body_size 100m;
+$NGINX_SSL_CMNT    client_max_body_size 150m;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    ssl_certificate /etc/letsencrypt/live/$custom_domain/fullchain.pem;
 $NGINX_SSL_CMNT    ssl_certificate_key /etc/letsencrypt/live/$custom_domain/privkey.pem;

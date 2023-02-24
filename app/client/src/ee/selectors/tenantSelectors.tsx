@@ -2,7 +2,7 @@ export * from "ce/selectors/tenantSelectors";
 import { Status } from "@appsmith/pages/Billing/StatusBadge";
 import { AppState } from "@appsmith/reducers";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { createSelector } from "reselect";
 
 export const isValidLicense = (state: AppState) => {
   return state.tenant?.tenantConfiguration?.license?.active;
@@ -35,34 +35,47 @@ export const getLicenseDetails = (state: AppState) => {
   return state.tenant?.tenantConfiguration?.license;
 };
 
-export const getRemainingDays = (state: AppState) => {
-  const expiryDate = getLicenseExpiry(state);
-
-  const expiryTimeStamp = new Date(expiryDate).getTime();
-  const presentTimeStamp = Date.now();
-
-  const diffTime = expiryTimeStamp - presentTimeStamp;
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
+export const getExpiry = (state: AppState) => {
+  return state.tenant?.tenantConfiguration?.license?.expiry;
 };
+
+export const getRemainingDays = createSelector(getExpiry, (expiry) => {
+  const timeStamp = expiry * 1000;
+  const totalHours = Math.floor(
+    (new Date(timeStamp).getTime() - Date.now()) / (1000 * 60 * 60),
+  );
+  if (totalHours <= 720 && totalHours > 708) {
+    return {
+      days: 30,
+      suffix: "days",
+    };
+  }
+  if (totalHours <= 12) {
+    return {
+      days: totalHours,
+      suffix: totalHours > 1 ? "hours" : "hour",
+    };
+  }
+  const days = Math.floor((totalHours - 12) / 24) + 1;
+  return {
+    days,
+    suffix: days > 1 ? "days" : "day",
+  };
+});
 
 export const isTrialLicense = (state: AppState) => {
   return state.tenant?.tenantConfiguration?.license?.type === "TRIAL";
 };
 
 export const isBEBannerVisible = (state: AppState) => {
-  const featureFlags = selectFeatureFlags(state);
-  return featureFlags.USAGE_AND_BILLING
-    ? state.tenant?.tenantConfiguration?.license?.showBEBanner &&
-        !state.tenant?.tenantConfiguration?.license?.closedBannerAlready
-    : false;
+  const value = state.tenant?.tenantConfiguration?.license?.showBEBanner;
+  return value;
 };
 
 export const shouldShowLicenseBanner = (state: AppState) => {
   const trialLicense = isTrialLicense(state);
   const isBEBanner = isBEBannerVisible(state);
-  const featureFlags = selectFeatureFlags(state);
-  return featureFlags.USAGE_AND_BILLING ? !isBEBanner && trialLicense : false;
+  return !isBEBanner && trialLicense;
 };
 
 export const hasInvalidLicenseKeyError = (state: AppState) => {
@@ -89,3 +102,9 @@ export const isAdminUser = (state: AppState) =>
 
 export const isLicenseValidating = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.validatingLicense;
+
+export const getLicenseOrigin = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.origin;
+
+export const isLicenseModalOpen = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.showLicenseModal;

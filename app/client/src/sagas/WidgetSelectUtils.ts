@@ -50,16 +50,14 @@ export enum SelectionRequestType {
   /**
    * Unselect specific widgets */
   Unselect = "Unselect",
+  /** Skip checks and just try to select. Page ID can be supplied to select a
+   * widget on another page */
+  UnsafeSelect = "UnsafeSelect",
 }
 
 export type SelectionPayload = string[];
 
-export type SetSelectionResult =
-  | {
-      widgets: string[];
-      lastWidgetSelected?: string;
-    }
-  | undefined;
+export type SetSelectionResult = string[] | undefined;
 
 // Main container cannot be a selection, dont honour this request
 export const isInvalidSelectionRequest = (id: unknown) =>
@@ -89,7 +87,7 @@ export const deselectAll = (request: SelectionPayload): SetSelectionResult => {
       SelectionRequestType.Empty,
     );
   }
-  return { widgets: [], lastWidgetSelected: "" };
+  return [];
 };
 
 export const selectOneWidget = (
@@ -102,7 +100,7 @@ export const selectOneWidget = (
       SelectionRequestType.One,
     );
   }
-  return { widgets: request, lastWidgetSelected: request[0] };
+  return request;
 };
 
 export const selectMultipleWidgets = (
@@ -114,7 +112,7 @@ export const selectMultipleWidgets = (
     return allWidgets[each]?.parentId === parentToMatch;
   });
   if (!areSiblings) return;
-  return { widgets: request, lastWidgetSelected: request[0] };
+  return request;
 };
 
 export const shiftSelectWidgets = (
@@ -128,15 +126,12 @@ export const shiftSelectWidgets = (
     lastSelectedWidget,
   );
   if (siblingIndexOfLastSelectedWidget === -1) {
-    return { widgets: request, lastWidgetSelected: request[0] };
+    return request;
   }
   if (currentlySelectedWidgets.includes(request[0])) {
-    return {
-      widgets: currentlySelectedWidgets.filter((w) => request[0] !== w),
-      lastWidgetSelected: "",
-    };
+    return currentlySelectedWidgets.filter((w) => request[0] !== w);
   }
-  let widgets: string[] = [...request, ...currentlySelectedWidgets];
+  let widgets: string[] = [...currentlySelectedWidgets, ...request];
   const start =
     siblingIndexOfLastSelectedWidget < selectedWidgetIndex
       ? siblingIndexOfLastSelectedWidget
@@ -149,7 +144,7 @@ export const shiftSelectWidgets = (
   if (unSelectedSiblings && unSelectedSiblings.length) {
     widgets = widgets.concat(...unSelectedSiblings);
   }
-  return { widgets: uniq(widgets), lastWidgetSelected: widgets[0] };
+  return uniq(widgets);
 };
 
 export const pushPopWidgetSelection = (
@@ -161,18 +156,11 @@ export const pushPopWidgetSelection = (
   const alreadySelected = currentlySelectedWidgets.includes(widgetId);
 
   if (alreadySelected) {
-    return {
-      lastWidgetSelected: "",
-      widgets: currentlySelectedWidgets.filter((each) => each !== widgetId),
-    };
+    return currentlySelectedWidgets.filter((each) => each !== widgetId);
   } else if (!!widgetId) {
-    const widgets = [...currentlySelectedWidgets, widgetId].filter((w) =>
+    return [...currentlySelectedWidgets, widgetId].filter((w) =>
       siblingWidgets.includes(w),
     );
-    return {
-      widgets,
-      lastWidgetSelected: widgetId,
-    };
   }
 };
 
@@ -180,11 +168,7 @@ export const unselectWidget = (
   request: SelectionPayload,
   currentlySelectedWidgets: string[],
 ): SetSelectionResult => {
-  const widgets = currentlySelectedWidgets.filter((w) => !request.includes(w));
-  return {
-    widgets,
-    lastWidgetSelected: widgets[0],
-  };
+  return currentlySelectedWidgets.filter((w) => !request.includes(w));
 };
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -203,7 +187,7 @@ function* getDroppingCanvasOfWidget(widgetLastSelected: FlattenedWidgetProps) {
     if (widgetLastSelected.type === WidgetTypes.TABS_WIDGET) {
       const tabMetaProps: Record<string, unknown> = yield select(
         getWidgetMetaProps,
-        widgetLastSelected.widgetId,
+        widgetLastSelected,
       );
       return tabMetaProps.selectedTabWidgetId;
     }
@@ -324,10 +308,7 @@ export function* selectAllWidgetsInCanvasSaga() {
           duration: 3000,
         });
       }
-      return {
-        widgets: allSelectableChildren,
-        lastWidgetSelected: allSelectableChildren[0],
-      };
+      return allSelectableChildren;
     }
   } catch (error) {
     yield put({
