@@ -27,9 +27,6 @@ describe("Abort Action Execution", function() {
     agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
   });
 
-  // Queries were resolving quicker than we could cancel them
-  // Commenting this out till we can find a query that resolves slow enough for us to cancel its execution.
-
   it("2. Bug #14006, #16093 Cancel Request button should abort Query action execution", function() {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
