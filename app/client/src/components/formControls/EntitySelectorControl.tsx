@@ -38,6 +38,12 @@ const EntitySelectorWrapper = styled.div<{
 }>`
   margin-right: ${(props) => props.marginRight};
 
+  /* Tree like lines in small width containers
+    |
+    |___ 
+    |
+    |___
+  */
   ${(props) =>
     props.size === "small" &&
     props.index !== 0 &&
