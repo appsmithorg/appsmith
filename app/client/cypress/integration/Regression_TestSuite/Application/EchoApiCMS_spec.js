@@ -37,6 +37,7 @@ describe("Content Management System App", function() {
     // creating post request using echo
     cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/post");
     cy.contains(apiEditor.bodyTab).click({ force: true });
+    cy.get(apiEditor.jsonBodyTab).click({ force: true });
     cy.xpath(apiwidget.postbody)
       .click({ force: true })
       .clear();
@@ -61,6 +62,7 @@ describe("Content Management System App", function() {
     // creating delete request using echo
     cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/delete");
     cy.contains(apiEditor.bodyTab).click({ force: true });
+    cy.get(apiEditor.jsonBodyTab).click({ force: true });
     // binding the data with widgets in body tab
     cy.xpath(apiwidget.postbody)
       .click({ force: true })
