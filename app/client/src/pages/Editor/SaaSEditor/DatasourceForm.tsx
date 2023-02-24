@@ -89,7 +89,6 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
-  featureFlags?: FeatureFlags;
   gsheetToken?: string;
 }
 interface DatasourceFormFunctions {
