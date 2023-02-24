@@ -8,12 +8,8 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import {
-  JSHINT as jshint,
-  LintError as JSHintError,
-  LintOptions,
-} from "jshint";
-import { get, isEmpty, isNumber, keys, last, set } from "lodash";
+import { JSHINT as jshint, LintError as JSHintError } from "jshint";
+import { get, isEmpty, isNumber, keys, last } from "lodash";
 import {
   getLintErrorMessage,
   getLintSeverity,
@@ -29,7 +25,6 @@ import {
 import {
   extractInvalidTopLevelMemberExpressionsFromCode,
   isLiteralNode,
-  ECMA_VERSION,
   MemberExpressionData,
 } from "@shared/ast";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
@@ -49,123 +44,12 @@ import {
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
-import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
+import { lintOptions } from "./constants";
 
-export function getlintErrorsFromTree(
-  pathsToLint: string[],
-  unEvalTree: DataTree,
-  cloudHosting: boolean,
-): LintErrors {
-  const lintTreeErrors: LintErrors = {};
-
-  const evalContext = createEvaluationContext({
-    dataTree: unEvalTree,
-    resolvedFunctions: {},
-    isTriggerBased: false,
-    skipEntityFunctions: true,
-  });
-
-  const platformFnNamesMap = Object.values(
-    getActionTriggerFunctionNames(cloudHosting),
-  ).reduce(
-    (acc, name) => ({ ...acc, [name]: true }),
-    {} as { [x: string]: boolean },
-  );
-  Object.assign(evalContext, platformFnNamesMap);
-
-  const evalContextWithOutFunctions = createEvaluationContext({
-    dataTree: unEvalTree,
-    resolvedFunctions: {},
-    isTriggerBased: true,
-    skipEntityFunctions: true,
-  });
-
-  // trigger paths
-  const triggerPaths = new Set<string>();
-  // Certain paths, like JS Object's body are binding paths where appsmith functions are needed in the global data
-  const bindingPathsRequiringFunctions = new Set<string>();
-
-  pathsToLint.forEach((fullPropertyPath) => {
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      fullPropertyPath,
-    );
-    const entity = unEvalTree[entityName];
-    const unEvalPropertyValue = (get(
-      unEvalTree,
-      fullPropertyPath,
-    ) as unknown) as string;
-    // remove all lint errors from path
-    set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
-
-    // We are only interested in paths that require linting
-    if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
-    if (isATriggerPath(entity, propertyPath))
-      return triggerPaths.add(fullPropertyPath);
-    if (isJSAction(entity))
-      return bindingPathsRequiringFunctions.add(`${entityName}.body`);
-    const lintErrors = lintBindingPath(
-      unEvalPropertyValue,
-      entity,
-      fullPropertyPath,
-      evalContextWithOutFunctions,
-    );
-    set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
-  });
-
-  if (triggerPaths.size || bindingPathsRequiringFunctions.size) {
-    // we only create GLOBAL_DATA_WITH_FUNCTIONS if there are paths requiring it
-    // In trigger based fields, functions such as showAlert, storeValue, etc need to be added to the global data
-
-    // lint binding paths that need GLOBAL_DATA_WITH_FUNCTIONS
-    if (bindingPathsRequiringFunctions.size) {
-      bindingPathsRequiringFunctions.forEach((fullPropertyPath) => {
-        const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
-        const entity = unEvalTree[entityName];
-        const unEvalPropertyValue = (get(
-          unEvalTree,
-          fullPropertyPath,
-        ) as unknown) as string;
-        // remove all lint errors from path
-        set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
-        const lintErrors = lintBindingPath(
-          unEvalPropertyValue,
-          entity,
-          fullPropertyPath,
-          evalContext,
-        );
-        set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
-      });
-    }
-
-    // Lint triggerPaths
-    if (triggerPaths.size) {
-      triggerPaths.forEach((triggerPath) => {
-        const { entityName } = getEntityNameAndPropertyPath(triggerPath);
-        const entity = unEvalTree[entityName];
-        const unEvalPropertyValue = (get(
-          unEvalTree,
-          triggerPath,
-        ) as unknown) as string;
-        // remove all lint errors from path
-        set(lintTreeErrors, `["${triggerPath}"]`, []);
-        const lintErrors = lintTriggerPath(
-          unEvalPropertyValue,
-          entity,
-          evalContext,
-        );
-        set(lintTreeErrors, `["${triggerPath}"]`, lintErrors);
-      });
-    }
-  }
-
-  return lintTreeErrors;
-}
-
-function lintBindingPath(
+export function lintBindingPath(
   dynamicBinding: string,
   entity: DataTreeEntity,
   fullPropertyPath: string,
@@ -228,7 +112,7 @@ function lintBindingPath(
   return lintErrors;
 }
 
-function lintTriggerPath(
+export function lintTriggerPath(
   userScript: string,
   entity: DataTreeEntity,
   globalData: ReturnType<typeof createEvaluationContext>,
@@ -307,89 +191,25 @@ function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
   return EvaluationScriptPositions[scriptType];
 }
 
-export function getLintingErrors(
-  script: string,
-  data: Record<string, unknown>,
-  // {{user's code}}
-  originalBinding: string,
-  scriptType: EvaluationScriptType,
-): LintError[] {
-  const scriptPos = getEvaluationScriptPosition(scriptType);
+function generateLintingGlobalData(data: Record<string, unknown>) {
   const globalData: Record<string, boolean> = {};
+
   for (const dataKey in data) {
     globalData[dataKey] = true;
   }
-  // Jshint shouldn't throw errors for additional libraries
+  // Add all js libraries
   const libAccessors = ([] as string[]).concat(
     ...JSLibraries.map((lib) => lib.accessor),
   );
   libAccessors.forEach((accessor) => (globalData[accessor] = true));
-
-  // JSHint shouldn't throw errors for supported web apis
+  // Add all supported web apis
   Object.keys(SUPPORTED_WEB_APIS).forEach(
     (apiName) => (globalData[apiName] = true),
   );
-
-  const options: LintOptions = {
-    indent: 2,
-    esversion: ECMA_VERSION,
-    eqeqeq: false, // Not necessary to use ===
-    curly: false, // Blocks can be added without {}, eg if (x) return true
-    freeze: true, // Overriding inbuilt classes like Array is not allowed
-    undef: true, // Undefined variables should be reported as error
-    forin: false, // Doesn't require filtering for..in loops with obj.hasOwnProperty()
-    noempty: false, // Empty blocks are allowed
-    strict: false, // We won't force strict mode
-    unused: "strict", // Unused variables are not allowed
-    asi: true, // Tolerate Automatic Semicolon Insertion (no semicolons)
-    boss: true, // Tolerate assignments where comparisons would be expected
-    evil: false, // Use of eval not allowed
-    funcscope: true, // Tolerate variable definition inside control statements
-    sub: true, // Don't force dot notation
-    expr: true, // suppresses warnings about the use of expressions where normally you would expect to see assignments or function calls
-    // environments
-    browser: true,
-    worker: true,
-    mocha: false,
-    // global values
-    globals: globalData,
-    loopfunc: true,
-  };
-
-  jshint(script, options);
-
-  const jshintErrors: LintError[] = getValidLintErrors(
-    jshint.errors,
-    scriptPos,
-  ).map((lintError) => {
-    const ch = lintError.character;
-    return {
-      errorType: PropertyEvaluationErrorType.LINT,
-      raw: script,
-      severity: getLintSeverity(lintError.code),
-      errorMessage: {
-        name: "LintingError",
-        message: getLintErrorMessage(lintError.reason),
-      },
-      errorSegment: lintError.evidence,
-      originalBinding,
-      // By keeping track of these variables we can highlight the exact text that caused the error.
-      variables: [lintError.a, lintError.b, lintError.c, lintError.d],
-      code: lintError.code,
-      line: lintError.line - scriptPos.line,
-      ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
-    };
-  });
-  const invalidPropertyErrors = getInvalidPropertyErrorsFromScript(
-    script,
-    data,
-    scriptPos,
-    originalBinding,
-  );
-  return jshintErrors.concat(invalidPropertyErrors);
+  return globalData;
 }
 
-function getValidLintErrors(
+function sanitizeJSHintErrors(
   lintErrors: JSHintError[],
   scriptPos: Position,
 ): JSHintError[] {
@@ -436,6 +256,70 @@ function getValidLintErrors(
   }, []);
 }
 
+function convertJsHintErrorToAppsmithLintError(
+  jsHintError: JSHintError,
+  script: string,
+  originalBinding: string,
+  scriptPos: Position,
+): LintError {
+  const { a, b, c, code, d, evidence, reason } = jsHintError;
+
+  // Compute actual error position
+  const actualErrorLineNumber = jsHintError.line - scriptPos.line;
+  const actualErrorCh =
+    jsHintError.line === scriptPos.line
+      ? jsHintError.character - scriptPos.ch
+      : jsHintError.character;
+
+  return {
+    errorType: PropertyEvaluationErrorType.LINT,
+    raw: script,
+    severity: getLintSeverity(code),
+    errorMessage: {
+      name: "LintingError",
+      message: getLintErrorMessage(reason),
+    },
+    errorSegment: evidence,
+    originalBinding,
+    // By keeping track of these variables we can highlight the exact text that caused the error.
+    variables: [a, b, c, d],
+    code: code,
+    line: actualErrorLineNumber,
+    ch: actualErrorCh,
+  };
+}
+
+export function getLintingErrors(
+  script: string,
+  data: Record<string, unknown>,
+  // {{user's code}}
+  originalBinding: string,
+  scriptType: EvaluationScriptType,
+): LintError[] {
+  const scriptPos = getEvaluationScriptPosition(scriptType);
+  const lintingGlobalData = generateLintingGlobalData(data);
+  const lintingOptions = lintOptions(lintingGlobalData);
+
+  jshint(script, lintingOptions);
+  const sanitizedJSHintErrors = sanitizeJSHintErrors(jshint.errors, scriptPos);
+  const jshintErrors: LintError[] = sanitizedJSHintErrors.map((lintError) =>
+    convertJsHintErrorToAppsmithLintError(
+      lintError,
+      script,
+      originalBinding,
+      scriptPos,
+    ),
+  );
+  const invalidPropertyErrors = getInvalidPropertyErrorsFromScript(
+    script,
+    data,
+    scriptPos,
+    originalBinding,
+  );
+  return jshintErrors.concat(invalidPropertyErrors);
+}
+
+// returns lint errors caused by accessing invalid properties. Eg. jsObject.unknownProperty
 function getInvalidPropertyErrorsFromScript(
   script: string,
   data: Record<string, unknown>,
