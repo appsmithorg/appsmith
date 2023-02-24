@@ -1,7 +1,11 @@
-on:
+# on:
   # This workflow is only triggered by the ok to test command dispatch
-  repository_dispatch:
-    types: [ ci-test-check-command ]
+  #repository_dispatch:
+      #types: [ ci-test-check-command ]
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
     
 jobs:
    ci-test-check:
@@ -28,7 +32,7 @@ jobs:
           workflowid=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/issues/$prnumber/comments|grep "Tests running at:"|grep -Eo 'https://github[^ >]+'|tail -1|awk -F/ '{print $8}'`
           export retval=`expr $retval + $?`
           echo "workflowid=$workflowid"
-          runsatatus=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/$workflowid/jobs?per_page=100|jq -r '[ .jobs[] | select(.name | contains("ui-test-result")) | .conclusion ]'|grep -v  '\[\|\]'|sed "s/\"//g"|sed "s/ //g"`
+          runsatatus=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/$workflowid/jobs?per_page=100|jq -r '[ .jobs[] | select(.name | contains("ci-test-result")) | .conclusion ]'|grep -v  '\[\|\]'|sed "s/\"//g"|sed "s/ //g"`
           export retval=`expr $retval + $?`
           echo "runsatatus=$runsatatus"
           statuslink=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/pulls/$prnumber|jq -r '[ ._links |.statuses | .href]'|grep http|sed "s/\"//g"|sed "s/ //g"`
