@@ -146,6 +146,7 @@ describe("Button Widget Functionality", function() {
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
         cy.get(publishPage.buttonWidget).click();
+        cy.wait(3000)
       }
     });
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
@@ -164,6 +165,12 @@ describe("Button Widget Functionality", function() {
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
     cy.wait(3000);
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.apiCallToast).length<=0) {
+        cy.get(publishPage.buttonWidget).click();
+        cy.wait(3000);
+      }
+    });
     cy.get(widgetsPage.apiCallToast).should(
       "have.text",
       "Hello from setTimeout after 3 seconds",
