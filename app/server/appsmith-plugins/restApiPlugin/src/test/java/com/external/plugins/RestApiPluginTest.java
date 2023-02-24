@@ -905,7 +905,6 @@ public class RestApiPluginTest {
         dsConfig.setUrl("https://postman-echo.com/post");
 
         ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setFormData(Collections.singletonMap("apiContentType", ApiContentType.JSON.getValue()));
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
         String requestBody = "{\n" +
