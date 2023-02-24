@@ -185,18 +185,9 @@ export class EntityExplorer {
     cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
   }
 
-  public ClonePage(pageName = "Page1", index = 0) {
-    this.ExpandCollapseEntity("Pages");
-    cy.get(this.getPageLocator(pageName))
-      .eq(index)
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.xpath(this._moreOptionsPopover)
-      .first()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.get(this._pageClone).click({ force: true });
+  public ClonePage(pageName = "Page1") {
+    this.SelectEntityByName(pageName, "Pages");
+    this.ActionContextMenuByEntityName(pageName, "Clone");
     this.agHelper.ValidateNetworkStatus("@clonePage", 201);
   }
 

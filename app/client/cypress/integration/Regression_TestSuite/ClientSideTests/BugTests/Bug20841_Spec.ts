@@ -8,7 +8,8 @@ describe("Evaluations causing error when page is cloned", function() {
           return "Default text";
         },
     }`;
-
+    _.ee.DragDropWidgetNVerify(WIDGET.INPUT_V2, 200, 600);
+    _.ee.NavigateToSwitcher("explorer");
     _.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,
@@ -16,8 +17,6 @@ describe("Evaluations causing error when page is cloned", function() {
       shouldCreateNewJSObj: true,
       prettify: false,
     });
-
-    _.ee.DragDropWidgetNVerify(WIDGET.INPUT_V2, 200, 600);
     _.ee.SelectEntityByName("Input1");
     _.propPane.UpdatePropertyFieldValue(
       "Default Value",
@@ -26,13 +25,13 @@ describe("Evaluations causing error when page is cloned", function() {
 
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
 
-    _.ee.ClonePage("Page1", 0);
+    _.ee.ClonePage("Page1");
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
 
-    _.ee.ClonePage("Page1", 0);
+    _.ee.ClonePage("Page1");
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
 
-    _.ee.ClonePage("Page1 Copy", 1);
+    _.ee.ClonePage("Page1 Copy");
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
   });
 });
