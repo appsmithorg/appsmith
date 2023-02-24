@@ -1,10 +1,10 @@
 import React from "react";
-
+// Find the matching breakpoint knowing the width
 function findBreakPoint(breakpoints: Record<string, number>[], width: number) {
   const breakpointIndex = breakpoints
     .map((x) => Object.values(x)[0])
     .findIndex((x) => width < x);
-  // element is larger than every breakpoint so it must be the last breakpoint
+  // element is larger than every breakpoint return empty
   if (breakpointIndex === -1) {
     return "";
   }
@@ -21,7 +21,7 @@ export default function useResponsiveBreakpoints(
 
   const observer = React.useRef(
     new ResizeObserver((entries) => {
-      // Only care about the first element, we expect one element ot be watched
+      // Only care about the first element, we expect one element to be watched
       const { width } = entries[0].contentRect;
       const newBreakSize = findBreakPoint(breakpoints, width);
       setBreakSize(newBreakSize);

@@ -49,6 +49,8 @@ const EntitySelectorWrapper = styled.div<{
     props.index !== 0 &&
     `
     padding-left: 14px;
+    // We create a rectangular shape before the EntitySelector and color the bottom and left
+    // borders
     :before {
       content: "";
       display: block;
@@ -57,11 +59,18 @@ const EntitySelectorWrapper = styled.div<{
       left: 4px;
       border: solid #e0dede;
       border-width: 0 0 1.8px 1.8px;
+      // height of 76 is the distance from the center of the EntitySelector above.
+      // 18 + 18 => two halves of the EntitySelector
+      // 24 => height of the label
+      // 16 => flex gap
       height: 76px;
+      // 60 => 36(height of EntitySelector) + 24(height of the label)
       top: calc(60px * ${props.index})
     }
   `}
 
+  // For the first child in the tree the lines start from the bottom of the parent
+  // so the height required will be shorter. 
   ${(props) =>
     props.size === "small" &&
     props.index === 1 &&
@@ -75,6 +84,8 @@ const EntitySelectorWrapper = styled.div<{
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
   const targetRef = useRef<HTMLDivElement>(null);
+  // Specify the breakpoint value with an identifier.
+  // Here 576 => 280 * 2. Where 280 is the width of a single EntitySelectorComponent
   const size = useResponsiveBreakpoints(targetRef, [{ small: 576 }]);
 
   const visibleSchemas = schema.filter(
