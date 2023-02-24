@@ -18,7 +18,7 @@ import {
   DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 
-import _, { difference, find, get, set } from "lodash";
+import _, { difference, find, get, has, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -185,32 +185,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
         typeof difference.lhs === "string" &&
         (isDynamicValue(difference.lhs) || isJsAction);
 
-      // JsObject function renaming
-      // remove .data from a String instance manually
-      // since it won't be identified when calculating diffs
-      // source for .data in a String instance -> `updateLocalUnEvalTree`
-      if (
-        isJsAction &&
-        rhsChange &&
-        difference.lhs instanceof String &&
-        _.get(difference.lhs, "data")
-      ) {
-        result = [
-          {
-            event: DataTreeDiffEvent.DELETE,
-            payload: {
-              propertyPath: `${propertyPath}.data`,
-            },
-          },
-          {
-            event: DataTreeDiffEvent.EDIT,
-            payload: {
-              propertyPath,
-              value: difference.rhs,
-            },
-          },
-        ];
-      } else if (rhsChange || lhsChange) {
+      if (rhsChange || lhsChange) {
         result = [
           {
             event: DataTreeDiffEvent.EDIT,
@@ -929,4 +904,24 @@ export function getStaleMetaStateIds(args: {
     isMetaWidgetTemplate(entity)
     ? difference(entity.siblingMetaWidgets, metaWidgets)
     : [];
+}
+
+export function convertJSFunctionsToString(
+  jscollections: Record<string, DataTreeJSAction>,
+) {
+  const collections = klona(jscollections);
+  Object.keys(collections).forEach((collectionName) => {
+    const jsCollection = collections[collectionName];
+    const jsFunctions = jsCollection.meta;
+    for (const funcName in jsFunctions) {
+      if (jsCollection[funcName] instanceof String) {
+        if (has(jsCollection, [funcName, "data"])) {
+          set(jsCollection, [`${funcName}.data`], jsCollection[funcName].data);
+        }
+        set(jsCollection, funcName, jsCollection[funcName].toString());
+      }
+    }
+  });
+
+  return collections;
 }

@@ -5,12 +5,16 @@ let dataSources = ObjectsRegistry.DataSources,
 
 describe("Google Sheets datasource test cases", function() {
   it("1. Create Google Sheets datasource", function() {
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    cy.reload();
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Google Sheets");
     VerifyFunctionDropdown([
-      "Read Files",
-      "Read, Edit and Create Files",
-      "Read, Edit, Create and Delete Files",
+      "Read/Write | Selected Google Sheets",
+      "Read/Write | All Google Sheets",
+      "Read Files | All Google Sheets",
     ]);
     dataSources.SaveDSFromDialog(false);
   });

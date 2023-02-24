@@ -77,9 +77,10 @@ public class UserWorkspaceServiceUnitTest {
          */
         Workspace createdWorkspace = workspaceService.create(testWorkspace).block();
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .flatMap(permissionGroup -> {
-                    permissionGroup.setDefaultWorkspaceId(null);
+                    permissionGroup.setDefaultDomainId(null);
+                    permissionGroup.setDefaultDomainType(null);
                     return permissionGroupRepository.save(permissionGroup);
                 })
                 .collectList()
