@@ -1,4 +1,4 @@
-import { find, get, union } from "lodash";
+import { find, get, isEmpty, union } from "lodash";
 import toPath from "lodash/toPath";
 import {
   EvalErrorTypes,
@@ -351,23 +351,50 @@ export function listEntityPathTriggerFieldDependencies(
 ) {
   let triggerFieldDependencies: string[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
-  if (isWidget(entity)) {
-    if (isATriggerPath(entity, propertyPath)) {
-      const unevalPropValue = get(entity, propertyPath);
-      const { jsSnippets } = getDynamicBindings(unevalPropValue);
-      triggerFieldDependencies = jsSnippets.filter((jsSnippet) => !!jsSnippet);
-    }
+
+  if (isADynamicTriggerPath(entity, propertyPath)) {
+    const unevalPropValue = get(entity, propertyPath);
+    const { jsSnippets } = getDynamicBindings(unevalPropValue);
+    triggerFieldDependencies = jsSnippets.filter((jsSnippet) => !!jsSnippet);
   }
+
   return triggerFieldDependencies;
 }
 
-function isATriggerPath(entity: DataTreeEntity, propertyPath: string) {
+export function isADynamicTriggerPath(
+  entity: DataTreeEntity,
+  propertyPath: string,
+) {
   if (isWidget(entity)) {
     const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
     const isTriggerPath = find(dynamicTriggerPathlist, { key: propertyPath });
     if (isTriggerPath) {
       return true;
     }
+    return false;
+  }
+}
+
+function isATriggerPath(entity: DataTreeEntity, propertyPath: string) {
+  if (isWidget(entity)) {
+    const triggerPaths = entity.triggerPaths;
+    return triggerPaths.hasOwnProperty(propertyPath);
   }
   return false;
+}
+
+export function updateMap(
+  map: DependencyMap,
+  path: string,
+  updates: string[],
+  options: Partial<{ deleteOnEmpty: boolean; clearOldValue: boolean }> = {},
+) {
+  const { clearOldValue, deleteOnEmpty } = options;
+  const oldValue = clearOldValue ? [] : map[path];
+  const updatedEntries = mergeArrays(oldValue, updates);
+  if (deleteOnEmpty && isEmpty(updatedEntries)) {
+    delete map[path];
+  } else {
+    map[path] = updatedEntries;
+  }
 }
