@@ -49,11 +49,11 @@ body:
   id: environment
   attributes:
     label: Environment
-    description: "Instance where the issue is reproducible"
+    description: "Instance where the issue is reproducible. Choose production, if the issue is on master branch."
     options:
         - Production
         - Release
-        - Deploy Preview (Default)
+        - Deploy Preview
   validations:
     required: true
 - type: input
