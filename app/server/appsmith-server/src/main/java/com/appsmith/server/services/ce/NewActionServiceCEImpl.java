@@ -1336,7 +1336,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     actionExecutionRequest.getQuery(),
                     actionExecutionRequest.getBody(),
                     actionExecutionRequest.getHeaders(),
-                    actionExecutionRequest.getApiContentTypeStr(),
                     actionExecutionRequest.getHttpMethod(),
                     actionExecutionRequest.getUrl(),
                     actionExecutionRequest.getProperties(),

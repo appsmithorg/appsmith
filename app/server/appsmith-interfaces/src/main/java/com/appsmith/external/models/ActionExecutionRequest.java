@@ -26,8 +26,6 @@ public class ActionExecutionRequest {
     String query; // Only used for analytics. Not to be returned to the client.
     Object body;
     Object headers;
-    @JsonIgnore
-    String apiContentTypeStr;
 
     HttpMethod httpMethod;
     String url;

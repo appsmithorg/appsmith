@@ -37,7 +37,6 @@ public class DatasourceConfiguration implements AppsmithDomain {
     String url;
 
     List<Property> headers;
-
     List<Property> queryParameters;
 
     public boolean isSshProxyEnabled() {

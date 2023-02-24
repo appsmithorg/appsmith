@@ -215,20 +215,15 @@ public class RestAPIActivateUtils {
                 });
     }
 
-    public WebClient getWebClient(WebClient.Builder webClientBuilder, ActionConfiguration actionConfiguration,
-                                  APIConnection apiConnection, ExchangeStrategies EXCHANGE_STRATEGIES,
+    public WebClient getWebClient(WebClient.Builder webClientBuilder, APIConnection apiConnection,
+                                  String reqContentType,    ExchangeStrategies EXCHANGE_STRATEGIES,
                                   RequestCaptureFilter requestCaptureFilter) {
         // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
         if (apiConnection != null) {
             webClientBuilder.filter(apiConnection);
         }
 
-        String apiContentTypeStr = (String) PluginUtils.getValueSafelyFromFormData(
-                actionConfiguration.getFormData(),
-                FIELD_API_CONTENT_TYPE
-        );
-        ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
-        if (ApiContentType.MULTIPART_FORM_DATA.equals(apiContentType)) {
+        if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
             webClientBuilder.filter(new BufferingFilter());
         }
 

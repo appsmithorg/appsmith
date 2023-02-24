@@ -1,13 +1,12 @@
 package com.appsmith.external.helpers.restApiUtils.helpers;
 
-import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
-import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
@@ -28,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.appsmith.external.constants.CommonFieldName.FILE_TYPE;
-import static com.appsmith.external.helpers.restApiUtils.helpers.DataUtils.FIELD_API_CONTENT_TYPE;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 /**
  * This filter captures the request that was sent out via WebClient so that the execution response can
@@ -71,13 +70,12 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
             } else {
                 headers.addAll(header, value);
             }
+            if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(header) && MULTIPART_FORM_DATA_VALUE.equalsIgnoreCase(value.get(0))) {
+                isMultipart.set(true);
+            }
         });
-
-        if (ApiContentType.MULTIPART_FORM_DATA.getValue().equalsIgnoreCase(existing.getApiContentTypeStr())) {
-            isMultipart.set(true);
-        }
-
         actionExecutionRequest.setHeaders(objectMapper.valueToTree(headers));
+
         actionExecutionRequest.setRequestParams(existing.getRequestParams());
         actionExecutionRequest.setExecutionParameters(existing.getExecutionParameters());
         actionExecutionRequest.setProperties(existing.getProperties());
@@ -125,10 +123,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
             actionExecutionRequest.setBody(actionConfiguration.getBody());
         }
 
-        String apiContentTypeStr = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(),
-                FIELD_API_CONTENT_TYPE);
-        actionExecutionRequest.setApiContentTypeStr(apiContentTypeStr);
-        if (ApiContentType.FORM_URLENCODED.getValue().equalsIgnoreCase(apiContentTypeStr)) {
+        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType.get())) {
             final List<Property> bodyFormData = actionConfiguration.getBodyFormData();
             Map<String, Object> bodyDataMap = new HashMap<>();
             bodyFormData
@@ -137,7 +132,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
                     .filter(property -> property.getKey() != null)
                     .forEach(property -> bodyDataMap.put(property.getKey(), property.getValue()));
             actionExecutionRequest.setBody(bodyDataMap);
-        } else if (ApiContentType.MULTIPART_FORM_DATA.getValue().equalsIgnoreCase(apiContentTypeStr)) {
+        } else if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType.get())) {
             final List<Property> bodyFormData = actionConfiguration.getBodyFormData();
             Map<String, Object> bodyDataMap = new HashMap<>();
             bodyFormData

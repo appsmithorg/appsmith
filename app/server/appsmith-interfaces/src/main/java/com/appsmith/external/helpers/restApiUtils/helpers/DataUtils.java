@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -59,37 +57,23 @@ public class DataUtils {
         this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
-    public BodyInserter<?, ?> buildBodyInserter(Object body, ApiContentType apiContentType,
-                                                Boolean encodeParamsToggle) {
+    public BodyInserter<?, ?> buildBodyInserter(Object body, String contentType, Boolean encodeParamsToggle) {
         if (body == null) {
             return BodyInserters.fromValue(new byte[0]);
         }
-
-
-        /**
-         * Seems like DB has many action configs such that apiContentType is not defined. In the interest of time it
-         * looks like it may be better to handle it like this instead of writing a migration to set `apiContentType`
-         * data to `None`.
-         */
-        if (apiContentType == null) {
-            /* This is the default handling when `apiContentType` does not match any non `None` value as shown in the
-            switch block below */
-            return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
-        }
-
-        switch (apiContentType) {
-            case JSON:
+        switch (contentType) {
+            case MediaType.APPLICATION_JSON_VALUE:
                 final Object bodyObject = parseJsonBody(body);
                 return BodyInserters.fromValue(bodyObject);
-            case FORM_URLENCODED:
+            case MediaType.APPLICATION_FORM_URLENCODED_VALUE:
                 final String formData = parseFormData((List<Property>) body, encodeParamsToggle);
                 if ("".equals(formData)) {
                     return BodyInserters.fromValue(new byte[0]);
                 }
                 return BodyInserters.fromValue(formData);
-            case MULTIPART_FORM_DATA:
+            case MediaType.MULTIPART_FORM_DATA_VALUE:
                 return parseMultipartFileData((List<Property>) body);
-            case RAW:
+            case MediaType.TEXT_PLAIN_VALUE:
                 return BodyInserters.fromValue((String) body);
             default:
                 return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
@@ -299,8 +283,8 @@ public class DataUtils {
 
     }
 
-    public Object getRequestBodyObject(ActionConfiguration actionConfiguration, boolean encodeParamsToggle,
-                                       HttpMethod httpMethod) {
+    public Object getRequestBodyObject(ActionConfiguration actionConfiguration, String reqContentType,
+                                       boolean encodeParamsToggle, HttpMethod httpMethod) {
         // We initialize this object to an empty string because body can never be empty
         // Based on the content-type, this Object may be of type MultiValueMap or String
         Object requestBodyObj = "";
@@ -324,12 +308,12 @@ public class DataUtils {
             requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
         }
 
-        if (ApiContentType.FORM_URLENCODED.equals(apiContentType)
-                || ApiContentType.MULTIPART_FORM_DATA.equals(apiContentType)) {
+        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
+                || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
             requestBodyObj = actionConfiguration.getBodyFormData();
         }
 
-        requestBodyObj = this.buildBodyInserter(requestBodyObj, apiContentType, encodeParamsToggle);
+        requestBodyObj = this.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
 
         return requestBodyObj;
     }
