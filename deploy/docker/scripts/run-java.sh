@@ -21,7 +21,6 @@ match-proxy-url() {
   [[ -n $proxy_host ]]
 }
 
-echo "HTTP_PROXY = ${HTTP_PROXY-}"
 if match-proxy-url "${HTTP_PROXY-}"; then
   proxy_args+=(-Dhttp.proxyHost="$proxy_host" -Dhttp.proxyPort="$proxy_port")
   if [[ -n $proxy_user ]]; then
