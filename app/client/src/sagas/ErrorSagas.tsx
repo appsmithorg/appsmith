@@ -173,7 +173,7 @@ export interface ErrorActionPayload {
 }
 
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
-  const currentUser = getCurrentUser(store.getState());
+  const currentUser: User = yield select(getCurrentUser);
   const effects = [ErrorEffectTypes.LOG_ERROR];
   const { payload, type } = errorAction;
   const { error, logToSentry, show = true } = payload || {};
