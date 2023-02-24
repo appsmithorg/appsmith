@@ -64,19 +64,20 @@ describe("Omnibar functionality test cases", () => {
     cy.get(commonlocators.errorTab)
       .should("be.visible")
       .click({ force: true });
-    cy.wait(500);
+    cy.wait(1000);
     // click on open documention from error tab
     cy.get(commonlocators.debuggerContextMenu).click({ multiple: true });
     cy.xpath(commonlocators.openDocumentationfromErrorTab)
       .first()
       .click({ force: true });
+    // Commenting this as in epic 16804
+    // Decided not to have any default text in documentation.
     // verify omnibar is opened with relevant documentation
-    cy.wait(500);
-    cy.get(omnibar.globalSearchInput).should(
-      "have.value",
-      "This value does not evaluate to type string",
-    );
-    cy.get(omnibar.globalSearchClose).click();
+    // cy.get(omnibar.globalSearchInput).should(
+    //   "have.value",
+    //   "This value does not evaluate to type string",
+    // );
+    // cy.get(omnibar.globalSearchClose).click();
   });
 
   it("4. Verify Create New section and its data, also create a new api, new js object and new cURL import from omnibar ", function() {

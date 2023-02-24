@@ -177,4 +177,5 @@ export class CommonLocators {
   _modalWrapper = "[data-cy='modal-wrapper']";
   _containerWidget = "div[type='CONTAINER_WIDGET']";
   _propertyPaneTitle = ".t--property-pane-title";
+  _editorBackButton = ".t--close-editor";
 }

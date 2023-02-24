@@ -12,7 +12,7 @@ server {
     ssl_certificate ${APPSMITH_SSL_CERT_PATH};
     ssl_certificate_key ${APPSMITH_SSL_CERT_KEY_PATH};
 
-    client_max_body_size 100m;
+    client_max_body_size 150m;
 
     gzip on;
 

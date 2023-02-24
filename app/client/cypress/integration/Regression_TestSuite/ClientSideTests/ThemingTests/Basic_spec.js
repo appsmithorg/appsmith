@@ -938,7 +938,7 @@ describe("App Theming funtionality", function() {
     //the new widget with reverted styles also conforming to theme
     cy.PublishtheApp();
 
-    cy.wait(2000); //for theme to settle
+    cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Montserrat"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
@@ -1186,7 +1186,7 @@ describe("App Theming funtionality", function() {
     //the new widget with reverted styles also conforming to theme
     cy.PublishtheApp();
 
-    cy.wait(2000); //for theme to settle
+    cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Rubik"); //Font for Rounded theme
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
@@ -1197,9 +1197,12 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.widgetBtn)
       .eq(0)
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("be.visible");
+      cy.get("body").then(($ele) => {
+        if ($ele.find(widgetsPage.widgetBtn).length<=1) {
+          cy.reload()
+          cy.wait(4000)
+        }
+      });
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color

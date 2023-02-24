@@ -83,6 +83,7 @@ export type GeneratorOptions = {
   hooks?: Hooks;
   itemSpacing: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
+  level?: number;
   levelData?: LevelData;
   nestedViewIndex?: number;
   pageNo?: number;
@@ -316,6 +317,7 @@ class MetaWidgetGenerator {
       options.containerParentId,
     );
 
+    this.level = options.level ?? 1;
     this.prevPrimaryKeys = this.primaryKeys;
     this.primaryKeys = this.generatePrimaryKeys(options);
 
@@ -1393,6 +1395,7 @@ class MetaWidgetGenerator {
       prevOptions?.containerParentId !== this.containerParentId ||
       prevOptions?.containerWidgetId !== this.containerWidgetId ||
       prevOptions?.widgetName !== this.widgetName ||
+      prevOptions?.level !== this.level ||
       prevOptions?.levelData !== this.levelData ||
       prevOptions?.infiniteScroll !== this.infiniteScroll ||
       prevOptions?.itemSpacing !== this.itemSpacing ||
