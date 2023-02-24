@@ -142,10 +142,10 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                                             "numPages", statsData.getT5(),
                                             "numActions", statsData.getT6(),
                                             "numDatasources", statsData.getT7(),
-                                            "numUsers", statsData.getT8()
+                                            "numUsers", statsData.getT8(),
+                                            "version", projectProperties.getVersion(),
+                                            "edition", ProjectProperties.EDITION
                                     ),
-                                    "version", projectProperties.getVersion(),
-                                    "edition", ProjectProperties.EDITION,
                                     "event", "instance_stats"
                             )))
                             .retrieve()
