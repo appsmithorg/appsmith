@@ -13,6 +13,7 @@ import {
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EmptyRows, EmptyRow, Row } from "./Row";
 import { ReactTableColumnProps, TableSizes } from "../Constants";
+import { HeaderComponentProps } from "../Table";
 
 type BodyContextType = {
   accentColor: string;
@@ -30,6 +31,9 @@ type BodyContextType = {
   rows: ReactTableRowType<Record<string, unknown>>[];
   primaryColumnId?: string;
   isAddRowInProgress: boolean;
+  headerProps?: HeaderComponentProps | Record<string, never>;
+  getTableBodyProps?: () => void;
+  totalColumnsWidth?: number;
 };
 
 export const BodyContext = React.createContext<BodyContextType>({
@@ -43,6 +47,9 @@ export const BodyContext = React.createContext<BodyContextType>({
   rows: [],
   primaryColumnId: "",
   isAddRowInProgress: false,
+  headerProps: {},
+  getTableBodyProps: () => "",
+  totalColumnsWidth: 0,
 });
 
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
@@ -157,6 +164,9 @@ export const TableBody = React.forwardRef(
           columns,
           width,
           rows,
+          headerProps: props.headerProps,
+          getTableBodyProps: props.getTableBodyProps,
+          totalColumnsWidth: props.totalColumnsWidth,
         }}
       >
         {useVirtual ? (

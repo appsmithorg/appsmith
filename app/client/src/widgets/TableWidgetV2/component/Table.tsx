@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import { pick, reduce } from "lodash";
 import {
   useTable,
@@ -34,8 +34,7 @@ import { renderEmptyRows } from "./cellComponents/EmptyCell";
 import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell, TableVariant } from "../constants";
-import { TableBody } from "./TableBody";
-import { areEqual } from "react-window";
+import { BodyContext, TableBody } from "./TableBody";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
@@ -131,7 +130,7 @@ const defaultColumn = {
   width: 150,
 };
 
-type HeaderComponentProps = {
+export type HeaderComponentProps = {
   enableDrag: () => void;
   disableDrag: () => void;
   multiRowSelection?: boolean;
@@ -222,6 +221,38 @@ const HeaderComponent = (props: HeaderComponentProps) => {
           props.prepareRow,
         )}
     </div>
+  );
+};
+
+export const TableInnerElement = ({
+  children,
+  outerRef,
+  style,
+  ...rest
+}: any) => {
+  const {
+    getTableBodyProps,
+    headerProps,
+    multiRowSelection,
+    totalColumnsWidth,
+  } = useContext(BodyContext) as any;
+  return (
+    <>
+      <HeaderComponent {...headerProps} />
+      <div
+        className="tbody body"
+        ref={outerRef}
+        style={{
+          width: multiRowSelection
+            ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
+            : totalColumnsWidth,
+        }}
+      >
+        <div {...getTableBodyProps()} {...rest} style={style}>
+          {children}
+        </div>
+      </div>
+    </>
   );
 };
 
@@ -373,54 +404,6 @@ export function Table(props: TableProps) {
     }
   }, [props.isAddRowInProgress]);
 
-  const MemoizedInnerElement = useMemo(
-    () => ({ children, outerRef, style, ...rest }: any) => (
-      <>
-        <HeaderComponent
-          handleAllRowSelectClick={handleAllRowSelectClick}
-          headerGroups={headerGroups}
-          headerWidth={
-            props.multiRowSelection
-              ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
-              : totalColumnsWidth
-          }
-          isResizingColumn={isResizingColumn}
-          prepareRow={prepareRow}
-          renderHeaderCheckBoxCell={renderHeaderCheckBoxCell}
-          rowSelectionState={rowSelectionState}
-          subPage={subPage}
-          {...props}
-        />
-        <div
-          className="tbody body"
-          ref={outerRef}
-          style={{
-            width: props.multiRowSelection
-              ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
-              : totalColumnsWidth,
-          }}
-        >
-          <div {...getTableBodyProps()} {...rest} style={style}>
-            {children}
-          </div>
-        </div>
-      </>
-    ),
-    [
-      areEqual,
-      columns.map((column) => column.alias).toString(),
-      columns.map((column) => column.Header).toString(),
-      columns.map((column) => column.sticky).toString(),
-      columns.map((column) => column.isAscOrder).toString(),
-      props.multiRowSelection,
-      rowSelectionState,
-      shouldUseVirtual,
-      totalColumnsWidth,
-      props.canFreezeColumn,
-      props.pageSize,
-    ],
-  );
-
   return (
     <TableWrapper
       accentColor={props.accentColor}
@@ -532,7 +515,6 @@ export function Table(props: TableProps) {
                 columns={props.columns}
                 getTableBodyProps={getTableBodyProps}
                 height={props.height}
-                innerElementType={MemoizedInnerElement}
                 isAddRowInProgress={props.isAddRowInProgress}
                 multiRowSelection={!!props.multiRowSelection}
                 pageSize={props.pageSize}
@@ -558,8 +540,18 @@ export function Table(props: TableProps) {
                   borderRadius={props.borderRadius}
                   columns={props.columns}
                   getTableBodyProps={getTableBodyProps}
+                  headerProps={{
+                    handleAllRowSelectClick: handleAllRowSelectClick,
+                    headerGroups,
+                    isResizingColumn,
+                    prepareRow,
+                    renderHeaderCheckBoxCell: renderHeaderCheckBoxCell,
+                    rowSelectionState,
+                    subPage,
+                    ...props,
+                  }}
                   height={props.height}
-                  innerElementType={MemoizedInnerElement}
+                  innerElementType={TableInnerElement}
                   isAddRowInProgress={props.isAddRowInProgress}
                   multiRowSelection={!!props.multiRowSelection}
                   outerRef={scrollableNodeRef}
@@ -572,6 +564,7 @@ export function Table(props: TableProps) {
                   selectedRowIndex={props.selectedRowIndex}
                   selectedRowIndices={props.selectedRowIndices}
                   tableSizes={tableSizes}
+                  totalColumnsWidth={totalColumnsWidth}
                   useVirtual={shouldUseVirtual}
                   width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
                 />
