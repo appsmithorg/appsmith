@@ -2,7 +2,7 @@ name: Cypress Add Known failed tests
 
 on:
   issues:
-    types: [opened, closed]
+    types: [opened, closed, reopened]
    
 jobs:
   IssueOpened:
