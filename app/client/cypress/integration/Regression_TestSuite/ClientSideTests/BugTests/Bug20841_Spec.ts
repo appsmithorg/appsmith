@@ -19,16 +19,20 @@ describe("Evaluations causing error when page is cloned", function() {
 
     _.ee.DragDropWidgetNVerify(WIDGET.INPUT_V2, 200, 600);
     _.ee.SelectEntityByName("Input1");
-    _.propPane.TypeTextIntoField("Default Value", "{{JSObject1.myFun1()}}");
+    _.propPane.UpdatePropertyFieldValue(
+      "Default Value",
+      "{{JSObject1.myFun1()}}",
+    );
 
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
 
     _.ee.ClonePage("Page1", 0);
-
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
 
     _.ee.ClonePage("Page1", 0);
+    _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
 
+    _.ee.ClonePage("Page1 Copy", 1);
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
   });
 });
