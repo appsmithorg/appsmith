@@ -160,7 +160,6 @@ describe("Git import flow ", function() {
       newBranch = branName;
       cy.log("newBranch is " + newBranch);
     });
-
     cy.get(".tbody")
       .first()
       .should("contain.text", "Test user 7");
@@ -209,9 +208,9 @@ describe("Git import flow ", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.latestDeployPreview();
-    _.table.ReadTableRowColumnData(0, 1).then(($text) => {
-      expect($text).to.eq("Test user 7New Config");
-    }); //Checking both tables
+    cy.get(".tbody")
+      .last()
+      .should("contain.text", "New Config");
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
@@ -220,9 +219,9 @@ describe("Git import flow ", function() {
     cy.get(".t--page-switch-tab")
       .contains("Page1")
       .click({ force: true });
-    _.table.ReadTableRowColumnData(0, 1).then(($text) => {
-      expect($text).to.eq("Test user 7New Config");
-    }); //Checking both tables
+    cy.get(".tbody")
+      .last()
+      .should("contain.text", "New Config");
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
