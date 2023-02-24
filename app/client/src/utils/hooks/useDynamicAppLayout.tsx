@@ -264,18 +264,15 @@ export const useDynamicAppLayout = () => {
   ]);
 
   useEffect(() => {
-    function relayoutAtBreakpoint() {
-      dispatch(
-        updateLayoutForMobileBreakpointAction(
-          MAIN_CONTAINER_WIDGET_ID,
-          appPositioningType === AppPositioningTypes.AUTO
-            ? mainCanvasProps?.isMobile
-            : false,
-          calculateCanvasWidth(),
-        ),
-      );
-    }
-    relayoutAtBreakpoint();
+    dispatch(
+      updateLayoutForMobileBreakpointAction(
+        MAIN_CONTAINER_WIDGET_ID,
+        appPositioningType === AppPositioningTypes.AUTO
+          ? mainCanvasProps?.isMobile
+          : false,
+        calculateCanvasWidth(),
+      ),
+    );
   }, [mainCanvasProps?.isMobile, appPositioningType]);
 
   return isCanvasInitialized;
