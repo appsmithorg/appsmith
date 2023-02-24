@@ -2,12 +2,14 @@ package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.constants.ResponseDataType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.util.WebClientUtils;
@@ -44,7 +46,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.restApiUtils.helpers.DataUtils.FIELD_API_CONTENT_TYPE;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @NoArgsConstructor
 public class RestAPIActivateUtils {
@@ -212,8 +216,8 @@ public class RestAPIActivateUtils {
     }
 
     public WebClient getWebClient(WebClient.Builder webClientBuilder, APIConnection apiConnection,
-                                  String reqContentType, ObjectMapper objectMapper,
-                                  ExchangeStrategies EXCHANGE_STRATEGIES, RequestCaptureFilter requestCaptureFilter) {
+                                  String reqContentType,    ExchangeStrategies EXCHANGE_STRATEGIES,
+                                  RequestCaptureFilter requestCaptureFilter) {
         // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
         if (apiConnection != null) {
             webClientBuilder.filter(apiConnection);
@@ -263,7 +267,7 @@ public class RestAPIActivateUtils {
         /**
          * First, check if headers are defined in API datasource and add them.
          */
-        if (datasourceConfiguration.getHeaders() != null) {
+        if (!isEmpty(datasourceConfiguration.getHeaders())) {
             addHeaders(webClientBuilder, datasourceConfiguration.getHeaders());
         }
 
@@ -272,7 +276,7 @@ public class RestAPIActivateUtils {
          * In case there is a conflict with the datasource headers then the header defined in the API action config
          * will override it.
          */
-        if (actionConfiguration.getHeaders() != null) {
+        if (!isEmpty(actionConfiguration.getHeaders())) {
             addHeaders(webClientBuilder, actionConfiguration.getHeaders());
         }
     }
