@@ -30,20 +30,19 @@ export const ResizeWrapper = styled(animated.div)<{
       pointer-events: ${(props) => !props.$prevents && "none"};
     }
   }
+  border-radius: 0px 4px 4px 4px;
+  border: ${resizeBorder}px solid;
+  padding: ${resizeBorderPadding}px;
+  outline: ${resizeOutline}px solid !important;
+  outline-offset: 1px;
   ${(props) => {
     if (props.showBoundaries) {
       return `
       box-shadow: 0px 0px 0px ${resizeBoxShadow}px ${
         props.isHovered ? Colors.WATUSI : "#f86a2b"
       };
-      border-radius: 0px 4px 4px 4px;
-      border: ${resizeBorder}px solid ${Colors.GREY_1};
-      padding: ${resizeBorderPadding}px;
-      outline: ${resizeOutline}px solid ${Colors.GREY_1} !important;
-      outline-offset: 1px;`;
-    } else {
-      return `
-        border: 0px solid transparent;
+      outline-color: ${Colors.GREY_1} !important;
+      border-color: ${Colors.GREY_1};
       `;
     }
   }}}

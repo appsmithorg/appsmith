@@ -384,15 +384,14 @@ export function ReflowResizable(props: ResizableProps) {
     );
   });
 
-  const bufferForBoundary = props.showResizeBoundary ? RESIZE_BORDER_BUFFER : 0;
   const widgetWidth =
     (reflowedPosition?.width === undefined
       ? newDimensions.width
-      : reflowedPosition.width - 2 * WIDGET_PADDING) + bufferForBoundary;
+      : reflowedPosition.width - 2 * WIDGET_PADDING) + RESIZE_BORDER_BUFFER;
   const widgetHeight =
     (reflowedPosition?.height === undefined
       ? newDimensions.height
-      : reflowedPosition.height - 2 * WIDGET_PADDING) + bufferForBoundary;
+      : reflowedPosition.height - 2 * WIDGET_PADDING) + RESIZE_BORDER_BUFFER;
   return (
     <Spring
       config={{
@@ -432,10 +431,10 @@ export function ReflowResizable(props: ResizableProps) {
         transform: `translate3d(${(newDimensions.reflectPosition
           ? newDimensions.x
           : 0) -
-          bufferForBoundary / 2}px,${(newDimensions.reflectPosition
+          RESIZE_BORDER_BUFFER / 2}px,${(newDimensions.reflectPosition
           ? newDimensions.y
           : 0) -
-          bufferForBoundary / 2}px,0)`,
+          RESIZE_BORDER_BUFFER / 2}px,0)`,
       }}
     >
       {(_props) => (
