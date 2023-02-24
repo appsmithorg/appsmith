@@ -107,7 +107,8 @@ function CanvasContainer() {
       }
       className={classNames({
         [`${getCanvasClassName()} scrollbar-thin`]: true,
-        "mt-4": !shouldHaveTopMargin,
+        "mt-0": !shouldHaveTopMargin && isPreviewMode, // We do this because we don't need any spacing at the top in preview mode and no pagination
+        "mt-4": !shouldHaveTopMargin && !isPreviewMode, // We do this because we need enough space for widget name component to show up at the top of the canvas for a widget at the top
         "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
       })}
       id={"canvas-viewport"}
