@@ -72,6 +72,7 @@ const LogicalFieldValue: any = styled.p<{
   ${(props) =>
     props.size === "small" &&
     `
+    margin: 4px 0 0;
     text-align: left;
   `}
 `;
@@ -105,6 +106,7 @@ const SecondaryBox = styled.div<{ showBorder: boolean; size: string }>`
     props.size === "small" &&
     `
     width: 100%;
+    margin: ${props?.showBorder ? "0 8px 0 0" : "0px"};
   `}
 `;
 
@@ -114,7 +116,6 @@ const ConditionWrapper = styled.div<{ size: string }>`
   flex-direction: row;
   align-items: center;
   width: 100%;
-  justify-content: space-between;
   gap: 8px;
 
   ${(props) =>
@@ -135,13 +136,10 @@ const ConditionBox = styled.div<{ size?: string }>`
   width: 100%;
   margin: 4px 0px;
 
-  :first-child {
-    margin-top: 0px;
-  }
-
   ${(props) =>
     props.size === "small" &&
     `
+    margin: 8px 0px;
     grid-template-columns: repeat(2, max-content);
     grid-template-rows: repeat(3, max-content);
 
@@ -184,10 +182,18 @@ const AddMoreAction = styled.div<{ isDisabled?: boolean }>`
     props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
 `;
 
-const GroupConditionBox = styled.div`
+const GroupConditionBox = styled.div<{ size: string }>`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  width: 100%;
   margin: 8px 0px;
+
+  ${(props) =>
+    props.size === "small" &&
+    `
+  flex-direction: row;
+  min-width: max-content;
+  `}
 `;
 
 const StyledTooltip = styled(Tooltip)`
@@ -223,9 +229,7 @@ function ConditionComponent(props: any, index: number) {
   //flexWidth is the width of one Key or Value field
   //It is a function of DropdownWidth and Margin
   //fexWidth = maxWidth(set By WhereClauseControl) - Offset Values based on DropdownWidth and Margin
-  const flexWidth = `${props.maxWidth / 2}vw - ${Offset[
-    props.currentNestingLevel
-  ] / 2}px`;
+  const flexWidth = `500px - ${Offset[props.currentNestingLevel] / 2}px`;
 
   return (
     <ConditionBox key={index} size={props.size}>
@@ -233,6 +237,14 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...keyFieldConfig,
+          customStyles:
+            props.size === "small"
+              ? {
+                  width: "280px",
+                }
+              : {
+                  width: "280px",
+                },
           configProperty: keyPath,
         }}
         formName={props.formName}
@@ -241,6 +253,12 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...conditionFieldConfig,
+          customStyles:
+            props.size === "small"
+              ? {}
+              : {
+                  width: `${OperatorDropdownWidth}px`,
+                },
           configProperty: conditionPath,
           options: props.comparisonTypes,
           initialValue: props.comparisonTypes[0].value,
@@ -251,6 +269,14 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...valueFieldConfig,
+          customStyles:
+            props.size === "small"
+              ? {
+                  width: "280px",
+                }
+              : {
+                  width: "280px",
+                },
           configProperty: valuePath,
         }}
         formName={props.formName}
@@ -334,7 +360,6 @@ function ConditionBlock(props: any) {
                     ...logicalFieldConfig,
                     customStyles: {
                       width: `${DropdownWidth}px`,
-                      marginTop: "4px",
                     },
                     configProperty: logicalFieldPath,
                     options: props.logicalTypes,
@@ -349,7 +374,7 @@ function ConditionBlock(props: any) {
                 </LogicalFieldValue>
               )}
               {!!fieldValue && "children" in fieldValue ? (
-                <GroupConditionBox className="GroupCondition">
+                <GroupConditionBox className="GroupConditionBox" size={size}>
                   <FieldArray
                     component={ConditionBlock}
                     key={`${field}.children`}
