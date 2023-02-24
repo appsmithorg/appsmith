@@ -50,6 +50,7 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
   });
 
   it("1. Create new API & verify data on List widget", function() {
+    
     _.ee.DragDropWidgetNVerify(WIDGET.LIST, 300, 100);
     _.propPane.UpdatePropertyFieldValue("Items", "{{API1.data}}");
     _.ee.NavigateToSwitcher("explorer");
@@ -84,12 +85,12 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     cy.wait("@postExecute").then((interception: any) => {
       userName = JSON.stringify(interception.response.body.data.body[0].name)
       userEmail = JSON.stringify(interception.response.body.data.body[0].email)
-    });
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
     _.agHelper.GetNClick(_.locators._containerWidget, 0, true);
     _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userEmail);
     _.agHelper.GetNClick(_.locators._containerWidget, 1, true);
     _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userEmail);
+  });
     _.deployMode.NavigateBacktoEditor();
   });
 
