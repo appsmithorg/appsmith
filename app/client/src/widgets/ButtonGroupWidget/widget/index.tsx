@@ -11,6 +11,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
+import { FlexVerticalAlignment } from "utils/autoLayout/constants";
 import {
   generateVerticalAlignmentConfig,
   getResponsiveLayoutConfig,
@@ -458,7 +459,7 @@ class ButtonGroupWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
-          generateVerticalAlignmentConfig(),
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
           {
             propertyName: "buttonVariant",
             label: "Button Variant",
