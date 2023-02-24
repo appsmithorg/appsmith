@@ -11,7 +11,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateVerticalAlignmentConfig,
+  getResponsiveLayoutConfig,
+} from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
 import ButtonGroupComponent from "../component";
@@ -455,6 +458,7 @@ class ButtonGroupWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
+          generateVerticalAlignmentConfig(),
           {
             propertyName: "buttonVariant",
             label: "Button Variant",
