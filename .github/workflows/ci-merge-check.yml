@@ -1,0 +1,56 @@
+on:
+  #This workflow is only triggered by the ok to test command dispatch
+  repository_dispatch:
+      types: [ ci-merge-check-command ]
+    
+jobs:
+   ci-merge-check:
+    runs-on: ubuntu-latest
+    steps:
+      # This step creates a comment on the PR with a link to this workflow run.
+      - name: Add a comment on the PR with link to workflow run
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+                  found ci-merge-check ${{ github.event.client_payload.pull_request.number }}
+      
+      # Timestamp will be used to create cache key
+      - name: timestamp
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+        
+      - name: Check ci test result
+        run: |
+          set -o pipefail
+          export retval=0
+          export prnumber=${{ github.event.client_payload.pull_request.number }}
+          echo "prnumber=$prnumber"
+          workflowid=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/issues/$prnumber/comments|grep "Tests running at:"|grep -Eo 'https://github[^ >]+'|tail -1|awk -F/ '{print $8}'`
+          export retval=`expr $retval + $?`
+          echo "workflowid=$workflowid"
+          runsatatus=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/$workflowid/jobs?per_page=100|jq -r '[ .jobs[] | select(.name | contains("ci-test-result")) | .conclusion ]'|grep -v  '\[\|\]'|sed "s/\"//g"|sed "s/ //g"`
+          export retval=`expr $retval + $?`
+          echo "runsatatus=$runsatatus"
+          statuslink=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/pulls/$prnumber|jq -r '[ ._links |.statuses | .href]'|grep http|sed "s/\"//g"|sed "s/ //g"`
+          export retval=`expr $retval + $?`
+          echo $retval
+          echo "statuslink=$statuslink"
+          pendingchecks=`curl --silent $statuslink|jq -r '.[]'|jq -r '[ select(.state | contains("pending")) | .context  ]'`
+          set +o pipefail
+          pendingchecks=`echo $pendingchecks|grep -v  '\[\|\]'|grep -v 'cypress\|Vercel\|DeepSource'|wc -l`
+          export retval=`expr $retval + $pendingchecks`
+          echo $retval
+          exit $retval  
+          
+      #- name: automerge
+      #  uses: "pascalgn/automerge-action@v0.15.5"
+      #  env:
+      #    GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          
+      - name: Add a comment on the PR with status
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Won't merge.Other checks failing. 

@@ -1197,12 +1197,12 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.widgetBtn)
       .eq(0)
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
-      cy.get("body").then(($ele) => {
-        if ($ele.find(widgetsPage.widgetBtn).length<=1) {
-          cy.reload()
-          cy.wait(4000)
-        }
-      });
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.widgetBtn).length <= 1) {
+        cy.reload();
+        cy.wait(4000);
+      }
+    });
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
