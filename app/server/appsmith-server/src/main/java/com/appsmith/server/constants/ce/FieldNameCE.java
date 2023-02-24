@@ -162,5 +162,6 @@ public class FieldNameCE {
     public static final String PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "publishedCustomJSLibs";
     public static final String ANONYMOUS_USER_ID = "anonymousUserId";
     public static final String VIEW_MODE = "viewMode";
+    public static final String USER_EMAILS = "userEmails";
 }
 
