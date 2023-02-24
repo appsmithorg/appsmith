@@ -1,8 +1,9 @@
 import React, { HTMLAttributes, useMemo, forwardRef } from "react";
 
+import { Text } from "../Text";
 import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
-import { Text } from "../Text";
+import { fontFamilyTypes } from "../../utils/typography";
 
 // types
 export const BUTTON_VARIANTS = [
@@ -28,12 +29,14 @@ export type ButtonProps = {
   leadingIcon?: React.ReactNode;
   trailingIcon?: React.ReactNode;
   as?: keyof JSX.IntrinsicElements;
+  fontFamily?: fontFamilyTypes;
 } & HTMLAttributes<HTMLButtonElement>;
 
 // component
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const {
     children,
+    fontFamily,
     isDisabled,
     isLoading,
     leadingIcon,
@@ -50,7 +53,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
         {leadingIcon && <span data-component="leadingIcon">{leadingIcon}</span>}
         {children && (
           <span data-component="text">
-            <Text>{children}</Text>
+            <Text fontFamily={fontFamily}>{children}</Text>
           </span>
         )}
         {trailingIcon && (
@@ -58,7 +61,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
         )}
       </>
     );
-  }, [isLoading, children, trailingIcon, leadingIcon]);
+  }, [isLoading, children, trailingIcon, leadingIcon, fontFamily]);
 
   return (
     <StyledButton

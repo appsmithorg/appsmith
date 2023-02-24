@@ -1,7 +1,9 @@
 import React from "react";
 import { Resizable } from "re-resizable";
 
-export const resizor = (Story, { parameters }) => {
+export const resizor = (Story, args) => {
+  const { parameters } = args;
+
   return (
     <Resizable
       grid={[8, 8]}

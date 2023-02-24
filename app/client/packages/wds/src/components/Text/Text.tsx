@@ -15,6 +15,7 @@ export type TextProps = {
   textAlign?: "left" | "center" | "right";
   capHeight?: number;
   lineGap?: number;
+  as?: keyof JSX.IntrinsicElements;
 };
 
 export const Text = React.forwardRef<HTMLParagraphElement, TextProps>(

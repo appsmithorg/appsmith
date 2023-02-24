@@ -191,7 +191,8 @@
     "generate:widget": "plop --plopfile generators/index.js",
     "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
     "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
-    "install": "node cypress/apply-patches.js"
+    "install": "node cypress/apply-patches.js",
+    "storybook": "yarn workspace @design-system/storybook storybook"
   },
   "browserslist": [
     ">0.2%",
@@ -277,7 +278,6 @@
     "eslint-plugin-react": "^7.30.0",
     "eslint-plugin-react-hooks": "^2.3.0",
     "eslint-plugin-sort-destructure-keys": "^1.3.5",
-    "eslint-plugin-storybook": "^0.6.10",
     "factory.ts": "^0.5.1",
     "jest-canvas-mock": "^2.3.1",
     "jest-styled-components": "^7.0.8",
@@ -320,17 +320,5 @@
     "minimatch": "^5.0.0",
     "loader-utils": "^2.0.4",
     "json5": "2.2.3"
-  },
-  "eslintConfig": {
-    "overrides": [
-      {
-        "files": [
-          "**/*.stories.*"
-        ],
-        "rules": {
-          "import/no-anonymous-default-export": "off"
-        }
-      }
-    ]
   }
 }

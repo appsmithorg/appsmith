@@ -30,6 +30,8 @@ module.exports = {
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
     "@storybook/preset-create-react-app",
+    "storybook-addon-pseudo-states",
+    "./addons/theming/register.js",
   ],
   framework: "@storybook/react",
   webpackFinal: webpackConfig,

@@ -12,6 +12,11 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
     orientation === "vertical" ? "column" : "row"};
 
   & [data-button] {
+    // increasing z index to make sure the focused button is on top of the others
+    &:not([data-disabled]):focus {
+      z-index: 1;
+    }
+
     &:is([data-variant="filled"]):not([data-disabled]) {
       border-color: var(--wds-vs-color-border-onaccent);
     }

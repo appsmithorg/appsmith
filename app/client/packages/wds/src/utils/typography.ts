@@ -14,7 +14,7 @@ import nunitoSans from "@capsizecss/metrics/nunitoSans";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
 
-const fontMetricsMap = {
+export const fontMetricsMap = {
   Poppins: poppins,
   Inter: inter,
   Roboto: roboto,
@@ -62,7 +62,7 @@ export const createTypographyStyles = (props: createTypographyStylesProps) => {
   });
 
   return {
-    fontFamily: fontFamily,
+    fontFamily: `"${fontFamily}"`,
     ...styles,
   };
 };

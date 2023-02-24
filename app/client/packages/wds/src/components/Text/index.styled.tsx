@@ -27,6 +27,7 @@ const typographyStyles = css`
 `;
 
 export const StyledText = styled.p.withConfig({ shouldForwardProp })<TextProps>`
+  margin: 0;
   color: ${({ color }) => color};
   font-weight: ${({ fontWeight }) => fontWeight};
   text-decoration: ${({ textDecoration }) => textDecoration};

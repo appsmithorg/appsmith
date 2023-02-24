@@ -11,3 +11,8 @@ html, body, #root {
   border: 0 solid #e4e4e7;
   box-sizing: border-box;
 }
+
+
+.innerZoomElementWrapper > * {
+  overflow:hidden;
+}

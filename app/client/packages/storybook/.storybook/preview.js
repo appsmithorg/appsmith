@@ -1,7 +1,5 @@
 import { resizor } from "./decorators/resizor";
 import { theming } from "./decorators/theming";
-import { borderRadius } from "./globals/borderRadius";
-import { accentColor } from "./globals/accentColor";
 
 import "./styles.css";
 
@@ -12,13 +10,8 @@ export const parameters = {
       color: /(background|color)$/i,
       date: /Date$/,
     },
-    expanded: true,
   },
+  layout: "centered",
 };
 
 export const decorators = [resizor, theming];
-
-export const globalTypes = {
-  borderRadius,
-  accentColor,
-};
