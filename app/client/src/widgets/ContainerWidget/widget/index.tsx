@@ -22,6 +22,7 @@ import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingAre
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { Stylesheet } from "entities/AppTheming";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -212,9 +213,11 @@ class ContainerWidget extends BaseWidget<
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     const snapRows = getCanvasSnapRows(props.bottomRow);
-
+    const isAutoHeightEnabled: boolean =
+      isAutoHeightEnabledForWidget(this.props) &&
+      !isAutoHeightEnabledForWidget(this.props, true);
     return (
-      <ContainerComponent {...props}>
+      <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
         {props.type === "CANVAS_WIDGET" &&
           props.renderMode === RenderModes.CANVAS && (
             <>
