@@ -288,7 +288,11 @@ function Table({
 
   const getRowVisibility = (row: any): string => {
     let shouldHide = true;
-    if (JSON.stringify(filteredData).indexOf(row.original.id) > -1) {
+    const filteredDataStr = JSON.stringify(filteredData);
+    if (
+      filteredDataStr.includes(row.original.id) &&
+      filteredDataStr.includes(row.original.name)
+    ) {
       shouldHide = false;
     }
     return shouldHide ? "hidden" : "shown";
@@ -422,7 +426,10 @@ export function getSearchData(data: any, searchValue: string) {
     if (item.subRows && !nameIncludesSearchValue) {
       item.subRows = getSearchData(item.subRows, searchValue);
     }
-    return item.subRows?.length > 0 || nameIncludesSearchValue;
+    return (
+      nameIncludesSearchValue ||
+      (!nameIncludesSearchValue && item.subRows?.length > 0)
+    );
   });
 }
 
