@@ -558,7 +558,7 @@ function GitConnection({ isImport }: Props) {
         containerRef={scrollWrapperRef}
         mode="DARK"
         showScrollbarOnlyOnHover
-        top="45px"
+        top="46px"
       />
     </Container>
   );
