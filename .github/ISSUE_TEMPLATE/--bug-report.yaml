@@ -49,7 +49,7 @@ body:
   id: environment
   attributes:
     label: Environment
-    description: "Instance where the issue is reproducible. Choose production, if the issue is on master branch."
+    description: "Instance where the issue is reproducible. Pick production, if the issue is on master branch."
     options:
         - Production
         - Release
