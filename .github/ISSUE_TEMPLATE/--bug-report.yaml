@@ -51,9 +51,9 @@ body:
     label: Environment
     description: "Instance where the issue is reproducible"
     options:
-        - Production (Default)
+        - Production
         - Release
-        - Deploy Preview
+        - Deploy Preview (Default)
   validations:
     required: true
 - type: input
