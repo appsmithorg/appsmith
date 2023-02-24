@@ -743,7 +743,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         List<String> includeFields = new ArrayList<>(
                 List.of(
                         fieldName(QPermissionGroup.permissionGroup.id),
-                        fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainType)
                 )
         );
         return permissionGroupRepository.findAllByIdsWithoutPermission(ids, includeFields);
