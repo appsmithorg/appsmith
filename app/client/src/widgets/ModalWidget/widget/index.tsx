@@ -5,13 +5,15 @@ import { connect } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
+import { get } from "lodash";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
-import { Alignment, Positioning, Spacing } from "utils/autoLayout/constants";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import WidgetFactory from "utils/WidgetFactory";
@@ -54,7 +56,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
-          // { ...generatePositioningConfig(Positioning.Fixed) },
         ],
       },
       {
@@ -142,9 +143,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childData.rightColumn =
       this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
 
-    childData.positioning = this.props.positioning;
-    childData.alignment = this.props.alignment;
-    childData.spacing = this.props.spacing;
     return WidgetFactory.createWidget(childData, this.props.renderMode);
   };
 
@@ -215,9 +213,34 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   makeModalComponent(content: ReactNode, isEditMode: boolean) {
     const artBoard = document.getElementById("art-board");
     const portalContainer = isEditMode && artBoard ? artBoard : undefined;
-    const { isPreviewMode, isSnipingMode } = this.props;
+    const {
+      focusedWidget,
+      isDragging,
+      isSnipingMode,
+      selectedWidget,
+      selectedWidgets,
+      widgetId,
+    } = this.props;
 
-    const isResizeEnabled = isEditMode && !isSnipingMode && !isPreviewMode;
+    const isWidgetFocused =
+      focusedWidget === widgetId ||
+      selectedWidget === widgetId ||
+      selectedWidgets.includes(widgetId);
+
+    const isResizeEnabled =
+      !isDragging && isWidgetFocused && isEditMode && !isSnipingMode;
+
+    const settingsComponent = isEditMode ? (
+      <WidgetNameComponent
+        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+        parentId={this.props.parentId}
+        showControls
+        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+        type={this.props.type}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
+      />
+    ) : null;
 
     return (
       <ModalComponent
@@ -238,6 +261,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
+        settingsComponent={settingsComponent}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         width={this.getModalWidth(this.props.width)}
@@ -250,8 +274,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   getCanvasView() {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
-    children = this.showWidgetName(children, true);
-
     return this.makeModalComponent(children, true);
   }
 
@@ -282,9 +304,6 @@ export interface ModalWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   mainCanvasWidth: number;
-  positioning?: Positioning;
-  alignment: Alignment;
-  spacing: Spacing;
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -309,8 +328,11 @@ const mapStateToProps = (state: AppState) => {
   const props = {
     mainCanvasWidth: getCanvasWidth(state),
     isSnipingMode: snipingModeSelector(state),
+    selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,
+    selectedWidgets: state.ui.widgetDragResize.selectedWidgets,
+    focusedWidget: state.ui.widgetDragResize.focusedWidget,
+    isDragging: state.ui.widgetDragResize.isDragging,
     isResizing: state.ui.widgetDragResize.isResizing,
-    isPreviewMode: state.ui.editor.isPreviewMode,
   };
   return props;
 };
