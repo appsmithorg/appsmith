@@ -6,7 +6,7 @@ describe("Workspace Settings validation spec", function() {
   let workspaceId;
   let newWorkspaceName;
 
-  it("create workspace with long name should use ellipsis validation", function() {
+  it("1. Create workspace with long name should use ellipsis validation", function() {
     cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
       workspaceId =
