@@ -45,6 +45,14 @@ body:
     placeholder: "https://app.appsmith.com/applications/61e022f1eb0501052b9fa205/pages/61e02308eb0501052b9fa20c"
   validations:
     required: false
+- type: input
+  id: video
+  attributes:
+    label: Issue video log
+    description: "Share a loom video recording of how the issue can be reporduced"
+    placeholder: "https://www.loom.com/share/d54e04bc68e24798..."
+  validations:
+    required: false
 - type: dropdown
   id: environment
   attributes:
@@ -56,14 +64,6 @@ body:
         - Deploy Preview
   validations:
     required: true
-- type: input
-  id: video
-  attributes:
-    label: Issue video log
-    description: "Share a loom video recording of how the issue can be reporduced"
-    placeholder: "https://www.loom.com/share/d54e04bc68e24798..."
-  validations:
-    required: false
 - type: input
   id: version
   attributes:
