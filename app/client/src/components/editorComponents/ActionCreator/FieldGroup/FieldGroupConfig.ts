@@ -28,6 +28,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     label: createMessage(NO_ACTION),
     fields: [],
     defaultParams: "",
+    icon: "no-action",
   },
   [AppsmithFunction.integration]: {
     label: createMessage(EXECUTE_A_QUERY),

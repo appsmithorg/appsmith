@@ -1,21 +1,5 @@
 import React from "react";
 import { Icon } from "design-system-old";
-import { ReactComponent as ClearInterval } from "assets/icons/action/clearInterval.svg";
-import { ReactComponent as ClearStore } from "assets/icons/action/clearStore.svg";
-import { ReactComponent as CopyToClipboard } from "assets/icons/action/copyToClipboard.svg";
-import { ReactComponent as Download } from "assets/icons/action/download.svg";
-import { ReactComponent as ExecuteJs } from "assets/icons/action/executeJs.svg";
-import { ReactComponent as ExecuteQuery } from "assets/icons/action/executeQuery.svg";
-import { ReactComponent as GetGeolocation } from "assets/icons/action/getGeolocation.svg";
-import { ReactComponent as Modal } from "assets/icons/action/modal.svg";
-import { ReactComponent as NavigateTo } from "assets/icons/action/navigateTo.svg";
-import { ReactComponent as RemoveStore } from "assets/icons/action/removeStore.svg";
-import { ReactComponent as ResetWidget } from "assets/icons/action/resetWidget.svg";
-import { ReactComponent as SetInterval } from "assets/icons/action/setInterval.svg";
-import { ReactComponent as ShowAlert } from "assets/icons/action/showAlert.svg";
-import { ReactComponent as StopWatchGeolocation } from "assets/icons/action/stopWatchGeolocation.svg";
-import { ReactComponent as StoreValue } from "assets/icons/action/storeValue.svg";
-import { ReactComponent as WatchGeolocation } from "assets/icons/action/watchGeolocation.svg";
 import { AppsmithFunction, FieldType } from "../../constants";
 import { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
@@ -36,53 +20,53 @@ function getIconForAction(
 
   switch (actionType) {
     case AppsmithFunction.none:
-      return React.Fragment;
+      return () => <Icon name="no-action" />;
 
     case AppsmithFunction.navigateTo:
-      return NavigateTo;
+      return () => <Icon name="navigate-to" />;
 
     case AppsmithFunction.showAlert:
-      return ShowAlert;
+      return () => <Icon name="show-alert" />;
 
     case AppsmithFunction.storeValue:
-      return StoreValue;
+      return () => <Icon name="store-value" />;
 
     case AppsmithFunction.copyToClipboard:
-      return CopyToClipboard;
+      return () => <Icon name="copy-to-clipboard" />;
 
     case AppsmithFunction.download:
-      return Download;
+      return () => <Icon name="download-action" />;
 
     case AppsmithFunction.jsFunction:
-      return ExecuteJs;
+      return () => <Icon name="execute-js" />;
 
     case AppsmithFunction.closeModal:
     case AppsmithFunction.showModal:
-      return Modal;
+      return () => <Icon name="modal" />;
 
     case AppsmithFunction.resetWidget:
-      return ResetWidget;
+      return () => <Icon name="reset-widget" />;
 
     case AppsmithFunction.clearStore:
-      return ClearStore;
+      return () => <Icon name="clear-store" />;
 
     case AppsmithFunction.removeValue:
-      return RemoveStore;
+      return () => <Icon name="remove-store" />;
 
     case AppsmithFunction.setInterval:
-      return SetInterval;
+      return () => <Icon name="set-interval" />;
 
     case AppsmithFunction.clearInterval:
-      return ClearInterval;
+      return () => <Icon name="clear-interval" />;
 
     case AppsmithFunction.getGeolocation:
-      return GetGeolocation;
+      return () => <Icon name="get-geolocation" />;
 
     case AppsmithFunction.watchGeolocation:
-      return WatchGeolocation;
+      return () => <Icon name="watch-geolocation" />;
 
     case AppsmithFunction.stopWatchGeolocation:
-      return StopWatchGeolocation;
+      return () => <Icon name="stop-watch-geolocation" />;
 
     case AppsmithFunction.integration:
       const functionName = getFunctionName(
@@ -103,7 +87,7 @@ function getIconForAction(
         }
       }
 
-      return ExecuteQuery;
+      return () => <Icon name="execute-query" />;
 
     case AppsmithFunction.postWindowMessage:
       return () => <Icon name="post-message" />;
