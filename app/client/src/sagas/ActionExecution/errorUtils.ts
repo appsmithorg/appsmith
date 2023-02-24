@@ -8,10 +8,13 @@ import { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
 import { Types } from "utils/TypeHelpers";
 import {
-  ActionTriggerFunctionNames,
   ActionTriggerKeys,
+  getActionTriggerFunctionNames,
 } from "@appsmith/workers/Evaluation/fns/index";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 /*
  * The base trigger error that also logs the errors in the debugger.
@@ -44,7 +47,9 @@ export class ActionValidationError extends TriggerFailureError {
   ) {
     const errorMessage = createMessage(
       TRIGGER_ACTION_VALIDATION_ERROR,
-      ActionTriggerFunctionNames[functionName],
+      getActionTriggerFunctionNames(!!APPSMITH_CONFIGS.cloudHosting)[
+        functionName
+      ],
       argumentName,
       expectedType,
       received,

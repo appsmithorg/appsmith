@@ -273,7 +273,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .cache();
 
         Mono<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspacesMono = permissionGroupFlux
-                .collectMultimap(PermissionGroup::getDefaultWorkspaceId)
+                .collectMultimap(PermissionGroup::getDefaultDomainId)
                 .cache();
 
         Mono<Set<String>> userIdsMono = permissionGroupFlux
