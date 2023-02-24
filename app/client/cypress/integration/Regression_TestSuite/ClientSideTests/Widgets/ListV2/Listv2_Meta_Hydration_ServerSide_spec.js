@@ -21,7 +21,7 @@ function changeValueOfWidget(widgetType, value, index) {
           cy.SelectDropDown(value);
           break;
         case "multiselectwidgetv2":
-          cy.RemoveMultiSelectItems(["Green", "Red"]);
+          cy.RemoveAllSelections();
           cy.SelectFromMultiSelect(value);
           break;
         case "inputwidgetv2":
@@ -94,12 +94,13 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(datasource.mockUserDatabase).click();
 
     // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
+    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
     cy.get(`${datasource.datasourceCard}`)
-      .contains("Users")
-      .get(`${datasource.createQuery}`)
-      .last()
-      .click({ force: true });
-
+      .filter(":contains('Users')")
+      .first()
+      .within(() => {
+        cy.get(`${datasource.createQuery}`).click({ force: true });
+      });
     // Click the editing field
     cy.get(".t--action-name-edit-field").click({ force: true });
 
@@ -113,7 +114,9 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();
-    cy.get(queryLocators.query).click({ force: true });
+    cy.get(queryLocators.query).click({
+      force: true,
+    });
 
     // writing query to get the schema
     cy.get(".CodeMirror textarea")
@@ -154,6 +157,7 @@ describe("List widget v2 - meta hydration tests", () => {
   it("2. using server side data", () => {
     //FirstPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     changeValueOfWidget("selectwidget", "Green", 0);
     changeValueOfWidget("inputwidgetv2", "First", 0);
     changeValueOfWidget("multiselectwidgetv2", ["Green"], 0);
@@ -176,6 +180,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //   SecondPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     changeValueOfWidget("selectwidget", "Blue", 0);
     changeValueOfWidget("inputwidgetv2", "Fourth", 0);
     changeValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
@@ -198,6 +203,7 @@ describe("List widget v2 - meta hydration tests", () => {
     //Validate values in FirstPage
     //   First Row
     cy.wait(10000);
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     verifyValueOfWidget("selectwidget", "Green", 0);
     verifyValueOfWidget("inputwidgetv2", "First", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 0);
@@ -220,6 +226,7 @@ describe("List widget v2 - meta hydration tests", () => {
     //Validate values in SecondPage
     //   First Row
     cy.wait(10000);
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     verifyValueOfWidget("selectwidget", "Blue", 0);
     verifyValueOfWidget("inputwidgetv2", "Fourth", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
@@ -287,6 +294,7 @@ describe("List widget v2 - meta hydration tests", () => {
     //Validate values in FirstPage
     //   First Row
     cy.wait(10000);
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     verifyValueOfWidget("selectwidget", "Green", 0);
     verifyValueOfWidget("inputwidgetv2", "First", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 0);
@@ -309,6 +317,7 @@ describe("List widget v2 - meta hydration tests", () => {
     //Validate values in SecondPage
     //   First Row
     cy.wait(10000);
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     verifyValueOfWidget("selectwidget", "Blue", 0);
     verifyValueOfWidget("inputwidgetv2", "Fourth", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 0);

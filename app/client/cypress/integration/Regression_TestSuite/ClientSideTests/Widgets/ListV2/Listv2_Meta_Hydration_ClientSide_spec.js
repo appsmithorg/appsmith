@@ -18,7 +18,7 @@ function changeValueOfWidget(widgetType, value, index) {
           cy.SelectDropDown(value);
           break;
         case "multiselectwidgetv2":
-          cy.RemoveMultiSelectItems(["Green", "Red"]);
+          cy.RemoveAllSelections();
           cy.SelectFromMultiSelect(value);
           break;
         case "inputwidgetv2":
@@ -80,6 +80,7 @@ describe("List widget v2 - meta hydration tests", () => {
     );
     //FirstPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     changeValueOfWidget("selectwidget", "Green", 0);
     changeValueOfWidget("inputwidgetv2", "First", 0);
     changeValueOfWidget("multiselectwidgetv2", ["Green"], 0);
@@ -102,6 +103,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //   SecondPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     changeValueOfWidget("selectwidget", "Blue", 0);
     changeValueOfWidget("inputwidgetv2", "Fourth", 0);
     changeValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
@@ -120,10 +122,12 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginatePrevButton).click({
       force: true,
     });
-    cy.wait(2000);
+    cy.wait(3000);
 
     //Validate values in FirstPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
+
     verifyValueOfWidget("selectwidget", "Green", 0);
     verifyValueOfWidget("inputwidgetv2", "First", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 0);
@@ -142,10 +146,12 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
-    cy.wait(2000);
+    cy.wait(3000);
 
     //Validate values in SecondPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
+
     verifyValueOfWidget("selectwidget", "Blue", 0);
     verifyValueOfWidget("inputwidgetv2", "Fourth", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
@@ -210,10 +216,12 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginatePrevButton).click({
       force: true,
     });
-    cy.wait(2000);
+    cy.wait(3000);
 
     //Validate values in FirstPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
+
     verifyValueOfWidget("selectwidget", "Green", 0);
     verifyValueOfWidget("inputwidgetv2", "First", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 0);
@@ -232,10 +240,12 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
-    cy.wait(2000);
+    cy.wait(3000);
 
     //Validate values in SecondPage
     //   First Row
+    cy.get(`${widgetSelector("List1")}`).scrollIntoView();
+
     verifyValueOfWidget("selectwidget", "Blue", 0);
     verifyValueOfWidget("inputwidgetv2", "Fourth", 0);
     verifyValueOfWidget("multiselectwidgetv2", ["Blue"], 0);
