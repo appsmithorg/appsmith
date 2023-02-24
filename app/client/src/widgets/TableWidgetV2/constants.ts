@@ -214,3 +214,5 @@ export const defaultEditableCell = {
   value: "",
   initialValue: "",
 };
+
+export const DEFAULT_COLUMN_NAME = "Table Column";
