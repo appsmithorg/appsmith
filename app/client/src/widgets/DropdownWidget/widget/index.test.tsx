@@ -37,6 +37,9 @@ describe("<DropdownWidget />", () => {
       autoHeightUI: {
         isAutoHeightWithLimitsChanging: false,
       },
+      canvasSelection: {
+        isDraggingForSelection: false,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };
