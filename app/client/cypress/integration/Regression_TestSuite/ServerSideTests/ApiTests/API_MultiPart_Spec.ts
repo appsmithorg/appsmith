@@ -41,13 +41,15 @@ describe("Validate API request body panel", () => {
 
   it("3. Checks whether header content type is being changed when FORM_URLENCODED API body content type is selected", function() {
     apiPage.CreateApi("FirstAPI", "POST");
-    apiPage.ValidateHeaderParams({
+    apiPage.SelectPaneTab("Body");
+    apiPage.SelectSubTab("JSON");
+    apiPage.ValidateImportedHeaderParams(true, {
       key: "content-type",
       value: "application/json",
     });
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
-    apiPage.ValidateHeaderParams({
+    apiPage.ValidateImportedHeaderParams(true, {
       key: "content-type",
       value: "application/x-www-form-urlencoded",
     });
@@ -56,13 +58,15 @@ describe("Validate API request body panel", () => {
 
   it("4. Checks whether header content type is being changed when MULTIPART_FORM_DATA API body content type is selected", function() {
     apiPage.CreateApi("FirstAPI", "POST");
-    apiPage.ValidateHeaderParams({
+    apiPage.SelectPaneTab("Body");
+    apiPage.SelectSubTab("JSON");
+    apiPage.ValidateImportedHeaderParams(true, {
       key: "content-type",
       value: "application/json",
     });
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("MULTIPART_FORM_DATA");
-    apiPage.ValidateHeaderParams({
+    apiPage.ValidateImportedHeaderParams(true, {
       key: "content-type",
       value: "multipart/form-data",
     });
@@ -74,10 +78,7 @@ describe("Validate API request body panel", () => {
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
     apiPage.SelectSubTab("NONE");
-    apiPage.ValidateHeaderParams({
-      key: "content-type",
-      value: "application/x-www-form-urlencoded",
-    });
+    apiPage.ValidateImportedHeaderParamsAbsence(true);
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
@@ -86,10 +87,7 @@ describe("Validate API request body panel", () => {
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("MULTIPART_FORM_DATA");
     apiPage.SelectSubTab("NONE");
-    apiPage.ValidateHeaderParams({
-      key: "content-type",
-      value: "multipart/form-data",
-    });
+    apiPage.ValidateImportedHeaderParamsAbsence(true);
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
