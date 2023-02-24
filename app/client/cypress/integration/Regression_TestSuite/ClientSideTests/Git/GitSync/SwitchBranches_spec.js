@@ -120,11 +120,11 @@ describe("Git sync:", function() {
     cy.wait(2000);
     cy.GlobalSearchEntity("ParentPage1");
     cy.contains("ParentPage1").click();
-    cy.get(commonLocators.canvas);
 
     cy.switchGitBranch(parentBranchKey);
 
     cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
     cy.get(`.t--entity-name:contains("ChildJsAction1")`).should("not.exist");
   });

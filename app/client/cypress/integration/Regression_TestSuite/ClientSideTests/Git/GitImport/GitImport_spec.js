@@ -152,8 +152,6 @@ describe("Git import flow ", function() {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
-
-  // skipping below 3 cases due to open bug #18776
   it("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     //cy.createGitBranch(newBranch);
     _.gitSync.CreateGitBranch(newBranch, true);
@@ -190,9 +188,10 @@ describe("Git import flow ", function() {
       "response.body.responseMeta.status",
       201,
     );
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+    _.ee.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
+    _.jsEditor.RunJSObj(); //Running sync function due to open bug
+    _.ee.SelectEntityByName("Page1 Copy");
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -210,9 +209,9 @@ describe("Git import flow ", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.latestDeployPreview();
-    cy.get(".tbody")
-      .first()
-      .should("contain.text", "Test user 7");
+    _.table.ReadTableRowColumnData(0, 1).then(($text) => {
+      expect($text).to.eq("Test user 7New Config");
+    }); //Checking both tables
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
@@ -221,9 +220,9 @@ describe("Git import flow ", function() {
     cy.get(".t--page-switch-tab")
       .contains("Page1")
       .click({ force: true });
-    cy.get(".tbody")
-      .first()
-      .should("contain.text", "Test user 7");
+    _.table.ReadTableRowColumnData(0, 1).then(($text) => {
+      expect($text).to.eq("Test user 7New Config");
+    }); //Checking both tables
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget

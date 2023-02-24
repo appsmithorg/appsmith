@@ -309,6 +309,8 @@ export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
 export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
+export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
+  `This selected widget cannot be cut.`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;

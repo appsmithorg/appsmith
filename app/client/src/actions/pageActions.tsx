@@ -9,6 +9,7 @@ import {
   ReplayReduxActionTypes,
   AnyReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
+import { DynamicPath } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
 import {
@@ -254,6 +255,7 @@ export type WidgetAddChild = {
   newWidgetId: string;
   tabId: string;
   props?: Record<string, any>;
+  dynamicBindingPathList?: DynamicPath[];
 };
 
 export type WidgetRemoveChild = {

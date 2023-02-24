@@ -35,7 +35,7 @@ export class GitSync {
   }
 
   CreateNConnectToGit(
-    repoName: string = "Test",
+    repoName = "Test",
     assertConnect = true,
     privateFlag = false,
   ) {
@@ -129,7 +129,7 @@ export class GitSync {
     });
   }
 
-  CreateGitBranch(branch: string = "Test", toUseNewGuid = false) {
+  CreateGitBranch(branch = "Test", toUseNewGuid = false) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
     this.agHelper.GetNClick(this._branchButton);

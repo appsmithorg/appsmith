@@ -7,6 +7,7 @@ import _ from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
@@ -65,7 +66,7 @@ export interface ControlBuilder<T extends ControlProps> {
 
 export interface ControlProps extends ControlData, ControlFunctions {
   key?: string;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  additionalAutoComplete?: AdditionalDynamicDataTree;
 }
 export interface ControlData
   extends Omit<PropertyPaneControlConfig, "additionalAutoComplete" | "label"> {
@@ -78,7 +79,7 @@ export interface ControlData
   useValidationMessage?: boolean;
   parentPropertyName: string;
   parentPropertyValue: unknown;
-  additionalDynamicData: Record<string, Record<string, unknown>>;
+  additionalDynamicData: AdditionalDynamicDataTree;
   label: string;
   additionalControlData?: Record<string, unknown>;
 }

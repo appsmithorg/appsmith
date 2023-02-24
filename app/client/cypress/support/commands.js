@@ -14,10 +14,12 @@ const {
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
+
 const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
+
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
@@ -542,13 +544,13 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("PublishtheApp", () => {
+Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  cy.assertPageSave();
+  cy.assertPageSave(validateSavedState);
 
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {
@@ -1196,11 +1198,13 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
   });
 });
 
-Cypress.Commands.add("assertPageSave", () => {
-  cy.CheckForPageSaveError();
-  cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-    timeout: 30000,
-  });
+Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
+  if (validateSavedState) {
+    cy.CheckForPageSaveError();
+    cy.get(commonlocators.saveStatusContainer).should("not.exist", {
+      timeout: 30000,
+    });
+  }
   //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
@@ -1884,33 +1888,7 @@ Cypress.Commands.add("StartContainer", (path, containerName) => {
 });
 
 Cypress.Commands.add(
-  "StartCEContainer",
-  (url, path, version, containerName) => {
-    let comm =
-      "docker run -d --name " +
-      containerName +
-      ' -p 8081:80 -p 9002:9002 -v "' +
-      path +
-      '/stacks:/appsmith-stacks" -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 ' +
-      version;
-
-    cy.log(comm);
-    cy.request({
-      method: "GET",
-      url: url,
-      qs: {
-        cmd: comm,
-      },
-    }).then((res) => {
-      cy.log("ContainerID", res.body.stdout);
-      cy.log(res.body.stderr);
-      expect(res.status).equal(200);
-    });
-  },
-);
-
-Cypress.Commands.add(
-  "StartEEContainer",
+  "StartNewContainer",
   (url, path, version, containerName) => {
     let comm =
       "docker run -d --name " +
@@ -1928,7 +1906,8 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
-      cy.log(res.body.stdout, res.body.stderr);
+      cy.log("ContainerID", res.body.stdout);
+      cy.log(res.body.stderr);
       expect(res.status).equal(200);
     });
   },
@@ -2031,6 +2010,22 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
   initLocalstorage();
 });
 
+Cypress.Commands.add(
+  "RenameWidgetFromPropertyPane",
+  (widgetType, oldName, newName) => {
+    cy.openPropertyPaneByWidgetName(oldName, widgetType);
+    cy.get(".t--property-pane-title").click({ force: true });
+    cy.get(".t--property-pane-title")
+      .type(newName, { delay: 300 })
+      .type("{enter}");
+    cy.wait("@updateWidgetName").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  },
+);
+
 Cypress.Commands.add("execute", (url, command) => {
   cy.request({
     method: "GET",
@@ -2048,4 +2043,72 @@ Cypress.Commands.add("forceVisit", (url) => {
   cy.window().then((win) => {
     return win.open(url, "_self");
   });
+});
+
+Cypress.Commands.add("SelectDropDown", (dropdownOption) => {
+  cy.get(".t--widget-selectwidget button")
+    .first()
+    .scrollIntoView()
+    .click();
+  cy.get(".t--widget-selectwidget button .cancel-icon")
+    .first()
+    .click({ force: true })
+    .wait(1000);
+  cy.get(".t--widget-selectwidget button")
+    .first()
+    .click({ force: true });
+  cy.document()
+    .its("body")
+    .find(".menu-item-link:contains('" + dropdownOption + "')")
+    .click({
+      force: true,
+    })
+    .wait(1000);
+});
+
+Cypress.Commands.add("RemoveMultiSelectItems", (dropdownOptions) => {
+  dropdownOptions.forEach(($each) => {
+    cy.get(`.rc-select-selection-overflow-item [title=${$each}] .remove-icon`)
+      .eq(0)
+      .click({ force: true })
+      .wait(1000);
+  });
+});
+
+Cypress.Commands.add("SelectFromMultiSelect", (options) => {
+  const option = (value) =>
+    `.rc-select-item-option[title=${value}] input[type='checkbox']`;
+  cy.get(" .t--widget-multiselectwidgetv2 div.rc-select-selector")
+    .eq(0)
+    .scrollIntoView()
+    .then(($element) => {
+      // here, we try to click on downArrow in dropdown of multiSelect.
+      // the position is calculated from top left of the element
+      const dropdownCenterPosition = +$element.height / 2;
+      const dropdownArrowApproxPosition = +$element.width - 10;
+      cy.get($element).click(
+        dropdownArrowApproxPosition,
+        dropdownCenterPosition,
+        {
+          force: true,
+        },
+      );
+    });
+
+  options.forEach(($each) => {
+    cy.document()
+      .its("body")
+      .find(".rc-select-dropdown.multi-select-dropdown")
+      .not(".rc-select-dropdown-hidden")
+      .find(option($each))
+      .check({ force: true })
+      .wait(1000);
+    cy.document()
+      .its("body")
+      .find(option($each))
+      .should("be.checked");
+  });
+  cy.document()
+    .its("body")
+    .type("{esc}");
 });
