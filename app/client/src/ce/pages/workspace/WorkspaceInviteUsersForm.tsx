@@ -58,12 +58,12 @@ import {
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
-import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 const { cloudHosting, mailEnabled } = getAppsmithConfigs();
 
@@ -458,8 +458,10 @@ function WorkspaceInviteUsersForm(props: any) {
             .filter((user: any) => isEmail(user))
             .join(",");
           AnalyticsUtil.logEvent("INVITE_USER", {
-            users: usersAsStringsArray,
-            role: values.role,
+            ...(cloudHosting ? { users: usersAsStringsArray } : {}),
+            role: isMultiSelectDropdown
+              ? selectedOption.map((group: any) => group.id).join(",")
+              : [selectedOption[0].id],
             numberOfUsersInvited: usersAsStringsArray.length,
           });
           return inviteUsersToWorkspace(
@@ -546,13 +548,18 @@ function WorkspaceInviteUsersForm(props: any) {
                     permissionGroupId: string;
                     permissionGroupName: string;
                     initials: string;
+                    photoId?: string;
                   }) => {
                     return (
                       <Fragment key={user.username}>
                         <User>
                           <UserInfo>
                             <ProfileImage
-                              source={`/api/${UserApi.photoURL}/${user.username}`}
+                              source={
+                                user.photoId
+                                  ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+                                  : undefined
+                              }
                               userName={user.name || user.username}
                             />
                             <UserName>
