@@ -1188,7 +1188,7 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 Cypress.Commands.add("CheckForPageSaveError", () => {
   // Wait for "saving" status to disappear
   cy.get(commonlocators.statusSaving, {
-    timeout: 60000,
+    timeout: 30000,
   }).should("not.exist");
   // Check for page save error
   cy.get("body").then(($ele) => {
@@ -2070,6 +2070,14 @@ Cypress.Commands.add("RemoveMultiSelectItems", (dropdownOptions) => {
   dropdownOptions.forEach(($each) => {
     cy.get(`.rc-select-selection-overflow-item [title=${$each}] .remove-icon`)
       .eq(0)
+      .click({ force: true })
+      .wait(1000);
+  });
+});
+
+Cypress.Commands.add("RemoveAllSelections", () => {
+  cy.get(`.rc-select-selection-overflow-item .remove-icon`).each(($each) => {
+    cy.wrap($each)
       .click({ force: true })
       .wait(1000);
   });

@@ -339,6 +339,7 @@ function* updateDatasourceSaga(
     const queryParams = getQueryParams();
     const datasourcePayload = omit(actionPayload.payload, "name");
     datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
+
     const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
       datasourcePayload.id,
