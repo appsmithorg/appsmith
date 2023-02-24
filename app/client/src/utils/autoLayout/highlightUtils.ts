@@ -5,7 +5,10 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   getLeftColumn,
   getRightColumn,
@@ -18,7 +21,6 @@ import {
   getAlignmentSizeInfo,
   getTotalRowsOfAllChildren,
   getWrappedAlignmentInfo,
-  Widget,
 } from "./positionUtils";
 import {
   DropZone,
@@ -269,7 +271,7 @@ export function generateVerticalHighlights(data: {
  * - If the alignment has no children, then add an initial highlight to mark the start of the alignment.
  */
 export function generateHighlightsForAlignment(data: {
-  arr: Widget[];
+  arr: FlattenedWidgetProps[];
   childCount: number;
   layerIndex: number;
   alignment: FlexLayerAlignment;
@@ -318,7 +320,7 @@ export function generateHighlightsForAlignment(data: {
   }
 
   if (!avoidInitialHighlight) {
-    const lastChild: Widget | null =
+    const lastChild: FlattenedWidgetProps | null =
       arr && arr.length ? arr[arr.length - 1] : null;
     res.push({
       isNewLayer: false,
