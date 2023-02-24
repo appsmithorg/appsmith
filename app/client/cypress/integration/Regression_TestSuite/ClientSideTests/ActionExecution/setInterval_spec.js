@@ -15,7 +15,7 @@ describe("Test Create Api and Bind to Button widget", function() {
     });
   });
 
-  it("1. Selects set interval function, Fill setInterval action creator and test code generated ", () => {
+  it("1. Selects set interval function, Fill setInterval action creator and test code generated & verify in deploy mode", () => {
     cy.SearchEntityandOpen("Button1");
     cy.get(widgetsPage.buttonOnClick)
       .last()
@@ -58,9 +58,7 @@ describe("Test Create Api and Bind to Button widget", function() {
       );
 
     cy.get(widgetsPage.toggleOnClick).click();
-  });
 
-  it("2. Works in the published version", () => {
     cy.PublishtheApp();
     cy.wait(3000);
     cy.get("span:contains('Submit')")
@@ -81,7 +79,7 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("3. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
+  it("2. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
     cy.SearchEntityandOpen("Button1");
     cy.get(widgetsPage.buttonOnClick)
       .last()
