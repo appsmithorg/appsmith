@@ -608,10 +608,7 @@ export const updateDependencyMap = ({
                     errors,
                     invalidReferences,
                     validReferences,
-                  } = extractInfoFromBindings(
-                    entityDependenciesName,
-                    dataTreeEvalRef.allKeys,
-                  );
+                  } = extractInfoFromBindings(entityDependenciesName, allKeys);
                   updateMap(
                     invalidReferencesMap,
                     propertyPath,
@@ -661,10 +658,7 @@ export const updateDependencyMap = ({
               errors: extractDependencyErrors,
               invalidReferences,
               validReferences,
-            } = extractInfoFromBindings(
-              entityDependencies,
-              dataTreeEvalRef.allKeys,
-            );
+            } = extractInfoFromBindings(entityDependencies, allKeys);
 
             dataTreeEvalErrors = dataTreeEvalErrors.concat(
               extractDependencyErrors,
@@ -694,7 +688,7 @@ export const updateDependencyMap = ({
   if (didUpdateDependencyMap) {
     dataTreeEvalRef.dependencyMap = makeParentsDependOnChildren(
       dataTreeEvalRef.dependencyMap,
-      dataTreeEvalRef.allKeys,
+      allKeys,
     );
   }
   const subDepCalcEnd = performance.now();
