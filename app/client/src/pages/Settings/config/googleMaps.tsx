@@ -83,6 +83,7 @@ function GoogleMapsConfig(): ReactElement<any, any> {
             onChange={setMapsKey}
             validator={notEmptyValidator}
             value={mapsKey}
+            width="auto"
           />
         </div>
         <div className="flex gap-2 mt-6">
