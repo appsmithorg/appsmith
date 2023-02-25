@@ -6,7 +6,10 @@ import { AppState } from "@appsmith/reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
-import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  shouldSuppressDebuggerError,
+  isWidget,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 
 type ErrorObejct = {
@@ -43,6 +46,9 @@ export const getFilteredErrors = createSelector(
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
+          if (shouldSuppressDebuggerError(entity)) {
+            return false;
+          }
           if (!hasParentWidget(entity)) {
             return entity.isVisible
               ? true
@@ -103,11 +109,20 @@ export const hasParentWidget = (widget: DataTreeWidget) =>
   widget.parentId && widget.parentId !== "0";
 
 export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
-  const errorKeys = Object.keys(errors);
-  const warningsCount = errorKeys.filter((key: string) =>
+  let errorsCount = 0;
+
+  // count number of messages in each error.
+  // This logic is required because each messages in error is rendered separately.
+  Object.values(errors).forEach((error) => {
+    if (error.messages) {
+      errorsCount += error.messages.length;
+    }
+  });
+  // count number of warnings.
+  const warningsCount = Object.keys(errors).filter((key: string) =>
     key.includes("warning"),
   ).length;
-  const errorsCount = errorKeys.length - warningsCount;
+  errorsCount = errorsCount - warningsCount;
   return { errors: errorsCount, warnings: warningsCount };
 });
 

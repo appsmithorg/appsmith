@@ -16,6 +16,7 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["datagrid"],
   hideCard: true,
+  needsHeightForContent: true,
   defaults: {
     rows: 28,
     columns: 34,

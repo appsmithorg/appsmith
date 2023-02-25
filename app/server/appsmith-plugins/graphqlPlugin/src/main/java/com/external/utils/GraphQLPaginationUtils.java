@@ -7,6 +7,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
+import com.external.plugins.exceptions.GraphQLPluginError;
 import org.json.JSONObject;
 import org.json.JSONException;
 
@@ -227,7 +228,7 @@ public class GraphQLPaginationUtils {
         }
         else {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    GraphQLPluginError.QUERY_EXECUTION_FAILED,
                     "Appsmith server encountered an unexpected error: unrecognized pagination type: " + actionConfiguration.getPaginationType() +
                             ". Please reach out to our customer support to resolve this."
             );

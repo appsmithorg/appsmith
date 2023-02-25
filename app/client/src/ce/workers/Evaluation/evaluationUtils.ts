@@ -18,7 +18,7 @@ import {
   DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 
-import _, { find, get, isEmpty, set } from "lodash";
+import _, { difference, find, get, has, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -185,32 +185,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
         typeof difference.lhs === "string" &&
         (isDynamicValue(difference.lhs) || isJsAction);
 
-      // JsObject function renaming
-      // remove .data from a String instance manually
-      // since it won't be identified when calculating diffs
-      // source for .data in a String instance -> `updateLocalUnEvalTree`
-      if (
-        isJsAction &&
-        rhsChange &&
-        difference.lhs instanceof String &&
-        _.get(difference.lhs, "data")
-      ) {
-        result = [
-          {
-            event: DataTreeDiffEvent.DELETE,
-            payload: {
-              propertyPath: `${propertyPath}.data`,
-            },
-          },
-          {
-            event: DataTreeDiffEvent.EDIT,
-            payload: {
-              propertyPath,
-              value: difference.rhs,
-            },
-          },
-        ];
-      } else if (rhsChange || lhsChange) {
+      if (rhsChange || lhsChange) {
         result = [
           {
             event: DataTreeDiffEvent.EDIT,
@@ -387,6 +362,12 @@ export function isWidget(
     entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
   );
 }
+
+export const shouldSuppressAutoComplete = (widget: DataTreeWidget) =>
+  Boolean(widget.suppressAutoComplete);
+
+export const shouldSuppressDebuggerError = (widget: DataTreeWidget) =>
+  Boolean(widget.suppressDebuggerError);
 
 export function isAction(
   entity: Partial<DataTreeEntity>,
@@ -733,6 +714,27 @@ export const getDataTreeWithoutPrivateWidgets = (
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
 };
+
+const getDataTreeWithoutSuppressedAutoComplete = (
+  dataTree: DataTree,
+): DataTree => {
+  const entityIds = Object.keys(dataTree).filter((entityName) => {
+    const entity = dataTree[entityName];
+    return isWidget(entity) && shouldSuppressAutoComplete(entity);
+  });
+
+  return _.omit(dataTree, entityIds);
+};
+
+export const getDataTreeForAutocomplete = (dataTree: DataTree): DataTree => {
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  const treeWithoutSuppressedAutoComplete = getDataTreeWithoutSuppressedAutoComplete(
+    treeWithoutPrivateWidgets,
+  );
+
+  return treeWithoutSuppressedAutoComplete;
+};
+
 /**
  *  overrideWidgetProperties method has logic to update overriddenPropertyPaths when overridingPropertyPaths are evaluated.
  *
@@ -846,7 +848,7 @@ export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
   });
 };
 
-export const widgetPathsNotToOverride = (
+const widgetPathsNotToOverride = (
   isNewWidget: boolean,
   entity: DataTreeWidget,
   propertyPath: string,
@@ -854,12 +856,8 @@ export const widgetPathsNotToOverride = (
   let pathsNotToOverride: string[] = [];
   const overriddenPropertyPaths = entity.overridingPropertyPaths[propertyPath];
 
-  // To tell whether a widget has pre-existing meta values (although newly added), we stringify its meta object to get rid of undefined values
-  // An empty parsedMetaObj implies that the widget has no pre-existing meta values.
-  // MetaWidgets can have pre-existing meta values
-  const parsedMetaObj = JSON.parse(JSON.stringify(entity.meta));
-
-  if (isNewWidget && !isEmpty(parsedMetaObj)) {
+  // Check if widget has pre-existing meta values (although newly added to the unevalTree)
+  if (isNewWidget && entity.isMetaPropDirty) {
     const overriddenMetaPaths = overriddenPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
     );
@@ -877,3 +875,53 @@ export const widgetPathsNotToOverride = (
   }
   return pathsNotToOverride;
 };
+
+const isWidgetDefaultPropertyPath = (
+  widget: DataTreeWidget,
+  propertyPath: string,
+) => {
+  for (const property of Object.keys(widget.propertyOverrideDependency)) {
+    const overrideDependency = widget.propertyOverrideDependency[property];
+    if (overrideDependency.DEFAULT === propertyPath) return true;
+  }
+  return false;
+};
+
+const isMetaWidgetTemplate = (widget: DataTreeWidget) => {
+  return !!widget.siblingMetaWidgets;
+};
+
+// When a default value changes in a template(widgets used to generate other widgets), meta values of metaWidgets not present in the unevalTree become stale
+export function getStaleMetaStateIds(args: {
+  entity: DataTreeWidget;
+  propertyPath: string;
+  isNewWidget: boolean;
+  metaWidgets: string[];
+}) {
+  const { entity, isNewWidget, metaWidgets, propertyPath } = args;
+  return !isNewWidget &&
+    isWidgetDefaultPropertyPath(entity, propertyPath) &&
+    isMetaWidgetTemplate(entity)
+    ? difference(entity.siblingMetaWidgets, metaWidgets)
+    : [];
+}
+
+export function convertJSFunctionsToString(
+  jscollections: Record<string, DataTreeJSAction>,
+) {
+  const collections = klona(jscollections);
+  Object.keys(collections).forEach((collectionName) => {
+    const jsCollection = collections[collectionName];
+    const jsFunctions = jsCollection.meta;
+    for (const funcName in jsFunctions) {
+      if (jsCollection[funcName] instanceof String) {
+        if (has(jsCollection, [funcName, "data"])) {
+          set(jsCollection, [`${funcName}.data`], jsCollection[funcName].data);
+        }
+        set(jsCollection, funcName, jsCollection[funcName].toString());
+      }
+    }
+  });
+
+  return collections;
+}

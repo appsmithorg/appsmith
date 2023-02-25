@@ -4,13 +4,11 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
-import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put, select } from "redux-saga/effects";
 import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
 import { getWidgets } from "sagas/selectors";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import { getAutoHeightLayoutTree } from "selectors/autoHeightSelectors";
 import { FlattenedWidgetProps } from "widgets/constants";
 import {
   getWidgetMaxAutoHeight,
@@ -20,6 +18,7 @@ import {
 import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { getLayoutTree } from "./layoutTree";
 
 export function* dynamicallyUpdateContainersSaga(
   action?: ReduxAction<{ resettingTabs: boolean }>,
@@ -37,9 +36,7 @@ export function* dynamicallyUpdateContainersSaga(
     return isCanvasWidget;
   });
 
-  const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
-    getAutoHeightLayoutTree,
-  );
+  const { tree: dynamicHeightLayoutTree } = yield getLayoutTree(false);
 
   const updates: Record<string, number> = {};
   const shouldCollapse: boolean = yield call(shouldWidgetsCollapse);
@@ -120,6 +117,17 @@ export function* dynamicallyUpdateContainersSaga(
 
           // Get the larger value between the minDynamicHeightInRows and bottomMostRowForChild
           maxBottomRow = Math.max(maxBottomRowBasedOnChildren, maxBottomRow);
+        } else {
+          // If the parent is not supposed to be collapsed
+          // Use the canvasHeight offset, as that would be the
+          // minimum
+          if (
+            parentContainerWidget.bottomRow - parentContainerWidget.topRow >
+              0 ||
+            !shouldCollapse
+          ) {
+            maxBottomRow += canvasHeightOffset;
+          }
         }
 
         // The following makes sure we stay within bounds
@@ -156,7 +164,7 @@ export function* dynamicallyUpdateContainersSaga(
     }
   }
 
-  log.debug("Dynamic Height: Container Updates", { updates });
+  log.debug("Auto Height: Container Updates", { updates });
 
   if (Object.keys(updates).length > 0) {
     // TODO(abhinav): Make sure there are no race conditions or scenarios where these updates are not considered.
@@ -171,7 +179,7 @@ export function* dynamicallyUpdateContainersSaga(
     }
   }
   log.debug(
-    "Dynamic height: Container computations time taken:",
+    "Auto height: Container computations time taken:",
     performance.now() - start,
     "ms",
   );

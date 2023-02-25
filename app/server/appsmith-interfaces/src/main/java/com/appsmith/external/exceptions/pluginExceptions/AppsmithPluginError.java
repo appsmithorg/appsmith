@@ -7,60 +7,185 @@ import lombok.Getter;
 import java.text.MessageFormat;
 
 @Getter
-public enum AppsmithPluginError {
+public enum AppsmithPluginError implements BasePluginError{
 
-    PLUGIN_ERROR(500, 5000, "{0}",
-            AppsmithErrorAction.LOG_EXTERNALLY, "Query execution error", ErrorType.INTERNAL_ERROR),
-    PLUGIN_GET_STRUCTURE_ERROR(500, 5001, "{0}", AppsmithErrorAction.DEFAULT, "Failed to get datasource " +
-            "structure", ErrorType.INTERNAL_ERROR),
-    PLUGIN_QUERY_TIMEOUT_ERROR(504, 5002, "{0} timed out in {1} milliseconds. " +
-            "Please increase timeout. This can be found in Settings tab of {0}.", AppsmithErrorAction.DEFAULT, "Timed" +
-            " out on query execution", ErrorType.CONNECTIVITY_ERROR),
-    PLUGIN_MAX_RESULT_SIZE_EXCEEDED(504, 5009, "Response size exceeded the maximum supported"
-            + " size of {0} MB. Please use LIMIT to reduce the amount of data fetched.",
-            AppsmithErrorAction.DEFAULT, "Large Result Set Not Supported", ErrorType.INTERNAL_ERROR),
-    PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(504, 5003, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Timed out when fetching" +
-            " datasource structure", ErrorType.CONNECTIVITY_ERROR),
-    PLUGIN_DATASOURCE_ARGUMENT_ERROR(500, 5004, "{0}", AppsmithErrorAction.DEFAULT, "Datasource configuration is " +
-            "invalid", ErrorType.DATASOURCE_CONFIGURATION_ERROR),
-    PLUGIN_EXECUTE_ARGUMENT_ERROR(500, 5005, "{0}", AppsmithErrorAction.DEFAULT,
-            "Query configuration is invalid", ErrorType.ACTION_CONFIGURATION_ERROR),
-    PLUGIN_JSON_PARSE_ERROR(500, 5006, "Plugin failed to parse JSON \"{0}\" with error: {1}",
-            AppsmithErrorAction.DEFAULT, "Invalid JSON found", ErrorType.INTERNAL_ERROR),
-    PLUGIN_DATASOURCE_TEST_GENERIC_ERROR(500, 5007, "Plugin failed to test with the given configuration. Please reach out to Appsmith customer support to report this",
-            AppsmithErrorAction.LOG_EXTERNALLY, "Datasource configuration is invalid", ErrorType.INTERNAL_ERROR),
-    PLUGIN_DATASOURCE_TIMEOUT_ERROR(504, 5008, "{0}", AppsmithErrorAction.DEFAULT, "Timed out when connecting to " +
-            "datasource", ErrorType.CONNECTIVITY_ERROR),
-    PLUGIN_AUTHENTICATION_ERROR(401, 4000, "Invalid authentication credentials. Please check datasource configuration.",
-            AppsmithErrorAction.DEFAULT, "Datasource authentication error", ErrorType.AUTHENTICATION_ERROR),
-    PLUGIN_IN_MEMORY_FILTERING_ERROR(500, 5010, "{0}",
-            AppsmithErrorAction.LOG_EXTERNALLY, "Appsmith In Memory Filtering Failed", ErrorType.INTERNAL_ERROR),
-    PLUGIN_UQI_WHERE_CONDITION_UNKNOWN(500, 5011, "{0} is not a known conditional operator. Please reach out to Appsmith customer support to report this",
-            AppsmithErrorAction.LOG_EXTERNALLY, "Where condition could not be parsed", ErrorType.INTERNAL_ERROR),
-    UNSUPPORTED_PLUGIN_OPERATION(500, 5012, "Unsupported operation", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
-    PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR(500, 5013, "Plugin failed to convert formData into native query with " +
-            "error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, "Failed to convert form data to native",
-            ErrorType.INTERNAL_ERROR),
-    INCOMPATIBLE_FILE_FORMAT(400, 4001, "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
-            AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
+    PLUGIN_ERROR(
+            500,
+            AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    PLUGIN_GET_STRUCTURE_ERROR(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_GET_STRUCTURE_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "Failed to get datasource structure",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    PLUGIN_QUERY_TIMEOUT_ERROR(
+            504,
+            AppsmithPluginErrorCode.PLUGIN_QUERY_TIMEOUT_ERROR.getCode(),
+            "{0} timed out in {1} milliseconds. Please increase timeout. This can be found in Settings tab of {0}.",
+            AppsmithErrorAction.DEFAULT,
+            "Timed out on query execution",
+            ErrorType.CONNECTIVITY_ERROR,
+            "{2}",
+            "{3}"
+    ),
+    PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(
+            504,
+            AppsmithPluginErrorCode.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Timed out when fetching datasource structure",
+            ErrorType.CONNECTIVITY_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    PLUGIN_DATASOURCE_ARGUMENT_ERROR(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_ARGUMENT_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource configuration is invalid",
+            ErrorType.DATASOURCE_CONFIGURATION_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    PLUGIN_EXECUTE_ARGUMENT_ERROR(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_EXECUTE_ARGUMENT_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "Query configuration is invalid",
+            ErrorType.ACTION_CONFIGURATION_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    PLUGIN_JSON_PARSE_ERROR(
+            500,
+            AppsmithPluginErrorCode.JSON_PROCESSING_ERROR.getCode(),
+            "Plugin failed to parse JSON \"{0}\"",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid JSON found",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    PLUGIN_DATASOURCE_TEST_GENERIC_ERROR(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getCode(),
+            "Plugin failed to test with the given configuration. Please reach out to Appsmith customer support to report this",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Datasource configuration is invalid",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    PLUGIN_DATASOURCE_TIMEOUT_ERROR(
+            504,
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_TIMEOUT_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "Timed out when connecting to datasource",
+            ErrorType.CONNECTIVITY_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    PLUGIN_AUTHENTICATION_ERROR(
+            401,
+            AppsmithPluginErrorCode.PLUGIN_AUTHENTICATION_ERROR.getCode(),
+            "Invalid authentication credentials. Please check datasource configuration.",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource authentication error",
+            ErrorType.AUTHENTICATION_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    PLUGIN_IN_MEMORY_FILTERING_ERROR(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_IN_MEMORY_FILTERING_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Appsmith In Memory Filtering Failed",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    PLUGIN_UQI_WHERE_CONDITION_UNKNOWN(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_UQI_WHERE_CONDITION_UNKNOWN.getCode(),
+            "{0} is not a known conditional operator. Please reach out to Appsmith customer support to report this",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Where condition could not be parsed",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    INCOMPATIBLE_FILE_FORMAT(
+            400,
+            AppsmithPluginErrorCode.INCOMPATIBLE_FILE_FORMAT.getCode(),
+            "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
+            AppsmithErrorAction.DEFAULT,
+            AppsmithPluginErrorCode.INCOMPATIBLE_FILE_FORMAT.getDescription(),
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+
+    STALE_CONNECTION_ERROR(
+            500,
+            AppsmithPluginErrorCode.GENERIC_STALE_CONNECTION.getCode(),
+            AppsmithPluginErrorCode.GENERIC_STALE_CONNECTION.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Connection is stale",
+            ErrorType.CONNECTIVITY_ERROR,
+            "{0}",
+            "{1}"
+    ),
+
+    SMART_SUBSTITUTION_VALUE_MISSING(
+            500,
+            AppsmithPluginErrorCode.SMART_SUBSTITUTION_VALUE_MISSING.getCode(),
+            "Uh oh! This is unexpected. " +
+                    "Did not receive any information for the binding "
+                    + "{0}" + ". Please contact customer support at Appsmith.",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Smart substitution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
     ;
 
     private final Integer httpErrorCode;
-    private final Integer appErrorCode;
+    private final String appErrorCode;
     private final String message;
     private final String title;
     private final AppsmithErrorAction errorAction;
     private final ErrorType errorType;
 
-    AppsmithPluginError(Integer httpErrorCode, Integer appErrorCode, String message, AppsmithErrorAction errorAction,
-                        String title, ErrorType errorType, Object... args) {
+    private final String downstreamErrorMessage;
+
+    private final String downstreamErrorCode;
+
+    AppsmithPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
+                        String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
-        MessageFormat fmt = new MessageFormat(message);
         this.errorAction = errorAction;
-        this.message = fmt.format(args);
+        this.message = message;
         this.title = title;
+        this.downstreamErrorMessage = downstreamErrorMessage;
+        this.downstreamErrorCode = downstreamErrorCode;
     }
 
     public String getMessage(Object... args) {
@@ -68,5 +193,13 @@ public enum AppsmithPluginError {
     }
 
     public String getErrorType() { return this.errorType.toString(); }
+
+    public String getDownstreamErrorMessage(Object... args) {
+        return replacePlaceholderWithValue(this.downstreamErrorMessage, args);
+    }
+
+    public String getDownstreamErrorCode(Object... args) {
+        return replacePlaceholderWithValue(this.downstreamErrorCode, args);
+    }
 
 }

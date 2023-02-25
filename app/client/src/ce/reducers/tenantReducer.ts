@@ -16,6 +16,7 @@ export interface TenantReduxState<T> {
   tenantConfiguration: Record<string, T>;
   new: boolean;
   isLoading: boolean;
+  instanceId: string;
 }
 
 export const defaultBrandingConfig = {
@@ -33,6 +34,7 @@ export const initialState: TenantReduxState<any> = {
   },
   new: false,
   isLoading: true,
+  instanceId: "",
 };
 
 export const handlers = {
@@ -54,6 +56,7 @@ export const handlers = {
       ...action.payload.tenantConfiguration,
     },
     isLoading: false,
+    instanceId: action.payload.instanceId,
   }),
   [ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR]: (
     state: TenantReduxState<any>,

@@ -138,7 +138,7 @@ export class AggregateHelper {
 
   public CheckForPageSaveError() {
     // Wait for "saving" status to disappear
-    this.GetElement(this.locator._statusSaving).should("not.exist");
+    this.GetElement(this.locator._statusSaving, 30000).should("not.exist");
     // Check for page save error
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._saveStatusError).length) {
@@ -447,7 +447,7 @@ export class AggregateHelper {
     items.forEach(($each) => {
       cy.xpath(this.locator._multiSelectItem($each))
         .eq(0)
-        .click()
+        .click({ force: true })
         .wait(1000);
     });
   }
@@ -827,7 +827,7 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
-      .type(this.selectAll)
+      //.type(this.selectAll)
       .type(value, { delay: 1 });
     // .type(selectAllJSObjectContentShortcut)
     // .then((ins: any) => {
@@ -1054,7 +1054,7 @@ export class AggregateHelper {
 
   public AssertContains(
     text: string | RegExp,
-    exists: "exist" | "not.exist" = "exist",
+    exists: "exist" | "not.exist" | "be.visible" = "exist",
     selector?: string,
   ) {
     if (selector) {

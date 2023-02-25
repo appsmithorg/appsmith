@@ -14,6 +14,7 @@ export interface LintTreeResponse {
 export interface LintTreeRequest {
   pathsToLint: string[];
   unevalTree: DataTree;
+  cloudHosting: boolean;
 }
 
 export type LintWorkerRequest = WorkerRequest<

@@ -18,9 +18,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.hideColumn("orderAmount");
     // Validating the newly added column
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
-  });
-
-  it("Edit column name and validate test for computed value", function() {
+    //Test: Edit column name and validate test for computed value
     // Open column detail by draggable id of the column
     cy.editColumn("customColumn1");
     // Validating single cell value

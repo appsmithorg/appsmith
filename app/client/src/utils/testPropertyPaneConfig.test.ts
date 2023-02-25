@@ -48,9 +48,9 @@ function validatePropertyControl(
     !isWidgetHidden &&
     _config.label &&
     !_config.invisible &&
-    !_config.helpText
+    !(_config.helpText || _config.helperText)
   ) {
-    return `${_config.propertyName} (${_config.label}): Help text is mandatory for property controls`;
+    return `${_config.propertyName} (${_config.label}): Help text or Helper textis mandatory for property controls`;
   }
 
   if (
