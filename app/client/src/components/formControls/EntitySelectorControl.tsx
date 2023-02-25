@@ -28,7 +28,6 @@ const EntitySelectorContainer = styled.div`
   display: grid;
   grid-gap: 16px;
   grid-template-columns: repeat(auto-fill, 280px);
-  position: relative;
 `;
 
 const EntitySelectorWrapper = styled.div<{
@@ -37,6 +36,7 @@ const EntitySelectorWrapper = styled.div<{
   size: string;
 }>`
   margin-right: ${(props) => props.marginRight};
+  position: relative;
 
   /* Tree like lines in small width containers
     |
@@ -59,24 +59,24 @@ const EntitySelectorWrapper = styled.div<{
       left: 4px;
       border: solid #e0dede;
       border-width: 0 0 1.8px 1.8px;
-      // height of 76 is the distance from the center of the EntitySelector above.
-      // 18 + 18 => two halves of the EntitySelector
-      // 24 => height of the label
-      // 16 => flex gap
-      height: 76px;
-      // 60 => 36(height of EntitySelector) + 24(height of the label)
-      top: calc(60px * ${props.index})
+      height: calc(50% + 30.2px);
+      top: -16px;
     }
-  `}
 
-  // For the first child in the tree the lines start from the bottom of the parent
-  // so the height required will be shorter. 
-  ${(props) =>
-    props.size === "small" &&
-    props.index === 1 &&
-    `
-    :before {
-        height: 60px;
+    :after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 10px;
+      left: 4px;
+      bottom: 0px;
+      border: solid #e0dede;
+      border-width: 0 0 0 1.8px;
+      height: calc(50%);
+    }
+
+    :last-child:after {
+      border-width: 0px;
     }
   `}
 `;
