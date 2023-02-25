@@ -178,6 +178,12 @@ enum MODIFICATION_TYPE {
   GENERATE_CACHE_WIDGETS = "GENERATE_CACHE_WIDGETS",
 }
 
+const getLevelDataCurrentView = (
+  metaContainerName: string,
+  widgetName: string,
+) =>
+  `{{((data, name) => Object.keys(data).filter((widgetName) => widgetName !== name).reduce((obj, key) => {obj[key] = data[key];return obj;}, {}))(${metaContainerName}.data, "${widgetName}")}}`;
+
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
@@ -858,7 +864,7 @@ class MetaWidgetGenerator {
     rowIndex: number,
     key: string,
   ) => {
-    const { metaWidgetId, widgetId } = metaWidget;
+    const { metaWidgetId, widgetId, widgetName } = metaWidget;
     const currentViewData = this.getCurrentViewData();
     const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
       metaWidgetId ?? widgetId,
@@ -904,7 +910,7 @@ class MetaWidgetGenerator {
           currentItem: currentViewData?.[0],
           // Uses any one of the row's container present on the List widget to
           // get the object of current row for autocomplete
-          currentView: `{{${metaContainerName}.data}}`,
+          currentView: getLevelDataCurrentView(metaContainerName, widgetName),
         },
       },
     };

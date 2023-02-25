@@ -2,6 +2,15 @@ const dsl = require("../../../../../fixtures/Listv2/copy_paste_listv2_dsl.json")
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
+function checkAutosuggestion(label, type) {
+  cy.get(".CodeMirror-hints")
+    .contains(label)
+    .then(($el) => {
+      const after = getComputedStyle($el[0], "::after");
+      const afterContent = after.getPropertyValue("content");
+      expect(afterContent).eq(`"${type}"`);
+    });
+}
 describe(" Nested List Widgets ", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   before(() => {
@@ -45,5 +54,40 @@ describe(" Nested List Widgets ", function() {
     cy.wait(500);
     cy.validateToastMessage("Cannot have more than 3 levels of nesting");
     cy.get(`${widgetSelector("List2Copy1")}`).should("not.exist");
+  });
+
+  it("b. Not show parent list in level data autocomplete", () => {
+    cy.dragAndDropToWidgetBySelector(
+      "textwidget",
+      '[data-widgetname-cy="List1"] [type="CONTAINER_WIDGET"]',
+      {
+        x: 150,
+        y: 50,
+      },
+    );
+    cy.openPropertyPane("textwidget");
+
+    cy.updateCodeInput(".t--property-control-text", `{{currentItem.name}}`);
+
+    cy.dragAndDropToWidgetBySelector(
+      "textwidget",
+      '[data-widgetname-cy="List1Copy"]',
+      {
+        x: 150,
+        y: 100,
+      },
+    );
+    cy.testJsontextclear("text");
+
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_1.currentView.",
+      {
+        force: true,
+      },
+    );
+    checkAutosuggestion("Text1", "Object");
+    cy.get(".CodeMirror-hints").each(($el) => {
+      cy.wrap($el).should("not.have.text", "List1Copy");
+    });
   });
 });
