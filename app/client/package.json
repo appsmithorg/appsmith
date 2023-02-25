@@ -184,7 +184,7 @@
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
-    "postinstall": "node cypress/apply-patches.js && patch-package"
+    "postinstall": "node cypress/apply-patches.js"
   },
   "browserslist": [
     ">0.2%",
@@ -278,7 +278,6 @@
     "mochawesome": "^7.1.2",
     "mochawesome-report-generator": "^6.1.1",
     "msw": "^0.28.0",
-    "patch-package": "^6.4.7",
     "plop": "^3.1.1",
     "postinstall-postinstall": "^2.1.0",
     "raw-loader": "^4.0.2",
