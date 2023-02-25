@@ -69,15 +69,15 @@ function GoogleMapsConfig(): ReactElement<any, any> {
             url={GOOGLE_MAPS_SETUP_DOC}
           />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 t--admin-settings-text-input t--admin-settings-APPSMITH_GOOGLE_MAPS_API_KEY">
           <label
             className="font-semibold"
+            data-testid="admin-settings-form-group-label"
             htmlFor="APPSMITH_GOOGLE_MAPS_API_KEY"
           >
             Google Maps API Key
           </label>
           <TextInput
-            cypressSelector="t--display-name"
             fill={false}
             id="APPSMITH_GOOGLE_MAPS_API_KEY"
             onChange={setMapsKey}
