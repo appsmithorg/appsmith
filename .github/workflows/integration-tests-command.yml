@@ -133,8 +133,8 @@ jobs:
         if: needs.ci-test.result != 'success'
         shell: bash
         run: |
-          new_failed_spec_env=$(comm -1 -3 <(sort ~/knownfailures) <(sort ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g')
-          echo $new_failed_spec_env
+          new_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          echo "$new_failed_spec_env"
           echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$new_failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -146,7 +146,7 @@ jobs:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
             <details><summary>The following are new failures, please fix them before merging the PR</summary> ${{ env.new_failed_spec_env }}</details> 
-        
+
       # Update check run called "ci-test-result"
       - name: Mark ci-test-result job as complete
         uses: actions/github-script@v6

@@ -37,8 +37,7 @@ describe("Table Widget empty row color validation", function() {
       "background-color",
       "rgb(30, 58, 138)",
     );
-  });
-  it("2. Validate empty row background", function() {
+  //Test 2. Validate empty row background
     // first cell of first row should be transparent
     cy.get(
       ".t--widget-tablewidget .tbody div[data-cy='empty-row-0-cell-0']",
