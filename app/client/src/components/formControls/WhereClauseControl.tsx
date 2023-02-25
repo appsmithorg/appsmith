@@ -93,14 +93,15 @@ const SecondaryBox = styled.div<{ showBorder: boolean; size: string }>`
   position: relative;
   border: solid 1.2px #e0dede;
   border-width: ${(props) => (props?.showBorder ? "1.2px" : "0px")};
-  margin: ${(props) => (props?.showBorder ? "0px 8px" : "0px")};
   padding: ${(props) => (props?.showBorder ? "8px" : "0px")};
+  padding-right: 16px;
   padding-bottom: 24px;
   width: 100%;
 
   ${(props) =>
     props.size === "small" &&
     `
+    padding-right: 8px;
     margin: ${props?.showBorder ? "0 8px 0 0" : "0px"};
   `}
 `;
@@ -109,9 +110,10 @@ const SecondaryBox = styled.div<{ showBorder: boolean; size: string }>`
 const ConditionWrapper = styled.div<{ size: string }>`
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: start;
   width: 100%;
   gap: 8px;
+  margin-top: 8px;
 
   ${(props) =>
     props.size === "small" &&
@@ -129,7 +131,6 @@ const ConditionBox = styled.div<{ size?: string }>`
   grid-column-gap: 16px;
   grid-row-gap: 8px;
   width: 100%;
-  margin: 4px 0px;
 
   ${(props) =>
     props.size === "small" &&
@@ -137,7 +138,7 @@ const ConditionBox = styled.div<{ size?: string }>`
     margin: 8px 0px;
     grid-template-columns: repeat(2, max-content);
     grid-template-rows: repeat(3, max-content);
-
+    grid-column-gap: 8px;
     & :not(:nth-child(4)) {
       grid-column-start: 1;
     }
@@ -181,11 +182,11 @@ const GroupConditionBox = styled.div<{ size: string }>`
   display: flex;
   flex-direction: row;
   width: 100%;
-  margin: 8px 0px;
 
   ${(props) =>
     props.size === "small" &&
     `
+  margin: 8px 0px;
   flex-direction: row;
   min-width: max-content;
   `}
@@ -283,7 +284,7 @@ function ConditionComponent(props: any, index: number) {
 // This is the block which contains an operator and multiple conditions/ condition blocks
 function ConditionBlock(props: any) {
   const targetRef = useRef<HTMLDivElement>(null);
-  const size = useResponsiveBreakpoints(targetRef, [{ small: 600 }]);
+  const size = useResponsiveBreakpoints(targetRef, [{ small: 500 }]);
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
