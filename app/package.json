@@ -16,9 +16,6 @@
     "loader-utils": "^2.0.4",
     "json5": "2.2.3",
     "tabbable": "5.2.1",
-    "@blueprintjs/core@^3.36.0": "patch:@blueprintjs/core@npm%3A3.43.0#./.yarn/patches/@blueprintjs-core-npm-3.43.0-df6e5e67d7.patch",
-    "@blueprintjs/core@^3.33.0": "patch:@blueprintjs/core@npm%3A3.43.0#./.yarn/patches/@blueprintjs-core-npm-3.43.0-df6e5e67d7.patch",
-    "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.43.0#./.yarn/patches/@blueprintjs-core-npm-3.43.0-df6e5e67d7.patch",
     "@blueprintjs/core@^3.43.0": "patch:@blueprintjs/core@npm%3A3.43.0#./.yarn/patches/@blueprintjs-core-npm-3.43.0-df6e5e67d7.patch"
   },
   "packageManager": "yarn@3.4.1"
