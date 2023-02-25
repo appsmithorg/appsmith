@@ -101,11 +101,11 @@ const SecondaryBox = styled.div<{ showBorder: boolean; size: string }>`
   margin: ${(props) => (props?.showBorder ? "0px 8px" : "0px")};
   padding: ${(props) => (props?.showBorder ? "8px" : "0px")};
   padding-bottom: 24px;
+  width: 100%;
 
   ${(props) =>
     props.size === "small" &&
     `
-    width: 100%;
     margin: ${props?.showBorder ? "0 8px 0 0" : "0px"};
   `}
 `;
@@ -161,9 +161,9 @@ const ActionBox = styled.div`
   flex-direction: row;
   width: max-content;
   justify-content: space-between;
-  position: absolute;
   height: 24px;
   text-transform: uppercase;
+  position: absolute;
   background-color: inherit;
   bottom: 0px;
 `;
@@ -184,7 +184,7 @@ const AddMoreAction = styled.div<{ isDisabled?: boolean }>`
 
 const GroupConditionBox = styled.div<{ size: string }>`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 100%;
   margin: 8px 0px;
 
@@ -421,7 +421,6 @@ function ConditionBlock(props: any) {
             </ConditionWrapper>
           );
         })}
-
       <ActionBox>
         <AddMoreAction
           className={`t--where-add-condition[${props?.currentNestingLevel}]`}
