@@ -71,7 +71,7 @@ function GoogleMapsConfig(): ReactElement<any, any> {
         </div>
         <div className="flex flex-col gap-2 t--admin-settings-text-input t--admin-settings-APPSMITH_GOOGLE_MAPS_API_KEY">
           <label
-            className="font-semibold"
+            className="font-medium"
             data-testid="admin-settings-form-group-label"
             htmlFor="APPSMITH_GOOGLE_MAPS_API_KEY"
           >
