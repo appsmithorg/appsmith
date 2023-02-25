@@ -14,6 +14,7 @@ import useResponsiveBreakpoints from "utils/hooks/useResizeObserver";
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
 const OperatorDropdownWidth = 100; // operators should have longer dropdown widths.
+const Margin = 8;
 
 // Type of the value for each condition
 export type whereClauseValueType = {
@@ -151,7 +152,7 @@ const ConditionBox = styled.div<{ size?: string }>`
 `;
 
 // Box containing the action buttons to add more filters
-const ActionBox = styled.div`
+const ActionBox = styled.div<{ marginLeft: string; size: string }>`
   display: flex;
   margin-top: 16px;
   flex-direction: row;
@@ -162,6 +163,13 @@ const ActionBox = styled.div`
   position: absolute;
   background-color: inherit;
   bottom: 0px;
+  margin-left: ${(props) => props.marginLeft};
+
+  ${(props) =>
+    props.size === "small" &&
+    `
+    margin-left: 0;
+  `}
 `;
 
 // The final button to add more filters/ filter groups
@@ -406,7 +414,7 @@ function ConditionBlock(props: any) {
             </ConditionWrapper>
           );
         })}
-      <ActionBox>
+      <ActionBox marginLeft={`${DropdownWidth + Margin}px`} size={size}>
         <AddMoreAction
           className={`t--where-add-condition[${props?.currentNestingLevel}]`}
           onClick={
