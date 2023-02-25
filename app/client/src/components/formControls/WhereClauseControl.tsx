@@ -14,11 +14,6 @@ import useResponsiveBreakpoints from "utils/hooks/useResizeObserver";
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
 const OperatorDropdownWidth = 100; // operators should have longer dropdown widths.
-const Margin = 8; //pixel value, space between two adjacent fields
-//Offsets are pixel values adjusted for Margin = 8px, and DropdownWidth = 100px
-//Offsets are used to calculate flexible width of Key and Value fields
-//TODO: add logic to calculate width using DropdownWidth and Margin
-const Offset = [248, 406, 564, 564];
 
 // Type of the value for each condition
 export type whereClauseValueType = {
@@ -130,8 +125,8 @@ const ConditionWrapper = styled.div<{ size: string }>`
 // Wrapper to contain a single condition statement
 const ConditionBox = styled.div<{ size?: string }>`
   display: grid;
-  grid-template-columns: repeat(4, max-content);
-  grid-column-gap: 8px;
+  grid-template-columns: auto 100px auto max-content;
+  grid-column-gap: 16px;
   grid-row-gap: 8px;
   width: 100%;
   margin: 4px 0px;
@@ -229,7 +224,6 @@ function ConditionComponent(props: any, index: number) {
   //flexWidth is the width of one Key or Value field
   //It is a function of DropdownWidth and Margin
   //fexWidth = maxWidth(set By WhereClauseControl) - Offset Values based on DropdownWidth and Margin
-  const flexWidth = `500px - ${Offset[props.currentNestingLevel] / 2}px`;
 
   return (
     <ConditionBox key={index} size={props.size}>
@@ -237,15 +231,10 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...keyFieldConfig,
-          customStyles:
-            props.size === "small"
-              ? {
-                  width: "280px",
-                }
-              : {
-                  width: "280px",
-                },
           configProperty: keyPath,
+          customStyles: {
+            minWidth: "100px",
+          },
         }}
         formName={props.formName}
       />
@@ -269,15 +258,10 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...valueFieldConfig,
-          customStyles:
-            props.size === "small"
-              ? {
-                  width: "280px",
-                }
-              : {
-                  width: "280px",
-                },
           configProperty: valuePath,
+          customStyles: {
+            minWidth: "100px",
+          },
         }}
         formName={props.formName}
       />
@@ -299,7 +283,7 @@ function ConditionComponent(props: any, index: number) {
 // This is the block which contains an operator and multiple conditions/ condition blocks
 function ConditionBlock(props: any) {
   const targetRef = useRef<HTMLDivElement>(null);
-  const size = useResponsiveBreakpoints(targetRef, [{ small: 776 }]);
+  const size = useResponsiveBreakpoints(targetRef, [{ small: 600 }]);
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
