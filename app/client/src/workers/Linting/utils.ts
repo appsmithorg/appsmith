@@ -11,18 +11,6 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import { JSHINT as jshint, LintError as JSHintError } from "jshint";
 import { get, isEmpty, isNumber, keys, last } from "lodash";
 import {
-  getLintErrorMessage,
-  getLintSeverity,
-} from "components/editorComponents/CodeEditor/lintHelpers";
-import {
-  CustomLintErrorCode,
-  CUSTOM_LINT_ERRORS,
-  IGNORED_LINT_ERRORS,
-  INVALID_JSOBJECT_START_STATEMENT,
-  JS_OBJECT_START_STATEMENT,
-  SUPPORTED_WEB_APIS,
-} from "components/editorComponents/CodeEditor/constants";
-import {
   extractInvalidTopLevelMemberExpressionsFromCode,
   isLiteralNode,
   MemberExpressionData,
@@ -47,14 +35,32 @@ import {
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
-import { lintOptions } from "./constants";
+import {
+  asyncActionInSyncFieldLintMessage,
+  CustomLintErrorCode,
+  CUSTOM_LINT_ERRORS,
+  IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
+  IGNORED_LINT_ERRORS,
+  INVALID_JSOBJECT_START_STATEMENT,
+  JS_OBJECT_START_STATEMENT,
+  lintOptions,
+  SUPPORTED_WEB_APIS,
+  WARNING_LINT_ERRORS,
+} from "./constants";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 
-export function lintBindingPath(
-  dynamicBinding: string,
-  entity: DataTreeEntity,
-  fullPropertyPath: string,
-  globalData: ReturnType<typeof createEvaluationContext>,
-) {
+interface lintBindingPathProps {
+  dynamicBinding: string;
+  entity: DataTreeEntity;
+  fullPropertyPath: string;
+  globalData: ReturnType<typeof createEvaluationContext>;
+}
+export function lintBindingPath({
+  dynamicBinding,
+  entity,
+  fullPropertyPath,
+  globalData,
+}: lintBindingPathProps) {
   let lintErrors: LintError[] = [];
 
   if (isJSAction(entity)) {
@@ -99,33 +105,43 @@ export function lintBindingPath(
         );
         const scriptType = getScriptType(false, false);
         const scriptToLint = getScriptToEval(jsSnippetToLint, scriptType);
-        const lintErrorsFromSnippet = getLintingErrors(
-          scriptToLint,
-          globalData,
+        const lintErrorsFromSnippet = getLintingErrors({
+          script: scriptToLint,
+          data: globalData,
           originalBinding,
           scriptType,
-        );
+          entity,
+          fullPropertyPath,
+        });
         lintErrors = lintErrors.concat(lintErrorsFromSnippet);
       }
     });
   }
   return lintErrors;
 }
-
-export function lintTriggerPath(
-  userScript: string,
-  entity: DataTreeEntity,
-  globalData: ReturnType<typeof createEvaluationContext>,
-) {
+interface lintTriggerPathProps {
+  userScript: string;
+  entity: DataTreeEntity;
+  globalData: ReturnType<typeof createEvaluationContext>;
+  fullPropertyPath: string;
+}
+export function lintTriggerPath({
+  entity,
+  fullPropertyPath,
+  globalData,
+  userScript,
+}: lintTriggerPathProps) {
   const { jsSnippets } = getDynamicBindings(userScript, entity);
   const script = getScriptToEval(jsSnippets[0], EvaluationScriptType.TRIGGERS);
 
-  return getLintingErrors(
+  return getLintingErrors({
     script,
-    globalData,
-    jsSnippets[0],
-    EvaluationScriptType.TRIGGERS,
-  );
+    data: globalData,
+    originalBinding: jsSnippets[0],
+    scriptType: EvaluationScriptType.TRIGGERS,
+    entity,
+    fullPropertyPath,
+  });
 }
 
 export function pathRequiresLinting(
@@ -255,7 +271,25 @@ function sanitizeJSHintErrors(
     return result;
   }, []);
 }
-
+const getLintSeverity = (code: string): Severity.WARNING | Severity.ERROR => {
+  const severity =
+    code in WARNING_LINT_ERRORS ? Severity.WARNING : Severity.ERROR;
+  return severity;
+};
+const getLintErrorMessage = (
+  reason: string,
+  code: string,
+  variables: string[],
+): string => {
+  switch (code) {
+    case IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE: {
+      return getRefinedW117Error(variables[0]);
+    }
+    default: {
+      return reason;
+    }
+  }
+};
 function convertJsHintErrorToAppsmithLintError(
   jsHintError: JSHintError,
   script: string,
@@ -277,7 +311,7 @@ function convertJsHintErrorToAppsmithLintError(
     severity: getLintSeverity(code),
     errorMessage: {
       name: "LintingError",
-      message: getLintErrorMessage(reason),
+      message: getLintErrorMessage(reason, code, [a, b, c, d]),
     },
     errorSegment: evidence,
     originalBinding,
@@ -288,14 +322,21 @@ function convertJsHintErrorToAppsmithLintError(
     ch: actualErrorCh,
   };
 }
-
-export function getLintingErrors(
-  script: string,
-  data: Record<string, unknown>,
+interface getLintingErrorsProps {
+  script: string;
+  data: Record<string, unknown>;
   // {{user's code}}
-  originalBinding: string,
-  scriptType: EvaluationScriptType,
-): LintError[] {
+  originalBinding: string;
+  scriptType: EvaluationScriptType;
+  entity: DataTreeEntity;
+  fullPropertyPath: string;
+}
+export function getLintingErrors({
+  data,
+  originalBinding,
+  script,
+  scriptType,
+}: getLintingErrorsProps): LintError[] {
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData);
@@ -383,4 +424,16 @@ export function initiateLinting(
     },
     method: MAIN_THREAD_ACTION.LINT_TREE,
   });
+}
+
+export function getRefinedW117Error(undefinedVar: string) {
+  // Refine error message for await using in field not marked as async
+  if (undefinedVar === "await") {
+    return "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?";
+  }
+  // Handle case where platform functions are used in sync fields
+  if (APPSMITH_GLOBAL_FUNCTIONS.hasOwnProperty(undefinedVar)) {
+    return asyncActionInSyncFieldLintMessage(undefinedVar);
+  }
+  return `"${undefinedVar}" is not defined`;
 }

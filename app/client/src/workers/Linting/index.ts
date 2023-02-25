@@ -62,12 +62,12 @@ export function getlintErrorsFromTree(
       return triggerPaths.add(fullPropertyPath);
     if (isJSAction(entity))
       return bindingPathsRequiringFunctions.add(`${entityName}.body`);
-    const lintErrors = lintBindingPath(
-      unEvalPropertyValue,
+    const lintErrors = lintBindingPath({
       entity,
       fullPropertyPath,
-      evalContextWithoutFunctions,
-    );
+      globalData: evalContextWithoutFunctions,
+      dynamicBinding: unEvalPropertyValue,
+    });
     set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
   });
 
@@ -86,12 +86,12 @@ export function getlintErrorsFromTree(
         ) as unknown) as string;
         // remove all lint errors from path
         set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
-        const lintErrors = lintBindingPath(
-          unEvalPropertyValue,
+        const lintErrors = lintBindingPath({
+          dynamicBinding: unEvalPropertyValue,
           entity,
           fullPropertyPath,
-          evalContext,
-        );
+          globalData: evalContext,
+        });
         set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
       });
     }
@@ -107,11 +107,12 @@ export function getlintErrorsFromTree(
         ) as unknown) as string;
         // remove all lint errors from path
         set(lintTreeErrors, `["${triggerPath}"]`, []);
-        const lintErrors = lintTriggerPath(
-          unEvalPropertyValue,
+        const lintErrors = lintTriggerPath({
+          globalData: evalContext,
+          userScript: unEvalPropertyValue,
           entity,
-          evalContext,
-        );
+          fullPropertyPath: triggerPath,
+        });
         set(lintTreeErrors, `["${triggerPath}"]`, lintErrors);
       });
     }
