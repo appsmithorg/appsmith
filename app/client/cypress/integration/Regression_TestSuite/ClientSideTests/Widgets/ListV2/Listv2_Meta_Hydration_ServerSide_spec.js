@@ -176,7 +176,7 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
-    cy.wait(2000);
+    cy.wait(4000);
 
     //   SecondPage
     //   First Row
@@ -268,7 +268,7 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
-    cy.wait(2000);
+    cy.wait(4000);
 
     //   SecondPage
     //   First Row
