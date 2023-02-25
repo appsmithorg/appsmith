@@ -14,9 +14,7 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { updateJSCollectionStateFromContext } from "./JSObject";
 import JSVariableUpdates from "./JSObject/JSVariableUpdates";
-import { registerJSUpdateCheckTask } from "./JSObject/checkUpdate";
 import { jsObjectCollection } from "./JSObject/Collection";
 
 export type EvalResult = {
@@ -71,9 +69,10 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
   return acc;
 }, {} as any);
 
-function resetWorkerGlobalScope() {
+function resetWorkerGlobalScope(dataTree: DataTree) {
   self.$isDataField = false;
   for (const key of Object.keys(self)) {
+    if (dataTree[key]) continue;
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     //TODO: Remove this once we have a better way to handle this
     if (["evaluationVersion", "window", "document", "location"].includes(key))
@@ -240,7 +239,7 @@ export default function evaluateSync(
   evalArguments?: Array<any>,
 ): EvalResult {
   return (function() {
-    resetWorkerGlobalScope();
+    resetWorkerGlobalScope(dataTree);
     JSVariableUpdates.disable();
     const errors: EvaluationError[] = [];
     let result;
@@ -295,18 +294,7 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      // Remove below code
-      if (isJSCollection) {
-        updateJSCollectionStateFromContext();
-      }
       JSVariableUpdates.enable();
-
-      for (const entityName in evalContext) {
-        if (evalContext.hasOwnProperty(entityName)) {
-          // @ts-expect-error: Types are not available
-          delete self[entityName];
-        }
-      }
       self["$isDataField"] = false;
     }
     return { result, errors };
@@ -320,7 +308,7 @@ export async function evaluateAsync(
   evalArguments?: Array<any>,
 ) {
   return (async function() {
-    resetWorkerGlobalScope();
+    resetWorkerGlobalScope(dataTree);
     const errors: EvaluationError[] = [];
     let result;
 
@@ -358,10 +346,6 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
     } finally {
-      // Remove this
-      updateJSCollectionStateFromContext();
-      registerJSUpdateCheckTask();
-
       return {
         result,
         errors,

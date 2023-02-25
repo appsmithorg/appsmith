@@ -19,6 +19,7 @@ import {
 import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { getOriginalValueFromProxy, jsObjectCollection } from "./Collection";
+import { klona } from "klona/full";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -335,9 +336,7 @@ export function removeProxyObject(objOrArr: any) {
   const newObjOrArr: any = getOriginalValueFromProxy(objOrArr);
   if (typeof objOrArr === "object") {
     for (const key in objOrArr) {
-      newObjOrArr[key] = removeProxyObject(
-        getOriginalValueFromProxy(objOrArr[key]),
-      );
+      newObjOrArr[key] = removeProxyObject(objOrArr[key]);
     }
   }
   return newObjOrArr;
@@ -351,5 +350,30 @@ export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
     const sanitizedState = removeProxyObject(variableState);
     const newJSObject = merge(evalTree[jsObjectName], sanitizedState);
     evalTree[jsObjectName] = newJSObject;
+  }
+}
+
+export function updateEvalTreeValueFromContext(paths: string[][]) {
+  const currentEvalContext = self;
+
+  const oldUnEvalTree = dataTreeEvaluator?.oldUnEvalTree || {};
+  const evalTree = dataTreeEvaluator?.evalTree;
+
+  if (!evalTree) return;
+
+  for (const fullPathArray of paths) {
+    const [jsObjectName, variableName] = fullPathArray;
+    const entity = oldUnEvalTree[jsObjectName] as DataTreeJSAction;
+    if (jsObjectName && variableName && isJSObject(entity)) {
+      const variableValue = get(currentEvalContext, [
+        jsObjectName,
+        variableName,
+      ]);
+      const value = klona(removeProxyObject(variableValue));
+      jsObjectCollection.setVariableValue(
+        value,
+        `${jsObjectName}.${variableName}`,
+      );
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { updateEvalTreeValueFromContext } from ".";
 import JSVariableUpdates, { getModifiedPaths } from "./JSVariableUpdates";
 import { triggerEvalWithPathsChanged } from "./sendUpdatedDataTree";
 
@@ -7,6 +8,8 @@ let registeredTask = false;
 function checkForJsVariableUpdate() {
   const updates = JSVariableUpdates.getAll();
   const modifiedVariablesList = getModifiedPaths(updates);
+
+  updateEvalTreeValueFromContext(modifiedVariablesList);
 
   if (modifiedVariablesList.length > 0) {
     // trigger evaluation

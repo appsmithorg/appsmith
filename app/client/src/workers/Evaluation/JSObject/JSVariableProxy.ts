@@ -15,15 +15,20 @@ export function jsObjectProxyHandler(
       if (prop === "$targetValue") return target;
 
       if (value instanceof Function) {
+        // JSObject function
+        if (!path.includes(".")) return value;
+
         if (!target.hasOwnProperty(value)) {
           // HACK:
           // Assuming a prototype method call would mutate the property
           addPatch({
             path,
             method: PatchType.PROTOTYPE_METHOD_CALL,
+            value,
           });
+          return value.bind(target);
         }
-        return value.bind(target);
+        return value;
       }
 
       if (typeof value === "object" && value !== null && !value.$isProxy) {
@@ -39,6 +44,7 @@ export function jsObjectProxyHandler(
       addPatch({
         path: `${path}.${prop}`,
         method: PatchType.SET,
+        value,
       });
       return Reflect.set(target, prop, value, rec);
     },
