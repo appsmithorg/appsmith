@@ -189,7 +189,7 @@ describe("Git import flow ", function() {
     );
     // verify jsObject is not duplicated
     _.ee.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
-    _.jsEditor.RunJSObj(); //Running sync function due to open bug
+    _.jsEditor.RunJSObj(); //Running sync function due to open bug #20814
     _.ee.SelectEntityByName("Page1 Copy");
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
@@ -208,9 +208,7 @@ describe("Git import flow ", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.latestDeployPreview();
-    cy.get(".tbody")
-      .last()
-      .should("contain.text", "New Config");
+    _.table.AssertTableLoaded();
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
@@ -219,9 +217,7 @@ describe("Git import flow ", function() {
     cy.get(".t--page-switch-tab")
       .contains("Page1")
       .click({ force: true });
-    cy.get(".tbody")
-      .last()
-      .should("contain.text", "New Config");
+    _.table.AssertTableLoaded();
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
