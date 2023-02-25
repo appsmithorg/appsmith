@@ -45,6 +45,7 @@ import {
   updateRolesInUser,
 } from "@appsmith/actions/aclActions";
 import { getAclIsEditing } from "@appsmith/selectors/aclSelectors";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 const Header = styled.div`
   display: flex;
@@ -409,7 +410,11 @@ export function UserEdit(props: UserEditProps) {
           <ProfileImage
             className="user-icons"
             size={64}
-            source={`/api/v1/users/photo/${selectedUser.username}`}
+            source={
+              selectedUser.photoId
+                ? `/api/${USER_PHOTO_ASSET_URL}/${selectedUser.photoId}`
+                : undefined
+            }
             userName={selectedUser.username}
           />
           <Username>

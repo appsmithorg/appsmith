@@ -5,7 +5,7 @@ let HomePage = ObjectsRegistry.HomePage;
 describe("Leave workspace test spec", function() {
   let newWorkspaceName;
 
-  it("leave workspace menu is visible validation", function() {
+  it("1. Leave workspace menu is visible validation", function() {
     cy.visit("/applications");
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -16,7 +16,7 @@ describe("Leave workspace test spec", function() {
     });
   });
 
-  it("Only admin user can not leave workspace validation", function() {
+  it("2. Only admin user can not leave workspace validation", function() {
     cy.visit("/applications");
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -32,7 +32,7 @@ describe("Leave workspace test spec", function() {
     });
   });
 
-  it("Bug 17235 & 17987 - Non admin users can only access leave workspace popup menu validation", function() {
+  it("3. Bug 17235 & 17987 - Non admin users can only access leave workspace popup menu validation", function() {
     cy.visit("/applications");
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {

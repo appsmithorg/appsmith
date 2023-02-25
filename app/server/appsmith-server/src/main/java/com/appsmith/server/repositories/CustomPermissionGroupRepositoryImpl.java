@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.ce.CustomPermissionGroupRepositoryCEImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -47,8 +48,9 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     public Flux<PermissionGroup> findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(String userGroupId, String workspaceId,
                                                                                 AclPermission permission) {
         Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds)).in(userGroupId);
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).is(workspaceId);
-        return queryAll(List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria), permission);
+        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)).is(workspaceId);
+        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)).is(Workspace.class.getSimpleName());
+        return queryAll(List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);
     }
 
     @Override

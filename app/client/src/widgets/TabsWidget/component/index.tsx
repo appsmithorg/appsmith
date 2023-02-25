@@ -28,6 +28,7 @@ interface TabsComponentProps extends ComponentProps {
     isVisible?: boolean;
   }>;
   width: number;
+  $noScroll: boolean;
 }
 
 const TabsContainerWrapper = styled.div<{
@@ -194,7 +195,7 @@ function TabsComponent(props: TabsComponentProps) {
       )}
 
       <ScrollCanvas
-        $shouldScrollContents={!!props.shouldScrollContents}
+        $shouldScrollContents={!!props.shouldScrollContents && !props.$noScroll}
         className={`${
           props.shouldScrollContents ? getCanvasClassName() : ""
         } ${generateClassName(props.widgetId)}`}

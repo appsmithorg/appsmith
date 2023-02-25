@@ -166,7 +166,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
         Mono<PermissionGroup> userPermissionGroupMono = isCreateAllowedMono
                 .flatMap(isCreateAllowed -> {
-                    if (!isCreateAllowed && permissionGroup.getDefaultWorkspaceId() == null) {
+                    if (!isCreateAllowed && permissionGroup.getDefaultDomainType() == null) {
                         // Throw an error if the user is not allowed to create a permission group. If default workspace id
                         // is set, this permission group is system generated and hence shouldn't error out.
                         return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create Role"));
@@ -189,22 +189,26 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 }).cache();
         
         // make the default workspace roles uneditable
-        Mono<PermissionGroup> ifDefaultPgMakeUneditableMono = createdPermissionMono.flatMap(permissionGroup1 -> {
-            // If default workspace id is set, it's a default workspace role and hence shouldn't be editable or deletable
-            if (permissionGroup1.getDefaultWorkspaceId() != null) {
-                Set<Policy> policiesWithoutEditPermission = permissionGroup1.getPolicies().stream()
-                        .filter(policy ->
-                                !policy.getPermission().equals(MANAGE_PERMISSION_GROUPS.getValue())
-                                        &&
-                                        !policy.getPermission().equals(DELETE_PERMISSION_GROUPS.getValue())
-                        )
-                        .collect(Collectors.toSet());
-                permissionGroup1.setPolicies(policiesWithoutEditPermission);
-                return repository.save(permissionGroup1);
-            } else {
-                // If this is not a default created role, then return the role as is from the DB
-                return repository.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS);
-            }});
+        Mono<PermissionGroup> ifDefaultPgMakeUneditableMono = createdPermissionMono
+                .flatMap(pg -> Mono.zip(Mono.just(pg), permissionGroupUtils.isAutoCreated(pg)))
+                .flatMap(tuple -> {
+                    PermissionGroup permissionGroup1 = tuple.getT1();
+                    // If isAutoCreated is TRUE, it's a default document role and hence shouldn't be editable or deletable
+                    if (tuple.getT2()) {
+                        Set<Policy> policiesWithoutEditPermission = permissionGroup1.getPolicies().stream()
+                                .filter(policy ->
+                                        !policy.getPermission().equals(MANAGE_PERMISSION_GROUPS.getValue())
+                                                &&
+                                                !policy.getPermission().equals(DELETE_PERMISSION_GROUPS.getValue())
+                                )
+                                .collect(Collectors.toSet());
+                        permissionGroup1.setPolicies(policiesWithoutEditPermission);
+                        return repository.save(permissionGroup1);
+                    } else {
+                        // If this is not a default created role, then return the role as is from the DB
+                        return repository.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS);
+                    }
+                });
 
         // Clean cache for Users who are assigned to Permission Groups DIRECTLY OR INDIRECTLY(via User Groups)
         // for all the Permission Groups who have READ ACCESS on the newly created Permission Group.

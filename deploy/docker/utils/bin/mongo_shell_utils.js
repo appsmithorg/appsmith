@@ -20,7 +20,7 @@ async function execMongoEval(queryExpression, appsmithMongoURI) {
   if (command_args.includes('--pretty')) {
     queryExpression += '.pretty()';
   }
-  return await utils.execCommand(['mongo', appsmithMongoURI, `--eval=${queryExpression}`]);
+  return await utils.execCommand(['mongosh', appsmithMongoURI, `--eval=${queryExpression}`]);
 }
 
 module.exports = {

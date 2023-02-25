@@ -2,8 +2,9 @@ import homePage from "../../../../../locators/HomePage";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
-import widgetLocators from "../../../../../locators/Widgets.json";
+const testdata = require("../../../../../fixtures/testdata.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+const pages = require("../../../../../locators/Pages.json");
 let currentUrl;
 
 describe("View Permission flow ", function() {
@@ -11,6 +12,7 @@ describe("View Permission flow ", function() {
   let appName;
   let newWorkspaceName;
   let testUser3;
+  let testUser4;
   let datasourceName;
   const password = "qwerty";
   const PermissionWorkspaceLevel =
@@ -19,6 +21,8 @@ describe("View Permission flow ", function() {
     "ViewPermissionAppLevel" + `${Math.floor(Math.random() * 1000)}`;
   const PermissionPageLevel =
     "ViewPermissionPageLevel" + `${Math.floor(Math.random() * 1000)}`;
+  const PermissionQueryLevel =
+    "ViewPermissionQueryLevel" + `${Math.floor(Math.random() * 1000)}`;
   let AppName2;
 
   beforeEach(() => {
@@ -73,6 +77,11 @@ describe("View Permission flow ", function() {
           cy.ClickGotIt();
           cy.CheckAndUnfoldEntityItem("Pages");
           cy.Createpage("page2");
+          // verify user is able to create new query
+          cy.CreateAPI("Api123");
+          cy.enterDatasourceAndPath(testdata.baseUrl, "{{ '/users' }}");
+          cy.SaveAndRunAPI();
+          cy.ResponseStatusCheck("200");
           cy.PublishtheApp();
           cy.get(publishPage.backToEditor).click({ force: true });
           cy.NavigateToHome();
@@ -120,6 +129,13 @@ describe("View Permission flow ", function() {
             appName,
             "page2",
           );
+          cy.ViewPermissionQueryLevel(
+            PermissionQueryLevel,
+            workspaceName,
+            appName,
+            "page2",
+            "Api123",
+          );
           cy.wait(2000);
           cy.AssignRoleToUser(
             PermissionWorkspaceLevel,
@@ -129,6 +145,11 @@ describe("View Permission flow ", function() {
           cy.generateUUID().then((uid) => {
             testUser3 = `${uid}@appsmith.com`;
             cy.AssignRoleToUser(PermissionPageLevel, testUser3);
+            cy.wait(2000);
+          });
+          cy.generateUUID().then((uid) => {
+            testUser4 = `${uid}@appsmith.com`;
+            cy.AssignRoleToUser(PermissionQueryLevel, testUser4);
             cy.wait(2000);
             cy.LogOut();
           });
@@ -202,6 +223,7 @@ describe("View Permission flow ", function() {
     cy.get(homePage.backtoHome).click();
     cy.LogOut();
   });
+
   it("4. View permission : Page level (View page is visible) ", function() {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
@@ -212,6 +234,25 @@ describe("View Permission flow ", function() {
     cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appName);
     cy.get(".t--page-switch-tab").should("not.contain", "page2");
+  });
+
+  it("5. View permission : Query level (View query is visible and executes without getting stuck) (Bug: 19253)", function() {
+    cy.SignupFromAPI(testUser4, password);
+    cy.LogintoAppTestUser(testUser4, password);
+    cy.get(homePage.searchInput).type(appName);
+    cy.wait(2000);
+    cy.get(homePage.appsContainer).contains(workspaceName);
+    cy.get(homePage.applicationCard).trigger("mouseover");
+    cy.get(homePage.appEditIcon)
+      .should("exist")
+      .click();
+    cy.wait(3000);
+    cy.get(".t--entity-name:contains('page2')").click();
+    cy.wait(3000);
+    cy.get(pages.entityQuery).click();
+    cy.wait(3000);
+    cy.get(".t--entity-name:contains('Api123')").click();
+    cy.RunAPI();
   });
 
   after(() => {
