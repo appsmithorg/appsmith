@@ -14,6 +14,7 @@ describe("JS Function Execution", function() {
 
   it("Doesn't show lint errors for 'form.hasChanges'", () => {
     ee.SelectEntityByName("Button1", "Widgets");
+    agHelper.Sleep(4000);
     agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 });
