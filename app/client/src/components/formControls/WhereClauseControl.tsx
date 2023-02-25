@@ -113,7 +113,7 @@ const ConditionWrapper = styled.div<{ size: string }>`
   align-items: start;
   width: 100%;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 12px;
 
   ${(props) =>
     props.size === "small" &&
