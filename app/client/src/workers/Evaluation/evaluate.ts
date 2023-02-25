@@ -261,7 +261,7 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      console.log("$$$-SYNC-EVAL_COMPLETED");
+      console.log("$$$-SYNC-EVAL_COMPLETED", userScript, result);
       JSVariableUpdates.enable();
       self["$isDataField"] = false;
     }
@@ -318,7 +318,7 @@ export async function evaluateAsync(
       });
     } finally {
       // Remove this
-      console.log("$$$-ASYNC-EVAL_COMPLETED");
+      console.log("$$$-ASYNC-EVAL_COMPLETED", userScript);
       return {
         result,
         errors,

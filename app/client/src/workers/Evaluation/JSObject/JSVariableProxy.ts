@@ -14,7 +14,10 @@ export function jsObjectProxyHandler(
       // $targetValue property is used to get the target object.
       if (prop === "$targetValue") return target;
 
-      if (value instanceof Function) {
+      if (typeof value === "function") {
+        // JSObject function
+        if (!path.includes(".")) return value;
+
         if (!target.hasOwnProperty(value)) {
           // HACK:
           // Assuming a prototype method call would mutate the property
@@ -23,8 +26,9 @@ export function jsObjectProxyHandler(
             method: PatchType.PROTOTYPE_METHOD_CALL,
             value,
           });
+          return value.bind(target);
         }
-        return value.bind(target);
+        return value;
       }
 
       if (typeof value === "object" && value !== null && !value.$isProxy) {

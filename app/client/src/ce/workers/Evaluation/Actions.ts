@@ -112,41 +112,36 @@ function setEntityToEvalContext(
   }
 
   const resolvedFunctions = jsObjectCollection.getResolvedFunctions();
-  const resolvedObject = resolvedFunctions[entityName];
-  let jsObjectInEval: Record<string, any> = {};
+  const resolvedObject = resolvedFunctions[entityName] || {};
+  let varState: Record<string, any> = {};
 
   // Add variables
   for (const varName of dataTreeObjectEntity.variables) {
-    jsObjectInEval[varName] = dataTreeObjectEntity[varName];
+    varState[varName] = dataTreeObjectEntity[varName];
   }
 
   // If AsyncEval then add proxy
   if (!self.$isDataField) {
-    jsObjectInEval = JSProxy.create(
-      entity as DataTreeJSAction,
-      entityName,
-      jsObjectInEval,
-    );
+    varState = JSProxy.create(entity as DataTreeJSAction, entityName, varState);
   }
 
   // Add functions
-  if (resolvedObject) {
-    for (const fnName of Object.keys(resolvedObject)) {
-      const fn = resolvedObject[fnName];
-      if (typeof fn !== "function") continue;
-      // Investigate promisify of JSObject function confirmation
-      // Task: https://github.com/appsmithorg/appsmith/issues/13289
-      // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
-      const data = dataTreeObjectEntity[fnName]?.data;
-      jsObjectInEval[fnName] = isTriggerBased
-        ? jsObjectFunctionFactory(fn, entityName + "." + fnName)
-        : fn;
-      if (!!data) {
-        jsObjectInEval[fnName]["data"] = data;
-      }
+  const jsObjectFuncs: Record<string, any> = {};
+  for (const fnName of Object.keys(resolvedObject)) {
+    const fn = resolvedObject[fnName];
+    if (typeof fn !== "function") continue;
+    // Investigate promisify of JSObject function confirmation
+    // Task: https://github.com/appsmithorg/appsmith/issues/13289
+    // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
+    const data = dataTreeObjectEntity[fnName]?.data;
+    jsObjectFuncs[fnName] = isTriggerBased
+      ? jsObjectFunctionFactory(fn, entityName + "." + fnName)
+      : fn;
+    if (!!data) {
+      jsObjectFuncs[fnName]["data"] = data;
     }
   }
 
   // set to evalContext
-  EVAL_CONTEXT[entityName] = jsObjectInEval;
+  EVAL_CONTEXT[entityName] = Object.assign(varState, jsObjectFuncs);
 }

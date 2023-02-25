@@ -17,9 +17,8 @@ import {
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
-import evalTree, { dataTreeEvaluator } from "../handlers/evalTree";
+import { dataTreeEvaluator } from "../handlers/evalTree";
 import { getOriginalValueFromProxy, jsObjectCollection } from "./Collection";
-import { Patch } from "./JSVariableUpdates";
 import { klona } from "klona/full";
 
 /**
@@ -61,26 +60,27 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
 
 export const updateUnEvalTreeWithChanges = (
   updatedValuePaths: string[][],
-  UnEvalTree: DataTree,
+  unEvalTree: DataTree,
 ) => {
+  console.log("$$$-updateUnEvalTreeWithChanges", { updatedValuePaths });
+
+  const oldUnEvalTree = dataTreeEvaluator?.oldUnEvalTree;
+
   for (const path of updatedValuePaths) {
     if (path?.length) {
-      const entityName = path[0];
-      const entity = UnEvalTree[entityName];
+      const [entityName, variableName] = path;
+      const entity = unEvalTree[entityName];
       if (isJSAction(entity)) {
-        const variableName = path[1];
         const fullPath = `${entityName}.${variableName}`;
-        const evalTree = dataTreeEvaluator?.evalTree;
-        if (evalTree) {
-          const newJSObject = evalTree[entityName] as DataTreeJSAction;
+        if (oldUnEvalTree) {
+          const newJSObject = oldUnEvalTree[entityName] as DataTreeJSAction;
           const latestValue = newJSObject[variableName];
-          set(UnEvalTree, fullPath, latestValue);
+          set(unEvalTree, fullPath, latestValue);
         }
       }
     }
   }
-
-  return UnEvalTree;
+  return unEvalTree;
 };
 
 const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
@@ -324,12 +324,10 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
         jsObjectName,
         variableName,
       ]);
-      set(
-        evalTree,
-        [jsObjectName, variableName],
-        klona(removeProxyObject(variableValue)),
-      );
-      console.log("$$$-UPDATE_EVAL_TREE-END", fullPathArray, variableValue);
+      const value = klona(removeProxyObject(variableValue));
+      set(evalTree, [jsObjectName, variableName], value);
+      set(oldUnEvalTree, [jsObjectName, variableName], value);
+      console.log("$$$-UPDATE_EVAL_TREE-END", fullPathArray, value);
     }
   }
 }
@@ -362,9 +360,7 @@ export function removeProxyObject(objOrArr: any) {
   const newObjOrArr: any = getOriginalValueFromProxy(objOrArr);
   if (typeof objOrArr === "object") {
     for (const key in objOrArr) {
-      newObjOrArr[key] = removeProxyObject(
-        getOriginalValueFromProxy(objOrArr[key]),
-      );
+      newObjOrArr[key] = removeProxyObject(objOrArr[key]);
     }
   }
   return newObjOrArr;

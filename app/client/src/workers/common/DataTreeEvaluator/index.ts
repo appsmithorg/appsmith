@@ -364,6 +364,7 @@ export default class DataTreeEvaluator {
     nonDynamicFieldValidationOrder: string[];
     pathsToClearErrorsFor: any[];
   } {
+    console.log("$$$-setupUpdateTree");
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
@@ -461,7 +462,7 @@ export default class DataTreeEvaluator {
     const updatedValuePaths = [...pathsChangedSet];
 
     return {
-      ...this.updateTreeEvaluation(localUnEvalTree, updatedValuePaths, {
+      ...this.setupTree(localUnEvalTree, updatedValuePaths, {
         totalUpdateTreeSetupStartTime,
         dependenciesOfRemovedPaths,
         removedPaths,
@@ -473,7 +474,7 @@ export default class DataTreeEvaluator {
     };
   }
 
-  updateTreeEvaluation(
+  setupTree(
     localUnEvalTree: DataTree,
     updatedValuePaths: string[][],
     extraParams: {
@@ -582,6 +583,7 @@ export default class DataTreeEvaluator {
   }
 
   setupUpdateTreeWithDifferences(updatedValuePaths: string[][]) {
+    console.log("$$$-setupUpdateTreeWithDifferences");
     let localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local un eval tree
     if (updatedValuePaths.length === 0) {
@@ -597,7 +599,7 @@ export default class DataTreeEvaluator {
       updatedValuePaths,
       localUnEvalTree,
     );
-    return this.updateTreeEvaluation(localUnEvalTree, updatedValuePaths);
+    return this.setupTree(localUnEvalTree, updatedValuePaths);
   }
 
   getDifferencesInJSCollectionBody(localUnEvalTree: DataTree) {
@@ -617,6 +619,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const evaluationStartTime = performance.now();
+    console.log("$$$-evalAndValidateSubTree", this.evalTree);
     const {
       evalMetaUpdates,
       evaluatedTree: newEvalTree,
@@ -746,7 +749,7 @@ export default class DataTreeEvaluator {
   }
 
   evaluateTree(
-    oldUnevalTree: DataTree,
+    treeToEvaluate: DataTree,
     sortedDependencies: Array<string>,
     options: {
       skipRevalidation: boolean;
@@ -764,7 +767,7 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
   } {
-    const tree = klona(oldUnevalTree);
+    const tree = klona(treeToEvaluate);
     errorModifier.updateAsyncFunctions(tree);
     const evalMetaUpdates: EvalMetaUpdates = [];
     const {
@@ -1041,6 +1044,7 @@ export default class DataTreeEvaluator {
             });
           }
 
+          console.log("$$$-fullPropertyPath", fullPropertyPath);
           const result = this.evaluateDynamicBoundValue(
             toBeSentForEval,
             data,
