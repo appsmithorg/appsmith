@@ -1,4 +1,5 @@
 const CracoAlias = require("craco-alias");
+const path = require("path");
 
 module.exports = {
   devServer: {
@@ -62,6 +63,20 @@ module.exports = {
         plugins: [],
         theme: "twilight",
         css: false,
+      },
+    },
+    {
+      plugin: {
+        // Prioritize the local src directory over node_modules.
+        // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist,
+        // e.g., when the dirname is `entities`.
+        overrideWebpackConfig: ({ webpackConfig }) => {
+          webpackConfig.resolve.modules = [
+            path.resolve(__dirname, "src"),
+            ...webpackConfig.resolve.modules,
+          ];
+          return webpackConfig;
+        },
       },
     },
   ],
