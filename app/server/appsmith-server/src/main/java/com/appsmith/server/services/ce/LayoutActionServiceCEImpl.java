@@ -747,7 +747,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<LayoutDTO> updateLayout(String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName) {
-        if (StringUtils.isEmpty(branchName)) {
+        if (!StringUtils.hasLength(branchName)) {
             return updateLayout(defaultPageId, defaultApplicationId, layoutId, layout);
         }
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
