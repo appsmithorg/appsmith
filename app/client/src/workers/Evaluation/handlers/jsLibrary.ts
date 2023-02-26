@@ -7,8 +7,8 @@ import { Def } from "tern";
 import {
   JSLibraries,
   libraryReservedIdentifiers,
-  resetJSLibraries,
 } from "../../common/JSLibrary";
+import { resetJSLibraries } from "../../common/JSLibrary/resetJSLibraries";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import { EvalWorkerSyncRequest } from "../types";
 
