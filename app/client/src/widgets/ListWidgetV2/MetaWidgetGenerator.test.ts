@@ -764,7 +764,8 @@ describe("#generate", () => {
             id: 1,
             name: "Blue",
           },
-          currentView: "{{Container1.data}}",
+          currentView:
+            '{{((data, name) => Object.keys(data).filter((widgetName) => widgetName !== name).reduce((obj, key) => {obj[key] = data[key];return obj;}, {}))(Container1.data, "List6")}}',
         },
       },
     };
