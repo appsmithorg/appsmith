@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { isEmpty, floor, isString } from "lodash";
+import { isEmpty, floor, isString, isNil } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -223,6 +223,7 @@ class ListWidget extends BaseWidget<
     }
 
     this.setupMetaWidgets();
+    this.updateSelectedItemAndPageNo();
   }
 
   componentDidUpdate(prevProps: ListWidgetProps) {
@@ -236,6 +237,10 @@ class ListWidget extends BaseWidget<
       if (this.props.serverSidePagination && this.pageSize) {
         this.executeOnPageChange();
       }
+    }
+
+    if (this.props.defaultSelectedItem !== prevProps.defaultSelectedItem) {
+      this.updateSelectedItemAndPageNo();
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
@@ -523,6 +528,35 @@ class ListWidget extends BaseWidget<
 
   updatePageSize = () => {
     super.updateWidgetProperty("pageSize", this.pageSize);
+  };
+
+  // This is only for client-side data
+  updateSelectedItemAndPageNo = () => {
+    if (this.props.serverSidePagination) return;
+
+    const index = this.getViewIndexOfSelectedItem();
+
+    if (index === -1) return;
+
+    this.handleSelectedItemAndKey(index);
+    this.updateSelectedItemView(index);
+
+    const pageNo = this.calculatePageNumber(index);
+    this.onPageChange(pageNo);
+  };
+
+  getViewIndexOfSelectedItem = () => {
+    const { defaultSelectedItem, primaryKeys } = this.props;
+
+    if (!primaryKeys || isNil(defaultSelectedItem)) return -1;
+
+    return primaryKeys?.indexOf(defaultSelectedItem);
+  };
+
+  calculatePageNumber = (index: number) => {
+    if (index === 0) return 1;
+
+    return Math.ceil(index / this.props.pageSize);
   };
 
   shouldUpdatePageSize = () => {
@@ -1089,6 +1123,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
+  defaultSelectedItem?: string | number | null;
 }
 
 export default ListWidget;
