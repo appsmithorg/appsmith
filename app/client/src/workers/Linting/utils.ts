@@ -283,7 +283,7 @@ const getLintErrorMessage = (
 ): string => {
   switch (code) {
     case IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE: {
-      return getRefinedW117Error(variables[0]);
+      return getRefinedW117Error(variables[0], reason);
     }
     default: {
       return reason;
@@ -426,7 +426,10 @@ export function initiateLinting(
   });
 }
 
-export function getRefinedW117Error(undefinedVar: string) {
+export function getRefinedW117Error(
+  undefinedVar: string,
+  originalReason: string,
+) {
   // Refine error message for await using in field not marked as async
   if (undefinedVar === "await") {
     return "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?";
@@ -435,5 +438,5 @@ export function getRefinedW117Error(undefinedVar: string) {
   if (APPSMITH_GLOBAL_FUNCTIONS.hasOwnProperty(undefinedVar)) {
     return asyncActionInSyncFieldLintMessage(undefinedVar);
   }
-  return `"${undefinedVar}" is not defined`;
+  return originalReason;
 }
