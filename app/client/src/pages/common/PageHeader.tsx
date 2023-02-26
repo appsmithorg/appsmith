@@ -165,7 +165,7 @@ export function PageHeader(props: PageHeaderProps) {
           <>
             <TabName
               className="t--apps-tab"
-              isSelected={matchApplicationPath(location.pathname)}
+              isSelected={!!matchApplicationPath(location.pathname)}
               onClick={() => history.push(APPLICATIONS_URL)}
             >
               <div>Apps</div>
@@ -174,8 +174,10 @@ export function PageHeader(props: PageHeaderProps) {
             <TabName
               className="t--templates-tab"
               isSelected={
-                matchTemplatesPath(location.pathname) ||
-                matchTemplatesIdPath(location.pathname)
+                !!(
+                  matchTemplatesPath(location.pathname) ||
+                  matchTemplatesIdPath(location.pathname)
+                )
               }
               onClick={() => history.push(TEMPLATES_PATH)}
             >

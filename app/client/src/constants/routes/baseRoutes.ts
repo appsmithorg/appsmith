@@ -1,4 +1,4 @@
-const { match } = require("path-to-regexp");
+import { match } from "./appRoutes";
 
 export const BASE_URL = "/";
 export const WORKSPACE_URL = "/workspace";
