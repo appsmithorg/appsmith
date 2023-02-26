@@ -105,18 +105,14 @@ describe("List v2 - Property autocomplete", () => {
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
     ).type("{{level_1.currentView.List2.", { force: true });
-    cy.get(".CodeMirror-hints")
-      .contains("currentItemsView")
-      .should("not.exist");
+    cy.get(".CodeMirror-hints").should("not.exist");
 
     // level_2 List currentItemsView should not exist
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
     ).type("{{level_2.currentView.List3.", { force: true });
-    cy.get(".CodeMirror-hints")
-      .contains("currentItemsView")
-      .should("not.exist");
+    cy.get(".CodeMirror-hints").should("not.exist");
   });
 
   it("8. currentItem should reflect appropriate data types", () => {
@@ -144,7 +140,6 @@ describe("List v2 - Property autocomplete", () => {
     ).type("{{level_1.currentView.", { force: true });
     checkAutosuggestion("Text1", "Object");
     checkAutosuggestion("Text2", "Object");
-    checkAutosuggestion("List2", "Object");
 
     // level_1.currentView.Text1
     cy.testJsontext("text", "");
@@ -166,12 +161,9 @@ describe("List v2 - Property autocomplete", () => {
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentView.List2.", { force: true });
-    checkAutosuggestion("backgroundColor", "String");
-    checkAutosuggestion("itemSpacing", "Number");
-    checkAutosuggestion("isVisible", "Boolean");
-    checkAutosuggestion("listData", "Array");
-    checkAutosuggestion("pageNo", "Number");
-    checkAutosuggestion("pageSize", "Number");
+    ).type("{{level_1.currentView.", { force: true });
+    cy.get(".CodeMirror-hints").each(($el) => {
+      cy.wrap($el).should("not.have.text", "List2");
+    });
   });
 });

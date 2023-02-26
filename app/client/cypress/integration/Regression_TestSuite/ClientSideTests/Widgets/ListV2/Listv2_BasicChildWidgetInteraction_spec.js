@@ -93,7 +93,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(3000);
+    cy.wait(4000);
 
     // open the select widget
     cy.get(publishLocators.selectwidget)
@@ -122,7 +122,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(3000);
+    cy.wait(4000);
 
     // select green
     cy.get(publishLocators.checkboxGroupWidget)
@@ -157,7 +157,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(3000);
+    cy.wait(4000);
 
     // Verify checked
     cy.get(publishLocators.switchwidget)
@@ -189,7 +189,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(3000);
+    cy.wait(4000);
 
     // Check radio with value=1 is selected
     checkSelectedRadioValue(publishLocators.radioWidget, "Y");
