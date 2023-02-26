@@ -128,7 +128,7 @@ const ConditionWrapper = styled.div<{ size: string }>`
 const ConditionBox = styled.div<{ size?: string }>`
   display: grid;
   grid-template-columns: auto 100px auto max-content;
-  grid-column-gap: 16px;
+  grid-column-gap: 12px;
   grid-row-gap: 8px;
   width: 100%;
 
@@ -188,6 +188,7 @@ const AddMoreAction = styled.div<{ isDisabled?: boolean }>`
 const GroupConditionBox = styled.div<{ size: string }>`
   display: flex;
   flex-direction: row;
+  gap: 12px;
   width: 100%;
 
   ${(props) =>
@@ -366,7 +367,7 @@ function ConditionBlock(props: any) {
                 </LogicalFieldValue>
               )}
               {!!fieldValue && "children" in fieldValue ? (
-                <GroupConditionBox className="GroupConditionBox" size={size}>
+                <GroupConditionBox size={size}>
                   <FieldArray
                     component={ConditionBlock}
                     key={`${field}.children`}
