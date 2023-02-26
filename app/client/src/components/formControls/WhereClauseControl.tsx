@@ -97,12 +97,13 @@ const SecondaryBox = styled.div<{ showBorder: boolean; size: string }>`
   padding: ${(props) =>
     props?.showBorder ? "0px 16px 28px 8px" : "4px 16px 24px 0px"};
   width: 100%;
+  max-width: 2000px;
 
   ${(props) =>
     props.size === "small" &&
     `
     padding-right: 8px;
-    margin: ${props?.showBorder ? "0 8px 0 0" : "0px"};
+    padding-bottom: 20px;
   `}
 `;
 
@@ -136,6 +137,7 @@ const ConditionBox = styled.div<{ size?: string }>`
   ${(props) =>
     props.size === "small" &&
     `
+    min-width: 325px;
     margin: 8px 0px;
     grid-template-columns: repeat(2, max-content);
     grid-template-rows: repeat(3, max-content);
@@ -195,6 +197,7 @@ const GroupConditionBox = styled.div<{ size: string }>`
   ${(props) =>
     props.size === "small" &&
     `
+  gap: 8px;
   margin: 8px 0px;
   flex-direction: row;
   min-width: max-content;
