@@ -8,7 +8,7 @@ import {
 } from "@blueprintjs/select";
 import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
 import equal from "fast-deep-equal/es6";
-import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
+import "@blueprintjs/select/lib/css/blueprint-select.css";
 import { FixedSizeList } from "react-window";
 import { TextSize } from "constants/WidgetConstants";
 import {
