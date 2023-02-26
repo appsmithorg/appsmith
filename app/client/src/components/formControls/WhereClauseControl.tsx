@@ -87,8 +87,26 @@ const CenteredIcon = styled(Icon)<{
   }
 `;
 
+const handleBackgroudColor = (
+  currentNestingLevel: number,
+  nestedLevels: number,
+) => {
+  if (currentNestingLevel === nestedLevels) {
+    return "background-color: #f1f1f1;";
+  } else if (currentNestingLevel === nestedLevels - 1) {
+    return "background-color: #f8f8f8;";
+  } else {
+    return "";
+  }
+};
+
 // Wrapper inside the main box, contains the dropdown and ConditionWrapper
-const SecondaryBox = styled.div<{ showBorder: boolean; size: string }>`
+const SecondaryBox = styled.div<{
+  currentNestingLevel: number;
+  nestedLevels: number;
+  showBorder: boolean;
+  size: string;
+}>`
   display: flex;
   flex-direction: column;
   position: relative;
@@ -102,6 +120,7 @@ const SecondaryBox = styled.div<{ showBorder: boolean; size: string }>`
   ${(props) =>
     props.size === "small" &&
     `
+    ${handleBackgroudColor(props.currentNestingLevel, props.nestedLevels)}
     padding-right: 8px;
     padding-bottom: 20px;
   `}
@@ -158,6 +177,7 @@ const ActionBox = styled.div<{ marginLeft: string; size: string }>`
   display: flex;
   margin-top: 16px;
   flex-direction: row;
+  gap: 20px;
   width: max-content;
   justify-content: space-between;
   height: 24px;
@@ -175,7 +195,7 @@ const ActionBox = styled.div<{ marginLeft: string; size: string }>`
 `;
 
 // The final button to add more filters/ filter groups
-const AddMoreAction = styled.div<{ isDisabled?: boolean }>`
+const AddMoreAction = styled.div<{ isDisabled?: boolean; size?: string }>`
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -183,9 +203,15 @@ const AddMoreAction = styled.div<{ isDisabled?: boolean }>`
   font-weight: 500;
   line-height: 14px;
   letter-spacing: 0.6px;
-  margin-right: 20px;
   color: ${(props) =>
     props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
+
+  ${(props) =>
+    props.size === "small" &&
+    props.isDisabled &&
+    `
+    display: none;
+  `}
 `;
 
 const GroupConditionBox = styled.div<{ size: string }>`
@@ -336,6 +362,8 @@ function ConditionBlock(props: any) {
   return (
     <SecondaryBox
       className={`t--${props?.configProperty}`}
+      currentNestingLevel={props.currentNestingLevel}
+      nestedLevels={props.nestedLevels}
       ref={targetRef}
       showBorder={props.currentNestingLevel >= 1}
       size={size}
@@ -460,6 +488,7 @@ function ConditionBlock(props: any) {
                 });
               }
             }}
+            size={size}
           >
             <Icon name="add-more-fill" size={IconSize.XL} />
             <span style={{ marginLeft: "8px" }}>Add Group Condition</span>
