@@ -3,7 +3,10 @@ import log from "loglevel";
 
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
@@ -108,6 +111,41 @@ export const primaryColumnValidation = (
   };
 };
 
+export function defaultSelectedItemValidation(
+  value: any,
+  props: ListWidgetProps,
+  _?: any,
+): ValidationResponse {
+  const TYPE_ERROR_MESSAGE = {
+    name: "TypeError",
+    message: "This value must be string or number",
+  };
+
+  const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
+
+  if (_.isNil(value)) {
+    return {
+      isValid: true,
+      parsed: null,
+      messages: [EMPTY_ERROR_MESSAGE],
+    };
+  }
+
+  if (!_.isFinite(value) && !_.isString(value)) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [TYPE_ERROR_MESSAGE],
+    };
+  }
+
+  return {
+    isValid: true,
+    parsed: value,
+    messages: [EMPTY_ERROR_MESSAGE],
+  };
+}
+
 const getPrimaryKeyFromDynamicValue = (
   prefixTemplate: string,
   suffixTemplate: string,
@@ -209,6 +247,29 @@ export const PropertyPaneContentConfig = [
               type: "Array<string | number>",
               example: `["1", "2", "3"]`,
               autocompleteDataType: AutocompleteDataType.ARRAY,
+            },
+          },
+        },
+      },
+      {
+        propertyName: "defaultSelectedItem",
+        helpText: "Selects Item by default",
+        label: "Default Selected Item",
+        controlType: "INPUT_TEXT",
+        placeholderText: "001",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          !props.serverSidePagination,
+        dependencies: ["serverSidePagination"],
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: defaultSelectedItemValidation,
+            expected: {
+              type: "string or number",
+              example: `John | 123`,
+              autocompleteDataType: AutocompleteDataType.STRING,
             },
           },
         },
