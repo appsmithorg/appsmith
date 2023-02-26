@@ -2518,6 +2518,93 @@
   version "2.9.2"
   resolved "https://registry.npmjs.org/@popperjs/core/-/core-2.9.2.tgz"
 
+"@react-aria/button@^3.6.4":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@react-aria/button/-/button-3.7.0.tgz#b00635c8be0e47e19733c96f3702b699f65242b7"
+  integrity sha512-4DSGXrAWflzT4cQe/x0KdrPzz7hv9vZgqYJuNXQkpmeIMs1EmUKuby2xC+W9GHuZ+8dMxjTWKy3XdwX2tCM42A==
+  dependencies:
+    "@react-aria/focus" "^3.11.0"
+    "@react-aria/interactions" "^3.14.0"
+    "@react-aria/utils" "^3.15.0"
+    "@react-stately/toggle" "^3.5.0"
+    "@react-types/button" "^3.7.1"
+    "@react-types/shared" "^3.17.0"
+    "@swc/helpers" "^0.4.14"
+
+"@react-aria/focus@^3.10.1", "@react-aria/focus@^3.11.0":
+  version "3.11.0"
+  resolved "https://registry.yarnpkg.com/@react-aria/focus/-/focus-3.11.0.tgz#8124b2341e8d43af72f3da85b08567bda45421b7"
+  integrity sha512-yPuWs9bAR9CMfIwyOPm2oXLPF19gNkUqW+ozSPhWbLMTEa8Ma09eHW1br4xbN+4ONOm/dCJsIkxTNPUkiLdQoA==
+  dependencies:
+    "@react-aria/interactions" "^3.14.0"
+    "@react-aria/utils" "^3.15.0"
+    "@react-types/shared" "^3.17.0"
+    "@swc/helpers" "^0.4.14"
+    clsx "^1.1.1"
+
+"@react-aria/interactions@^3.14.0":
+  version "3.14.0"
+  resolved "https://registry.yarnpkg.com/@react-aria/interactions/-/interactions-3.14.0.tgz#d6480985048c009d58b8572428010dc61093cfcc"
+  integrity sha512-e1Tkr0UTuYFpV21PJrXy7jEY542Vl+C2Fo70oukZ1fN+wtfQkzodsTIzyepXb7kVMGmC34wDisMJUrksVkfY2w==
+  dependencies:
+    "@react-aria/utils" "^3.15.0"
+    "@react-types/shared" "^3.17.0"
+    "@swc/helpers" "^0.4.14"
+
+"@react-aria/link@^3.3.6":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@react-aria/link/-/link-3.4.0.tgz#f3f7c5277ab9fc0b8c55c76503e1fbe764e02ca6"
+  integrity sha512-d/h4y7SFO+KweMX5IRU99L1jz9AAwp6mNStkBjYGxCD29QYTVWClpZHjRlO1s6a9e2QTpk/LzsvjiytowzfHyA==
+  dependencies:
+    "@react-aria/focus" "^3.11.0"
+    "@react-aria/interactions" "^3.14.0"
+    "@react-aria/utils" "^3.15.0"
+    "@react-types/link" "^3.4.0"
+    "@react-types/shared" "^3.17.0"
+    "@swc/helpers" "^0.4.14"
+
+"@react-aria/ssr@^3.5.0":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@react-aria/ssr/-/ssr-3.5.0.tgz#40c1270a75868185f72a88cafe37bd1392f690cb"
+  integrity sha512-h0MJdSWOd1qObLnJ8mprU31wI8tmKFJMuwT22MpWq6psisOOZaga6Ml4u6Ee6M6duWWISjXvqO4Sb/J0PBA+nQ==
+  dependencies:
+    "@swc/helpers" "^0.4.14"
+
+"@react-aria/switch@^3.3.1":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@react-aria/switch/-/switch-3.4.0.tgz#f3cb0a7b64ddcb93e60b31254e7bb5277a954f30"
+  integrity sha512-FWbjqNcY+fAjRNXVQTvOx93udhaySgXLsMNLRAVUcFm45FqTaxAhHhNGtRnVhDvzHTJY/Y+kpcGzCcW2rXzPxg==
+  dependencies:
+    "@react-aria/toggle" "^3.5.0"
+    "@react-stately/toggle" "^3.5.0"
+    "@react-types/switch" "^3.3.0"
+    "@swc/helpers" "^0.4.14"
+
+"@react-aria/toggle@^3.5.0":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@react-aria/toggle/-/toggle-3.5.0.tgz#2193fd0a13a6c11ce865768c5b3e4fe37feab433"
+  integrity sha512-K49OmHBmYW8pk0rXJU1TNRzR+PxLVvfL/ni6ifV5gcxoxV6DmFsNFj+5B/U3AMnCEQeyKQeiY6z9X7EBVX6j9Q==
+  dependencies:
+    "@react-aria/focus" "^3.11.0"
+    "@react-aria/interactions" "^3.14.0"
+    "@react-aria/utils" "^3.15.0"
+    "@react-stately/toggle" "^3.5.0"
+    "@react-types/checkbox" "^3.4.2"
+    "@react-types/shared" "^3.17.0"
+    "@react-types/switch" "^3.3.0"
+    "@swc/helpers" "^0.4.14"
+
+"@react-aria/utils@^3.15.0":
+  version "3.15.0"
+  resolved "https://registry.yarnpkg.com/@react-aria/utils/-/utils-3.15.0.tgz#a836674dd40ec7f15e9f7a69b1a14f19b1ee42e6"
+  integrity sha512-aJZBG++iz1UwTW5gXFaHicKju4p0MPhAyBTcf2awHYWeTUUslDjJcEnNg7kjBYZBOrOSlA2rAt7/7C5CCURQPg==
+  dependencies:
+    "@react-aria/ssr" "^3.5.0"
+    "@react-stately/utils" "^3.6.0"
+    "@react-types/shared" "^3.17.0"
+    "@swc/helpers" "^0.4.14"
+    clsx "^1.1.1"
+
 "@react-spring/animated@~9.4.0":
   version "9.4.1"
   resolved "https://registry.npmjs.org/@react-spring/animated/-/animated-9.4.1.tgz"
@@ -2603,6 +2690,58 @@
     "@react-spring/core" "~9.4.0"
     "@react-spring/shared" "~9.4.0"
     "@react-spring/types" "~9.4.0"
+
+"@react-stately/toggle@^3.4.4", "@react-stately/toggle@^3.5.0":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@react-stately/toggle/-/toggle-3.5.0.tgz#fee5a29d7699e43867c52981834af5393f47c1c4"
+  integrity sha512-vKwLLkFsiIve4pXIQC/dqLAz7Z+qtzJ8+D00EXXO1Nf8YHcyIMDkTmi3NTM8Qtvmt4xX2hbJFiPDF6WvF6mBIg==
+  dependencies:
+    "@react-stately/utils" "^3.6.0"
+    "@react-types/checkbox" "^3.4.2"
+    "@react-types/shared" "^3.17.0"
+    "@swc/helpers" "^0.4.14"
+
+"@react-stately/utils@^3.6.0":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@react-stately/utils/-/utils-3.6.0.tgz#f273e7fcb348254347d2e88c8f0c45571060c207"
+  integrity sha512-rptF7iUWDrquaYvBAS4QQhOBQyLBncDeHF03WnHXAxnuPJXNcr9cXJtjJPGCs036ZB8Q2hc9BGG5wNyMkF5v+Q==
+  dependencies:
+    "@swc/helpers" "^0.4.14"
+
+"@react-types/button@^3.7.1":
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/@react-types/button/-/button-3.7.1.tgz#a51d2617a593d9862c72306b3bf0c4b5bff4793d"
+  integrity sha512-c+8xjmqWSjI5/mEHVLbVSp0eh/z2UU8Ga+wqjbEUZUjm8uopYj1PaCAwZ7YgcAebyQrL/21GyjK6tFHKzuUdJQ==
+  dependencies:
+    "@react-types/shared" "^3.17.0"
+
+"@react-types/checkbox@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@react-types/checkbox/-/checkbox-3.4.2.tgz#6089e9ef2d023415a5f871e312f30bae54143ba5"
+  integrity sha512-/NWFCEQLvVgo25afPt2jv4syxYvZeY/D/n2Y92IGtoNV4akdz4AuQ65+1X+JOhQc/ZbAblWw5fFWUZoQs3CLZg==
+  dependencies:
+    "@react-types/shared" "^3.17.0"
+
+"@react-types/link@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@react-types/link/-/link-3.4.0.tgz#1c549ffbc594e49726a4c4e912bea36718feb4cf"
+  integrity sha512-eImWLzxwzSmjOLa0Ow3HJaguyDCz98191v2pb7nT/zPzGDnhHhDjxB023hrXVUoCbsWrCb5QLp91Ts+VjiCyTA==
+  dependencies:
+    "@react-aria/interactions" "^3.14.0"
+    "@react-types/shared" "^3.17.0"
+
+"@react-types/shared@^3.17.0":
+  version "3.17.0"
+  resolved "https://registry.yarnpkg.com/@react-types/shared/-/shared-3.17.0.tgz#b7c5e318664aadb315d305a27dd2a209d1837d95"
+  integrity sha512-1SNZ/RhVrrQ1e6yE0bPV7d5Sfp+Uv0dfUEhwF9MAu2v5msu7AMewnsiojKNA0QA6Ing1gpDLjHCxtayQfuxqcg==
+
+"@react-types/switch@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@react-types/switch/-/switch-3.3.0.tgz#80172b8960e36ac1b3c19c69a479af407cffc306"
+  integrity sha512-6h+s//PwWf7/WJQOZKT6k1vdOQCcvPmMZW333AqyxtZX8WV8Q0illgcLMYo5qxT3IWsjYNuPIqMCY+tRbSeA2Q==
+  dependencies:
+    "@react-types/checkbox" "^3.4.2"
+    "@react-types/shared" "^3.17.0"
 
 "@redux-saga/core@^1.1.3":
   version "1.1.3"
@@ -2990,6 +3129,13 @@
     "@svgr/plugin-jsx" "^5.5.0"
     "@svgr/plugin-svgo" "^5.5.0"
     loader-utils "^2.0.0"
+
+"@swc/helpers@^0.4.14":
+  version "0.4.14"
+  resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.4.14.tgz#1352ac6d95e3617ccb7c1498ff019654f1e12a74"
+  integrity sha512-4C7nX/dvpzB7za4Ql9K81xK3HPxCpHMgwTZVyf+9JQ6VUbn9jjZVN7/Nkdz/Ugzs2CSjqnL/UPXroiVBVHUWUw==
+  dependencies:
+    tslib "^2.4.0"
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
@@ -5619,6 +5765,11 @@ clsx@^1.0.4, clsx@^1.1.0:
   version "1.1.1"
   resolved "https://registry.npmjs.org/clsx/-/clsx-1.1.1.tgz"
 
+clsx@^1.1.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.2.1.tgz#0ddc4a20a549b59c93a4116bb26f5294ca17dc12"
+  integrity sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.npmjs.org/co/-/co-4.6.0.tgz"
@@ -6593,6 +6744,18 @@ depd@~1.1.2:
   integrity sha512-0SgeKURwh7XvMmeYv3Yz3ldCgjuBW6yD1hnXc/9Pndm1Rtcth34jjvsqtUfZmh1Dvs7xhbtOtCAxfHEPKZ4wQg==
   dependencies:
     emoji-mart "3.0.1"
+
+"design-system@npm:@appsmithorg/design-system@2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.0.4.tgz#27ab37ff9800484cc351c9ac82e97fcc5d09d461"
+  integrity sha512-BYcwjcm7wbFyKvMpg2G3ORhyilzzS7S3U2uTG9vkJCWE5POWbXjL4VI2GBTwb/sj/7m8mDtZB7bYOI3ogXBP5w==
+  dependencies:
+    "@react-aria/button" "^3.6.4"
+    "@react-aria/focus" "^3.10.1"
+    "@react-aria/link" "^3.3.6"
+    "@react-aria/switch" "^3.3.1"
+    "@react-stately/toggle" "^3.4.4"
+    react-toastify "9.0.3"
 
 destroy@1.2.0:
   version "1.2.0"
@@ -13523,6 +13686,13 @@ react-timer-hook@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/react-timer-hook/-/react-timer-hook-3.0.4.tgz"
 
+react-toastify@9.0.3:
+  version "9.0.3"
+  resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-9.0.3.tgz#8e6d22651c85cb584c5ebd0b5e2c3bf0d7ec06ee"
+  integrity sha512-0QZJk0SqYBxouRBGCFU3ymvjlwimRRhVH7SzqGRiVrQ001KSoUNbGKx9Yq42aoPv18n45yJzEFG82zqv3HnASg==
+  dependencies:
+    clsx "^1.1.1"
+
 react-toastify@^5.5.0:
   version "5.5.0"
   resolved "https://registry.npmjs.org/react-toastify/-/react-toastify-5.5.0.tgz"
@@ -15414,6 +15584,11 @@ tslib@^2.3.1:
   version "2.3.1"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.3.1.tgz"
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
+
+tslib@^2.4.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.5.0.tgz#42bfed86f5787aeb41d031866c8f402429e0fddf"
+  integrity sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==
 
 tslib@~1.13.0:
   version "1.13.0"
