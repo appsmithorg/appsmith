@@ -8,9 +8,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 @Getter
 @Setter
 @ToString
@@ -48,25 +45,18 @@ public class SSLDetails implements AppsmithDomain {
         BASE64_STRING
     }
 
-    @JsonView(Views.Public.class)
     AuthType authType;
 
-    @JsonView(Views.Public.class)
     CACertificateType caCertificateType;
 
-    @JsonView(Views.Public.class)
     UploadedFile keyFile;
 
-    @JsonView(Views.Public.class)
     UploadedFile certificateFile;
 
-    @JsonView(Views.Public.class)
     UploadedFile caCertificateFile;
 
-    @JsonView(Views.Public.class)
     Boolean usePemCertificate;
 
-    @JsonView(Views.Public.class)
     PEMCertificate pemCertificate;
 
 }

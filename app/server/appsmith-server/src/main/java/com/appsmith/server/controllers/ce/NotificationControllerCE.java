@@ -1,6 +1,5 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -8,8 +7,6 @@ import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.NotificationService;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,14 +28,12 @@ public class NotificationControllerCE extends BaseController<NotificationService
         super(service);
     }
 
-    @JsonView(Views.Public.class)
     @GetMapping("count/unread")
     public Mono<ResponseDTO<Long>> getUnreadCount() {
         return service.getUnreadCount()
                 .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
     }
 
-    @JsonView(Views.Public.class)
     @PatchMapping("isRead")
     public Mono<ResponseDTO<UpdateIsReadNotificationByIdDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationByIdDTO body) {
@@ -48,7 +43,6 @@ public class NotificationControllerCE extends BaseController<NotificationService
         );
     }
 
-    @JsonView(Views.Public.class)
     @PatchMapping("isRead/all")
     public Mono<ResponseDTO<UpdateIsReadNotificationDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationDTO body) {

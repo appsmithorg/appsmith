@@ -1,8 +1,5 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Data;
 
 /**
@@ -12,18 +9,13 @@ import lombok.Data;
 
 @Data
 public class DefaultResources {
-    @JsonView(Views.Public.class)
     String actionId;
 
-    @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Public.class)
     String pageId;
 
-    @JsonView(Views.Public.class)
     String collectionId;
 
-    @JsonView(Views.Public.class)
     String branchName;
 }

@@ -1,9 +1,6 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,10 +18,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class GitConfig implements AppsmithDomain {
 
-    @JsonView(Views.Public.class)
     String authorName;
 
-    @JsonView(Views.Public.class)
     String authorEmail;
 
 }

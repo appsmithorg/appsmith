@@ -1,9 +1,6 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.datatypes.ClientDataType;
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,17 +16,13 @@ import java.util.List;
 @NoArgsConstructor
 public class Param {
 
-    @JsonView(Views.Public.class)
     String key;
 
-    @JsonView(Views.Public.class)
     String value;
 
-    @JsonView(Views.Public.class)
     ClientDataType clientDataType;
 
     //The type of each array elements are stored in this variable when the clientDataType is of ARRAY type and null otherwise
-    @JsonView(Views.Public.class)
     List<ClientDataType> dataTypesOfArrayElements;
 
     /*
@@ -37,7 +30,6 @@ public class Param {
         is the original name of the binding parameter and value is the pseudo name of the original binding parameter with a view to reducing the size of the payload.
         We will store the pseudo binding name in this variable named pseudoBindingName
      */
-    @JsonView(Views.Public.class)
     String pseudoBindingName;
 
     public Param(String key, String value) {

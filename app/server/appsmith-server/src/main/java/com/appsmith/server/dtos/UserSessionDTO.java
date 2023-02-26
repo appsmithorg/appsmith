@@ -1,11 +1,8 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Data;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,43 +20,30 @@ import java.util.Set;
 @Data
 public class UserSessionDTO {
 
-    @JsonView(Views.Public.class)
     private String userId;
 
-    @JsonView(Views.Public.class)
     private String email;
 
-    @JsonView(Views.Public.class)
     private String hashedEmail;
 
-    @JsonView(Views.Public.class)
     private String name;
 
-    @JsonView(Views.Public.class)
     private LoginSource source;
 
-    @JsonView(Views.Public.class)
     private UserState state;
 
-    @JsonView(Views.Public.class)
     private Boolean isEnabled;
 
-    @JsonView(Views.Public.class)
     private String currentWorkspaceId;
 
-    @JsonView(Views.Public.class)
     private Set<String> workspaceIds;
 
-    @JsonView(Views.Public.class)
     private String tenantId;
 
-    @JsonView(Views.Public.class)
     private Object credentials;
 
-    @JsonView(Views.Public.class)
     private Collection<? extends GrantedAuthority> authorities;
 
-    @JsonView(Views.Public.class)
     private String authorizedClientRegistrationId;
 
     private static final String PASSWORD_PROVIDER = "password";

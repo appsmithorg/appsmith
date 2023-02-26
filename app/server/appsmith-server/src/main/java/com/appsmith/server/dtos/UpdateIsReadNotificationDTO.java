@@ -4,9 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import jakarta.validation.constraints.NotNull;
 
 @Getter
@@ -14,6 +11,5 @@ import jakarta.validation.constraints.NotNull;
 @EqualsAndHashCode
 public class UpdateIsReadNotificationDTO {
     @NotNull
-    @JsonView(Views.Public.class)
     private Boolean isRead;
 }

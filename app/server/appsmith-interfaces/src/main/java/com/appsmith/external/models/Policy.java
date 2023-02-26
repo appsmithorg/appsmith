@@ -11,9 +11,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 @Getter
 @Setter
 @ToString
@@ -21,20 +18,16 @@ import com.fasterxml.jackson.annotation.JsonView;
 @EqualsAndHashCode
 public class Policy implements Serializable {
 
-    @JsonView(Views.Public.class)
     String permission;
 
     @Deprecated
     @Builder.Default
-    @JsonView(Views.Public.class)
     Set<String> users = new HashSet<>();
 
     @Deprecated
     @Builder.Default
-    @JsonView(Views.Public.class)
     Set<String> groups = new HashSet<>();
 
     @Builder.Default
-    @JsonView(Views.Public.class)
     Set<String> permissionGroups = new HashSet<>();
 }

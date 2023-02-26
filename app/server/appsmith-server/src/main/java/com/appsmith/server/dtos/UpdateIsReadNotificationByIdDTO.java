@@ -9,15 +9,11 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
 public class UpdateIsReadNotificationByIdDTO extends UpdateIsReadNotificationDTO {
     @NotNull
     @NotEmpty
-    @JsonView(Views.Public.class)
     private List<String> idList;
 }

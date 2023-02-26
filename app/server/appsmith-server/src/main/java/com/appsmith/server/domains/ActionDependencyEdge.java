@@ -1,9 +1,6 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.EntityDependencyNode;
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,10 +12,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @AllArgsConstructor
 public class ActionDependencyEdge {
 
-    @JsonView(Views.Public.class)
     EntityDependencyNode sourceNode;
-
-    @JsonView(Views.Public.class)
     EntityDependencyNode targetNode;
 
     @Override

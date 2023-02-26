@@ -1,11 +1,8 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,38 +21,31 @@ import java.util.Set;
 @Document
 public class CustomJSLib extends BaseDomain {
     /* Library name */
-    @JsonView(Views.Public.class)
     String name;
 
     /**
      * This string is used to uniquely identify a given library. We expect this to be universally unique for a given
      * JS library
      */
-    @JsonView(Views.Public.class)
     String uidString;
 
     /**
      * These are the namespaces under which the library functions reside. User would access lib methods like
      * `accessor.method`
      */
-    @JsonView(Views.Public.class)
     Set<String> accessor;
 
     /* Library UMD src url */
-    @JsonView(Views.Public.class)
     String url;
 
     /* Library documentation page URL */
-    @JsonView(Views.Public.class)
     String docsUrl;
 
     /* Library version */
-    @JsonView(Views.Public.class)
     String version;
 
     /* `Tern` tool definitions - it defines the methods exposed by the library. It helps us with auto-complete
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
-    @JsonView(Views.Public.class)
     String defs;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
@@ -71,7 +61,6 @@ public class CustomJSLib extends BaseDomain {
         setUidString();
     }
 
-    @JsonView(Views.Public.class)
     public void setUidString() {
         List<String> accessorList = new ArrayList(this.accessor);
         Collections.sort(accessorList);

@@ -6,16 +6,11 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 @Getter
 @Setter
 public class GitConnectionLimitDTO {
 
-    @JsonView(Views.Public.class)
     int repoLimit;
 
-    @JsonView(Views.Public.class)
     Instant expiryTime;
 }

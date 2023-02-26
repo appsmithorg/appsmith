@@ -1,8 +1,5 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +10,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TriggerResultDTO {
-    @JsonView(Views.Public.class)
     Object trigger;
 }

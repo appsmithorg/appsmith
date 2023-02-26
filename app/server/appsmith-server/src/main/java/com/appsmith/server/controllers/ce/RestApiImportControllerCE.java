@@ -1,7 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.TemplateCollection;
-import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.RestApiImporterType;
@@ -10,8 +9,6 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApiImporter;
 import com.appsmith.server.services.CurlImporterService;
 import com.appsmith.server.services.PostmanImporterService;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,7 +38,6 @@ public class RestApiImportControllerCE {
         this.postmanImporterService = postmanImporterService;
     }
 
-    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionDTO>> create(@RequestBody(required = false) Object input,
@@ -67,7 +63,6 @@ public class RestApiImportControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @JsonView(Views.Public.class)
     @PostMapping("/postman")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<TemplateCollection>> importPostmanCollection(@RequestBody Object input,
@@ -76,14 +71,12 @@ public class RestApiImportControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @JsonView(Views.Public.class)
     @GetMapping("/templateCollections")
     public Mono<ResponseDTO<List<TemplateCollection>>> fetchImportedCollections() {
         return Mono.just(postmanImporterService.fetchPostmanCollections())
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @JsonView(Views.Public.class)
     @DeleteMapping("/templateCollections/{id}")
     public Mono<ResponseDTO<TemplateCollection>> deletePostmanCollection(@PathVariable String id) {
         return Mono.just(postmanImporterService.deletePostmanCollection(id))

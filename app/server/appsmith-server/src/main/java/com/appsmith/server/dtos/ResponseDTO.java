@@ -1,9 +1,6 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.exceptions.ErrorDTO;
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,10 +18,8 @@ public class ResponseDTO<T> implements Serializable {
 
     private static final long serialVersionUID = 8965011907233699993L;
 
-    @JsonView(Views.Public.class)
     private ResponseMetaDTO responseMeta;
 
-    @JsonView(Views.Public.class)
     private T data;
 
     public ResponseDTO(int status, T data, String message) {
