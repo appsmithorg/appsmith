@@ -113,7 +113,7 @@ const SecondaryBox = styled.div<{
   border: solid 1.2px #e0dede;
   border-width: ${(props) => (props?.showBorder ? "1.2px" : "0px")};
   padding: ${(props) =>
-    props?.showBorder ? "0px 16px 28px 8px" : "4px 16px 24px 0px"};
+    props?.showBorder ? "0px 12px 28px 8px" : "4px 12px 24px 0px"};
   width: 100%;
   max-width: 2000px;
 
@@ -121,7 +121,6 @@ const SecondaryBox = styled.div<{
     props.size === "small" &&
     `
     ${handleBackgroudColor(props.currentNestingLevel, props.nestedLevels)}
-    padding-right: 8px;
     padding-bottom: 20px;
   `}
 `;
@@ -322,7 +321,7 @@ function ConditionComponent(props: any, index: number) {
 // This is the block which contains an operator and multiple conditions/ condition blocks
 function ConditionBlock(props: any) {
   const targetRef = useRef<HTMLDivElement>(null);
-  const size = useResponsiveBreakpoints(targetRef, [{ small: 500 }]);
+  const size = useResponsiveBreakpoints(targetRef, [{ small: 505 }]);
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
