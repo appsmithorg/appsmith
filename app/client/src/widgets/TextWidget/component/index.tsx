@@ -184,7 +184,7 @@ const Content = styled.div<{
   color: ${(props) => props?.textColor};
   max-height: 70vh;
   overflow: auto;
-  word-break: break-all;
+  overflow-wrap: break-word;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   font-style: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};

@@ -81,11 +81,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
       onClose={onClose}
       onOpening={onOpening}
       title="Product Updates"
-      trigger={
-        props.hideTrigger ? null : (
-          <UpdatesButton newReleasesCount={newReleasesCount} />
-        )
-      }
+      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
       triggerZIndex={Layers.productUpdates}
       width={"580px"}
     >

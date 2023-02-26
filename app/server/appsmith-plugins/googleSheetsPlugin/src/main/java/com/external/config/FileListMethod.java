@@ -2,6 +2,8 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.external.constants.ErrorMessages;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -44,8 +46,8 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing a valid response object.");
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
         if (response.get("files") == null) {
             return this.objectMapper.createArrayNode();
@@ -78,8 +80,8 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing a valid response object.");
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
         if (response.get("files") == null) {
             return this.objectMapper.createArrayNode();

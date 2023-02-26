@@ -148,8 +148,8 @@ export const apiFailureResponseInterceptor = (error: any) => {
       const errorData = error.response.data.responseMeta ?? {};
       if (
         errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
-        (errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND ||
-          errorData.error.code === SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE)
+        (SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(errorData.error.code) ||
+          SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE.includes(errorData.error.code))
       ) {
         return Promise.reject({
           code: ERROR_CODES.PAGE_NOT_FOUND,

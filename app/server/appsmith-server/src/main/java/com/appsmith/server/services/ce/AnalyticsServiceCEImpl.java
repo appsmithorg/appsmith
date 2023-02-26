@@ -273,16 +273,24 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
      */
     private <T extends BaseDomain> String getEventTag(AnalyticsEvents event, T object) {
         // In case of action execution or instance setting update, event.getEventName() only is used to support backward compatibility of event name
-        List<AnalyticsEvents> nonResourceEvents = List.of(
+        List<AnalyticsEvents> nonResourceEvents = getNonResourceEvents();
+        boolean isNonResourceEvent = nonResourceEvents.contains(event);
+        final String eventTag = isNonResourceEvent ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
+
+        return eventTag;
+    }
+
+    /**
+     * To get non resource events list
+     * @return List of AnanlyticsEvents
+     */
+    public List<AnalyticsEvents> getNonResourceEvents() {
+        return List.of(
                 AnalyticsEvents.EXECUTE_ACTION,
                 AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION,
                 AnalyticsEvents.EXECUTE_INVITE_USERS,
                 AnalyticsEvents.UPDATE_LAYOUT
         );
-        boolean isNonResourceEvent = nonResourceEvents.contains(event);
-        final String eventTag = isNonResourceEvent ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
-
-        return eventTag;
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {

@@ -5,7 +5,7 @@ import React from "react";
 import { useCallback } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -22,8 +22,6 @@ export function SignupSuccess() {
   const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
     "enableFirstTimeUserExperience",
   );
-  const isUsageAndBillingEnabled = useSelector(selectFeatureFlags)
-    ?.USAGE_AND_BILLING;
   const validLicense = useSelector(isValidLicense);
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
@@ -34,7 +32,6 @@ export function SignupSuccess() {
       redirectUserAfterSignup(
         redirectUrl,
         shouldEnableFirstTimeUserOnboarding,
-        isUsageAndBillingEnabled,
         validLicense,
         dispatch,
       ),
