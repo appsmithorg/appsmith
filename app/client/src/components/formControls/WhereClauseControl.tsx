@@ -95,7 +95,7 @@ const SecondaryBox = styled.div<{ showBorder: boolean; size: string }>`
   border: solid 1.2px #e0dede;
   border-width: ${(props) => (props?.showBorder ? "1.2px" : "0px")};
   padding: ${(props) =>
-    props?.showBorder ? "0px 16px 24px 8px" : "4px 16px 24px 0px"};
+    props?.showBorder ? "0px 16px 28px 8px" : "4px 16px 24px 0px"};
   width: 100%;
 
   ${(props) =>
