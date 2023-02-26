@@ -1653,11 +1653,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blueprintjs/core@npm:3.43.0":
-  version: 3.43.0
-  resolution: "@blueprintjs/core@npm:3.43.0"
+"@blueprintjs/core@npm:3.47.0":
+  version: 3.47.0
+  resolution: "@blueprintjs/core@npm:3.47.0"
   dependencies:
-    "@blueprintjs/icons": ^3.26.0
+    "@blueprintjs/icons": ^3.27.0
     "@types/dom4": ^2.0.1
     classnames: ^2.2
     dom4: ^2.1.5
@@ -1674,15 +1674,15 @@ __metadata:
   bin:
     upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
     upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
-  checksum: ecea58f80a3ab5b0a5d5a616794e9a22fa3aa51628f048ab87dfaaa39a74ec99be6086d64fdef3e810c85a998474db86d1a04f78457c0dc4d0028cb0495dd051
+  checksum: 54ca7ae7574847468eb39d7ae1925662990bd36d241f96e424ddb5f616e27059d89a61b12209c005b6cf5e0a73a42d6be61849c269b1e82515cdcedc23a0e879
   languageName: node
   linkType: hard
 
-"@blueprintjs/core@patch:@blueprintjs/core@npm%3A3.43.0#./.yarn/patches/@blueprintjs-core-npm-3.43.0-df6e5e67d7.patch::locator=root-workspace-0b6124%40workspace%3A.":
-  version: 3.43.0
-  resolution: "@blueprintjs/core@patch:@blueprintjs/core@npm%3A3.43.0#./.yarn/patches/@blueprintjs-core-npm-3.43.0-df6e5e67d7.patch::version=3.43.0&hash=19fcc0&locator=root-workspace-0b6124%40workspace%3A."
+"@blueprintjs/core@patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch::locator=root-workspace-0b6124%40workspace%3A.":
+  version: 3.47.0
+  resolution: "@blueprintjs/core@patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch::version=3.47.0&hash=7c0620&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
-    "@blueprintjs/icons": ^3.26.0
+    "@blueprintjs/icons": ^3.27.0
     "@types/dom4": ^2.0.1
     classnames: ^2.2
     dom4: ^2.1.5
@@ -1699,7 +1699,7 @@ __metadata:
   bin:
     upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
     upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
-  checksum: 8304685caf39a0cb0683646b9abf591ab63fa124ab8f90829a5f51c37346c42e102566abbd2f82d9b8b5f52edf83b1d47977d1e282c485e70ed36fbf5f46b3da
+  checksum: 2d6f014803b7200573d0aa2ddaf16efca524d787a277bf7c1550739722cdea224489a2d8057c93994918d3c85ab27a172e32ec722263d8e18f4a0f29aded6ca1
   languageName: node
   linkType: hard
 
@@ -1719,13 +1719,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blueprintjs/icons@npm:^3.10.0, @blueprintjs/icons@npm:^3.26.0":
-  version: 3.26.0
-  resolution: "@blueprintjs/icons@npm:3.26.0"
+"@blueprintjs/icons@npm:^3.10.0, @blueprintjs/icons@npm:^3.27.0":
+  version: 3.33.0
+  resolution: "@blueprintjs/icons@npm:3.33.0"
   dependencies:
     classnames: ^2.2
-    tslib: ~1.13.0
-  checksum: 84b8508bceb1578cc1bf99095621e9abf87044e7d7ee66d42dc686a575ee8342ca1275083f3b428737df5bfbd7fb905ffc8f252617fb43ae8210a351639792b9
+    tslib: ~2.3.1
+  checksum: 9b1485a3ce17a97596b7fa7276ddbe85e33c56f061358351a626d353bf3eab6ab1b36a1860aec2feb7933ef0293c5f8e1f3342a89051720d1953343aab753cb3
   languageName: node
   linkType: hard
 
@@ -2368,6 +2368,19 @@ __metadata:
   version: 1.2.1
   resolution: "@humanwhocodes/object-schema@npm:1.2.1"
   checksum: a824a1ec31591231e4bad5787641f59e9633827d0a2eaae131a288d33c9ef0290bd16fda8da6f7c0fcb014147865d12118df10db57f27f41e20da92369fcb3f1
+  languageName: node
+  linkType: hard
+
+"@hypnosphi/create-react-context@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "@hypnosphi/create-react-context@npm:0.3.1"
+  dependencies:
+    gud: ^1.0.0
+    warning: ^4.0.3
+  peerDependencies:
+    prop-types: ^15.0.0
+    react: ">=0.14.0"
+  checksum: d2f069a562e138057aa067e1483e28cea3193bbacd33ca9528131f31e656939cfeb552af760b3be437d3a8074315a8854fc6d5d89878e2746618ad930c817122
   languageName: node
   linkType: hard
 
@@ -4199,9 +4212,9 @@ __metadata:
   linkType: hard
 
 "@types/dom4@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "@types/dom4@npm:2.0.1"
-  checksum: d4b746c7b891ae1d5c7e8d4e9410c1c58fc0fe8ee71855967bb4699af6ed8b067e66aa5f53b6d9559ef3479d4ca94cb13504000f4ac0cff58b1f3eb8b489b064
+  version: 2.0.2
+  resolution: "@types/dom4@npm:2.0.2"
+  checksum: 33af62348979c54dc227ad6c943c374a5e0e4af17f6d7d18957662c1247242ec8e0718a43a62bf4288de6d5e6e59f8e1801a499e3aa2e3899bf116e5b3170805
   languageName: node
   linkType: hard
 
@@ -6132,7 +6145,7 @@ __metadata:
   dependencies:
     "@babel/helper-create-regexp-features-plugin": ^7.18.6
     "@babel/helper-string-parser": ^7.19.4
-    "@blueprintjs/core": ^3.36.0
+    "@blueprintjs/core": ^3.43.0
     "@blueprintjs/datetime": ^3.23.6
     "@blueprintjs/icons": ^3.10.0
     "@blueprintjs/popover2": ^0.5.0
@@ -8450,19 +8463,6 @@ __metadata:
     crc-32: ^1.2.0
     readable-stream: ^3.4.0
   checksum: 1099559283b86e8a55390228b57ff4d57a74cac6aa8086aa4730f84317c9f93e914aeece115352f2d706a9df7ed75327ffacd86cfe23f040aef821231b528e76
-  languageName: node
-  linkType: hard
-
-"create-react-context@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "create-react-context@npm:0.3.0"
-  dependencies:
-    gud: ^1.0.0
-    warning: ^4.0.3
-  peerDependencies:
-    prop-types: ^15.0.0
-    react: ^0.14.0 || ^15.0.0 || ^16.0.0
-  checksum: e59b7a65671e59f5b11e06f67faadf0733ab6c33247d5631331aeb05450d180b8ae44d73817b9c02f1527654ba490ea3d3dd7320f8d6debb36776f10b0ae6a47
   languageName: node
   linkType: hard
 
@@ -19156,19 +19156,19 @@ __metadata:
   linkType: hard
 
 "react-popper@npm:^1.3.7":
-  version: 1.3.7
-  resolution: "react-popper@npm:1.3.7"
+  version: 1.3.11
+  resolution: "react-popper@npm:1.3.11"
   dependencies:
     "@babel/runtime": ^7.1.2
-    create-react-context: ^0.3.0
+    "@hypnosphi/create-react-context": ^0.3.1
     deep-equal: ^1.1.1
     popper.js: ^1.14.4
     prop-types: ^15.6.1
     typed-styles: ^0.0.7
     warning: ^4.0.2
   peerDependencies:
-    react: 0.14.x || ^15.0.0 || ^16.0.0
-  checksum: 9ba10e852d6a6d8d8b0a8e5482307b656254addec66c37969ff14516067f564281e6a54ca4a18a7c790cbafbf405d0d152f288729e61cb28274371838923da59
+    react: 0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
+  checksum: a0f5994f5799f1c7364498f74df123dd2561fff4ae834b10fdcca74d9a8e159b523ed1f0708db33bad606933ab4f0d5ce9c90e48cbb671bf30016c890f3c7ea4
   languageName: node
   linkType: hard
 
@@ -19513,8 +19513,8 @@ __metadata:
   linkType: hard
 
 "react-transition-group@npm:^4, react-transition-group@npm:^4.3.0":
-  version: 4.4.1
-  resolution: "react-transition-group@npm:4.4.1"
+  version: 4.4.5
+  resolution: "react-transition-group@npm:4.4.5"
   dependencies:
     "@babel/runtime": ^7.5.5
     dom-helpers: ^5.0.1
@@ -19523,7 +19523,7 @@ __metadata:
   peerDependencies:
     react: ">=16.6.0"
     react-dom: ">=16.6.0"
-  checksum: 0bcd8af483709832e318dcef84c26ebddeb866bf4f58010286367ef0c1e7c5106e00cfc65688b9102414cb3d572c63909c2eb7ea972b4420fc70a78c10b6e8ad
+  checksum: 75602840106aa9c6545149d6d7ae1502fb7b7abadcce70a6954c4b64a438ff1cd16fc77a0a1e5197cdd72da398f39eb929ea06f9005c45b132ed34e056ebdeb1
   languageName: node
   linkType: hard
 
@@ -22233,6 +22233,13 @@ __metadata:
   version: 1.13.0
   resolution: "tslib@npm:1.13.0"
   checksum: 50e9327361f94f328c0715582a7f725f69838ab3c2559d143643c5367262fe14552768ba8cfc65bc7dc924a619aea599b3a28b6653458cdca77bbebaf9bc8df4
+  languageName: node
+  linkType: hard
+
+"tslib@npm:~2.3.1":
+  version: 2.3.1
+  resolution: "tslib@npm:2.3.1"
+  checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9
   languageName: node
   linkType: hard
 
