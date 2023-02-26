@@ -93,7 +93,6 @@
     "normalizr": "^3.3.0",
     "object-hash": "^3.0.0",
     "papaparse": "^5.3.2",
-    "path-to-regexp": "^6.2.0",
     "popper.js": "^1.15.0",
     "prettier": "^1.18.2",
     "prismjs": "^1.27.0",

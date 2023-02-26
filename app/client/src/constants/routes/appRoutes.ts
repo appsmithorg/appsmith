@@ -1,7 +1,24 @@
+import { options } from "./../../pages/common/CustomizedDropdown/WorkspaceDropdownData";
 // Leaving this require here. The path-to-regexp module has a commonJS version and an ESM one.
 // We are loading the correct one with the typings with our compilerOptions property "moduleResolution" set to "node". Ref: https://stackoverflow.com/questions/59013618/unable-to-find-module-path-to-regexp
 // All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
-const { match } = require("path-to-regexp");
+// const { match } = require("path-to-regexp");
+
+import { matchPath } from "react-router";
+
+export function match(
+  path: string,
+  options?: { end?: boolean; strict?: boolean; sensitive?: boolean },
+) {
+  const { end = true, sensitive = false, strict = false } = options || {};
+  return (pathName: string) =>
+    matchPath<Record<string, any>>(pathName, {
+      path: path,
+      exact: end,
+      strict: strict,
+      sensitive: sensitive,
+    }) || false;
+}
 
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
 export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId/edit`;
@@ -62,7 +79,6 @@ export const matchBuilderPath = (
   match(BUILDER_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
   match(BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
   match(BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH, options)(pathName);
-
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
   match(VIEWER_PATH)(pathName) ||
