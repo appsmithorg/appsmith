@@ -418,7 +418,7 @@ describe("JS Function Execution", function() {
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-      agHelper.ClickButton("Yes", 0, true, false);
+      agHelper.ClickButton("Yes");
     }
 
     ee.SelectEntityByName(jsObj, "Queries/JS");
