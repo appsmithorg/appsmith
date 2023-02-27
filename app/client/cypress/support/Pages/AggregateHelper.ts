@@ -1054,7 +1054,7 @@ export class AggregateHelper {
 
   public AssertContains(
     text: string | RegExp,
-    exists: "exist" | "not.exist" = "exist",
+    exists: "exist" | "not.exist" | "be.visible" = "exist",
     selector?: string,
   ) {
     if (selector) {
