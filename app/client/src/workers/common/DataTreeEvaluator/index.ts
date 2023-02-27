@@ -794,8 +794,8 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
   } {
-    const tree = klona(oldUnevalTree);
-    errorModifier.updateAsyncFunctions(tree);
+    const evaluatedTree = klona(oldUnevalTree);
+    errorModifier.updateAsyncFunctions(evaluatedTree);
     const evalMetaUpdates: EvalMetaUpdates = [];
     const {
       isFirstTree,
@@ -804,78 +804,94 @@ export default class DataTreeEvaluator {
       unevalUpdates,
     } = options;
     let staleMetaIds: string[] = [];
+
     try {
-      const evaluatedTree = sortedDependencies.reduce(
-        (currentTree: DataTree, fullPropertyPath: string) => {
-          const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-            fullPropertyPath,
-          );
-          const entity = currentTree[entityName] as
-            | DataTreeWidget
-            | DataTreeAction;
-          const unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
+      for (const fullPropertyPath of sortedDependencies) {
+        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+          fullPropertyPath,
+        );
+        const entity = evaluatedTree[entityName];
+        const unEvalPropertyValue = (get(
+          evaluatedTree,
+          fullPropertyPath,
+        ) as unknown) as string;
 
-          const isADynamicBindingPath =
-            (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
-            isPathADynamicBinding(entity, propertyPath);
-          const isATriggerPath =
-            isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
-          let evalPropertyValue;
-          const requiresEval =
-            isADynamicBindingPath &&
-            !isATriggerPath &&
-            (isDynamicValue(unEvalPropertyValue) || isJSAction(entity));
-          if (propertyPath) {
-            set(this.evalProps, getEvalErrorPath(fullPropertyPath), []);
-          }
-          if (requiresEval) {
-            const evaluationSubstitutionType =
-              entity.reactivePaths[propertyPath] ||
-              EvaluationSubstitutionType.TEMPLATE;
+        if (!(isAction(entity) || isWidget(entity) || isJSAction(entity))) {
+          set(evaluatedTree, fullPropertyPath, unEvalPropertyValue);
+          continue;
+        }
 
-            const contextData: EvaluateContext = {};
-            if (isAction(entity)) {
-              contextData.thisContext = {
-                params: {},
-              };
-            }
-            try {
-              evalPropertyValue = this.getDynamicValue(
-                unEvalPropertyValue,
-                currentTree,
-                evaluationSubstitutionType,
-                contextData,
-                undefined,
-                fullPropertyPath,
-              );
-            } catch (error) {
-              this.errors.push({
-                type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
-                message: (error as Error).message,
-                context: {
-                  propertyPath: fullPropertyPath,
-                },
-              });
-              evalPropertyValue = undefined;
-            }
-          } else {
-            evalPropertyValue = unEvalPropertyValue;
+        const isATriggerPath =
+          isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
+
+        // Skip trigger paths evaluation
+        if (isATriggerPath) continue;
+
+        const isADynamicBindingPath =
+          (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
+          isPathADynamicBinding(entity, propertyPath);
+
+        let evalPropertyValue;
+
+        if (propertyPath) {
+          // reset eval errors
+          set(this.evalProps, getEvalErrorPath(fullPropertyPath), []);
+        }
+
+        const requiresEval =
+          isADynamicBindingPath &&
+          (isDynamicValue(unEvalPropertyValue) || isJSAction(entity));
+
+        if (requiresEval) {
+          const evaluationSubstitutionType =
+            entity.bindingPaths[propertyPath] ||
+            EvaluationSubstitutionType.TEMPLATE;
+
+          const contextData: EvaluateContext = {};
+          if (isAction(entity)) {
+            contextData.thisContext = {
+              params: {},
+            };
           }
-          if (isWidget(entity) && !isATriggerPath) {
+          try {
+            evalPropertyValue = this.getDynamicValue(
+              unEvalPropertyValue,
+              evaluatedTree,
+              evaluationSubstitutionType,
+              contextData,
+              undefined,
+              fullPropertyPath,
+            );
+          } catch (error) {
+            this.errors.push({
+              type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
+              message: (error as Error).message,
+              context: {
+                propertyPath: fullPropertyPath,
+              },
+            });
+            evalPropertyValue = undefined;
+          }
+        } else {
+          evalPropertyValue = unEvalPropertyValue;
+        }
+
+        switch (entity.ENTITY_TYPE) {
+          case ENTITY_TYPE.WIDGET: {
             const isNewWidget =
               isFirstTree || isNewEntity(unevalUpdates, entityName);
             if (propertyPath) {
               const parsedValue = validateAndParseWidgetProperty({
                 fullPropertyPath,
                 widget: entity,
-                currentTree,
+                currentTree: evaluatedTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
                 evalProps: this.evalProps,
               });
 
               this.setParsedValue({
-                currentTree,
+                currentTree: evaluatedTree,
                 entity,
                 evalMetaUpdates,
                 fullPropertyPath,
@@ -889,7 +905,7 @@ export default class DataTreeEvaluator {
                 this.reValidateWidgetDependentProperty({
                   fullPropertyPath,
                   widget: entity,
-                  currentTree,
+                  currentTree: evaluatedTree,
                 });
               }
               staleMetaIds = staleMetaIds.concat(
@@ -900,13 +916,12 @@ export default class DataTreeEvaluator {
                   metaWidgets,
                 }),
               );
-
-              return currentTree;
             }
-            return set(currentTree, fullPropertyPath, evalPropertyValue);
-          } else if (isATriggerPath) {
-            return currentTree;
-          } else if (isAction(entity)) {
+            set(evaluatedTree, fullPropertyPath, evalPropertyValue);
+            break;
+          }
+
+          case ENTITY_TYPE.ACTION: {
             if (this.allActionValidationConfig) {
               const configProperty = propertyPath.replace(
                 "config",
@@ -919,7 +934,7 @@ export default class DataTreeEvaluator {
                 this.validateActionProperty(
                   fullPropertyPath,
                   entity,
-                  currentTree,
+                  evaluatedTree,
                   evalPropertyValue,
                   unEvalPropertyValue,
                   validationConfig,
@@ -927,17 +942,18 @@ export default class DataTreeEvaluator {
               }
             }
 
-            if (!propertyPath) return currentTree;
+            if (!propertyPath) continue;
             set(
               this.evalProps,
               getEvalValuePath(fullPropertyPath),
               evalPropertyValue,
             );
-            set(currentTree, fullPropertyPath, evalPropertyValue);
-            return currentTree;
-          } else if (isJSAction(entity)) {
-            const variableList: Array<string> = get(entity, "variables") || [];
-            if (variableList.indexOf(propertyPath) > -1) {
+            set(evaluatedTree, fullPropertyPath, evalPropertyValue);
+            break;
+          }
+
+          case ENTITY_TYPE.JSACTION: {
+            if (entity.variables.indexOf(propertyPath) > -1) {
               console.log(
                 "$$$-variableEVAL",
                 fullPropertyPath,
@@ -951,20 +967,16 @@ export default class DataTreeEvaluator {
                 }),
                 evalPropertyValue,
               );
-              set(currentTree, fullPropertyPath, evalPropertyValue);
+              set(evaluatedTree, fullPropertyPath, evalPropertyValue);
               jsObjectCollection.setVariableValue(
                 evalPropertyValue,
                 fullPropertyPath,
               );
             }
-            return currentTree;
-          } else {
-            return set(currentTree, fullPropertyPath, evalPropertyValue);
+            break;
           }
-        },
-        tree,
-      );
-
+        }
+      }
       return {
         evaluatedTree,
         evalMetaUpdates,
@@ -975,7 +987,7 @@ export default class DataTreeEvaluator {
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds: [] };
+      return { evaluatedTree, evalMetaUpdates, staleMetaIds: [] };
     }
   }
 
