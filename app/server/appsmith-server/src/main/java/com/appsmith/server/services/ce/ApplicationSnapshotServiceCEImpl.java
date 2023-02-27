@@ -16,6 +16,8 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
+
 @RequiredArgsConstructor
 public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServiceCE {
     private final ApplicationSnapshotRepository applicationSnapshotRepository;
@@ -23,6 +25,8 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     private final ImportExportApplicationService importExportApplicationService;
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
+
+    private static final int MAX_SNAPSHOT_SIZE = 15*1024*1024; // 15 MB
 
     @Override
     public Mono<String> createApplicationSnapshot(String applicationId, String branchName) {
@@ -45,6 +49,12 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 .defaultIfEmpty(new ApplicationSnapshot())
                 .flatMap(applicationSnapshot -> {
                     String json = gson.toJson(applicationJson);
+                    // check the size of the exported json before storing to avoid mongodb document size limit
+                    byte[] utf8JsonString = json.getBytes(StandardCharsets.UTF_8);
+                    if(utf8JsonString.length > MAX_SNAPSHOT_SIZE) {
+                        // file may exceed 16 MB document size limit of mongodb, throw error
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Application too large for snapshot"));
+                    }
                     applicationSnapshot.setApplicationJson(json);
                     applicationSnapshot.setApplicationId(applicationId);
                     return applicationSnapshotRepository.save(applicationSnapshot);

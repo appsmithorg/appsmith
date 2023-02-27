@@ -18,7 +18,6 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
@@ -30,7 +29,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QApplicationSnapshot;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
@@ -2809,13 +2807,4 @@ public class DatabaseChangelog2 {
         update.set("datasourceConfiguration.connection.ssl.authType", "DISABLE");
         mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
     }
-
-    @ChangeSet(order = "042", id = "add-index-to-application-snapshot", author = "")
-    public void addIndexToApplicationSnapshot(MongoTemplate mongoTemplate) {
-        Index applicationIdIndex = makeIndex(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId))
-                .named("applicationId_unique_index")
-                .unique();
-        ensureIndexes(mongoTemplate, ApplicationSnapshot.class, applicationIdIndex);
-    }
-
 }

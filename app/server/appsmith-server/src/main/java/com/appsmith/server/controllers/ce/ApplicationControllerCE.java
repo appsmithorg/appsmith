@@ -11,9 +11,9 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
-import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
@@ -23,6 +23,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -46,7 +47,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -185,17 +185,16 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @PostMapping("/snapshot/{id}")
-    public Mono<ResponseDTO<String>> createSnapshot(@PathVariable String id,
-                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<String>> createSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to create snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService.createApplicationSnapshot(id, branchName)
-                .map(snapshotId -> new ResponseDTO<>(HttpStatus.OK.value(), snapshotId, null));
+                .map(snapshotId -> new ResponseDTO<>(HttpStatus.CREATED.value(), snapshotId, null));
     }
 
     @GetMapping("/snapshot/{id}")
-    public Mono<ResponseDTO<ApplicationSnapshot>> getSnapshotWithoutApplicationJson(@PathVariable String id,
-                                                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<ApplicationSnapshot>> getSnapshotWithoutApplicationJson(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService.getWithoutApplicationJsonByApplicationId(id, branchName)
@@ -203,8 +202,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @PostMapping("/snapshot/{id}/restore")
-    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id,
-                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService.restoreSnapshot(id, branchName)
