@@ -37,6 +37,12 @@ const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {
       content={name}
       disabled={!ellipsisActive}
       maxWidth="400px"
+      modifiers={{
+        preventOverflow: {
+          enabled: true,
+          boundariesElement: "viewport",
+        },
+      }}
       position="bottom"
     >
       {tabNameText}
