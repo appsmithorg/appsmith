@@ -687,10 +687,10 @@ const PropertyControl = memo((props: Props) => {
               </>
             )}
             {config.controlType === "ACTION_SELECTOR" ? (
-              <span className="h-9 w-12">
+              <span className="h-9 w-8">
                 <button
                   className={clsx(
-                    "ml-auto h-9 w-12 add-action flex items-center justify-center",
+                    "mr-2 h-9 w-8 add-action flex items-center justify-center",
                     isDynamic && "disabled",
                   )}
                   disabled={isDynamic}
