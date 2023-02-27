@@ -4,46 +4,59 @@ import homePage from "../../../../locators/HomePage";
 let HomePage = ObjectsRegistry.HomePage;
 
 describe("Delete workspace test spec", function() {
-  let newWorkspaceName;
+  let newWorkspaceName, workspaceId;
 
   it("1. Should delete the workspace", function() {
     cy.visit("/applications");
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      newWorkspaceName = interception.response.body.data.name;
-      cy.visit("/applications");
-      cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.contains("Delete Workspace").click();
-      cy.contains("Are you sure").click();
-      cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
-        expect(httpResponse.status).to.equal(200);
+    cy.generateUUID().then((uid) => {
+      workspaceId = uid;
+      cy.createWorkspace();
+      cy.wait("@createWorkspace").then((interception) => {
+        newWorkspaceName = interception.response.body.data.name;
+        cy.visit("/applications");
+        cy.renameWorkspace(newWorkspaceName, workspaceId);
+        newWorkspaceName = workspaceId;
+        cy.wait(500);
+        cy.contains("Delete Workspace").click();
+        cy.contains("Are you sure").click();
+        cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
+          expect(httpResponse.status).to.equal(200);
+        });
+        cy.get(newWorkspaceName).should("not.exist");
       });
-      cy.get(newWorkspaceName).should("not.exist");
     });
   });
 
   it("2. Should show option to delete workspace for an admin user", function() {
     cy.visit("/applications");
     cy.wait(2000);
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      newWorkspaceName = interception.response.body.data.name;
-      cy.visit("/applications");
-      cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.contains("Delete Workspace");
-      HomePage.InviteUserToWorkspace(
-        newWorkspaceName,
-        Cypress.env("TESTUSERNAME1"),
-        "App Viewer",
-      );
-      cy.LogOut();
-      cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-      cy.visit("/applications");
-      cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.get(homePage.workspaceNamePopoverContent)
-        .contains("Delete Workspace")
-        .should("not.exist");
-      cy.LogOut();
+    cy.generateUUID().then((uid) => {
+      workspaceId = uid;
+      cy.createWorkspace();
+      cy.wait("@createWorkspace").then((interception) => {
+        newWorkspaceName = interception.response.body.data.name;
+        cy.visit("/applications");
+        cy.renameWorkspace(newWorkspaceName, workspaceId);
+        newWorkspaceName = workspaceId;
+        cy.wait(500);
+        cy.contains("Delete Workspace");
+        HomePage.InviteUserToWorkspace(
+          newWorkspaceName,
+          Cypress.env("TESTUSERNAME1"),
+          "App Viewer",
+        );
+        cy.LogOut();
+        cy.LogintoApp(
+          Cypress.env("TESTUSERNAME1"),
+          Cypress.env("TESTPASSWORD1"),
+        );
+        cy.visit("/applications");
+        cy.openWorkspaceOptionsPopup(newWorkspaceName);
+        cy.get(homePage.workspaceNamePopoverContent)
+          .contains("Delete Workspace")
+          .should("not.exist");
+        cy.LogOut();
+      });
     });
   });
 });
