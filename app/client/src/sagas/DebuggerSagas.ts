@@ -599,6 +599,8 @@ function* deleteDebuggerErrorLogsSaga(
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
+              appsmithErrorCode: error.pluginErrorDetails.appsmithErrorCode,
+              tat: Date.now() - new Date(parseInt(error.timestamp)).getTime(),
             },
           });
         }),

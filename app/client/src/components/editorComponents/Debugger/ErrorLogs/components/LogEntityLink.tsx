@@ -89,6 +89,9 @@ export default function LogEntityLink(props: LogItemProps) {
         >
           <IconWrapper>{getIcon()}</IconWrapper>
           <EntityLink
+            appsmithErrorCode={props.pluginErrorDetails?.appsmithErrorCode}
+            errorSubType={props.messages && props.messages[0].message.name}
+            errorType={props.logType}
             id={props.source.id}
             name={props.source.name}
             type={props.source.type}
