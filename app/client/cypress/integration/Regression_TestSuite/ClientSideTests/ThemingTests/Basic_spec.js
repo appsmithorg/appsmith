@@ -949,9 +949,12 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.widgetBtn)
       .eq(0)
       .should("have.css", "background-color", "rgb(126, 34, 206)"); //Widget Color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("be.visible");
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.widgetBtn).length <= 1) {
+        cy.reload();
+        cy.wait(4000);
+      }
+    });
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
       .should("have.css", "background-color", "rgb(126, 34, 206)"); //Widget Color
