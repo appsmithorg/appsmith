@@ -7,9 +7,6 @@ describe("Content Management System App", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
 
   it("1.Create Get echo Api call", function() {
     cy.NavigateToAPI_Panel();
@@ -37,6 +34,7 @@ describe("Content Management System App", function() {
     // creating post request using echo
     cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/post");
     cy.contains(apiEditor.bodyTab).click({ force: true });
+    cy.get(apiEditor.jsonBodyTab).click({ force: true });
     cy.xpath(apiwidget.postbody)
       .click({ force: true })
       .clear();
@@ -61,6 +59,7 @@ describe("Content Management System App", function() {
     // creating delete request using echo
     cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/delete");
     cy.contains(apiEditor.bodyTab).click({ force: true });
+    cy.get(apiEditor.jsonBodyTab).click({ force: true });
     // binding the data with widgets in body tab
     cy.xpath(apiwidget.postbody)
       .click({ force: true })
@@ -124,6 +123,7 @@ describe("Content Management System App", function() {
     cy.ResponseCheck("Dan.Wyman@hotmail.com");
     cy.ResponseCheck("Recusan");
   });
+
   /*it("6. Connect app to git, verify data binding in edit and deploy mode", ()=>{
     cy.get(`.t--entity-name:contains("Page1")`)
     .should("be.visible")

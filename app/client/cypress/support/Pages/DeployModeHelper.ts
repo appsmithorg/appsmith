@@ -20,6 +20,8 @@ export class DeployMode {
   _clearDropdown = "button.select-button span.cancel-icon";
   private _jsonFormMultiSelectOptions = (option: string) =>
     `//div[@title='${option}']//input[@type='checkbox']/ancestor::div[@title='${option}']`;
+  private _backtoHome = ".t--back-to-home";
+  private _homeAppsmithImage = "a.t--appsmith-logo";
 
   //refering PublishtheApp from command.js
   public DeployApp(
@@ -68,7 +70,13 @@ export class DeployMode {
     cy.get(this.locator._backToEditor).click();
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
-    this.agHelper.AssertElementVisible(this.locator._dropHere);//Assert if canvas is visible after Navigating back!
+    this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
+  }
+
+  public NavigateToHomeDirectly() {
+    this.agHelper.GetNClick(this._backtoHome);
+    this.agHelper.Sleep(2000);
+    this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
 
   public EnterJSONInputValue(fieldName: string, value: string, index = 0) {

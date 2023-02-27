@@ -219,13 +219,18 @@ describe("List widget v2 - Basic server side data tests", () => {
 
     // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
     cy.get(`${datasource.datasourceCard}`)
-      .contains("Users")
-      .get(`${datasource.createQuery}`)
-      .last()
-      .click({ force: true });
+      .filter(":contains('Users')")
+      .first()
+      .within(() => {
+        cy.get(`${datasource.createQuery}`).click({
+          force: true,
+        });
+      });
 
     // Click the editing field
-    cy.get(".t--action-name-edit-field").click({ force: true });
+    cy.get(".t--action-name-edit-field").click({
+      force: true,
+    });
 
     // Click the editing field
     cy.get(queryLocators.queryNameField).type("Query2");
@@ -233,11 +238,15 @@ describe("List widget v2 - Basic server side data tests", () => {
     // switching off Use Prepared Statement toggle
     cy.get(queryLocators.switch)
       .last()
-      .click({ force: true });
+      .click({
+        force: true,
+      });
 
     //.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();
-    cy.get(queryLocators.query).click({ force: true });
+    cy.get(queryLocators.query).click({
+      force: true,
+    });
 
     // writing query to get the schema
     cy.get(".CodeMirror textarea")
@@ -251,7 +260,9 @@ describe("List widget v2 - Basic server side data tests", () => {
 
     cy.runQuery();
 
-    cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+    cy.get('.t--entity-name:contains("Page1")').click({
+      force: true,
+    });
 
     cy.wait(1000);
 

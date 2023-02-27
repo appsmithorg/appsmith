@@ -1277,6 +1277,7 @@ Cypress.Commands.add(
     const selector = `[data-widgetname-cy="${widgetName}"] .t--draggable-${widgetType}`;
     cy.wait(500);
     cy.get(selector)
+      .first()
       .trigger("mouseover", { force: true })
       .wait(500);
     cy.get(`${selector} .t--widget-propertypane-toggle > .t--widget-name`)

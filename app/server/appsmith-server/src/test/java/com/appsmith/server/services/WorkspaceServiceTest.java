@@ -195,7 +195,7 @@ public class WorkspaceServiceTest {
         String workspaceName = user.computeFirstName() + "'s apps";
         Workspace defaultWorkspace = workspaceRepository.findByName(workspaceName).block();
 
-        PermissionGroup permissionGroup = permissionGroupRepository.findByDefaultWorkspaceId(defaultWorkspace.getId())
+        PermissionGroup permissionGroup = permissionGroupRepository.findByDefaultDomainIdAndDefaultDomainType(defaultWorkspace.getId(), Workspace.class.getSimpleName())
                 .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
                 .blockFirst();
 
@@ -529,15 +529,14 @@ public class WorkspaceServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Workspace workspace = new Workspace();
-        workspace.setName("Test Update Name");
-        workspace.setDomain("example.com");
-        workspace.setWebsite("https://example.com");
-        workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
         for (String validEmail: validEmails) {
-            Mono<Workspace> updateWorkspace = createWorkspace
+            Workspace workspace = new Workspace();
+            workspace.setName("Test Update Name");
+            workspace.setDomain("example.com");
+            workspace.setWebsite("https://example.com");
+            workspace.setSlug("test-update-name");
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
                     .flatMap(t -> {
                         Workspace newWorkspace = new Workspace();
                         newWorkspace.setEmail(validEmail);
@@ -563,15 +562,14 @@ public class WorkspaceServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Workspace workspace = new Workspace();
-        workspace.setName("Test Update Name");
-        workspace.setDomain("example.com");
-        workspace.setWebsite("https://example.com");
-        workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
         String[] invalidEmails = {"invalid@.com", "@invalid.com"};
         for (String invalidEmail : invalidEmails) {
-            Mono<Workspace> updateWorkspace = createWorkspace
+            Workspace workspace = new Workspace();
+            workspace.setName("Test Update Name");
+            workspace.setDomain("example.com");
+            workspace.setWebsite("https://example.com");
+            workspace.setSlug("test-update-name");
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
                     .flatMap(t -> {
                         Workspace newWorkspace = new Workspace();
                         newWorkspace.setEmail(invalidEmail);
@@ -595,19 +593,18 @@ public class WorkspaceServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Workspace workspace = new Workspace();
-        workspace.setName("Test Update Name");
-        workspace.setDomain("example.com");
-        workspace.setWebsite("https://example.com");
-        workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
         String[] validWebsites = {"https://www.valid.website.com", "http://www.valid.website.com",
                 "https://valid.website.com", "http://valid.website.com", "www.valid.website.com", "valid.website.com",
                 "valid-website.com", "valid.12345.com", "12345.com", "https://www.valid.website.com/",
                 "http://www.valid.website.com/", "https://valid.website.complete/", "http://valid.website.com/",
                 "www.valid.website.com/", "valid.website.com/", "valid-website.com/", "valid.12345.com/", "12345.com/"};
         for (String validWebsite: validWebsites) {
-            Mono<Workspace> updateWorkspace = createWorkspace
+            Workspace workspace = new Workspace();
+            workspace.setName("Test Update Name");
+            workspace.setDomain("example.com");
+            workspace.setWebsite("https://example.com");
+            workspace.setSlug("test-update-name");
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
                     .flatMap(t -> {
                         Workspace newWorkspace = new Workspace();
                         newWorkspace.setWebsite(validWebsite);
@@ -633,16 +630,15 @@ public class WorkspaceServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Workspace workspace = new Workspace();
-        workspace.setName("Test Update Name");
-        workspace.setDomain("example.com");
-        workspace.setWebsite("https://example.com");
-        workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
         String[] invalidWebsites = {"htp://www.invalid.website.com", "htp://invalid.website.com", "htp://www", "www",
                 "www."};
         for (String invalidWebsite : invalidWebsites) {
-            Mono<Workspace> updateWorkspace = createWorkspace
+            Workspace workspace = new Workspace();
+            workspace.setName("Test Update Name");
+            workspace.setDomain("example.com");
+            workspace.setWebsite("https://example.com");
+            workspace.setSlug("test-update-name");
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
                     .flatMap(t -> {
                         Workspace newWorkspace = new Workspace();
                         newWorkspace.setWebsite(invalidWebsite);
