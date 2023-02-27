@@ -319,7 +319,7 @@ export function listEntityPathDependencies(
   }
 
   if (isJSAction(entity)) {
-    if (entity.reactivePaths.hasOwnProperty(propertyPath)) {
+    if (entity.bindingPaths.hasOwnProperty(propertyPath)) {
       const unevalPropValue = get(entity, propertyPath);
       const unevalPropValueString =
         !!unevalPropValue && unevalPropValue.toString();
@@ -387,10 +387,10 @@ export function updateMap(
   map: DependencyMap,
   path: string,
   updates: string[],
-  options: Partial<{ deleteOnEmpty: boolean; clearOldValue: boolean }> = {},
+  options: Partial<{ deleteOnEmpty: boolean; replaceValue: boolean }> = {},
 ) {
-  const { clearOldValue, deleteOnEmpty } = options;
-  const oldValue = clearOldValue ? [] : map[path];
+  const { deleteOnEmpty, replaceValue } = options;
+  const oldValue = replaceValue ? [] : map[path];
   const updatedEntries = mergeArrays(oldValue, updates);
   if (deleteOnEmpty && isEmpty(updatedEntries)) {
     delete map[path];
