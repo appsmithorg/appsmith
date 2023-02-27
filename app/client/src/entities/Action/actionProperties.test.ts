@@ -145,8 +145,8 @@ describe("getReactivePathsOfAction", () => {
       },
     };
 
-    // @ts-expect-error: Types are not available
     const response = getBindingAndReactivePathsOfAction(
+      // @ts-expect-error: Types are not available
       basicAction,
       config,
     ).reactivePaths;
@@ -203,8 +203,8 @@ describe("getReactivePathsOfAction", () => {
       },
     };
 
-    // @ts-expect-error: Types are not available
     const response = getBindingAndReactivePathsOfAction(
+      // @ts-expect-error: Types are not available
       basicAction,
       config,
     ).reactivePaths;
