@@ -81,6 +81,7 @@ export default function(request: EvalWorkerSyncRequest) {
           sanitizeDataTree: false,
         }),
         requiresLinting,
+        dataTreeEvaluator.JSPropertiesState,
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -121,6 +122,7 @@ export default function(request: EvalWorkerSyncRequest) {
           sanitizeDataTree: false,
         }),
         requiresLinting,
+        dataTreeEvaluator.JSPropertiesState,
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -152,6 +154,7 @@ export default function(request: EvalWorkerSyncRequest) {
           sanitizeDataTree: false,
         }),
         requiresLinting,
+        dataTreeEvaluator.JSPropertiesState,
       );
 
       nonDynamicFieldValidationOrder =

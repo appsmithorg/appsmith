@@ -65,8 +65,18 @@ function eventRequestHandler({
     case LINT_WORKER_ACTIONS.LINT_TREE: {
       const lintTreeResponse: LintTreeResponse = { errors: {} };
       try {
-        const { pathsToLint, unevalTree } = requestData as LintTreeRequest;
-        const lintErrors = getlintErrorsFromTree(pathsToLint, unevalTree);
+        const {
+          jsState,
+          jsStateDiff,
+          pathsToLint,
+          unevalTree,
+        } = requestData as LintTreeRequest;
+        const lintErrors = getlintErrorsFromTree(
+          pathsToLint,
+          unevalTree,
+          jsState,
+          jsStateDiff,
+        );
         lintTreeResponse.errors = lintErrors;
       } catch (e) {}
       return lintTreeResponse;
@@ -89,6 +99,7 @@ function eventRequestHandler({
       }
       return true;
     }
+
     default: {
       // eslint-disable-next-line no-console
       console.error("Action not registered on lintWorker ", method);

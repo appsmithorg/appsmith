@@ -104,11 +104,22 @@ import {
   isMetaWidgetTemplate,
   isWidgetDefaultPropertyPath,
 } from "entities/DataTree/utils";
+import { JSPropertyPosition } from "@shared/ast";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
   [entityName: string]: DataTreeEvaluationProps;
 };
+
+export interface TJSpropertyState {
+  value: string;
+  position: JSPropertyPosition;
+}
+
+export type TJSPropertiesState = Record<
+  string,
+  Record<string, TJSpropertyState>
+>;
 
 export default class DataTreeEvaluator {
   /**
@@ -130,6 +141,7 @@ export default class DataTreeEvaluator {
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
+  JSPropertiesState: TJSPropertiesState = {};
   logs: unknown[] = [];
   userLogs: UserLogObject[] = [];
   allActionValidationConfig?: {

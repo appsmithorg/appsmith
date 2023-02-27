@@ -86,7 +86,11 @@ import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { Placement } from "@blueprintjs/popover2";
-import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
+import {
+  aggregatedPathLintErrors,
+  getLintAnnotations,
+  getLintTooltipDirection,
+} from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdate } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
@@ -781,8 +785,9 @@ class CodeEditor extends Component<Props, State> {
 
   handleLintTooltip = () => {
     const { lintErrors } = this.props;
+    const aggregatedLintErrors = aggregatedPathLintErrors(lintErrors);
 
-    if (lintErrors.length === 0) return;
+    if (aggregatedLintErrors.length === 0) return;
     const lintTooltipList = document.getElementsByClassName(LINT_TOOLTIP_CLASS);
     if (!lintTooltipList) return;
     for (const tooltip of lintTooltipList) {
@@ -968,10 +973,14 @@ class CodeEditor extends Component<Props, State> {
     }
     const lintErrors = this.props.lintErrors;
 
-    const annotations = getLintAnnotations(editor.getValue(), lintErrors, {
-      isJSObject,
-      contextData,
-    });
+    const annotations = getLintAnnotations(
+      editor.getValue(),
+      aggregatedPathLintErrors(lintErrors),
+      {
+        isJSObject,
+        contextData,
+      },
+    );
 
     this.updateLintingCallback(editor, annotations);
   }

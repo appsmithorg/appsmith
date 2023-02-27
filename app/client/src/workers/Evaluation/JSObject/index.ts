@@ -2,7 +2,7 @@ import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
+import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import evaluateSync from "workers/Evaluation/evaluate";
 import {
@@ -78,12 +78,12 @@ export function saveResolvedFunctionsAndJSUpdates(
 ) {
   const correctFormat = regex.test(entity.body);
   if (correctFormat) {
-    const body = entity.body.replace(/export default/g, "");
     try {
       delete dataTreeEvalRef.resolvedFunctions[`${entityName}`];
       delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
+      delete dataTreeEvalRef.JSPropertiesState[`${entityName}`];
       const parseStartTime = performance.now();
-      const parsedObject = parseJSObjectWithAST(body);
+      const parsedObject = parseJSObject(entity.body);
       const parseEndTime = performance.now();
       const JSObjectASTParseTime = parseEndTime - parseStartTime;
       dataTreeEvalRef.logs.push({
@@ -94,7 +94,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       const variables: any = [];
       if (!!parsedObject) {
         parsedObject.forEach((parsedElement) => {
-          if (isTypeOfFunction(parsedElement.type)) {
+          if (isJSFunctionProperty(parsedElement)) {
             try {
               const { result } = evaluateSync(
                 parsedElement.value,
@@ -128,6 +128,14 @@ export function saveResolvedFunctionsAndJSUpdates(
                   `${entityName}.${parsedElement.key}`,
                   functionString,
                 );
+                set(
+                  dataTreeEvalRef.JSPropertiesState,
+                  `[${entityName},${parsedElement.key}]`,
+                  {
+                    position: parsedElement.position,
+                    value: parsedElement.value,
+                  },
+                );
                 actions.push({
                   name: parsedElement.key,
                   body: functionString,
@@ -150,6 +158,14 @@ export function saveResolvedFunctionsAndJSUpdates(
               parsedElement.value,
             );
           }
+          set(
+            dataTreeEvalRef.JSPropertiesState,
+            `[${entityName},${parsedElement.key}]`,
+            {
+              position: parsedElement.position,
+              value: parsedElement.value,
+            },
+          );
         });
         const parsedBody = {
           body: entity.body,

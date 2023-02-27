@@ -21,7 +21,13 @@ import {
 import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 
 // JSObjects
-import { parseJSObjectWithAST } from "./src/jsObject";
+import {
+  parseJSObjectWithAST,
+  parseJSObject,
+  isJSFunctionProperty,
+  TParsedJSProperty,
+  JSPropertyPosition,
+} from "./src/jsObject";
 
 // types or intefaces should be exported with type keyword, while enums can be exported like normal functions
 export type {
@@ -29,6 +35,8 @@ export type {
   PropertyNode,
   MemberExpressionData,
   IdentifierInfo,
+  TParsedJSProperty,
+  JSPropertyPosition,
 };
 
 export {
@@ -45,7 +53,9 @@ export {
   getFunctionalParamsFromNode,
   isTypeOfFunction,
   parseJSObjectWithAST,
+  parseJSObject,
   ECMA_VERSION,
   SourceType,
   NodeTypes,
+  isJSFunctionProperty,
 };

@@ -70,7 +70,7 @@ import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
 import { LibraryState } from "reducers/uiReducers/libraryReducer";
 import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
-import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import lintErrorReducer from "reducers/lintingReducers";
 import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 import { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
@@ -159,7 +159,7 @@ export interface AppState {
     triggers: TriggerValuesEvaluationState;
   };
   linting: {
-    errors: LintErrors;
+    errors: LintErrorsStore;
   };
   form: {
     [key: string]: any;
