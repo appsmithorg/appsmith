@@ -53,7 +53,9 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                     byte[] utf8JsonString = json.getBytes(StandardCharsets.UTF_8);
                     if(utf8JsonString.length > MAX_SNAPSHOT_SIZE) {
                         // file may exceed 16 MB document size limit of mongodb, throw error
-                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Application too large for snapshot"));
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST,
+                                "Application too large for snapshot. Try exporting the Application instead.")
+                        );
                     }
                     applicationSnapshot.setApplicationJson(json);
                     applicationSnapshot.setApplicationId(applicationId);
