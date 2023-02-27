@@ -11,6 +11,7 @@ const deployMode = ObjectsRegistry.DeployMode;
 const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 const gitSync = ObjectsRegistry.GitSync;
 let repoName;
+let mainBranch = "master";
 let tempBranch = "feat/tempBranch";
 
 describe("Tests JS Library with Git", () => {
@@ -53,19 +54,29 @@ describe("Tests JS Library with Git", () => {
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get(gitSyncLocators.commitCommentInput).should("be.disabled");
     cy.get(gitSyncLocators.commitButton).should("be.disabled");
-    cy.switchGitBranch(tempBranch);
-    agHelper.AssertElementExist(gitSync._bottomBarPull);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
   it("3. Merge custom js lib changes from child branch to master, verify changes are merged", () => {
+    cy.switchGitBranch(tempBranch);
+    agHelper.AssertElementExist(gitSync._bottomBarPull);
     explorer.ExpandCollapseEntity("Libraries");
     installer.openInstaller();
     installer.installLibrary("jspdf", "jspdf");
-    cy.commitAndPush();
-    cy.merge("master");
-    cy.pause();
-    // verify custom js library present in master branch
-    cy.switchGitBranch("master");
+    //cy.commitAndPush();
+
+    cy.get(HomePage.publishButton).click();
+    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+    cy.get(gitSyncLocators.commitButton).click();
+    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.wait(2000);
+    cy.merge(mainBranch);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.wait(2000);
+    // verify custom js library is present in master branch
+    cy.switchGitBranch(mainBranch);
     agHelper.AssertElementExist(gitSync._bottomBarPull);
     explorer.ExpandCollapseEntity("Libraries");
     installer.assertLibraryinExplorer("jspdf");
