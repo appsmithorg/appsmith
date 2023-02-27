@@ -7,13 +7,10 @@ describe("Table Widget Filtered Table Data in autocomplete", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-
-  it("Table Widget Functionality", function() {
+  
+  it("Table Widget Functionality To Filter and search data", function() {
     cy.openPropertyPane("tablewidget");
     cy.wait("@updateLayout");
-  });
-
-  it("Table Widget Functionality To Filter and search data", function() {
     cy.get(publish.searchInput)
       .first()
       .type("query");
@@ -40,9 +37,8 @@ describe("Table Widget Filtered Table Data in autocomplete", function() {
       const tableData = tabData;
       cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
     });
-  });
 
-  it("Table Widget Functionality to validate filtered table data with actual table data", function() {
+    //Table Widget Functionality to validate filtered table data with actual table data
     cy.readTabledata("0", "1").then((tabData) => {
       const tableData = JSON.parse(dsl.dsl.children[0].tableData);
       cy.get(commonlocators.labelTextStyle).should(

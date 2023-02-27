@@ -5,7 +5,7 @@ import homePage from "../../../../locators/HomePage";
 describe("Workspace name validation spec", function() {
   let workspaceId;
   let newWorkspaceName;
-  it("create workspace with leading space validation", function() {
+  it("1. create workspace with leading space validation", function() {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -23,7 +23,7 @@ describe("Workspace name validation spec", function() {
       cy.get(".error-message").should("be.visible");
     });
   });
-  it("creates workspace and checks that workspace name is editable", function() {
+  it("2. creates workspace and checks that workspace name is editable and create workspace with special characters validation", function() {
     cy.createWorkspace();
     cy.generateUUID().then((uid) => {
       workspaceId =
@@ -34,10 +34,26 @@ describe("Workspace name validation spec", function() {
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;
         cy.renameWorkspace(newWorkspaceName, workspaceId);
+        // check if user icons exists in that workspace on homepage
+        cy.get(homePage.workspaceList.concat(workspaceId).concat(")"))
+          .scrollIntoView()
+          .should("be.visible")
+          .within(() => {
+            cy.get(homePage.shareUserIcons)
+              .first()
+              .should("be.visible");
+          });
+        cy.navigateToWorkspaceSettings(workspaceId);
+        // checking parent's(<a></a>) since the child(<span>) inherits css from it
+        cy.get(homePage.workspaceHeaderName).should(
+          "have.css",
+          "text-overflow",
+          "ellipsis",
+        );
       });
     });
-  });
-  it("create workspace with special characters validation", function() {
+    cy.NavigateToHome();
+    // create workspace with special character
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
