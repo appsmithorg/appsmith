@@ -59,4 +59,10 @@ export class LibraryInstaller {
       this.getLibraryLocatorInExplorer(libraryName),
     );
   }
+
+  public assertLibraryinExplorer(libraryName: string){
+    this._aggregateHelper.AssertElementExist(
+      this.getLibraryLocatorInExplorer(libraryName),
+    );
+  }
 }
