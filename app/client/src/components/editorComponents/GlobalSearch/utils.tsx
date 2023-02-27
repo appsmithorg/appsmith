@@ -362,7 +362,7 @@ export const actionOperations: ActionOperation[] = [
     title: "New JS Object",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
-    icon: JsFileIconV2,
+    icon: JsFileIconV2(),
     action: (pageId: string, from: EventLocation) =>
       createNewJSCollection(pageId, from),
   },

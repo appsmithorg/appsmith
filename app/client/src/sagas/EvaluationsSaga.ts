@@ -96,10 +96,6 @@ import {
   UnEvalTree,
   UnEvalTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppTheme } from "entities/AppTheming";
-import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { lintWorker } from "./LintingSagas";
 import {
   EvalTreeRequestData,
@@ -107,6 +103,9 @@ import {
 } from "workers/Evaluation/types";
 import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
+import { getAppsmithConfigs } from "ce/configs";
+
+const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -120,53 +119,13 @@ export const evalWorker = new GracefulWorkerService(
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
-/**
- * This saga is responsible for evaluating the data tree
- * @param postEvalActions
- * @param shouldReplay
- * @param requiresLinting
- * @param forceEvaluation - if true, will re-evaluate the entire tree
- * @returns
- * @example
- * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
- */
-export function* evaluateTreeSaga(
-  postEvalActions?: Array<AnyReduxAction>,
-  shouldReplay = true,
-  requiresLinting = false,
-  forceEvaluation = false,
+export function* updateDataTreeHandler(
+  data: EvalTreeResponseData,
+  extraData: {
+    unevalTree: UnEvalTree;
+    postEvalActions?: Array<AnyReduxAction>;
+  },
 ) {
-  const allActionValidationConfig: {
-    [actionId: string]: ActionValidationConfigMap;
-  } = yield select(getAllActionValidationConfig);
-  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
-  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
-  const theme: AppTheme = yield select(getSelectedAppTheme);
-  const appMode: APP_MODE | undefined = yield select(getAppMode);
-  const isEditMode = appMode === APP_MODE.EDIT;
-  log.debug({ unevalTree });
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.DATA_TREE_EVALUATION,
-  );
-  const evalTreeRequestData: EvalTreeRequestData = {
-    unevalTree,
-    widgetTypeConfigMap,
-    widgets,
-    theme,
-    shouldReplay,
-    allActionValidationConfig,
-    requiresLinting: isEditMode && requiresLinting,
-    forceEvaluation,
-    metaWidgets,
-  };
-
-  const workerResponse: EvalTreeResponseData = yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.EVAL_TREE,
-    evalTreeRequestData,
-  );
-
   const {
     dataTree,
     dependencies,
@@ -178,14 +137,19 @@ export function* evaluateTreeSaga(
     unEvalUpdates,
     isCreateFirstTree = false,
     staleMetaIds,
-  } = workerResponse;
+    pathsToClearErrorsFor,
+  } = data;
+
+  const { postEvalActions, unevalTree } = extraData;
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree: DataTree = yield select(getDataTree);
+  const oldDataTree: ReturnType<typeof getDataTree> = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
 
@@ -208,7 +172,13 @@ export function* evaluateTreeSaga(
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
-  yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
+  yield call(
+    evalErrorHandler as any,
+    errors,
+    updatedDataTree,
+    evaluationOrder,
+    pathsToClearErrorsFor,
+  );
 
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
@@ -233,6 +203,65 @@ export function* evaluateTreeSaga(
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
+}
+
+/**
+ * This saga is responsible for evaluating the data tree
+ * @param postEvalActions
+ * @param shouldReplay
+ * @param requiresLinting
+ * @param forceEvaluation - if true, will re-evaluate the entire tree
+ * @returns
+ * @example
+ * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
+ */
+export function* evaluateTreeSaga(
+  postEvalActions?: Array<AnyReduxAction>,
+  shouldReplay = true,
+  requiresLinting = false,
+  forceEvaluation = false,
+) {
+  const allActionValidationConfig: ReturnType<typeof getAllActionValidationConfig> = yield select(
+    getAllActionValidationConfig,
+  );
+  const unevalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
+    getUnevaluatedDataTree,
+  );
+  const widgets: ReturnType<typeof getWidgets> = yield select(getWidgets);
+  const metaWidgets: ReturnType<typeof getMetaWidgets> = yield select(
+    getMetaWidgets,
+  );
+  const theme: ReturnType<typeof getSelectedAppTheme> = yield select(
+    getSelectedAppTheme,
+  );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+  const isEditMode = appMode === APP_MODE.EDIT;
+  log.debug({ unevalTree });
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
+  const evalTreeRequestData: EvalTreeRequestData = {
+    unevalTree,
+    widgetTypeConfigMap,
+    widgets,
+    theme,
+    shouldReplay,
+    allActionValidationConfig,
+    requiresLinting: isEditMode && requiresLinting,
+    forceEvaluation,
+    metaWidgets,
+  };
+
+  const workerResponse: EvalTreeResponseData = yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.EVAL_TREE,
+    evalTreeRequestData,
+  );
+
+  yield updateDataTreeHandler(workerResponse, {
+    unevalTree,
+    postEvalActions,
+  });
 }
 
 export function* evaluateActionBindings(
@@ -282,7 +311,9 @@ export function* evaluateAndExecuteDynamicTrigger(
       errors[0].errorMessage !==
       "UncaughtPromiseRejection: User cancelled action execution"
     ) {
-      const errorMessage = errors[0].errorMessage || errors[0].message;
+      const errorMessage =
+        `${errors[0].errorMessage.name}: ${errors[0].errorMessage.message}` ||
+        errors[0].message;
       throw new UncaughtPromiseError(errorMessage);
     }
   }
@@ -372,39 +403,11 @@ function* executeAsyncJSFunction(
   return response;
 }
 
-function* executeSyncJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
-  const functionCall = `${collectionName}.${action.name}()`;
-  const triggerMeta = {
-    source: {
-      id: collectionId,
-      name: `${collectionName}.${action.name}`,
-      type: ENTITY_TYPE.JSACTION,
-    },
-    triggerPropertyName: `${collectionName}.${action.name}`,
-  };
-  const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
-  const response: JSFunctionExecutionResponse = yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS,
-    {
-      functionCall,
-      triggerMeta,
-      eventType,
-    },
-  );
-  return response;
-}
-
 export function* executeJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
 ) {
-  const { isAsync } = action.actionConfiguration;
   let response: {
     errors: unknown[];
     result: unknown;
@@ -412,21 +415,12 @@ export function* executeJSFunction(
   };
 
   try {
-    if (isAsync) {
-      response = yield call(
-        executeAsyncJSFunction,
-        collectionName,
-        action,
-        collectionId,
-      );
-    } else {
-      response = yield call(
-        executeSyncJSFunction,
-        collectionName,
-        action,
-        collectionId,
-      );
-    }
+    response = yield call(
+      executeAsyncJSFunction,
+      collectionName,
+      action,
+      collectionId,
+    );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
       logActionExecutionError(e.message);
@@ -542,7 +536,9 @@ function* evaluationChangeListenerSaga(): any {
     call(lintWorker.start),
   ]);
 
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
+    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
+  });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();

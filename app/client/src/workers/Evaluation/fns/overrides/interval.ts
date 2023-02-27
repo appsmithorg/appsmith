@@ -33,7 +33,6 @@ export function setInterval(
     (...args: any[]) => {
       const evalContext = createEvaluationContext({
         dataTree: dataTreeEvaluator?.evalTree || {},
-        resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,
       });
       self["$isDataField"] = false;
@@ -42,7 +41,7 @@ export function setInterval(
         metaData.triggerMeta,
         metaData.eventType,
       );
-      callback(...args);
+      typeof callback === "function" && callback(...args);
     },
     delay,
     ...args,

@@ -11,12 +11,5 @@ export default function(request: EvalWorkerSyncRequest) {
   }
   ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
   const evalTree = dataTreeEvaluator.evalTree;
-  const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-  return evaluateSync(
-    functionCall,
-    evalTree,
-    resolvedFunctions,
-    false,
-    undefined,
-  );
+  return evaluateSync(functionCall, evalTree, false, undefined);
 }

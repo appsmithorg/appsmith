@@ -14,6 +14,7 @@ export const renderBodyCheckBoxCell = (
     accentColor={accentColor}
     borderRadius={borderRadius}
     className="td t--table-multiselect"
+    data-sticky-td="true"
     isCellVisible
     isChecked={isChecked}
   >
@@ -35,6 +36,7 @@ export const renderHeaderCheckBoxCell = (
     accentColor={accentColor}
     borderRadius={borderRadius}
     className="th header-reorder t--table-multiselect-header"
+    data-sticky-td="true"
     isChecked={!!checkState}
     onClick={onClick}
     role="columnheader"

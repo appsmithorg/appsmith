@@ -14,6 +14,8 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import JSVariableUpdates from "./JSObject/JSVariableUpdates";
+import { jsObjectCollection } from "./JSObject/Collection";
 
 export type EvalResult = {
   result: any;
@@ -67,9 +69,10 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
   return acc;
 }, {} as any);
 
-function resetWorkerGlobalScope() {
+function resetWorkerGlobalScope(dataTree: DataTree) {
   self.$isDataField = false;
   for (const key of Object.keys(self)) {
+    if (dataTree[key]) continue;
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     //TODO: Remove this once we have a better way to handle this
     if (["evaluationVersion", "window", "document", "location"].includes(key))
@@ -115,10 +118,8 @@ export const getScriptToEval = (
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export type EvalContext = Record<string, any>;
-type ResolvedFunctions = Record<string, any>;
 export interface createEvaluationContextArgs {
   dataTree: DataTree;
-  resolvedFunctions: ResolvedFunctions;
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
@@ -137,7 +138,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
-    resolvedFunctions,
     skipEntityFunctions,
   } = args;
 
@@ -158,16 +158,15 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, isTriggerBased);
-
+  assignJSFunctionsToContext(EVAL_CONTEXT, isTriggerBased);
   return EVAL_CONTEXT;
 };
 
 export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
-  resolvedFunctions: ResolvedFunctions,
   isTriggerBased: boolean,
 ) => {
+  const resolvedFunctions = jsObjectCollection.getResolvedFunctions();
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];
@@ -189,7 +188,8 @@ export const assignJSFunctionsToContext = (
       }
     }
 
-    EVAL_CONTEXT[jsObjectName] = Object.assign({}, jsObject, jsObjectFunction);
+    // TODO: check this once again
+    Object.assign(EVAL_CONTEXT[jsObjectName], jsObjectFunction);
   }
 };
 
@@ -234,13 +234,13 @@ export const getUserScriptToEvaluate = (
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
   return (function() {
-    resetWorkerGlobalScope();
+    resetWorkerGlobalScope(dataTree);
+    JSVariableUpdates.disable();
     const errors: EvaluationError[] = [];
     let result;
 
@@ -249,7 +249,6 @@ export default function evaluateSync(
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
-      resolvedFunctions,
       context,
       evalArguments,
       isTriggerBased: isJSCollection,
@@ -295,12 +294,7 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      for (const entityName in evalContext) {
-        if (evalContext.hasOwnProperty(entityName)) {
-          // @ts-expect-error: Types are not available
-          delete self[entityName];
-        }
-      }
+      JSVariableUpdates.enable();
       self["$isDataField"] = false;
     }
     return { result, errors };
@@ -310,19 +304,17 @@ export default function evaluateSync(
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
   return (async function() {
-    resetWorkerGlobalScope();
+    resetWorkerGlobalScope(dataTree);
     const errors: EvaluationError[] = [];
     let result;
 
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
-      resolvedFunctions,
       context,
       evalArguments,
       isTriggerBased: true,
@@ -341,8 +333,11 @@ export async function evaluateAsync(
     } catch (e) {
       const error = e as Error;
       const errorMessage = error.name
-        ? `${error.name}: ${error.message}`
-        : `UncaughtPromiseRejection: ${error.message}`;
+        ? { name: error.name, message: error.message }
+        : {
+            name: "UncaughtPromiseRejection",
+            message: `${error.message}`,
+          };
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,

@@ -1,6 +1,5 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-
 describe("Invalid JSObject export statement", function() {
   it("Shows error toast for invalid js object export statement", function() {
     const JSObjectWithInvalidExport = `{

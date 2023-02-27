@@ -1,17 +1,20 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import JSVariableUpdates from "./JSObject/JSVariableUpdates";
 import userLogs from "./fns/overrides/console";
 
 class FunctionDeterminer {
   private evalContext: EvalContext = {};
 
-  setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
+  setupEval(dataTree: DataTree) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
       $isDataField: true,
       $isAsync: false,
     };
+
+    JSVariableUpdates.disable();
 
     addDataTreeToContext({
       dataTree,
@@ -19,7 +22,7 @@ class FunctionDeterminer {
       isTriggerBased: true,
     });
 
-    assignJSFunctionsToContext(evalContext, resolvedFunctions, true);
+    assignJSFunctionsToContext(evalContext, true);
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -32,6 +35,7 @@ class FunctionDeterminer {
 
   close() {
     userLogs.enable();
+    JSVariableUpdates.enable();
     for (const entityName in this.evalContext) {
       if (this.evalContext.hasOwnProperty(entityName)) {
         // @ts-expect-error: Types are not available
@@ -41,6 +45,7 @@ class FunctionDeterminer {
   }
 
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {
+    self["$isDataField"] = true;
     self["$isAsync"] = false;
 
     return (function() {
@@ -59,7 +64,7 @@ class FunctionDeterminer {
       } catch (e) {
         // We do not want to throw errors for internal operations, to users.
         // logLevel should help us in debugging this.
-        logs.push({ error: "Error when determining async function" + e });
+        logs.push({ error: "Error when determining async function " + e });
       }
       const isAsync = !!self["$isAsync"];
 

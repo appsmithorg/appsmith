@@ -1,10 +1,21 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeEntity,
+  DataTreeJSAction,
+  DataTreeObjectEntity,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
+import set from "lodash/set";
 import { EvalContext } from "workers/Evaluation/evaluate";
+import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
+import JSProxy from "workers/Evaluation/JSObject/JSVariableProxy";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
-import { set } from "lodash";
-import { entityFns, platformFns } from "@appsmith/workers/Evaluation/fns";
+import {
+  entityFns,
+  getPlatformFunctions,
+} from "@appsmith/workers/Evaluation/fns";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -15,6 +26,7 @@ declare global {
     $isDataField: boolean;
     $isAsync: boolean;
     $evaluationVersion: EvaluationVersion;
+    $cloudHosting: boolean;
   }
 }
 
@@ -42,7 +54,8 @@ export const addDataTreeToContext = (args: {
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
   for (const [entityName, entity] of dataTreeEntries) {
-    EVAL_CONTEXT[entityName] = entity;
+    setEntityToEvalContext(entity, entityName, EVAL_CONTEXT);
+
     if (skipEntityFunctions || !isTriggerBased) continue;
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
@@ -63,7 +76,7 @@ export const addDataTreeToContext = (args: {
 };
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
-  for (const fnDef of platformFns) {
+  for (const fnDef of getPlatformFunctions(self.$cloudHosting)) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));
   }
 };
@@ -78,8 +91,38 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
       asyncFunctionNameMap[fullPath] = true;
     }
   }
-  for (const platformFn of platformFns) {
+  for (const platformFn of getPlatformFunctions(self.$cloudHosting)) {
     asyncFunctionNameMap[platformFn.name] = true;
   }
   return asyncFunctionNameMap;
 };
+
+function setEntityToEvalContext(
+  entity: DataTreeEntity,
+  entityName: string,
+  EVAL_CONTEXT: EvalContext,
+) {
+  const dataTreeObjectEntity = entity as DataTreeObjectEntity;
+
+  if (dataTreeObjectEntity.ENTITY_TYPE) {
+    switch (dataTreeObjectEntity.ENTITY_TYPE) {
+      case ENTITY_TYPE.JSACTION: {
+        const varState = jsObjectCollection.getCurrentVariableState(entityName);
+        if (varState) {
+          if (self.$isDataField) {
+            EVAL_CONTEXT[entityName] = varState;
+            return;
+          }
+
+          EVAL_CONTEXT[entityName] = JSProxy.create(
+            entity as DataTreeJSAction,
+            entityName,
+            varState,
+          );
+          return;
+        }
+      }
+    }
+  }
+  EVAL_CONTEXT[entityName] = entity;
+}

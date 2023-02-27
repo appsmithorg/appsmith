@@ -2,6 +2,8 @@
 import { WorkerErrorTypes } from "ce/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
+import { removeProxyObject } from "workers/Evaluation/JSObject";
+import { evaluateAsync } from "workers/Evaluation/evaluate";
 type TPromiseResponse =
   | {
       data: any;
@@ -11,6 +13,8 @@ type TPromiseResponse =
       error: { message: string; errorBody: unknown };
       data: null;
     };
+
+type AsyncEvalResponse = Awaited<ReturnType<typeof evaluateAsync>>;
 
 function responseHandler(requestId: string): Promise<TPromiseResponse> {
   return new Promise((resolve) => {
@@ -23,6 +27,22 @@ function responseHandler(requestId: string): Promise<TPromiseResponse> {
     };
     self.addEventListener("message", listener);
   });
+}
+
+/**
+ * Convert proxy data to target object
+ * @param data
+ * @returns
+ */
+function sanitizeData(data: unknown) {
+  const responseData = data;
+  if (typeof data === "object" && (responseData as AsyncEvalResponse).result) {
+    (responseData as AsyncEvalResponse).result = removeProxyObject(
+      (data as AsyncEvalResponse).result,
+    );
+  }
+
+  return responseData;
 }
 
 export class WorkerMessenger {
@@ -49,7 +69,7 @@ export class WorkerMessenger {
       sendMessage.call(self, {
         messageId,
         messageType: MessageType.RESPONSE,
-        body: { data, timeTaken },
+        body: { data: sanitizeData(data), timeTaken },
       });
     } catch (e) {
       console.error(e);

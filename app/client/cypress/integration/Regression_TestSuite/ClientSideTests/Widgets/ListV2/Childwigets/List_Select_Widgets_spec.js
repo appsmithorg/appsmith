@@ -75,6 +75,7 @@ describe("Select Widgets", function() {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
+    agHelper.Sleep();
 
     // Page 2
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {

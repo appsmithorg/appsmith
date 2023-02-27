@@ -22,7 +22,7 @@ export type FormDatasourceButtonConfigs = Record<string, string[]>;
 
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
-  DATA_BIND_REGEX.test(value);
+  typeof value === "string" && DATA_BIND_REGEX.test(value);
 
 //{{}}{{}}}
 export function getDynamicStringSegments(dynamicString: string): string[] {
@@ -354,10 +354,9 @@ export enum PropertyEvaluationErrorType {
   PARSE = "PARSE",
   LINT = "LINT",
 }
-
 export interface DataTreeError {
   raw: string;
-  errorMessage: string;
+  errorMessage: Error;
   severity: Severity.WARNING | Severity.ERROR;
 }
 
