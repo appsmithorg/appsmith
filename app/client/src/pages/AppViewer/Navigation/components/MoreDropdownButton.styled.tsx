@@ -134,4 +134,16 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
         getMenuItemTextColor(primaryColor, navColorStyle)};
     }
   }
+
+  &.is-active {
+    background-color: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
+
+    .page-icon svg path {
+      fill: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+      stroke: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+    }
+  }
 `;

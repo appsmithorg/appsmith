@@ -3,6 +3,7 @@ import { getTypographyByKey } from "design-system-old";
 import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import styled from "styled-components";
 import { StyledMenuItem } from "./MenuItem.styled";
+import { StyledMenuItemInDropdown } from "./MoreDropdownButton.styled";
 
 export const StyledMenuItemText = styled.div<{
   primaryColor: string;
@@ -29,7 +30,9 @@ export const StyledMenuItemText = styled.div<{
     align-items: center;
   }
 
-  ${StyledMenuItem}:hover &, ${StyledMenuItem}.is-active & {
+  ${StyledMenuItem}:hover &, 
+  ${StyledMenuItem}.is-active &, 
+  ${StyledMenuItemInDropdown}.is-active & {
     color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemTextColor(primaryColor, navColorStyle)};
   }
