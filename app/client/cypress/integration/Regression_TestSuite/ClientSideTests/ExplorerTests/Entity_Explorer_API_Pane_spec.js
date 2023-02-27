@@ -79,7 +79,7 @@ describe("Entity explorer API pane related testcases", function() {
       expect($lis.eq(0)).to.contain("{{SecondAPI.isLoading}}");
       expect($lis.eq(1)).to.contain("{{SecondAPI.data}}");
       expect($lis.eq(2)).to.contain("{{SecondAPI.responseMeta}}");
-      expect($lis.eq(2)).to.contain("{{SecondAPI.run()}}");
+      expect($lis.eq(3)).to.contain("{{SecondAPI.run()}}");
       expect($lis.eq(4)).to.contain("{{SecondAPI.clear()}}");
     });
   });
