@@ -698,30 +698,30 @@ export function getFunctionName(value: string, evaluationVersion: number): strin
             ranges: true,
             onComment: commentArray,
         });
-    } catch (error) {
-        return functionName;
-    }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
         /**
-     * We need to traverse the ast to find the first callee
-     * For Eg. Api1.run(() => {}, () => {}).then(() => {}).catch(() => {})
-     * We have multiple callee above, the first one is run
-     * Similarly, for eg. appsmith.geolocation.getCurrentPosition(() => {}, () => {});
-     * For this one, the first callee is getCurrentPosition
-     */
-    let nodeToTraverse: Node = astWithComments.body[0]?.expression;
-    let firstCallExpressionNode: Node = nodeToTraverse;
+         * We need to traverse the ast to find the first callee
+         * For Eg. Api1.run(() => {}, () => {}).then(() => {}).catch(() => {})
+         * We have multiple callee above, the first one is run
+         * Similarly, for eg. appsmith.geolocation.getCurrentPosition(() => {}, () => {});
+         * For this one, the first callee is getCurrentPosition
+         */
+        let nodeToTraverse: Node = astWithComments.body[0]?.expression;
+        let firstCallExpressionNode: Node = nodeToTraverse;
 
-    // @ts-ignore
-    while (nodeToTraverse?.callee?.object) {
-        firstCallExpressionNode = klona(nodeToTraverse);
         // @ts-ignore
-        nodeToTraverse = nodeToTraverse?.callee?.object;
-    }
+        while (nodeToTraverse?.callee?.object) {
+            firstCallExpressionNode = klona(nodeToTraverse);
+            // @ts-ignore
+            nodeToTraverse = nodeToTraverse?.callee?.object;
+        }
 
-    // @ts-ignore
-    return firstCallExpressionNode ? generate(firstCallExpressionNode?.callee, {comments: true}) : "";
+        // @ts-ignore
+        return firstCallExpressionNode ? generate(firstCallExpressionNode?.callee, {comments: true}) : "";
+    } catch (error) {
+        return functionName;
+    }
 }
 
 // this function extracts the then/catch blocks when query is in this form

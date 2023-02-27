@@ -57,10 +57,13 @@ import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 import { getActionBlocks } from "@shared/ast";
 import {
+  actionToCode,
+  codeToAction,
   getCodeFromMoustache,
   isEmptyBlock,
 } from "components/editorComponents/ActionCreator/utils";
 import clsx from "clsx";
+import { useApisQueriesAndJsActionOptions } from "components/editorComponents/ActionCreator/helpers";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -75,6 +78,8 @@ const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
 
   const controlRef = useRef<HTMLDivElement | null>(null);
+
+  const integrationOptions = useApisQueriesAndJsActionOptions(() => null);
 
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
@@ -617,6 +622,20 @@ const PropertyControl = memo((props: Props) => {
         propertyStylesheetValue === propertyValue
       ) {
         isToggleDisabled = false;
+      }
+    }
+
+    if (config.controlType === "ACTION_SELECTOR") {
+      const codeFromProperty = getCodeFromMoustache(propertyValue);
+      const actionTree = codeToAction(codeFromProperty, integrationOptions);
+
+      const codeFromTree = actionToCode(actionTree);
+
+      if (codeFromTree !== codeFromProperty) {
+        isToggleDisabled = true;
+        if (!isDynamic) {
+          toggleDynamicProperty(propertyName, isDynamic);
+        }
       }
     }
 
