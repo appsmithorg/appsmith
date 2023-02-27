@@ -30,7 +30,7 @@ let userName, userEmail;
 
 describe("Verify List widget binding, Server side Pagination & functionalities with Queries and API", function() {
   before(() => {
-    const apiUrl = `//http://host.docker.internal:5001/v1/mock-api?records=10`;
+    const apiUrl = `http://host.docker.internal:5001/v1/mock-api?records=10`;
     _.apiPage.CreateAndFillApi(apiUrl, "API1");
     _.apiPage.RunAPI();
     _.agHelper.GetNClick(_.locators._jsonTab);
