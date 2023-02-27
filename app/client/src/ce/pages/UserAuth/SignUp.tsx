@@ -48,6 +48,7 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
 import { getThirdPartyAuths } from "../../selectors/tenantSelectors";
+import { ThirdPartyLoginRegistry } from "../../../pages/UserAuth/ThirdPartyLoginRegistry";
 
 declare global {
   interface Window {
@@ -90,7 +91,10 @@ export function SignUp(props: SignUpFormProps) {
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-  const socialLoginList = useSelector(getThirdPartyAuths);
+  const socialLoginList = [
+    ...useSelector(getThirdPartyAuths),
+    ...ThirdPartyLoginRegistry.get(),
+  ];
   const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
 
