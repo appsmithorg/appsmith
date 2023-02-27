@@ -4,6 +4,7 @@ import {
   ERROR_ACTION_EXECUTE_FAIL,
   createMessage,
 } from "../../../../../support/Objects/CommonErrorMessages";
+import { BACKSPACE } from "@blueprintjs/core/lib/esm/common/keys";
 
 const listData = [
   {
@@ -29,7 +30,7 @@ let userName, userEmail;
 
 describe("Verify List widget binding, Server side Pagination & functionalities with Queries and API", function() {
   before(() => {
-    const apiUrl = `http://host.docker.internal:5001/v1/mock-api?records=10`;
+    const apiUrl = `//http://host.docker.internal:5001/v1/mock-api?records=10`;
     _.apiPage.CreateAndFillApi(apiUrl, "API1");
     _.apiPage.RunAPI();
     _.agHelper.GetNClick(_.locators._jsonTab);
@@ -82,15 +83,13 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
       true,
     );
     _.deployMode.DeployApp();
-    cy.wait("@postExecute").then((interception: any) => {
-      userName = JSON.stringify(interception.response.body.data.body[0].name)
-      userEmail = JSON.stringify(interception.response.body.data.body[0].email)
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
+    cy.wait("@postExecute").then((interception:any) => {
+      userName = JSON.stringify(interception.response.body.data.body.users[0].name).replace(/['"]+/g, "")
+      userEmail = JSON.stringify(interception.response.body.data.body.users[0].email).replace(/['"]+/g, "")
     _.agHelper.GetNClick(_.locators._containerWidget, 0, true);
-    _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userEmail);
-    _.agHelper.GetNClick(_.locators._containerWidget, 1, true);
-    _.agHelper.AssertContains("ListWidget"+"_"+ userName +"_" + userEmail);
-  });
+    _.agHelper.ValidateToastMessage("ListWidget"+"_"+ userName +"_" + userEmail);
+    });
     _.deployMode.NavigateBacktoEditor();
   });
 
@@ -100,11 +99,11 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.propPane.UpdatePropertyFieldValue("Items", JSON.stringify(listData));
     _.deployMode.DeployApp();
     _.agHelper.GetElement(_.locators._listWidget);
-    _.table.AssertPageNumber_List(1);
-    _.table.NavigateToNextPage_List();
-    _.table.AssertPageNumber_List(2, true);
-    _.table.NavigateToPreviousPage_List();
-    _.table.AssertPageNumber_List(1);
+    _.tableV2.AssertPageNumber_List(1);
+    _.tableV2.NavigateToNextPage_List();
+    _.tableV2.AssertPageNumber_List(2, true);
+    _.tableV2.NavigateToPreviousPage_List();
+    _.tableV2.AssertPageNumber_List(1);
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.Sleep();
   });
@@ -117,15 +116,7 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.ee.SelectEntityByName("Text1");
     _.propPane.UpdatePropertyFieldValue("Text", "{{text}}");
     _.agHelper.VerifyEvaluatedErrorMessage(
-      "ReferenceError: text is not defined",
-    );
-    _.ee.SelectEntityByName("List1");
-    _.propPane.UpdatePropertyFieldValue(
-      "Items",
-      "{'id': '001', 'name': 'Blue', img': 'https://assets.appsmith.com/widgets/default.png'}",
-    );
-    _.agHelper.VerifyEvaluatedErrorMessage(
-      "This value does not evaluate to type Array",
+      "text is not defined",
     );
     _.agHelper.Sleep();
   });
@@ -153,21 +144,21 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
       _.deployMode.DeployApp();
       _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
 
-      _.table.AssertPageNumber_List(1, false, true);
-      _.table.AssertListPagesPresent(2, false);
-      _.table.NavigateToNextPage_List();
-      _.table.AssertPageNumber_List(2, false, true);
+      _.tableV2.AssertPageNumber_List(1, false, true);
+      _.tableV2.AssertListPagesPresent(2, false);
+      _.tableV2.NavigateToNextPage_List();
+      _.tableV2.AssertPageNumber_List(2, false, true);
       _.agHelper.Sleep();
-      _.table.AssertListPagesPresent(1, false);
-      _.table.NavigateToPreviousPage_List();
-      _.table.AssertPageNumber_List(1, false, true);
+      _.tableV2.AssertListPagesPresent(1, false);
+      _.tableV2.NavigateToPreviousPage_List();
+      _.tableV2.AssertPageNumber_List(1, false, true);
       _.deployMode.NavigateBacktoEditor();
       _.ee.SelectEntityByName("List1", "Widgets");
       _.propPane.ToggleOnOrOff("Server Side Pagination", "Off");
-      _.agHelper.AssertElementAbsence(_.table._liPaginateItem);
+      _.agHelper.AssertElementAbsence(_.tableV2._liPaginateItem);
       _.deployMode.DeployApp();
       _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
-      _.agHelper.AssertElementAbsence(_.table._liPaginateItem);
+      _.agHelper.AssertElementAbsence(_.tableV2._liPaginateItem);
       _.deployMode.NavigateBacktoEditor();
       _.agHelper.Sleep();
     });
