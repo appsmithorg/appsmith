@@ -23,6 +23,8 @@ public class Tenant extends BaseDomain {
 
     String displayName;
 
+    String instanceId;
+
     PricingPlan pricingPlan;
 
     TenantConfiguration tenantConfiguration;
