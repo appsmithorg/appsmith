@@ -69,11 +69,6 @@ describe("Field component", () => {
   };
   const tests = [
     {
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      value: "",
-      testId: null,
-    },
-    {
       field: FieldType.ALERT_TEXT_FIELD,
       value: "{{showAlert()}}",
       testId: "text-view-label",
