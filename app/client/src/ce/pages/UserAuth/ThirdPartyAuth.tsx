@@ -45,9 +45,6 @@ const ButtonLogo = styled.img`
   width: 24px;
 `;
 
-export const SocialLoginTypes = {
-};
-
 type SignInType = "SIGNIN" | "SIGNUP";
 
 function SocialLoginButton(props: {
