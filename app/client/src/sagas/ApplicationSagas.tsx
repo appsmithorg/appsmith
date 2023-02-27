@@ -102,7 +102,7 @@ import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ERROR_CODES } from "ce/constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
