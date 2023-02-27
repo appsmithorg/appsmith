@@ -15,7 +15,7 @@ const NavigationPreview = forwardRef(
     return (
       <div
         className={classNames({
-          "absolute top-0 z-1 w-full transform bg-gray-50 ease-in": true,
+          "absolute top-0 z-3 w-full transform bg-gray-50 ease-in": true,
           "translate-y-0 ease-in transition duration-300":
             isPreviewMode || isAppSettingsPaneWithNavigationTabOpen,
           "-translate-y-full duration-0":
