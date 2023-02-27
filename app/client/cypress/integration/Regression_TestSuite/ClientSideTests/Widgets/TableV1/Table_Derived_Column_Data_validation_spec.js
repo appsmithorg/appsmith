@@ -57,7 +57,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.readTabledataValidateCSS("1", "4", "background-color", "rgb(0, 128, 0)");
   });
 
-  it("4. Edit column name and validate test for computed value based on column type selected", function() {
+  it("2. Edit column name and validate test for computed value based on column type selected", function() {
     // opoen customColumn1 property pane
     cy.editColumn("customColumn1");
     // Enter Apil 1st user email data into customColumn1
