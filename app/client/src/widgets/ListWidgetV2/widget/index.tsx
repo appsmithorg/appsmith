@@ -129,6 +129,7 @@ class ListWidget extends BaseWidget<
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
   pageChangeEventTriggerFromPageNo?: number | null;
+  pageChangeEventTriggerFromSelectedKey: boolean;
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -191,6 +192,7 @@ class ListWidget extends BaseWidget<
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
+    this.pageChangeEventTriggerFromSelectedKey = false;
   }
 
   componentDidMount() {
@@ -198,6 +200,8 @@ class ListWidget extends BaseWidget<
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
     }
+
+    this.updatePageNoFromDefaultSelectedKey();
 
     if (this.props.selectedItemKey || this.props.triggeredItemKey) {
       /**
@@ -223,7 +227,6 @@ class ListWidget extends BaseWidget<
     }
 
     this.setupMetaWidgets();
-    this.updateSelectedItemAndPageNo();
   }
 
   componentDidUpdate(prevProps: ListWidgetProps) {
@@ -237,10 +240,6 @@ class ListWidget extends BaseWidget<
       if (this.props.serverSidePagination && this.pageSize) {
         this.executeOnPageChange();
       }
-    }
-
-    if (this.props.defaultSelectedItem !== prevProps.defaultSelectedItem) {
-      this.updateSelectedItemAndPageNo();
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
@@ -264,6 +263,16 @@ class ListWidget extends BaseWidget<
     }
 
     this.setupMetaWidgets(prevProps);
+
+    // Should come after setting up MetaWidgets for that page.
+    if (this.pageChangeEventTriggerFromSelectedKey) {
+      this.updateSelectedItemFromDefaultSelectedKey();
+      this.pageChangeEventTriggerFromSelectedKey = false;
+    }
+
+    if (this.props.defaultSelectedItem !== prevProps.defaultSelectedItem) {
+      this.updatePageNoFromDefaultSelectedKey();
+    }
   }
 
   componentWillUnmount() {
@@ -531,21 +540,30 @@ class ListWidget extends BaseWidget<
   };
 
   // This is only for client-side data
-  updateSelectedItemAndPageNo = () => {
+  updatePageNoFromDefaultSelectedKey = () => {
     if (this.props.serverSidePagination) return;
 
-    const index = this.getViewIndexOfSelectedItem();
+    const rowIndex = this.getRowIndexOfSelectedItem();
 
-    if (index === -1) return;
+    if (rowIndex === -1) return;
 
-    this.handleSelectedItemAndKey(index);
-    this.updateSelectedItemView(index);
-
-    const pageNo = this.calculatePageNumber(index);
+    const pageNo = this.calculatePageNumber(rowIndex);
+    this.pageChangeEventTriggerFromSelectedKey = true;
     this.onPageChange(pageNo);
   };
 
-  getViewIndexOfSelectedItem = () => {
+  updateSelectedItemFromDefaultSelectedKey = () => {
+    if (this.props.serverSidePagination) return;
+
+    const rowIndex = this.getRowIndexOfSelectedItem();
+
+    if (rowIndex === -1) return;
+
+    this.handleSelectedItemAndKey(rowIndex);
+    this.updateSelectedItemView(rowIndex);
+  };
+
+  getRowIndexOfSelectedItem = () => {
     const { defaultSelectedItem, primaryKeys } = this.props;
 
     if (!primaryKeys || isNil(defaultSelectedItem)) return -1;
@@ -554,9 +572,7 @@ class ListWidget extends BaseWidget<
   };
 
   calculatePageNumber = (index: number) => {
-    if (index === 0) return 1;
-
-    return Math.ceil(index / this.props.pageSize);
+    return Math.ceil((index + 1) / this.props.pageSize);
   };
 
   shouldUpdatePageSize = () => {

@@ -260,7 +260,7 @@ export const PropertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         hidden: (props: ListWidgetProps<WidgetProps>) =>
-          !props.serverSidePagination,
+          !!props.serverSidePagination,
         dependencies: ["serverSidePagination"],
         validation: {
           type: ValidationTypes.FUNCTION,
