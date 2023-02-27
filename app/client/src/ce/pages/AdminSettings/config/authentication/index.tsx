@@ -154,7 +154,7 @@ export const FormAuthCallout: AuthMethodType = {
   isConnected: !disableLoginForm,
 };
 
-const GoogleAuthCallout: AuthMethodType = {
+export const GoogleAuthCallout: AuthMethodType = {
   id: "APPSMITH_GOOGLE_AUTH",
   category: SettingCategories.GOOGLE_AUTH,
   label: "Google",
@@ -164,7 +164,7 @@ const GoogleAuthCallout: AuthMethodType = {
   type: "LINK",
 };
 
-const GithubAuthCallout: AuthMethodType = {
+export const GithubAuthCallout: AuthMethodType = {
   id: "APPSMITH_GITHUB_AUTH",
   category: SettingCategories.GITHUB_AUTH,
   label: "Github",
