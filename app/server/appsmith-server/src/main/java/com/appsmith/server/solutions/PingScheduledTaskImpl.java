@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -43,6 +44,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             NewActionRepository newActionRepository,
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
+            ProjectProperties projectProperties,
             LicenseValidator licenseValidator,
             TenantService tenantService,
             LicenseConfig licenseConfig,
@@ -57,7 +59,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 newPageRepository,
                 newActionRepository,
                 datasourceRepository,
-                userRepository
+                userRepository,
+                projectProperties
         );
         this.licenseValidator = licenseValidator;
         this.tenantService = tenantService;
