@@ -72,7 +72,7 @@ const TopHeader = (props: TopHeaderProps) => {
         navColorStyle={navColorStyle}
         primaryColor={primaryColor}
       >
-        <section className="py-3">
+        <section className="flex items-center py-3">
           <MobileNavToggle isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} />
 
           <ApplicationName

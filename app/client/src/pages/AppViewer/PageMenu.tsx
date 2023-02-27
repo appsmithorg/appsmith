@@ -63,13 +63,17 @@ export function PageMenu(props: NavigationProps) {
     "inherit",
   );
 
+  const closeMenu = () => {
+    if (typeof setMenuOpen === "function") {
+      setMenuOpen?.(false);
+    }
+  };
+
   // hide menu on click outside
   useOnClickOutside(
     [menuRef, headerRef as React.RefObject<HTMLDivElement>],
     () => {
-      if (typeof setMenuOpen === "function") {
-        setMenuOpen?.(false);
-      }
+      closeMenu();
     },
   );
 
@@ -97,6 +101,7 @@ export function PageMenu(props: NavigationProps) {
           "opacity-0 hidden": !isOpen,
           "opacity-100": isOpen,
         })}
+        onClick={closeMenu}
         style={{
           height: `calc(100% - ${headerHeight})`,
         }}
@@ -115,7 +120,12 @@ export function PageMenu(props: NavigationProps) {
       >
         <div className="flex-grow py-3 overflow-y-auto">
           {appPages.map((page) => (
-            <PageNavLink key={page.pageId} page={page} query={query} />
+            <PageNavLink
+              closeMenu={closeMenu}
+              key={page.pageId}
+              page={page}
+              query={query}
+            />
           ))}
         </div>
         <div className="p-3 space-y-3 border-t">
@@ -174,7 +184,15 @@ export function PageMenu(props: NavigationProps) {
   );
 }
 
-function PageNavLink({ page, query }: { page: Page; query: string }) {
+function PageNavLink({
+  closeMenu,
+  page,
+  query,
+}: {
+  page: Page;
+  query: string;
+  closeMenu: () => void;
+}) {
   const appMode = useSelector(getAppMode);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const pathname = useHref(
@@ -190,6 +208,7 @@ function PageNavLink({ page, query }: { page: Page; query: string }) {
       }}
       className="flex flex-col px-4 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
       key={page.pageId}
+      onClick={closeMenu}
       to={{
         pathname: trimQueryString(pathname),
         search: query,

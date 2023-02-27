@@ -12,7 +12,7 @@ const MobileNavToggle = (props: MobileNavToggleProps) => {
 
   return (
     <div
-      className="block w-5 h-5 cursor-pointer md:hidden"
+      className="block w-5 h-5 cursor-pointer md:hidden mr-3"
       onClick={() => setMenuOpen(!isMenuOpen)}
     >
       {isMenuOpen ? (
