@@ -12,9 +12,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // Create and execute an API and bind with table
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
-  });
-
-  it("2. Validate Table with API data and then add a column", function() {
+    //Test: Validate Table with API data and then add a column
     // Open property pane
     cy.SearchEntityandOpen("Table1");
     // Clear Table data and enter Apil data into table data
@@ -39,9 +37,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     })
     // add new column
     cy.addColumn("CustomColumn");
-  });
-
-  it("3. Table widget toggle test for background color", function() {
+    //Test:Table widget toggle test for background color
     // Open id property pane
     cy.editColumn("id");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -74,9 +70,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       });
     });
     cy.closePropertyPane();
-  });
-
-  it("5. Update table json data and check the column names updated", function() {
+    //Test: Update table json data and check the column names updated
     // Open table propert pane
     cy.SearchEntityandOpen("Table1");
     cy.backFromPropertyPanel();

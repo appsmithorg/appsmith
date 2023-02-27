@@ -15,23 +15,18 @@ describe("Table Widget row multi select validation", function() {
     cy.get(".t--table-multiselect-header")
       .first()
       .should("be.visible");
-
     cy.get(".t--table-multiselect")
       .first()
       .should("be.visible");
-  });
-
-  it("Test click on header cell selects all row", function() {
+  //Test click on header cell selects all row
     // click on header check cell
     cy.get(".t--table-multiselect-header")
       .first()
       .click({ force: true });
     // check if rows selected
     cy.get(".tr").should("have.class", "selected-row");
-  });
-
-  it("Test click on single row cell changes header select cell state", function() {
-    // un select all rows
+  //Test click on single row cell changes header select cell state
+    // un-select all rows
     cy.get(".t--table-multiselect-header")
       .first()
       .click({ force: true });
