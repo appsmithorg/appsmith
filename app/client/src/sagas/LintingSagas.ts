@@ -20,6 +20,7 @@ import {
   LintErrorsStore,
 } from "reducers/lintingReducers/lintErrorsReducers";
 import { flatten } from "lodash";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 export function aggregateLintErrors(errors: LintErrorsStore): LintErrors {
   const aggregatedErrors: LintErrors = {};
@@ -28,6 +29,8 @@ export function aggregateLintErrors(errors: LintErrorsStore): LintErrors {
   }
   return aggregatedErrors;
 }
+
+const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 export const lintWorker = new GracefulWorkerService(
   new Worker(new URL("../workers/Linting/lint.worker.ts", import.meta.url), {
@@ -57,6 +60,7 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
     pathsToLint,
     unevalTree,
     JSPropertiesState,
+    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
   };
 
   const { errors }: LintTreeResponse = yield call(

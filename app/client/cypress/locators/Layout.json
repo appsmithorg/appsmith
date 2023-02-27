@@ -5,8 +5,9 @@
   "tabDefault": ".t--property-control-defaulttab .CodeMirror-code",
   "tabButton": ".t--property-control-tabs  button",
   "tabDelete": ".t--property-control-tabs  .t--delete-column-btn",
-  "tabContainer": "div[type='TABS_WIDGET']",
-  "tabEdit": ".t--property-control-tabs .t--edit-column-btn",
+  "tabContainer": ".t--widget-tabswidget",
+  "tabEdit": "//input[@value ='tabName']//parent::div//parent::div//following-sibling::div//div[contains(@class,'t--edit-column-btn')]",
   "tabVisibility": ".t--property-control-visible .bp3-control-indicator",
-  "tabNumber": ".t--number-of-tabs"
+  "tabNumber": ".t--number-of-tabs",
+  "deleteTab":"//input[@value ='tabName']//parent::div//parent::div//following-sibling::div//div[contains(@class,'t--delete-column-btn')]"
 }

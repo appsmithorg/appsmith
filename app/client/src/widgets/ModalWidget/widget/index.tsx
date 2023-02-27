@@ -17,6 +17,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { Stylesheet } from "entities/AppTheming";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import { get } from "lodash";
 
 const minSize = 100;
 
@@ -132,11 +135,9 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     const childData = { ...childWidgetData };
     childData.parentId = this.props.widgetId;
-    childData.shouldScrollContents = false;
+
     childData.canExtend = this.props.shouldScrollContents;
-    childData.bottomRow = this.props.shouldScrollContents
-      ? Math.max(childData.bottomRow, this.props.height)
-      : this.props.height;
+
     childData.containerStyle = "none";
     childData.minHeight = this.props.height;
     childData.rightColumn =
@@ -229,9 +230,21 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const isResizeEnabled =
       !isDragging && isWidgetFocused && isEditMode && !isSnipingMode;
 
+    const settingsComponent = isEditMode ? (
+      <WidgetNameComponent
+        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+        parentId={this.props.parentId}
+        showControls
+        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+        type={this.props.type}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
+      />
+    ) : null;
+
     return (
       <ModalComponent
-        backgroundColor={this.props.backgroundColor}
+        background={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
@@ -248,6 +261,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
+        settingsComponent={settingsComponent}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         width={this.getModalWidth(this.props.width)}
@@ -260,15 +274,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   getCanvasView() {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
-    children = this.showWidgetName(children, true);
-    if (isAutoHeightEnabledForWidget(this.props, true)) {
-      children = this.addAutoHeightOverlay(children, {
-        width: "100%",
-        height: "100%",
-        left: 0,
-        top: 0,
-      });
-    }
     return this.makeModalComponent(children, true);
   }
 

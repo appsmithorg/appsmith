@@ -30,6 +30,7 @@ export class TableV2 {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   public deployMode = ObjectsRegistry.DeployMode;
+  public propPane = ObjectsRegistry.PropertyPane;
 
   private _tableWrap = "//div[@class='tableWrap']";
   private _tableHeader =
@@ -67,6 +68,10 @@ export class TableV2 {
   _dropdownText = ".t--dropdown-option";
   _filterConditionDropdown = ".t--table-filter-conditions-dropdown";
   _filterInputValue = ".t--table-filter-value-input";
+  _addColumn = ".t--add-column-btn";
+  _deleteColumn = ".t--delete-column-btn";
+  _defaultColNameV2 =
+    "[data-rbd-draggable-id='customColumn1'] input[type='text']";
   private _filterApplyBtn = ".t--apply-filter-btn";
   private _filterCloseBtn = ".t--close-filter-btn";
   private _removeFilter = ".t--table-filter-remove-btn";
@@ -77,6 +82,7 @@ export class TableV2 {
   private _downloadOption = ".t--table-download-data-option";
   private _tableWidgetV2 = ".t--widget-tablewidgetv2";
   private _propertyPaneBackBtn = ".t--property-pane-back-btn";
+
   _columnSettings = (columnName: string) =>
     "//input[@placeholder='Column Title'][@value='" +
     columnName +
@@ -175,7 +181,7 @@ export class TableV2 {
     if (pageNo == 1) cy.get(this._previousPage).should("have.attr", "disabled");
   }
 
-  public AssertSelectedRow(rowNum: number = 0) {
+  public AssertSelectedRow(rowNum = 0) {
     cy.xpath(this._tableSelectedRow)
       .invoke("attr", "data-rowindex")
       .then(($rowIndex) => {
@@ -286,7 +292,7 @@ export class TableV2 {
   }
 
   public ValidateDownloadNVerify(fileName: string, textToBePresent: string) {
-    let downloadsFolder = Cypress.config("downloadsFolder");
+    const downloadsFolder = Cypress.config("downloadsFolder");
     cy.log("downloadsFolder is:" + downloadsFolder);
     cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
     this.VerifyDownloadedFile(fileName, textToBePresent);
@@ -370,5 +376,42 @@ export class TableV2 {
     if (checkNoNextPage)
       cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
     else cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+  }
+
+  public AddColumn(colId: string) {
+    cy.get(this._addColumn).scrollIntoView();
+    cy.get(this._addColumn)
+      .should("be.visible")
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(3000);
+    cy.get(this._defaultColNameV2).clear({
+      force: true,
+    });
+    cy.get(this._defaultColNameV2).type(colId, { force: true });
+  }
+
+  public EditColumn(colId: string, shouldReturnToMainPane = true) {
+    if (shouldReturnToMainPane) {
+      this.propPane.NavigateBackToPropertyPane();
+    }
+    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click(
+      {
+        force: true,
+      },
+    );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1500);
+  }
+
+  public DeleteColumn(colId: string) {
+    this.propPane.NavigateBackToPropertyPane();
+    cy.get(
+      "[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn",
+    ).click({
+      force: true,
+    });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   }
 }

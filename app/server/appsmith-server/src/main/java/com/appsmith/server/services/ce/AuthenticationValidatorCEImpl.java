@@ -29,4 +29,9 @@ public class AuthenticationValidatorCEImpl implements AuthenticationValidatorCE 
                 })
                 .switchIfEmpty(Mono.just(datasource));
     }
+
+    @Override
+    public Mono<Datasource> validateAuthentication(Datasource datasource, String environmentId){
+        return validateAuthentication(datasource);
+    }
 }

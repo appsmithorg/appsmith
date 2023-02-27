@@ -189,6 +189,13 @@ const wrapCode = (code: string) => {
   `;
 };
 
+//Tech-debt: should upgrade this to better logic
+//Used slice for a quick resolve of critical bug
+const unwrapCode = (code: string) => {
+  let unwrapedCode = code.slice(32);
+  return unwrapedCode.slice(0, -10);
+};
+
 const getFunctionalParamNamesFromNode = (
   node:
     | FunctionDeclarationNode
@@ -285,6 +292,7 @@ export const entityRefactorFromCode = (
   //Hence we are not sanatizing the script. Fix(#18492)
   //If script is a JSObject then replace export default to decalartion.
   if (isJSObject) script = jsObjectToCode(script);
+  else script = wrapCode(script);
   let ast: Node = { end: 0, start: 0, type: "" };
   //Copy of script to refactor
   let refactorScript = script;
@@ -360,6 +368,7 @@ export const entityRefactorFromCode = (
     });
     //If script is a JSObject then revert decalartion to export default.
     if (isJSObject) refactorScript = jsCodeToObject(refactorScript);
+    else refactorScript = unwrapCode(refactorScript);
     return {
       isSuccess: true,
       body: { script: refactorScript, refactorCount },

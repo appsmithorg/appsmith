@@ -2,6 +2,7 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../locators/Pages.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 import ApiEditor from "../../../../locators/ApiEditor";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function() {
   it("Test curl import flow Run and Delete", function() {
@@ -11,7 +12,7 @@ describe("Test curl import flow", function() {
       .should("be.visible")
       .click({ force: true });
     cy.get(ApiEditor.curlImage).click({ force: true });
-    cy.get("textarea").type("curl -X GET https://mock-api.appsmith.com/users");
+    cy.get("textarea").type("curl -X GET " + agHelper.mockApiUrl);
     cy.importCurl();
     cy.get("@curlImport").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);

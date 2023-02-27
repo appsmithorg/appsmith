@@ -160,13 +160,13 @@ jobs:
       - name: Download the client build artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: server-build
           path: app/server/dist/
 
       - name: Download the rts build artifact
@@ -223,7 +223,6 @@ jobs:
           cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
-            -e APPSMITH_AUDITLOG_ENABLED=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
             fatcontainer

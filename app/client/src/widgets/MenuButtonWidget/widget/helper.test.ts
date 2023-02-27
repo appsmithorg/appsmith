@@ -200,4 +200,18 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
     const expected = { currentItem: {} };
     expect(result).toStrictEqual(expected);
   });
+
+  it("Should test with null values", () => {
+    const mockProps = {
+      __evaluation__: {
+        evaluatedValues: {
+          sourceData: [null, null, null],
+        },
+      },
+    };
+
+    const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
+    const expected = { currentItem: {} };
+    expect(result).toStrictEqual(expected);
+  });
 });

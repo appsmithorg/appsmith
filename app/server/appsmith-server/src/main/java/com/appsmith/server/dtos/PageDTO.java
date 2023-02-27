@@ -27,6 +27,8 @@ public class PageDTO {
 
     String name;
 
+    String icon;
+
     String description;
 
     String slug;

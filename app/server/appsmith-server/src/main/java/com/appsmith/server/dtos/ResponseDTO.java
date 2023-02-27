@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 
@@ -34,6 +35,19 @@ public class ResponseDTO<T> implements Serializable {
 
     public ResponseDTO(int status, ErrorDTO errorDTO) {
         this.responseMeta = new ResponseMetaDTO(status, errorDTO);
+    }
+
+    public String getErrorDisplay() {
+        if (responseMeta == null) {
+            return "";
+        }
+
+        final ErrorDTO error = responseMeta.getError();
+        if (error == null || error.getMessage() == null) {
+            return "";
+        }
+
+        return error.getCode() + ": " + error.getMessage();
     }
 
 }

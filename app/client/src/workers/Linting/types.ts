@@ -16,6 +16,7 @@ export interface LintTreeRequest {
   pathsToLint: string[];
   unevalTree: DataTree;
   JSPropertiesState: TJSPropertiesState;
+  cloudHosting: boolean;
 }
 
 export type LintWorkerRequest = WorkerRequest<

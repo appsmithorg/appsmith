@@ -257,7 +257,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     Map<String, String> params = new HashMap<>();
                     params.put("resetUrl", resetUrl);
 
-                    return updateTenantLogoInParams(params)
+                    return updateTenantLogoInParams(params, resetUserPasswordDTO.getBaseUrl())
                             .flatMap(updatedParams ->
                                     emailSender.sendMail(email, "Appsmith Password Reset", FORGOT_PASSWORD_EMAIL_TEMPLATE, updatedParams)
                             );
@@ -562,7 +562,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Map<String, String> params = new HashMap<>();
         params.put("primaryLinkUrl", originHeader);
 
-        return updateTenantLogoInParams(params)
+        return updateTenantLogoInParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         user.getEmail(),
                         "Welcome to Appsmith",
@@ -645,7 +645,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     Map<String, String> params = getEmailParams(workspace, inviter, inviteUrl, true);
 
                     // We have sent out the emails. Just send back the saved user.
-                    return updateTenantLogoInParams(params)
+                    return updateTenantLogoInParams(params, originHeader)
                             .flatMap(updatedParams ->
                                     emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, updatedParams)
                             )
@@ -761,7 +761,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setEmptyInstance(isUsersEmpty);
                     profile.setAnonymous(userFromDb.isAnonymous());
                     profile.setEnabled(userFromDb.isEnabled());
-                    profile.setCommentOnboardingState(userData.getCommentOnboardingState());
                     profile.setRole(userData.getRole());
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
@@ -791,7 +790,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params) {
+    public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin) {
         return Mono.just(params);
     }
 }

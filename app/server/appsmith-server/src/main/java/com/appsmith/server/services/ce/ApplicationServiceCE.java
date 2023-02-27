@@ -78,7 +78,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
                                                                           String defaultApplicationId,
                                                                           String fieldName,
                                                                           AclPermission aclPermission);
-
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
     Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
@@ -99,4 +98,5 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId);
 
+    Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 }

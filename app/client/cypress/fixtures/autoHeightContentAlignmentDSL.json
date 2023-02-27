@@ -1,0 +1,214 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 610,
+    "containerStyle": "none",
+    "snapRows": 109,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 76,
+    "minHeight": 1100,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "Text1",
+        "displayName": "Text",
+        "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+        "searchTags": [
+          "typography",
+          "paragraph",
+          "label"
+        ],
+        "topRow": 19,
+        "bottomRow": 23,
+        "parentRowSpace": 10,
+        "type": "TEXT_WIDGET",
+        "hideCard": false,
+        "animateLoading": true,
+        "overflow": "NONE",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+        "parentColumnSpace": 30.65625,
+        "leftColumn": 3,
+        "dynamicBindingPathList": [
+          {
+            "key": "truncateButtonColor"
+          },
+          {
+            "key": "fontFamily"
+          },
+          {
+            "key": "borderRadius"
+          }
+        ],
+        "shouldTruncate": false,
+        "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "text": "Label",
+        "key": "6tq5jo8m9o",
+        "isDeprecated": false,
+        "rightColumn": 19,
+        "textAlign": "LEFT",
+        "dynamicHeight": "AUTO_HEIGHT",
+        "widgetId": "x2dmaguw7a",
+        "isVisible": true,
+        "fontStyle": "BOLD",
+        "textColor": "#231F20",
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "maxDynamicHeight": 9000,
+        "fontSize": "1rem",
+        "minDynamicHeight": 4
+      },
+      {
+        "widgetName": "Checkbox1",
+        "displayName": "Checkbox",
+        "iconSVG": "/static/media/icon.aaab032b43383e4fa53ffc0ef40c90ef.svg",
+        "searchTags": [
+          "boolean"
+        ],
+        "topRow": 19,
+        "bottomRow": 23,
+        "parentRowSpace": 10,
+        "type": "CHECKBOX_WIDGET",
+        "alignWidget": "LEFT",
+        "hideCard": false,
+        "animateLoading": true,
+        "parentColumnSpace": 16.234375,
+        "leftColumn": 19,
+        "dynamicBindingPathList": [
+          {
+            "key": "accentColor"
+          },
+          {
+            "key": "borderRadius"
+          }
+        ],
+        "labelPosition": "Left",
+        "isDisabled": false,
+        "key": "0lcdgwkate",
+        "isRequired": false,
+        "isDeprecated": false,
+        "rightColumn": 31,
+        "dynamicHeight": "AUTO_HEIGHT",
+        "widgetId": "sio6hr58nk",
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "isVisible": true,
+        "label": "Label",
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "defaultCheckedState": true,
+        "maxDynamicHeight": 9000,
+        "minDynamicHeight": 4
+      },
+      {
+        "boxShadow": "none",
+        "widgetName": "Switch1",
+        "displayName": "Switch",
+        "iconSVG": "/static/media/icon.a3115bc1c224776de2846985c8819f99.svg",
+        "searchTags": [
+          "boolean"
+        ],
+        "topRow": 19,
+        "bottomRow": 23,
+        "parentRowSpace": 10,
+        "type": "SWITCH_WIDGET",
+        "alignWidget": "LEFT",
+        "hideCard": false,
+        "animateLoading": true,
+        "parentColumnSpace": 16.234375,
+        "leftColumn": 31,
+        "dynamicBindingPathList": [
+          {
+            "key": "accentColor"
+          }
+        ],
+        "labelPosition": "Left",
+        "isDisabled": false,
+        "key": "fvcabh7un2",
+        "isDeprecated": false,
+        "rightColumn": 43,
+        "dynamicHeight": "AUTO_HEIGHT",
+        "widgetId": "4vy4pjyjat",
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "isVisible": true,
+        "label": "Label",
+        "defaultSwitchState": true,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "maxDynamicHeight": 9000,
+        "minDynamicHeight": 4
+      },
+      {
+        "widgetName": "Text2",
+        "displayName": "Text",
+        "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+        "searchTags": [
+          "typography",
+          "paragraph",
+          "label"
+        ],
+        "topRow": 28,
+        "bottomRow": 53,
+        "parentRowSpace": 10,
+        "type": "TEXT_WIDGET",
+        "hideCard": false,
+        "shouldScrollContents": true,
+        "animateLoading": true,
+        "overflow": "NONE",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+        "parentColumnSpace": 16.234375,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 6,
+        "dynamicBindingPathList": [
+          {
+            "key": "truncateButtonColor"
+          },
+          {
+            "key": "fontFamily"
+          },
+          {
+            "key": "borderRadius"
+          }
+        ],
+        "shouldTruncate": false,
+        "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "text": "Label",
+        "key": "icj86qlo1j",
+        "isDeprecated": false,
+        "rightColumn": 22,
+        "textAlign": "LEFT",
+        "dynamicHeight": "AUTO_HEIGHT_WITH_LIMITS",
+        "widgetId": "1k6r0gx5sd",
+        "isVisible": true,
+        "fontStyle": "BOLD",
+        "textColor": "#231F20",
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "originalTopRow": 28,
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "maxDynamicHeight": 38,
+        "originalBottomRow": 32,
+        "fontSize": "1rem",
+        "minDynamicHeight": 25
+      }
+    ]
+  }
+}

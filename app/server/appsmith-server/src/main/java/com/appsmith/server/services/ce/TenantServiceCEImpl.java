@@ -85,6 +85,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                 .map(instanceId -> {
                     final Tenant tenant = new Tenant();
                     tenant.setInstanceId(instanceId);
+
+                    final TenantConfiguration config = new TenantConfiguration();
+                    tenant.setTenantConfiguration(config);
+
+                    config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
+
                     return tenant;
                 });
     }
