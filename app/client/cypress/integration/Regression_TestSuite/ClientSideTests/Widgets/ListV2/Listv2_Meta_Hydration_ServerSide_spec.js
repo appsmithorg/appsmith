@@ -238,7 +238,6 @@ describe("List widget v2 - meta hydration tests", () => {
           }),
       {
         timeout: 10000,
-        interval: 500, // performs the check every 500 ms, default to 200
       },
     );
     cy.get(`${widgetSelector("List1")}`).scrollIntoView();
@@ -394,7 +393,6 @@ describe("List widget v2 - meta hydration tests", () => {
           }),
       {
         timeout: 10000,
-        interval: 500, // performs the check every 500 ms, default to 200
       },
     );
     cy.get(`${widgetSelector("List1")}`).scrollIntoView();
