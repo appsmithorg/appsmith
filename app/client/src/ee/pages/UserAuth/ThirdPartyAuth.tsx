@@ -1,1 +1,1 @@
-export * from "ce/pages/UserAuth/ThirdPartyAuth";
+export { default } from "ce/pages/UserAuth/ThirdPartyAuth";
