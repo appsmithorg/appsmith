@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -25,7 +25,7 @@ const initialState: UsersReduxState = {
   },
 };
 
-const usersReducer = createReducer(initialState, {
+const usersReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_USER_INIT]: (state: UsersReduxState) => ({
     ...state,
     loadingStates: {

@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -29,7 +29,7 @@ const initialState: JsPaneReduxState = {
   selectedResponseTab: "",
 };
 
-const jsPaneReducer = createReducer(initialState, {
+const jsPaneReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_JS_ACTIONS_INIT]: (state: JsPaneReduxState) => ({
     ...state,
     isFetching: true,

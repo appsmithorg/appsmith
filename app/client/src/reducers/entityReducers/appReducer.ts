@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -59,7 +59,7 @@ const initialState: AppDataState = {
   },
 };
 
-const appReducer = createReducer(initialState, {
+const appReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_APP_MODE]: (
     state: AppDataState,
     action: ReduxAction<APP_MODE>,

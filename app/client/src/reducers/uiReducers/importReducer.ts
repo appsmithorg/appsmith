@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -10,7 +10,7 @@ const initialState: ImportReduxState = {
   errorPayload: {},
 };
 
-const importReducer = createReducer(initialState, {
+const importReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SUBMIT_CURL_FORM_INIT]: (state: ImportReduxState) => {
     return {
       ...state,

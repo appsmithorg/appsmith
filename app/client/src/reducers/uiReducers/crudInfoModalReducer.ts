@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -10,7 +10,7 @@ const initialState: CrudInfoModalReduxState = {
   generateCRUDSuccessInfo: null,
 };
 
-const crudInfoModalReducer = createReducer(initialState, {
+const crudInfoModalReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_CRUD_INFO_MODAL_OPEN]: (
     state: CrudInfoModalReduxState,
     action: ReduxAction<SetCrudInfoModalOpenPayload>,

@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxActionErrorTypes,
   ReduxAction,
@@ -6,7 +6,7 @@ import {
 
 export type JSExecutionRecord = Record<string, string>;
 const initialState: JSExecutionRecord = {};
-const jsExecutionsReducer = createReducer(initialState, {
+const jsExecutionsReducer = createImmerReducer(initialState, {
   [ReduxActionErrorTypes.SAVE_JS_EXECUTION_RECORD]: (
     state: JSExecutionRecord,
     action: ReduxAction<JSExecutionRecord>,

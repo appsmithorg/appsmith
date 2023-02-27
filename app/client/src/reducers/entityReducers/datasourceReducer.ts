@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -45,7 +45,7 @@ const initialState: DatasourceDataState = {
   isDatasourceBeingSavedFromPopup: false,
 };
 
-const datasourceReducer = createReducer(initialState, {
+const datasourceReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT]: (
     state: DatasourceDataState,
   ) => {

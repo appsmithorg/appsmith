@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -13,7 +13,7 @@ const initialState: EvaluationDependencyState = {
   inverseDependencyMap: {},
 };
 
-const evaluationDependencyReducer = createReducer(initialState, {
+const evaluationDependencyReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP]: (
     state: EvaluationDependencyState,
     action: ReduxAction<{

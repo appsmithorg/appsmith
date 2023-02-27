@@ -2,7 +2,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import { User } from "entities/AppCollab/CollabInterfaces";
 import { cloneDeep } from "lodash";
 
@@ -12,7 +12,7 @@ const initialState: AppCollabReducerState = {
   pageEditors: [],
 };
 
-const appCollabReducer = createReducer(initialState, {
+const appCollabReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.APP_COLLAB_LIST_EDITORS]: (
     state: AppCollabReducerState,
     action: ReduxAction<any>,

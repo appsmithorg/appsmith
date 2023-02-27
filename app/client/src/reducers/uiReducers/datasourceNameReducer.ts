@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -10,7 +10,7 @@ const initialState: DatasourceNameReduxState = {
   errors: {},
 };
 
-const datasourceNameReducer = createReducer(initialState, {
+const datasourceNameReducer = createImmerReducer(initialState, {
   [ReduxActionErrorTypes.UPDATE_DATASOURCE_NAME_ERROR]: (
     state: DatasourceNameReduxState,
     action: ReduxAction<{ id: string }>,

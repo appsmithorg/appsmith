@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -8,7 +8,7 @@ export type LoadingEntitiesState = Set<string>;
 
 const initialState: LoadingEntitiesState = new Set<string>();
 
-const loadingEntitiesReducer = createReducer(initialState, {
+const loadingEntitiesReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_LOADING_ENTITIES]: (
     state: LoadingEntitiesState,
     action: ReduxAction<Set<string>>,

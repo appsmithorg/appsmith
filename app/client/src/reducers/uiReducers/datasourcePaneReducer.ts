@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -31,7 +31,7 @@ export interface DatasourcePaneReduxState {
   defaultKeyValueArrayConfig: Array<string>;
 }
 
-const datasourcePaneReducer = createReducer(initialState, {
+const datasourcePaneReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.UPDATE_DATASOURCE_DRAFT]: (
     state: DatasourcePaneReduxState,
     action: ReduxAction<{ id: string; draft: Partial<Datasource> }>,

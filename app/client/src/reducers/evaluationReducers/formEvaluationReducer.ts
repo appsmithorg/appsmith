@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -57,7 +57,7 @@ export const isValidFormConfig = (
 
 const initialState: FormEvaluationState = {};
 
-const formEvaluation = createReducer(initialState, {
+const formEvaluation = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_FORM_EVALUATION]: (
     state: FormEvaluationState,
     action: ReduxAction<FormEvaluationState>,

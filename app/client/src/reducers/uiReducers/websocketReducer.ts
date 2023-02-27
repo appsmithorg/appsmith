@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -9,7 +9,7 @@ const initialState: WebsocketReducerState = {
   pageLevelSocketConnected: false,
 };
 
-const websocketReducer = createReducer(initialState, {
+const websocketReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED]: (
     state: WebsocketReducerState,
     action: ReduxAction<boolean>,

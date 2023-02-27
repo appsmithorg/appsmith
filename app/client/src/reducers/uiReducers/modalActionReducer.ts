@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -8,7 +8,7 @@ const initialState: ModalActionReduxState = {
   modals: [],
 };
 
-const modalActionReducer = createReducer(initialState, {
+const modalActionReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SHOW_ACTION_MODAL]: (
     state: ModalActionReduxState,
     action: ReduxAction<ModalInfo>,

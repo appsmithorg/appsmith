@@ -6,7 +6,7 @@ import {
   ClonePageSuccessPayload,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   GenerateCRUDSuccess,
   UpdatePageErrorPayload,
@@ -23,7 +23,7 @@ const initialState: PageListReduxState = {
   loading: {},
 };
 
-export const pageListReducer = createReducer(initialState, {
+export const pageListReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.DELETE_PAGE_INIT]: (
     state: PageListReduxState,
     action: ReduxAction<{ id: string }>,

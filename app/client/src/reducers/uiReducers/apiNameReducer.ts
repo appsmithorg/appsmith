@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -10,7 +10,7 @@ const initialState: ApiNameReduxState = {
   errors: {},
 };
 
-const apiNameReducer = createReducer(initialState, {
+const apiNameReducer = createImmerReducer(initialState, {
   [ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR]: (
     state: ApiNameReduxState,
     action: ReduxAction<{ actionId: string }>,

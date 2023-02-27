@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   UpdateCanvasPayload,
@@ -37,7 +37,7 @@ const initialState: EditorReduxState = {
   zoomLevel: 1,
 };
 
-const editorReducer = createReducer(initialState, {
+const editorReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.RESET_EDITOR_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, initialized: false };
   },

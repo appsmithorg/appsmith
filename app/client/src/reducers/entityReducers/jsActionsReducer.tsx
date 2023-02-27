@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import {
   ReduxActionTypes,
@@ -42,7 +42,7 @@ export interface JSExecutionError {
 export type BatchedJSExecutionData = Record<string, JSExecutionData[]>;
 export type BatchedJSExecutionErrors = Record<string, JSExecutionError[]>;
 
-const jsActionsReducer = createReducer(initialState, {
+const jsActionsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<JSCollection[]>,

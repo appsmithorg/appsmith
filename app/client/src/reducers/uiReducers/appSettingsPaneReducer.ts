@@ -3,13 +3,13 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: AppSettingsPaneReduxState = {
   isOpen: false,
 };
 
-const appSettingsPaneReducer = createReducer(initialState, {
+const appSettingsPaneReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.OPEN_APP_SETTINGS_PANE]: (
     state: AppSettingsPaneReduxState,
     action: ReduxAction<AppSettingsPaneContext>,

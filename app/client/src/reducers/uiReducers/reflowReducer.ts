@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReflowReduxActionTypes,
@@ -10,7 +10,7 @@ const initialState: widgetReflow = {
   reflowingWidgets: {},
 };
 
-export const widgetReflowReducer = createReducer(initialState, {
+export const widgetReflowReducer = createImmerReducer(initialState, {
   [ReflowReduxActionTypes.STOP_REFLOW]: () => {
     return {
       isReflowing: false,

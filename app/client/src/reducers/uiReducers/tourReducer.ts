@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -11,7 +11,7 @@ const initialState: TourReducerState = {
   activeTourType: undefined,
 };
 
-const tourReducer = createReducer(initialState, {
+const tourReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_ACTIVE_TOUR]: (
     state: TourReducerState,
     action: ReduxAction<TourType>,

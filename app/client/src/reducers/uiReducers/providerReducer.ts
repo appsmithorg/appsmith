@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -36,7 +36,7 @@ const initialState: ProvidersReduxState = {
   fetchProvidersError: false,
 };
 
-const providersReducer = createReducer(initialState, {
+const providersReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_PROVIDERS_INIT]: (state: ProvidersReduxState) => ({
     ...state,
     isFetchingProviders: true,

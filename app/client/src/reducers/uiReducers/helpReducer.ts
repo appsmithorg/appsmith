@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -10,7 +10,7 @@ const initialState: HelpReduxState = {
   defaultRefinement: "",
 };
 
-const helpReducer = createReducer(initialState, {
+const helpReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_DEFAULT_REFINEMENT]: (
     state: HelpReduxState,
     action: ReduxAction<string>,

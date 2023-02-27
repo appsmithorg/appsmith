@@ -1,5 +1,5 @@
 import { set } from "lodash";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   UpdateWidgetMetaPropertyPayload,
   ResetWidgetMetaPayload,
@@ -19,7 +19,7 @@ export type MetaState = Record<string, WidgetMetaState>;
 
 export const initialState: MetaState = {};
 
-export const metaReducer = createReducer(initialState, {
+export const metaReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.UPDATE_META_STATE]: (
     state: MetaState,
     action: ReduxAction<{

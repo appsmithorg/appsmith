@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -13,7 +13,7 @@ const initialState: ErrorReduxState = {
   currentError: { sourceAction: "", message: "" },
 };
 
-const errorReducer = createReducer(initialState, {
+const errorReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SAFE_CRASH_APPSMITH]: (
     state: ErrorReduxState,
     action: ReduxAction<ReduxActionErrorPayload>,

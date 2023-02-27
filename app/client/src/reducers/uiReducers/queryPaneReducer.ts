@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -35,7 +35,7 @@ export interface QueryPaneReduxState {
   responseTabHeight: number;
 }
 
-const queryPaneReducer = createReducer(initialState, {
+const queryPaneReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.CREATE_ACTION_INIT]: (state: QueryPaneReduxState) => {
     return {
       ...state,
