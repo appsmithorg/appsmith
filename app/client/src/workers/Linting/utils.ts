@@ -135,7 +135,9 @@ export function getlintErrorsFromTree(
           propertyPath,
         );
         const lintErrors = lintJSProperty(jspropertyState, evalContext);
-        set(lintTreeErrors, `["${entityName}.body"]`, lintErrors);
+        set(lintTreeErrors, `["${entityName}.body"]`, {
+          [propertyPath]: lintErrors,
+        });
       });
     }
 
@@ -166,7 +168,7 @@ export function getlintErrorsFromTree(
 function lintJSProperty(
   jsPropertyState: TJSpropertyState,
   globalData: DataTree,
-) {
+): LintError[] {
   if (isNil(jsPropertyState)) {
     return [];
   }
@@ -286,7 +288,7 @@ export function pathRequiresLinting(
     isADynamicBindingPath && isDynamicValue(unEvalPropertyValue);
 
   const isAValidJSObjectPathToLint =
-    isJSAction(entity) && !propertyPath && propertyPath !== "body";
+    isJSAction(entity) && !!propertyPath && propertyPath !== "body";
   const requiresLinting = isADynamicValue || isAValidJSObjectPathToLint;
   return requiresLinting;
 }
