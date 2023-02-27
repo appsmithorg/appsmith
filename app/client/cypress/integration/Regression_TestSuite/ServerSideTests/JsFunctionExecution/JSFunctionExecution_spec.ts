@@ -414,11 +414,11 @@ describe("JS Function Execution", function() {
 
     // clone page and assert order of functions
     ee.ClonePage();
+    agHelper.WaitUntilAllToastsDisappear();
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-      agHelper.ClickButton("Yes");
-      agHelper.Sleep();
+      agHelper.ClickButton("Yes", 0, true, false);
     }
 
     ee.SelectEntityByName(jsObj, "Queries/JS");
