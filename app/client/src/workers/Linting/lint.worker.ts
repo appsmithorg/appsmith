@@ -66,16 +66,14 @@ function eventRequestHandler({
       const lintTreeResponse: LintTreeResponse = { errors: {} };
       try {
         const {
-          jsState,
-          jsStateDiff,
+          JSPropertiesState,
           pathsToLint,
           unevalTree,
         } = requestData as LintTreeRequest;
         const lintErrors = getlintErrorsFromTree(
           pathsToLint,
           unevalTree,
-          jsState,
-          jsStateDiff,
+          JSPropertiesState,
         );
         lintTreeResponse.errors = lintErrors;
       } catch (e) {}
