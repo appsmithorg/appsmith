@@ -201,6 +201,8 @@ function PrimaryCTA(props: Props) {
     currentUser?.username,
     selectedTheme.properties.colors.primaryColor,
     selectedTheme.properties.borderRadius.appBorderRadius,
+    navColorStyle,
+    primaryColor,
   ]);
 
   return <div>{PrimaryCTA}</div>;
