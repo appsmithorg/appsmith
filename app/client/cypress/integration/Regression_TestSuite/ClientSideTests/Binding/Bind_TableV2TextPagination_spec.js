@@ -12,8 +12,8 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.wait(30000);
     /**Create an Api1 of Paginate with Table Page No */
     cy.createAndFillApi(
-      this.data.paginationUrl,
-      "users?page={{Table1.pageNo}}&pageSize={{Table1.pageSize}}",
+      this.data.usersApiPaginationUrl,
+      this.data.usersApiPaginationParam,
     );
     cy.RunAPI();
   });
@@ -91,7 +91,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(30000);
     /** Create Api2 of Paginate with Response URL*/
-    cy.createAndFillApi(this.data.paginationUrl, "users");
+    cy.createAndFillApi(this.data.usersApiPaginationUrl, "users");
     cy.RunAPI();
     cy.NavigateToPaginationTab();
     cy.get(apiPage.apiPaginationNextText).type("{{Api2.data.next}}", {

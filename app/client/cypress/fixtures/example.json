@@ -183,8 +183,10 @@
     "Test2",
     "Test3"
   ],
-  "paginationUrl": "https://mock-api.appsmith.com/",
-  "paginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}",
+  "paginationUrl": "http://host.docker.internal:5001/v1/",
+  "paginationParam": "mock-api?records={{Table1.pageSize}}",
+  "usersApiPaginationUrl": "https://mock-api.appsmith.com/",
+  "usersApiPaginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}",
   "TableInputUpdate": [
     {
       "id": 2381224,
