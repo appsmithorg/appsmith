@@ -631,7 +631,15 @@ const PropertyControl = memo((props: Props) => {
 
       const codeFromTree = actionToCode(actionTree);
 
-      if (codeFromTree !== codeFromProperty) {
+      /**
+       * There can be an extra semi-colon at the end of the code while adding
+       * a new action block. Hence passing the code through `getActionBlocks`
+       * to get the only valid action blocks for comparison.
+       */
+      if (
+        getActionBlocks(codeFromTree, self.evaluationVersion).join(";") !==
+        getActionBlocks(codeFromProperty, self.evaluationVersion).join(";")
+      ) {
         isToggleDisabled = true;
         if (!isDynamic) {
           toggleDynamicProperty(propertyName, isDynamic);
