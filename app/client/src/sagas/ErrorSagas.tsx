@@ -173,20 +173,12 @@ export interface ErrorActionPayload {
 }
 
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
-  const currentUser: User = yield select(getCurrentUser);
   const effects = [ErrorEffectTypes.LOG_ERROR];
   const { payload, type } = errorAction;
   const { error, logToSentry, show = true } = payload || {};
   const message = getErrorMessageFromActionType(type, error);
 
-  if (
-    show &&
-    !(
-      currentUser &&
-      currentUser.email === ANONYMOUS_USERNAME &&
-      error.code === ERROR_CODES.PAGE_NOT_FOUND
-    ) /* this check is added to avoid showing error before redirecting to login page */
-  ) {
+  if (show) {
     effects.push(ErrorEffectTypes.SHOW_ALERT);
   }
 
