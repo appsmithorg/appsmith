@@ -13,7 +13,7 @@ import {
   LintError as JSHintError,
   LintOptions,
 } from "jshint";
-import { get, isEmpty, isNumber, keys, last, set } from "lodash";
+import { get, isEmpty, isNil, isNumber, keys, last, set } from "lodash";
 import {
   getLintErrorMessage,
   getLintSeverity,
@@ -132,7 +132,7 @@ export function getlintErrorsFromTree(
         set(lintTreeErrors, `["${entityName}.body"]`, {});
         const jspropertyState = get(
           jsPropertiesState[entityName],
-          `[${entityName}, ${propertyPath}]`,
+          propertyPath,
         );
         const lintErrors = lintJSProperty(jspropertyState, evalContext);
         set(lintTreeErrors, `["${entityName}.body"]`, lintErrors);
@@ -167,6 +167,9 @@ function lintJSProperty(
   jsPropertyState: TJSpropertyState,
   globalData: DataTree,
 ) {
+  if (isNil(jsPropertyState)) {
+    return [];
+  }
   const scriptType = getScriptType(false, false);
   const scriptToLint = getScriptToEval(jsPropertyState.value, scriptType);
   const propLintError = getLintingErrors(
@@ -279,9 +282,12 @@ export function pathRequiresLinting(
   const isADynamicBindingPath =
     (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
     isPathADynamicBinding(entity, propertyPath);
-  const requiresLinting =
-    (isADynamicBindingPath && isDynamicValue(unEvalPropertyValue)) ||
-    isJSAction(entity);
+  const isADynamicValue =
+    isADynamicBindingPath && isDynamicValue(unEvalPropertyValue);
+
+  const isAValidJSObjectPathToLint =
+    isJSAction(entity) && !propertyPath && propertyPath !== "body";
+  const requiresLinting = isADynamicValue || isAValidJSObjectPathToLint;
   return requiresLinting;
 }
 
@@ -502,7 +508,7 @@ export function initiateLinting(
   lintOrder: string[],
   unevalTree: DataTree,
   requiresLinting: boolean,
-  jsPositionState: TJSPropertiesState,
+  JSPropertiesState: TJSPropertiesState,
 ) {
   if (!requiresLinting) return;
   sendMessage.call(self, {
@@ -512,7 +518,7 @@ export function initiateLinting(
       data: {
         lintOrder,
         unevalTree,
-        jsPositionState,
+        JSPropertiesState,
       },
       method: MAIN_THREAD_ACTION.LINT_TREE,
     },

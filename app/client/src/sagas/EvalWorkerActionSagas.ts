@@ -41,14 +41,14 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
 export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const {
-    data: { jsPositionState, lintOrder, unevalTree },
+    data: { JSPropertiesState, lintOrder, unevalTree },
   } = body;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
       pathsToLint: lintOrder,
       unevalTree,
-      jsPositionState,
+      JSPropertiesState,
     },
   });
 }

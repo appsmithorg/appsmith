@@ -130,7 +130,7 @@ export function saveResolvedFunctionsAndJSUpdates(
                 );
                 set(
                   dataTreeEvalRef.JSPropertiesState,
-                  `[${entityName},${parsedElement.key}]`,
+                  `[${entityName}.${parsedElement.key}]`,
                   {
                     position: parsedElement.position,
                     value: parsedElement.value,
@@ -160,7 +160,7 @@ export function saveResolvedFunctionsAndJSUpdates(
           }
           set(
             dataTreeEvalRef.JSPropertiesState,
-            `[${entityName},${parsedElement.key}]`,
+            `[${entityName}.${parsedElement.key}]`,
             {
               position: parsedElement.position,
               value: parsedElement.value,
