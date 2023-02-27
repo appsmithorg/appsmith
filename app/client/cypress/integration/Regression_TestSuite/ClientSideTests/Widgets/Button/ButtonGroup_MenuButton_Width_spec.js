@@ -58,6 +58,13 @@ describe("In a button group widget, menu button width", function() {
     const minWidth = 12 * 11.9375;
     const widgetId = "t5l24fccio";
     const menuButtonId = "groupButton1";
+
+    // click first button to show the property pane
+    cy.get(`.appsmith_widget_${widgetId} div.t--buttongroup-widget`)
+      .children()
+      .first()
+      .click();
+
     // Change the first button type to menu
     cy.editColumn(menuButtonId);
     cy.get(".t--button-group-MENU").click({ force: true });
