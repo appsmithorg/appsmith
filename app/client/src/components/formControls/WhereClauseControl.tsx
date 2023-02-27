@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 import { WhereClauseSubComponent } from "./utils";
 import { TooltipComponent as Tooltip } from "design-system-old";
-import useResponsiveBreakpoints from "utils/hooks/useResizeObserver";
+import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
