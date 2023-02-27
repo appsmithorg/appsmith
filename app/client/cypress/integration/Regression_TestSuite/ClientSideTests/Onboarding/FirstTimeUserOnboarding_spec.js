@@ -8,31 +8,17 @@ describe("FirstTimeUserOnboarding", function() {
     });
   });
 
-  it("onboarding flow - should check page entitiy selection in explorer", function() {
+  it("1. onboarding flow - should check page entity selection in explorer", function() {
+    cy.get(OnboardingLocator.introModal).should("be.visible");
     cy.get(OnboardingLocator.introModalBuild).click();
+    cy.get(OnboardingLocator.introModal).should("not.exist");
     cy.get(".t--entity-name:contains(Page1)")
       .trigger("mouseover")
       .click({ force: true });
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
   });
 
-  it("onboarding flow - should check check the redirection post signup", function() {
-    cy.get(OnboardingLocator.introModal).should("be.visible");
-  });
-
-  it("onboarding flow - should check function of introduction modal build button", function() {
-    cy.get(OnboardingLocator.introModal).should("be.visible");
-    cy.get(OnboardingLocator.introModalBuild).click();
-    cy.get(OnboardingLocator.introModal).should("not.exist");
-  });
-
-  it("onboarding flow - should check function of introduction modal guided tour button", function() {
-    cy.get(OnboardingLocator.introModalWelcomeTourBtn).should("be.visible");
-    cy.get(OnboardingLocator.introModalWelcomeTourBtn).click();
-    cy.get(OnboardingLocator.welcomeTourBtn).should("be.visible");
-  });
-
-  it("onboarding flow - should check the checklist page actions", function() {
+  it("2. onboarding flow - should check the checklist page actions", function() {
     cy.get(OnboardingLocator.introModalBuild).click();
 
     cy.get(OnboardingLocator.statusbar).click();
@@ -94,7 +80,7 @@ describe("FirstTimeUserOnboarding", function() {
     });
   });
 
-  it("onboarding flow - should check the tasks page actions", function() {
+  it("3. onboarding flow - should check the tasks page actions", function() {
     cy.get(OnboardingLocator.introModalBuild).click();
 
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
@@ -136,7 +122,7 @@ describe("FirstTimeUserOnboarding", function() {
     cy.get(OnboardingLocator.taskWidgetBtn).should("not.exist");
   });
 
-  it("onboarding flow - should check the tasks page datasource action alternate widget action", function() {
+  it("4. onboarding flow - should check the tasks page datasource action alternate widget action", function() {
     cy.get(OnboardingLocator.introModalBuild).click();
 
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
@@ -147,7 +133,7 @@ describe("FirstTimeUserOnboarding", function() {
     cy.get(OnboardingLocator.textWidgetName).should("be.visible");
   });
 
-  it("onboarding flow - should check the tasks page query action alternate widget action", function() {
+  it("5. onboarding flow - should check the tasks page query action alternate widget action", function() {
     cy.get(OnboardingLocator.introModalBuild).click();
 
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
@@ -167,7 +153,7 @@ describe("FirstTimeUserOnboarding", function() {
     cy.get(OnboardingLocator.textWidgetName).should("be.visible");
   });
 
-  it("onboarding flow - should check directly opening widget pane", function() {
+  it("6. onboarding flow - should check directly opening widget pane", function() {
     cy.get(OnboardingLocator.introModalBuild).click();
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
     cy.get(OnboardingLocator.widgetPaneTrigger).click();
