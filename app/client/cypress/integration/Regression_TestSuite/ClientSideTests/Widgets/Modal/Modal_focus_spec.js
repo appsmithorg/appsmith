@@ -80,7 +80,7 @@ describe("Modal focus", function() {
 
     cy.get(widgets.modalCloseButton).click({ force: true });
     //open the modal
-    cy.get(widgets.modalWidget).should("not.be.visible");
+    cy.get(widgets.modalWidget).should("not.exist");
     cy.get(widgets.widgetBtn)
       .contains("Submit")
       .click({ force: true });
