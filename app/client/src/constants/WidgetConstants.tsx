@@ -99,11 +99,6 @@ export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
 export const MODAL_PORTAL_OVERLAY_CLASSNAME = "bp3-overlay-zindex";
 export const CANVAS_SELECTOR = "canvas";
-export const widgetTypeClassname = (widgetType: string): string =>
-  `t--widget-${widgetType
-    .split("_")
-    .join("")
-    .toLowerCase()}`;
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
 

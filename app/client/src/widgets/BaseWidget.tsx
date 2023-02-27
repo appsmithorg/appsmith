@@ -7,14 +7,13 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
-import {
-  FlexVerticalAlignment,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
 import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
+import {
+  EditorContext,
+  EditorContextType,
+} from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
@@ -32,26 +31,33 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Stylesheet } from "entities/AppTheming";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import React, { Component, Context, ReactNode, RefObject } from "react";
 import { get, memoize } from "lodash";
+import React, { Component, Context, ReactNode, RefObject } from "react";
+import {
+  ModifyMetaWidgetPayload,
+  UpdateMetaWidgetPropertyPayload,
+} from "reducers/entityReducers/metaWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
 import { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
-  EditorContext,
-  EditorContextType,
-} from "components/editorComponents/EditorContextProvider";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+  FlexVerticalAlignment,
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import {
   DataTreeEvaluationProps,
   EvaluationError,
   EVAL_ERROR_PATH,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
-import { CanvasWidgetStructure } from "./constants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
 import Skeleton from "./Skeleton";
 import {
   getWidgetMaxAutoHeight,
@@ -60,13 +66,6 @@ import {
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import { getMinPixelWidth } from "utils/autoLayout/flexWidgetUtils";
-import { Stylesheet } from "entities/AppTheming";
-import { FlattenedWidgetProps } from "./constants";
-import {
-  ModifyMetaWidgetPayload,
-  UpdateMetaWidgetPropertyPayload,
-} from "reducers/entityReducers/metaWidgetsReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
 import {
   WIDGET_WITH_DYNAMIC_HEIGHT,
@@ -435,22 +434,23 @@ abstract class BaseWidget<
    * @param showControls
    */
   showWidgetName(content: ReactNode, showControls = false) {
-    return !this.props.disablePropertyPane ? (
-      <WidgetNameComponent
-        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
-        isFlexChild={!!this.props.isFlexChild}
-        parentId={this.props.parentId}
-        showControls={showControls}
-        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
-        type={this.props.type}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        widgetProps={this.props}
-      >
+    return (
+      <>
+        {!this.props.disablePropertyPane && (
+          <WidgetNameComponent
+            errorCount={this.getErrorCount(
+              get(this.props, EVAL_ERROR_PATH, {}),
+            )}
+            parentId={this.props.parentId}
+            showControls={showControls}
+            topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+            type={this.props.type}
+            widgetId={this.props.widgetId}
+            widgetName={this.props.widgetName}
+          />
+        )}
         {content}
-      </WidgetNameComponent>
-    ) : (
-      content
+      </>
     );
   }
 
