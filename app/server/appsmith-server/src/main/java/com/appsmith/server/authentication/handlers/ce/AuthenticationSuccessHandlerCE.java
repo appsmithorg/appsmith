@@ -32,8 +32,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.function.Tuple2;
-import reactor.util.function.Tuples;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -87,11 +85,51 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             String defaultWorkspaceId
     ) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
-        Tuple2<Boolean, Mono<Void>> redirectionMonoAndIsFromSignUp = setRedirectionMonoAndSignup(webFilterExchange,
-                authentication, createDefaultApplication, isFromSignup, defaultWorkspaceId);
-        Mono<Void> redirectionMono = redirectionMonoAndIsFromSignUp.getT2();
-        final Boolean isFromSignupFinal = redirectionMonoAndIsFromSignUp.getT1();
+        Mono<Void> redirectionMono;
+        User user = (User) authentication.getPrincipal();
 
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
+            // creation) or if this was a login (existing user). What we do here to identify this, is an approximation.
+            // If and when we find a better way to do identify this, let's please move away from this approximation.
+            // If the user object was created within the last 5 seconds, we treat it as a new user.
+            isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
+            // If user has previously signed up using password and now using OAuth as a sign in method we are removing
+            // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
+            // as we are not verifying the user emails at first sign up. In future if we implement the email
+            // verification this can be eliminated safely
+            if (user.getPassword() != null) {
+                user.setPassword(null);
+                user.setSource(
+                        LoginSource.fromString(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId())
+                );
+                // Update the user in separate thread
+                userRepository.save(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
+            }
+            if (isFromSignup) {
+                boolean finalIsFromSignup = isFromSignup;
+                redirectionMono = workspaceService.isCreateWorkspaceAllowed(Boolean.TRUE).flatMap(isCreateWorkspaceAllowed -> {
+                    if (isCreateWorkspaceAllowed) {
+                        return createDefaultApplication(defaultWorkspaceId, authentication).flatMap(defaultApplication ->
+                                handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
+                    }
+                    return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
+                });
+            } else {
+                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
+            }
+        } else {
+            boolean finalIsFromSignup = isFromSignup;
+            if (createDefaultApplication && isFromSignup) {
+                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication).flatMap(
+                        defaultApplication -> handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
+                );
+            } else {
+                redirectionMono = handleRedirect(webFilterExchange, null, finalIsFromSignup);
+            }
+        }
+
+        final boolean isFromSignupFinal = isFromSignup;
         return sessionUserService.getCurrentUser()
                 .flatMap(currentUser -> {
                     List<Mono<?>> monos = new ArrayList<>();
@@ -137,52 +175,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     return Mono.whenDelayError(monos);
                 })
                 .then(redirectionMono);
-    }
-
-    protected Tuple2<Boolean, Mono<Void>> setRedirectionMonoAndSignup(WebFilterExchange webFilterExchange,
-                                                                      Authentication authentication,
-                                                                      boolean createDefaultApplication,
-                                                                      boolean isFromSignup,
-                                                                      String defaultWorkspaceId) {
-        Mono<Void> redirectionMono;
-        User user = (User) authentication.getPrincipal();
-
-        if (authentication instanceof OAuth2AuthenticationToken) {
-            // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
-            // creation) or if this was a login (existing user). What we do here to identify this, is an approximation.
-            // If and when we find a better way to do identify this, let's please move away from this approximation.
-            // If the user object was created within the last 5 seconds, we treat it as a new user.
-            isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
-            // If user has previously signed up using password and now using OAuth as a sign in method we are removing
-            // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
-            // as we are not verifying the user emails at first sign up. In future if we implement the email
-            // verification this can be eliminated safely
-            if (user.getPassword() != null) {
-                user.setPassword(null);
-                user.setSource(
-                        LoginSource.fromString(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId())
-                );
-                // Update the user in separate thread
-                userRepository.save(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
-            }
-            if (isFromSignup) {
-                boolean finalIsFromSignup = isFromSignup;
-                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication)
-                        .flatMap(defaultApplication -> handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
-            } else {
-                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
-            }
-        } else {
-            boolean finalIsFromSignup = isFromSignup;
-            if (createDefaultApplication && isFromSignup) {
-                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication).flatMap(
-                        defaultApplication -> handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
-                );
-            } else {
-                redirectionMono = handleRedirect(webFilterExchange, null, finalIsFromSignup);
-            }
-        }
-        return Tuples.of(isFromSignup, redirectionMono);
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
@@ -238,7 +230,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
             "JavadocReference"
     )
-    protected Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
+    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
@@ -282,7 +274,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         }
     }
 
-    protected Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
+    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
