@@ -178,7 +178,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                     long numberOfUsers = users.size();
                     List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
                     analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
-                    analyticsProperties.put("userEmails", invitedUsers);
+                    eventData.put(FieldName.USER_EMAILS, invitedUsers);
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
                 });
