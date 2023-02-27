@@ -44,6 +44,11 @@ export const ResizeWrapper = styled(animated.div)<{
       outline-color: ${Colors.GREY_1} !important;
       border-color: ${Colors.GREY_1};
       `;
+    } else {
+      return `
+      outline-color: transparent !important;
+      border-color: transparent;
+      `;
     }
   }}}
 `;
