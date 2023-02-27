@@ -284,12 +284,17 @@ export function* fetchAppAndPagesSaga(
 function* handleFetchApplicationError(error: any) {
   const currentUser: User = yield select(getCurrentUser);
   if (
-    !(
-      currentUser &&
-      currentUser.email === ANONYMOUS_USERNAME &&
-      error?.code === ERROR_CODES.PAGE_NOT_FOUND
-    )
+    currentUser &&
+    currentUser.email === ANONYMOUS_USERNAME &&
+    error?.code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+      payload: {
+        code: ERROR_CODES.PAGE_NOT_FOUND,
+      },
+    });
+  } else {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
       payload: {
@@ -300,13 +305,6 @@ function* handleFetchApplicationError(error: any) {
       type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
       payload: {
         error,
-      },
-    });
-  } else {
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: ERROR_CODES.PAGE_NOT_FOUND,
       },
     });
   }
