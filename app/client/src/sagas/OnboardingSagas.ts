@@ -399,15 +399,14 @@ function* endFirstTimeUserOnboardingSaga() {
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     payload: "",
   });
-  toast.show({
-    text: createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER),
-    hideProgressBar: false,
+  toast.show(createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER), {
     kind: "success",
-    dispatchableAction: {
-      dispatch: store.dispatch,
-      type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
-      payload: firstTimeUserExperienceAppId,
-    },
+    // TODO: toast and dispatch
+    // dispatchableAction: {
+    //   dispatch: store.dispatch,
+    //   type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
+    //   payload: firstTimeUserExperienceAppId,
+    // },
   });
 }
 
