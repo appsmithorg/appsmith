@@ -185,13 +185,6 @@ function DraggableComponent(props: DraggableComponentProps) {
     }
   };
 
-  const widgetBoundaries = props.isFlexChild ? null : (
-    <WidgetBoundaries
-      className={`widget-boundary-${props.widgetId}`}
-      style={dragBoundariesStyle}
-    />
-  );
-
   return (
     <DraggableWrapper
       className={className}
