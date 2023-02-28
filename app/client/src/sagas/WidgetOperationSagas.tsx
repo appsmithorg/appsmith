@@ -99,7 +99,7 @@ import { builderURL } from "RouteBuilder";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import { flashElementsById } from "utils/helpers";
 import history from "utils/history";
 import {
@@ -109,6 +109,7 @@ import {
 import WidgetFactory from "utils/WidgetFactory";
 import {
   addChildToPastedFlexLayers,
+  getLayerIndexOfWidget,
   isStack,
   pasteWidgetInFlexLayers,
 } from "../utils/autoLayout/AutoLayoutUtils";
@@ -209,9 +210,10 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const isMobile: boolean = yield select(getIsMobile);
     let updatedWidgetsAfterResizing = movedWidgets;
     if (appPositioningType === AppPositioningTypes.AUTO) {
-      updatedWidgetsAfterResizing = updateWidgetPositions(
+      updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
         parentId,
+        getLayerIndexOfWidget(widgets[parentId]?.flexLayers, widgetId),
         isMobile,
         mainCanvasWidth,
       );
