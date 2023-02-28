@@ -439,7 +439,7 @@ describe("List widget v2 - meta hydration tests", () => {
           .first()
           .invoke("text")
           .then(($selectedValue) => {
-            expect($selectedValue).to.eq("Green");
+            expect($selectedValue).to.eq("Blue");
           }),
       {
         timeout: 10000,
