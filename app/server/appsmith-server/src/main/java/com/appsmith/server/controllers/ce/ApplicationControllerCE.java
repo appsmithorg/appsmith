@@ -197,7 +197,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<ApplicationSnapshot>> getSnapshotWithoutApplicationJson(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get snapshot with application id: {}, branch: {}", id, branchName);
 
-        return applicationSnapshotService.getWithoutApplicationJsonByApplicationId(id, branchName)
+        return applicationSnapshotService.getWithoutDataByApplicationId(id, branchName)
                 .map(applicationSnapshot -> new ResponseDTO<>(HttpStatus.OK.value(), applicationSnapshot, null));
     }
 

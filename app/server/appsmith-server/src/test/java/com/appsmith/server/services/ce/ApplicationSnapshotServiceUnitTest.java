@@ -2,31 +2,37 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.google.gson.Gson;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static java.util.Arrays.copyOfRange;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
 public class ApplicationSnapshotServiceUnitTest {
@@ -43,16 +49,18 @@ public class ApplicationSnapshotServiceUnitTest {
     @Autowired
     ApplicationSnapshotService applicationSnapshotService;
 
+    @Autowired
+    Gson gson;
 
     @Test
-    public void createApplicationSnapshot_WhenApplicationTooLarge_ExceptionThrown() {
+    public void createApplicationSnapshot_WhenApplicationTooLarge_SnapshotCreatedSuccessfully() {
         String defaultAppId = "default-app-id",
                 branchName = "develop",
                 branchedAppId = "branched-app-id";
 
         // Create a large ApplicationJson object that exceeds the 15 MB size
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("key", generateRandomString(15));
+        jsonObject.put("key", generateRandomString(16));
 
         Layout layout = new Layout();
         layout.setDsl(jsonObject);
@@ -72,52 +80,73 @@ public class ApplicationSnapshotServiceUnitTest {
         Mockito.when(importExportApplicationService.exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mockito.when(applicationSnapshotRepository.findWithoutData(branchedAppId)).thenReturn(Mono.empty());
+        Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
+                .thenReturn(Mono.just("").then());
+
+        // we're expecting to receive two application snapshots, create a matcher to check the size
+        ArgumentMatcher<List<ApplicationSnapshot>> snapshotListHasTwoSnapshot = snapshotList -> snapshotList.size() == 2;
+
+        Mockito.when(applicationSnapshotRepository.saveAll(argThat(snapshotListHasTwoSnapshot)))
+                .thenReturn(Flux.just(new ApplicationSnapshot(), new ApplicationSnapshot()));
 
         StepVerifier.create(applicationSnapshotService.createApplicationSnapshot(defaultAppId, branchName))
-                .verifyErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Application too large for snapshot"));
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isTrue();
+                })
+                .verifyComplete();
     }
 
     @Test
-    public void createApplicationSnapshot_WhenApplicationSizeLessThan15Mb_ResponseReceived() {
+    public void restoreSnapshot_WhenSnapshotHasMultipleChunks_RestoredSuccessfully() {
         String defaultAppId = "default-app-id",
-                branchName = "develop",
                 branchedAppId = "branched-app-id",
-                snapshotId = "snapshot-id";
+                workspaceId = "workspace-id",
+                branch = "development";
 
-        // Create a large ApplicationJson object that exceeds the 15 MB size
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("key", generateRandomString(14));
+        Application application = new Application();
+        application.setName("Snapshot test");
+        application.setWorkspaceId(workspaceId);
+        application.setId(branchedAppId);
 
-        Layout layout = new Layout();
-        layout.setDsl(jsonObject);
-
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setLayouts(new ArrayList<>());
-        pageDTO.getLayouts().add(layout);
-        NewPage newPage = new NewPage();
-        newPage.setUnpublishedPage(pageDTO);
+        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(branch, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
+                .thenReturn(Mono.just(application));
 
         ApplicationJson applicationJson = new ApplicationJson();
-        applicationJson.setPageList(List.of(newPage));
+        applicationJson.setExportedApplication(application);
 
-        Mockito.when(applicationService.findBranchedApplicationId(branchName, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
-                .thenReturn(Mono.just(branchedAppId));
+        String jsonString = gson.toJson(applicationJson);
+        byte[] jsonStringBytes = jsonString.getBytes(StandardCharsets.UTF_8);
 
-        Mockito.when(importExportApplicationService.exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
-                .thenReturn(Mono.just(applicationJson));
+        int chunkSize = jsonStringBytes.length / 3;
 
-        Mockito.when(applicationSnapshotRepository.findWithoutData(branchedAppId)).thenReturn(Mono.empty());
+        List<ApplicationSnapshot> snapshots = List.of(
+                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize*2, jsonStringBytes.length), 3),
+                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, 0, chunkSize), 1),
+                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize, chunkSize*2), 2)
+        );
 
-        ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
-        applicationSnapshot.setId(snapshotId);
-        Mockito.when(applicationSnapshotRepository.save(any(ApplicationSnapshot.class))).thenReturn(Mono.just(applicationSnapshot));
+        Mockito.when(applicationSnapshotRepository.findByApplicationId(branchedAppId))
+                .thenReturn(Flux.fromIterable(snapshots));
 
-        StepVerifier.create(applicationSnapshotService.createApplicationSnapshot(defaultAppId, branchName))
-                .assertNext(s -> {
-                    assertThat(s).isEqualTo(snapshotId);
+        // matcher to check that ApplicationJson created from chunks matches the original one
+        ArgumentMatcher<ApplicationJson> matchApplicationJson;
+        matchApplicationJson = applicationJson1 -> applicationJson1.getExportedApplication().getName().equals(application.getName());
+        Mockito.when(importExportApplicationService.importApplicationInWorkspace(eq(application.getWorkspaceId()), argThat(matchApplicationJson), eq(branchedAppId), eq(branch)))
+                .thenReturn(Mono.just(application));
+
+        StepVerifier.create(applicationSnapshotService.restoreSnapshot(defaultAppId, branch))
+                .assertNext(application1 -> {
+                    assertThat(application1.getName()).isEqualTo(application.getName());
                 })
                 .verifyComplete();
+    }
+
+    private ApplicationSnapshot createSnapshot(String applicationId, byte [] data, int chunkOrder) {
+        ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
+        applicationSnapshot.setApplicationId(applicationId);
+        applicationSnapshot.setData(data);
+        applicationSnapshot.setChunkOrder(chunkOrder);
+        return applicationSnapshot;
     }
 
     private String generateRandomString(int targetStringSizeInMB) {

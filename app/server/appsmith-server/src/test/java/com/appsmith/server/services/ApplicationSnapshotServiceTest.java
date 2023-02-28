@@ -52,7 +52,7 @@ public class ApplicationSnapshotServiceTest {
                     return applicationSnapshotService.createApplicationSnapshot(application.getId(), "")
                             .thenReturn(application.getId());
                 })
-                .flatMap(applicationId -> applicationSnapshotService.getWithoutApplicationJsonByApplicationId(applicationId, null));
+                .flatMap(applicationId -> applicationSnapshotService.getWithoutDataByApplicationId(applicationId, null));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
@@ -83,7 +83,7 @@ public class ApplicationSnapshotServiceTest {
                             .then(applicationSnapshotService.createApplicationSnapshot(application.getId(), ""))
                             .thenReturn(application.getId());
                 })
-                .flatMap(applicationId -> applicationSnapshotService.getWithoutApplicationJsonByApplicationId(applicationId, null));
+                .flatMap(applicationId -> applicationSnapshotService.getWithoutDataByApplicationId(applicationId, null));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
@@ -118,7 +118,7 @@ public class ApplicationSnapshotServiceTest {
                     return applicationPageService.createApplication(testApplication);
                 })
                 .flatMap(application -> applicationSnapshotService.createApplicationSnapshot(testDefaultAppId, testBranchName)
-                        .then(applicationSnapshotService.getWithoutApplicationJsonByApplicationId(testDefaultAppId, testBranchName))
+                        .then(applicationSnapshotService.getWithoutDataByApplicationId(testDefaultAppId, testBranchName))
                         .zipWith(Mono.just(application)));
 
         StepVerifier.create(tuple2Mono)

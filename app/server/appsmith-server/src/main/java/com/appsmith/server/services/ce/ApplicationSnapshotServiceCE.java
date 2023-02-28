@@ -14,7 +14,7 @@ public interface ApplicationSnapshotServiceCE {
      */
     Mono<Boolean> createApplicationSnapshot(String applicationId, String branchName);
 
-    Mono<ApplicationSnapshot> getWithoutApplicationJsonByApplicationId(String applicationId, String branchName);
+    Mono<ApplicationSnapshot> getWithoutDataByApplicationId(String applicationId, String branchName);
 
     Mono<Application> restoreSnapshot(String applicationId, String branchName);
 }

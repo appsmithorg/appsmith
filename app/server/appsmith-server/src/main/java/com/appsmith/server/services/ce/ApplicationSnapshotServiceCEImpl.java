@@ -62,7 +62,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     }
 
     @Override
-    public Mono<ApplicationSnapshot> getWithoutApplicationJsonByApplicationId(String applicationId, String branchName) {
+    public Mono<ApplicationSnapshot> getWithoutDataByApplicationId(String applicationId, String branchName) {
         // get application first to check the permission and get child aka branched application ID
         return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
