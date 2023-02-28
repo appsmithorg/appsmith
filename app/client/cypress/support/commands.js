@@ -303,7 +303,13 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
 });
 
 Cypress.Commands.add("LogOut", () => {
-  cy.request("POST", "/api/v1/logout");
+  cy.request({
+    method: "POST",
+    url: "/api/v1/logout",
+    headers: {
+      "X-Requested-By": "Appsmith",
+    },
+  });
 });
 
 Cypress.Commands.add("NavigateToHome", () => {
@@ -608,16 +614,19 @@ Cypress.Commands.add("addDsl", (dsl) => {
       layoutId = JSON.parse(respBody).data.layouts[0].id;
       cy.log("appid:" + appId);
       // Dumping the DSL to the created page
-      cy.request(
-        "PUT",
-        "api/v1/layouts/" +
+      cy.request({
+        method: "PUT",
+        url: "api/v1/layouts/" +
           layoutId +
           "/pages/" +
           pageid +
           "?applicationId=" +
           appId,
-        dsl,
-      ).then((response) => {
+        body: dsl,
+        headers: {
+          "X-Requested-By": "Appsmith",
+        },
+      }).then((response) => {
         cy.log(response.body);
         expect(response.status).equal(200);
         cy.reload();
@@ -634,6 +643,9 @@ Cypress.Commands.add("DeleteAppByApi", () => {
       method: "DELETE",
       url: "api/v1/applications/" + appId,
       failOnStatusCode: false,
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
     }).then((response) => {
       cy.log(response.body);
       cy.log(response.status);
