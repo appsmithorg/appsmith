@@ -243,10 +243,9 @@ class ListWidget extends BaseWidget<
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
-      const maxPageNo = Math.max(
-        Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
-        1,
-      );
+      const totalRecords = this.getTotalDataCount();
+
+      const maxPageNo = Math.max(Math.ceil(totalRecords / this.pageSize), 1);
 
       this.onPageChange(maxPageNo);
     }
@@ -580,12 +579,10 @@ class ListWidget extends BaseWidget<
   };
 
   isCurrPageNoGreaterThanMaxPageNo = () => {
-    if (
-      this.props.listData &&
-      !this.props.infiniteScroll &&
-      !this.props.serverSidePagination
-    ) {
-      const maxPageNo = Math.ceil(this.props.listData?.length / this.pageSize);
+    const totalRecords = this.getTotalDataCount();
+
+    if (totalRecords && !this.props.infiniteScroll) {
+      const maxPageNo = Math.ceil(totalRecords / this.pageSize);
 
       return maxPageNo < this.props.pageNo;
     }
@@ -836,6 +833,18 @@ class ListWidget extends BaseWidget<
     this.resetTriggeredItemView();
   };
 
+  getTotalDataCount = () => {
+    const defaultValue = 0;
+    const { serverSidePagination, totalRecordsCount } = this.props;
+
+    if (!serverSidePagination) return (this.props.listData || []).length;
+
+    if (typeof totalRecordsCount === "number" && totalRecordsCount > 0)
+      return totalRecordsCount;
+
+    return defaultValue;
+  };
+
   shouldPaginate = () => {
     /**
      * if client side pagination and not infinite scroll and data is more than page size
@@ -991,9 +1000,10 @@ class ListWidget extends BaseWidget<
   renderPaginationUI = () => {
     const { isLoading, pageNo, serverSidePagination } = this.props;
     const disableNextPage = this.shouldDisableNextPage();
+    const totalDataCount = this.getTotalDataCount();
     return (
       this.shouldPaginate() &&
-      (serverSidePagination ? (
+      (serverSidePagination && !totalDataCount ? (
         <ServerSideListPagination
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
@@ -1015,7 +1025,7 @@ class ListWidget extends BaseWidget<
           onChange={this.onPageChange}
           pageNo={this.props.pageNo}
           pageSize={this.pageSize}
-          total={(this.props.listData || []).length}
+          total={totalDataCount}
         />
       ))
     );
@@ -1140,6 +1150,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
   defaultSelectedItem?: string | number | null;
+  totalRecordsCount?: number | string;
 }
 
 export default ListWidget;
