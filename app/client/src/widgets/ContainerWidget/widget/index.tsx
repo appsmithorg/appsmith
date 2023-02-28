@@ -226,11 +226,7 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    //ToDo: Ashok Need a better way of doing this.
-    const useAutoLayout = this.props.positioning
-      ? this.props.positioning !== Positioning.Fixed
-      : false;
-    const shouldScroll = props.shouldScrollContents && !useAutoLayout;
+    const shouldScroll = props.shouldScrollContents;
     return (
       <ContainerComponent {...props} shouldScrollContents={shouldScroll}>
         <WidgetsMultiSelectBox

@@ -127,6 +127,7 @@ export function ReflowResizable(props: ResizableProps) {
   }, [props, allWidgets]);
   const hasFillChild =
     !!layer &&
+    layer?.children?.length &&
     layer.children.some((each: any) => {
       const widget = allWidgets[each.id];
       return widget && widget.responsiveBehavior === ResponsiveBehavior.Fill;
