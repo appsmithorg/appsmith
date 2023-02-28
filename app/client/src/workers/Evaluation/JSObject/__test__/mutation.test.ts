@@ -3,7 +3,7 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import JSObjectCollection, { VariableState } from "../Collection";
 
-jest.mock("../sendUpdatedDataTree.ts", () => {
+jest.mock("../../evalTreeWithChanges.ts", () => {
   return {
     triggerEvalWithChanges: () => ({}),
   };
