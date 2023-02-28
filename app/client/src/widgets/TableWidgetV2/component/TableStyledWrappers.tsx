@@ -156,7 +156,7 @@ export const TableWrapper = styled.div<{
       }
       .resizer {
         display: inline-block;
-        width: 10px;
+        width: 5px;
         height: 100%;
         position: absolute;
         right: 0;
@@ -165,8 +165,12 @@ export const TableWrapper = styled.div<{
         z-index: 1;
         ${"" /* prevents from scrolling while dragging on touch devices */}
         touch-action:none;
+        &:hover {
+          background-color: ${({ accentColor }) => `${accentColor}`} !important;
+        }
         &.isResizing {
           cursor: isResizing;
+          background-color: ${({ accentColor }) => `${accentColor}`} !important;
         }
       }
     }
@@ -176,7 +180,6 @@ export const TableWrapper = styled.div<{
     }
 
     .th {
-      padding: 0 10px 0 0;
       height: ${(props) =>
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       line-height: ${(props) =>
@@ -314,10 +317,10 @@ export const TableWrapper = styled.div<{
     display: flex !important;
     justify-content: space-between;
     &.highlight-left {
-      border-left: 2px solid ${Colors.GREEN};
+      border-left: 2px solid ${({ accentColor }) => `${accentColor}`};
     }
     &.highlight-right {
-      border-right: 2px solid ${Colors.GREEN};
+      border-right: 2px solid ${({ accentColor }) => `${accentColor}`};
     }
   }
   .input-group {

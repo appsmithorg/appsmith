@@ -184,85 +184,87 @@ export function HeaderCell(props: {
             {props.columnName.replace(/\s/g, "\u00a0")}
           </Title>
         </ColumnNameContainer>
-      </div>
-      <div className={`header-menu${!isMenuOpen ? " hide" : ""}`}>
-        <Popover2
-          content={
-            <Menu className={MENU_CONTENT_CLASS}>
-              <MenuItem
-                disabled={disableSort}
-                labelElement={props.isAscOrder === true ? <Check /> : undefined}
-                onClick={() => {
-                  props.sortTableColumn(props.columnIndex, true);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.SORT_ASC}
-              />
-              <MenuItem
-                disabled={disableSort}
-                labelElement={
-                  props.isAscOrder === false ? <Check /> : undefined
-                }
-                onClick={() => {
-                  props.sortTableColumn(props.columnIndex, false);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.SORT_DSC}
-              />
-              <MenuDivider
-                style={{
-                  marginLeft: 0,
-                  marginRight: 0,
-                }}
-              />
-              <MenuItem
-                disabled={!props.canFreezeColumn}
-                labelElement={
-                  column.sticky === StickyType.LEFT ? <Check /> : undefined
-                }
-                onClick={() => {
-                  toggleColumnFreeze(StickyType.LEFT);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.FREEZE_LEFT}
-              />
-              <MenuItem
-                disabled={!props.canFreezeColumn}
-                labelElement={
-                  column.sticky === StickyType.RIGHT ? <Check /> : undefined
-                }
-                onClick={() => {
-                  toggleColumnFreeze(StickyType.RIGHT);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.FREEZE_RIGHT}
-              />
-            </Menu>
-          }
-          interactionKind="hover"
-          isOpen={isMenuOpen}
-          minimal
-          onInteraction={setIsMenuOpen}
-          placement="bottom-end"
-          portalClassName={`${HEADER_MENU_PORTAL_CLASS}-${props.widgetId}`}
-          portalContainer={document.getElementById("art-board") || undefined}
-        >
-          <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
-        </Popover2>
-      </div>
-      {props.isAscOrder !== undefined ? (
-        <div>
-          {props.isAscOrder ? (
-            <AscendingIcon height={ICON_SIZE} width={ICON_SIZE} />
-          ) : (
-            <DescendingIcon height={ICON_SIZE} width={ICON_SIZE} />
-          )}
+        <div className={`header-menu${!isMenuOpen ? " hide" : ""}`}>
+          <Popover2
+            content={
+              <Menu className={MENU_CONTENT_CLASS}>
+                <MenuItem
+                  disabled={disableSort}
+                  labelElement={
+                    props.isAscOrder === true ? <Check /> : undefined
+                  }
+                  onClick={() => {
+                    props.sortTableColumn(props.columnIndex, true);
+                  }}
+                  text={POPOVER_ITEMS_TEXT_MAP.SORT_ASC}
+                />
+                <MenuItem
+                  disabled={disableSort}
+                  labelElement={
+                    props.isAscOrder === false ? <Check /> : undefined
+                  }
+                  onClick={() => {
+                    props.sortTableColumn(props.columnIndex, false);
+                  }}
+                  text={POPOVER_ITEMS_TEXT_MAP.SORT_DSC}
+                />
+                <MenuDivider
+                  style={{
+                    marginLeft: 0,
+                    marginRight: 0,
+                  }}
+                />
+                <MenuItem
+                  disabled={!props.canFreezeColumn}
+                  labelElement={
+                    column.sticky === StickyType.LEFT ? <Check /> : undefined
+                  }
+                  onClick={() => {
+                    toggleColumnFreeze(StickyType.LEFT);
+                  }}
+                  text={POPOVER_ITEMS_TEXT_MAP.FREEZE_LEFT}
+                />
+                <MenuItem
+                  disabled={!props.canFreezeColumn}
+                  labelElement={
+                    column.sticky === StickyType.RIGHT ? <Check /> : undefined
+                  }
+                  onClick={() => {
+                    toggleColumnFreeze(StickyType.RIGHT);
+                  }}
+                  text={POPOVER_ITEMS_TEXT_MAP.FREEZE_RIGHT}
+                />
+              </Menu>
+            }
+            interactionKind="hover"
+            isOpen={isMenuOpen}
+            minimal
+            onInteraction={setIsMenuOpen}
+            placement="bottom-end"
+            portalClassName={`${HEADER_MENU_PORTAL_CLASS}-${props.widgetId}`}
+            portalContainer={document.getElementById("art-board") || undefined}
+          >
+            <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
+          </Popover2>
         </div>
-      ) : null}
-      <div
-        {...column.getResizerProps()}
-        className={`resizer ${column.isResizing ? "isResizing" : ""}`}
-        onClick={(e: React.MouseEvent<HTMLElement>) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      />
+        {props.isAscOrder !== undefined ? (
+          <div>
+            {props.isAscOrder ? (
+              <AscendingIcon height={ICON_SIZE} width={ICON_SIZE} />
+            ) : (
+              <DescendingIcon height={ICON_SIZE} width={ICON_SIZE} />
+            )}
+          </div>
+        ) : null}
+        <div
+          {...column.getResizerProps()}
+          className={`resizer ${column.isResizing ? "isResizing" : ""}`}
+          onClick={(e: React.MouseEvent<HTMLElement>) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        />
+      </div>
     </div>
   );
 }
