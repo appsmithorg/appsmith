@@ -555,11 +555,8 @@ public class MySqlPluginTest {
                 StepVerifier.create(executeMono)
                         .verifyErrorSatisfies(error -> {
                                 assertTrue(error instanceof AppsmithPluginException);
-                                String expectedMessage = "Appsmith currently does not support the IS keyword with the prepared "
-                                        +
-                                        "statement setting turned ON. Please re-write your SQL query without the IS keyword or "
-                                        +
-                                        "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab.";
+                                String expectedMessage = "Appsmith currently does not support the IS keyword with the prepared statement " +
+                                        "setting turned ON. Please re-write your SQL query without the IS keyword";
                                 assertTrue(expectedMessage.equals(error.getMessage()));
                         });
         }
