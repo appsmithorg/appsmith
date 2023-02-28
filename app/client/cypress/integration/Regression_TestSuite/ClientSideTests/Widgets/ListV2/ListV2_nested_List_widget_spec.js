@@ -56,7 +56,7 @@ describe(" Nested List Widgets ", function() {
     cy.get(`${widgetSelector("List2Copy1")}`).should("not.exist");
   });
 
-  it("b. Not show parent list in level data autocomplete", () => {
+  it("b. No cyclic dependency when using levelData in a child widget", () => {
     cy.dragAndDropToWidgetBySelector(
       "textwidget",
       '[data-widgetname-cy="List1"] [type="CONTAINER_WIDGET"]',
