@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+import apiEditor from "../../../../locators/ApiEditor";
 let dataSet: any, valueToTest: any, jsName: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -24,12 +24,7 @@ describe("Validate JSObj binding to Table widget", () => {
   it("1. Add users api and bind to JSObject", () => {
     apiPage.CreateAndFillApi(dataSet.userApi + "/mock-api?records=10");
     apiPage.RunAPI();
-    apiPage.ReadApiResponsebyKey("name");
-    cy.get("@apiResp").then((value) => {
-      valueToTest = value;
-      cy.log("valueToTest to test returned is :" + valueToTest);
-      //cy.log("value to test returned is :" + value)
-    });
+    agHelper.GetNClick(apiEditor.jsonResponseTab);
     jsEditor.CreateJSObject("return Api1.data;", {
       paste: false,
       completeReplace: false,
@@ -51,13 +46,17 @@ describe("Validate JSObj binding to Table widget", () => {
     cy.get(locator._textWidget).should("have.length", 8);
     deployMode.DeployApp(locator._textWidgetInDeployed);
     agHelper.AssertElementLength(locator._textWidgetInDeployed, 8);
-    cy.get(locator._textWidgetInDeployed)
-      .first()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal((valueToTest as string).trimEnd());
-      });
-
+    cy.wait("@postExecute").then((interception: any) => {
+      valueToTest = JSON.stringify(
+        interception.response.body.data.body[0].name,
+      ).replace(/['"]+/g, "");
+      cy.get(locator._textWidgetInDeployed)
+        .first()
+        .invoke("text")
+        .then((text) => {
+          expect(text).to.equal((valueToTest as string).trimEnd());
+        });
+    });
     table.AssertPageNumber_List(1);
     table.NavigateToNextPage_List();
     table.AssertPageNumber_List(2);
@@ -81,13 +80,17 @@ describe("Validate JSObj binding to Table widget", () => {
     cy.get(locator._textWidget).should("have.length", 6);
     deployMode.DeployApp(locator._textWidgetInDeployed);
     agHelper.AssertElementLength(locator._textWidgetInDeployed, 6);
-    cy.get(locator._textWidgetInDeployed)
-      .first()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal((valueToTest as string).trimEnd());
-      });
-
+    cy.wait("@postExecute").then((interception: any) => {
+      valueToTest = JSON.stringify(
+        interception.response.body.data.body[0].name,
+      ).replace(/['"]+/g, "");
+      cy.get(locator._textWidgetInDeployed)
+        .first()
+        .invoke("text")
+        .then((text) => {
+          expect(text).to.equal((valueToTest as string).trimEnd());
+        });
+    });
     table.AssertPageNumber_List(1);
     agHelper.AssertElementLength(locator._textWidgetInDeployed, 6);
     table.NavigateToNextPage_List();
