@@ -15,7 +15,7 @@ import { EmptyRows, EmptyRow, Row } from "./Row";
 import { ReactTableColumnProps, TableSizes } from "../Constants";
 import { HeaderComponentProps } from "../Table";
 
-type BodyContextType = {
+export type BodyContextType = {
   accentColor: string;
   borderRadius: string;
   multiRowSelection: boolean;
@@ -32,7 +32,9 @@ type BodyContextType = {
   primaryColumnId?: string;
   isAddRowInProgress: boolean;
   headerProps?: HeaderComponentProps | Record<string, never>;
-  getTableBodyProps?: () => void;
+  getTableBodyProps?(
+    propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
+  ): TableBodyProps;
   totalColumnsWidth?: number;
 };
 
@@ -48,7 +50,6 @@ export const BodyContext = React.createContext<BodyContextType>({
   primaryColumnId: "",
   isAddRowInProgress: false,
   headerProps: {},
-  getTableBodyProps: () => "",
   totalColumnsWidth: 0,
 });
 
