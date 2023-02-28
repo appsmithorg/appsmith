@@ -331,7 +331,10 @@ export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
   const jsCollectionEntries = Object.entries(jsCollections);
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
     const sanitizedState = removeProxyObject(variableState);
-    Object.assign(evalTree[jsObjectName], sanitizedState);
+    evalTree[jsObjectName] = Object.assign(
+      evalTree[jsObjectName] || {},
+      sanitizedState,
+    );
   }
 }
 
