@@ -10,10 +10,15 @@ describe("Shopping cart App", function() {
   let datasourceName;
 
   before(() => {
-    cy.addDsl(dsl);
-  });
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("MongoDBShop" + uid);
+      _.homePage.CreateAppInWorkspace("MongoDBShop" + uid, "MongoDBShopApp");
+      cy.fixture("mongoAppdsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
+    });
   });
 
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function() {

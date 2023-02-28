@@ -44,6 +44,9 @@ describe("<DropdownWidget />", () => {
       autoHeightUI: {
         isAutoHeightWithLimitsChanging: false,
       },
+      mainCanvas: {
+        width: 1159,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };

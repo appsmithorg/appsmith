@@ -28,8 +28,9 @@ const StyledContainerComponent = styled.div<
   width: 100%;
   overflow: hidden;
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
-
-  ${(props) => (props.shouldScrollContents ? scrollCSS : ``)}
+  
+  ${(props) =>
+    props.shouldScrollContents && !props.$noScroll ? scrollCSS : ``}
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
 
   background: ${(props) => props.backgroundColor};
@@ -64,6 +65,7 @@ interface ContainerWrapperProps {
   widgetId: string;
   type: WidgetType;
   dropDisabled?: boolean;
+  $noScroll: boolean;
 }
 function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
@@ -132,6 +134,7 @@ function ContainerComponentWrapper(
     <StyledContainerComponent
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
       // getCanvasClassName is used to add a scrollable parent.
+      $noScroll={props.$noScroll}
       backgroundColor={props.backgroundColor}
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
@@ -161,6 +164,7 @@ function ContainerComponent(props: ContainerComponentProps) {
   if (props.detachFromLayout) {
     return (
       <ContainerComponentWrapper
+        $noScroll={!!props.noScroll}
         dropDisabled={props.dropDisabled}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
@@ -186,6 +190,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       widgetId={props.widgetId}
     >
       <ContainerComponentWrapper
+        $noScroll={!!props.noScroll}
         backgroundColor={props.backgroundColor}
         dropDisabled={props.dropDisabled}
         onClick={props.onClick}

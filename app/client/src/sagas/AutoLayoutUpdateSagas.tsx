@@ -53,28 +53,6 @@ export function* updateLayoutForMobileCheckpoint(
   }
 }
 
-// const processedParentIds = new Map();
-
-// function* widgetViolatedMinDimensionsSaga(
-//   action: ReduxAction<{ parentId: string }>,
-// ) {
-//   const isMobile: boolean = yield select(getIsMobile);
-//   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-//   const mainCanvasWidth: number = yield select(getCanvasWidth);
-
-//   const parentId = action.payload.parentId;
-//   if (processedParentIds.has(parentId)) return;
-//   processedParentIds.set(parentId, true);
-//   setTimeout(() => processedParentIds.delete(parentId), 1000);
-//   const updatedWidgets = updateWidgetPositions(
-//     allWidgets,
-//     parentId,
-//     isMobile,
-//     mainCanvasWidth,
-//   );
-//   yield put(updateAndSaveLayout(updatedWidgets));
-// }
-
 let autoLayoutWidgetDimensionUpdateBatch: Record<
   string,
   { width: number; height: number }
@@ -266,10 +244,6 @@ export default function* layoutUpdateSagas() {
       ReduxActionTypes.RECALCULATE_COLUMNS,
       updateLayoutForMobileCheckpoint,
     ),
-    // takeLatest(
-    //   ReduxActionTypes.WIDGET_VIOLATED_MIN_DIMENSIONS,
-    //   widgetViolatedMinDimensionsSaga,
-    // ),
     takeLatest(
       ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,
       updateWidgetDimensionsSaga,

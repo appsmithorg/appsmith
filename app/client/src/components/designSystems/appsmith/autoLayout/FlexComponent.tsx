@@ -1,14 +1,8 @@
-import React, {
-  CSSProperties,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-} from "react";
+import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import {
@@ -19,8 +13,6 @@ import {
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
-import { widgetViolatedMinDimensionsAction } from "actions/autoLayoutActions";
-import { debounce } from "lodash";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 
 export type AutoLayoutProps = {
@@ -29,7 +21,6 @@ export type AutoLayoutProps = {
   componentWidth: number;
   direction?: LayoutDirection;
   focused?: boolean;
-  minWidth?: number;
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
   selected?: boolean;
@@ -47,7 +38,6 @@ const FlexWidget = styled.div`
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
-  const dispatch = useDispatch();
 
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(
@@ -80,23 +70,6 @@ export function FlexComponent(props: AutoLayoutProps) {
   );
 
   const isResizing = useSelector(getIsResizing);
-
-  const widgetReachedMinWidth = useCallback(
-    debounce((parentId) => {
-      dispatch(widgetViolatedMinDimensionsAction(parentId));
-    }, 50),
-    [],
-  );
-
-  useEffect(() => {
-    if (
-      props.minWidth &&
-      props.componentWidth < props.minWidth &&
-      props.parentId
-    ) {
-      widgetReachedMinWidth(props.parentId);
-    }
-  }, [props.componentWidth]);
 
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {

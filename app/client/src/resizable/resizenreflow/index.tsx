@@ -24,6 +24,7 @@ import {
   getContainerOccupiedSpacesSelectorWhileResizing,
   getCurrentAppPositioningType,
 } from "selectors/editorSelectors";
+import { getCanvasWidth } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import styled, { StyledComponent } from "styled-components";
 import {
@@ -34,6 +35,7 @@ import {
   LayoutDirection,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { getNearestParentCanvas } from "utils/generators";
 import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
@@ -277,7 +279,6 @@ export function ReflowResizable(props: ResizableProps) {
     [props.originalPositions],
     props.parentId || "",
     props.gridProps,
-    !isAutoLayout,
   );
 
   useEffect(() => {
@@ -296,10 +297,13 @@ export function ReflowResizable(props: ResizableProps) {
     direction: ReflowDirection.UNSET,
   });
   const allWidgets = useSelector(getWidgets);
+  const mainCanvasWidth = useSelector(getCanvasWidth);
+
   const dispatch = useDispatch();
   const triggerAutoLayoutBasedReflow = (resizedPositions: OccupiedSpace) => {
     const { widgetId } = props;
     const widget = allWidgets[widgetId];
+
     if (!widget || !widget.parentId) return;
     const parent = allWidgets[widget.parentId];
     if (!parent) return;
@@ -424,9 +428,22 @@ export function ReflowResizable(props: ResizableProps) {
 
   const handles = [];
   const widget = allWidgets[props.widgetId];
+
+  const {
+    minHeight: widgetMinHeight,
+    minWidth: widgetMinWidth,
+  } = getWidgetMinMaxDimensionsInPixel(widget, mainCanvasWidth);
+
   if (!(isAutoLayout && widget.leftColumn === 0) && props.handles.left) {
     handles.push({
       dragCallback: (x: number) => {
+        if (
+          isAutoLayout &&
+          widgetMinWidth &&
+          props.componentWidth - x < widgetMinWidth &&
+          x > 0
+        )
+          return;
         setNewDimensions({
           width: props.componentWidth - x,
           height: newDimensions.height,
@@ -468,6 +485,13 @@ export function ReflowResizable(props: ResizableProps) {
   ) {
     handles.push({
       dragCallback: (x: number) => {
+        if (
+          isAutoLayout &&
+          widgetMinWidth &&
+          props.componentWidth + x < widgetMinWidth &&
+          x < 0
+        )
+          return;
         setNewDimensions({
           width: props.componentWidth + x,
           height: newDimensions.height,
@@ -485,6 +509,13 @@ export function ReflowResizable(props: ResizableProps) {
   if (props.handles.bottom) {
     handles.push({
       dragCallback: (x: number, y: number) => {
+        if (
+          isAutoLayout &&
+          widgetMinHeight &&
+          props.componentHeight + y < widgetMinHeight &&
+          y < 0
+        )
+          return;
         setNewDimensions({
           width: newDimensions.width,
           height: props.componentHeight + y,
@@ -596,6 +627,7 @@ export function ReflowResizable(props: ResizableProps) {
       props.isFlexChild,
       props.responsiveBehavior,
     );
+
     return (
       <ResizableHandle
         {...handle}

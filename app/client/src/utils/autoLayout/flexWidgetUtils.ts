@@ -161,25 +161,6 @@ export function getCurrentSizeConfig(
   return sizes[index - 1];
 }
 
-/**
- * Return the minimum pixel width of a widget based on the widget type and the canvas width.
- * minSize can be configured in columns (number) or pixels (string).
- * Return an appropriate pixel width based on the minSize type.
- */
-export function getMinPixelWidth(
-  widget: any,
-  canvasWidth: number,
-): number | undefined {
-  if (!widget) return;
-  const minSize = getMinMaxSize(widget, canvasWidth);
-  if (!minSize) return;
-  const arr: string[] =
-    typeof minSize.minWidth === "string" ? minSize.minWidth.split("px") : [];
-  if (arr.length) return parseInt(arr[0]);
-  if (typeof minSize.minWidth === "number")
-    return minSize.minWidth * widget.parentColumnSpace;
-}
-
 function getPxValue(val: string | number, factor: number): number | undefined {
   const arr: string[] = typeof val === "string" ? val.split("px") : [];
   if (arr.length) return parseInt(arr[0]);

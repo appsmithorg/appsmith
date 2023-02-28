@@ -249,6 +249,18 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     loadingProperties: Widget.getLoadingProperties(),
   },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+          };
+        },
+      },
+    ],
+  },
 };
 
 export default Widget;

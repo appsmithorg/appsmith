@@ -2,11 +2,11 @@ name: Cypress Add Known failed tests
 
 on:
   issues:
-    types: [opened, closed]
+    types: [opened, closed, reopened]
    
 jobs:
   IssueOpened:
-    if: github.event.action == 'opened' && contains( github.event.issue.labels.*.name, 'cypress_failed_test')
+    if: (github.event.action == 'opened' || github.event.action == 'reopened') && contains( github.event.issue.labels.*.name, 'CI impacted')
     runs-on: ubuntu-latest
     permissions:
         issues: write
@@ -28,7 +28,7 @@ jobs:
           echo "${{ github.event.issue.title }}"|awk '{print $2}'|xargs app/client/cypress/xataadd.sh
           
   IssueClosed:
-    if: github.event.action == 'closed' && contains( github.event.issue.labels.*.name, 'cypress_failed_test')
+    if: github.event.action == 'closed' && contains( github.event.issue.labels.*.name, 'CI impacted')
     runs-on: ubuntu-latest
     permissions:
         issues: write

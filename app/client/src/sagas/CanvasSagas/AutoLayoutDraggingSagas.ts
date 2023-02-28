@@ -22,7 +22,7 @@ import {
   updateRelationships,
 } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { HighlightInfo, FlexLayer } from "utils/autoLayout/autoLayoutTypes";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import { getCanvasWidth } from "selectors/editorSelectors";
 
 function* addWidgetAndReorderSaga(
@@ -123,9 +123,9 @@ function* reorderAutolayoutChildren(params: {
   allWidgets: CanvasWidgetsReduxState;
   alignment: FlexLayerAlignment;
   direction: LayoutDirection;
-  layerIndex?: number;
+  layerIndex: number;
   rowIndex: number;
-  isMobile?: boolean;
+  isMobile: boolean;
 }) {
   const {
     alignment,
@@ -216,9 +216,10 @@ function* reorderAutolayoutChildren(params: {
       bottomRow: parentWidget.topRow + height,
     };
   }
-  const widgetsAfterPositionUpdate = updateWidgetPositions(
+  const widgetsAfterPositionUpdate = updatePositionsOfParentAndSiblings(
     updatedWidgets,
     parentId,
+    layerIndex,
     isMobile,
     mainCanvasWidth,
   );
