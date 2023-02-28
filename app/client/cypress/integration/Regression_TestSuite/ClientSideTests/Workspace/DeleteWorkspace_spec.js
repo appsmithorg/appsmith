@@ -1,4 +1,5 @@
 /// <reference types="Cypress" />
+import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Delete workspace test spec", function() {
@@ -39,7 +40,7 @@ describe("Delete workspace test spec", function() {
         );
         cy.visit("/applications");
         cy.openWorkspaceOptionsPopup(newWorkspaceName);
-        cy.get(_.homePage.workspaceNamePopoverContent)
+        cy.get(homePage.workspaceNamePopoverContent)
           .contains("Delete Workspace")
           .should("not.exist");
         cy.LogOut();
