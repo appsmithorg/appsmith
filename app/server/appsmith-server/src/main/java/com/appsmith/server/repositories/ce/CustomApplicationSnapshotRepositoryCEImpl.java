@@ -20,7 +20,7 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
     }
 
     @Override
-    public Mono<ApplicationSnapshot> findWithoutApplicationJson(String applicationId) {
+    public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
         List<Criteria> criteriaList = new ArrayList<>();
         criteriaList.add(Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId)).is(applicationId));
 
@@ -30,15 +30,5 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
                 fieldName(QApplicationSnapshot.applicationSnapshot.updatedAt)
         );
         return queryOne(criteriaList, fieldNames);
-    }
-
-    @Override
-    public Mono<String> findApplicationJson(String applicationId) {
-        List<Criteria> criteriaList = new ArrayList<>();
-        criteriaList.add(Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId)).is(applicationId));
-        List<String> fieldNames = List.of(
-                fieldName(QApplicationSnapshot.applicationSnapshot.applicationJson)
-        );
-        return queryOne(criteriaList, fieldNames).map(ApplicationSnapshot::getApplicationJson);
     }
 }

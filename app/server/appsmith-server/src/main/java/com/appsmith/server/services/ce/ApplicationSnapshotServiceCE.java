@@ -12,7 +12,7 @@ public interface ApplicationSnapshotServiceCE {
      * @param branchName name of the Git branch, null or empty if not connected to Git
      * @return Created snapshot ID
      */
-    Mono<String> createApplicationSnapshot(String applicationId, String branchName);
+    Mono<Boolean> createApplicationSnapshot(String applicationId, String branchName);
 
     Mono<ApplicationSnapshot> getWithoutApplicationJsonByApplicationId(String applicationId, String branchName);
 

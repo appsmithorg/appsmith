@@ -27,8 +27,7 @@ public class Migration004CreateIndexForApplicationSnapshotMigration {
     @Execution
     public void defaultWorkspaceIdMigration() {
         Index applicationIdIndex = makeIndex(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId))
-                .named("applicationId_unique_index")
-                .unique();
+                .named("applicationId_index");
         ensureIndexes(mongoTemplate, ApplicationSnapshot.class, applicationIdIndex);
     }
 }

@@ -186,11 +186,11 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @PostMapping("/snapshot/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<String>> createSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<Boolean>> createSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to create snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService.createApplicationSnapshot(id, branchName)
-                .map(snapshotId -> new ResponseDTO<>(HttpStatus.CREATED.value(), snapshotId, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @GetMapping("/snapshot/{id}")

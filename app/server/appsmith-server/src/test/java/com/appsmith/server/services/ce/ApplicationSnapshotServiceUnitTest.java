@@ -72,7 +72,7 @@ public class ApplicationSnapshotServiceUnitTest {
         Mockito.when(importExportApplicationService.exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mockito.when(applicationSnapshotRepository.findWithoutApplicationJson(branchedAppId)).thenReturn(Mono.empty());
+        Mockito.when(applicationSnapshotRepository.findWithoutData(branchedAppId)).thenReturn(Mono.empty());
 
         StepVerifier.create(applicationSnapshotService.createApplicationSnapshot(defaultAppId, branchName))
                 .verifyErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Application too large for snapshot"));
@@ -107,7 +107,7 @@ public class ApplicationSnapshotServiceUnitTest {
         Mockito.when(importExportApplicationService.exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mockito.when(applicationSnapshotRepository.findWithoutApplicationJson(branchedAppId)).thenReturn(Mono.empty());
+        Mockito.when(applicationSnapshotRepository.findWithoutData(branchedAppId)).thenReturn(Mono.empty());
 
         ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
         applicationSnapshot.setId(snapshotId);

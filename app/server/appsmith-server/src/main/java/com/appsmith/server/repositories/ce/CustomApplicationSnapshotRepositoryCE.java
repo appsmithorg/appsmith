@@ -5,6 +5,5 @@ import com.appsmith.server.repositories.AppsmithRepository;
 import reactor.core.publisher.Mono;
 
 public interface CustomApplicationSnapshotRepositoryCE extends AppsmithRepository<ApplicationSnapshot> {
-    Mono<ApplicationSnapshot> findWithoutApplicationJson(String applicationId);
-    Mono<String> findApplicationJson(String applicationId);
+    Mono<ApplicationSnapshot> findWithoutData(String applicationId);
 }
