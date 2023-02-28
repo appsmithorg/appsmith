@@ -42,7 +42,7 @@ const InnerWrapper = styled.div`
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
   flex-direction: column;
-  padding: 6px 12px 6px 12px;
+  padding: 8px 16px 8px 16px;
   cursor: default;
 
   &.${Severity.INFO} {

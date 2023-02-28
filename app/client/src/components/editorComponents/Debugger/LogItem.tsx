@@ -38,7 +38,6 @@ const InnerWrapper = styled.div`
 `;
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
-
   display: flex;
   flex-direction: column;
   padding: 8px 16px 8px 16px;
@@ -62,10 +61,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       ${(props) => props.theme.colors.debugger.warning.borderBottom};
   }
 
-  .bp3-popover-target {
-    display: inline;
-  }
-
   .${Classes.ICON} {
     display: inline-block;
   }
@@ -75,10 +70,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       props.collapsed
         ? `transform: rotate(-90deg);`
         : `transform: rotate(0deg); `};
-    }
+  }
   .debugger-time {
     ${getTypographyByKey("h6")}
-    line-height: 16px;
+    font-size: 12px;
+    line-height: 14px;
     margin-left: 8px;
     margin-right: 18px;
     &.${Severity.INFO} {
@@ -93,7 +89,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       color: ${(props) => props.theme.colors.debugger.warning.time};
     }
   }
-  .debugger-occurences{
+  .debugger-occurences {
     height: 18px;
     width: 18px;
     border-radius: 36px;
@@ -123,13 +119,16 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     .debugger-label {
       color: ${(props) => props.theme.colors.debugger.label};
       ${getTypographyByKey("p1")}
+      line-height: 14px;
+      font-size: 12px;
+      padding-right: 4px;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
-      -webkit-user-select: all;  /* Chrome 49+ */
-      -moz-user-select: all;     /* Firefox 43+ */
-      -ms-user-select: all;      /* No support yet */
-      user-select: all;          /* Likely future */
+      -webkit-user-select: all; /* Chrome 49+ */
+      -moz-user-select: all; /* Firefox 43+ */
+      -ms-user-select: all; /* No support yet */
+      user-select: all; /* Likely future */
     }
     .debugger-entity {
       color: ${(props) => props.theme.colors.debugger.entity};
@@ -156,7 +155,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
   .debugger-entity-link {
     margin-left: auto;
-    ${getTypographyByKey("btnMedium")}
+    ${getTypographyByKey("btnMedium")};
     color: ${(props) => props.theme.colors.debugger.entityLink};
     text-transform: uppercase;
     cursor: pointer;
@@ -164,10 +163,18 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 `;
 
 const StyledSearchIcon = styled(AppIcon)`
-  && {
-    margin-left: 10px;
-    padding-top: 3px;
+  height: 14px;
+  width: 14px;
+  svg {
+    height: 14px;
+    width: 14px;
   }
+`;
+
+const ContextWrapper = styled.div`
+  height: 14px;
+  display: flex;
+  align-items: center;
 `;
 
 const JsonWrapper = styled.div`
@@ -185,16 +192,17 @@ type StyledCollapseProps = PropsWithChildren<{
 }>;
 
 const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
-margin-top:${(props) =>
-  props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
-    ? " -20px"
-    : " 4px"} ;
-  margin-left: 120px;
+  margin-top: ${(props) =>
+    props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
+      ? " -20px"
+      : " 4px"};
+  margin-left: 109px;
 
   .debugger-message {
     ${getTypographyByKey("p2")}
+    line-height: 14px;
+    font-size: 12px;
     color: ${(props) => props.theme.colors.debugger.message};
-    text-decoration-line: underline;
     cursor: pointer;
   }
 
@@ -204,7 +212,7 @@ margin-top:${(props) =>
 `;
 
 const MessageWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[1]}px;
+  line-height: 14px;
 `;
 
 const showToggleIcon = (e: Log) => {
@@ -264,7 +272,12 @@ function LogItem(props: LogItemProps) {
     displayObjectSize: false,
     displayDataTypes: false,
     style: {
-      fontSize: "13px",
+      fontFamily:
+        "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
+      fontSize: "11px",
+      fontWeight: "400",
+      letterSpacing: "-0.195px",
+      lineHeight: "13px",
     },
     collapsed: 1,
   };
@@ -293,7 +306,7 @@ function LogItem(props: LogItemProps) {
           invisible={!collapsable}
           name={"expand-more"}
           onClick={() => setIsOpen(!isOpen)}
-          size={IconSize.XXXXL}
+          size={IconSize.MEDIUM}
         />
         <Icon
           clickable={collapsable}
@@ -303,7 +316,7 @@ function LogItem(props: LogItemProps) {
               : ""
           }
           name={props.icon}
-          size={IconSize.XL}
+          size={IconSize.SMALL}
         />
         <span className={`debugger-time ${props.severity}`}>
           {props.timestamp}
@@ -335,7 +348,7 @@ function LogItem(props: LogItemProps) {
             )}
             {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
               props.severity === Severity.ERROR && (
-                <div onClick={(e) => e.stopPropagation()}>
+                <ContextWrapper onClick={(e) => e.stopPropagation()}>
                   <ContextualMenu entity={props.source} error={errorToSearch}>
                     <TooltipComponent
                       content={
@@ -353,7 +366,7 @@ function LogItem(props: LogItemProps) {
                       />
                     </TooltipComponent>
                   </ContextualMenu>
-                </div>
+                </ContextWrapper>
               )}
           </div>
         )}
@@ -379,13 +392,9 @@ function LogItem(props: LogItemProps) {
                 key={e.message.message}
                 onClick={(e) => e.stopPropagation()}
               >
-                <ContextualMenu entity={props.source} error={e}>
-                  <span className="debugger-message t--debugger-message">
-                    {isString(e.message)
-                      ? e.message
-                      : JSON.stringify(e.message)}
-                  </span>
-                </ContextualMenu>
+                <span className="debugger-message t--debugger-message">
+                  {isString(e.message) ? e.message : e.message.message}
+                </span>
               </MessageWrapper>
             );
           })}
