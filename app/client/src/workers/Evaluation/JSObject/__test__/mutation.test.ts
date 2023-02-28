@@ -3,9 +3,20 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import JSObjectCollection, { VariableState } from "../Collection";
 
+jest.mock("../sendUpdatedDataTree.ts", () => {
+  return {
+    triggerEvalWithPathsChanged: () => ({}),
+  };
+});
+
 jest.mock("../../handlers/evalTree", () => {
   return {
     dataTreeEvaluator: {
+      setupUpdateTreeWithDifferences: () => ({
+        evalOrder: [],
+        unEvalUpdates: [],
+      }),
+      evalAndValidateSubTree: () => ({ evalMetaUpdates: [] }),
       evalTree: {
         JSObject1: {
           var: {},
@@ -52,11 +63,19 @@ describe("Mutation", () => {
     JSVariableUpdates.disable();
 
     expect(JSVariableUpdates.getAll()).toEqual([
-      { path: "JSObject1.var", method: "SET" },
-      { path: "JSObject1.var.b", method: "SET" },
-      { path: "JSObject1.var.b.a", method: "SET" },
-      { path: "JSObject1.var.b.a", method: "PROTOTYPE_METHOD_CALL" },
-      { path: "JSObject1.var2", method: "PROTOTYPE_METHOD_CALL" },
+      { path: "JSObject1.var", method: "SET", value: { b: { a: [2] } } },
+      { path: "JSObject1.var.b", method: "SET", value: { a: [2] } },
+      { path: "JSObject1.var.b.a", method: "SET", value: [2] },
+      {
+        path: "JSObject1.var.b.a",
+        method: "PROTOTYPE_METHOD_CALL",
+        value: [].push,
+      },
+      {
+        path: "JSObject1.var2",
+        method: "PROTOTYPE_METHOD_CALL",
+        value: new Set().add,
+      },
     ]);
 
     const modifiedVariablesList = getModifiedPaths(JSVariableUpdates.getAll());
