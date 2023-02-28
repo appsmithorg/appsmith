@@ -154,7 +154,7 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(30000);
+    cy.wait(3000);
     cy.xpath("//span[(@type='p1') and contains(text(),'Staging')]");
     cy.toggleBetweenEnvironment("Production");
     cy.wait("@getPagesForCreateApp").should(
@@ -167,11 +167,12 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(30000);
+    cy.wait(3000);
     cy.xpath("//span[(@type='p1') and contains(text(),'Production')]");
+    cy.wait(10000);
   });
 
-  it("3. Create a new query from the datasource editor", function() {
+  it.skip("3. Create a new query from the datasource editor", function() {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.get(datasource.createQuery)

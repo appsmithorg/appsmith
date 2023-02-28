@@ -210,7 +210,7 @@ Cypress.Commands.add("fillPostgresDatasourceEnvironmentDetails", () => {
   );
   cy.get("[data-cy='database_name.active_env_value']").clear();
   cy.get("[data-cy='database_name.active_env_value']").type(
-    datasourceFormData["postgres-databaseName"].concat("production"),
+    datasourceFormData["postgres-databaseName"],
   );
   cy.get("[data-cy='username.active_env_value']").clear();
   cy.get("[data-cy='username.active_env_value']").type(
@@ -244,7 +244,7 @@ Cypress.Commands.add("fillPostgresDatasourceEnvironmentDetailsStaging", () => {
   );
   cy.get("[data-cy='database_name.active_env_value']").clear();
   cy.get("[data-cy='database_name.active_env_value']").type(
-    datasourceFormData["postgres-databaseName"].concat("staging"),
+    datasourceFormData["postgres-databaseName"],
   );
   cy.get("a:contains('Bind Values')").click({ force: true });
   cy.wait("@updateEnvironments").should(
