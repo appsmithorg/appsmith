@@ -476,8 +476,6 @@ export default class DataTreeEvaluator {
       updateDependencyStartTime,
     );
 
-    this.logs.push({ findDifferenceTime, updateDependencyMapTime });
-
     const pathsChangedSet = new Set<string[]>();
     for (const diff of differences) {
       if (isArray(diff.path)) {
@@ -495,6 +493,8 @@ export default class DataTreeEvaluator {
         extraPathsToLint,
         translatedDiffs,
         pathsToClearErrorsFor,
+        findDifferenceTime,
+        updateDependencyMapTime,
       }),
       jsUpdates,
     };
@@ -552,16 +552,20 @@ export default class DataTreeEvaluator {
       translatedDiffs?: DataTreeDiff[];
       pathsToClearErrorsFor?: any[];
       pathsToSkipFromEval?: string[];
+      findDifferenceTime?: number;
+      updateDependencyMapTime?: number;
     },
   ) {
     const {
       dependenciesOfRemovedPaths = [],
       extraPathsToLint = [],
       removedPaths = [],
-      totalUpdateTreeSetupStartTime,
+      totalUpdateTreeSetupStartTime = performance.now(),
       translatedDiffs = [],
       pathsToClearErrorsFor = [],
       pathsToSkipFromEval = [],
+      findDifferenceTime = 0,
+      updateDependencyMapTime = 0,
     } = extraParams;
 
     updateEvalTreeWithJSCollectionState(this.evalTree, this.oldUnEvalTree);
@@ -609,10 +613,12 @@ export default class DataTreeEvaluator {
         totalUpdateTreeSetupEndTime,
         totalUpdateTreeSetupStartTime,
       ),
+      updateDependencyMap: updateDependencyMapTime,
       calculateSubTreeSortOrder: getFixedTimeDifference(
         calculateSortOrderEndTime,
         calculateSortOrderStartTime,
       ),
+      findDifferences: findDifferenceTime,
       clone: getFixedTimeDifference(cloneEndTime, cloneStartTime),
     };
 
