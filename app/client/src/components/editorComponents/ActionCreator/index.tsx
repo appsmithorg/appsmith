@@ -15,7 +15,6 @@ function uuidv4() {
 
 const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
-    const prevValRef = React.useRef(props.value);
     const [actions, setActions] = useState<Record<string, string>>(() => {
       const blocks = getActionBlocks(
         getCodeFromMoustache(props.value),
@@ -34,22 +33,36 @@ const ActionCreator = React.forwardRef(
     });
 
     useEffect(() => {
-      if (
-        getCodeFromMoustache(prevValRef.current) + ";" !==
-        getCodeFromMoustache(props.value)
-      ) {
-        prevValRef.current = props.value;
-        return;
-      }
-
       setActions((prev) => {
-        const newActions = { ...prev };
-        newActions[uuidv4()] = "";
+        const newActions: Record<string, string> = {};
+        const newBlocks = getActionBlocks(
+          getCodeFromMoustache(props.value),
+          self.evaluationVersion,
+        );
+
+        let prevIdValuePairs = Object.entries(prev);
+
+        // We make sure that code blocks from previous render retain the same id
+        // We are sure that the order of the blocks will be the same
+        newBlocks.forEach((block) => {
+          const prevIdValuePair = prevIdValuePairs.find(
+            ([, value]) => value === block,
+          );
+
+          if (prevIdValuePair) {
+            newActions[prevIdValuePair[0]] = block;
+
+            // Filter out the id value pair so that it's not used again
+            prevIdValuePairs = prevIdValuePairs.filter(
+              ([id]) => id !== prevIdValuePair[0],
+            );
+          } else {
+            newActions[uuidv4()] = block;
+          }
+        });
 
         return newActions;
       });
-
-      prevValRef.current = props.value;
     }, [props.value]);
 
     useEffect(() => {
