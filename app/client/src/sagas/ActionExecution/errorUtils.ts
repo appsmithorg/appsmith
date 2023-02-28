@@ -10,10 +10,8 @@ import {
   ActionTriggerKeys,
   getActionTriggerFunctionNames,
 } from "@appsmith/workers/Evaluation/fns/index";
-import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { toast } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
 import { getAppMode } from "../../selectors/applicationSelectors";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import {

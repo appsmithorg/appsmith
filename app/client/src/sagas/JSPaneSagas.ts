@@ -80,10 +80,8 @@ import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUt
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
-import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
 import {
   setCanvasDebuggerSelectedTab,
   showDebugger,
