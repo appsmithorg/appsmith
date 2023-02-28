@@ -102,10 +102,8 @@ function setEntityToEvalContext(
   entityName: string,
   EVAL_CONTEXT: EvalContext,
 ) {
-  const dataTreeObjectEntity = entity as DataTreeObjectEntity;
-
-  if (dataTreeObjectEntity.ENTITY_TYPE) {
-    switch (dataTreeObjectEntity.ENTITY_TYPE) {
+  if (entity && "ENTITY_TYPE" in entity) {
+    switch (entity.ENTITY_TYPE) {
       case ENTITY_TYPE.JSACTION: {
         const varState = JSObjectCollection.getCurrentVariableState(entityName);
         if (varState) {
@@ -123,6 +121,6 @@ function setEntityToEvalContext(
         }
       }
     }
+    EVAL_CONTEXT[entityName] = entity;
   }
-  EVAL_CONTEXT[entityName] = entity;
 }
