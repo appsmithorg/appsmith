@@ -13,6 +13,14 @@ import {
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { toast } from "design-system";
+import { useDispatch, useSelector } from "react-redux";
+import { getAppMode } from "../../selectors/applicationSelectors";
+import AnalyticsUtil from "../../utils/AnalyticsUtil";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "../../actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/helpers";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -88,17 +96,34 @@ export const logActionExecutionError = (
   //   ]);
   // }
 
-  toast({
-    text: errorMessage,
-    kind: "error",
-    showDebugButton: !!triggerPropertyName && {
-      component: DebugButton,
-      componentProps: {
+  // function onDebugClick() {
+  //   const dispatch = useDispatch();
+  //   const appMode = useSelector(getAppMode);
+  //
+  //   if (appMode === "PUBLISHED") return null;
+  //
+  //   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+  //     source: "TOAST",
+  //   });
+  //   dispatch(showDebugger(true));
+  //   dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+  // }
+
+  if (!!triggerPropertyName) {
+    toast.show(errorMessage, {
+      kind: "error",
+    });
+  } else {
+    toast.show(errorMessage, {
+      kind: "error",
+      action: {
+        actionText: "debug",
+        // effect: () => onDebugClick(),
+        effect: () => console.log("open debugger"),
         className: "t--toast-debug-button",
-        source: "TOAST",
       },
-    },
-  });
+    });
+  }
 };
 
 /*
