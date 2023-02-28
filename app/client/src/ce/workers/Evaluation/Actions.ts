@@ -1,20 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import {
-  DataTree,
-  DataTreeEntity,
-  DataTreeJSAction,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import set from "lodash/set";
 import { EvalContext } from "workers/Evaluation/evaluate";
-import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
-import JSProxy from "workers/Evaluation/JSObject/JSVariableProxy";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import {
   entityFns,
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
+import { setEntityToEvalContext } from "workers/Evaluation/setEntityToContext";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -95,31 +89,3 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
   }
   return asyncFunctionNameMap;
 };
-
-function setEntityToEvalContext(
-  entity: DataTreeEntity,
-  entityName: string,
-  EVAL_CONTEXT: EvalContext,
-) {
-  if (entity && "ENTITY_TYPE" in entity) {
-    switch (entity.ENTITY_TYPE) {
-      case ENTITY_TYPE.JSACTION: {
-        const varState = JSObjectCollection.getCurrentVariableState(entityName);
-        if (varState) {
-          if (self.$isDataField) {
-            EVAL_CONTEXT[entityName] = varState;
-            return;
-          }
-
-          EVAL_CONTEXT[entityName] = JSProxy.create(
-            entity as DataTreeJSAction,
-            entityName,
-            varState,
-          );
-          return;
-        }
-      }
-    }
-    EVAL_CONTEXT[entityName] = entity;
-  }
-}
