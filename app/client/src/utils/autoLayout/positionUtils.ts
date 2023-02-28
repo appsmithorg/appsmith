@@ -14,9 +14,9 @@ import {
 } from "utils/autoLayout/constants";
 import {
   getBottomRow,
-  getMinPixelWidth,
   getTopRow,
   getWidgetHeight,
+  getWidgetMinMaxDimensionsInPixel,
   getWidgetRows,
   getWidgetWidth,
   setDimensions,
@@ -226,7 +226,10 @@ export function placeWidgetsWithoutWrap(
       each.columns,
     );
     for (const widget of each.children) {
-      const minWidth = getMinPixelWidth(widget, mainCanvasWidth);
+      const { minWidth } = getWidgetMinMaxDimensionsInPixel(
+        widget,
+        mainCanvasWidth,
+      );
       const height = getWidgetHeight(widget, isMobile);
       let width =
         widget.responsiveBehavior === ResponsiveBehavior.Fill

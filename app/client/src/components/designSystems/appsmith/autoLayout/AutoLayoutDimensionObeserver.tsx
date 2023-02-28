@@ -12,12 +12,9 @@ const SimpleContainer = styled.div`
 
 interface AutoLayoutDimensionObserverProps {
   onDimensionUpdate: (width: number, height: number) => void;
-  // widgetProps: WidgetProps;
   width: number;
   height: number;
   isFillWidget: boolean;
-  // TODO(aswathkk): Remove this since this is being only used for debuggind
-  widgetName: string;
 }
 
 export default function AutoLayoutDimensionObserver(
@@ -50,15 +47,6 @@ export default function AutoLayoutDimensionObserver(
       props.height - 2 * FLEXBOX_PADDING - currentDimension.height,
     );
     if (widthDiff > 2 || heightDiff > 2) {
-      // console.log(
-      //   "#### dimensionUpdateObserver",
-      //   props.widgetName,
-      //   "dWidth",
-      //   widthDiff,
-      //   "dHeight",
-      //   heightDiff,
-      //   currentDimension,
-      // );
       onDimensionUpdate(currentDimension.width, currentDimension.height);
     }
   }, [

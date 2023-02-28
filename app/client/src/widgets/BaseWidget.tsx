@@ -65,7 +65,6 @@ import {
   isAutoHeightEnabledForWidget,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
-import { getMinPixelWidth } from "utils/autoLayout/flexWidgetUtils";
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
 import {
   WIDGET_WITH_DYNAMIC_HEIGHT,
@@ -560,10 +559,6 @@ abstract class BaseWidget<
 
   makeFlex(content: ReactNode) {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-    const minWidth = getMinPixelWidth(
-      this.props,
-      this.props?.mainCanvasWidth || 0,
-    );
     return (
       <FlexComponent
         componentHeight={componentHeight}
@@ -574,7 +569,6 @@ abstract class BaseWidget<
         }
         focused={this.props.focused}
         isMobile={this.props.isMobile}
-        minWidth={minWidth}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
@@ -646,7 +640,6 @@ abstract class BaseWidget<
             this.props.responsiveBehavior === ResponsiveBehavior.Fill
           }
           onDimensionUpdate={this.updateWidgetDimensions}
-          widgetName={this.props.widgetName}
           width={componentWidth}
         >
           {content}
