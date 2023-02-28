@@ -93,6 +93,8 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
+    cy.wait(3000);
+
     // open the select widget
     cy.get(publishLocators.selectwidget)
       .eq(0)
@@ -155,6 +157,8 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
+    cy.wait(3000);
+
     // Verify checked
     cy.get(publishLocators.switchwidget)
       .find("input")
@@ -184,6 +188,8 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     cy.get(publishLocators.radioWidget).should("exist");
 
     cy.PublishtheApp();
+
+    cy.wait(3000);
 
     // Check radio with value=1 is selected
     checkSelectedRadioValue(publishLocators.radioWidget, "Y");

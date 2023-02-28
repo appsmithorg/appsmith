@@ -45,7 +45,7 @@ describe("Button Widget Functionality - Validate tooltip visibility", function()
     cy.get(publish.buttonWidget).trigger("mouseover");
     // Check if a tooltip is displayed
     cy.get("body").then(($ele) => {
-      if ($ele.find(".bp3-popover2-content").length<=0) {
+      if ($ele.find(".bp3-popover2-content").length <= 0) {
         cy.get(publish.buttonWidget).trigger("mouseover");
       }
     });
