@@ -99,9 +99,33 @@ export function isHandleResizeAllowed(
     direction === ReflowDirection.LEFT ||
     direction === ReflowDirection.RIGHT
   ) {
+    // remove all the horizontal resize handlers for fill widgets
     return isFlexChild && responsiveBehavior === ResponsiveBehavior.Fill
       ? false
       : horizontalEnabled;
   }
   return true;
+}
+
+export function isResizingDisabled(
+  handles: { horizontal?: boolean; vertical?: boolean } = {},
+  direction?: ReflowDirection,
+) {
+  const { horizontal = false, vertical = false } = handles;
+
+  if (
+    (direction === ReflowDirection.TOP ||
+      direction === ReflowDirection.BOTTOM) &&
+    vertical
+  )
+    return true;
+
+  if (
+    (direction === ReflowDirection.RIGHT ||
+      direction === ReflowDirection.LEFT) &&
+    horizontal
+  )
+    return true;
+
+  return false;
 }

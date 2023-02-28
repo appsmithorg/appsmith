@@ -337,6 +337,7 @@ class WidgetFactory {
     if (!map) {
       return {
         widgetSize: [],
+        disableResizeHandles: {},
       };
     }
     return map;

@@ -319,9 +319,11 @@ export const ResizableComponent = memo(function ResizableComponent(
     !isAutoHeightEnabledForWidget(props) ||
     !props.isCanvas;
 
+  // Allow Resize when we select multiple widgets
   const allowResize: boolean =
     !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
     !props.isFlexChild;
+
   const isHovered = isFocused && !isSelected;
   const showResizeBoundary =
     !isPreviewMode && !isDragging && (isHovered || isSelected);

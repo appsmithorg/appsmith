@@ -22,6 +22,7 @@ export type WidgetSizeConfig = {
 
 export type AutoLayoutConfig = {
   widgetSize: Array<WidgetSizeConfig>;
+  disableResizeHandles?: { vertical?: boolean; horizontal?: boolean };
 };
 
 export interface WidgetConfiguration {
