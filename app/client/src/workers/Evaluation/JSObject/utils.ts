@@ -21,7 +21,7 @@ import {
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
-import { jsObjectCollection } from "./Collection";
+import JSObjectCollection from "./Collection";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -154,7 +154,7 @@ export const updateJSCollectionInUnEvalTree = (
             newVar.value,
           );
           // When user updates the JSObject all the variable's reset's to initial value
-          jsObjectCollection.removeVariable(
+          JSObjectCollection.removeVariable(
             `${jsCollection.name}.${newVar.name}`,
           );
         }
@@ -174,7 +174,7 @@ export const updateJSCollectionInUnEvalTree = (
           newVar.value,
         );
         // When user updates the JSObject all the variable's reset's to initial value
-        jsObjectCollection.removeVariable(
+        JSObjectCollection.removeVariable(
           `${jsCollection.name}.${newVar.name}`,
         );
       }
@@ -229,7 +229,7 @@ export const removeFunctionsAndVariableJSCollection = (
     const varName = varList[i];
     unset(modifiedDataTree[jsEntityName], varName);
     // When user updates the JSObject all the variable's reset's to initial value
-    jsObjectCollection.removeVariable(`${jsEntityName}.${varName}`);
+    JSObjectCollection.removeVariable(`${jsEntityName}.${varName}`);
   }
   //remove functions
 

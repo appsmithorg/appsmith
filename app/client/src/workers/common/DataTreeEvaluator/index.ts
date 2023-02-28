@@ -89,7 +89,6 @@ import {
 } from "workers/common/DependencyMap";
 import {
   getJSEntities,
-  updateUnEvalTreeWithChanges,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
@@ -102,7 +101,7 @@ import {
   validateAndParseWidgetProperty,
 } from "./validationUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
-import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
+import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
@@ -250,7 +249,7 @@ export default class DataTreeEvaluator {
     const inverseDependencyGenerationEndTime = performance.now();
 
     const secondCloneStartTime = performance.now();
-    this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldUnEvalTree = Object.freeze(klona(localUnEvalTree));
     const secondCloneEndTime = performance.now();
 
     const totalFirstTreeSetupEndTime = performance.now();
@@ -333,7 +332,7 @@ export default class DataTreeEvaluator {
 
   updateLocalUnEvalTree(unevalTree: DataTree) {
     //add functions and variables to unevalTree
-    const unEvalJSCollection = jsObjectCollection.getUnEvalState();
+    const unEvalJSCollection = JSObjectCollection.getUnEvalState();
     Object.keys(unEvalJSCollection).forEach((update) => {
       const updates = unEvalJSCollection[update];
       if (!!unevalTree[update]) {
@@ -462,7 +461,7 @@ export default class DataTreeEvaluator {
     const updatedValuePaths = [...pathsChangedSet];
 
     return {
-      ...this.updateTreeEvaluation(localUnEvalTree, updatedValuePaths, {
+      ...this.setupTree(localUnEvalTree, updatedValuePaths, {
         totalUpdateTreeSetupStartTime,
         dependenciesOfRemovedPaths,
         removedPaths,
@@ -474,23 +473,54 @@ export default class DataTreeEvaluator {
     };
   }
 
-  updateTreeEvaluation(
+  getEvaluationOrder({
+    localUnEvalTree,
+    pathsToSkipFromEval,
+    subTreeSortOrder,
+  }: {
+    localUnEvalTree: DataTree;
+    pathsToSkipFromEval: string[];
+    subTreeSortOrder: string[];
+  }) {
+    // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
+    const evaluationOrder: string[] = [];
+    let nonDynamicFieldValidationOrderSet = new Set<string>();
+
+    for (const fullPath of subTreeSortOrder) {
+      if (pathsToSkipFromEval.includes(fullPath)) continue;
+
+      if (!isDynamicLeaf(localUnEvalTree, fullPath)) {
+        if (this.inverseValidationDependencyMap[fullPath]) {
+          nonDynamicFieldValidationOrderSet = new Set([
+            ...nonDynamicFieldValidationOrderSet,
+            fullPath,
+          ]);
+        }
+        continue;
+      }
+
+      const unEvalPropValue = get(localUnEvalTree, fullPath);
+      const evalPropValue = get(this.evalTree, fullPath);
+      evaluationOrder.push(fullPath);
+      if (isFunction(evalPropValue)) continue;
+
+      set(this.evalTree, fullPath, unEvalPropValue);
+    }
+
+    return { evaluationOrder, nonDynamicFieldValidationOrderSet };
+  }
+
+  setupTree(
     localUnEvalTree: DataTree,
     updatedValuePaths: string[][],
     extraParams: {
       totalUpdateTreeSetupStartTime?: any;
-      dependenciesOfRemovedPaths: string[];
-      removedPaths: string[];
-      extraPathsToLint: string[];
-      translatedDiffs: DataTreeDiff[];
-      pathsToClearErrorsFor: any[];
-    } = {
-      dependenciesOfRemovedPaths: [],
-      extraPathsToLint: [],
-      removedPaths: [],
-      totalUpdateTreeSetupStartTime: 0,
-      translatedDiffs: [],
-      pathsToClearErrorsFor: [],
+      dependenciesOfRemovedPaths?: string[];
+      removedPaths?: string[];
+      extraPathsToLint?: string[];
+      translatedDiffs?: DataTreeDiff[];
+      pathsToClearErrorsFor?: any[];
+      pathsToSkipFromEval?: string[];
     },
   ) {
     const {
@@ -499,7 +529,8 @@ export default class DataTreeEvaluator {
       removedPaths = [],
       totalUpdateTreeSetupStartTime,
       translatedDiffs = [],
-      pathsToClearErrorsFor,
+      pathsToClearErrorsFor = [],
+      pathsToSkipFromEval = [],
     } = extraParams;
 
     updateEvalTreeWithJSCollectionState(this.evalTree);
@@ -512,31 +543,14 @@ export default class DataTreeEvaluator {
       localUnEvalTree,
     );
     const calculateSortOrderEndTime = performance.now();
-    // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
-    const evaluationOrder: string[] = [];
-    let nonDynamicFieldValidationOrderSet = new Set<string>();
 
-    subTreeSortOrder.filter((propertyPath) => {
-      // We are setting all values from our uneval tree to the old eval tree we have
-      // So that the actual uneval value can be evaluated
-      if (isDynamicLeaf(localUnEvalTree, propertyPath)) {
-        const unEvalPropValue = get(localUnEvalTree, propertyPath);
-        const evalPropValue = get(this.evalTree, propertyPath);
-        if (!isFunction(evalPropValue)) {
-          set(this.evalTree, propertyPath, unEvalPropValue);
-        }
-        evaluationOrder.push(propertyPath);
-      } else {
-        /**
-         * if the non dynamic value changes that should trigger revalidation like tabs.tabsObj then we store it in nonDynamicFieldValidationOrderSet
-         */
-        if (this.inverseValidationDependencyMap[propertyPath]) {
-          nonDynamicFieldValidationOrderSet = new Set([
-            ...nonDynamicFieldValidationOrderSet,
-            propertyPath,
-          ]);
-        }
-      }
+    const {
+      evaluationOrder,
+      nonDynamicFieldValidationOrderSet,
+    } = this.getEvaluationOrder({
+      localUnEvalTree,
+      pathsToSkipFromEval,
+      subTreeSortOrder,
     });
 
     this.logs.push({
@@ -554,7 +568,7 @@ export default class DataTreeEvaluator {
     const cloneStartTime = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldUnEvalTree = Object.freeze(klona(localUnEvalTree));
     const cloneEndTime = performance.now();
 
     const totalUpdateTreeSetupEndTime = performance.now();
@@ -585,7 +599,7 @@ export default class DataTreeEvaluator {
   }
 
   setupUpdateTreeWithDifferences(updatedValuePaths: string[][]) {
-    let localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
+    const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local un eval tree
     if (updatedValuePaths.length === 0) {
       return {
@@ -596,11 +610,12 @@ export default class DataTreeEvaluator {
         nonDynamicFieldValidationOrder: [],
       };
     }
-    localUnEvalTree = updateUnEvalTreeWithChanges(
-      updatedValuePaths,
-      localUnEvalTree,
-    );
-    return this.updateTreeEvaluation(localUnEvalTree, updatedValuePaths);
+
+    const pathsToSkipFromEval = updatedValuePaths.map((path) => path.join("."));
+
+    return this.setupTree(localUnEvalTree, updatedValuePaths, {
+      pathsToSkipFromEval,
+    });
   }
 
   getDifferencesInJSCollectionBody(localUnEvalTree: DataTree) {
@@ -620,6 +635,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const evaluationStartTime = performance.now();
+
     const {
       evalMetaUpdates,
       evaluatedTree: newEvalTree,
@@ -630,6 +646,7 @@ export default class DataTreeEvaluator {
       unevalUpdates,
       metaWidgets: metaWidgetIds,
     });
+
     const evaluationEndTime = performance.now();
     const reValidateStartTime = performance.now();
     this.reValidateTree(nonDynamicFieldValidationOrder, newEvalTree);
@@ -801,6 +818,7 @@ export default class DataTreeEvaluator {
           if (propertyPath) {
             set(this.evalProps, getEvalErrorPath(fullPropertyPath), []);
           }
+
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.reactivePaths[propertyPath] ||
@@ -911,32 +929,19 @@ export default class DataTreeEvaluator {
           } else if (isJSAction(entity)) {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
-              // TODO: To update JSObject variable value on modification remove picking value from currentEvaluatedValue logic.
-              const currentEvaluatedValue = get(
+              set(
                 this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
                 }),
+                evalPropertyValue,
               );
-              const evalValue = currentEvaluatedValue
-                ? currentEvaluatedValue
-                : evalPropertyValue;
-              if (!currentEvaluatedValue) {
-                set(
-                  this.evalProps,
-                  getEvalValuePath(fullPropertyPath, {
-                    isPopulated: true,
-                    fullPath: true,
-                  }),
-                  evalPropertyValue,
-                );
-                jsObjectCollection.setVariableValue(
-                  evalValue,
-                  fullPropertyPath,
-                );
-              }
-              set(currentTree, fullPropertyPath, evalValue);
+              set(currentTree, fullPropertyPath, evalPropertyValue);
+              JSObjectCollection.setVariableValue(
+                evalPropertyValue,
+                fullPropertyPath,
+              );
             }
             return currentTree;
           } else {

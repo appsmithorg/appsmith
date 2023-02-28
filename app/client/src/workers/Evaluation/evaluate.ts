@@ -15,7 +15,7 @@ import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import JSVariableUpdates from "./JSObject/JSVariableUpdates";
-import { jsObjectCollection } from "./JSObject/Collection";
+import JSObjectCollection from "./JSObject/Collection";
 
 export type EvalResult = {
   result: any;
@@ -166,7 +166,7 @@ export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   isTriggerBased: boolean,
 ) => {
-  const resolvedFunctions = jsObjectCollection.getResolvedFunctions();
+  const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];

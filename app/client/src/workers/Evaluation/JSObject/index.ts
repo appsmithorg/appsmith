@@ -1,5 +1,5 @@
 import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import { get, isEmpty, merge, set } from "lodash";
+import { get, isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
@@ -18,8 +18,9 @@ import {
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
-import { getOriginalValueFromProxy, jsObjectCollection } from "./Collection";
+import JSObjectCollection, { getOriginalValueFromProxy } from "./Collection";
 import { klona } from "klona/full";
+import JSVariableUpdates from "./JSVariableUpdates";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -58,29 +59,6 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   return localUnEvalTree;
 };
 
-export const updateUnEvalTreeWithChanges = (
-  updatedValuePaths: string[][],
-  UnEvalTree: DataTree,
-) => {
-  for (const path of updatedValuePaths) {
-    if (path?.length) {
-      const entityName = path[0];
-      const entity = UnEvalTree[entityName];
-      if (isJSAction(entity)) {
-        const variableName = path[1];
-        const fullPath = `${entityName}.${variableName}`;
-        const newJSObject = jsObjectCollection.getCurrentVariableState(
-          entityName,
-        );
-        const latestValue = newJSObject[variableName];
-        set(UnEvalTree, fullPath, latestValue);
-      }
-    }
-  }
-
-  return UnEvalTree;
-};
-
 const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
 
 /**
@@ -104,8 +82,8 @@ export function saveResolvedFunctionsAndJSUpdates(
 ) {
   const correctFormat = regex.test(entity.body);
 
-  const resolvedFunctions = jsObjectCollection.getResolvedFunctions();
-  const unEvalJSCollection = jsObjectCollection.getUnEvalState();
+  const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
+  const unEvalJSCollection = JSObjectCollection.getUnEvalState();
 
   if (correctFormat) {
     const body = entity.body.replace(/export default/g, "");
@@ -125,49 +103,45 @@ export function saveResolvedFunctionsAndJSUpdates(
       if (!!parsedObject) {
         parsedObject.forEach((parsedElement) => {
           if (isTypeOfFunction(parsedElement.type)) {
-            try {
-              const { result } = evaluateSync(
-                parsedElement.value,
-                unEvalDataTree,
-                false,
-                undefined,
-                undefined,
+            const { errors, result } = evaluateSync(
+              parsedElement.value,
+              unEvalDataTree,
+              false,
+              undefined,
+              undefined,
+            );
+            if (errors.length) return;
+
+            let params: Array<{ key: string; value: unknown }> = [];
+
+            if (parsedElement.arguments) {
+              params = parsedElement.arguments.map(
+                ({ defaultValue, paramName }) => ({
+                  key: paramName,
+                  value: defaultValue,
+                }),
               );
-              if (!!result) {
-                let params: Array<{ key: string; value: unknown }> = [];
-
-                if (parsedElement.arguments) {
-                  params = parsedElement.arguments.map(
-                    ({ defaultValue, paramName }) => ({
-                      key: paramName,
-                      value: defaultValue,
-                    }),
-                  );
-                }
-
-                const functionString = parsedElement.value;
-                set(
-                  resolvedFunctions,
-                  `${entityName}.${parsedElement.key}`,
-                  result,
-                );
-                set(
-                  unEvalJSCollection,
-                  `${entityName}.${parsedElement.key}`,
-                  functionString,
-                );
-                actions.push({
-                  name: parsedElement.key,
-                  body: functionString,
-                  arguments: params,
-                  parsedFunction: result,
-                  isAsync: false,
-                });
-              }
-            } catch {
-              // in case we need to handle error state
             }
-          } else if (parsedElement.type !== "literal") {
+
+            const functionString = parsedElement.value;
+            set(
+              resolvedFunctions,
+              `${entityName}.${parsedElement.key}`,
+              result,
+            );
+            set(
+              unEvalJSCollection,
+              `${entityName}.${parsedElement.key}`,
+              functionString,
+            );
+            actions.push({
+              name: parsedElement.key,
+              body: functionString,
+              arguments: params,
+              parsedFunction: result,
+              isAsync: false,
+            });
+          } else {
             variables.push({
               name: parsedElement.key,
               value: parsedElement.value,
@@ -217,8 +191,8 @@ export function parseJSActions(
   differences?: DataTreeDiff[],
   oldUnEvalTree?: DataTree,
 ) {
-  const resolvedFunctions = jsObjectCollection.getResolvedFunctions();
-  const unEvalJSCollection = jsObjectCollection.getUnEvalState();
+  const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
+  const unEvalJSCollection = JSObjectCollection.getUnEvalState();
   let jsUpdates: Record<string, JSUpdate> = {};
   if (!!differences && !!oldUnEvalTree) {
     differences.forEach((diff) => {
@@ -306,10 +280,11 @@ export function getJSEntities(dataTree: DataTree) {
 }
 
 export function updateJSCollectionStateFromContext() {
+  JSVariableUpdates.disable();
   const newVarState = {};
   const currentEvalContext = self;
 
-  const unEvalJSCollection = jsObjectCollection.getUnEvalState();
+  const unEvalJSCollection = JSObjectCollection.getUnEvalState();
   const oldUnEvalTree = dataTreeEvaluator?.oldUnEvalTree || {};
   const jsObjectNames = Object.keys(unEvalJSCollection || {});
   for (const jsObjectName of jsObjectNames) {
@@ -329,7 +304,8 @@ export function updateJSCollectionStateFromContext() {
       }
     }
   }
-  jsObjectCollection.setVariableState(newVarState);
+  JSObjectCollection.setVariableState(newVarState);
+  JSVariableUpdates.enable();
 }
 
 export function removeProxyObject(objOrArr: any) {
@@ -344,36 +320,36 @@ export function removeProxyObject(objOrArr: any) {
 
 export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
   // loop through jsCollectionState and set all values to evalTree
-  const jsCollections = jsObjectCollection.getCurrentVariableState();
+  const jsCollections = JSObjectCollection.getCurrentVariableState();
   const jsCollectionEntries = Object.entries(jsCollections);
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
     const sanitizedState = removeProxyObject(variableState);
-    const newJSObject = merge(evalTree[jsObjectName], sanitizedState);
-    evalTree[jsObjectName] = newJSObject;
+    Object.assign(evalTree[jsObjectName], sanitizedState);
   }
 }
 
 export function updateEvalTreeValueFromContext(paths: string[][]) {
+  JSVariableUpdates.disable();
   const currentEvalContext = self;
 
-  const oldUnEvalTree = dataTreeEvaluator?.oldUnEvalTree || {};
   const evalTree = dataTreeEvaluator?.evalTree;
 
   if (!evalTree) return;
 
   for (const fullPathArray of paths) {
     const [jsObjectName, variableName] = fullPathArray;
-    const entity = oldUnEvalTree[jsObjectName] as DataTreeJSAction;
+    const entity = evalTree[jsObjectName] as DataTreeJSAction;
     if (jsObjectName && variableName && isJSObject(entity)) {
       const variableValue = get(currentEvalContext, [
         jsObjectName,
         variableName,
       ]);
       const value = klona(removeProxyObject(variableValue));
-      jsObjectCollection.setVariableValue(
+      JSObjectCollection.setVariableValue(
         value,
         `${jsObjectName}.${variableName}`,
       );
     }
   }
+  JSVariableUpdates.enable();
 }
