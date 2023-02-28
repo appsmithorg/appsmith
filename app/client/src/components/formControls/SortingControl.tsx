@@ -51,6 +51,16 @@ const orderFieldConfig: any = {
   },
 };
 
+const updateDropdownWidth = (width: string) => {
+  return `
+  .t--form-control-DROP_DOWN,
+  .t--form-control-DROP_DOWN > div > div,
+  .t--form-control-DROP_DOWN > div > div > div > div {
+    width: ${width};
+  }
+  `;
+};
+
 // main container for the fsorting component
 const SortingContainer = styled.div`
   display: flex;
@@ -66,35 +76,29 @@ const SortingDropdownContainer = styled.div<{ size: string }>`
   justify-content: space-between;
   margin-bottom: 10px;
 
-  .t--form-control-DROP_DOWN,
-  .t--form-control-DROP_DOWN > div > div,
-  .t--form-control-DROP_DOWN > div > div > div > div {
-    width: 144px;
-  }
+  ${updateDropdownWidth("144px")}
 
+  // Hide the icon by default
   .t--form-control-DROP_DOWN .remixicon-icon {
     display: none;
   }
-
+  // We still want the dropdown to show the 'expand-more' icon
   .t--form-control-DROP_DOWN span[name="expand-more"] .remixicon-icon {
     display: initial;
   }
   ${(props) =>
     props.size === "small" &&
     `
+  // Hide the dropdown labels to decrease the width
+  // The design system component has inline style hence the !important
   .t--form-control-DROP_DOWN .${Classes.TEXT} {
     display: none !important;
   }
-
+  // Show the icons hidden initially
   .t--form-control-DROP_DOWN .remixicon-icon {
     display: initial;
   }
-
-  .t--form-control-DROP_DOWN,
-  .t--form-control-DROP_DOWN > div > div,
-  .t--form-control-DROP_DOWN > div > div > div > div {
-    width: 65px;
-  }
+  ${updateDropdownWidth("65px")}
   `}
 `;
 
@@ -146,11 +150,12 @@ function SortingComponent(props: any) {
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
-  const targetRef = useRef<HTMLDivElement>(null);
 
   const onDeletePressed = (index: number) => {
     props.fields.remove(index);
   };
+
+  const targetRef = useRef<HTMLDivElement>(null);
   const size = useResponsiveBreakpoints(targetRef, [{ small: 450 }]);
 
   useEffect(() => {
