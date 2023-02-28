@@ -3,7 +3,6 @@ import {
   DataTree,
   DataTreeEntity,
   DataTreeJSAction,
-  DataTreeObjectEntity,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import set from "lodash/set";
