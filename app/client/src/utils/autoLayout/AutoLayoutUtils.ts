@@ -17,7 +17,10 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import {
+  updatePositionsOfParentAndSiblings,
+  updateWidgetPositions,
+} from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import { AlignmentColumnInfo } from "./autoLayoutTypes";
 
@@ -138,7 +141,13 @@ export function updateFlexLayersOnDelete(
   };
   widgets[parentId] = parent;
 
-  return updateWidgetPositions(widgets, parentId, isMobile, mainCanvasWidth);
+  return updatePositionsOfParentAndSiblings(
+    widgets,
+    parentId,
+    layerIndex,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
 
 export function updateFillChildStatus(
@@ -254,6 +263,7 @@ export function pasteWidgetInFlexLayers(
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
   let flexLayers: FlexLayer[] = parent.flexLayers || [];
+  let flexLayerIndex = -1;
   /**
    * If the new parent is not the same as the original parent,
    * then add a new flex layer.
@@ -280,7 +290,7 @@ export function pasteWidgetInFlexLayers(
      */
     let rowIndex = -1,
       alignment = FlexLayerAlignment.Start;
-    const flexLayerIndex = flexLayers.findIndex((layer: FlexLayer) => {
+    flexLayerIndex = flexLayers.findIndex((layer: FlexLayer) => {
       const temp = layer.children.findIndex(
         (child: LayerChild) => child.id === originalWidgetId,
       );
@@ -313,7 +323,13 @@ export function pasteWidgetInFlexLayers(
       flexLayers,
     },
   };
-  return updateWidgetPositions(widgets, parentId, isMobile, mainCanvasWidth);
+  return updatePositionsOfParentAndSiblings(
+    widgets,
+    parentId,
+    flexLayerIndex,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
 
 /**

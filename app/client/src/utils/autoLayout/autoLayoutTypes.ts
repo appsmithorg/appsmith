@@ -27,7 +27,7 @@ export interface DropZone {
 export interface HighlightInfo {
   isNewLayer: boolean; // determines if a new layer / child has been added directly to the container.
   index: number; // index of the child in props.children.
-  layerIndex?: number; // index of layer in props.flexLayers.
+  layerIndex: number; // index of layer in props.flexLayers.
   rowIndex: number; // index of highlight within a horizontal layer.
   alignment: FlexLayerAlignment; // alignment of the child in the layer.
   posX: number; // x position of the highlight.

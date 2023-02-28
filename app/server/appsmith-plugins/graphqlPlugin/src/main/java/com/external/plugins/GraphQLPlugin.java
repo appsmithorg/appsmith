@@ -230,7 +230,7 @@ public class GraphQLPlugin extends BasePlugin {
                  * as is for `application/json`. Hence, the current check assumes that any content type that differs
                  * from `application/graphql` would expect the data in the same format as for `application/json`
                  */
-                if (!ApiContentType.GRAPHQL.getValue().equals(reqContentType)) {
+                if (!ApiContentType.GRAPHQL.getValue().equalsIgnoreCase(reqContentType)) {
                     /**
                      * When a GraphQL request is sent using HTTP POST method, then the request body needs to be in the
                      * following format:
@@ -271,9 +271,8 @@ public class GraphQLPlugin extends BasePlugin {
 
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
             Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
-                    encodeParamsToggle,
-                    httpMethod);
-            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
+                    encodeParamsToggle, httpMethod);
+            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */

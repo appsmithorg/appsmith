@@ -5,7 +5,7 @@ describe("Import, Export and Fork application and validate data binding", functi
   let workspaceId;
   let newWorkspaceName;
   let appName;
-  it("Import application from json and validate data on pageload", function() {
+  it("1. Import application from json and validate data on pageload", function() {
     // import application
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon)
@@ -59,7 +59,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     });
   });
 
-  it("Fork application and validate data binding for the widgets", function() {
+  it("2. Fork application and validate data binding for the widgets", function() {
     // fork application
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.searchInput).type(`${appName}`);
@@ -81,7 +81,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.xpath("//span[text()='due']").should("be.visible");
   });
 
-  it("Export and import application and validate data binding for the widgets", function() {
+  it("3. Export and import application and validate data binding for the widgets", function() {
     cy.NavigateToHome();
     cy.get(homePage.searchInput)
       .clear()
