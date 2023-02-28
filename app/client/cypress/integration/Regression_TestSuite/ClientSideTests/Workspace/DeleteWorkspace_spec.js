@@ -1,21 +1,14 @@
 /// <reference types="Cypress" />
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import homePage from "../../../../locators/HomePage";
-let HomePage = ObjectsRegistry.HomePage;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Delete workspace test spec", function() {
-  let newWorkspaceName, workspaceId;
+  let newWorkspaceName
 
   it("1. Should delete the workspace", function() {
     cy.visit("/applications");
     cy.generateUUID().then((uid) => {
-      workspaceId = uid;
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
-        cy.visit("/applications");
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
-        newWorkspaceName = workspaceId;
+      newWorkspaceName = uid;
+      _.homePage.CreateNewWorkspace(newWorkspaceName);
         cy.wait(500);
         cy.contains("Delete Workspace").click();
         cy.contains("Are you sure").click();
@@ -23,7 +16,6 @@ describe("Delete workspace test spec", function() {
           expect(httpResponse.status).to.equal(200);
         });
         cy.get(newWorkspaceName).should("not.exist");
-      });
     });
   });
 
@@ -31,16 +23,11 @@ describe("Delete workspace test spec", function() {
     cy.visit("/applications");
     cy.wait(2000);
     cy.generateUUID().then((uid) => {
-      workspaceId = uid;
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
-        cy.visit("/applications");
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
-        newWorkspaceName = workspaceId;
+      newWorkspaceName = uid;
+      _.homePage.CreateNewWorkspace(newWorkspaceName);
         cy.wait(500);
         cy.contains("Delete Workspace");
-        HomePage.InviteUserToWorkspace(
+        _.homePage.InviteUserToWorkspace(
           newWorkspaceName,
           Cypress.env("TESTUSERNAME1"),
           "App Viewer",
@@ -52,11 +39,10 @@ describe("Delete workspace test spec", function() {
         );
         cy.visit("/applications");
         cy.openWorkspaceOptionsPopup(newWorkspaceName);
-        cy.get(homePage.workspaceNamePopoverContent)
+        cy.get(_.homePage.workspaceNamePopoverContent)
           .contains("Delete Workspace")
           .should("not.exist");
         cy.LogOut();
-      });
     });
   });
 });
