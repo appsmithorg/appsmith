@@ -250,7 +250,7 @@ export default class DataTreeEvaluator {
     const inverseDependencyGenerationEndTime = performance.now();
 
     const secondCloneStartTime = performance.now();
-    this.oldUnEvalTree = Object.freeze(klona(localUnEvalTree));
+    this.oldUnEvalTree = klona(localUnEvalTree);
     const secondCloneEndTime = performance.now();
 
     const totalFirstTreeSetupEndTime = performance.now();
@@ -595,7 +595,7 @@ export default class DataTreeEvaluator {
     const cloneStartTime = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = Object.freeze(klona(localUnEvalTree));
+    this.oldUnEvalTree = klona(localUnEvalTree);
     const cloneEndTime = performance.now();
 
     const totalUpdateTreeSetupEndTime = performance.now();

@@ -16,6 +16,7 @@ import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import JSVariableUpdates from "./JSObject/JSVariableUpdates";
 import JSObjectCollection from "./JSObject/Collection";
+import { removeProxyObject } from "./JSObject";
 
 export type EvalResult = {
   result: any;
@@ -285,6 +286,7 @@ export default function evaluateSync(
          */
         throw new FoundPromiseInSyncEvalError();
       }
+      result = removeProxyObject(result);
     } catch (error) {
       errors.push({
         errorMessage: errorModifier.run(error as Error),
@@ -330,6 +332,7 @@ export async function evaluateAsync(
 
     try {
       result = await indirectEval(script);
+      result = removeProxyObject(result);
     } catch (e) {
       const error = e as Error;
       const errorMessage = error.name
