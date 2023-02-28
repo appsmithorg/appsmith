@@ -85,8 +85,8 @@ describe("Verify List widget binding, Server side Pagination & functionalities w
     _.deployMode.DeployApp();
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget);
     cy.wait("@postExecute").then((interception:any) => {
-      userName = JSON.stringify(interception.response.body.data.body.users[0].name).replace(/['"]+/g, "")
-      userEmail = JSON.stringify(interception.response.body.data.body.users[0].email).replace(/['"]+/g, "")
+      userName = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, "")
+      userEmail = JSON.stringify(interception.response.body.data.body[0].email).replace(/['"]+/g, "")
     _.agHelper.GetNClick(_.locators._containerWidget, 0, true);
     _.agHelper.ValidateToastMessage("ListWidget"+"_"+ userName +"_" + userEmail);
     });
