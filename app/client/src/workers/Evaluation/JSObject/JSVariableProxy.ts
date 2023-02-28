@@ -19,14 +19,17 @@ export function jsObjectProxyHandler(
         if (!path.includes(".")) return value;
 
         if (!target.hasOwnProperty(value)) {
-          // HACK:
-          // Assuming a prototype method call would mutate the property
-          addPatch({
-            path,
-            method: PatchType.PROTOTYPE_METHOD_CALL,
-            value,
-          });
-          return value.bind(target);
+          const newValue = value.bind(target);
+          return function(...args: any[]) {
+            // HACK:
+            // Assuming a prototype method call would mutate the property
+            addPatch({
+              path,
+              method: PatchType.PROTOTYPE_METHOD_CALL,
+              value,
+            });
+            return newValue(...(args || []));
+          };
         }
         return value;
       }
@@ -58,7 +61,7 @@ export function jsObjectProxyHandler(
   };
 }
 
-function addPatch(patch: Patch) {
+export function addPatch(patch: Patch) {
   JSVariableUpdates.add(patch);
 }
 
