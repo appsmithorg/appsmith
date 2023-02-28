@@ -24,7 +24,6 @@ import { MenuDivider } from "design-system-old";
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;
   position: relative;
-  top: 3px;
   cursor: pointer;
   transform: rotate(180deg);
   && svg {
@@ -37,7 +36,6 @@ const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
 const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;
   position: relative;
-  top: 3px;
   cursor: pointer;
   && svg {
     path {
@@ -246,16 +244,14 @@ export function HeaderCell(props: {
           >
             <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
           </Popover2>
-        </div>
-        {props.isAscOrder !== undefined ? (
-          <div>
-            {props.isAscOrder ? (
+          {props.isAscOrder !== undefined ? (
+            props.isAscOrder ? (
               <AscendingIcon height={ICON_SIZE} width={ICON_SIZE} />
             ) : (
               <DescendingIcon height={ICON_SIZE} width={ICON_SIZE} />
-            )}
-          </div>
-        ) : null}
+            )
+          ) : null}
+        </div>
         <div
           {...column.getResizerProps()}
           className={`resizer ${column.isResizing ? "isResizing" : ""}`}

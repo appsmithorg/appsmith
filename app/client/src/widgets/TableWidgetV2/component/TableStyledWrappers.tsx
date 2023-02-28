@@ -275,7 +275,8 @@ export const TableWrapper = styled.div<{
   }
   .draggable-header {
     cursor: grab;
-    display: inline-block;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
     height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT};
     &.reorder-line {
@@ -290,9 +291,12 @@ export const TableWrapper = styled.div<{
   }
   .header-menu {
     cursor: pointer;
-    width: 24px;
+    width: 36px;
     display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
+    padding-right: 5px;
     .bp3-popover2-target {
       display: block;
     }
@@ -300,11 +304,11 @@ export const TableWrapper = styled.div<{
     &.hide {
       &:hover {
         .bp3-popover2-target {
-          display: block;
+          visibility: visible;
         }
       }
       .bp3-popover2-target {
-        display: none;
+        visibility: hidden;
       }
     }
   }
