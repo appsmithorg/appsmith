@@ -552,8 +552,8 @@ export default class DataTreeEvaluator {
       translatedDiffs?: DataTreeDiff[];
       pathsToClearErrorsFor?: any[];
       pathsToSkipFromEval?: string[];
-      findDifferenceTime?: number;
-      updateDependencyMapTime?: number;
+      findDifferenceTime?: string;
+      updateDependencyMapTime?: string;
     },
   ) {
     const {
@@ -564,8 +564,8 @@ export default class DataTreeEvaluator {
       translatedDiffs = [],
       pathsToClearErrorsFor = [],
       pathsToSkipFromEval = [],
-      findDifferenceTime = 0,
-      updateDependencyMapTime = 0,
+      findDifferenceTime = "0",
+      updateDependencyMapTime = "0",
     } = extraParams;
 
     updateEvalTreeWithJSCollectionState(this.evalTree, this.oldUnEvalTree);
