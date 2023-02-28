@@ -25,9 +25,12 @@ public class Migration004CreateIndexForApplicationSnapshotMigration {
     }
 
     @Execution
-    public void defaultWorkspaceIdMigration() {
-        Index applicationIdIndex = makeIndex(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId))
-                .named("applicationId_index");
-        ensureIndexes(mongoTemplate, ApplicationSnapshot.class, applicationIdIndex);
+    public void addIndexOnApplicationIdAndChunkOrder() {
+        Index applicationIdChunkOrderUniqueIndex = makeIndex(
+                fieldName(QApplicationSnapshot.applicationSnapshot.applicationId),
+                fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder)
+        ).named("applicationId_chunkOrder_unique_index").unique();
+
+        ensureIndexes(mongoTemplate, ApplicationSnapshot.class, applicationIdChunkOrderUniqueIndex);
     }
 }

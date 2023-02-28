@@ -22,10 +22,16 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
     @Override
     public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
         List<Criteria> criteriaList = new ArrayList<>();
-        criteriaList.add(Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId)).is(applicationId));
+        criteriaList.add(
+                Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId)).is(applicationId)
+        );
+        criteriaList.add(
+                Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder)).is(1)
+        );
 
         List<String> fieldNames = List.of(
                 fieldName(QApplicationSnapshot.applicationSnapshot.applicationId),
+                fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder),
                 fieldName(QApplicationSnapshot.applicationSnapshot.createdAt),
                 fieldName(QApplicationSnapshot.applicationSnapshot.updatedAt)
         );
