@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
-import { Position, Spinner } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
 import {
   Icon,
@@ -30,7 +30,6 @@ import {
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
-import { LoaderContainer } from "pages/Settings/components";
 import {
   BaseAclProps,
   GroupsForUser,
@@ -135,7 +134,7 @@ export function UserEdit(props: UserEditProps) {
     [],
   );
   const dispatch = useDispatch();
-  const { isLoading, searchPlaceholder, selectedUser } = props;
+  const { searchPlaceholder, selectedUser } = props;
 
   const isEditing = useSelector(getAclIsEditing);
 
@@ -398,11 +397,7 @@ export function UserEdit(props: UserEditProps) {
     },
   ];
 
-  return isLoading ? (
-    <LoaderContainer>
-      <Spinner />
-    </LoaderContainer>
-  ) : (
+  return (
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <Header>

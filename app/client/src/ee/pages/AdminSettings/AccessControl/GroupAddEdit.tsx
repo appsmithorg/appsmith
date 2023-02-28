@@ -26,7 +26,7 @@ import {
   Permissions,
   UsersInGroup,
 } from "./types";
-import { Position, Spinner } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core";
 import {
   ACL_INVITE_MODAL_MESSAGE,
   ACL_INVITE_MODAL_TITLE,
@@ -45,7 +45,6 @@ import {
   ACL_EDIT_DESC,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
-import { LoaderContainer } from "pages/Settings/components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addUsersInGroup,
@@ -141,7 +140,7 @@ const NoUsersText = styled.div`
 `;
 
 export function GroupAddEdit(props: GroupEditProps) {
-  const { isLoading, selected } = props;
+  const { selected } = props;
   const { isNew = false } = selected;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
@@ -490,11 +489,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     },
   ].filter(Boolean);
 
-  return isLoading ? (
-    <LoaderContainer>
-      <Spinner />
-    </LoaderContainer>
-  ) : (
+  return (
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <PageHeader
