@@ -482,8 +482,8 @@ function* moveActionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      // @ts-expect-error: response is of type unknown
       toast.show(
+        // @ts-expect-error: response is of type unknown
         createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
         {
           kind: "success",
