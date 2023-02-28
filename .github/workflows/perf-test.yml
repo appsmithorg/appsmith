@@ -192,7 +192,6 @@ jobs:
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
-            -e APPSMITH_AUDITLOG_ENABLED=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
             cicontainer
@@ -204,7 +203,7 @@ jobs:
         run: |
           cp .env.example .env        
           ./start-server.sh &
-          
+
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
