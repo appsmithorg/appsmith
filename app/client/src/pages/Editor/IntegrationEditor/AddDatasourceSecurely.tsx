@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import Secure from "assets/images/secure.svg";
-import AppsmithDatasource from "assets/images/appsmith-datasource.svg";
+import AppsmithDatasource from "assets/images/appsmith-datasource.png";
 import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`
