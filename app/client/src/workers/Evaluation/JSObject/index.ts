@@ -1,5 +1,5 @@
 import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import { get, isEmpty, set } from "lodash";
+import { get, isEmpty, merge, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
@@ -325,14 +325,22 @@ export function getOriginalValueFromProxy(obj: Record<string, unknown>) {
   return obj;
 }
 
-export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
+export function updateEvalTreeWithJSCollectionState(
+  evalTree: DataTree,
+  oldUnEvalTree: DataTree,
+) {
   // loop through jsCollectionState and set all values to evalTree
   const jsCollections = JSObjectCollection.getCurrentVariableState();
   const jsCollectionEntries = Object.entries(jsCollections);
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
     const sanitizedState = removeProxyObject(variableState);
+    if (!evalTree[jsObjectName]) {
+      merge({}, oldUnEvalTree[jsObjectName], sanitizedState);
+      continue;
+    }
+
     evalTree[jsObjectName] = Object.assign(
-      evalTree[jsObjectName] || {},
+      evalTree[jsObjectName],
       sanitizedState,
     );
   }

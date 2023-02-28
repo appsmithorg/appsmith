@@ -564,7 +564,7 @@ export default class DataTreeEvaluator {
       pathsToSkipFromEval = [],
     } = extraParams;
 
-    updateEvalTreeWithJSCollectionState(this.evalTree);
+    updateEvalTreeWithJSCollectionState(this.evalTree, this.oldUnEvalTree);
 
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
