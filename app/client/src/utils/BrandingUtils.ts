@@ -1,6 +1,5 @@
 import tinycolor from "tinycolor2";
 import { darkenColor } from "widgets/WidgetUtils";
-import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ADMIN_BRANDING_LOGO_SIZE_ERROR,
@@ -9,6 +8,7 @@ import {
   ADMIN_BRANDING_FAVICON_FORMAT_ERROR,
   ADMIN_BRANDING_FAVICON_DIMENSION_ERROR,
 } from "@appsmith/constants/messages";
+import { toast } from "design-system";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
@@ -85,9 +85,8 @@ export const logoImageValidator = (
 
   // case 2: file size > 2mb
   if (file.size > 2 * 1024 * 1024) {
-    Toaster.show({
-      text: createMessage(ADMIN_BRANDING_LOGO_SIZE_ERROR),
-      variant: Variant.danger,
+    toast(createMessage(ADMIN_BRANDING_LOGO_SIZE_ERROR), {
+      kind: "error",
     });
 
     return false;
@@ -97,9 +96,8 @@ export const logoImageValidator = (
   const validTypes = ["image/jpeg", "image/png"];
 
   if (!validTypes.includes(file.type)) {
-    Toaster.show({
-      text: createMessage(ADMIN_BRANDING_LOGO_FORMAT_ERROR),
-      variant: Variant.danger,
+    toast(createMessage(ADMIN_BRANDING_LOGO_FORMAT_ERROR), {
+      kind: "error",
     });
 
     return false;
@@ -135,9 +133,8 @@ export const faivconImageValidator = (
 
   // case 2: file size > 2mb
   if (file.size > 2 * 1024 * 1024) {
-    Toaster.show({
-      text: createMessage(ADMIN_BRANDING_FAVICON_SIZE_ERROR),
-      variant: Variant.danger,
+    toast(createMessage(ADMIN_BRANDING_FAVICON_SIZE_ERROR), {
+      kind: "error",
     });
 
     return false;
@@ -153,9 +150,8 @@ export const faivconImageValidator = (
   ];
 
   if (!validTypes.includes(file.type)) {
-    Toaster.show({
-      text: createMessage(ADMIN_BRANDING_FAVICON_FORMAT_ERROR),
-      variant: Variant.danger,
+    toast(createMessage(ADMIN_BRANDING_FAVICON_FORMAT_ERROR), {
+      kind: "error",
     });
 
     return false;
@@ -172,9 +168,8 @@ export const faivconImageValidator = (
     window.URL.revokeObjectURL(image.src);
 
     if (height > FAVICON_MAX_HEIGHT || width > FAVICON_MAX_WIDTH) {
-      Toaster.show({
-        text: createMessage(ADMIN_BRANDING_FAVICON_DIMENSION_ERROR),
-        variant: Variant.danger,
+      toast(createMessage(ADMIN_BRANDING_FAVICON_DIMENSION_ERROR), {
+        kind: "error",
       });
 
       return false;

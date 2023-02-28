@@ -17,7 +17,7 @@ import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, Category, Toaster, Variant } from "design-system-old";
+import { Button, Category, Variant } from "design-system-old";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -60,6 +60,7 @@ import DatasourceAuth, {
 } from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { toast } from "design-system";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -274,9 +275,8 @@ class DatasourceRestAPIEditor extends React.Component<
       !datasource.datasourceConfiguration ||
       !datasource.datasourceConfiguration.url
     ) {
-      Toaster.show({
-        text: "Unable to create API. Try adding a url to the datasource",
-        variant: Variant.danger,
+      toast("Unable to create API. Try adding a url to the datasource", {
+        kind: "error",
       });
       return;
     }

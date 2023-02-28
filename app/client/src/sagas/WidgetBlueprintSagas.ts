@@ -10,9 +10,9 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
 } from "constants/WidgetConstants";
-import { Toaster, Variant } from "design-system-old";
 import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
+import { toast } from "design-system";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -181,10 +181,8 @@ export function* executeWidgetBlueprintChildOperations(
 
   // If something odd happens show the message related to the odd scenario
   if (message) {
-    Toaster.show({
-      text: message,
-      hideProgressBar: false,
-      variant: Variant.info,
+    toast(message, {
+      kind: "info",
     });
   }
 

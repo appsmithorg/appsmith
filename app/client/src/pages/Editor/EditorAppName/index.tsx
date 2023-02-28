@@ -18,6 +18,7 @@ import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
 import { Theme } from "constants/DefaultTheme";
+import { toast } from "design-system";
 
 type EditorAppNameProps = CommonComponentProps & {
   applicationId: string | undefined;
@@ -151,9 +152,8 @@ export function EditorAppName(props: EditorAppNameProps) {
 
   const inputValidation = (value: string) => {
     if (value.trim() === "") {
-      Toaster.show({
-        text: "Application name can't be empty",
-        variant: Variant.danger,
+      toast("Application name can't be empty", {
+        kind: "error",
       });
     }
     return false;

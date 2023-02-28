@@ -3,7 +3,6 @@ import {
   createMessage,
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
 import { Types } from "utils/TypeHelpers";
@@ -13,6 +12,7 @@ import {
 } from "@appsmith/workers/Evaluation/fns/index";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { toast } from "design-system";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -88,9 +88,9 @@ export const logActionExecutionError = (
   //   ]);
   // }
 
-  Toaster.show({
+  toast({
     text: errorMessage,
-    variant: Variant.danger,
+    kind: "error",
     showDebugButton: !!triggerPropertyName && {
       component: DebugButton,
       componentProps: {

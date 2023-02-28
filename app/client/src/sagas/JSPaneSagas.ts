@@ -51,7 +51,6 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { Toaster, Variant } from "design-system-old";
 import { PluginPackageName, PluginType } from "entities/Action";
 import {
   createMessage,
@@ -83,6 +82,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { toast } from "design-system";
 
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
@@ -319,9 +319,8 @@ function* handleJSObjectNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
-    Toaster.show({
-      text: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""),
-      variant: Variant.danger,
+    toast(createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""), {
+      kind: "error",
     });
 
     return;
@@ -408,9 +407,8 @@ export function* handleExecuteJSFunctionSaga(data: {
     }
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
     showSuccessToast &&
-      Toaster.show({
-        text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
-        variant: Variant.success,
+      toast(createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name), {
+        kind: "success",
       });
   } catch (error) {
     AppsmithConsole.addErrors([
@@ -436,18 +434,19 @@ export function* handleExecuteJSFunctionSaga(data: {
         },
       },
     ]);
-    Toaster.show({
-      text:
-        (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
-      variant: Variant.danger,
-      showDebugButton: {
-        component: DebugButton,
-        componentProps: {
-          className: "t--toast-debug-button",
-          source: "TOAST",
+    toast(
+      (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
+      {
+        kind: "error",
+        showDebugButton: {
+          component: DebugButton,
+          componentProps: {
+            className: "t--toast-debug-button",
+            source: "TOAST",
+          },
         },
       },
-    });
+    );
   }
 }
 

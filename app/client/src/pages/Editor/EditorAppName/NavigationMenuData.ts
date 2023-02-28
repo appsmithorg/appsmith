@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { noop } from "lodash";
 
-import { Toaster, Variant } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -22,6 +21,7 @@ import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { ThemeProp } from "widgets/constants";
+import { toast } from "design-system";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -60,9 +60,8 @@ export const GetNavigationMenuData = ({
       });
       history.push(APPLICATIONS_URL);
     } else {
-      Toaster.show({
-        text: "Error while deleting Application",
-        variant: Variant.danger,
+      toast("Error while deleting Application", {
+        kind: "error",
       });
     }
   };

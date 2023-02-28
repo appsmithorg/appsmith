@@ -1,6 +1,5 @@
 import React from "react";
 import UserApi, { SendTestEmailPayload } from "@appsmith/api/UserApi";
-import { Toaster, Variant } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -24,6 +23,7 @@ import {
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { getCurrentTenant } from "ce/actions/tenantActions";
+import { toast } from "design-system";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -81,9 +81,8 @@ export function* SaveAdminSettingsSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      Toaster.show({
-        text: "Successfully Saved",
-        variant: Variant.success,
+      toast("Successfully Saved", {
+        kind: "success",
       });
       yield put({
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
@@ -160,7 +159,7 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
           </>
         );
       }
-      Toaster.show({
+      toast({
         actionElement,
         text: createMessage(
           response.data
@@ -169,7 +168,7 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
             : TEST_EMAIL_FAILURE,
         ),
         hideProgressBar: true,
-        variant: response.data ? Variant.info : Variant.danger,
+        kind: response.data ? "info" : "error",
       });
     }
   } catch (e) {}

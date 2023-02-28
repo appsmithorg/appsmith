@@ -6,8 +6,6 @@ import {
   Text,
   TextInput,
   TextType,
-  Toaster,
-  Variant,
 } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -21,6 +19,7 @@ import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { toast } from "design-system";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const ForgotPassword = styled.a`
@@ -39,15 +38,13 @@ function General() {
   const forgotPassword = async () => {
     try {
       await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
-      Toaster.show({
-        text: createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email),
-        variant: Variant.success,
+      toast(createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email), {
+        kind: "success",
       });
       dispatch(logoutUser());
     } catch (error) {
-      Toaster.show({
-        text: (error as { _error: string })._error,
-        variant: Variant.success,
+      toast((error as { _error: string })._error, {
+        kind: "success",
       });
     }
   };

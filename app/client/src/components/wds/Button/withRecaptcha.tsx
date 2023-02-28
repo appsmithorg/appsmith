@@ -25,7 +25,7 @@ export interface RecaptchaProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
-import { Toaster } from "design-system-old";
+import { toast } from "design-system";
 
 export default function withRecaptcha<
   T extends RecaptchaProps = RecaptchaProps
@@ -42,9 +42,8 @@ export default function withRecaptcha<
       event: React.MouseEvent<HTMLElement>,
       error: string,
     ) => {
-      Toaster.show({
-        text: error,
-        variant: Variant.danger,
+      toast(error, {
+        kind: "error",
       });
       props.onClick && props.onClick(event);
     };

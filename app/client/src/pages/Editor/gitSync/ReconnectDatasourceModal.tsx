@@ -18,11 +18,9 @@ import {
   Icon,
   IconSize,
   Size,
-  Toaster,
   Text,
   TextType,
   TooltipComponent,
-  Variant,
 } from "design-system-old";
 import { Colors } from "constants/Colors";
 
@@ -67,6 +65,7 @@ import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
 import { Theme } from "constants/DefaultTheme";
+import { toast } from "design-system";
 
 const Container = styled.div`
   height: 765px;
@@ -330,14 +329,13 @@ function ReconnectDatasourceModal() {
     setIsImport(false);
     const status = queryParams.get("response_status");
     const display_message = queryParams.get("display_message");
-    const variant = Variant.danger;
 
     if (status !== AuthorizationStatus.SUCCESS) {
       const message =
         status === AuthorizationStatus.APPSMITH_ERROR
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
-      Toaster.show({ text: display_message || message, variant });
+      toast(display_message || message, { kind: "error" });
       const oAuthStatus = status;
       AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
         dsName,

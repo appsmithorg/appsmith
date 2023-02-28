@@ -208,9 +208,8 @@ function copyContent(
     : JSON.stringify(content, null, 2);
 
   copy(stringifiedContent);
-  Toaster.show({
-    text: onCopyContentText,
-    variant: Variant.success,
+  toast(onCopyContentText, {
+    kind: "success",
   });
 }
 
