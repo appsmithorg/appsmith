@@ -275,6 +275,8 @@ export const updateDependencyMap = ({
                 isTrigger,
               } = listEntityPathDependencies(entity, fullPropertyPath);
               if (isTrigger) {
+                // Trigger fields shouldn't depend on anything, in the dependencyMap
+                dependencyMap[fullPropertyPath] = [];
                 const {
                   errors: extractDependencyErrors,
                   invalidReferences,
@@ -298,27 +300,25 @@ export const updateDependencyMap = ({
                   extractDependencyErrors,
                 );
               } else {
-                if (!isEmpty(entityPathDependencies)) {
-                  didUpdateDependencyMap = true;
-                  const {
-                    errors: extractDependencyErrors,
-                    invalidReferences,
-                    validReferences,
-                  } = extractInfoFromBindings(entityPathDependencies, allKeys);
-                  // Update dependencyMap
-                  updateMap(dependencyMap, fullPropertyPath, validReferences);
+                didUpdateDependencyMap = true;
+                const {
+                  errors: extractDependencyErrors,
+                  invalidReferences,
+                  validReferences,
+                } = extractInfoFromBindings(entityPathDependencies, allKeys);
+                // Update dependencyMap
+                updateMap(dependencyMap, fullPropertyPath, validReferences);
 
-                  // Update invalidReferencesMap
-                  updateMap(
-                    invalidReferencesMap,
-                    fullPropertyPath,
-                    invalidReferences,
-                    { replaceValue: true, deleteOnEmpty: true },
-                  );
-                  dataTreeEvalErrors = dataTreeEvalErrors.concat(
-                    extractDependencyErrors,
-                  );
-                }
+                // Update invalidReferencesMap
+                updateMap(
+                  invalidReferencesMap,
+                  fullPropertyPath,
+                  invalidReferences,
+                  { replaceValue: true, deleteOnEmpty: true },
+                );
+                dataTreeEvalErrors = dataTreeEvalErrors.concat(
+                  extractDependencyErrors,
+                );
               }
               if (isWidget(entity)) {
                 // update validation dependencies
