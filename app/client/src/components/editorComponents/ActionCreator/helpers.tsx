@@ -2,7 +2,6 @@ import React from "react";
 import {
   getFuncExpressionAtPosition,
   getFunction,
-  replaceActionInQuery,
   getFunctionNameFromJsObjectExpression,
 } from "@shared/ast";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
@@ -32,7 +31,6 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import {
   AppsmithFunction,
@@ -111,7 +109,6 @@ export function getFieldFromValue(
         getParentValue as (changeValue: string) => string,
         value,
         entity,
-        isChainedAction,
       );
     }
   }
@@ -121,25 +118,9 @@ export function getFieldFromValue(
     getParentValue as (changeValue: string) => string,
     value,
     activeTabNavigateTo,
-    isChainedAction,
   );
 
   return fields;
-}
-
-function replaceAction(value: string, changeValue: string, argNum: number) {
-  // if no action("") then send empty arrow expression
-  // else replace with arrow expression and action selected
-  const changeValueWithoutBrackets = getDynamicBindings(changeValue)
-    .jsSnippets[0];
-  const reqChangeValue =
-    changeValue === "" ? `() => {}` : `() => { ${changeValueWithoutBrackets} }`;
-  return `{{${replaceActionInQuery(
-    value,
-    reqChangeValue,
-    argNum,
-    self.evaluationVersion,
-  )}}}`;
 }
 
 function getActionEntityFields(
@@ -188,39 +169,6 @@ function getActionEntityFields(
     });
   }
 
-  // requiredValue is value minus the surrounding {{ }}
-  // eg: if value is {{download()}}, requiredValue = download()
-
-  // get the fields for onSuccess
-  // const successFields = getFieldFromValue(
-  //   successValue,
-  //   activeTabNavigateTo,
-  //   activeTabApiAndQueryCallback,
-  //   (changeValue: string) => replaceAction(requiredValue, changeValue, 0),
-  //   dataTree,
-  //   true,
-  // );
-  // successFields[0].label = "Action";
-
-  // // get the fields for onError
-  // const errorFields = getFieldFromValue(
-  //   errorValue,
-  //   activeTabNavigateTo,
-  //   activeTabApiAndQueryCallback,
-  //   (changeValue: string) => replaceAction(requiredValue, changeValue, 1),
-  //   dataTree,
-  //   true,
-  // );
-  // errorFields[0].label = "Action";
-
-  // if (activeTabApiAndQueryCallback.id === "onSuccess") {
-  //   console.log("Ac***", { successFields, errorFields });
-  //   fields.push(successFields);
-  // } else {
-  //   console.log("Ac***", { successFields, errorFields });
-  //   fields.push(errorFields);
-  // }
-
   return fields;
 }
 
@@ -229,19 +177,7 @@ function getJsFunctionExecutionFields(
   getParentValue: (changeValue: string) => string,
   value: string,
   entity: any,
-  isChainedAction = false,
 ) {
-  // const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  // if (matches.length === 0) {
-  // when format doesn't match, it is function from js object
-  // fields.push({
-  //   field: FieldType.ACTION_SELECTOR_FIELD,
-  //   getParentValue,
-  //   value,
-  //   args: [],
-  // });
-  // } else if (matches.length) {
-  // const entityPropertyPath = matches[0][1];
   const { propertyPath } = getEntityNameAndPropertyPath(value);
   const path =
     propertyPath &&
@@ -275,7 +211,6 @@ function getFieldsForSelectedAction(
   getParentValue: (changeValue: string) => string,
   value: string,
   activeTabNavigateTo: SwitchType,
-  isChainedAction = false,
 ) {
   /*
    * if an action is present, push actions selector field
