@@ -36,7 +36,6 @@ describe("Entity explorer API pane related testcases", function() {
   it("2. Move to page / edit API name /properties validation", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
-    cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.SaveAndRunAPI();
     cy.validateRequest(
@@ -70,15 +69,18 @@ describe("Entity explorer API pane related testcases", function() {
       .invoke("show")
       .click({ force: true });
     ee.ActionContextMenuByEntityName("SecondAPI", "Move to page", pageid);
+    agHelper.AssertContains("moved to page");
     cy.wait(500);
     ee.ExpandCollapseEntity("Queries/JS");
     ee.AssertEntityPresenceInExplorer("SecondAPI");
-    /*To be enabled once the bug is fixed
+    ee.ActionContextMenuByEntityName("SecondAPI", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(3);
-      expect($lis.eq(0)).to.contain('{{SecondAPI.isLoading}}');
-      expect($lis.eq(1)).to.contain('{{SecondAPI.data}}');
-      expect($lis.eq(2)).to.contain('{{SecondAPI.run()}}');
-    });*/
+      expect($lis).to.have.length(5);
+      expect($lis.eq(0)).to.contain("{{SecondAPI.isLoading}}");
+      expect($lis.eq(1)).to.contain("{{SecondAPI.data}}");
+      expect($lis.eq(2)).to.contain("{{SecondAPI.responseMeta}}");
+      expect($lis.eq(3)).to.contain("{{SecondAPI.run()}}");
+      expect($lis.eq(4)).to.contain("{{SecondAPI.clear()}}");
+    });
   });
 });
