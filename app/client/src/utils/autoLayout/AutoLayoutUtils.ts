@@ -17,7 +17,10 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import {
+  updatePositionsOfParentAndSiblings,
+  updateWidgetPositions,
+} from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import { AlignmentColumnInfo } from "./autoLayoutTypes";
 
@@ -138,7 +141,13 @@ export function updateFlexLayersOnDelete(
   };
   widgets[parentId] = parent;
 
-  return updateWidgetPositions(widgets, parentId, isMobile, mainCanvasWidth);
+  return updatePositionsOfParentAndSiblings(
+    widgets,
+    parentId,
+    layerIndex,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
 
 export function updateFillChildStatus(
