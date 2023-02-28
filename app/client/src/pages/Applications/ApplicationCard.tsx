@@ -45,11 +45,9 @@ import {
   MenuItemProps,
   SavingState,
   Size,
-  Toaster,
   Text,
   TextType,
   TooltipComponent,
-  Variant,
 } from "design-system-old";
 import { useSelector } from "react-redux";
 import {
@@ -69,6 +67,7 @@ import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import { toast } from "design-system";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -557,9 +556,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
       link.click();
     }
     setIsMenuOpen(false);
-    Toaster.show({
-      text: `Successfully exported ${props.application.name}`,
-      variant: Variant.success,
+    toast.show(`Successfully exported ${props.application.name}`, {
+      kind: "success",
     });
   };
   const forkApplicationInitiate = () => {

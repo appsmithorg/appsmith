@@ -9,7 +9,6 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "design-system-old";
 import {
   actionChannel,
   ActionPattern,
@@ -34,6 +33,7 @@ import { TJSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { selectInstalledLibraries } from "selectors/entitiesSelector";
+import { toast } from "design-system";
 
 export function parseErrorMessage(text: string) {
   return text
@@ -59,9 +59,8 @@ function* handleInstallationFailure(
     text: `Failed to install library script at ${url}`,
   });
 
-  Toaster.show({
-    text: message || `Failed to install library script at ${url}`,
-    variant: Variant.danger,
+  toast.show(message || `Failed to install library script at ${url}`, {
+    kind: "error",
   });
   const applicationid: ReturnType<typeof getCurrentApplicationId> = yield select(
     getCurrentApplicationId,
@@ -161,10 +160,12 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     CodemirrorTernService.updateDef(defs["!name"], defs);
     AnalyticsUtil.logEvent("DEFINITIONS_GENERATION", { url, success: true });
   } catch (e) {
-    Toaster.show({
-      text: createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name),
-      variant: Variant.warning,
-    });
+    toast.show(
+      createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name),
+      {
+        kind: "warning",
+      },
+    );
     AppsmithConsole.warning({
       text: `Failed to generate code definitions for ${name}`,
     });
@@ -200,13 +201,15 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     },
   });
 
-  Toaster.show({
-    text: createMessage(
+  toast.show(
+    createMessage(
       customJSLibraryMessages.INSTALLATION_SUCCESSFUL,
       accessor[accessor.length - 1],
     ),
-    variant: Variant.success,
-  });
+    {
+      kind: "success",
+    },
+  );
   AnalyticsUtil.logEvent("INSTALL_LIBRARY", {
     url,
     namespace: accessor.join("."),
@@ -258,10 +261,12 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       accessor,
     );
     if (!success) {
-      Toaster.show({
-        text: createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
-        variant: Variant.danger,
-      });
+      toast.show(
+        createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
+        {
+          kind: "error",
+        },
+      );
     }
 
     try {
@@ -277,18 +282,16 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       payload: action.payload,
     });
 
-    Toaster.show({
-      text: createMessage(customJSLibraryMessages.UNINSTALL_SUCCESS, name),
-      variant: Variant.success,
+    toast.show(createMessage(customJSLibraryMessages.UNINSTALL_SUCCESS, name), {
+      kind: "success",
     });
     AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
       url: action.payload.url,
       success: true,
     });
   } catch (e) {
-    Toaster.show({
-      text: createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
-      variant: Variant.danger,
+    toast.show(createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name), {
+      kind: "error",
     });
     AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
       url: action.payload.url,
@@ -337,10 +340,8 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
             docsURL: lib.docsURL,
           })),
         });
-        const errorMessage = parseErrorMessage(message);
-        Toaster.show({
-          text: errorMessage,
-          variant: Variant.warning,
+        toast.show(parseErrorMessage(message), {
+          kind: "warning",
         });
       } else {
         yield put({
@@ -356,13 +357,15 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
           const defs = JSON.parse(lib.defs);
           CodemirrorTernService.updateDef(defs["!name"], defs);
         } catch (e) {
-          Toaster.show({
-            text: createMessage(
+          toast.show(
+            createMessage(
               customJSLibraryMessages.AUTOCOMPLETE_FAILED,
               lib.name,
             ),
-            variant: Variant.info,
-          });
+            {
+              kind: "info",
+            },
+          );
         }
       }
       yield put({

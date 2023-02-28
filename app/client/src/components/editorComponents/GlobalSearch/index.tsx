@@ -66,7 +66,6 @@ import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
-import { Toaster, Variant } from "design-system-old";
 import {
   useFilteredActions,
   useFilteredFileOperations,
@@ -81,6 +80,7 @@ import {
 } from "RouteBuilder";
 import { getPlugins } from "selectors/entitiesSelector";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { toast } from "design-system";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -478,9 +478,8 @@ function GlobalSearch() {
       const snippet = getSnippet(get(item, "body.snippet", ""), {});
       const title = get(item, "body.title", "");
       copy(snippet);
-      Toaster.show({
-        text: "Snippet copied to clipboard",
-        variant: Variant.success,
+      toast.show("Snippet copied to clipboard", {
+        kind: "success",
       });
       AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet, title });
     }

@@ -15,12 +15,12 @@ import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedC
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { setSelectedWidgetAncestry } from "actions/widgetSelectionActions";
-import { Toaster, Variant } from "design-system-old";
 import { createMessage, SELECT_ALL_WIDGETS_MSG } from "ce/constants/messages";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
+import { toast } from "design-system";
 
 /**
  * Selection types that are possible for widget select
@@ -302,10 +302,8 @@ export function* selectAllWidgetsInCanvasSaga() {
         );
       });
       if (isAnyModalSelected) {
-        Toaster.show({
-          text: createMessage(SELECT_ALL_WIDGETS_MSG),
-          variant: Variant.info,
-          duration: 3000,
+        toast.show(createMessage(SELECT_ALL_WIDGETS_MSG), {
+          kind: "info",
         });
       }
       return allSelectableChildren;

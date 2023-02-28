@@ -11,7 +11,6 @@ import {
   shiftText,
 } from "./helpers";
 import localStorage from "./localStorage";
-import { Toaster } from "design-system-old";
 import {
   createMessage,
   WIDGET_ADDED,
@@ -19,6 +18,7 @@ import {
   WIDGET_REMOVED,
   BULK_WIDGET_REMOVED,
 } from "@appsmith/constants/messages";
+import { toast } from "design-system";
 
 /**
  * get the text for toast
@@ -88,13 +88,10 @@ export const showUndoRedoToast = (
 
   const actionDescription = getActionDescription(isCreated, isMultiple);
 
-  const text = createMessage(actionDescription, widgetName);
   const actionElement = getReplayToastActionText(shouldUndo ? "undo" : "redo");
 
-  Toaster.show({
-    text,
+  toast.show(createMessage(actionDescription, widgetName), {
     actionElement,
-    maxWidth: "500px",
   });
 };
 

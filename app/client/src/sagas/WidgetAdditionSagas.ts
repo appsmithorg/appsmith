@@ -1,5 +1,4 @@
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Toaster } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -39,6 +38,7 @@ import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { toast } from "design-system";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -311,7 +311,7 @@ export function* getUpdateDslAfterCreatingChild(
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
-    Toaster.clear();
+    toast.dismiss();
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const { newWidgetId, type, widgetId } = addChildAction.payload;
 

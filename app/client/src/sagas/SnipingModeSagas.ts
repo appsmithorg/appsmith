@@ -10,7 +10,6 @@ import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "actions/controlActions";
-import { Toaster, Variant } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import {
@@ -23,6 +22,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { toast } from "design-system";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -41,9 +41,8 @@ export function* bindDataToWidgetSaga(
   const selectedWidget = widgetState[action.payload.widgetId];
 
   if (!selectedWidget || !selectedWidget.type) {
-    Toaster.show({
-      text: SNIPING_SELECT_WIDGET_AGAIN(),
-      variant: Variant.warning,
+    toast.show(SNIPING_SELECT_WIDGET_AGAIN(), {
+      kind: "warning",
     });
     return;
   }
@@ -162,9 +161,8 @@ export function* bindDataToWidgetSaga(
     yield put(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
   } else {
     queryId &&
-      Toaster.show({
-        text: SNIPING_NOT_SUPPORTED(),
-        variant: Variant.warning,
+      toast.show(SNIPING_NOT_SUPPORTED(), {
+        kind: "warning",
       });
   }
 }

@@ -38,7 +38,6 @@ import { validateResponse } from "sagas/ErrorSagas";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
@@ -108,6 +107,7 @@ import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { TRunDescription } from "workers/Evaluation/fns/actionFns";
+import { toast } from "design-system";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -573,9 +573,8 @@ function* runActionSaga(
           show: false,
         },
       });
-      Toaster.show({
-        text: createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name),
-        variant: Variant.danger,
+      toast.show(createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name), {
+        kind: "error",
       });
       return;
     }
@@ -652,9 +651,8 @@ function* runActionSaga(
       },
     ]);
 
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name), {
+      kind: "error",
     });
 
     yield put({
@@ -733,13 +731,15 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          Toaster.show({
-            text: createMessage(
+          toast.show(
+            createMessage(
               ACTION_EXECUTION_CANCELLED,
               `${collection.name}.${jsAction.name}`,
             ),
-            variant: Variant.danger,
-          });
+            {
+              kind: "error",
+            },
+          );
           // Don't proceed to executing the js function
           return;
         }
@@ -895,9 +895,8 @@ function* executePageLoadActionsSaga() {
   } catch (e) {
     log.error(e);
 
-    Toaster.show({
-      text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS), {
+      kind: "error",
     });
   }
 }

@@ -3,7 +3,6 @@ import {
   createMessage,
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
 import { Types } from "utils/TypeHelpers";
@@ -13,6 +12,15 @@ import {
 } from "@appsmith/workers/Evaluation/fns/index";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { toast } from "design-system";
+import { useDispatch, useSelector } from "react-redux";
+import { getAppMode } from "../../selectors/applicationSelectors";
+import AnalyticsUtil from "../../utils/AnalyticsUtil";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "../../actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/helpers";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -88,17 +96,34 @@ export const logActionExecutionError = (
   //   ]);
   // }
 
-  Toaster.show({
-    text: errorMessage,
-    variant: Variant.danger,
-    showDebugButton: !!triggerPropertyName && {
-      component: DebugButton,
-      componentProps: {
+  // function onDebugClick() {
+  //   const dispatch = useDispatch();
+  //   const appMode = useSelector(getAppMode);
+  //
+  //   if (appMode === "PUBLISHED") return null;
+  //
+  //   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+  //     source: "TOAST",
+  //   });
+  //   dispatch(showDebugger(true));
+  //   dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+  // }
+
+  if (!!triggerPropertyName) {
+    toast.show(errorMessage, {
+      kind: "error",
+    });
+  } else {
+    toast.show(errorMessage, {
+      kind: "error",
+      action: {
+        actionText: "debug",
+        // effect: () => onDebugClick(),
+        effect: () => console.log("open debugger"),
         className: "t--toast-debug-button",
-        source: "TOAST",
       },
-    },
-  });
+    });
+  }
 };
 
 /*

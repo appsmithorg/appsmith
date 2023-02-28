@@ -60,7 +60,6 @@ import {
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
-import { Toaster, Variant } from "design-system-old";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -112,6 +111,7 @@ import {
 } from "RouteBuilder";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import { toast } from "design-system";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -482,11 +482,13 @@ function* moveActionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      Toaster.show({
+      toast.show(
         // @ts-expect-error: response is of type unknown
-        text: createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
-        variant: Variant.success,
-      });
+        createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
+        {
+          kind: "success",
+        },
+      );
     }
 
     AnalyticsUtil.logEvent("MOVE_API", {
@@ -499,9 +501,8 @@ function* moveActionSaga(
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name), {
+      kind: "error",
     });
     yield put(
       moveActionError({
@@ -536,10 +537,12 @@ function* copyActionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      Toaster.show({
-        text: createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
-        variant: Variant.success,
-      });
+      toast.show(
+        createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
+        {
+          kind: "success",
+        },
+      );
     }
 
     AnalyticsUtil.logEvent("DUPLICATE_API", {
@@ -566,9 +569,8 @@ function* copyActionSaga(
     yield put(copyActionSuccess(payload));
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_COPY_FAIL, actionName),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_COPY_FAIL, actionName), {
+      kind: "error",
     });
     yield put(copyActionError(action.payload));
   }
@@ -672,9 +674,8 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
         oldName: api.config.name,
       },
     });
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name), {
+      kind: "error",
     });
     log.error(e);
   }

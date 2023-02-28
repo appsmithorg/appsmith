@@ -1,12 +1,13 @@
 import React from "react";
 import copy from "copy-to-clipboard";
-import { Toaster, Variant, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
+import { toast } from "design-system";
 
 const StyledText = styled(Text)`
   line-height: 1.5;
@@ -29,9 +30,8 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
   const scrollWrapperRef = React.createRef<HTMLSpanElement>();
   const onClick = () => {
     copy(props.snippet);
-    Toaster.show({
-      text: createMessage(IN_APP_EMBED_SETTING.copiedEmbedCode),
-      variant: Variant.success,
+    toast.show(createMessage(IN_APP_EMBED_SETTING.copiedEmbedCode), {
+      kind: "success",
     });
   };
 

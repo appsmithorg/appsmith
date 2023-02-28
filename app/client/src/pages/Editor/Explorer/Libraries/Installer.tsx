@@ -18,8 +18,6 @@ import {
   Text,
   TextInput,
   TextType,
-  Toaster,
-  Variant,
 } from "design-system-old";
 import {
   createMessage,
@@ -48,6 +46,7 @@ import {
 import classNames from "classnames";
 import { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { toast } from "design-system";
 
 const openDoc = (e: React.MouseEvent, url: string) => {
   e.preventDefault();
@@ -390,13 +389,15 @@ export function Installer(props: { left: number }) {
 
       const libInstalled = installedLibraries.find((lib) => lib.url === url);
       if (libInstalled) {
-        Toaster.show({
-          text: createMessage(
+        toast.show(
+          createMessage(
             customJSLibraryMessages.INSTALLED_ALREADY,
             libInstalled.accessor[0] || "",
           ),
-          variant: Variant.info,
-        });
+          {
+            kind: "info",
+          },
+        );
         return;
       }
       dispatch(

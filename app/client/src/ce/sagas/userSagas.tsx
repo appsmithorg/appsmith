@@ -42,7 +42,6 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
-import { Toaster, Variant } from "design-system-old";
 import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -68,6 +67,7 @@ import {
 import { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
+import { toast } from "design-system";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -564,9 +564,8 @@ export function* leaveWorkspaceSaga(
       yield put({
         type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
       });
-      Toaster.show({
-        text: `You have successfully left the workspace`,
-        variant: Variant.success,
+      toast.show(`You have successfully left the workspace`, {
+        kind: "success",
       });
     }
   } catch (error) {

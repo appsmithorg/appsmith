@@ -45,11 +45,11 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
   SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
+import { toast } from "design-system";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -139,16 +139,15 @@ class DataSourceEditor extends React.Component<Props> {
       if (responseStatus) {
         // Set default error message
         let message = REST_API_AUTHORIZATION_FAILED;
-        let variant = Variant.danger;
+        let kind: "error" | "success" = "error";
         if (responseStatus === "success") {
           message = REST_API_AUTHORIZATION_SUCCESSFUL;
-          variant = Variant.success;
+          kind = "success";
         } else if (responseStatus === "appsmith_error") {
           message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
         }
-        Toaster.show({
-          text: responseMessage || createMessage(message),
-          variant,
+        toast.show(responseMessage || createMessage(message), {
+          kind: kind,
         });
       }
     }

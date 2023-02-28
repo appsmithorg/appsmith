@@ -15,7 +15,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select } from "redux-saga/effects";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 import {
   CHANGE_APP_THEME,
   createMessage,
@@ -203,12 +203,8 @@ export function* changeSelectedTheme(
     });
 
     // shows toast
-    Toaster.show({
-      text: createMessage(CHANGE_APP_THEME, theme.displayName),
-      variant: Variant.success,
-      actionElement: (
-        <span onClick={() => store.dispatch(undoAction())}>Undo</span>
-      ),
+    toast.show(createMessage(CHANGE_APP_THEME, theme.displayName), {
+      kind: "success",
     });
 
     if (shouldReplay) {
@@ -248,9 +244,8 @@ export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
     });
 
     // shows toast
-    Toaster.show({
-      text: createMessage(SAVE_APP_THEME, name),
-      variant: Variant.success,
+    toast.show(createMessage(SAVE_APP_THEME, name), {
+      kind: "success",
     });
   } catch (error) {
     yield put({
@@ -277,9 +272,8 @@ export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
     });
 
     // shows toast
-    Toaster.show({
-      text: createMessage(DELETE_APP_THEME, name),
-      variant: Variant.success,
+    toast.show(createMessage(DELETE_APP_THEME, name), {
+      kind: "success",
     });
   } catch (error) {
     yield put({
@@ -339,9 +333,8 @@ function* setDefaultSelectedThemeOnError() {
         payload: theme,
       });
       // shows toast
-      Toaster.show({
-        text: createMessage(SET_DEFAULT_SELECTED_THEME, theme.displayName),
-        variant: Variant.warning,
+      toast.show(createMessage(SET_DEFAULT_SELECTED_THEME, theme.displayName), {
+        kind: "warning",
       });
     }
   } catch (error) {
