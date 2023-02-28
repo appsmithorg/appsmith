@@ -373,10 +373,14 @@ export default class DataTreeEvaluator {
     //update uneval tree from previously saved current state of collection
     this.updateLocalUnEvalTree(localUnEvalTree);
 
+    //get difference in js collection body to be parsed
+    const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
+    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
+
     const jsDifferences: Diff<
       Record<string, DataTreeJSAction>,
       Record<string, DataTreeJSAction>
-    >[] = this.getDifferencesInJSCollectionBody(localUnEvalTree);
+    >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
     const jsTranslatedDiffs = flatten(
       jsDifferences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
@@ -639,13 +643,6 @@ export default class DataTreeEvaluator {
     return this.setupTree(localUnEvalTree, updatedValuePaths, {
       pathsToSkipFromEval,
     });
-  }
-
-  getDifferencesInJSCollectionBody(localUnEvalTree: DataTree) {
-    //get difference in js collection body to be parsed
-    const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
-    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
-    return diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
   }
 
   evalAndValidateSubTree(
