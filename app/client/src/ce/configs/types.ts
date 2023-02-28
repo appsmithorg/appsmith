@@ -14,6 +14,7 @@ export interface AppsmithUIConfigs {
     integrations: any[];
     normalizeDepth: number;
     tracesSampleRate: number;
+    ignoreErrors: any[];
   };
   smartLook: {
     enabled: boolean;

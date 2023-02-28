@@ -225,7 +225,7 @@ export function* evalErrorHandler(
       case EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR: {
         if (error.context) {
           // Add more info about node for the toast
-          const { dependencyMap, diffs, entityType, node } = error.context;
+          const { entityType, node } = error.context;
           Toaster.show({
             text: `${error.message} Node was: ${node}`,
             variant: Variant.danger,
@@ -233,19 +233,7 @@ export function* evalErrorHandler(
           AppsmithConsole.error({
             text: `${error.message} Node was: ${node}`,
           });
-          // Send the generic error message to sentry for better grouping
-          Sentry.captureException(new Error(error.message), {
-            tags: {
-              node,
-              entityType,
-            },
-            extra: {
-              dependencyMap,
-              diffs,
-            },
-            // Level is warning because it could be a user error
-            level: Sentry.Severity.Warning,
-          });
+
           // Log an analytics event for cyclical dep errors
           AnalyticsUtil.logEvent("CYCLICAL_DEPENDENCY_ERROR", {
             node,

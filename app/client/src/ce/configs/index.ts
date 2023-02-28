@@ -217,6 +217,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
         }),
       ],
       tracesSampleRate: 0.1,
+      ignoreErrors: ["Non-Error exception captured", "DataCloneError"],
     },
     smartLook: {
       enabled: smartLook.enabled,

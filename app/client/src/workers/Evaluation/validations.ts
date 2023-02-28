@@ -322,7 +322,12 @@ export const validate = (
     propertyPath,
   );
 
-  return _result;
+  return (
+    _result || {
+      isValid: true,
+      parsed: value,
+    }
+  );
 };
 
 export const WIDGET_TYPE_VALIDATION_ERROR =
