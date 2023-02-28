@@ -19,7 +19,6 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
-  getConfigTree,
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
@@ -41,12 +40,12 @@ import { Action } from "redux";
 import {
   EVALUATE_REDUX_ACTIONS,
   FIRST_EVAL_REDUX_ACTIONS,
-  setConfigTree,
   setDependencyMap,
   setEvaluatedTree,
   shouldLint,
   shouldProcessBatchedAction,
 } from "actions/evaluationActions";
+import ConfigATree from "utils/configTree";
 import {
   evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
@@ -205,10 +204,12 @@ export function* evaluateTreeSaga(
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
   yield put(setEvaluatedTree(updates));
-  yield put(setConfigTree(configTree));
+  ConfigATree.setConfigTree(configTree);
+
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+
   // if evalMetaUpdates are present only then dispatch updateMetaState
   if (evalMetaUpdates.length) {
     yield put(updateMetaState(evalMetaUpdates));
@@ -216,7 +217,7 @@ export function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
-  const updatedConfigTree: ConfigTree = yield select(getConfigTree);
+  const updatedConfigTree: ConfigTree = configTree;
 
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });

@@ -19,11 +19,7 @@ import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
-
-import {
-  getDataTreeForAutocomplete,
-  getConfigTree,
-} from "selectors/dataTreeSelectors";
+import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
@@ -138,6 +134,7 @@ import {
   PeekOverlayStateProps,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
+import ConfigATree from "utils/configTree";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1002,7 +999,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   getEntityInformation = (): FieldEntityInformation => {
-    const { configTree, dataTreePath, expected } = this.props;
+    const { dataTreePath, expected } = this.props;
+    const configTree = ConfigATree.getConfigTree();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
@@ -1359,7 +1357,6 @@ class CodeEditor extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState, props: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
-  configTree: getConfigTree(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),

@@ -23,6 +23,7 @@ import { getSelectedAppThemeProperties } from "./appThemingSelectors";
 import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import { get } from "lodash";
 import { EvaluationError, getEvalErrorPath } from "utils/DynamicBindingUtils";
+import ConfigATree from "utils/configTree";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -83,8 +84,9 @@ export const getIsWidgetLoading = createSelector(
 export const getDataTree = (state: AppState): DataTree =>
   state.evaluations.tree;
 
-export const getConfigTree = (state: AppState): any =>
-  state.evaluations.configTree;
+export const getConfigTree = (): any => {
+  return ConfigATree.getConfigTree();
+};
 
 export const getWidgetEvalValues = createSelector(
   [getDataTree, (_state: AppState, widgetName: string) => widgetName],
