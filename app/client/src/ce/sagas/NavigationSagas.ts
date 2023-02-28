@@ -26,6 +26,7 @@ export function* handleRouteChange(
   const { pathname, state } = action.payload.location;
   try {
     const isAnEditorPath = isEditorPath(pathname);
+
     // handled only on edit mode
     if (isAnEditorPath) {
       yield fork(logNavigationAnalytics, action.payload);
