@@ -291,6 +291,8 @@ public class FileUtilsImpl implements FileInterface {
                                         actionSpecificDirectory.resolve(queryName),
                                         gson
                                 );
+                                // Delete the resource from the old file structure v2
+                                deleteFile(pageSpecificDirectory.resolve(ACTION_DIRECTORY).resolve(queryName + CommonConstants.JSON_EXTENSION));
                             }
 
                         }
