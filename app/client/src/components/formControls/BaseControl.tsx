@@ -30,7 +30,7 @@ export type Condition = {
   path: string;
   comparison: ComparisonOperations;
   value: any;
-  flagValue: keyof FeatureFlags;
+  flagValue?: keyof FeatureFlags;
 };
 
 export type Conditions = Array<Condition> | ConditionObject;
