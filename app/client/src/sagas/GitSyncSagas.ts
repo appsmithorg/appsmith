@@ -292,7 +292,7 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
 
     if (isValidResponse) {
       yield put(fetchGlobalGitConfigInit());
-      toast(createMessage(GIT_USER_UPDATED_SUCCESSFULLY), {
+      toast.show(createMessage(GIT_USER_UPDATED_SUCCESSFULLY), {
         kind: "success",
       });
     }
@@ -441,7 +441,7 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
       // @ts-expect-error: response is of type unknown
       yield put(updateLocalGitConfigSuccess(response?.data));
       yield put(fetchLocalGitConfigInit());
-      toast(createMessage(GIT_USER_UPDATED_SUCCESSFULLY), {
+      toast.show(createMessage(GIT_USER_UPDATED_SUCCESSFULLY), {
         kind: "success",
       });
     }
@@ -739,7 +739,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
             pageId,
           });
           history.push(pageURL);
-          toast("Application imported successfully", {
+          toast.show("Application imported successfully", {
             kind: "success",
           });
         }
@@ -850,7 +850,7 @@ export function* deleteBranch({ payload }: ReduxAction<any>) {
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
-      toast(createMessage(DELETE_BRANCH_SUCCESS, branchToDelete), {
+      toast.show(createMessage(DELETE_BRANCH_SUCCESS, branchToDelete), {
         kind: "success",
       });
       yield put(deleteBranchSuccess(response?.data));

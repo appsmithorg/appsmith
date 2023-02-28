@@ -146,7 +146,7 @@ class DataSourceEditor extends React.Component<Props> {
         } else if (responseStatus === "appsmith_error") {
           message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
         }
-        toast(responseMessage || createMessage(message), {
+        toast.show(responseMessage || createMessage(message), {
           kind: kind,
         });
       }

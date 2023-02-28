@@ -41,7 +41,7 @@ export function* bindDataToWidgetSaga(
   const selectedWidget = widgetState[action.payload.widgetId];
 
   if (!selectedWidget || !selectedWidget.type) {
-    toast(SNIPING_SELECT_WIDGET_AGAIN(), {
+    toast.show(SNIPING_SELECT_WIDGET_AGAIN(), {
       kind: "warning",
     });
     return;
@@ -161,7 +161,7 @@ export function* bindDataToWidgetSaga(
     yield put(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
   } else {
     queryId &&
-      toast(SNIPING_NOT_SUPPORTED(), {
+      toast.show(SNIPING_NOT_SUPPORTED(), {
         kind: "warning",
       });
   }

@@ -60,7 +60,7 @@ export const GetNavigationMenuData = ({
       });
       history.push(APPLICATIONS_URL);
     } else {
-      toast("Error while deleting Application", {
+      toast.show("Error while deleting Application", {
         kind: "error",
       });
     }

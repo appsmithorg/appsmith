@@ -573,7 +573,7 @@ function* runActionSaga(
           show: false,
         },
       });
-      toast(createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name), {
+      toast.show(createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name), {
         kind: "error",
       });
       return;
@@ -651,7 +651,7 @@ function* runActionSaga(
       },
     ]);
 
-    toast(createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name), {
+    toast.show(createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name), {
       kind: "error",
     });
 
@@ -731,7 +731,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          toast(
+          toast.show(
             createMessage(
               ACTION_EXECUTION_CANCELLED,
               `${collection.name}.${jsAction.name}`,
@@ -895,7 +895,7 @@ function* executePageLoadActionsSaga() {
   } catch (e) {
     log.error(e);
 
-    toast(createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS), {
+    toast.show(createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS), {
       kind: "error",
     });
   }

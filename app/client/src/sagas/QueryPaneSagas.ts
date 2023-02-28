@@ -419,7 +419,7 @@ function* handleNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
-    toast(createMessage(ERROR_ACTION_RENAME_FAIL, ""), {
+    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, ""), {
       kind: "error",
     });
 

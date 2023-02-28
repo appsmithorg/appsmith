@@ -556,7 +556,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       link.click();
     }
     setIsMenuOpen(false);
-    toast(`Successfully exported ${props.application.name}`, {
+    toast.show(`Successfully exported ${props.application.name}`, {
       kind: "success",
     });
   };

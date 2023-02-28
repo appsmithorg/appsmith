@@ -302,7 +302,7 @@ export function* selectAllWidgetsInCanvasSaga() {
         );
       });
       if (isAnyModalSelected) {
-        toast(createMessage(SELECT_ALL_WIDGETS_MSG), {
+        toast.show(createMessage(SELECT_ALL_WIDGETS_MSG), {
           kind: "info",
         });
       }

@@ -181,7 +181,7 @@ export function* executeWidgetBlueprintChildOperations(
 
   // If something odd happens show the message related to the odd scenario
   if (message) {
-    toast(message, {
+    toast.show(message, {
       kind: "info",
     });
   }

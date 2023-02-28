@@ -337,7 +337,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Save progress"
           onKeyDown={() => {
-            toast(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE), {
+            toast.show(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE), {
               kind: "info",
             });
           }}

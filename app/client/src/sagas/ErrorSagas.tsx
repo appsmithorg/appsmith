@@ -226,7 +226,7 @@ function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
 }
 
 function showAlertAboutError(message: string) {
-  toast(message, { kind: "error" });
+  toast.show(message, { kind: "error" });
 }
 
 function* crashAppSaga(error: ErrorPayloadType) {

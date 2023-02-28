@@ -399,7 +399,7 @@ function* endFirstTimeUserOnboardingSaga() {
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     payload: "",
   });
-  toast({
+  toast.show({
     text: createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER),
     hideProgressBar: false,
     kind: "success",

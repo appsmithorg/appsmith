@@ -478,7 +478,7 @@ function GlobalSearch() {
       const snippet = getSnippet(get(item, "body.snippet", ""), {});
       const title = get(item, "body.title", "");
       copy(snippet);
-      toast("Snippet copied to clipboard", {
+      toast.show("Snippet copied to clipboard", {
         kind: "success",
       });
       AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet, title });

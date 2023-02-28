@@ -226,7 +226,7 @@ export function* evalErrorHandler(
         if (error.context) {
           // Add more info about node for the toast
           const { dependencyMap, diffs, entityType, node } = error.context;
-          toast(`${error.message} Node was: ${node}`, {
+          toast.show(`${error.message} Node was: ${node}`, {
             kind: "error",
           });
           AppsmithConsole.error({
@@ -257,7 +257,7 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {
-        toast(createMessage(ERROR_EVAL_ERROR_GENERIC), {
+        toast.show(createMessage(ERROR_EVAL_ERROR_GENERIC), {
           kind: "error",
         });
         break;
@@ -279,7 +279,7 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
-        toast(`${error.message} at: ${error.context?.entity.name}`, {
+        toast.show(`${error.message} at: ${error.context?.entity.name}`, {
           kind: "error",
         });
         AppsmithConsole.error({

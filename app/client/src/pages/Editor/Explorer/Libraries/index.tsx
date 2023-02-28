@@ -225,7 +225,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
 
   const copyToClipboard = useCallback(() => {
     write(lib.accessor[lib.accessor.length - 1]);
-    toast("Copied to clipboard", {
+    toast.show("Copied to clipboard", {
       kind: "success",
     });
   }, [lib.accessor]);

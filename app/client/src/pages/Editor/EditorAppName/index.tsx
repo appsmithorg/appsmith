@@ -152,7 +152,7 @@ export function EditorAppName(props: EditorAppNameProps) {
 
   const inputValidation = (value: string) => {
     if (value.trim() === "") {
-      toast("Application name can't be empty", {
+      toast.show("Application name can't be empty", {
         kind: "error",
       });
     }

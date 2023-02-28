@@ -30,13 +30,16 @@ function DeleteButton(
 
   function saneDelete() {
     if (defaultBranchName === branchToDelete) {
-      toast(createMessage(DELETE_BRANCH_WARNING_DEFAULT, branchToDelete), {
+      toast.show(createMessage(DELETE_BRANCH_WARNING_DEFAULT, branchToDelete), {
         kind: "error",
       });
     } else if (currentBranch === branchToDelete) {
-      toast(createMessage(DELETE_BRANCH_WARNING_CHECKED_OUT, branchToDelete), {
-        kind: "error",
-      });
+      toast.show(
+        createMessage(DELETE_BRANCH_WARNING_CHECKED_OUT, branchToDelete),
+        {
+          kind: "error",
+        },
+      );
     } else {
       dispatch(deleteBranchInit({ branchToDelete: branchToDelete }));
     }

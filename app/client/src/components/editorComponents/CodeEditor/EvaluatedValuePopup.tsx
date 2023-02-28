@@ -12,9 +12,7 @@ import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import {
   ScrollIndicator,
-  Toaster,
   TooltipComponent as Tooltip,
-  Variant,
 } from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -39,6 +37,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
+import { toast } from "design-system";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -208,7 +207,7 @@ function copyContent(
     : JSON.stringify(content, null, 2);
 
   copy(stringifiedContent);
-  toast(onCopyContentText, {
+  toast.show(onCopyContentText, {
     kind: "success",
   });
 }

@@ -260,7 +260,7 @@ export function* fetchAppAndPagesSaga(
       });
 
       if (localStorage.getItem("GIT_DISCARD_CHANGES") === "success") {
-        toast(createMessage(DISCARD_SUCCESS), {
+        toast.show(createMessage(DISCARD_SUCCESS), {
           kind: "success",
         });
         localStorage.setItem("GIT_DISCARD_CHANGES", "");
@@ -394,7 +394,7 @@ export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    toast(createMessage(DELETING_APPLICATION));
+    toast.show(createMessage(DELETING_APPLICATION));
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.deleteApplication,
@@ -422,7 +422,7 @@ export function* duplicateApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    toast(createMessage(DUPLICATING_APPLICATION));
+    toast.show(createMessage(DUPLICATING_APPLICATION));
     const request: DuplicateApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.duplicateApplication,
@@ -720,7 +720,7 @@ export function* importApplicationSaga(
 
           if (guidedTour) return;
 
-          toast("Application imported successfully", {
+          toast.show("Application imported successfully", {
             kind: "success",
           });
         }

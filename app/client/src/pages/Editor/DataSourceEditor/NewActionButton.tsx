@@ -64,7 +64,7 @@ function NewActionButton(props: NewActionButtonProps) {
           !datasource.datasourceConfiguration ||
           !datasource.datasourceConfiguration.url)
       ) {
-        toast(ERROR_ADD_API_INVALID_URL(), {
+        toast.show(ERROR_ADD_API_INVALID_URL(), {
           kind: "error",
         });
         return;

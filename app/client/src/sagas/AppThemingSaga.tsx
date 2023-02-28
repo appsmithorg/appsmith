@@ -203,7 +203,7 @@ export function* changeSelectedTheme(
     });
 
     // shows toast
-    toast(createMessage(CHANGE_APP_THEME, theme.displayName), {
+    toast.show(createMessage(CHANGE_APP_THEME, theme.displayName), {
       kind: "success",
     });
 
@@ -244,7 +244,7 @@ export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
     });
 
     // shows toast
-    toast(createMessage(SAVE_APP_THEME, name), {
+    toast.show(createMessage(SAVE_APP_THEME, name), {
       kind: "success",
     });
   } catch (error) {
@@ -272,7 +272,7 @@ export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
     });
 
     // shows toast
-    toast(createMessage(DELETE_APP_THEME, name), {
+    toast.show(createMessage(DELETE_APP_THEME, name), {
       kind: "success",
     });
   } catch (error) {
@@ -333,7 +333,7 @@ function* setDefaultSelectedThemeOnError() {
         payload: theme,
       });
       // shows toast
-      toast(createMessage(SET_DEFAULT_SELECTED_THEME, theme.displayName), {
+      toast.show(createMessage(SET_DEFAULT_SELECTED_THEME, theme.displayName), {
         kind: "warning",
       });
     }

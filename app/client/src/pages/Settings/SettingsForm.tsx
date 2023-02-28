@@ -95,8 +95,8 @@ export function SettingsForm(
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
         error: createMessage(MANDATORY_FIELDS_ERROR),
       });
-      toast(createMessage(MANDATORY_FIELDS_ERROR), {
-        kind: "danger",
+      toast.show(createMessage(MANDATORY_FIELDS_ERROR), {
+        kind: "error",
       });
     }
   };
@@ -158,7 +158,7 @@ export function SettingsForm(
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
       error: createMessage(DISCONNECT_AUTH_ERROR),
     });
-    toast(createMessage(DISCONNECT_AUTH_ERROR), {
+    toast.show(createMessage(DISCONNECT_AUTH_ERROR), {
       kind: "error",
     });
   };

@@ -70,7 +70,7 @@ export default function GitConfig() {
       setAreFormValuesUpdated(false);
       dispatch(updateGlobalGitConfigInit({ authorName, authorEmail }));
     } else {
-      toast("Please enter valid user details");
+      toast.show("Please enter valid user details");
     }
   };
 

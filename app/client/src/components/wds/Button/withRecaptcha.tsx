@@ -42,7 +42,7 @@ export default function withRecaptcha<
       event: React.MouseEvent<HTMLElement>,
       error: string,
     ) => {
-      toast(error, {
+      toast.show(error, {
         kind: "error",
       });
       props.onClick && props.onClick(event);

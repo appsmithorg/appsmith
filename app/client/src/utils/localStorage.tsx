@@ -68,7 +68,7 @@ class WebStorage {
     }
 
     if (message) {
-      toast(createMessage(message), {
+      toast.show(createMessage(message), {
         kind: "error",
       });
     } else {

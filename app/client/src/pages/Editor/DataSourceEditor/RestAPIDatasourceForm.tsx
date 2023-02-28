@@ -275,7 +275,7 @@ class DatasourceRestAPIEditor extends React.Component<
       !datasource.datasourceConfiguration ||
       !datasource.datasourceConfiguration.url
     ) {
-      toast("Unable to create API. Try adding a url to the datasource", {
+      toast.show("Unable to create API. Try adding a url to the datasource", {
         kind: "error",
       });
       return;

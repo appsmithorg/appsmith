@@ -483,9 +483,12 @@ function* moveActionSaga(
     );
     if (isValidResponse) {
       // @ts-expect-error: response is of type unknown
-      toast(createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName), {
-        kind: "success",
-      });
+      toast.show(
+        createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
+        {
+          kind: "success",
+        },
+      );
     }
 
     AnalyticsUtil.logEvent("MOVE_API", {
@@ -498,7 +501,7 @@ function* moveActionSaga(
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {
-    toast(createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name), {
+    toast.show(createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name), {
       kind: "error",
     });
     yield put(
@@ -534,9 +537,12 @@ function* copyActionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      toast(createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName), {
-        kind: "success",
-      });
+      toast.show(
+        createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
+        {
+          kind: "success",
+        },
+      );
     }
 
     AnalyticsUtil.logEvent("DUPLICATE_API", {
@@ -563,7 +569,7 @@ function* copyActionSaga(
     yield put(copyActionSuccess(payload));
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
-    toast(createMessage(ERROR_ACTION_COPY_FAIL, actionName), {
+    toast.show(createMessage(ERROR_ACTION_COPY_FAIL, actionName), {
       kind: "error",
     });
     yield put(copyActionError(action.payload));
@@ -668,7 +674,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
         oldName: api.config.name,
       },
     });
-    toast(createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name), {
+    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name), {
       kind: "error",
     });
     log.error(e);

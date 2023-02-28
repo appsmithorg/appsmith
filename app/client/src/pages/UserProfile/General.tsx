@@ -38,12 +38,12 @@ function General() {
   const forgotPassword = async () => {
     try {
       await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
-      toast(createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email), {
+      toast.show(createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email), {
         kind: "success",
       });
       dispatch(logoutUser());
     } catch (error) {
-      toast((error as { _error: string })._error, {
+      toast.show((error as { _error: string })._error, {
         kind: "success",
       });
     }

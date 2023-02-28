@@ -30,7 +30,7 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
   const scrollWrapperRef = React.createRef<HTMLSpanElement>();
   const onClick = () => {
     copy(props.snippet);
-    toast(createMessage(IN_APP_EMBED_SETTING.copiedEmbedCode), {
+    toast.show(createMessage(IN_APP_EMBED_SETTING.copiedEmbedCode), {
       kind: "success",
     });
   };

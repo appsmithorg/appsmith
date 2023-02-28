@@ -418,7 +418,7 @@ function BtnWrapper(
       event: React.MouseEvent<HTMLElement>,
       error: string,
     ) => {
-      toast(error, {
+      toast.show(error, {
         kind: "error",
       });
       props.onClick && !props.isLoading && props.onClick(event);

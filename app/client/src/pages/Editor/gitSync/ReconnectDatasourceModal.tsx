@@ -335,7 +335,7 @@ function ReconnectDatasourceModal() {
         status === AuthorizationStatus.APPSMITH_ERROR
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
-      toast(display_message || message, { kind: "error" });
+      toast.show(display_message || message, { kind: "error" });
       const oAuthStatus = status;
       AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
         dsName,

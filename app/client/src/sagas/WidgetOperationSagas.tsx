@@ -63,7 +63,6 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster, Variant } from "design-system-old";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
@@ -153,7 +152,7 @@ import { toast } from "design-system";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
-    Toaster.clear();
+    toast.dismiss();
     const start = performance.now();
     const {
       bottomRow,
@@ -843,7 +842,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   );
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   if (!selectedWidgets) {
-    toast(createMessage(ERROR_WIDGET_COPY_NO_WIDGET_SELECTED), {
+    toast.show(createMessage(ERROR_WIDGET_COPY_NO_WIDGET_SELECTED), {
       kind: "info",
     });
     return;
@@ -854,7 +853,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   });
 
   if (!allAllowedToCopy) {
-    toast(createMessage(ERROR_WIDGET_COPY_NOT_ALLOWED), {
+    toast.show(createMessage(ERROR_WIDGET_COPY_NOT_ALLOWED), {
       kind: "info",
     });
 
@@ -877,7 +876,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   });
 
   if (saveResult) {
-    toast(
+    toast.show(
       createMessage(
         WIDGET_COPY,
         selectedWidgetProps.length > 1
@@ -1721,7 +1720,7 @@ function* cutWidgetSaga() {
   );
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   if (!selectedWidgets) {
-    toast(createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED), {
+    toast.show(createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED), {
       kind: "info",
     });
     return;
@@ -1732,7 +1731,7 @@ function* cutWidgetSaga() {
   });
 
   if (!allAllowedToCut) {
-    toast(createMessage(ERROR_WIDGET_CUT_NOT_ALLOWED), {
+    toast.show(createMessage(ERROR_WIDGET_CUT_NOT_ALLOWED), {
       kind: "info",
     });
     return;
@@ -1753,7 +1752,7 @@ function* cutWidgetSaga() {
   });
 
   if (saveResult) {
-    toast(
+    toast.show(
       createMessage(
         WIDGET_CUT,
         selectedWidgetProps.length > 1

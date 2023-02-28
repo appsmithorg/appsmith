@@ -65,7 +65,7 @@ const logCyclicDependecyErrors = (
 ) => {
   if (!!layoutErrors) {
     for (let index = 0; index < layoutErrors.length; index++) {
-      toast(
+      toast.show(
         createMessage(() => {
           return layoutErrors[index]?.errorType;
         }),

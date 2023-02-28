@@ -29,7 +29,7 @@ export default function* showAlertSaga(action: TShowAlertDescription) {
       kind = "error";
       break;
   }
-  toast(payload.message, {
+  toast.show(payload.message, {
     kind: kind,
   });
   AppsmithConsole.info({

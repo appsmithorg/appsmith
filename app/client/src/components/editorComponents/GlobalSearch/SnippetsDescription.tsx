@@ -239,7 +239,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
   const handleCopy = useCallback(
     (value) => {
       copy(value);
-      toast("Snippet copied to clipboard", {
+      toast.show("Snippet copied to clipboard", {
         kind: "success",
       });
       AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet: value, title });

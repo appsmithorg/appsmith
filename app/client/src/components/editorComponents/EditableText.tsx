@@ -183,7 +183,7 @@ export function EditableText(props: EditableTextProps) {
         onTextChanged(_value);
         setIsEditing(false);
       } else {
-        toast(customErrorTooltip || "Invalid name", {
+        toast.show(customErrorTooltip || "Invalid name", {
           kind: "error",
         });
       }

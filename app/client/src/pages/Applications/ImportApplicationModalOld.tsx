@@ -66,7 +66,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
 
   const onImportApplication = useCallback(() => {
     if (!appFileToBeUploaded) {
-      toast("Please choose a valid application file!", {
+      toast.show("Please choose a valid application file!", {
         kind: "error",
       });
       return;

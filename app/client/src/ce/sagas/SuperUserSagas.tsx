@@ -81,7 +81,7 @@ export function* SaveAdminSettingsSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      toast("Successfully Saved", {
+      toast.show("Successfully Saved", {
         kind: "success",
       });
       yield put({
@@ -148,28 +148,23 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      let actionElement;
       if (response.data) {
-        actionElement = (
-          <>
-            <br />
-            <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
-              {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
-            </span>
-          </>
-        );
       }
-      toast({
-        actionElement,
-        text: createMessage(
+      toast.show(
+        createMessage(
           response.data
             ? // @ts-expect-error: currentUser can be undefined
               TEST_EMAIL_SUCCESS(currentUser?.email)
             : TEST_EMAIL_FAILURE,
         ),
-        hideProgressBar: true,
-        kind: response.data ? "info" : "error",
-      });
+        {
+          kind: response.data ? "info" : "error",
+          action: {
+            actionText: createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT),
+            effect: () => window.open(EMAIL_SETUP_DOC, "blank"),
+          },
+        },
+      );
     }
   } catch (e) {}
 }

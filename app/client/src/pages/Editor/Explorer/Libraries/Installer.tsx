@@ -389,7 +389,7 @@ export function Installer(props: { left: number }) {
 
       const libInstalled = installedLibraries.find((lib) => lib.url === url);
       if (libInstalled) {
-        toast(
+        toast.show(
           createMessage(
             customJSLibraryMessages.INSTALLED_ALREADY,
             libInstalled.accessor[0] || "",

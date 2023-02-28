@@ -75,7 +75,7 @@ function Keys(props: KeysProps) {
     setShowConfirmation(false);
     setIsMenuOpen(false);
     setShowKeyGeneratedMessage(true);
-    toast(createMessage(SSH_KEY_GENERATED), {
+    toast.show(createMessage(SSH_KEY_GENERATED), {
       kind: "success",
     });
   }, [newKeyType]);

@@ -59,7 +59,7 @@ function* handleInstallationFailure(
     text: `Failed to install library script at ${url}`,
   });
 
-  toast(message || `Failed to install library script at ${url}`, {
+  toast.show(message || `Failed to install library script at ${url}`, {
     kind: "error",
   });
   yield put({
@@ -153,9 +153,12 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     CodemirrorTernService.updateDef(defs["!name"], defs);
     AnalyticsUtil.logEvent("DEFINITIONS_GENERATION", { url, success: true });
   } catch (e) {
-    toast(createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name), {
-      kind: "warning",
-    });
+    toast.show(
+      createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name),
+      {
+        kind: "warning",
+      },
+    );
     AppsmithConsole.warning({
       text: `Failed to generate code definitions for ${name}`,
     });
@@ -191,7 +194,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     },
   });
 
-  toast(
+  toast.show(
     createMessage(
       customJSLibraryMessages.INSTALLATION_SUCCESSFUL,
       accessor[accessor.length - 1],
@@ -250,9 +253,12 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       accessor,
     );
     if (!success) {
-      toast(createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name), {
-        kind: "error",
-      });
+      toast.show(
+        createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
+        {
+          kind: "error",
+        },
+      );
     }
 
     try {
@@ -268,7 +274,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       payload: action.payload,
     });
 
-    toast(createMessage(customJSLibraryMessages.UNINSTALL_SUCCESS, name), {
+    toast.show(createMessage(customJSLibraryMessages.UNINSTALL_SUCCESS, name), {
       kind: "success",
     });
     AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
@@ -276,7 +282,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       success: true,
     });
   } catch (e) {
-    toast(createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name), {
+    toast.show(createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name), {
       kind: "error",
     });
     AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
@@ -326,7 +332,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
             docsURL: lib.docsURL,
           })),
         });
-        toast(parseErrorMessage(message), {
+        toast.show(parseErrorMessage(message), {
           kind: "warning",
         });
       } else {
@@ -343,7 +349,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
           const defs = JSON.parse(lib.defs);
           CodemirrorTernService.updateDef(defs["!name"], defs);
         } catch (e) {
-          toast(
+          toast.show(
             createMessage(
               customJSLibraryMessages.AUTOCOMPLETE_FAILED,
               lib.name,

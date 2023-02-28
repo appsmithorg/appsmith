@@ -564,7 +564,7 @@ export function* leaveWorkspaceSaga(
       yield put({
         type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
       });
-      toast(`You have successfully left the workspace`, {
+      toast.show(`You have successfully left the workspace`, {
         kind: "success",
       });
     }

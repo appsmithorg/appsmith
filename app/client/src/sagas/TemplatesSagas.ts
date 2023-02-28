@@ -278,7 +278,7 @@ function* forkTemplateToApplicationSaga(
       });
       yield put(getAllTemplates());
 
-      toast(
+      toast.show(
         `Pages from '${action.payload.templateName}' template added successfully`,
         {
           kind: "success",

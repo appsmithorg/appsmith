@@ -21,11 +21,12 @@ export default function* handleAppLevelSocketEvents(event: any) {
     case APP_LEVEL_SOCKET_EVENTS.RELEASE_VERSION_NOTIFICATION: {
       const { appVersion } = getAppsmithConfigs();
       if (appVersion.id && appVersion.id != event.payload[0]) {
-        toast({
-          text: createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST),
+        toast.show(createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST), {
           kind: "info",
-          actionElement: <span onClick={() => location.reload()}>REFRESH</span>,
-          autoClose: false,
+          action: {
+            actionText: "refresh",
+            effect: () => location.reload(),
+          },
         });
       }
       return;

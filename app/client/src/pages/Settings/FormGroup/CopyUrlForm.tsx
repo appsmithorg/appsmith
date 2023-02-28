@@ -61,7 +61,7 @@ function CopyUrlForm(
 
   const handleCopy = (value: string) => {
     copy(value);
-    toast(`${props.title} copied to clipboard`, {
+    toast.show(`${props.title} copied to clipboard`, {
       kind: "success",
     });
     AnalyticsUtil.logEvent("URL_COPIED", { snippet: value });

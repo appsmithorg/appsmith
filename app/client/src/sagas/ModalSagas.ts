@@ -48,6 +48,7 @@ import { Toaster } from "design-system-old";
 import { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
+import { toast } from "design-system";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -207,7 +208,7 @@ export function* closeModalSaga(
 
 export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
   try {
-    Toaster.clear();
+    toast.dismiss();
     const start = performance.now();
     const { canvasWidgetId, height, widgetId, width } = resizeAction.payload;
 

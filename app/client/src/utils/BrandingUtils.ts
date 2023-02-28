@@ -85,7 +85,7 @@ export const logoImageValidator = (
 
   // case 2: file size > 2mb
   if (file.size > 2 * 1024 * 1024) {
-    toast(createMessage(ADMIN_BRANDING_LOGO_SIZE_ERROR), {
+    toast.show(createMessage(ADMIN_BRANDING_LOGO_SIZE_ERROR), {
       kind: "error",
     });
 
@@ -96,7 +96,7 @@ export const logoImageValidator = (
   const validTypes = ["image/jpeg", "image/png"];
 
   if (!validTypes.includes(file.type)) {
-    toast(createMessage(ADMIN_BRANDING_LOGO_FORMAT_ERROR), {
+    toast.show(createMessage(ADMIN_BRANDING_LOGO_FORMAT_ERROR), {
       kind: "error",
     });
 
@@ -133,7 +133,7 @@ export const faivconImageValidator = (
 
   // case 2: file size > 2mb
   if (file.size > 2 * 1024 * 1024) {
-    toast(createMessage(ADMIN_BRANDING_FAVICON_SIZE_ERROR), {
+    toast.show(createMessage(ADMIN_BRANDING_FAVICON_SIZE_ERROR), {
       kind: "error",
     });
 
@@ -150,7 +150,7 @@ export const faivconImageValidator = (
   ];
 
   if (!validTypes.includes(file.type)) {
-    toast(createMessage(ADMIN_BRANDING_FAVICON_FORMAT_ERROR), {
+    toast.show(createMessage(ADMIN_BRANDING_FAVICON_FORMAT_ERROR), {
       kind: "error",
     });
 
@@ -168,7 +168,7 @@ export const faivconImageValidator = (
     window.URL.revokeObjectURL(image.src);
 
     if (height > FAVICON_MAX_HEIGHT || width > FAVICON_MAX_WIDTH) {
-      toast(createMessage(ADMIN_BRANDING_FAVICON_DIMENSION_ERROR), {
+      toast.show(createMessage(ADMIN_BRANDING_FAVICON_DIMENSION_ERROR), {
         kind: "error",
       });
 

@@ -319,7 +319,7 @@ function* handleJSObjectNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
-    toast(createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""), {
+    toast.show(createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""), {
       kind: "error",
     });
 
@@ -407,7 +407,7 @@ export function* handleExecuteJSFunctionSaga(data: {
     }
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
     showSuccessToast &&
-      toast(createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name), {
+      toast.show(createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name), {
         kind: "success",
       });
   } catch (error) {
@@ -434,7 +434,7 @@ export function* handleExecuteJSFunctionSaga(data: {
         },
       },
     ]);
-    toast(
+    toast.show(
       (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
       {
         kind: "error",

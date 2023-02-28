@@ -272,7 +272,7 @@ export function* deleteDatasourceSaga(
         );
       }
 
-      toast(createMessage(DATASOURCE_DELETE, response.data.name), {
+      toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
         kind: "success",
       });
 
@@ -304,7 +304,7 @@ export function* deleteDatasourceSaga(
       yield select(getDatasource, actionPayload.payload.id),
       `Datasource not found for id - ${actionPayload.payload.id}`,
     );
-    toast((error as Error).message, {
+    toast.show((error as Error).message, {
       kind: "error",
     });
     yield put({
@@ -342,7 +342,7 @@ function* updateDatasourceSaga(
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceName: response.data.name,
       });
-      toast(createMessage(DATASOURCE_UPDATE, response.data.name), {
+      toast.show(createMessage(DATASOURCE_UPDATE, response.data.name), {
         kind: "success",
       });
 
@@ -429,7 +429,7 @@ function* redirectAuthorizationCodeSaga(
         );
       }
     } catch (e) {
-      toast(OAUTH_AUTHORIZATION_FAILED, {
+      toast.show(OAUTH_AUTHORIZATION_FAILED, {
         kind: "error",
       });
       log.error(e);
@@ -446,7 +446,7 @@ function* getOAuthAccessTokenSaga(
   if (!appsmithToken) {
     // Error out because auth token should been here
     log.error(OAUTH_APPSMITH_TOKEN_NOT_FOUND);
-    toast(OAUTH_AUTHORIZATION_APPSMITH_ERROR, {
+    toast.show(OAUTH_AUTHORIZATION_APPSMITH_ERROR, {
       kind: "error",
     });
     return;
@@ -463,14 +463,14 @@ function* getOAuthAccessTokenSaga(
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
-      toast(OAUTH_AUTHORIZATION_SUCCESSFUL, {
+      toast.show(OAUTH_AUTHORIZATION_SUCCESSFUL, {
         kind: "success",
       });
       // Remove the token because it is supposed to be short lived
       localStorage.removeItem(APPSMITH_TOKEN_STORAGE_KEY);
     }
   } catch (e) {
-    toast(OAUTH_AUTHORIZATION_FAILED, {
+    toast.show(OAUTH_AUTHORIZATION_FAILED, {
       kind: "error",
     });
     log.error(e);
@@ -558,14 +558,14 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         (responseData.messages && responseData.messages.length)
       ) {
         if (responseData.invalids && responseData.invalids.length) {
-          toast(responseData.invalids[0], {
+          toast.show(responseData.invalids[0], {
             kind: "error",
           });
         }
         if (responseData.messages && responseData.messages.length) {
           messages = responseData.messages;
           if (responseData.success) {
-            toast(createMessage(DATASOURCE_VALID, payload.name), {
+            toast.show(createMessage(DATASOURCE_VALID, payload.name), {
               kind: "success",
             });
           }
@@ -592,7 +592,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
           datasource: payload.name,
         });
-        toast(createMessage(DATASOURCE_VALID, payload.name), {
+        toast.show(createMessage(DATASOURCE_VALID, payload.name), {
           kind: "success",
         });
         yield put({
@@ -716,7 +716,7 @@ function* createDatasourceFromFormSaga(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
       );
 
-      toast(createMessage(DATASOURCE_CREATE, response.data.name), {
+      toast.show(createMessage(DATASOURCE_CREATE, response.data.name), {
         kind: "success",
       });
 

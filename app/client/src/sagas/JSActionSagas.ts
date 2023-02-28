@@ -152,7 +152,7 @@ function* copyJSCollectionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      toast(
+      toast.show(
         createMessage(JS_ACTION_COPY_SUCCESS, actionObject.name, pageName),
         {
           kind: "success",
@@ -165,7 +165,7 @@ function* copyJSCollectionSaga(
     }
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
-    toast(createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName), {
+    toast.show(createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName), {
       kind: "error",
     });
     yield put(copyJSCollectionError(action.payload));
@@ -208,7 +208,7 @@ function* moveJSCollectionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      toast(
+      toast.show(
         createMessage(
           JS_ACTION_MOVE_SUCCESS,
           // @ts-expect-error: response.data is of type unknown
@@ -223,7 +223,7 @@ function* moveJSCollectionSaga(
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {
-    toast(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
+    toast.show(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
       kind: "error",
     });
     yield put(
@@ -266,7 +266,7 @@ export function* deleteJSCollectionSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       // @ts-expect-error: response.data is of type unknown
-      toast(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
+      toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
       history.push(builderURL({ pageId }));
@@ -312,9 +312,12 @@ function* saveJSObjectName(action: ReduxAction<{ id: string; name: string }>) {
         oldName: collection.config.name,
       },
     });
-    toast(createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name), {
-      kind: "error",
-    });
+    toast.show(
+      createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
+      {
+        kind: "error",
+      },
+    );
     log.error(e);
   }
 }

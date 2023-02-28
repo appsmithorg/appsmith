@@ -90,7 +90,7 @@ export const showUndoRedoToast = (
 
   const actionElement = getReplayToastActionText(shouldUndo ? "undo" : "redo");
 
-  toast(createMessage(actionDescription, widgetName), {
+  toast.show(createMessage(actionDescription, widgetName), {
     actionElement,
   });
 };

@@ -617,7 +617,7 @@ export function* evaluateSnippetSaga(action: any) {
           : JSON.stringify(result),
       ),
     );
-    toast(
+    toast.show(
       createMessage(
         errors?.length ? SNIPPET_EXECUTION_FAILED : SNIPPET_EXECUTION_SUCCESS,
       ),
@@ -636,7 +636,7 @@ export function* evaluateSnippetSaga(action: any) {
         executionInProgress: false,
       }),
     );
-    toast(createMessage(SNIPPET_EXECUTION_FAILED), {
+    toast.show(createMessage(SNIPPET_EXECUTION_FAILED), {
       kind: "error",
     });
     log.error(e);

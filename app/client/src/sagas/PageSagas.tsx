@@ -463,7 +463,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       // Show toast messages from the server
       if (messages && messages.length && !guidedTourEnabled) {
         savePageResponse.data.messages.forEach((message) => {
-          toast(message, {
+          toast.show(message, {
             kind: "info",
           });
         });
@@ -1102,7 +1102,7 @@ export function* generateTemplatePageSaga(
         }),
       );
       // TODO : Add it to onSuccessCallback
-      toast("Successfully generated a page", {
+      toast.show("Successfully generated a page", {
         kind: "success",
       });
 

@@ -167,7 +167,7 @@ export function* deleteWorkspaceUserSaga(
         });
       }
       //@ts-expect-error: response is of type unknown
-      toast(`${response.data.username} has been removed successfully`, {
+      toast.show(`${response.data.username} has been removed successfully`, {
         kind: "success",
       });
     }
@@ -242,7 +242,7 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
         type: ReduxActionTypes.DELETE_WORKSPACE_SUCCESS,
         payload: workspaceId,
       });
-      toast(createMessage(DELETE_WORKSPACE_SUCCESSFUL), {
+      toast.show(createMessage(DELETE_WORKSPACE_SUCCESSFUL), {
         kind: "success",
       });
     }
@@ -321,7 +321,7 @@ export function* uploadWorkspaceLogoSaga(
             logoUrl: response.data.logoUrl,
           },
         });
-        toast("Logo uploaded successfully", {
+        toast.show("Logo uploaded successfully", {
           kind: "success",
         });
       }
@@ -353,7 +353,7 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
             logoUrl: response.data.logoUrl,
           },
         });
-        toast("Logo removed successfully", {
+        toast.show("Logo removed successfully", {
           kind: "success",
         });
       }

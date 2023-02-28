@@ -93,7 +93,7 @@ export function* addApiToPageSaga(
         pageName: page?.pageName,
         source: payload.source,
       });
-      toast(createMessage(ADD_API_TO_PAGE_SUCCESS_MESSAGE, payload.name), {
+      toast.show(createMessage(ADD_API_TO_PAGE_SUCCESS_MESSAGE, payload.name), {
         kind: "success",
       });
       yield put({
