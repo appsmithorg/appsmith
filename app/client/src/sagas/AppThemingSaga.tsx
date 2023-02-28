@@ -24,9 +24,8 @@ import {
   SET_DEFAULT_SELECTED_THEME,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { undoAction, updateReplayEntity } from "actions/pageActions";
+import { updateReplayEntity } from "actions/pageActions";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import store from "store";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
