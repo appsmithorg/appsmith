@@ -8,7 +8,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import set from "lodash/set";
 import { EvalContext } from "workers/Evaluation/evaluate";
-import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
+import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import JSProxy from "workers/Evaluation/JSObject/JSVariableProxy";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
@@ -107,7 +107,7 @@ function setEntityToEvalContext(
   if (dataTreeObjectEntity.ENTITY_TYPE) {
     switch (dataTreeObjectEntity.ENTITY_TYPE) {
       case ENTITY_TYPE.JSACTION: {
-        const varState = jsObjectCollection.getCurrentVariableState(entityName);
+        const varState = JSObjectCollection.getCurrentVariableState(entityName);
         if (varState) {
           if (self.$isDataField) {
             EVAL_CONTEXT[entityName] = varState;

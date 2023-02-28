@@ -1,6 +1,5 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { klona } from "klona/full";
-import { get, set } from "lodash";
 
 export type VariableState = Record<string, Record<string, unknown>>;
 
@@ -14,60 +13,49 @@ export function getOriginalValueFromProxy(obj: Record<string, unknown>) {
 type CurrentJSCollectionState = Record<string, any>;
 type ResolvedFunctions = Record<string, any>;
 
-class JSObjectCollection {
-  private resolvedFunctions: ResolvedFunctions = {};
-  private unEvalState: CurrentJSCollectionState = {};
+export default class JSObjectCollection {
+  private static resolvedFunctions: ResolvedFunctions = {};
+  private static unEvalState: CurrentJSCollectionState = {};
+  private static currentVariableState: VariableState = {};
 
-  private prevVariableState: VariableState = {};
-  private currentVariableState: VariableState = {};
-
-  setResolvedFunctions(resolvedFunctions: ResolvedFunctions) {
+  static setResolvedFunctions(resolvedFunctions: ResolvedFunctions) {
     this.resolvedFunctions = resolvedFunctions;
   }
 
-  getResolvedFunctions() {
+  static getResolvedFunctions() {
     return this.resolvedFunctions;
   }
 
-  getUnEvalState() {
+  static getUnEvalState() {
     return this.unEvalState;
   }
 
-  setVariableValue(variableValue: unknown, fullPropertyPath: string) {
-    set(
-      this.prevVariableState,
+  static setVariableValue(variableValue: unknown, fullPropertyPath: string) {
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       fullPropertyPath,
-      get(this.currentVariableState, fullPropertyPath),
     );
-    set(this.currentVariableState, fullPropertyPath, variableValue);
+    const newVarState = { ...(this.currentVariableState[entityName] || {}) };
+    newVarState[propertyPath] = variableValue;
+    this.currentVariableState[entityName] = newVarState;
   }
 
-  setVariableState(currentVariableState: VariableState) {
-    if (this.currentVariableState) {
-      this.prevVariableState = this.currentVariableState;
-    }
-
+  static setVariableState(currentVariableState: VariableState) {
     this.currentVariableState = currentVariableState;
   }
 
-  getCurrentVariableState(
+  static getCurrentVariableState(
     JSObjectName?: string,
   ): VariableState | Record<string, unknown> {
-    if (JSObjectName && this.currentVariableState)
-      return klona(this.currentVariableState[JSObjectName]);
-    return klona(this.currentVariableState);
+    if (!JSObjectName || !this.currentVariableState)
+      return klona(this.currentVariableState);
+
+    return klona(this.currentVariableState[JSObjectName]);
   }
 
-  getPrevVariableState() {
-    return this.prevVariableState;
-  }
-
-  removeVariable(fullPath: string) {
+  static removeVariable(fullPath: string) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
     const jsObject = this.currentVariableState[entityName];
     if (jsObject && jsObject[propertyPath] !== undefined)
       delete jsObject[propertyPath];
   }
 }
-
-export const jsObjectCollection = new JSObjectCollection();

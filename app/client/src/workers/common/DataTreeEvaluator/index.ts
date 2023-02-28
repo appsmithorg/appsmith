@@ -89,7 +89,6 @@ import {
 } from "workers/common/DependencyMap";
 import {
   getJSEntities,
-  updateUnEvalTreeWithChanges,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
@@ -102,7 +101,7 @@ import {
   validateAndParseWidgetProperty,
 } from "./validationUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
-import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
+import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
@@ -250,7 +249,7 @@ export default class DataTreeEvaluator {
     const inverseDependencyGenerationEndTime = performance.now();
 
     const secondCloneStartTime = performance.now();
-    this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldUnEvalTree = Object.freeze(klona(localUnEvalTree));
     const secondCloneEndTime = performance.now();
 
     const totalFirstTreeSetupEndTime = performance.now();
@@ -333,7 +332,7 @@ export default class DataTreeEvaluator {
 
   updateLocalUnEvalTree(unevalTree: DataTree) {
     //add functions and variables to unevalTree
-    const unEvalJSCollection = jsObjectCollection.getUnEvalState();
+    const unEvalJSCollection = JSObjectCollection.getUnEvalState();
     Object.keys(unEvalJSCollection).forEach((update) => {
       const updates = unEvalJSCollection[update];
       if (!!unevalTree[update]) {
@@ -461,13 +460,6 @@ export default class DataTreeEvaluator {
 
     const updatedValuePaths = [...pathsChangedSet];
 
-    console.log(
-      "$$$-SETUP-UPDATE-DATATREE",
-      updatedValuePaths,
-      this.oldUnEvalTree,
-      localUnEvalTree,
-    );
-
     return {
       ...this.setupTree(localUnEvalTree, updatedValuePaths, {
         totalUpdateTreeSetupStartTime,
@@ -576,7 +568,7 @@ export default class DataTreeEvaluator {
     const cloneStartTime = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldUnEvalTree = Object.freeze(klona(localUnEvalTree));
     const cloneEndTime = performance.now();
 
     const totalUpdateTreeSetupEndTime = performance.now();
@@ -607,7 +599,7 @@ export default class DataTreeEvaluator {
   }
 
   setupUpdateTreeWithDifferences(updatedValuePaths: string[][]) {
-    let localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
+    const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local un eval tree
     if (updatedValuePaths.length === 0) {
       return {
@@ -618,10 +610,6 @@ export default class DataTreeEvaluator {
         nonDynamicFieldValidationOrder: [],
       };
     }
-    localUnEvalTree = updateUnEvalTreeWithChanges(
-      updatedValuePaths,
-      localUnEvalTree,
-    );
 
     const pathsToSkipFromEval = updatedValuePaths.map((path) => path.join("."));
 
@@ -647,6 +635,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const evaluationStartTime = performance.now();
+
     const {
       evalMetaUpdates,
       evaluatedTree: newEvalTree,
@@ -657,6 +646,7 @@ export default class DataTreeEvaluator {
       unevalUpdates,
       metaWidgets: metaWidgetIds,
     });
+
     const evaluationEndTime = performance.now();
     const reValidateStartTime = performance.now();
     this.reValidateTree(nonDynamicFieldValidationOrder, newEvalTree);
@@ -828,6 +818,7 @@ export default class DataTreeEvaluator {
           if (propertyPath) {
             set(this.evalProps, getEvalErrorPath(fullPropertyPath), []);
           }
+
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.reactivePaths[propertyPath] ||
@@ -938,11 +929,6 @@ export default class DataTreeEvaluator {
           } else if (isJSAction(entity)) {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
-              console.log(
-                "$$$-variableEVAL",
-                fullPropertyPath,
-                evalPropertyValue,
-              );
               set(
                 this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
@@ -952,7 +938,7 @@ export default class DataTreeEvaluator {
                 evalPropertyValue,
               );
               set(currentTree, fullPropertyPath, evalPropertyValue);
-              jsObjectCollection.setVariableValue(
+              JSObjectCollection.setVariableValue(
                 evalPropertyValue,
                 fullPropertyPath,
               );

@@ -1,7 +1,7 @@
 import JSVariableUpdates, { getModifiedPaths } from "../JSVariableUpdates";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
-import { VariableState, jsObjectCollection } from "../Collection";
+import JSObjectCollection, { VariableState } from "../Collection";
 
 jest.mock("../../handlers/evalTree", () => {
   return {
@@ -29,7 +29,7 @@ describe("Mutation", () => {
       },
     } as unknown) as DataTree;
 
-    jsObjectCollection.setVariableState((dataTree as unknown) as VariableState);
+    JSObjectCollection.setVariableState((dataTree as unknown) as VariableState);
 
     const evalContext = createEvaluationContext({
       dataTree,
