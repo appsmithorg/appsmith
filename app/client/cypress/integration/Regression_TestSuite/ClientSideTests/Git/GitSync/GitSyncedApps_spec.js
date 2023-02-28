@@ -475,13 +475,7 @@ describe("Git sync apps", function() {
 
     //  clone the Child_Page
     _.ee.SelectEntityByName("Child_Page", "Pages");
-    _.ee.ActionContextMenuByEntityName("Child_Page", "Clone");
-
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.ee.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
     _.ee.SelectEntityByName("Child_Page Copy", "Pages");
     _.ee.ActionContextMenuByEntityName("Child_Page", "Hide");
