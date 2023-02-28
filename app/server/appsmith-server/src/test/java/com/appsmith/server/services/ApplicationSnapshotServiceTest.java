@@ -7,14 +7,17 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +35,9 @@ public class ApplicationSnapshotServiceTest {
 
     @Autowired
     private WorkspaceService workspaceService;
+
+    @Autowired
+    private ApplicationSnapshotRepository applicationSnapshotRepository;
 
     @Test
     @WithUserDetails("api_user")
@@ -127,6 +133,42 @@ public class ApplicationSnapshotServiceTest {
                     Application application = objects.getT2();
                     assertThat(applicationSnapshot.getData()).isNull();
                     assertThat(applicationSnapshot.getApplicationId()).isEqualTo(application.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void createApplicationSnapshot_OlderSnapshotExists_OlderSnapshotsRemoved() {
+        String uniqueString = UUID.randomUUID().toString();
+        String testDefaultAppId = "default-app-" + uniqueString;
+        String testBranchName = null;
+        // create a new workspace
+        Workspace workspace = new Workspace();
+        workspace.setName("Test workspace " + uniqueString);
+
+        Flux<ApplicationSnapshot> applicationSnapshotFlux = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("Test app for snapshot");
+                    testApplication.setWorkspaceId(createdWorkspace.getId());
+                    return applicationPageService.createApplication(testApplication);
+                })
+                .flatMap(application -> {
+                    ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
+                    applicationSnapshot.setApplicationId(application.getId());
+                    applicationSnapshot.setChunkOrder(5);
+                    applicationSnapshot.setData("Hello".getBytes(StandardCharsets.UTF_8));
+                    return applicationSnapshotRepository.save(applicationSnapshot).thenReturn(application);
+                })
+                .flatMapMany(application ->
+                        applicationSnapshotService.createApplicationSnapshot(application.getId(), null)
+                                .thenMany(applicationSnapshotRepository.findByApplicationId(application.getId()))
+                );
+
+        StepVerifier.create(applicationSnapshotFlux)
+                .assertNext(applicationSnapshot -> {
+                    assertThat(applicationSnapshot.getChunkOrder()).isEqualTo(1);
                 })
                 .verifyComplete();
     }
