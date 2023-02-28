@@ -5,7 +5,7 @@ import JSObjectCollection, { VariableState } from "../Collection";
 
 jest.mock("../sendUpdatedDataTree.ts", () => {
   return {
-    triggerEvalWithPathsChanged: () => ({}),
+    triggerEvalWithChanges: () => ({}),
   };
 });
 

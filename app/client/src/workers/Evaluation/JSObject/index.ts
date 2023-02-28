@@ -18,7 +18,7 @@ import {
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
-import JSObjectCollection, { getOriginalValueFromProxy } from "./Collection";
+import JSObjectCollection from "./Collection";
 import { klona } from "klona/full";
 import JSVariableUpdates from "./JSVariableUpdates";
 
@@ -316,6 +316,13 @@ export function removeProxyObject(objOrArr: any) {
     }
   }
   return newObjOrArr;
+}
+
+export function getOriginalValueFromProxy(obj: Record<string, unknown>) {
+  if (obj && obj.$isProxy) {
+    return obj.$targetValue;
+  }
+  return obj;
 }
 
 export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {

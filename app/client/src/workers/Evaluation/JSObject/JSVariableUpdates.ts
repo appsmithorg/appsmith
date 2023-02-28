@@ -1,7 +1,8 @@
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { registerJSUpdateCheckTask } from "./checkUpdate";
+import { updateEvalTreeValueFromContext } from ".";
+import { triggerEvalWithChanges } from "../evalTreeWithChanges";
 
 export enum PatchType {
   "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
@@ -61,4 +62,28 @@ export function getModifiedPaths(patches: Patch[]) {
     }
   }
   return [...modifiedVariablesSet];
+}
+
+let registeredTask = false;
+
+// executes when worker is idle
+function checkForJsVariableUpdate() {
+  const updates = JSVariableUpdates.getAll();
+  const modifiedVariablesList = getModifiedPaths(updates);
+
+  updateEvalTreeValueFromContext(modifiedVariablesList);
+
+  if (modifiedVariablesList.length > 0) {
+    // trigger evaluation
+    triggerEvalWithChanges(modifiedVariablesList);
+  }
+  JSVariableUpdates.clear();
+  registeredTask = false;
+}
+
+export function registerJSUpdateCheckTask(task = checkForJsVariableUpdate) {
+  if (!registeredTask) {
+    registeredTask = true;
+    queueMicrotask(task);
+  }
 }
