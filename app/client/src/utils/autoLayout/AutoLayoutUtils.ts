@@ -6,7 +6,10 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,
@@ -17,7 +20,6 @@ import {
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import { AlignmentColumnInfo } from "./autoLayoutTypes";
-import { Widget } from "./positionUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
   const container = widgets[containerId];
@@ -521,7 +523,7 @@ export function getAlignmentColumnInfo(
 }
 
 export function getCanvasDimensions(
-  canvas: Widget,
+  canvas: FlattenedWidgetProps,
   widgets: CanvasWidgetsReduxState,
   mainCanvasWidth: number,
   isMobile: boolean,
@@ -539,7 +541,7 @@ export function getCanvasDimensions(
 }
 
 function getCanvasWidth(
-  canvas: Widget,
+  canvas: FlattenedWidgetProps,
   widgets: CanvasWidgetsReduxState,
   mainCanvasWidth: number,
   isMobile: boolean,
@@ -563,7 +565,7 @@ function getCanvasWidth(
   return totalWidth - padding;
 }
 
-function getPadding(canvas: Widget): number {
+function getPadding(canvas: FlattenedWidgetProps): number {
   let padding = 0;
   if (
     canvas.widgetId === MAIN_CONTAINER_WIDGET_ID ||
