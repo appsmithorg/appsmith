@@ -63,6 +63,7 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.ENTITY_UPDATED_PERMISSIONS;
 import static com.appsmith.server.constants.FieldName.GAC_TAB;
+import static com.appsmith.server.constants.FieldName.EVENT_DATA;
 import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORIZED;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
@@ -314,8 +315,9 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         });
 
         Map<String, Object> roleUpdateProperties = getRoleUpdateMetadata(updateRoleConfigDTO);
+        Map<String, Object> analyticsProperties = Map.of(GAC_TAB, updateRoleConfigDTO.getTabName(), EVENT_DATA, roleUpdateProperties);
         Mono<PermissionGroup> sendPermissionGroupUpdatedEventMono = permissionGroupMono
-                .flatMap(permissionGroup -> analyticsService.sendUpdateEvent(permissionGroup, roleUpdateProperties));
+                .flatMap(permissionGroup -> analyticsService.sendUpdateEvent(permissionGroup, analyticsProperties));
 
         return permissionGroupMono
                 .thenMany(updateEntityPoliciesFlux)

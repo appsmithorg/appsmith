@@ -74,4 +74,10 @@ public class FieldName extends FieldNameCE {
     public static final String LICENSE_VALID = "licenseValid";
     public static final String LICENSE_TYPE = "licenseType";
     public static final String LICENSE_STATUS = "licenseStatus";
+    public static final String NUMBER_OF_INVITED_USERS = "numberOfUsersInvited";
+    public static final String NUMBER_OF_REMOVED_USERS = "numberOfUsersRemoved";
+    public static final String NUMBER_OF_ASSIGNED_USERS = "numberOfAssignedUsers";
+    public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
+    public static final String NUMBER_OF_ASSIGNED_USER_GROUPS = "numberOfAssignedGroups";
+    public static final String NUMBER_OF_UNASSIGNED_USER_GROUPS = "numberOfUnassignedGroups";
 }
