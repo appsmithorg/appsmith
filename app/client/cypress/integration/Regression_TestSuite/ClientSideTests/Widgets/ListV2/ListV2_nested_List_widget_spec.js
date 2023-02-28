@@ -86,8 +86,43 @@ describe(" Nested List Widgets ", function() {
       },
     );
     checkAutosuggestion("Text1", "Object");
+    checkAutosuggestion("List1Copy", "Object");
+
+    cy.testJsontextclear("text");
+
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_1.currentView.List1Copy.",
+      {
+        force: true,
+      },
+    );
+    checkAutosuggestion("backgroundColor", "String");
+    checkAutosuggestion("itemSpacing", "Number");
+    checkAutosuggestion("isVisible", "Boolean");
+    checkAutosuggestion("listData", "Array");
+    checkAutosuggestion("pageNo", "Number");
+    checkAutosuggestion("pageSize", "Number");
+
     cy.get(".CodeMirror-hints").each(($el) => {
-      cy.wrap($el).should("not.have.text", "List1Copy");
+      cy.wrap($el).should("not.have.text", "currentViewItems");
     });
+
+    cy.get(".CodeMirror-hints").each(($el) => {
+      cy.wrap($el).should("not.have.text", "selectedItemView");
+    });
+
+    cy.get(".CodeMirror-hints").each(($el) => {
+      cy.wrap($el).should("not.have.text", "triggeredItemView");
+    });
+
+    cy.testJsontextclear("text");
+    cy.get(
+      ".t--property-control-text .CodeMirror textarea",
+    ).type("{{level_1.currentView.List1Copy.pageNo", { force: true });
+
+    cy.get(`${widgetSelector("Text2")} .bp3-ui-text span`).should(
+      "have.text",
+      "1",
+    );
   });
 });
