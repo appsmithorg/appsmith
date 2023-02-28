@@ -8,6 +8,7 @@ import {
   makeParentsDependOnChildren,
   isValidEntity,
   getEntityNameAndPropertyPath,
+  isDynamicLeaf,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTree,
@@ -191,9 +192,7 @@ export const updateDependencyMap = ({
       switch (event) {
         case DataTreeDiffEvent.NEW: {
           if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
-            // If a new entity was added,
-            // add all the internal bindings for this entity to the global dependency map
-            if (entityName === fullPropertyPath) {
+            if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath)) {
               const entityDependencyMap: DependencyMap = listEntityDependencies(
                 entity,
                 entityName,
