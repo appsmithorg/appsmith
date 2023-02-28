@@ -1,4 +1,4 @@
-import JSVariableUpdates, { getModifiedPaths } from "../JSVariableUpdates";
+import JSVariableUpdates, { getUpdatedPaths } from "../JSVariableUpdates";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import JSObjectCollection, { VariableState } from "../Collection";
@@ -78,7 +78,7 @@ describe("Mutation", () => {
       },
     ]);
 
-    const modifiedVariablesList = getModifiedPaths(JSVariableUpdates.getAll());
+    const modifiedVariablesList = getUpdatedPaths(JSVariableUpdates.getAll());
 
     expect(modifiedVariablesList).toEqual([
       ["JSObject1", "var"],

@@ -517,6 +517,10 @@ export default class DataTreeEvaluator {
       if (pathsToSkipFromEval.includes(fullPath)) continue;
 
       if (!isDynamicLeaf(localUnEvalTree, fullPath)) {
+        /**
+         * Store fullPath in nonDynamicFieldValidationOrderSet,
+         * if the non dynamic value changes to trigger revalidation.
+         */
         if (this.inverseValidationDependencyMap[fullPath]) {
           nonDynamicFieldValidationOrderSet = new Set([
             ...nonDynamicFieldValidationOrderSet,
@@ -530,7 +534,7 @@ export default class DataTreeEvaluator {
       const evalPropValue = get(this.evalTree, fullPath);
       evaluationOrder.push(fullPath);
       if (isFunction(evalPropValue)) continue;
-
+      // Set all values from unEvalTree to the evalTree to run evaluation for unevaluated values.
       set(this.evalTree, fullPath, unEvalPropValue);
     }
 
@@ -627,7 +631,7 @@ export default class DataTreeEvaluator {
 
   setupUpdateTreeWithDifferences(updatedValuePaths: string[][]) {
     const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
-    // skipped update local un eval tree
+    // skipped update local unEvalTree
     if (updatedValuePaths.length === 0) {
       return {
         unEvalUpdates: [],
@@ -638,6 +642,14 @@ export default class DataTreeEvaluator {
       };
     }
 
+    /**
+     *  Only evaluate the dependents of the updatedValue and
+     *  skip the evaluation of updatedValue itself.
+     *
+     *  Example:
+     *  if "JSObject.myVar1" is updated
+     *  then => only re-evaluate values dependent on "JSObject.myVar1"
+     */
     const pathsToSkipFromEval = updatedValuePaths.map((path) => path.join("."));
 
     return this.setupTree(localUnEvalTree, updatedValuePaths, {
@@ -1349,13 +1361,13 @@ export default class DataTreeEvaluator {
   }
 
   calculateSubTreeSortOrder(
-    changedPaths: string[][],
+    updatedValuePaths: string[][],
     dependenciesOfRemovedPaths: Array<string>,
     removedPaths: Array<string>,
     unEvalTree: DataTree,
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
-    for (const path of changedPaths) {
+    for (const path of updatedValuePaths) {
       changePaths.add(convertPathToString(path));
       // If this is a property path change, simply add for evaluation and move on
       if (!isDynamicLeaf(unEvalTree, convertPathToString(path))) {

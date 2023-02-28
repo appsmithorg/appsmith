@@ -21,33 +21,34 @@ class JSVariableUpdates {
   private static disableTracking = true;
 
   static add(patch: Patch) {
-    if (JSVariableUpdates.disableTracking) return;
-    JSVariableUpdates.patches.push(patch);
-    registerJSUpdateCheckTask();
+    if (this.disableTracking) return;
+    this.patches.push(patch);
+    // For every update on variable, we register a task to check for update and
+    registerJSVarUpdateTask();
   }
 
   static getAll() {
-    return JSVariableUpdates.patches;
+    return this.patches;
   }
 
   static clear() {
-    JSVariableUpdates.patches = [];
+    this.patches = [];
   }
 
   static disable() {
-    JSVariableUpdates.disableTracking = true;
+    this.disableTracking = true;
   }
 
   static enable() {
-    JSVariableUpdates.disableTracking = false;
+    this.disableTracking = false;
   }
 }
 
 export default JSVariableUpdates;
 
-export function getModifiedPaths(patches: Patch[]) {
+export function getUpdatedPaths(patches: Patch[]) {
   // store exact path to diff
-  const modifiedVariablesSet = new Set<string[]>();
+  const updatedVariablesSet = new Set<string[]>();
   for (const patch of patches) {
     const pathArray = patch.path.split(".");
     const [jsObjectName, varName] = pathArray;
@@ -57,19 +58,19 @@ export function getModifiedPaths(patches: Patch[]) {
     if (isJSAction(jsObject)) {
       const variables = jsObject.variables;
       if (variables.includes(varName)) {
-        modifiedVariablesSet.add(pathArray);
+        updatedVariablesSet.add(pathArray);
       }
     }
   }
-  return [...modifiedVariablesSet];
+  return [...updatedVariablesSet];
 }
 
 let registeredTask = false;
 
 // executes when worker is idle
-function checkForJsVariableUpdate() {
+function applyJSVariableUpdatesToEvalTree() {
   const updates = JSVariableUpdates.getAll();
-  const modifiedVariablesList = getModifiedPaths(updates);
+  const modifiedVariablesList = getUpdatedPaths(updates);
 
   updateEvalTreeValueFromContext(modifiedVariablesList);
 
@@ -81,7 +82,9 @@ function checkForJsVariableUpdate() {
   registeredTask = false;
 }
 
-export function registerJSUpdateCheckTask(task = checkForJsVariableUpdate) {
+export function registerJSVarUpdateTask(
+  task = applyJSVariableUpdatesToEvalTree,
+) {
   if (!registeredTask) {
     registeredTask = true;
     queueMicrotask(task);
