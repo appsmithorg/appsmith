@@ -44,7 +44,7 @@ describe("Test Field Group Config", () => {
     {
       index: 5,
       input: AppsmithFunction.showModal,
-      expectedLabel: "Open modal",
+      expectedLabel: "Show modal",
       expectedFields: [FieldType.SHOW_MODAL_FIELD],
     },
     {
