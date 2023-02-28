@@ -1,7 +1,6 @@
 import React from "react";
 
 import scrollIntoView from "scroll-into-view-if-needed";
-
 import {
   modText,
   flashElementsById,
@@ -19,27 +18,6 @@ import {
   BULK_WIDGET_REMOVED,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
-
-/**
- * get the text for toast
- *
- * @param replayType
- * @returns
- */
-export const getReplayToastActionText = (replayType = "undo") => {
-  switch (replayType) {
-    case "undo":
-      return <>UNDO ({modText()} Z) </>;
-    case "redo":
-      return isMacOrIOS() ? (
-        <>
-          REDO ({modText()} {shiftText()} Z){" "}
-        </>
-      ) : (
-        <>REDO ({modText()} Y) </>
-      );
-  }
-};
 
 /**
  * process the toast for undo/redo
@@ -88,10 +66,16 @@ export const showUndoRedoToast = (
 
   const actionDescription = getActionDescription(isCreated, isMultiple);
 
-  const actionElement = getReplayToastActionText(shouldUndo ? "undo" : "redo");
-
   toast.show(createMessage(actionDescription, widgetName), {
-    actionElement,
+    action: {
+      actionText: shouldUndo
+        ? `UNDO (${modText()} Z)`
+        : isMacOrIOS()
+        ? `REDO (${modText()} ${shiftText()} Z)`
+        : `REDO (${modText()} Y)`,
+      // TODO: the action for undo/redo needs to be passed here
+      effect: () => console.log("undo/redo"),
+    },
   });
 };
 
