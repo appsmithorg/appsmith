@@ -1608,12 +1608,20 @@ cy.all = function(...commands) {
 };
 
 Cypress.Commands.add("renameWithInPane", (renameVal) => {
-  cy.get(apiwidget.ApiName).click({ force: true });
-  cy.get(apiwidget.apiTxt)
-    .clear()
-    .type(renameVal, { force: true })
-    .should("have.value", renameVal)
-    .blur();
+  cy.get(".t--action-name-edit-field").then(($el) => {
+    cy.wrap($el)
+      .children()
+      .eq(0)
+      .click({ force: true });
+    cy.wait(3000);
+    cy.get(".t--action-name-edit-field")
+      .children()
+      .eq(0)
+      .clear()
+      .type(renameVal, { force: true })
+      .should("have.value", renameVal)
+      .blur();
+  });
 });
 
 Cypress.Commands.add("getEntityName", () => {

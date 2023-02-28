@@ -259,7 +259,9 @@ Cypress.Commands.add("launchApp", () => {
 Cypress.Commands.add("AppSetupForRename", () => {
   cy.get(homePage.applicationName).then(($appName) => {
     if (!$appName.hasClass(homePage.editingAppName)) {
-      cy.get(homePage.applicationName).click({ force: true });
+      cy.get(homePage.applicationName).then(($el) =>
+        cy.wrap($el).click({ force: true }),
+      );
       cy.get(homePage.portalMenuItem)
         .contains("Edit Name", { matchCase: false })
         .click({ force: true });
@@ -317,7 +319,10 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   cy.wait(2000);
 
   cy.AppSetupForRename();
-  cy.get(homePage.applicationName).type(appname + "{enter}");
+  cy.get(homePage.applicationName)
+    .children()
+    .eq(0)
+    .type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",

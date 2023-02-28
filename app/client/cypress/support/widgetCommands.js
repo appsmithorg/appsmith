@@ -1238,15 +1238,19 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
 Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
     .eq(index)
-    .click({ force: true })
-    .clear({ force: true })
-    .type(text)
-    .wait(200);
+    .wait(3000)
+    .then(($el) => {
+      expect(Cypress.dom.isDetached($el)).to.eq(false);
+      cy.wrap($el)
+        .click({ force: true })
+        .clear({ force: true })
+        .type(text)
+        .wait(200);
+    });
 });
 Cypress.Commands.add("tabVerify", (index, text) => {
   cy.get(".t--property-control-tabs input")
     .eq(index)
-    .click({ force: true })
     .clear()
     .type(text);
   cy.get(LayoutPage.tabWidget)

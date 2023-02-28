@@ -268,7 +268,9 @@ describe("Canvas context Property Pane", function() {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-back-btn")
+      .eq(0)
+      .click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
     cy.wait(500);
@@ -324,7 +326,9 @@ describe("Canvas context Property Pane", function() {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-back-btn")
+      .eq(0)
+      .click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
     cy.wait(500);
