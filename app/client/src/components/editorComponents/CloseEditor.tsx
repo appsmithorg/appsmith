@@ -17,6 +17,8 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getPaneCount } from "../../selectors/multiPaneSelectors";
+import { PaneLayoutOptions } from "../../reducers/uiReducers/multiPaneReducer";
 
 const IconContainer = styled.div`
   //width: 100%;
@@ -31,11 +33,15 @@ const IconContainer = styled.div`
 `;
 
 function CloseEditor() {
+  const paneCount = useSelector(getPaneCount);
   const history = useHistory();
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
   const pageId = useSelector(getCurrentPageId);
+  if (paneCount === PaneLayoutOptions.TWO_PANE) {
+    return null;
+  }
 
   const isGeneratePageInitiator = getIsGeneratePageInitiator();
   let integrationTab = INTEGRATION_TABS.ACTIVE;

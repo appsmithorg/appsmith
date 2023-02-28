@@ -195,7 +195,7 @@ const getEntityParentUrl = (
   return "";
 };
 
-const isPageChange = (prevPath: string, currentPath: string) => {
+export const isPageChange = (prevPath: string, currentPath: string) => {
   const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
   const currFocusEntityInfo = identifyEntityFromPath(currentPath);
   if (prevFocusEntityInfo.pageId === "" || currFocusEntityInfo.pageId === "") {
