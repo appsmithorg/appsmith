@@ -21,6 +21,7 @@ import {
   showDebugger,
 } from "../../actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/helpers";
+import store from "store";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -96,18 +97,16 @@ export const logActionExecutionError = (
   //   ]);
   // }
 
-  // function onDebugClick() {
-  //   const dispatch = useDispatch();
-  //   const appMode = useSelector(getAppMode);
-  //
-  //   if (appMode === "PUBLISHED") return null;
-  //
-  //   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-  //     source: "TOAST",
-  //   });
-  //   dispatch(showDebugger(true));
-  //   dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-  // }
+  function onDebugClick() {
+    const appMode = getAppMode(store.getState());
+    if (appMode === "PUBLISHED") return null;
+
+    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+      source: "TOAST",
+    });
+    store.dispatch(showDebugger(true));
+    store.dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+  }
 
   if (!!triggerPropertyName) {
     toast.show(errorMessage, {
@@ -118,8 +117,7 @@ export const logActionExecutionError = (
       kind: "error",
       action: {
         actionText: "debug",
-        // effect: () => onDebugClick(),
-        effect: () => console.log("open debugger"),
+        effect: () => onDebugClick(),
         className: "t--toast-debug-button",
       },
     });

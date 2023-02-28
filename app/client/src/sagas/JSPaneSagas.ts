@@ -83,6 +83,13 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "../actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/helpers";
+import store from "../store";
 
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
@@ -434,16 +441,27 @@ export function* handleExecuteJSFunctionSaga(data: {
         },
       },
     ]);
+
+    const onDebugClick = () => {
+      const appMode = getAppMode(store.getState());
+
+      if (appMode === "PUBLISHED") return null;
+
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "TOAST",
+      });
+      store.dispatch(showDebugger(true));
+      store.dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    };
+
     toast.show(
       (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
       {
         kind: "error",
-        showDebugButton: {
-          component: DebugButton,
-          componentProps: {
-            className: "t--toast-debug-button",
-            source: "TOAST",
-          },
+        action: {
+          actionText: "debug",
+          effect: () => onDebugClick,
+          className: "t--toast-debug-button",
         },
       },
     );
