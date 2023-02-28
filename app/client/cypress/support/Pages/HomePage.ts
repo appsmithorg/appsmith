@@ -241,7 +241,13 @@ export class HomePage {
 
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
-    cy.request("POST", "/api/v1/logout");
+    cy.request({
+      method: "POST",
+      url: "/api/v1/logout",
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
+    });
     this.agHelper.Sleep(); //for logout to complete!
   }
 
