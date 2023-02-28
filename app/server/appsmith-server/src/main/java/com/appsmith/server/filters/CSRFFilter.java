@@ -23,7 +23,8 @@ public class CSRFFilter implements WebFilter {
 
     private static final Set<String> EXEMPT = Set.of(
             Url.LOGIN_URL,
-            Url.USER_URL  // For signup request
+            Url.USER_URL,  // For signup request
+            Url.USER_URL + "/super"  // For superuser signup request
     );
 
     @Override
