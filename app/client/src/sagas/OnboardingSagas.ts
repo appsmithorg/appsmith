@@ -401,12 +401,15 @@ function* endFirstTimeUserOnboardingSaga() {
   });
   toast.show(createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER), {
     kind: "success",
-    // TODO: toast and dispatch
-    // dispatchableAction: {
-    //   dispatch: store.dispatch,
-    //   type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
-    //   payload: firstTimeUserExperienceAppId,
-    // },
+    action: {
+      actionText: "undo",
+      effect: () => {
+        store.dispatch({
+          type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
+          payload: firstTimeUserExperienceAppId,
+        });
+      },
+    },
   });
 }
 
