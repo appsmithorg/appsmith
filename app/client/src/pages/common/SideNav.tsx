@@ -9,10 +9,8 @@ export const SIDE_NAV_WIDTH = 55;
 
 const Container = styled.div`
   flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
   width: ${SIDE_NAV_WIDTH}px;
-  display: block;
+  display: flex;
 
   background: #ffffff;
   box-shadow: 1px 0 0 #f1f1f1;
@@ -22,39 +20,13 @@ const Container = styled.div`
 `;
 
 const Button = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 3px;
-
+  cursor: pointer;
   width: ${SIDE_NAV_WIDTH}px;
   height: 50px;
 
-  /* Grays/White
-
-  White color mostly used on backgrounds. We’re minimal and clean product and we use a lot of white.
-  */
+  padding: 15px 18px;
   background: #ffffff;
   box-shadow: inset -1px -1px 0px #e8e8e8;
-
-  /* Inside auto layout */
-
-  img {
-    height: 20px;
-    width: 18px;
-  }
-
-  span {
-    /* Explorer */
-    font-style: normal;
-    font-weight: 600;
-    font-size: 8px;
-    line-height: 140%;
-    /* or 11px */
-
-    color: #000000;
-  }
 `;
 
 function SideNav(props: {
@@ -63,7 +35,6 @@ function SideNav(props: {
   return (
     <Container onClick={() => props.onSelect(undefined)}>
       <Button
-        className="cursor-pointer"
         onClick={(ev) => {
           props.onSelect(SideNavMode.Explorer);
           ev.stopPropagation();
@@ -72,7 +43,6 @@ function SideNav(props: {
         <img alt="Explorer" src={explorerIcon} />
       </Button>
       <Button
-        className="cursor-pointer"
         onClick={(ev) => {
           props.onSelect(SideNavMode.DataSources);
           ev.stopPropagation();
@@ -81,7 +51,6 @@ function SideNav(props: {
         <img alt="Datasources" src={dataIcon} />
       </Button>
       <Button
-        className="cursor-pointer"
         onClick={(ev) => {
           props.onSelect(SideNavMode.Libraries);
           ev.stopPropagation();
@@ -89,6 +58,26 @@ function SideNav(props: {
       >
         <img alt="library" src={libIcon} />
       </Button>
+
+      {/* Bottom buttons */}
+      {/* <Button
+        className="mt-auto"
+        onClick={(ev) => {
+          props.onSelect(SideNavMode.Libraries);
+          ev.stopPropagation();
+        }}
+      >
+        <img alt="library" src={libIcon} />
+      </Button>
+
+      <Button
+        onClick={(ev) => {
+          props.onSelect(SideNavMode.Libraries);
+          ev.stopPropagation();
+        }}
+      >
+        <img alt="library" src={libIcon} />
+      </Button> */}
     </Container>
   );
 }
