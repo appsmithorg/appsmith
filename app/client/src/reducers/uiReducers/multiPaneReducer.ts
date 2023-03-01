@@ -4,8 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
-export const WIDGET_PANE_WIDTH = 185;
-export const TABS_PANE_MIN_WIDTH = 390 + WIDGET_PANE_WIDTH;
+export const TABS_PANE_MIN_WIDTH = 390;
 
 export enum PaneLayoutOptions {
   TWO_PANE = 2,

@@ -24,6 +24,7 @@ import { Icon } from "design-system-old";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -33,6 +34,7 @@ type ExplorerWidgetGroupProps = {
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const applicationId = useSelector(getCurrentApplicationId);
+  const isMultiPane = useSelector(isMultiPaneActive);
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const guidedTour = useSelector(inGuidedTour);
@@ -75,7 +77,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       onCreate={props.addWidgetsFn}
       onToggle={onWidgetToggle}
       searchKeyword={props.searchKeyword}
-      showAddButton={canManagePages}
+      showAddButton={canManagePages && !isMultiPane}
       step={props.step}
     >
       {widgets?.children?.map((child) => (
@@ -99,15 +101,18 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
             mainText={createMessage(EMPTY_WIDGET_MAIN_TEXT)}
           />
         )}
-      {widgets?.children && widgets?.children?.length > 0 && canManagePages && (
-        <AddEntity
-          action={props.addWidgetsFn}
-          entityId={pageId + "_widgets_add_new_datasource"}
-          icon={<Icon name="plus" />}
-          name={createMessage(ADD_WIDGET_BUTTON)}
-          step={props.step + 1}
-        />
-      )}
+      {widgets?.children &&
+        widgets?.children?.length > 0 &&
+        canManagePages &&
+        !isMultiPane && (
+          <AddEntity
+            action={props.addWidgetsFn}
+            entityId={pageId + "_widgets_add_new_datasource"}
+            icon={<Icon name="plus" />}
+            name={createMessage(ADD_WIDGET_BUTTON)}
+            step={props.step + 1}
+          />
+        )}
     </Entity>
   );
 });

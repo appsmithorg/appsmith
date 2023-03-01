@@ -23,7 +23,7 @@ const StyledWrapper = styled.div<{ isMultiPane: boolean; isActive: boolean }>`
   height: inherit;
   overflow-y: auto;
   overflow-x: hidden;
-
+  border-right: 1px solid rgb(228, 228, 231);
 `
       : `
   display: flex;
