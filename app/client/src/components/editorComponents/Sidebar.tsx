@@ -179,22 +179,37 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       >
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
-        {props.sideNavMode === SideNavMode.Explorer && (
-          <>
-            {/* PagesContainer */}
-            <Pages />
-            {/* Popover that contains the bindings info */}
-            <EntityProperties />
-            {/* Contains entity explorer & widgets library along with a switcher*/}
-            <Explorer />
-          </>
-        )}
+
+        <div
+          className={classNames({
+            hidden: active && props.sideNavMode !== SideNavMode.Explorer,
+          })}
+        >
+          {/* PagesContainer */}
+          <Pages />
+          {/* Popover that contains the bindings info */}
+          <EntityProperties />
+          {/* Contains entity explorer & widgets library along with a switcher*/}
+          <Explorer />
+        </div>
 
         {/* Libraries */}
-        {props.sideNavMode === SideNavMode.Libraries && <JSDependencies />}
+        <div
+          className={classNames({
+            hidden: active && props.sideNavMode !== SideNavMode.Libraries,
+          })}
+        >
+          <JSDependencies />
+        </div>
 
         {/* Datasources */}
-        {props.sideNavMode === SideNavMode.DataSources && <Datasources />}
+        <div
+          className={classNames({
+            hidden: active && props.sideNavMode !== SideNavMode.DataSources,
+          })}
+        >
+          <Datasources />
+        </div>
       </div>
       {/* RESIZER */}
       <div
