@@ -16,6 +16,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
@@ -30,6 +31,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
@@ -48,6 +50,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -128,10 +131,12 @@ import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -185,6 +190,9 @@ public class ApplicationServiceCETest {
 
     @Autowired
     ActionCollectionService actionCollectionService;
+
+    @Autowired
+    CustomJSLibService customJSLibService;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -345,6 +353,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getColor()).isNotEmpty();
                     assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
+                    assertThat(application.getCollapseInvisibleWidgets()).isEqualTo(TRUE);
 
                     List<PermissionGroup> permissionGroups = tuple2.getT3();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -2428,6 +2437,50 @@ public class ApplicationServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void publishApplication_withPageIconSet_success() {
+        Application testApplication = new Application();
+        String appName = "ApplicationServiceTest Publish Application Page Icon";
+        testApplication.setName(appName);
+        testApplication =  applicationPageService.createApplication(testApplication, workspaceId).block();
+
+        PageDTO page = new PageDTO();
+        page.setName("Page2");
+        page.setIcon("flight");
+        page.setApplicationId(testApplication.getId());
+        page = applicationPageService.createPage(page).block();
+
+        Mono<Application> applicationMono = applicationPageService.publish(testApplication.getId(), true);
+
+        Mono<List<NewPage>> applicationPagesMono = applicationMono
+                .map(application -> application.getPages())
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
+                .collectList();
+
+        StepVerifier
+                .create(Mono.zip(applicationMono, applicationPagesMono))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    List<NewPage> pages = tuple.getT2();
+
+                    assertThat(application).isNotNull();
+                    assertThat(application.getId()).isNotNull();
+                    assertThat(application.getName()).isEqualTo(appName);
+                    assertThat(application.getPages()).hasSize(2);
+                    assertThat(application.getPublishedPages()).hasSize(2);
+
+                    assertThat(pages).hasSize(2);
+                    NewPage newPage = pages.get(1);
+                    assertThat(newPage.getUnpublishedPage().getName()).isEqualTo("Page2");
+                    assertThat(newPage.getUnpublishedPage().getName()).isEqualTo(newPage.getPublishedPage().getName());
+                    assertThat(newPage.getUnpublishedPage().getIcon()).isEqualTo("flight");
+                    assertThat(newPage.getUnpublishedPage().getIcon()).isEqualTo(newPage.getPublishedPage().getIcon());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void deleteUnpublishedPageFromApplication() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application Delete Page";
@@ -2588,6 +2641,12 @@ public class ApplicationServiceCETest {
         testApplication.setName(appName);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
+                    CustomJSLib jsLib = new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version",
+                            "defs");
+                    return customJSLibService.addJSLibToApplication(application.getId(), jsLib, null, false)
+                            .then(applicationService.getById(application.getId()));
+                })
+                .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
                     page.setApplicationId(application.getId());
@@ -2626,6 +2685,11 @@ public class ApplicationServiceCETest {
                         }
                     }
                     assertThat(isFound).isTrue();
+
+                    assertEquals(1, viewApplication.getPublishedCustomJSLibs().size());
+                    CustomJSLib jsLib = new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version",
+                            "defs");
+                    assertEquals(getDTOFromCustomJSLib(jsLib), viewApplication.getPublishedCustomJSLibs().toArray()[0]);
                 })
                 .verifyComplete();
     }
@@ -2802,6 +2866,7 @@ public class ApplicationServiceCETest {
                 .flatMap(application -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page2");
+                    testPage.setIcon("flight");
                     testPage.setApplicationId(application.getId());
                     return applicationPageService.createPage(testPage)
                             .then(Mono.just(application));
@@ -2809,6 +2874,7 @@ public class ApplicationServiceCETest {
                 .flatMap(application -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page3");
+                    testPage.setIcon("bag");
                     testPage.setApplicationId(application.getId());
                     return applicationPageService.createPage(testPage)
                             .then(Mono.just(application));
@@ -2816,6 +2882,7 @@ public class ApplicationServiceCETest {
                 .flatMap(application -> {
                     PageDTO testPage = new PageDTO();
                     testPage.setName("Page4");
+                    testPage.setIcon("bus");
                     testPage.setApplicationId(application.getId());
                     return applicationPageService.createPage(testPage);
                 })
@@ -2831,8 +2898,10 @@ public class ApplicationServiceCETest {
                     assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toList());
                     List<String> slugNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getSlug()).collect(Collectors.toList());
+                    List<String> pageIconNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getIcon()).collect(Collectors.toList());
                     assertThat(pageNames).containsExactly("Page1", "Page2", "Page3", "Page4");
                     assertThat(slugNames).containsExactly("page1", "page2", "page3", "page4");
+                    assertThat(pageIconNames).containsExactly(null, "flight", "bag", "bus");
                 })
                 .verifyComplete();
     }

@@ -32,17 +32,20 @@ describe("Navigate To feature", () => {
       .contains("Query Params")
       .siblings()
       .find(".CodeEditorTarget")
-      .then(($el) => cy.updateCodeInput($el, "{{{ test: '123' }}}"));
-    agHelper.ClickButton("Submit");
-    cy.url().should("include", "a=b");
-    cy.url().should("include", "test=123");
-    ee.SelectEntityByName("Page1");
-    deployMode.DeployApp();
-    agHelper.ClickButton("Submit");
-    cy.get(".bp3-heading").contains("This page seems to be blank");
-    cy.url().should("include", "a=b");
-    cy.url().should("include", "test=123");
-    deployMode.NavigateBacktoEditor();
+      .then(($el) => {
+        cy.updateCodeInput($el, "{{{ test: '123' }}}");
+        agHelper.Sleep(2000);
+        agHelper.ClickButton("Submit");
+        cy.url().should("include", "a=b");
+        cy.url().should("include", "test=123");
+        ee.SelectEntityByName("Page1");
+        deployMode.DeployApp();
+        agHelper.ClickButton("Submit");
+        cy.get(".bp3-heading").contains("This page seems to be blank");
+        cy.url().should("include", "a=b");
+        cy.url().should("include", "test=123");
+        deployMode.NavigateBacktoEditor();
+      });
   });
 
   it("2. Gives error message when invalid word is entered in the url tab of navigate to", () => {

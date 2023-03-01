@@ -71,6 +71,9 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_LAYOUT,
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
+  // Meta Widgets
+  ReduxActionTypes.MODIFY_META_WIDGETS,
+  ReduxActionTypes.DELETE_META_WIDGETS,
   // Widget Meta
   ReduxActionTypes.SET_META_PROP_AND_EVAL,
   ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,

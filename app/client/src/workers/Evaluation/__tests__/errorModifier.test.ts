@@ -130,9 +130,11 @@ describe("Test error modifier", () => {
     error.name = "TypeError";
     error.message = "Api2.run is not a function";
     const result = errorModifier.run(error);
-    expect(result).toEqual(
-      "Found a reference to Api2.run() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to Api2.run() and try again.",
-    );
+    expect(result).toEqual({
+      name: "ValidationError",
+      message:
+        "Found a reference to Api2.run() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to Api2.run() and try again.",
+    });
   });
 
   it("TypeError for undefined Api in sync field ", () => {
@@ -140,7 +142,10 @@ describe("Test error modifier", () => {
     error.name = "TypeError";
     error.message = "Api1.run is not a function";
     const result = errorModifier.run(error);
-    expect(result).toEqual("TypeError: Api1.run is not a function");
+    expect(result).toEqual({
+      name: "TypeError",
+      message: "Api1.run is not a function",
+    });
   });
 
   it("ReferenceError for platform function in sync field", () => {
@@ -148,9 +153,11 @@ describe("Test error modifier", () => {
     error.name = "ReferenceError";
     error.message = "storeValue is not defined";
     const result = errorModifier.run(error);
-    expect(result).toEqual(
-      "Found a reference to storeValue() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to storeValue() and try again.",
-    );
+    expect(result).toEqual({
+      name: "ValidationError",
+      message:
+        "Found a reference to storeValue() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to storeValue() and try again.",
+    });
   });
 
   it("ReferenceError for undefined function in sync field", () => {
@@ -158,6 +165,9 @@ describe("Test error modifier", () => {
     error.name = "ReferenceError";
     error.message = "storeValue2 is not defined";
     const result = errorModifier.run(error);
-    expect(result).toEqual("ReferenceError: storeValue2 is not defined");
+    expect(result).toEqual({
+      name: error.name,
+      message: error.message,
+    });
   });
 });

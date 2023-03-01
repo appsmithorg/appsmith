@@ -198,4 +198,35 @@ public class NewPageServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails("api_user")
+    public void findApplicationPage_CheckPageIcon_IsValid(){
+        String randomId = UUID.randomUUID().toString();
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + randomId);
+        Mono<PageDTO> applicationPageDTOMono = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> {
+                    Application application = new Application();
+                    application.setName("app_" + randomId);
+                    return applicationPageService.createApplication(application, createdWorkspace.getId());
+                })
+                .flatMap(application -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("page_" + randomId);
+                    pageDTO.setIcon("flight");
+                    pageDTO.setApplicationId(application.getId());
+                    return applicationPageService.createPage(pageDTO);
+                })
+                .flatMap(pageDTO ->
+                                applicationPageService.getPageByBranchAndDefaultPageId(pageDTO.getId(), null, false)
+                );
+
+        StepVerifier.create(applicationPageDTOMono).assertNext(applicationPageDTO -> {
+                    assertThat(applicationPageDTO.getApplicationId()).isNotNull();
+                    assertThat(applicationPageDTO.getName()).isEqualTo("page_" + randomId);
+                    assertThat(applicationPageDTO.getIcon()).isEqualTo("flight");
+                })
+                .verifyComplete();
+    }
+
 }

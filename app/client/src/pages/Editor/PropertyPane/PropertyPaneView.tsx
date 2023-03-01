@@ -179,16 +179,11 @@ function PropertyPaneView(
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
-  const {
-    currentWidgetName,
-    isDeprecated,
-    widgetReplacedWith,
-  } = isWidgetDeprecated(widgetProperties.type);
-  // generate messages
-  const deprecationMessage = buildDeprecationWidgetMessage(
-    currentWidgetName,
-    widgetReplacedWith,
+  const { isDeprecated, widgetReplacedWith } = isWidgetDeprecated(
+    widgetProperties.type,
   );
+  // generate messages
+  const deprecationMessage = buildDeprecationWidgetMessage(widgetReplacedWith);
 
   const isContentConfigAvailable = WidgetFactory.getWidgetPropertyPaneContentConfig(
     widgetProperties.type,

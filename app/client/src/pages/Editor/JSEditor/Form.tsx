@@ -126,12 +126,15 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   useEffect(() => {
     if (hash) {
+      // Hash here could mean to navigate (set cursor/focus) to a particular function
+      // If the hash has a function name in this JS object, we will set that
       const actionName = hash.substring(1);
       const position = getJSPropertyLineFromName(
         currentJSCollection.body,
         actionName,
       );
       if (position) {
+        // Resetting the focus and position based on the cmd click navigation
         dispatch(setFocusableInputField(`${currentJSCollection.name}.body`));
         dispatch(
           setCodeEditorCursorAction(
@@ -140,7 +143,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
             CursorPositionOrigin.Navigation,
           ),
         );
-        history.replace(window.location.pathname);
+        // Replace to remove the hash and set back the original URL
+        history.replace(window.location.pathname + window.location.search);
       }
     }
   }, [hash]);

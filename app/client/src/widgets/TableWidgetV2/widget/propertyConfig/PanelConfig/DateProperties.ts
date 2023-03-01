@@ -1,22 +1,15 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
-import {
-  allowedFirstDayOfWeekRange,
-  showByColumnType,
-} from "../../propertyUtils";
+import { allowedFirstDayOfWeekRange } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export default {
   sectionName: "Date Settings",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    if (showByColumnType(props, propertyPath, [ColumnTypes.IMAGE], true)) {
-      return false;
-    } else {
-      const columnType = get(props, `${propertyPath}.columnType`, "");
-      const isEditable = get(props, `${propertyPath}.isEditable`, "");
-      return columnType !== ColumnTypes.DATE || !isEditable;
-    }
+    const columnType = get(props, `${propertyPath}.columnType`, "");
+    const isEditable = get(props, `${propertyPath}.isEditable`, "");
+    return columnType !== ColumnTypes.DATE || !isEditable;
   },
   children: [
     {

@@ -270,17 +270,18 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("10. Verify application does not break when user runs the query with wrong table name", function() {
     ee.SelectEntityByName("DropProductlines", "Queries/JS");
-    dataSources.RunQuery(false);
-    agHelper
-      .GetText(dataSources._queryError)
-      .then(($errorText) =>
-        expect($errorText).to.eq("Unknown table 'fakeapi.productlines'"),
-      );
+    dataSources.RunQuery(false, false);
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains("Unknown table 'fakeapi.productlines'");
+    });
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("11. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409);//Customers page & queries still active
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Customers page & queries still active
   });
 
   function GenerateCRUDNValidateDeployPage(

@@ -16,6 +16,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -69,8 +70,9 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         }
     }
 
-    private Mono<Void> checkInstanceSchemaVersion() {
+    private Mono<Config> checkInstanceSchemaVersion() {
         return configService.getByName(Appsmith.INSTANCE_SCHEMA_VERSION)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.SCHEMA_VERSION_NOT_FOUND_ERROR)))
                 .onErrorMap(AppsmithException.class, e -> new AppsmithException(AppsmithError.SCHEMA_VERSION_NOT_FOUND_ERROR))
                 .flatMap(config -> {
                     if (CommonConfig.LATEST_INSTANCE_SCHEMA_VERSION == config.getConfig().get("value")) {
@@ -90,8 +92,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
                     SpringApplication.exit(applicationContext, () -> 1);
                     System.exit(1);
-                })
-                .then();
+                });
     }
 
     private AppsmithException populateSchemaMismatchError(Integer currentInstanceSchemaVersion) {
@@ -101,7 +102,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
         // Keep adding version numbers that brought in breaking instance schema migrations here
         switch (currentInstanceSchemaVersion) {
-            // Example, we expect that in v1.8.14, all instances will have been migrated to instanceSchemaVer 2
+            // Example, we expect that in v1.9.2, all instances will have been migrated to instanceSchemaVer 2
             case 1:
                 versions.add("v1.9.2");
                 docs.add("https://docs.appsmith.com/help-and-support/troubleshooting-guide/deployment-errors#server-shuts-down-with-schema-mismatch-error");
@@ -128,6 +129,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                         .create(baseUrl + "/api/v1/installations")
                         .post()
                         .body(BodyInserters.fromValue(Map.of("key", instanceId)))
+                        .headers(httpHeaders -> httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/json"))
                         .exchange())
                 .flatMap(clientResponse -> clientResponse.toEntity(new ParameterizedTypeReference<ResponseDTO<String>>() {
                 }))
@@ -157,8 +159,11 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                     log.debug("RTS health check succeeded");
                     this.isRtsAccessible = true;
                 })
-                .doOnError(errorSignal -> log.debug("RTS health check failed with error: \n{}", errorSignal.getMessage()))
-                .then();
+                .onErrorResume(errorSignal -> {
+                    log.debug("RTS health check failed with error: \n{}", errorSignal.getMessage());
+                    return Mono.empty();
+
+                }).then();
     }
 
     private void printReady() {

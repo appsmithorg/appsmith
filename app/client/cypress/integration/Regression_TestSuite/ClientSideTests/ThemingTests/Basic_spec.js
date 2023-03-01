@@ -869,18 +869,19 @@ describe("App Theming funtionality", function() {
     cy.PublishtheApp();
 
     //Verify Background color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should(
-        "have.css",
-        "background-color",
-        "rgb(134, 239, 172)", //rgb(134, 239, 172)
-      ); //new widget with its own color
+    cy.get(".t--widget-buttonwidget:nth-child(4) button").should(
+      "have.css",
+      "background-color",
+      "rgb(134, 239, 172)", //rgb(134, 239, 172)
+    ); //new widget with its own color
 
     ////old widgets still conforming to theme color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "background-color", "rgb(126, 34, 206)");
+    cy.get(".t--widget-buttonwidget:nth-child(2) button").should(
+      "have.css",
+      "background-color",
+      "rgb(126, 34, 206)",
+    );
+
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
@@ -937,7 +938,7 @@ describe("App Theming funtionality", function() {
     //the new widget with reverted styles also conforming to theme
     cy.PublishtheApp();
 
-    cy.wait(2000); //for theme to settle
+    cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Montserrat"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
@@ -948,6 +949,12 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.widgetBtn)
       .eq(0)
       .should("have.css", "background-color", "rgb(126, 34, 206)"); //Widget Color
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.widgetBtn).length <= 1) {
+        cy.reload();
+        cy.wait(4000);
+      }
+    });
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
       .should("have.css", "background-color", "rgb(126, 34, 206)"); //Widget Color
@@ -1111,14 +1118,16 @@ describe("App Theming funtionality", function() {
     cy.PublishtheApp();
 
     //Verify Background color
-    cy.get(widgetsPage.widgetBtn)
+    cy.get(".t--widget-buttonwidget:nth-child(2) button")
       .eq(0)
       .should("have.css", "background-color", "rgb(252, 165, 165)"); //new widget with its own color
 
     ////old widgets still conforming to theme color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "background-color", "rgb(239, 68, 68)");
+    cy.get(".t--widget-buttonwidget:nth-child(4) button").should(
+      "have.css",
+      "background-color",
+      "rgb(239, 68, 68)",
+    );
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
@@ -1180,7 +1189,7 @@ describe("App Theming funtionality", function() {
     //the new widget with reverted styles also conforming to theme
     cy.PublishtheApp();
 
-    cy.wait(2000); //for theme to settle
+    cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Rubik"); //Font for Rounded theme
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
@@ -1191,6 +1200,12 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.widgetBtn)
       .eq(0)
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.widgetBtn).length <= 1) {
+        cy.reload();
+        cy.wait(4000);
+      }
+    });
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
       .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color

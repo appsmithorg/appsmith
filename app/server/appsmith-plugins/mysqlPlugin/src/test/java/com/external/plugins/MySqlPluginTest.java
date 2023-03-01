@@ -9,12 +9,14 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MySQLPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -38,6 +40,7 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +54,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static java.lang.Boolean.TRUE;
+import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -59,6 +64,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static reactor.core.publisher.Mono.zip;
 
 @Slf4j
 @Testcontainers
@@ -893,20 +900,25 @@ public class MySqlPluginTest {
                         .blockLast(); // wait until completion of all the queries
 
                 /* Test numeric types */
-                testExecute(query_select_from_test_numeric_types);
+                testExecute(query_select_from_test_numeric_types, null);
                 /* Test date time types */
-                testExecute(query_select_from_test_date_time_types);
+                testExecute(query_select_from_test_date_time_types, null);
                 /* Test data types */
-                testExecute(query_select_from_test_data_types);
-                /* Test data types */
-                testExecute(query_select_from_test_json_data_type);
-                /* Test data types */
-                testExecute(query_select_from_test_geometry_types);
+                testExecute(query_select_from_test_data_types, null);
+                /* Test json type */
+                /**
+                 * TBD: add check for other data types as well.
+                 * Tracked here: https://github.com/appsmithorg/appsmith/issues/20069
+                 */
+                String expectedJsonResult = "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
+                testExecute(query_select_from_test_json_data_type, expectedJsonResult);
+                /* Test geometry types */
+                testExecute(query_select_from_test_geometry_types, null);
 
                 return;
         }
 
-        private void testExecute(String query) {
+        private void testExecute(String query, String expectedResult) {
                 Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
                 ActionConfiguration actionConfiguration = new ActionConfiguration();
                 actionConfiguration.setBody(query);
@@ -918,6 +930,9 @@ public class MySqlPluginTest {
                                 assertNotNull(result);
                                 assertTrue(result.getIsExecutionSuccess());
                                 assertNotNull(result.getBody());
+                                if (expectedResult != null) {
+                                        assertEquals(expectedResult, result.getBody().toString());
+                                }
                         })
                         .verifyComplete();
         }
@@ -1455,5 +1470,81 @@ public class MySqlPluginTest {
 
                         })
                         .verifyComplete();
+        }
+
+        @Test
+        public void testDatasourceDestroy() {
+                dsConfig = createDatasourceConfiguration();
+                Mono<ConnectionPool> connPoolMonoCache = pluginExecutor.datasourceCreate(dsConfig).cache();
+                Mono<DatasourceTestResult> testConnResultMono = connPoolMonoCache
+                        .flatMap(conn -> pluginExecutor.testDatasource(conn));
+                Mono<Tuple2<ConnectionPool, DatasourceTestResult>> zipMono = zip(connPoolMonoCache, testConnResultMono);
+                StepVerifier.create(zipMono)
+                        .assertNext(tuple2 -> {
+                                DatasourceTestResult testDsResult = tuple2.getT2();
+                                assertEquals(0, testDsResult.getInvalids().size());
+
+                                ConnectionPool conn = tuple2.getT1();
+                                pluginExecutor.datasourceDestroy(conn);
+                                try {
+                                    /**
+                                     * We need to wait a few seconds before the next check because
+                                     * `datasourceDestroy` for MySQL Plugin is a non-blocking operation scheduled on
+                                     * a separate thread. We are hoping that by the time sleep ends, the other
+                                     * thread has finished execution.
+                                     */
+                                        sleep(5000);
+                                } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                }
+                                assertTrue(conn.isDisposed());
+                        })
+                        .verifyComplete();
+        }
+
+        @Test
+        public void testExecuteCommon_queryWithComments_callValidationCallsAfterRemovingComments(){
+                MySqlPlugin.MySqlPluginExecutor spyPlugin = spy(pluginExecutor);
+
+                DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+                ConnectionPool dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig).block();
+                ActionConfiguration actionConfiguration = new ActionConfiguration();
+                actionConfiguration
+                        .setBody("SELECT id FROM users WHERE -- IS operator\nid = 1 limit 1;");
+
+                List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+                pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+                actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+                HashMap<String, Object> requestData = new HashMap<>();
+
+                Mono<ActionExecutionResult> resultMono = spyPlugin.executeCommon(
+                        dsConnectionMono,
+                        actionConfiguration,
+                        TRUE,
+                        null,
+                        null,
+                        requestData
+                );
+
+                StepVerifier.create(resultMono)
+                        .assertNext(result -> {
+                        assertTrue(result.getIsExecutionSuccess());
+
+                        verify(spyPlugin).isIsOperatorUsed("SELECT id FROM users WHERE \nid = 1 limit 1;");
+
+                        verify(spyPlugin).getIsSelectOrShowOrDescQuery("SELECT id FROM users WHERE \nid = 1 limit 1;");
+
+                        })
+                        .verifyComplete();
+        }
+
+        @Test
+        public void verifyUniquenessOfMySQLPluginErrorCode() {
+                assert (Arrays.stream(MySQLPluginError.values()).map(MySQLPluginError::getAppErrorCode).distinct().count() == MySQLPluginError.values().length);
+
+                assert (Arrays.stream(MySQLPluginError.values()).map(MySQLPluginError::getAppErrorCode)
+                        .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-MYS"))
+                        .collect(Collectors.toList()).size() == 0);
+
         }
 }

@@ -47,6 +47,7 @@ type SimilarTemplatesProp = {
   onClick: (template: TemplateInterface) => void;
   onFork?: (template: TemplateInterface) => void;
   className?: string;
+  isForkingEnabled: boolean;
 };
 
 function SimilarTemplates(props: SimilarTemplatesProp) {
@@ -73,6 +74,7 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
         >
           {props.similarTemplates.map((template) => (
             <Template
+              isForkingEnabled={props.isForkingEnabled}
               key={template.id}
               onClick={() => props.onClick(template)}
               onForkTemplateClick={props.onFork}

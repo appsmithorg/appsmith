@@ -72,25 +72,6 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
-/*
-  Don't use buttonHoverActiveStyles in a nested function it won't work -
-
-  const buttonHoverActiveStyles = css ``
-
-  const Button = styled.button`
-  // won't work
-    ${({ buttonColor, theme }) => {
-      &:hover, &:active {
-        ${buttonHoverActiveStyles}
-      }
-    }}
-
-  // will work
-  &:hover, &:active {
-    ${buttonHoverActiveStyles}
-  }`
-*/
-
 const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
 height: 100%;
 background-image: none !important;
@@ -408,6 +389,10 @@ function RecaptchaV3Component(
   );
 }
 
+const Wrapper = styled.div`
+  height: 100%;
+`;
+
 function BtnWrapper(
   props: {
     children: any;
@@ -419,14 +404,14 @@ function BtnWrapper(
 ) {
   if (!props.googleRecaptchaKey) {
     return (
-      <div
+      <Wrapper
         className={props.className}
         onClick={(e: React.MouseEvent<HTMLElement>) =>
           props.onClick && !props.isLoading && props.onClick(e)
         }
       >
         {props.children}
-      </div>
+      </Wrapper>
     );
   } else {
     const handleError = (

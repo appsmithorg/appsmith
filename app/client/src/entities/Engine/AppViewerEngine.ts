@@ -17,16 +17,17 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
-import { call, put, select } from "redux-saga/effects";
+import { call, put } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
-import FeatureFlags from "entities/FeatureFlags";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import { waitForSegmentInit } from "ce/sagas/userSagas";
+import {
+  waitForSegmentInit,
+  waitForFetchUserSuccess,
+} from "ce/sagas/userSagas";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -94,14 +95,9 @@ export default class AppViewerEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
     ];
 
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    if (featureFlags.CUSTOM_JS_LIBRARY) {
-      initActionsCalls.push(fetchJSLibraries(applicationId));
-      successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
-      failureActionEffects.push(
-        ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
-      );
-    }
+    initActionsCalls.push(fetchJSLibraries(applicationId));
+    successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
+    failureActionEffects.push(ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED);
 
     const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
       initActionsCalls,
@@ -114,6 +110,7 @@ export default class AppViewerEngine extends AppEngine {
         `Unable to fetch actions for the application: ${applicationId}`,
       );
 
+    yield call(waitForFetchUserSuccess);
     yield call(waitForSegmentInit, true);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }

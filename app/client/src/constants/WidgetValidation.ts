@@ -21,7 +21,7 @@ export enum ValidationTypes {
 export type ValidationResponse = {
   isValid: boolean;
   parsed: any;
-  messages?: string[];
+  messages?: Array<Error>;
   transformed?: any;
 };
 
@@ -403,7 +403,6 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
 
   // Identifiers added to worker scope by Appsmith
   evaluationVersion: "evaluationVersion",
-  ALLOW_ASYNC: "ALLOW_ASYNC",
-  IS_ASYNC: "IS_ASYNC",
-  TRIGGER_COLLECTOR: "TRIGGER_COLLECTOR",
+  $isDataField: "$isDataField",
+  $isAsync: "$isAsync",
 };

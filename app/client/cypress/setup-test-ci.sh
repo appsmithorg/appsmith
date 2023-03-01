@@ -18,6 +18,7 @@ touch ./docker/localhost ./docker/localhost.pem
 echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/localhost.pem
 echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
 
+
 sleep 10
 
 echo "Checking if the containers have started"
@@ -46,6 +47,8 @@ done
 echo "Checking if client and server have started"
 ps -ef |grep java 2>&1
 ps -ef |grep  serve 2>&1
+
+echo "status code: $status_code"
 
 if [ "$status_code" -eq "502" ]; then
   echo "Unable to connect to server"

@@ -7,6 +7,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
   DataTreeEntity,
+  DataTreeJSAction,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -14,6 +15,7 @@ import {
 import { PrivateWidgets } from "entities/DataTree/types";
 import {
   addErrorToEntityProperty,
+  convertJSFunctionsToString,
   DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
@@ -25,7 +27,7 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
-import _, { flatten } from "lodash";
+import _, { flatten, set } from "lodash";
 import {
   overrideWidgetProperties,
   findDatatype,
@@ -42,6 +44,7 @@ import { WidgetConfiguration } from "widgets/constants";
 import { createNewEntity } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
+import { PluginType } from "entities/Action";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -450,12 +453,6 @@ describe("4. translateDiffEvent", () => {
 
     const expectedTranslations: DataTreeDiff[] = [
       {
-        event: DataTreeDiffEvent.DELETE,
-        payload: {
-          propertyPath: "JsObject.myFun1.data",
-        },
-      },
-      {
         event: DataTreeDiffEvent.EDIT,
         payload: {
           propertyPath: "JsObject.myFun1",
@@ -803,7 +800,7 @@ describe("7. Test addErrorToEntityProperty method", () => {
   it("Add error to dataTreeEvaluator.evalProps", () => {
     const dataTreeEvaluator = new DataTreeEvaluator({});
     const error = {
-      errorMessage: "some error",
+      errorMessage: { name: "", message: "some error" },
       errorType: PropertyEvaluationErrorType.VALIDATION,
       raw: "undefined",
       severity: Severity.ERROR,
@@ -820,4 +817,214 @@ describe("7. Test addErrorToEntityProperty method", () => {
       dataTreeEvaluator.evalProps.Api1.__evaluation__?.errors.data[0],
     ).toEqual(error);
   });
+});
+
+describe("convertJSFunctionsToString", () => {
+  const JSObject1MyFun1 = new String('() => {\n  return "name";\n}');
+  set(JSObject1MyFun1, "data", {});
+  const JSObject2MyFun1 = new String("() => {}");
+  set(JSObject2MyFun1, "data", {});
+  const JSObject2MyFun2 = new String("async () => {}");
+  set(JSObject2MyFun2, "data", {});
+
+  const jsCollections: Record<string, DataTreeJSAction> = {
+    JSObject1: {
+      myFun1: JSObject1MyFun1,
+      body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+
+      meta: {
+        myFun1: {
+          arguments: [],
+          isAsync: false,
+          confirmBeforeExecute: false,
+        },
+      },
+      name: "JSObject1",
+      actionId: "63ef4cb1a01b764626f2a6e5",
+      pluginType: PluginType.JS,
+      bindingPaths: {
+        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      reactivePaths: {
+        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+        {
+          key: "myFun1",
+        },
+      ],
+      variables: [],
+      dependencyMap: {
+        body: ["myFun1"],
+      },
+    },
+    JSObject2: {
+      myVar1: "[]",
+      myVar2: "{}",
+      myFun1: JSObject2MyFun1,
+      myFun2: JSObject2MyFun2,
+      body:
+        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+
+      meta: {
+        myFun1: {
+          arguments: [],
+          isAsync: false,
+          confirmBeforeExecute: false,
+        },
+        myFun2: {
+          arguments: [],
+          isAsync: true,
+          confirmBeforeExecute: false,
+        },
+      },
+      name: "JSObject2",
+      actionId: "63f78437d1a4ef55755952f1",
+      pluginType: PluginType.JS,
+      bindingPaths: {
+        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myVar1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myVar2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      reactivePaths: {
+        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myVar1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myVar2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+        {
+          key: "myVar1",
+        },
+        {
+          key: "myVar2",
+        },
+        {
+          key: "myFun1",
+        },
+        {
+          key: "myFun2",
+        },
+      ],
+      variables: ["myVar1", "myVar2"],
+      dependencyMap: {
+        body: ["myFun1", "myFun2"],
+      },
+    },
+  };
+  const expectedResult = {
+    JSObject1: {
+      myFun1: '() => {\n  return "name";\n}',
+      body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
+      ENTITY_TYPE: "JSACTION",
+      "myFun1.data": {},
+      meta: {
+        myFun1: {
+          arguments: [],
+          isAsync: false,
+          confirmBeforeExecute: false,
+        },
+      },
+      name: "JSObject1",
+      actionId: "63ef4cb1a01b764626f2a6e5",
+      pluginType: PluginType.JS,
+      bindingPaths: {
+        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      reactivePaths: {
+        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+        {
+          key: "myFun1",
+        },
+      ],
+      variables: [],
+      dependencyMap: {
+        body: ["myFun1"],
+      },
+    },
+    JSObject2: {
+      myVar1: "[]",
+      myVar2: "{}",
+      myFun1: "() => {}",
+      myFun2: "async () => {}",
+      body:
+        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      ENTITY_TYPE: "JSACTION",
+      "myFun1.data": {},
+      "myFun2.data": {},
+      meta: {
+        myFun1: {
+          arguments: [],
+          isAsync: false,
+          confirmBeforeExecute: false,
+        },
+        myFun2: {
+          arguments: [],
+          isAsync: true,
+          confirmBeforeExecute: false,
+        },
+      },
+      name: "JSObject2",
+      actionId: "63f78437d1a4ef55755952f1",
+      pluginType: PluginType.JS,
+      bindingPaths: {
+        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myVar1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myVar2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      reactivePaths: {
+        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myVar1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myVar2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        myFun2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+        {
+          key: "myVar1",
+        },
+        {
+          key: "myVar2",
+        },
+        {
+          key: "myFun1",
+        },
+        {
+          key: "myFun2",
+        },
+      ],
+      variables: ["myVar1", "myVar2"],
+      dependencyMap: {
+        body: ["myFun1", "myFun2"],
+      },
+    },
+  };
+  const actualResult = convertJSFunctionsToString(jsCollections);
+
+  expect(expectedResult).toStrictEqual(actualResult);
 });

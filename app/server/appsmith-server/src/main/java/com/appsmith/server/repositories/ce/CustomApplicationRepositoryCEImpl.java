@@ -275,4 +275,11 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return super.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldValueMap, branchName,
                 branchNamePath, permission);
     }
+
+    @Override
+    public Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        Criteria applicationNameCriteria = where(fieldName(QApplication.application.name)).is(applicationName);
+        return queryOne(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
+    }
 }

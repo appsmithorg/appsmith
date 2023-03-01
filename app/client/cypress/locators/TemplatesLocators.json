@@ -6,6 +6,7 @@
     "templateViewForkButton": "[data-cy='template-fork-button']",
     "startFromTemplateCard": "[data-cy=start-from-template]",
     "templateDialogBox": "[data-testid='t--dialog-component']",
-    "selectAllPages": "//span[text()='Select all']"
+    "selectAllPages": "//span[text()='Select all']",
+    "closeButton":"[name='close-x']"
 
 }
