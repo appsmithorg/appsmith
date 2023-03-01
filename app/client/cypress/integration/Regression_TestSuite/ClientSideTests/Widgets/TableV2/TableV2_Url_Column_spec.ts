@@ -1,7 +1,7 @@
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
-  table = ObjectsRegistry.TableV2;
+  table = ObjectsRegistry.Table;
 
 describe("16108 - Verify Table URL column bugs", function() {
   before(() => {
@@ -11,20 +11,20 @@ describe("16108 - Verify Table URL column bugs", function() {
   });
 
   it("Verify click on URL column with display text takes to the correct link", function() {
-    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+    table.ReadTableRowColumnDataV2(0, 0).then(($cellData) => {
       expect($cellData).to.eq("Profile pic");
     });
 
-    table.ReadTableRowColumnData(3, 0).then(($cellData) => {
+    table.ReadTableRowColumnDataV2(3, 0).then(($cellData) => {
       expect($cellData).to.eq("Profile pic");
     });
 
-    table.AssertURLColumnNavigation(
+    table.AssertURLColumnNavigationV2(
       0,
       0,
       "https://randomuser.me/api/portraits/med/women/39.jpg",
     );
-    table.AssertURLColumnNavigation(
+    table.AssertURLColumnNavigationV2(
       3,
       0,
       "https://randomuser.me/api/portraits/med/men/52.jpg",

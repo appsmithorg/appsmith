@@ -63,7 +63,7 @@ export class Table {
   _tableRowColumnData = (rowNum: number, colNum: number) =>
     this._tableRow(rowNum, colNum) + ` div div`;
   _tableRowColumnDataV2 = (rowNum: number, colNum: number) =>
-    this._tableRow(rowNum, colNum) + ` .cell-wrapper`;
+    this._tableRowV2(rowNum, colNum) + ` .cell-wrapper`;
   _tableLoadStateDelete =
     this._tableRow(0, 0) + ` div div button span:contains('Delete')`;
   _tableRowImageColumnData = (rowNum: number, colNum: number) =>
@@ -125,7 +125,7 @@ export class Table {
   }
 
   public WaitUntilTableLoadV2() {
-    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0, 2000), {
+    cy.waitUntil(() => this.ReadTableRowColumnDataV2(0, 0, 2000), {
       errorMsg: "Table is not populated",
       timeout: 10000,
       interval: 2000,
@@ -146,8 +146,32 @@ export class Table {
       );
   }
 
+  public AssertTableLoadedV2(rowIndex = 0, colIndex = 0) {
+    this.agHelper
+      .GetElement(this._tableRowColumnDataV2(rowIndex, colIndex), 30000)
+      .waitUntil(($ele) =>
+        cy
+          .wrap($ele)
+          .children("span")
+          .should("not.be.empty"),
+      );
+  }
   public WaitForTableEmpty() {
     cy.waitUntil(() => cy.get(this._tableEmptyColumnData), {
+      errorMsg: "Table is populated when not expected",
+      timeout: 10000,
+      interval: 2000,
+    }).then(($children) => {
+      cy.wrap($children)
+        .children()
+        .should("have.length", 0); //or below
+      //expect($children).to.have.lengthOf(0)
+      this.agHelper.Sleep(500);
+    });
+  }
+
+  public WaitForTableEmptyV2() {
+    cy.waitUntil(() => cy.get(this._tableEmptyColumnDataV2), {
       errorMsg: "Table is populated when not expected",
       timeout: 10000,
       interval: 2000,
@@ -180,6 +204,17 @@ export class Table {
       .invoke("text");
   }
 
+  public ReadTableRowColumnDataV2(
+    rowNum: number,
+    colNum: number,
+    timeout = 1000,
+  ) {
+    //timeout can be sent higher values incase of larger tables
+    this.agHelper.Sleep(timeout); //Settling time for table!
+    return cy.get(this._tableRowColumnDataV2(rowNum, colNum)).invoke("text");
+  }
+
+
   public AssertTableRowImageColumnIsLoaded(
     rowNum: number,
     colNum: number,
@@ -196,6 +231,16 @@ export class Table {
   public AssertHiddenColumns(columnNames: string[]) {
     columnNames.forEach(($header) => {
       cy.xpath(this._columnHeader($header))
+        .invoke("attr", "class")
+        .then((classes) => {
+          expect(classes).includes("hidden-header");
+        });
+    });
+  }
+
+  public AssertHiddenColumnsV2(columnNames: string[]) {
+    columnNames.forEach(($header) => {
+      cy.xpath(this._columnHeaderV2($header))
         .invoke("attr", "class")
         .then((classes) => {
           expect(classes).includes("hidden-header");
@@ -229,7 +274,7 @@ export class Table {
     cy.get(this._pageNumber)
       .invoke("text")
       .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._nextPage).click();
+    cy.get(this._nextPageV2).click();
     cy.get(this._pageNumber)
       .invoke("text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
@@ -260,7 +305,7 @@ export class Table {
     cy.get(this._pageNumber)
       .invoke("text")
       .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._previousPage).click();
+    cy.get(this._previousPageV2).click();
     cy.get(this._pageNumber)
       .invoke("text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
@@ -281,6 +326,23 @@ export class Table {
       cy.get(this._nextPage).should("have.attr", "disabled");
     }
     if (pageNo == 1) cy.get(this._previousPage).should("have.attr", "disabled");
+  }
+
+  public AssertPageNumberV2(pageNo: number, serverSide: "Off" | "On" = "On") {
+    if (serverSide == "On")
+      cy.get(this._pageNumberServerSidePagination).should(
+        "have.text",
+        Number(pageNo),
+      );
+    else {
+      cy.get(this._pageNumberClientSidePagination).should(
+        "have.value",
+        Number(pageNo),
+      );
+      cy.get(this._previousPageV2).should("have.attr", "disabled");
+      cy.get(this._nextPageV2).should("have.attr", "disabled");
+    }
+    if (pageNo == 1) cy.get(this._previousPageV2).should("have.attr", "disabled");
   }
 
   public AssertSelectedRow(rowNum: number = 0) {
@@ -312,6 +374,27 @@ export class Table {
     this.agHelper.Sleep(); //for select to reflect
   }
 
+  public SelectTableRowV2(rowIndex: number, columnIndex = 0, select = true) {
+    //rowIndex - 0 for 1st row
+    this.agHelper
+      .GetElement(this._tableRowV2(rowIndex, columnIndex))
+      .parent("div")
+      .invoke("attr", "class")
+      .then(($classes: any) => {
+        if (
+          (select && !$classes?.includes("selected-row")) ||
+          (!select && $classes?.includes("selected-row"))
+        )
+          this.agHelper.GetNClick(
+            this._tableRowV2(rowIndex, columnIndex),
+            0,
+            true,
+          );
+      });
+
+    this.agHelper.Sleep(); //for select to reflect
+  }
+
   public AssertSearchText(searchTxt: string) {
     cy.get(this._searchText).should("have.value", searchTxt);
   }
@@ -325,6 +408,13 @@ export class Table {
   public RemoveSearchTextNVerify(cellDataAfterSearchRemoved: string) {
     this.agHelper.GetNClick(this._searchBoxCross);
     this.ReadTableRowColumnData(0, 0).then((aftSearchRemoved: any) => {
+      expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
+    });
+  }
+
+  public RemoveSearchTextNVerifyV2(cellDataAfterSearchRemoved: string) {
+    this.agHelper.GetNClick(this._searchBoxCross);
+    this.ReadTableRowColumnDataV2(0, 0).then((aftSearchRemoved: any) => {
       expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
     });
   }
@@ -375,6 +465,22 @@ export class Table {
       expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
     });
   }
+
+  public RemoveFilterNVerifyV2(
+    cellDataAfterFilterRemoved: string,
+    toClose = true,
+    removeOne = true,
+    index = 0,
+  ) {
+    if (removeOne) this.agHelper.GetNClick(this._removeFilter, index);
+    else this.agHelper.GetNClick(this._clearAllFilter);
+
+    if (toClose) this.CloseFilter();
+    this.ReadTableRowColumnDataV2(0, 0).then((aftFilterRemoved: any) => {
+      expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
+    });
+  }
+
 
   public CloseFilter() {
     this.agHelper.GetNClick(this._filterCloseBtn);
@@ -433,6 +539,23 @@ export class Table {
         this.agHelper.Sleep();
         cy.go(-1);
         this.WaitUntilTableLoad();
+      });
+  }
+
+  public AssertURLColumnNavigationV2(
+    row: number,
+    col: number,
+    expectedURL: string,
+  ) {
+    this.deployMode.StubbingWindow();
+    this.agHelper
+      .GetNClick(this._tableRowColumnDataV2(row, col))
+      .then(($cellData) => {
+        //Cypress.$($cellData).trigger('click');
+        cy.url().should("eql", expectedURL);
+        this.agHelper.Sleep();
+        cy.go(-1);
+        this.WaitUntilTableLoadV2();
       });
   }
 

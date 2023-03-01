@@ -71,6 +71,7 @@ describe("Widget error state", function() {
     _.ee.DragDropWidgetNVerify(WIDGET.TABLE, 150, 300);
     _.ee.SelectEntityByName("Table1", "Widgets");
 
+    _.table.AddColumn("customColumn1");
     _.propPane.OpenTableColumnSettings("customColumn1");
     _.propPane.UpdatePropertyFieldValue("Computed Value", "{{test}}");
 
