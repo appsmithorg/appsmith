@@ -68,7 +68,7 @@ export class EntityExplorer {
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
       .click(ctrlKey ? { ctrlKey } : { multiple: true });
-    this.agHelper.Sleep();//for the selected entity to settle loading!
+    this.agHelper.Sleep(500);
   }
 
   public SelectEntityInModal(
