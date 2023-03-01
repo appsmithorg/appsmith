@@ -105,7 +105,7 @@ export class Table {
   _columnSettings = (columnName: string) =>
     "//input[@placeholder='Column Title'][@value='" +
     columnName +
-    "']/ancestor::div/following-sibling::div[contains(@class, 't--edit-column-btn')]";
+    "']/parent::div/parent::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
   _columnSettingsV2 = (columnName: string) =>
     `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] .t--edit-column-btn`;
   _showPageItemsCount = "div.show-page-items";
@@ -213,7 +213,6 @@ export class Table {
     this.agHelper.Sleep(timeout); //Settling time for table!
     return cy.get(this._tableRowColumnDataV2(rowNum, colNum)).invoke("text");
   }
-
 
   public AssertTableRowImageColumnIsLoaded(
     rowNum: number,
@@ -342,7 +341,8 @@ export class Table {
       cy.get(this._previousPageV2).should("have.attr", "disabled");
       cy.get(this._nextPageV2).should("have.attr", "disabled");
     }
-    if (pageNo == 1) cy.get(this._previousPageV2).should("have.attr", "disabled");
+    if (pageNo == 1)
+      cy.get(this._previousPageV2).should("have.attr", "disabled");
   }
 
   public AssertSelectedRow(rowNum: number = 0) {
@@ -480,7 +480,6 @@ export class Table {
       expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
     });
   }
-
 
   public CloseFilter() {
     this.agHelper.GetNClick(this._filterCloseBtn);

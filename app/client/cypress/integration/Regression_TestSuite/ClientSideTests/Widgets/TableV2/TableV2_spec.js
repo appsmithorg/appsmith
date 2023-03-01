@@ -5,7 +5,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableV2WidgetDsl.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
-const table = ObjectsRegistry.TableV2;
+const table = ObjectsRegistry.Table;
 const PropPane = ObjectsRegistry.PropertyPane;
 
 describe("Table Widget V2 Functionality", function() {
