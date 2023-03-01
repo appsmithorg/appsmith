@@ -124,13 +124,13 @@ jobs:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
-          docker pull appsmith/appsmith-ce:release
-          docker save -o appsmithce.tar appsmith/appsmith-ce:release
+          docker pull appsmith/appsmith-ee:release
+          docker save -o appsmithee.tar appsmith/appsmith-ce:release
           
       - name: Run Trivy vulnerability scanner in tarball mode
         uses: aquasecurity/trivy-action@master
         with:
-          input: /github/workspace/appsmithce.tar
+          input: /github/workspace/appsmithee.tar
           severity: 'CRITICAL,HIGH'
           
 
