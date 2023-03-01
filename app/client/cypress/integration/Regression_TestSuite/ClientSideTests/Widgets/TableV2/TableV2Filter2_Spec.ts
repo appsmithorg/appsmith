@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let dataSet: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
-  table = ObjectsRegistry.TableV2,
+  table = ObjectsRegistry.Table,
   homePage = ObjectsRegistry.HomePage,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane;
