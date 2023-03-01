@@ -30,6 +30,7 @@ export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public deployMode = ObjectsRegistry.DeployMode;
   public locator = ObjectsRegistry.CommonLocators;
+  public propPane = ObjectsRegistry.PropertyPane;
 
   private _tableWrap = "//div[@class='tableWrap']";
   private _tableHeader =
@@ -39,20 +40,36 @@ export class Table {
     "//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='" +
     columnName +
     "']/parent::div/parent::div/parent::div";
+  private _columnHeaderV2 = (columnName: string) =>
+    this._tableWrap +
+    "//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='" +
+    columnName +
+    "']/parent::div/parent::div";
   private _nextPage = ".t--widget-tablewidget .t--table-widget-next-page";
+  private _nextPageV2 = ".t--widget-tablewidgetv2 .t--table-widget-next-page";
   private _previousPage = ".t--widget-tablewidget .t--table-widget-prev-page";
+  private _previousPageV2 =
+    ".t--widget-tablewidgetv2 .t--table-widget-prev-page";
+  private _pageNumber = ".t--widget-tablewidgetv2 .page-item";
+  private _pageNumberServerSideOff =
+    ".t--widget-tablewidgetv2 .t--table-widget-page-input input";
   private _pageNumberServerSidePagination = ".t--widget-tablewidget .page-item";
   private _pageNumberClientSidePagination =
     ".t--widget-tablewidget .t--table-widget-page-input input";
   _tableRow = (rowNum: number, colNum: number) =>
     `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
+  _tableRowV2 = (rowNum: number, colNum: number) =>
+    `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
   _tableRowColumnData = (rowNum: number, colNum: number) =>
     this._tableRow(rowNum, colNum) + ` div div`;
+  _tableRowColumnDataV2 = (rowNum: number, colNum: number) =>
+    this._tableRow(rowNum, colNum) + ` .cell-wrapper`;
   _tableLoadStateDelete =
     this._tableRow(0, 0) + ` div div button span:contains('Delete')`;
   _tableRowImageColumnData = (rowNum: number, colNum: number) =>
     this._tableRow(rowNum, colNum) + ` div div.image-cell`;
   _tableEmptyColumnData = `.t--widget-tablewidget .tbody .td`; //selected-row
+  _tableEmptyColumnDataV2 = `.t--widget-tablewidgetv2 .tbody .td`; //selected-row
   _tableSelectedRow =
     this._tableWrap +
     "//div[contains(@class, 'tbody')]//div[contains(@class, 'selected-row')]/div";
@@ -71,6 +88,10 @@ export class Table {
   _dropdownText = ".t--dropdown-option";
   _filterConditionDropdown = ".t--table-filter-conditions-dropdown";
   _filterInputValue = ".t--table-filter-value-input";
+  _addColumn = ".t--add-column-btn";
+  _deleteColumn = ".t--delete-column-btn";
+  _defaultColNameV2 =
+    "[data-rbd-draggable-id='customColumn1'] input[type='text']";
   private _filterApplyBtn = ".t--apply-filter-btn";
   private _filterCloseBtn = ".t--close-filter-btn";
   private _removeFilter = ".t--table-filter-remove-btn";
@@ -79,10 +100,14 @@ export class Table {
   _filterOperatorDropdown = ".t--table-filter-operators-dropdown";
   private _downloadBtn = ".t--table-download-btn";
   private _downloadOption = ".t--table-download-data-option";
+  private _tableWidgetV2 = ".t--widget-tablewidgetv2";
+  private _propertyPaneBackBtn = ".t--property-pane-back-btn";
   _columnSettings = (columnName: string) =>
     "//input[@placeholder='Column Title'][@value='" +
     columnName +
-    "']/parent::div/parent::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
+    "']/ancestor::div/following-sibling::div[contains(@class, 't--edit-column-btn')]";
+  _columnSettingsV2 = (columnName: string) =>
+    `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] .t--edit-column-btn`;
   _showPageItemsCount = "div.show-page-items";
   _filtersCount = this._filterBtn + " span.action-title";
 
@@ -97,6 +122,17 @@ export class Table {
       ); //or below will work:
     //this.agHelper.AssertElementAbsence(this._tableLoadStateDelete, 30000);
     // this.agHelper.Sleep(500);
+  }
+
+  public WaitUntilTableLoadV2() {
+    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0, 2000), {
+      errorMsg: "Table is not populated",
+      timeout: 10000,
+      interval: 2000,
+    }).then((cellData) => {
+      expect(cellData).not.empty;
+      this.agHelper.Sleep(500);
+    });
   }
 
   public AssertTableLoaded(rowIndex = 0, colIndex = 0) {
@@ -188,6 +224,16 @@ export class Table {
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
   }
 
+  public NavigateToNextPageV2() {
+    let curPageNo: number;
+    cy.get(this._pageNumber)
+      .invoke("text")
+      .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+    cy.get(this._nextPage).click();
+    cy.get(this._pageNumber)
+      .invoke("text")
+      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+  }
   public NavigateToPreviousPage(isServerPagination = true) {
     let curPageNo: number;
     this.agHelper
@@ -206,6 +252,17 @@ export class Table {
           : this._pageNumberClientSidePagination,
         isServerPagination ? "text" : "val",
       )
+      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
+  }
+
+  public NavigateToPreviousPageV2() {
+    let curPageNo: number;
+    cy.get(this._pageNumber)
+      .invoke("text")
+      .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+    cy.get(this._previousPage).click();
+    cy.get(this._pageNumber)
+      .invoke("text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
   }
 
@@ -352,6 +409,16 @@ export class Table {
     this.agHelper.ValidateNetworkStatus("@updateLayout");
   }
 
+  public ChangeColumnTypeV2(columnName: string, newDataType: columnTypeValues) {
+    cy.get(this._tableWidgetV2)
+      .click()
+      .then(() => {
+        cy.get(this._columnSettingsV2(columnName)).click();
+        this.agHelper.SelectDropdownList("Column Type", newDataType);
+        cy.get(this._propertyPaneBackBtn).click();
+      });
+  }
+
   public AssertURLColumnNavigation(
     row: number,
     col: number,
@@ -405,5 +472,42 @@ export class Table {
     if (checkNoNextPage)
       cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
     else cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+  }
+
+  public AddColumn(colId: string) {
+    cy.get(this._addColumn).scrollIntoView();
+    cy.get(this._addColumn)
+      .should("be.visible")
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(3000);
+    cy.get(this._defaultColNameV2).clear({
+      force: true,
+    });
+    cy.get(this._defaultColNameV2).type(colId, { force: true });
+  }
+
+  public EditColumn(colId: string, shouldReturnToMainPane = true) {
+    if (shouldReturnToMainPane) {
+      this.propPane.NavigateBackToPropertyPane();
+    }
+    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click(
+      {
+        force: true,
+      },
+    );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1500);
+  }
+
+  public DeleteColumn(colId: string) {
+    this.propPane.NavigateBackToPropertyPane();
+    cy.get(
+      "[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn",
+    ).click({
+      force: true,
+    });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   }
 }
