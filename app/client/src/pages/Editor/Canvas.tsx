@@ -23,6 +23,7 @@ const Container = styled.section<{
 }>`
   background: ${({ background }) => background};
   width: ${(props) => props.width}px;
+  transform: scale(1);
 `;
 
 const Canvas = (props: CanvasProps) => {
