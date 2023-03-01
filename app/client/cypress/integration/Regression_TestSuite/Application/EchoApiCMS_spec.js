@@ -1,10 +1,17 @@
-const dsl = require("../../../fixtures/CMSdsl.json");
 import appPage from "../../../locators/CMSApplocators";
 import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe("Content Management System App", function() {
   before(() => {
-    cy.addDsl(dsl);
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("EchoApiCMS" + uid);
+      _.homePage.CreateAppInWorkspace("EchoApiCMS" + uid, "EchoApiCMSApp");
+      cy.fixture("CMSdsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
+    });
   });
 
   let repoName;
@@ -112,18 +119,23 @@ describe("Content Management System App", function() {
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-      _.gitSync.CreateTestGiteaRepo(repoName);
+    _.gitSync.CreateNConnectToGit(repoName);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
     cy.latestDeployPreview();
     cy.wait(2000);
     cy.xpath("//span[text()='Curt50@gmail.com']")
       .should("be.visible")
       .click({ force: true });
+    cy.get(appPage.mailButton)
+      .closest("div")
+      .click();
+    cy.xpath(appPage.sendMailText).should("be.visible");
     cy.xpath(appPage.subjectField).type("Test");
-    cy.xpath(appPage.contentField)
+    cy.get(appPage.contentField)
       .last()
+      .find("textarea")
       .type("Task completed", { force: true });
     cy.get(appPage.confirmButton)
       .closest("div")
@@ -132,5 +144,10 @@ describe("Content Management System App", function() {
       .closest("div")
       .click({ force: true });
     _.deployMode.NavigateBacktoEditor();
+  });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });
