@@ -195,9 +195,10 @@ function* appendSelectedWidgetToUrlSaga(
   pageId?: string,
   invokedBy?: NavigationMethod,
 ) {
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
+  const isSnipingMode: boolean = yield select(snipingModeSelector);
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
+  if (isSnipingMode || viewMode) return;
   const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
   const currentURL = pathname;
