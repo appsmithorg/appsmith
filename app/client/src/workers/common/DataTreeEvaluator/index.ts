@@ -45,6 +45,7 @@ import {
   isValidEntity,
   isNewEntity,
   getStaleMetaStateIds,
+  convertJSFunctionsToString,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -364,6 +365,7 @@ export default class DataTreeEvaluator {
     lintOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
+    pathsToClearErrorsFor: any[];
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
 
@@ -399,12 +401,35 @@ export default class DataTreeEvaluator {
       localUnEvalTree,
     );
 
+    const stringifiedOldUnEvalTreeJSCollections = convertJSFunctionsToString(
+      oldUnEvalTreeJSCollections,
+    );
+    const stringifiedLocalUnEvalTreeJSCollection = convertJSFunctionsToString(
+      localUnEvalTreeJSCollection,
+    );
+
+    const oldUnEvalTreeWithStrigifiedJSFunctions = Object.assign(
+      {},
+      this.oldUnEvalTree,
+      stringifiedOldUnEvalTreeJSCollections,
+    );
+
+    const localUnEvalTreeWithStrigifiedJSFunctions = Object.assign(
+      {},
+      localUnEvalTree,
+      stringifiedLocalUnEvalTreeJSCollection,
+    );
+
     const differences: Diff<DataTree, DataTree>[] =
-      diff(this.oldUnEvalTree, localUnEvalTree) || [];
+      diff(
+        oldUnEvalTreeWithStrigifiedJSFunctions,
+        localUnEvalTreeWithStrigifiedJSFunctions,
+      ) || [];
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
       return {
+        pathsToClearErrorsFor: [],
         unEvalUpdates: [],
         evalOrder: [],
         lintOrder: [],
@@ -429,6 +454,7 @@ export default class DataTreeEvaluator {
     const {
       dependenciesOfRemovedPaths,
       extraPathsToLint,
+      pathsToClearErrorsFor,
       removedPaths,
     } = updateDependencyMap({
       dataTreeEvalRef: this,
@@ -524,6 +550,7 @@ export default class DataTreeEvaluator {
       nonDynamicFieldValidationOrder: Array.from(
         nonDynamicFieldValidationOrderSet,
       ),
+      pathsToClearErrorsFor,
     };
   }
 

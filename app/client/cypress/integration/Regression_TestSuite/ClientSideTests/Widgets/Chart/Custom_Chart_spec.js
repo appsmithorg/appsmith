@@ -114,7 +114,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     });
 
     //Close edit prop
-    cy.PublishtheApp();
+    cy.PublishtheApp(false);
   });
 
   it("4. Chart-Copy Verification", function() {

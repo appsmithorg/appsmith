@@ -200,20 +200,34 @@ export class DebuggerHelper {
     this.agHelper.AssertElementVisible(this.locators._contextMenuItem);
   }
 
-  AssertDebugError(label: string, message: string) {
-    this.ClickDebuggerIcon();
+  AssertDebugError(
+    label: string,
+    message: string,
+    shouldOpenDebugger = true,
+    shouldToggleDebugger = true,
+  ) {
+    if (shouldOpenDebugger) {
+      this.ClickDebuggerIcon();
+    }
     this.agHelper.GetNClick(this.commonLocators._errorTab, 0, true, 0);
-    this.ClickDebuggerToggle();
+
+    if (shouldToggleDebugger) {
+      this.ClickDebuggerToggle();
+    }
+
     this.agHelper
       .GetText(this.locators._debuggerLabel, "text", 0)
       .then(($text) => {
         expect($text).to.eq(label);
       });
-    this.agHelper
-      .GetText(this.locators._debuggerDownStreamErrMsg, "text", 0)
-      .then(($text) => {
-        expect($text).to.contains(message);
-      });
+
+    if (message) {
+      this.agHelper
+        .GetText(this.locators._debuggerDownStreamErrMsg, "text", 0)
+        .then(($text) => {
+          expect($text).to.contains(message);
+        });
+    }
   }
 
   DebuggerListDoesnotContain(text: string) {

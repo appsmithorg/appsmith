@@ -63,4 +63,5 @@ helm upgrade -i $CHARTNAME appsmith/appsmith -n $NAMESPACE \
   --set image.pullSecrets=$SECRET --set redis.enabled=false --set mongodb.enabled=false --set ingress.enabled=true \
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
-  --set ingress.className="nginx" --set image.pullPolicy="Always" --set autoupdate.enabled="true" --version $HELMCHART_VERSION
+  --set ingress.className="nginx" --set image.pullPolicy="Always" --set autoupdate.enabled="true" --set persistence.size=4Gi \
+  --version $HELMCHART_VERSION

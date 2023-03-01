@@ -24,9 +24,10 @@ access_log /dev/stdout;
 
 server {
   listen ${PORT:-80} default_server;
+  listen [::]:${PORT:-80} default_server;
   server_name $CUSTOM_DOMAIN;
 
-  client_max_body_size 100m;
+  client_max_body_size 150m;
 
   gzip on;
   gzip_types *;

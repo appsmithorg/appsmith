@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static java.lang.Boolean.TRUE;
 import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,6 +64,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static reactor.core.publisher.Mono.zip;
 
 @Slf4j
@@ -1496,6 +1498,42 @@ public class MySqlPluginTest {
                                         throw new RuntimeException(e);
                                 }
                                 assertTrue(conn.isDisposed());
+                        })
+                        .verifyComplete();
+        }
+
+        @Test
+        public void testExecuteCommon_queryWithComments_callValidationCallsAfterRemovingComments(){
+                MySqlPlugin.MySqlPluginExecutor spyPlugin = spy(pluginExecutor);
+
+                DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+                ConnectionPool dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig).block();
+                ActionConfiguration actionConfiguration = new ActionConfiguration();
+                actionConfiguration
+                        .setBody("SELECT id FROM users WHERE -- IS operator\nid = 1 limit 1;");
+
+                List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+                pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+                actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+                HashMap<String, Object> requestData = new HashMap<>();
+
+                Mono<ActionExecutionResult> resultMono = spyPlugin.executeCommon(
+                        dsConnectionMono,
+                        actionConfiguration,
+                        TRUE,
+                        null,
+                        null,
+                        requestData
+                );
+
+                StepVerifier.create(resultMono)
+                        .assertNext(result -> {
+                        assertTrue(result.getIsExecutionSuccess());
+
+                        verify(spyPlugin).isIsOperatorUsed("SELECT id FROM users WHERE \nid = 1 limit 1;");
+
+                        verify(spyPlugin).getIsSelectOrShowOrDescQuery("SELECT id FROM users WHERE \nid = 1 limit 1;");
+
                         })
                         .verifyComplete();
         }
