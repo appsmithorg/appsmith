@@ -6,6 +6,7 @@ export const PageViewContainer = styled.div<{
 }>`
   ${({ hasPinnedSidebar, sidebarWidth }) =>
     hasPinnedSidebar ? `margin-left: ${sidebarWidth}px;` : ""};
+  width: 100%;
 `;
 
 export const PageView = styled.div<{ width: number }>`
