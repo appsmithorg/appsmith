@@ -12,6 +12,7 @@ import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,
 } from "./widget/helper";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -49,6 +50,8 @@ export const CONFIG = {
     columns: 24,
     animateLoading: true,
     gridType: "vertical",
+    positioning: Positioning.Fixed,
+    responsiveBehavior: ResponsiveBehavior.Fill,
     dynamicBindingPathList: [
       {
         key: "currentItemsView",
@@ -121,7 +124,7 @@ export const CONFIG = {
                     isDeletable: false,
                     disallowCopy: true,
                     noContainerOffset: true,
-
+                    positioning: Positioning.Fixed,
                     disabledWidgetFeatures: [
                       RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
                     ],
@@ -139,6 +142,7 @@ export const CONFIG = {
                             detachFromLayout: true,
                             children: [],
                             version: 1,
+                            useAutoLayout: false,
                             blueprint: {
                               view: [
                                 {

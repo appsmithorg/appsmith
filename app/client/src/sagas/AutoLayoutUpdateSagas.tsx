@@ -11,7 +11,7 @@ import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
   getCanvasDimensions,
-} from "../utils/autoLayout/AutoLayoutUtils";
+} from "utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
@@ -39,7 +39,7 @@ export function* updateLayoutForMobileCheckpoint(
       : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug(
-      "updating layout for mobile viewport took",
+      "Auto Layout : updating layout for mobile viewport took",
       performance.now() - start,
       "ms",
     );
