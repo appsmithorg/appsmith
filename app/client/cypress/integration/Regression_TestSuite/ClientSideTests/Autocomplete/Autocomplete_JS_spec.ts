@@ -96,20 +96,6 @@ describe("Autocomplete tests", () => {
   });
 
   it("3. Bug #15568 Verify browser JavaScript APIs in autocomplete ", () => {
-    // _.agHelper.SelectAllRemoveCodeText(".CodeMirror-code")
-    // let codeToType = `export default {
-    //   myVar1: [],
-    //   myVar2: {},
-    //   myFun1(){
-
-    //   },
-    //   myFun2: async () => {
-    //     //use async-await or promises
-    //   `;
-    // _.agHelper.TypeText(_.locators._codeMirrorTextArea, codeToType);
-    // _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(12));
-    // _.agHelper.SelectNRemoveLineText(_.locators._codeMirrorTextArea);
-
     _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
@@ -205,20 +191,6 @@ describe("Autocomplete tests", () => {
   });
 
   it("6. Local variables & complex data autocompletion test", () => {
-    // Using same js object
-    // _.agHelper.SelectAllRemoveCodeText(".CodeMirror-code")
-    // let codeToType = `export default {
-    //   myVar1: [],
-    //   myVar2: {},
-    //   myFun1(){
-
-    //   },
-    //   myFun2: async () => {
-    //     //use async-await or promises
-    //   `;
-    // _.agHelper.TypeText(_.locators._codeMirrorTextArea, codeToType);
-    // _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(12));
-    // _.agHelper.SelectNRemoveLineText(_.locators._codeMirrorTextArea);
 
     _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
