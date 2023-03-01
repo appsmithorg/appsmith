@@ -45,7 +45,7 @@ import {
   shouldLint,
   shouldProcessBatchedAction,
 } from "actions/evaluationActions";
-import ConfigATree from "utils/configTree";
+import ConfigTreeActions from "utils/configTree";
 import {
   evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
@@ -196,6 +196,7 @@ export function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+  console.time("*start*");
   const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
@@ -204,8 +205,9 @@ export function* evaluateTreeSaga(
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
   yield put(setEvaluatedTree(updates));
-  ConfigATree.setConfigTree(configTree);
+  ConfigTreeActions.setConfigTree(configTree);
 
+  console.timeEnd("*start*");
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
@@ -247,7 +249,7 @@ export function* evaluateTreeSaga(
     yield fork(
       updateTernDefinitions,
       updatedDataTree,
-      updatedConfigTree,
+      configTree,
       unEvalUpdates,
       isCreateFirstTree,
       jsData,

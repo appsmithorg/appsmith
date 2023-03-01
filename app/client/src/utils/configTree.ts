@@ -1,6 +1,6 @@
 import { ConfigTree } from "entities/DataTree/dataTreeFactory";
 
-export default class ConfigATree {
+export default class ConfigTreeActions {
   static tree: ConfigTree = {};
 
   static setConfigTree = (configTree: ConfigTree) => {

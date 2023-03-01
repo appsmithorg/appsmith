@@ -134,7 +134,7 @@ import {
   PeekOverlayStateProps,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
-import ConfigATree from "utils/configTree";
+import ConfigTreeActions from "utils/configTree";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1000,7 +1000,7 @@ class CodeEditor extends Component<Props, State> {
 
   getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, expected } = this.props;
-    const configTree = ConfigATree.getConfigTree();
+    const configTree = ConfigTreeActions.getConfigTree();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };

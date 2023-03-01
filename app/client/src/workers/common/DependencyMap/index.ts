@@ -191,7 +191,7 @@ export const updateDependencyMap = ({
     let entityConfig = configTree[entityName];
     if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
       entity = dataTreeEvalRef.oldUnEvalTree[entityName];
-      entityConfig = dataTreeEvalRef.oldConfigTree[entityName];
+      entityConfig = dataTreeEvalRef.configTree[entityName];
     }
     const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
 
@@ -443,7 +443,7 @@ export const updateDependencyMap = ({
               entityName,
               dataTreeEvalRef.allKeys,
               unEvalDataTree,
-              dataTreeEvalRef.oldConfigTree,
+              dataTreeEvalRef.configTree,
             );
             Object.keys(entityDependencies).forEach((widgetDep) => {
               didUpdateDependencyMap = true;
