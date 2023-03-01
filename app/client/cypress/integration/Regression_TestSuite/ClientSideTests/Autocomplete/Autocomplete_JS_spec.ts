@@ -183,6 +183,7 @@ describe("Autocomplete tests", () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, codeToType);
     agHelper.GetNClick(jsEditor._lineinJsEditor(7));
+    agHelper.Sleep()
     agHelper.TypeText(
       CommonLocators._codeMirrorTextArea,
       "const callBack = (user) => user.l",
@@ -316,6 +317,7 @@ describe("Autocomplete tests", () => {
     // Same check in JSObject1
     EntityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.Sleep()
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject2.");
 
     agHelper.GetNAssertElementText(
