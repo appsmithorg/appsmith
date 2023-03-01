@@ -25,10 +25,7 @@
     ],
     "sourceMap": true,
     "baseUrl": "./src",
-    "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "@wds/*": ["./packages/wds/src"]
-    }
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "./src/**/*",
