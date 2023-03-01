@@ -65,18 +65,15 @@ export const showUndoRedoToast = (
   if (shouldDisallowToast(shouldUndo)) return;
 
   const actionDescription = getActionDescription(isCreated, isMultiple);
+  const widgetText = createMessage(actionDescription, widgetName);
+  const action = shouldUndo ? "undo" : "redo";
+  const actionKey = shouldUndo
+    ? `${modText()} Z`
+    : isMacOrIOS()
+    ? `REDO (${modText()} ${shiftText()} Z)`
+    : `REDO (${modText()} Y)`;
 
-  toast.show(createMessage(actionDescription, widgetName), {
-    action: {
-      actionText: shouldUndo
-        ? `UNDO (${modText()} Z)`
-        : isMacOrIOS()
-        ? `REDO (${modText()} ${shiftText()} Z)`
-        : `REDO (${modText()} Y)`,
-      // TODO: the action for undo/redo needs to be passed here
-      effect: () => console.log("undo/redo"),
-    },
-  });
+  toast.show(`${widgetText} Press ${actionKey} to ${action}`);
 };
 
 function getActionDescription(isCreated: boolean, isMultiple: boolean) {
