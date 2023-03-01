@@ -337,8 +337,8 @@ export const Resizable = function Resizable(props: ResizableProps) {
         <ResizeWrapper
           $prevents={pointerEvents}
           className={props.className}
-          isHovered={showResizeBoundary}
-          showBoundaries={showResizeBoundary}
+          // isHovered={showResizeBoundary}
+          // showBoundaries={showResizeBoundary}
           style={_props}
         >
           {props.children}
