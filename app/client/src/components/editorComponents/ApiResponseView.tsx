@@ -81,6 +81,9 @@ const ResponseContainer = styled.div`
   .react-tabs__tab-panel {
     overflow: hidden;
   }
+  .CodeMirror-code {
+    font-size: 12px;
+  }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
@@ -155,6 +158,7 @@ const NoResponseContainer = styled.div`
 
   .${Classes.TEXT} {
     margin-top: ${(props) => props.theme.spaces[9]}px;
+    font-size: 12px;
   }
 `;
 
@@ -165,12 +169,17 @@ const FailedMessage = styled.div`
 
   .api-debugcta {
     margin-top: 0px;
+    height: 26px;
   }
 `;
 
 const StyledCallout = styled(Callout)`
   .${Classes.TEXT} {
     line-height: normal;
+    font-size: 12px;
+  }
+  .${Classes.ICON} {
+    width: 16px;
   }
 `;
 

@@ -73,10 +73,9 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
   .debugger-time {
     ${getTypographyByKey("h6")}
-    font-size: 12px;
-    line-height: 14px;
-    margin-left: 8px;
-    margin-right: 18px;
+    letter-spacing: -0.24px;
+    margin-left: 4px;
+    margin-right: 4px;
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
     }
@@ -90,8 +89,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     }
   }
   .debugger-occurences {
-    height: 18px;
-    width: 18px;
+    height: 16px;
+    width: 16px;
     border-radius: 36px;
     display: inline-flex;
     align-items: center;
@@ -196,14 +195,14 @@ const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
       ? " -20px"
       : " 4px"};
-  margin-left: 109px;
+  margin-left: 92px;
 
   .debugger-message {
     ${getTypographyByKey("p2")}
     line-height: 14px;
+    letter-spacing: -0.24px;
     font-size: 12px;
     color: ${(props) => props.theme.colors.debugger.message};
-    cursor: pointer;
   }
 
   .${Classes.ICON} {
@@ -316,7 +315,7 @@ function LogItem(props: LogItemProps) {
               : ""
           }
           name={props.icon}
-          size={IconSize.SMALL}
+          size={IconSize.XL}
         />
         <span className={`debugger-time ${props.severity}`}>
           {props.timestamp}

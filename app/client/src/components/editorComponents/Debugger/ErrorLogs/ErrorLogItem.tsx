@@ -232,7 +232,7 @@ function ErrorLogItem(props: LogItemProps) {
                 : ""
             }
             name={props.icon}
-            size={IconSize.SMALL}
+            size={IconSize.XL}
           />
 
           {props.logType &&
