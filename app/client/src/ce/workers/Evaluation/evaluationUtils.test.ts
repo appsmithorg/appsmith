@@ -847,7 +847,7 @@ describe("7. Test addErrorToEntityProperty method", () => {
       dataTree: dataTreeEvaluator.evalTree,
       evalProps: dataTreeEvaluator.evalProps,
       fullPropertyPath: "Api1.data",
-      configTree: dataTreeEvaluator.oldConfigTree,
+      configTree: dataTreeEvaluator.configTree,
     });
 
     expect(

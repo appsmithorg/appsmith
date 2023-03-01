@@ -234,7 +234,6 @@ function* logDependentEntityProperties(payload: Log[]) {
 }
 
 function* onTriggerPropertyUpdates(payload: Log[]) {
-  // const dataTree: DataTree = yield select(getDataTree);
   const configTree: ConfigTree = yield select(getConfigTree);
   const validLogs = payload.filter(
     (log) => log.source && log.source.propertyPath,
