@@ -14,7 +14,10 @@ import ShareButton from "./components/ShareButton";
 import PrimaryCTA from "../PrimaryCTA";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import { User } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
@@ -29,6 +32,9 @@ import {
   StyledMenuContainer,
   StyledSidebar,
 } from "./Sidebar.styled";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
+import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -69,6 +75,11 @@ export function Sidebar(props: SidebarProps) {
   const isPinned = useSelector(getAppSidebarPinned);
   const [isOpen, setIsOpen] = useState(true);
   const { x } = useMouse();
+  const theme = useSelector(getCurrentThemeDetails);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
+  const isAppSettingsPaneWithNavigationTabOpen =
+    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
 
   useEffect(() => {
     setQuery(window.location.search);
@@ -95,6 +106,21 @@ export function Sidebar(props: SidebarProps) {
     dispatch(setIsAppSidebarPinned(isPinned));
   };
 
+  const calculateSidebarHeight = () => {
+    let prefix = `calc( 100vh - `;
+    const suffix = ")";
+
+    if (isPreviewMode) {
+      prefix += theme.smallHeaderHeight;
+    } else if (isAppSettingsPaneWithNavigationTabOpen) {
+      prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight}`;
+    } else {
+      prefix += "0px";
+    }
+
+    return prefix + suffix;
+  };
+
   return (
     <StyledSidebar
       className={classNames({
@@ -104,6 +130,7 @@ export function Sidebar(props: SidebarProps) {
       isMinimal={isMinimal}
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
+      sidebarHeight={calculateSidebarHeight()}
     >
       <StyledHeader>
         {!isMinimal && (

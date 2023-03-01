@@ -12,8 +12,9 @@ export const StyledSidebar = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   isMinimal: boolean;
+  sidebarHeight: string;
 }>`
-  height: 100vh;
+  height: ${({ sidebarHeight }) => sidebarHeight};
   background-color: ${({ navColorStyle, primaryColor }) =>
     getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
   position: fixed;
