@@ -115,10 +115,10 @@ describe(" Nested List Widgets ", function() {
       cy.wrap($el).should("not.have.text", "triggeredItemView");
     });
 
-    cy.testJsontextclear("text");
-    cy.get(
-      ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentView.List1Copy.pageNo", { force: true });
+    cy.get(".CodeMirror-hints")
+      .contains("pageNo")
+      .first()
+      .click({ force: true });
 
     cy.get(`${widgetSelector("Text2")} .bp3-ui-text span`).should(
       "have.text",
