@@ -67,6 +67,7 @@ export function* processJSFunctionExecution(message: any) {
     JSExecutionData,
     JSExecutionErrors,
   );
+
   if (!isEmpty(sortedData)) {
     yield put({
       type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
@@ -100,10 +101,10 @@ export function* processTriggerHandler(message: any) {
 export function* confirmBeforeExecutingJsFunction(message: any) {
   const { body } = message;
   const { data } = body;
-  const { actionName, calledJsObject, jsObjectConfig } = data;
+  const { entityName, jsObjectConfig, propertyPath } = data;
 
   const modalPayload = {
-    name: actionName,
+    name: propertyPath,
     modalOpen: true,
     modalType: ModalType.RUN_ACTION,
   };
@@ -121,7 +122,7 @@ export function* confirmBeforeExecutingJsFunction(message: any) {
     Toaster.show({
       text: createMessage(
         ACTION_EXECUTION_CANCELLED,
-        `${calledJsObject}.${actionName}`,
+        `${entityName}.${propertyPath}`,
       ),
       variant: Variant.danger,
     });

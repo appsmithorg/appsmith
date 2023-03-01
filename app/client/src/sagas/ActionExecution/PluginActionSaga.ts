@@ -730,6 +730,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
         action: jsAction,
         collectionId: collectionId,
       };
+
       yield call(handleExecuteJSFunctionSaga, data);
     }
   }

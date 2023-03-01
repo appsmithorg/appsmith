@@ -405,18 +405,21 @@ export function* handleExecuteJSFunctionSaga(data: {
       state: { response: result },
     });
 
-    yield put({
-      type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
-      payload: {
-        [collectionId]: [
-          {
-            data: result,
-            collectionId,
-            actionId,
-          },
-        ],
-      },
-    });
+    // Function execution data in Async functions are handled by the JSProxy (see JSProxy.ts)
+    if (!action.actionConfiguration.isAsync) {
+      yield put({
+        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+        payload: {
+          [collectionId]: [
+            {
+              data: result,
+              collectionId,
+              actionId,
+            },
+          ],
+        },
+      });
+    }
 
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
     showSuccessToast &&

@@ -1,5 +1,3 @@
-const dsl = require("../../../../fixtures/buttondsl.json");
-
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
 
