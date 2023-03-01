@@ -4,6 +4,9 @@ import explorerIcon from "assets/icons/header/explorer-side-nav.svg";
 import dataIcon from "assets/icons/header/database-side-nav.svg";
 import libIcon from "assets/icons/header/library-side-nav.svg";
 import { SideNavMode } from "pages/Editor/MultiPaneContainer";
+import { Icon, IconSize } from "design-system-old";
+import { useDispatch } from "react-redux";
+import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 
 export const SIDE_NAV_WIDTH = 55;
 
@@ -37,6 +40,7 @@ const Button = styled.div`
 function SideNav(props: {
   onSelect: (sideNavMode: SideNavMode | undefined) => void;
 }) {
+  const dispatch = useDispatch();
   return (
     <Container onClick={() => props.onSelect(undefined)}>
       <Button
@@ -65,24 +69,28 @@ function SideNav(props: {
       </Button>
 
       {/* Bottom buttons */}
-      {/* <Button
-        className="mt-auto"
-        onClick={(ev) => {
-          props.onSelect(SideNavMode.Libraries);
-          ev.stopPropagation();
-        }}
-      >
-        <img alt="library" src={libIcon} />
+      <Button className="mt-auto !cursor-not-allowed">
+        <Icon
+          className="!cursor-not-allowed"
+          fillColor="#828080"
+          name="search"
+          size={IconSize.XXXXL}
+        />
+        <span className="text-[9px]">Search</span>
       </Button>
 
       <Button
-        onClick={(ev) => {
-          props.onSelect(SideNavMode.Libraries);
-          ev.stopPropagation();
+        onClick={() => {
+          dispatch(openAppSettingsPaneAction());
         }}
       >
-        <img alt="library" src={libIcon} />
-      </Button> */}
+        <Icon
+          fillColor="#828080"
+          name="settings-2-line"
+          size={IconSize.XXXXL}
+        />
+        <span className="text-[9px]">Settings</span>
+      </Button>
     </Container>
   );
 }
