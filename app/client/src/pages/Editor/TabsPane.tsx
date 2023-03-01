@@ -41,10 +41,7 @@ const TabsPane = (props: Props) => {
       })}
       ref={sidebarRef}
     >
-      <div
-        className="overflow-x-hidden overflow-y-auto"
-        style={{ width: width }}
-      >
+      <div style={{ width: width }}>
         <SentryRoute component={EditorsRouter} />
       </div>
       {/* RESIZER */}

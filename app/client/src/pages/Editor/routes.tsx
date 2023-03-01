@@ -73,95 +73,82 @@ function EditorsRouter() {
   return (
     <Wrapper isVisible>
       <EditorTabs />
-      <div
-        style={{
-          height: "calc(100% - 50px)",
-          position: "absolute",
-          top: "50px",
-          bottom: "0",
-          width: "100%",
-          overflow: "scroll",
-        }}
-      >
-        <Switch key={path}>
+      <Switch key={path}>
+        <SentryRoute
+          component={showPropertyPane ? PropertyPaneContainer : TabsEmptyState}
+          exact
+          path={BUILDER_CUSTOM_PATH}
+        />
+        {showPropertyPane && (
           <SentryRoute
-            component={
-              showPropertyPane ? PropertyPaneContainer : TabsEmptyState
-            }
+            component={PropertyPaneContainer}
             exact
-            path={BUILDER_CUSTOM_PATH}
+            path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
           />
-          {showPropertyPane && (
-            <SentryRoute
-              component={PropertyPaneContainer}
-              exact
-              path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
-            />
-          )}
-          <SentryRoute
-            component={IntegrationEditor}
-            exact
-            path={`${path}${INTEGRATION_EDITOR_PATH}`}
-          />
-          <SentryRoute
-            component={OnboardingChecklist}
-            exact
-            path={`${path}${BUILDER_CHECKLIST_PATH}`}
-          />
-          <SentryRoute
-            component={ApiEditor}
-            exact
-            path={`${path}${API_EDITOR_ID_PATH}`}
-          />
-          <SentryRoute
-            component={QueryEditor}
-            exact
-            path={`${path}${QUERIES_EDITOR_ID_PATH}`}
-          />
-          <SentryRoute
-            component={JSEditor}
-            exact
-            path={`${path}${JS_COLLECTION_EDITOR_PATH}`}
-          />
-          <SentryRoute
-            component={JSEditor}
-            exact
-            path={`${path}${JS_COLLECTION_ID_PATH}`}
-          />
+        )}
+        <SentryRoute
+          component={IntegrationEditor}
+          exact
+          path={`${path}${INTEGRATION_EDITOR_PATH}`}
+        />
+        <SentryRoute
+          component={OnboardingChecklist}
+          exact
+          path={`${path}${BUILDER_CHECKLIST_PATH}`}
+        />
+        <SentryRoute
+          component={ApiEditor}
+          exact
+          path={`${path}${API_EDITOR_ID_PATH}`}
+        />
+        <SentryRoute
+          component={QueryEditor}
+          exact
+          path={`${path}${QUERIES_EDITOR_ID_PATH}`}
+        />
+        <SentryRoute
+          component={JSEditor}
+          exact
+          path={`${path}${JS_COLLECTION_EDITOR_PATH}`}
+        />
+        <SentryRoute
+          component={JSEditor}
+          exact
+          path={`${path}${JS_COLLECTION_ID_PATH}`}
+        />
 
+        <SentryRoute
+          component={CurlImportForm}
+          exact
+          path={`${path}${CURL_IMPORT_PAGE_PATH}`}
+        />
+        {SaaSEditorRoutes.map(({ component, path: childPath }) => (
           <SentryRoute
-            component={CurlImportForm}
+            component={component}
             exact
-            path={`${path}${CURL_IMPORT_PAGE_PATH}`}
+            key={path}
+            path={`${path}${childPath}`}
           />
-          {SaaSEditorRoutes.map(({ component, path: childPath }) => (
-            <SentryRoute
-              component={component}
-              exact
-              key={path}
-              path={`${path}${childPath}`}
-            />
-          ))}
-          {DatasourceEditorRoutes.map(({ component, path: childPath }) => (
-            <SentryRoute
-              component={component}
-              exact
-              key={childPath}
-              path={`${path}${childPath}`}
-            />
-          ))}
+        ))}
+        {DatasourceEditorRoutes.map(({ component, path: childPath }) => (
           <SentryRoute
-            component={ProviderTemplates}
+            component={component}
             exact
-            path={`${path}${PROVIDER_TEMPLATE_PATH}`}
+            key={childPath}
+            path={`${path}${childPath}`}
           />
-          <SentryRoute
-            component={GeneratePage}
-            exact
-            path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
-          />
-        </Switch>
-      </div>
+        ))}
+        <SentryRoute
+          component={ProviderTemplates}
+          exact
+          path={`${path}${PROVIDER_TEMPLATE_PATH}`}
+        />
+        <SentryRoute
+          component={GeneratePage}
+          exact
+          path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
+        />
+      </Switch>
     </Wrapper>
   );
 }

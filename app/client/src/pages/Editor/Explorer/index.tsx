@@ -17,6 +17,7 @@ import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -72,6 +73,7 @@ function ExplorerContent() {
     dispatch(setExplorerSwitchIndex(index));
   };
   const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   useEffect(() => {
     const currentIndex = openWidgetPanel ? 1 : 0;
@@ -84,14 +86,25 @@ function ExplorerContent() {
     <div
       className={`flex-1 flex flex-col overflow-hidden ${tailwindLayers.entityExplorer}`}
     >
-      <div
-        className={`flex-shrink-0 px-3 mt-1 py-2 border-t border-b border-[${Colors.Gallery}]`}
-      >
-        <Switcher activeObj={switches[activeSwitchIndex]} switches={switches} />
-      </div>
-      <WidgetSidebar isActive={switches[activeSwitchIndex].id === "widgets"} />
+      {!isMultiPane && (
+        <>
+          <div
+            className={`flex-shrink-0 px-3 mt-1 py-2 border-t border-b border-[${Colors.Gallery}]`}
+          >
+            <Switcher
+              activeObj={switches[activeSwitchIndex]}
+              switches={switches}
+            />
+          </div>
+          <WidgetSidebar
+            isActive={switches[activeSwitchIndex].id === "widgets"}
+          />
+        </>
+      )}
       <EntityExplorer
-        isActive={switches[activeSwitchIndex].id === "explorer"}
+        isActive={
+          isMultiPane ? true : switches[activeSwitchIndex].id === "explorer"
+        }
       />
     </div>
   );
