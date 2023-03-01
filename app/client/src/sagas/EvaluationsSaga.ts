@@ -94,7 +94,6 @@ import {
 } from "selectors/entitiesSelector";
 import {
   DataTree,
-  ConfigTree,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -196,7 +195,6 @@ export function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  console.time("*start*");
   const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
@@ -207,7 +205,6 @@ export function* evaluateTreeSaga(
   yield put(setEvaluatedTree(updates));
   ConfigTreeActions.setConfigTree(configTree);
 
-  console.timeEnd("*start*");
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
@@ -219,7 +216,6 @@ export function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
-  const updatedConfigTree: ConfigTree = configTree;
 
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });

@@ -510,7 +510,6 @@ export default class DataTreeEvaluator {
     this.oldUnEvalTree = klona(localUnEvalTree);
     // this.oldConfigTree = klona(localConfigTree);
     this.configTree = configTree;
-    console.log("** configTree", configTree);
     const cloneEndTime = performance.now();
 
     const totalUpdateTreeSetupEndTime = performance.now();
