@@ -125,7 +125,7 @@ jobs:
         working-directory: "."
         run: |
           docker pull appsmith/appsmith-ee:release
-          docker save -o appsmithee.tar appsmith/appsmith-ce:release
+          docker save -o appsmithee.tar appsmith/appsmith-ee:release
           
       - name: Run Trivy vulnerability scanner in tarball mode
         uses: aquasecurity/trivy-action@master
