@@ -49,7 +49,7 @@ export const ExplorerSearch = forwardRef(
     return (
       <div
         className={classNames({
-          "sticky top-0 bg-gray-50": true,
+          "sticky top-0 bg-gray-50 z-[1]": true,
           hidden: props.isHidden,
         })}
       >

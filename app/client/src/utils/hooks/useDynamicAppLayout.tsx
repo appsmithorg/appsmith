@@ -122,7 +122,8 @@ export const useDynamicAppLayout = () => {
     }
 
     if (isMultiPane) {
-      calculatedWidth = screenWidth - scrollbarWidth() - tabsPaneWidth - 100;
+      calculatedWidth =
+        screenWidth - scrollbarWidth() - tabsPaneWidth - 100 - 185;
       if (paneCount === 3) calculatedWidth -= propertyPaneWidth;
     }
 
@@ -163,6 +164,7 @@ export const useDynamicAppLayout = () => {
         tabsPaneWidth -
         SIDE_NAV_WIDTH -
         GUTTER_WIDTH -
+        185 -
         BORDERS_WIDTH;
       if (paneCount === 3) canvasSpace -= propertyPaneWidth;
       // Scale will always be between 0.5 to 1

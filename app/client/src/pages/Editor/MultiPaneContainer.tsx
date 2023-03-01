@@ -20,6 +20,7 @@ import {
   TABS_PANE_MIN_WIDTH,
 } from "reducers/uiReducers/multiPaneReducer";
 import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
+import WidgetSidebar from "./WidgetSidebar";
 
 const Container = styled.div`
   height: calc(
@@ -71,6 +72,7 @@ const MultiPaneContainer = () => {
         <EntityExplorerSidebar width={250} />
         <SideNav />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
+        <WidgetSidebar isActive />
         <CanvasPane />
         {showPropertyPane && (
           <PropertyPanePane>
