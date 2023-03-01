@@ -167,9 +167,8 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     cy.get(publishLocators.switchwidget)
       .find("label")
       .first()
-      .click();
-
-    cy.wait(500)
+      .click()
+      .wait(500);
 
     // Verify unchecked
     cy.get(publishLocators.switchwidget)
