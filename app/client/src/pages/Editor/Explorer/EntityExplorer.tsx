@@ -31,7 +31,6 @@ import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 const Wrapper = styled.div`
-  height: 100%;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;

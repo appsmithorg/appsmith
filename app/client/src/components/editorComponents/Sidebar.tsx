@@ -37,6 +37,7 @@ import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import JSDependencies from "../../pages/Editor/Explorer/Libraries";
 import Datasources from "../../pages/Editor/Explorer/Datasources";
 import { SideNavMode } from "pages/Editor/MultiPaneContainer";
+import { theme } from "constants/DefaultTheme";
 
 type Props = {
   setSideNavMode?: (sideNavMode: SideNavMode | undefined) => void;
@@ -169,11 +170,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         fixed: !pinned || isPreviewMode,
       })}
       id={SIDEBAR_ID}
-      style={{ left: (!pinned && !active) || isPreviewMode ? "" : "55px" }}
+      style={{
+        left: (!pinned && !active) || isPreviewMode ? "" : "55px",
+        height: `calc(100% - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`,
+      }}
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group"
+        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group overflow-y-auto"
         ref={sidebarRef}
         style={{ width: props.width }}
       >
