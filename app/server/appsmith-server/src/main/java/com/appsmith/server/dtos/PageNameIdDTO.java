@@ -16,6 +16,9 @@ public class PageNameIdDTO {
     String name;
 
     @JsonView(Views.Public.class)
+    String icon;
+
+    @JsonView(Views.Public.class)
     String slug;
 
     @JsonView(Views.Public.class)

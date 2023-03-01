@@ -1,6 +1,7 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
@@ -37,7 +38,7 @@ describe("File picker widget v2", () => {
       ".t--property-control-text",
       `{{FilePicker1.files[0].name}}`,
     );
-    cy.createAndFillApi("https://mock-api.appsmith.com/users", "");
+    cy.createAndFillApi(agHelper.mockApiUrl, "");
     cy.updateCodeInput(
       "[class*='t--actionConfiguration']",
       "{{FilePicker1.files}}",
@@ -66,9 +67,7 @@ describe("File picker widget v2", () => {
     cy.get(widgetsPage.explorerSwitchId).click();
     ee.ExpandCollapseEntity("Queries/JS");
     cy.get(".t--entity-item:contains(Api1)").click();
-    cy.get("[class*='t--actionConfiguration']")
-      .eq(0)
-      .click();
+    cy.focusCodeInput("[class*='t--actionConfiguration']");
     cy.wait(1000);
     cy.validateEvaluatedValue("[]");
   });

@@ -10,7 +10,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 let queryName;
 
 /*
-Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
+Cyclic Dependency Error if occurs, Message would be shown in following 6 cases:
 1. On page load actions
 2. When updating DSL attribute
 3. When updating JS Object name
@@ -19,7 +19,7 @@ Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
 6. When updating Datasource query
 */
 
-describe("Cyclic Dependency Informational Error Messagaes", function() {
+describe("Cyclic Dependency Informational Error Messages", function() {
   before(() => {
     //appId = localStorage.getItem("applicationId");
     //cy.log("appID:" + appId);
@@ -80,28 +80,28 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
   });
 
   //Case 1: On page load actions
-  it("3. Reload Page and it should provide errors in response", () => {
+  it("3. Reload Page and it should not provide errors in response", () => {
     // cy.get(widgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("inputwidgetv2");
     cy.wait("@getPage").should(
       "have.nested.property",
       "response.body.data.layouts[0].layoutOnLoadActionErrors.length",
-      1,
+      0,
     );
   });
 
-  it("4. update input widget's placeholder property and check errors array", () => {
+  it("4. update input widget's placeholder property and check errors array to be empty", () => {
     // Case 2: When updating DSL attribute
     cy.get(widgetsPage.placeholder).type("cyclic placeholder");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.data.layoutOnLoadActionErrors.length",
-      1,
+      0,
     );
   });
 
-  it("5. Add JSObject and update its name, content and check for errors", () => {
+  it("5. Add JSObject and update its name, content and check for no errors", () => {
     // Case 3: When updating JS Object name
     jsEditor.CreateJSObject(
       `export default {
@@ -121,7 +121,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     cy.wait("@renameJsAction").should(
       "have.nested.property",
       "response.body.data.layoutOnLoadActionErrors.length",
-      1,
+      0,
     );
 
     // Case 4: When updating Js Object content
@@ -135,12 +135,12 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     cy.wait("@jsCollections").should(
       "have.nested.property",
       "response.body.data.errorReports.length",
-      1,
+      0,
     );
   });
 
   // Case 5: When updating DSL name
-  it("6. Update Widget Name and check for errors", () => {
+  it("6. Update Widget Name and check for no errors", () => {
     let entityName = "gender";
     let newEntityName = "newInput";
     ee.SelectEntityByName(entityName, "Widgets");
@@ -148,14 +148,14 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     cy.wait("@updateWidgetName").should(
       "have.nested.property",
       "response.body.data.layoutOnLoadActionErrors.length",
-      1,
+      0,
     );
   });
 
   // Case 6: When updating Datasource query
   it("7. Update Query and check for errors", () => {
     ee.SelectEntityByName(queryName, "Queries/JS");
-    // update query and check for cyclic depedency issue
+    // update query and check no cyclic dependency issue should occur
     cy.get(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")
       .first()
@@ -167,7 +167,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     cy.wait("@saveAction").should(
       "have.nested.property",
       "response.body.data.errorReports.length",
-      1,
+      0,
     );
   });
 });

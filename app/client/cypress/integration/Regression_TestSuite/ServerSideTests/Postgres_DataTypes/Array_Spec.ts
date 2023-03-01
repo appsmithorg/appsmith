@@ -590,7 +590,7 @@ describe("Array Datatype tests", function() {
       .GetText(dataSources._queryError)
       .then(($errorText) =>
         expect($errorText).to.contain(
-          `ERROR: malformed array literal: "7"\n  Detail: Array value must start with "{" or dimension information`,
+          `Your PostgreSQL query failed to execute. Please check more information in the error details.`,
         ),
       );
 

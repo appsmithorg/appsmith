@@ -7,6 +7,7 @@ import {
   ReactTableFilter,
   Operator,
   OperatorTypes,
+  DEFAULT_FILTER,
 } from "../../../Constants";
 import { DropdownOption } from ".";
 import CascadeFields from "./CascadeFields";
@@ -24,6 +25,7 @@ import {
   ColumnTypes,
   FilterableColumnTypes,
 } from "widgets/TableWidgetV2/constants";
+import { generateReactKey } from "utils/generators";
 
 const TableFilterOuterWrapper = styled.div<{
   borderRadius?: string;
@@ -112,13 +114,6 @@ interface TableFilterProps {
   borderRadius: string;
 }
 
-const DEFAULT_FILTER = {
-  column: "",
-  operator: OperatorTypes.OR,
-  value: "",
-  condition: "",
-};
-
 function TableFilterPaneContent(props: TableFilterProps) {
   const [filters, updateFilters] = React.useState(
     new Array<ReactTableFilter>(),
@@ -138,7 +133,12 @@ function TableFilterPaneContent(props: TableFilterProps) {
     if (updatedFilters.length >= 2) {
       operator = updatedFilters[1].operator;
     }
-    updatedFilters.push({ ...DEFAULT_FILTER, operator });
+    // New id is generated for new filter here
+    updatedFilters.push({
+      ...DEFAULT_FILTER,
+      id: generateReactKey(),
+      operator,
+    });
     updateFilters(updatedFilters);
   };
 
@@ -167,11 +167,13 @@ function TableFilterPaneContent(props: TableFilterProps) {
     .filter((column: { label: string; value: string; type: ColumnTypes }) => {
       return FilterableColumnTypes.includes(column.type);
     });
+
   const hasAnyFilters = !!(
     filters.length >= 1 &&
     filters[0].column &&
     filters[0].condition
   );
+
   return (
     <TableFilterOuterWrapper
       borderRadius={props.borderRadius}
@@ -218,8 +220,9 @@ function TableFilterPaneContent(props: TableFilterProps) {
               columns={columns}
               condition={filter.condition}
               hasAnyFilters={hasAnyFilters}
+              id={filter.id}
               index={index}
-              key={index + JSON.stringify(filter)}
+              key={filter.id}
               operator={
                 filters.length >= 2 ? filters[1].operator : filter.operator
               }

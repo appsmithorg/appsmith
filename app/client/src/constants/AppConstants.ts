@@ -43,3 +43,9 @@ export const MOBILE_MAX_WIDTH = 767;
 export const TABLET_MIN_WIDTH = 768;
 export const TABLET_MAX_WIDTH = 991;
 export const DESKTOP_MIN_WIDTH = 992;
+
+//all values are in milliseconds
+export const REQUEST_IDLE_CALLBACK_TIMEOUT = {
+  highPriority: 1500,
+  lowPriority: 3000,
+};

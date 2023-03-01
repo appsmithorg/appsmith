@@ -17,6 +17,13 @@ describe("Creating new app after discontinuing guided tour should not start the 
       .click()
       .wait(2000);
     datasources.CloseReconnectDataSourceModal();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(guidedTourLocators.welcomeTour).length) {
+        cy.get(guidedTourLocators.welcomeTour)
+          .click()
+          .wait(2000);
+      }
+    });
     cy.get(guidedTourLocators.startBuilding).should("be.visible");
     // Go back to applications page
     cy.get(commonlocators.homeIcon).click({ force: true });

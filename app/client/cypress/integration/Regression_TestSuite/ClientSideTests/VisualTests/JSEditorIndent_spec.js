@@ -52,7 +52,6 @@ myFun2: async () => {
       },
     );
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
-    agHelper.WaitUntilAllToastsDisappear();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify6");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -66,6 +65,7 @@ myFun2: async () => {
     homePage.NavigateToHome();
     homePage.DuplicateApplication(appname);
     agHelper.WaitUntilAllToastsDisappear();
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
@@ -123,6 +123,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     ee.ClonePage("Page1");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.Sleep(3000);
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
@@ -262,7 +263,6 @@ myFun2: async () => {
       .wait(1000)
       .matchImageSnapshot("jsObjBeforePrettify3");
 
-    agHelper.WaitUntilAllToastsDisappear();
     cy.get("div.CodeMirror").type("{shift+cmd+p}");
     cy.get("div.CodeMirror")
       .wait(1000)
@@ -317,7 +317,6 @@ myFun2: async () => {
     );
 
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
-    agHelper.WaitUntilAllToastsDisappear();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
 
     cy.get("div.CodeMirror")

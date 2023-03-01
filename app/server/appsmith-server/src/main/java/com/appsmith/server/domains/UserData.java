@@ -3,7 +3,6 @@ package com.appsmith.server.domains;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.constants.CommentOnboardingState;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
@@ -61,9 +60,6 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedAppIds;
 
-    // last state related to comment feature on-boarding
-    @JsonView(Views.Public.class)
-    private CommentOnboardingState commentOnboardingState;
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map

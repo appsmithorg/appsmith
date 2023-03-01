@@ -26,14 +26,21 @@ export interface PartialActionData {
   isExecuting: Record<string, boolean>;
 }
 
-interface JSExecutionData {
+export interface JSExecutionData {
   data: unknown;
   collectionId: string;
   actionId: string;
 }
 
+export interface JSExecutionError {
+  isDirty: true;
+  actionId: string;
+  collectionId: string;
+}
+
 // Object of collectionIds to JSExecutionData[]
 export type BatchedJSExecutionData = Record<string, JSExecutionData[]>;
+export type BatchedJSExecutionErrors = Record<string, JSExecutionError[]>;
 
 const jsActionsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS]: (
@@ -328,7 +335,7 @@ const jsActionsReducer = createReducer(initialState, {
   ): JSCollectionDataState =>
     state.map((jsCollectionData) => {
       const collectionId = jsCollectionData.config.id;
-      if (collectionId in action.payload) {
+      if (action.payload.hasOwnProperty(collectionId)) {
         let data = {
           ...jsCollectionData.data,
         };
@@ -338,6 +345,26 @@ const jsActionsReducer = createReducer(initialState, {
         return {
           ...jsCollectionData,
           data,
+        };
+      }
+      return jsCollectionData;
+    }),
+  [ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_ERRORS]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<BatchedJSExecutionErrors>,
+  ): JSCollectionDataState =>
+    state.map((jsCollectionData) => {
+      const collectionId = jsCollectionData.config.id;
+      if (action.payload.hasOwnProperty(collectionId)) {
+        let isDirty = {
+          ...jsCollectionData.isDirty,
+        };
+        action.payload[collectionId].forEach(({ actionId }) => {
+          isDirty = { ...isDirty, [actionId]: true };
+        });
+        return {
+          ...jsCollectionData,
+          isDirty,
         };
       }
       return jsCollectionData;

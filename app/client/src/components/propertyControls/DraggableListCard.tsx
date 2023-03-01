@@ -11,6 +11,7 @@ import {
   StyledHiddenIcon,
   StyledCheckbox,
   StyledActionContainer,
+  StyledPinIcon,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
 import { CheckboxType } from "design-system-old";
@@ -34,6 +35,7 @@ type RenderComponentProps = {
     isDuplicateLabel?: boolean;
     isChecked?: boolean;
     isCheckboxDisabled?: boolean;
+    isDragDisabled?: boolean;
   };
   isDelete?: boolean;
   isDragging: boolean;
@@ -105,7 +107,7 @@ export function DraggableListCard(props: RenderComponentProps) {
   const onFocus = () => {
     setEditing(false);
     if (updateFocus) {
-      updateFocus(index, true);
+      updateFocus(index, false);
     }
   };
 
@@ -143,10 +145,14 @@ export function DraggableListCard(props: RenderComponentProps) {
   };
 
   const showDelete = !!item.isDerived || isDelete;
-
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
-      <StyledDragIcon height={20} width={20} />
+      {item?.isDragDisabled ? (
+        <StyledPinIcon height={20} width={20} />
+      ) : (
+        <StyledDragIcon height={20} width={20} />
+      )}
+
       <StyledOptionControlInputGroup
         autoFocus={index === focusedIndex}
         className={
