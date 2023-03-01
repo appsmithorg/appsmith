@@ -260,6 +260,12 @@ configure_supervisord() {
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
       cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
     fi
+    if [[ ${APPSMITH_DISABLE_EMBEDDED_POSTGRES: -0} != 1 ]]; then
+      cp "$SUPERVISORD_CONF_PATH/postgres.conf" /etc/supervisor/conf.d/
+      # Update hosts lookup to resolve to embedded postgres
+      echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
+    fi
+
   fi
 }
 
@@ -281,6 +287,46 @@ check_redis_compatible_page_size() {
   else
     echo "Redis is compatible with page size of $page_size"
   fi
+}
+
+init_postgres() {
+  # Initialize embedded postgres by default; set APPSMITH_DISABLE_EMBEDDED_POSTGRES to 1, to use existing cloud postgres mockdb instance
+  if [[ ${APPSMITH_DISABLE_EMBEDDED_POSTGRES: -0} != 1 ]]; then
+    echo "\nChecking initialized local postgres"
+    POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
+
+    if [ -e "$POSTGRES_DB_PATH/PG_VERSION" ]; then
+        echo "Found existing Postgres, Skipping initialization"
+    else
+      echo "Initializing local postgresql database"
+      
+      su postgres -c "mkdir -p $POSTGRES_DB_PATH"
+
+      # Initialize the postgres db file system
+      su -m postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+
+      # Start the postgres server in daemon mode
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
+
+      # Create mockdb db and user and populate it with the data
+      create_postgres_mockdb
+      
+      # Stop the postgres daemon
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
+
+    fi
+  fi
+  
+}
+
+create_postgres_mockdb(){
+    # Create mockdb database 
+    psql -U postgres -c "CREATE DATABASE mockdb;"
+    # Create mockdb superuser
+    su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
+    # Dump the sql file containing mockdb data
+    psql -U postgres -d mockdb --file='/opt/appsmith/templates/mockdb_postgres.sql'
+
 }
 
 # Main Section
@@ -306,6 +352,8 @@ mount_letsencrypt_directory
 
 check_redis_compatible_page_size
 
+init_postgres
+
 configure_supervisord
 
 CREDENTIAL_PATH="/etc/nginx/passwords"
@@ -317,7 +365,7 @@ fi
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres}
 
 # Handle CMD command
 exec "$@"
