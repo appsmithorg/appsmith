@@ -1,7 +1,40 @@
-import { DataTreeEntity, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeEntity,
+  DataTreeJSAction,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import JSObjectCollection from "./JSObject/Collection";
 import JSProxy from "./JSObject/JSVariableProxy";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
+
+function addJSFunctionsToContext({
+  contextObj,
+  enableJSObjectFactory,
+  jsObject,
+  jsObjectName,
+}: {
+  jsObjectName: string;
+  jsObject: DataTreeJSAction;
+  enableJSObjectFactory: boolean;
+  contextObj: DataTreeJSAction | any;
+}) {
+  const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
+  const resolvedObject = resolvedFunctions[jsObjectName];
+  for (const fnName of Object.keys(resolvedObject || {})) {
+    const fn = resolvedObject[fnName];
+    if (typeof fn !== "function") continue;
+    // Investigate promisify of JSObject function confirmation
+    // Task: https://github.com/appsmithorg/appsmith/issues/13289
+    // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
+    const data = jsObject[fnName]?.data;
+    contextObj[fnName] = enableJSObjectFactory
+      ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
+      : fn;
+    if (!!data) {
+      contextObj[fnName]["data"] = data;
+    }
+  }
+}
 
 export function getEntityForEvalContext(
   entity: DataTreeEntity,
@@ -17,28 +50,23 @@ export function getEntityForEvalContext(
         const jsObjectForEval = JSObjectCollection.getCurrentVariableState(
           entityName,
         );
-        const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
-
-        const resolvedObject = resolvedFunctions[jsObjectName];
 
         if (!jsObjectForEval) {
+          addJSFunctionsToContext({
+            jsObjectName,
+            jsObject,
+            contextObj: entity,
+            enableJSObjectFactory,
+          });
           break;
         }
 
-        for (const fnName of Object.keys(resolvedObject || {})) {
-          const fn = resolvedObject[fnName];
-          if (typeof fn !== "function") continue;
-          // Investigate promisify of JSObject function confirmation
-          // Task: https://github.com/appsmithorg/appsmith/issues/13289
-          // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
-          const data = jsObject[fnName]?.data;
-          jsObjectForEval[fnName] = enableJSObjectFactory
-            ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
-            : fn;
-          if (!!data) {
-            jsObjectForEval[fnName]["data"] = data;
-          }
-        }
+        addJSFunctionsToContext({
+          jsObjectName,
+          jsObject,
+          contextObj: jsObjectForEval,
+          enableJSObjectFactory,
+        });
 
         if (self.$isDataField) {
           return jsObjectForEval;
