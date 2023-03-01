@@ -8,9 +8,9 @@ import { SideNavMode } from "pages/Editor/MultiPaneContainer";
 export const SIDE_NAV_WIDTH = 55;
 
 const Container = styled.div`
+  display: flex;
   flex-direction: column;
   width: ${SIDE_NAV_WIDTH}px;
-  display: flex;
 
   background: #ffffff;
   box-shadow: 1px 0 0 #f1f1f1;
@@ -20,11 +20,16 @@ const Container = styled.div`
 `;
 
 const Button = styled.div`
+  // for icon alignment inside button
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
   cursor: pointer;
   width: ${SIDE_NAV_WIDTH}px;
   height: 50px;
 
-  padding: 15px 18px;
   background: #ffffff;
   box-shadow: inset -1px -1px 0px #e8e8e8;
 `;
