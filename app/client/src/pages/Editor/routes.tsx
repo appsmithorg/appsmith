@@ -47,6 +47,8 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
   background-color: ${(props) => (props.isVisible ? "white" : "transparent")};
   z-index: ${(props) => (props.isVisible ? 2 : -1)};
   width: ${(props) => (!props.isVisible ? "0" : "100%")};
+  display: flex;
+  flex-direction: column;
 `;
 
 function EditorsRouter() {
