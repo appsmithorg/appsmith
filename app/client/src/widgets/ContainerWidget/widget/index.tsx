@@ -151,10 +151,6 @@ export class ContainerWidget extends BaseWidget<
     return {};
   }
 
-  componentDidMount(): void {
-    super.componentDidMount();
-  }
-
   static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

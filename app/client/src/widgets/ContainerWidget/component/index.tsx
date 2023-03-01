@@ -24,7 +24,7 @@ const StyledContainerComponent = styled.div<
   width: 100%;
   overflow: hidden;
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
-  
+
   ${(props) =>
     props.shouldScrollContents && !props.$noScroll ? scrollCSS : ``}
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
@@ -40,15 +40,6 @@ const StyledContainerComponent = styled.div<
     }};
     z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
     cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
-  }
-
-  .auto-temp-no-display {
-    position: absolute;
-    left: -9999px;
-  }
-
-  .no-display {
-    display: none;
   }
 `;
 

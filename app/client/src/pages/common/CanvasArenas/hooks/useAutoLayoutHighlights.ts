@@ -98,10 +98,14 @@ export const useAutoLayoutHighlights = ({
    * @param e | MouseMoveEvent
    * @returns HighlightInfo | undefined
    */
-  const highlightDropPosition = (
-    e: any,
+  const getDropPosition = (
     snapColumnSpace: number,
-  ): HighlightInfo | undefined => {
+    e?: any,
+    val?: Point,
+    mouseUp = false,
+  ) => {
+    if (mouseUp && lastActiveHighlight) return lastActiveHighlight;
+
     if (!highlights || !highlights.length)
       highlights = deriveHighlightsFromLayers(
         allWidgets,
@@ -114,7 +118,8 @@ export const useAutoLayoutHighlights = ({
 
     const highlight: HighlightInfo | undefined = getHighlightPayload(
       highlights,
-      e,
+      e || null,
+      val,
     );
     if (!highlight) return;
 
@@ -122,36 +127,9 @@ export const useAutoLayoutHighlights = ({
     return highlight;
   };
 
-  const getDropInfo = (
-    val: Point,
-    snapColumnSpace: number,
-  ): HighlightInfo | undefined => {
-    if (lastActiveHighlight) return lastActiveHighlight;
-
-    if (!highlights || !highlights.length)
-      highlights = deriveHighlightsFromLayers(
-        allWidgets,
-        canvasId,
-        snapColumnSpace,
-        blocksToDraw.map((block) => block?.widgetId),
-        isFillWidget,
-        isMobile,
-      );
-
-    const payload: HighlightInfo | undefined = getHighlightPayload(
-      highlights,
-      null,
-      val,
-    );
-    if (!payload) return;
-    lastActiveHighlight = payload;
-    return payload;
-  };
-
   return {
     calculateHighlights,
     cleanUpTempStyles,
-    getDropInfo,
-    highlightDropPosition,
+    getDropPosition,
   };
 };
