@@ -33,7 +33,10 @@ import {
   getFillWidgetLengthForLayer,
   getLayerIndexOfWidget,
 } from "utils/autoLayout/AutoLayoutUtils";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -112,7 +115,8 @@ export function ReflowResizable(props: ResizableProps) {
     reflectPosition: true,
   });
   const allWidgets = useSelector(getWidgets);
-  const widgetAlignment = allWidgets[props.widgetId].alignment || "start";
+  const widgetAlignment =
+    allWidgets[props.widgetId]?.alignment || FlexLayerAlignment.Start;
   const dispatch = useDispatch();
   const layer = useMemo(() => {
     const { widgetId } = props;
