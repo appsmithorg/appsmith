@@ -23,10 +23,7 @@ import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
 import WidgetSidebar from "./WidgetSidebar";
 
 const Container = styled.div`
-  height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.bottomBarHeight}
-  );
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   background-color: ${(props) => props.theme.appBackground};
 `;
 

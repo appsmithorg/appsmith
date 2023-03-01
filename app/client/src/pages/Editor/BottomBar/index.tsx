@@ -12,10 +12,12 @@ import { useSelector } from "react-redux";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Container = styled.div`
-  width: 100%;
+  width: calc(100% - 55px);
   height: ${(props) => props.theme.bottomBarHeight};
   display: flex;
   position: fixed;
+  bottom: 0;
+  left: 55px;
   justify-content: space-between;
   background-color: ${(props) => props.theme.colors.editorBottomBar.background};
   z-index: ${Layers.bottomBar};
