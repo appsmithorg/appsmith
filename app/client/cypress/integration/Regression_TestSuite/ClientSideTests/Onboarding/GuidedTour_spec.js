@@ -15,7 +15,7 @@ describe("Guided Tour", function() {
   });
 
   //Failing in fat migration - hence skipping
-  it.skip("1. Guided Tour", function() {
+  it("1. Guided Tour", function() {
     // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
