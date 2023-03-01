@@ -217,6 +217,7 @@ export default class DataTreeEvaluator {
     const createDependencyMapStartTime = performance.now();
     // Create dependency map
     const {
+      asyncJSFunctionsInDataFields,
       dependencyMap,
       invalidReferencesMap,
       triggerFieldDependencyMap,
@@ -242,9 +243,7 @@ export default class DataTreeEvaluator {
       dependencyMap,
       sortedDependencies: this.sortedDependencies,
     });
-    this.asyncJSFunctionsInSyncFields = this.getAsyncFunctionsInDataFieldMap(
-      unEvalTree,
-    );
+    this.asyncJSFunctionsInSyncFields = asyncJSFunctionsInDataFields;
     this.inverseValidationDependencyMap = this.getInverseDependencyTree({
       dependencyMap: validationDependencyMap,
       sortedDependencies: this.sortedValidationDependencies,
@@ -1385,36 +1384,6 @@ export default class DataTreeEvaluator {
       }
     });
     return inverseDependencyMap;
-  }
-
-  getAsyncFunctionsInDataFieldMap(unEvalTree: DataTree) {
-    const jsAsyncFunctionsInDataFields: DependencyMap = {};
-    for (const field of Object.keys(this.inverseDependencyMap)) {
-      const { entityName, propertyPath } = getEntityNameAndPropertyPath(field);
-      const entity = unEvalTree[entityName];
-      const entityDependents = this.inverseDependencyMap[field];
-      if (
-        isJSAction(entity) &&
-        propertyPath &&
-        propertyPath in entity.meta &&
-        entity.meta[propertyPath].isAsync
-      ) {
-        const dataFields = entityDependents.filter((dependents) => {
-          const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-            dependents,
-          );
-          const entity = unEvalTree[entityName];
-          if (isWidget(entity)) {
-            return !(propertyPath in entity.triggerPaths);
-          }
-          return isAction(entity);
-        });
-        if (!isEmpty(dataFields)) {
-          jsAsyncFunctionsInDataFields[field] = dataFields;
-        }
-      }
-    }
-    return jsAsyncFunctionsInDataFields;
   }
 
   evaluateActionBindings(
