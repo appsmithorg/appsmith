@@ -31,6 +31,15 @@ const editorTabsReducer = createReducer(initialState, {
       ),
     };
   },
+  [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (
+    state: EditorTabsState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    return {
+      ...state,
+      openTabs: state.openTabs.filter((tab) => tab.id !== action.payload.id),
+    };
+  },
 });
 
 export type EditorTab = {
