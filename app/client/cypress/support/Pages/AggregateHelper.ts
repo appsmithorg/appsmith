@@ -547,6 +547,13 @@ export class AggregateHelper {
     return locator.type(this.removeLine);
   }
 
+  public SelectAllRemoveCodeText(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.type(this.selectAll+"{del}");
+  }
+
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
     if (charCount > 0)
       this.GetElement(selector)
