@@ -171,7 +171,7 @@ export function SaveButtonBar({
           className="t--admin-settings-save-button"
           data-testid="t--admin-settings-save-button"
           disabled={false}
-          height="38px"
+          height="38"
           isLoading={isLoading || false}
           onClick={() => {
             onSave();
@@ -185,7 +185,7 @@ export function SaveButtonBar({
           className="t--admin-settings-reset-button"
           data-testid="t--admin-settings-reset-button"
           disabled={false}
-          height="38px"
+          height="38"
           onClick={() => {
             onClear();
           }}
