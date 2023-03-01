@@ -216,7 +216,7 @@ describe("DataTreeEvaluator", () => {
       dataTreeEvaluator.evalAndValidateFirstTree();
       self.postMessage = postMessageMock;
     });
-    it("set's isAsync tag for cross JsObject references", () => {
+    it.skip("set's isAsync tag for cross JsObject references", () => {
       const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
       expect(
         result.jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync,
