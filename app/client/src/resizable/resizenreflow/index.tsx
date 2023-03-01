@@ -236,8 +236,9 @@ type ResizableProps = {
 export function ReflowResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
-  const isAutoLayout =
-    useSelector(getCurrentAppPositioningType) === AppPositioningTypes.AUTO;
+  // const isAutoLayout =
+  //   useSelector(getCurrentAppPositioningType) === AppPositioningTypes.AUTO;
+  const isAutoLayout = props.isFlexChild;
   const occupiedSpacesBySiblingWidgets = useSelector(
     getContainerOccupiedSpacesSelectorWhileResizing(props.parentId),
   );
@@ -431,7 +432,10 @@ export function ReflowResizable(props: ResizableProps) {
 
   const handles = [];
   const widget = allWidgets[props.widgetId];
-  if (!(isAutoLayout && widget.leftColumn === 0) && props.handles.left) {
+  if (
+    !(isAutoLayout && widget && widget?.leftColumn === 0) &&
+    props.handles.left
+  ) {
     handles.push({
       dragCallback: (x: number) => {
         setNewDimensions({
@@ -468,7 +472,7 @@ export function ReflowResizable(props: ResizableProps) {
   if (
     !(
       isAutoLayout &&
-      widget.leftColumn !== 0 &&
+      widget?.leftColumn !== 0 &&
       widget.rightColumn === GridDefaults.DEFAULT_GRID_COLUMNS
     ) &&
     props.handles.right
