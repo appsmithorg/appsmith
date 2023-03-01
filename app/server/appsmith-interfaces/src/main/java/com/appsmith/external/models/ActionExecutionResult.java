@@ -48,7 +48,11 @@ public class ActionExecutionResult {
         if (error instanceof AppsmithPluginException) {
             AppsmithPluginException pluginException = (AppsmithPluginException) error;
             pluginErrorDetails = new PluginErrorDetails(pluginException);
-            this.statusCode = pluginException.getAppErrorCode();
+            // since downstreamErrorMessages getter are specific to baseException and its subclasses,
+            // that is why we are setting it over here
+            this.body = pluginException.getDownstreamErrorMessage();
+            // post recent discussion we are changing this to downstream Error Code
+            this.statusCode = pluginException.getDownstreamErrorCode();
             this.title = pluginException.getTitle();
             this.errorType = pluginException.getErrorType();
 
@@ -57,7 +61,8 @@ public class ActionExecutionResult {
                 pluginErrorDetails.setDownstreamErrorMessage(this.readableError);
             }
         } else if (error instanceof BaseException) {
-            this.statusCode = ((BaseException) error).getAppErrorCode();
+            this.body = ((BaseException) error).getDownstreamErrorMessage();
+            this.statusCode = ((BaseException) error).getDownstreamErrorCode();
             this.title = ((BaseException) error).getTitle();
             this.errorType = ((BaseException) error).getErrorType();
         }
