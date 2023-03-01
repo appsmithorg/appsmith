@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,6 @@ public class ActionExecutionResult {
     PluginErrorDetails pluginErrorDetails;
 
     public void setErrorInfo(Throwable error, AppsmithPluginErrorUtils pluginErrorUtils) {
-        this.body = error.getMessage();
 
         if (error instanceof AppsmithPluginException) {
             AppsmithPluginException pluginException = (AppsmithPluginException) error;
@@ -61,11 +61,18 @@ public class ActionExecutionResult {
                 pluginErrorDetails.setDownstreamErrorMessage(this.readableError);
                 this.body =  this.readableError;
             }
+
+            if (!StringUtils.hasLength((String)this.body)) {
+                this.body = error.getMessage();
+            }
+
         } else if (error instanceof BaseException) {
             this.body = ((BaseException) error).getDownstreamErrorMessage();
             this.statusCode = ((BaseException) error).getDownstreamErrorCode();
             this.title = ((BaseException) error).getTitle();
             this.errorType = ((BaseException) error).getErrorType();
+        } else {
+            this.body = error.getMessage();
         }
     }
 
