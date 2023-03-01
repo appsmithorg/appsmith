@@ -12,7 +12,7 @@ import { JSUpdate } from "utils/JSPaneUtils";
 
 export function triggerEvalWithChanges(updatedValuePaths: string[][]) {
   let evalOrder: string[] = [];
-  const jsUpdates: Record<string, JSUpdate> = {};
+  let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
   let nonDynamicFieldValidationOrder: string[] = [];
   const isCreateFirstTree = false;
@@ -30,8 +30,8 @@ export function triggerEvalWithChanges(updatedValuePaths: string[][]) {
     );
 
     evalOrder = setupUpdateTreeResponse.evalOrder;
-
     unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
+    jsUpdates = setupUpdateTreeResponse.jsUpdates;
 
     nonDynamicFieldValidationOrder =
       setupUpdateTreeResponse.nonDynamicFieldValidationOrder;

@@ -635,7 +635,9 @@ export default class DataTreeEvaluator {
     };
   }
 
-  setupUpdateTreeWithDifferences(updatedValuePaths: string[][]) {
+  setupUpdateTreeWithDifferences(
+    updatedValuePaths: string[][],
+  ): ReturnType<typeof this.setupUpdateTree> {
     const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local unEvalTree
     if (updatedValuePaths.length === 0) {
@@ -645,6 +647,7 @@ export default class DataTreeEvaluator {
         lintOrder: [],
         jsUpdates: {},
         nonDynamicFieldValidationOrder: [],
+        pathsToClearErrorsFor: [],
       };
     }
 
@@ -658,9 +661,12 @@ export default class DataTreeEvaluator {
      */
     const pathsToSkipFromEval = updatedValuePaths.map((path) => path.join("."));
 
-    return this.setupTree(localUnEvalTree, updatedValuePaths, {
-      pathsToSkipFromEval,
-    });
+    return {
+      ...this.setupTree(localUnEvalTree, updatedValuePaths, {
+        pathsToSkipFromEval,
+      }),
+      jsUpdates: {},
+    };
   }
 
   evalAndValidateSubTree(
