@@ -35,6 +35,7 @@ import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 import TabsEmptyState from "./TabsPane/EmptyState";
 import EditorTabs from "pages/Editor/TabsPane/EditorTabs";
+import WidgetSidebar from "./WidgetSidebar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -48,7 +49,14 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
   z-index: ${(props) => (props.isVisible ? 2 : -1)};
   width: ${(props) => (!props.isVisible ? "0" : "100%")};
   display: flex;
+  flex-direction: row;
+`;
+
+const SecondaryWrapper = styled.div`
+  display: flex;
   flex-direction: column;
+  width: 100%;
+  position: relative;
 `;
 
 function EditorsRouter() {
@@ -72,96 +80,99 @@ function EditorsRouter() {
 
   return (
     <Wrapper isVisible>
-      <EditorTabs />
-      <div
-        style={{
-          height: "calc(100% - 50px)",
-          position: "absolute",
-          top: "50px",
-          bottom: "0",
-          width: "100%",
-          overflow: "scroll",
-        }}
-      >
-        <Switch key={path}>
-          <SentryRoute
-            component={
-              showPropertyPane ? PropertyPaneContainer : TabsEmptyState
-            }
-            exact
-            path={BUILDER_CUSTOM_PATH}
-          />
-          {showPropertyPane && (
+      <SecondaryWrapper>
+        <EditorTabs />
+        <div
+          style={{
+            height: "calc(100% - 50px)",
+            position: "absolute",
+            top: "50px",
+            bottom: "0",
+            width: "100%",
+            overflow: "scroll",
+          }}
+        >
+          <Switch key={path}>
             <SentryRoute
-              component={PropertyPaneContainer}
+              component={
+                showPropertyPane ? PropertyPaneContainer : TabsEmptyState
+              }
               exact
-              path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
+              path={BUILDER_CUSTOM_PATH}
             />
-          )}
-          <SentryRoute
-            component={IntegrationEditor}
-            exact
-            path={`${path}${INTEGRATION_EDITOR_PATH}`}
-          />
-          <SentryRoute
-            component={OnboardingChecklist}
-            exact
-            path={`${path}${BUILDER_CHECKLIST_PATH}`}
-          />
-          <SentryRoute
-            component={ApiEditor}
-            exact
-            path={`${path}${API_EDITOR_ID_PATH}`}
-          />
-          <SentryRoute
-            component={QueryEditor}
-            exact
-            path={`${path}${QUERIES_EDITOR_ID_PATH}`}
-          />
-          <SentryRoute
-            component={JSEditor}
-            exact
-            path={`${path}${JS_COLLECTION_EDITOR_PATH}`}
-          />
-          <SentryRoute
-            component={JSEditor}
-            exact
-            path={`${path}${JS_COLLECTION_ID_PATH}`}
-          />
+            {showPropertyPane && (
+              <SentryRoute
+                component={PropertyPaneContainer}
+                exact
+                path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
+              />
+            )}
+            <SentryRoute
+              component={IntegrationEditor}
+              exact
+              path={`${path}${INTEGRATION_EDITOR_PATH}`}
+            />
+            <SentryRoute
+              component={OnboardingChecklist}
+              exact
+              path={`${path}${BUILDER_CHECKLIST_PATH}`}
+            />
+            <SentryRoute
+              component={ApiEditor}
+              exact
+              path={`${path}${API_EDITOR_ID_PATH}`}
+            />
+            <SentryRoute
+              component={QueryEditor}
+              exact
+              path={`${path}${QUERIES_EDITOR_ID_PATH}`}
+            />
+            <SentryRoute
+              component={JSEditor}
+              exact
+              path={`${path}${JS_COLLECTION_EDITOR_PATH}`}
+            />
+            <SentryRoute
+              component={JSEditor}
+              exact
+              path={`${path}${JS_COLLECTION_ID_PATH}`}
+            />
 
-          <SentryRoute
-            component={CurlImportForm}
-            exact
-            path={`${path}${CURL_IMPORT_PAGE_PATH}`}
-          />
-          {SaaSEditorRoutes.map(({ component, path: childPath }) => (
             <SentryRoute
-              component={component}
+              component={CurlImportForm}
               exact
-              key={path}
-              path={`${path}${childPath}`}
+              path={`${path}${CURL_IMPORT_PAGE_PATH}`}
             />
-          ))}
-          {DatasourceEditorRoutes.map(({ component, path: childPath }) => (
+            {SaaSEditorRoutes.map(({ component, path: childPath }) => (
+              <SentryRoute
+                component={component}
+                exact
+                key={path}
+                path={`${path}${childPath}`}
+              />
+            ))}
+            {DatasourceEditorRoutes.map(({ component, path: childPath }) => (
+              <SentryRoute
+                component={component}
+                exact
+                key={childPath}
+                path={`${path}${childPath}`}
+              />
+            ))}
             <SentryRoute
-              component={component}
+              component={ProviderTemplates}
               exact
-              key={childPath}
-              path={`${path}${childPath}`}
+              path={`${path}${PROVIDER_TEMPLATE_PATH}`}
             />
-          ))}
-          <SentryRoute
-            component={ProviderTemplates}
-            exact
-            path={`${path}${PROVIDER_TEMPLATE_PATH}`}
-          />
-          <SentryRoute
-            component={GeneratePage}
-            exact
-            path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
-          />
-        </Switch>
-      </div>
+            <SentryRoute
+              component={GeneratePage}
+              exact
+              path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
+            />
+          </Switch>
+        </div>
+      </SecondaryWrapper>
+      <WidgetSidebar isActive />
     </Wrapper>
   );
 }

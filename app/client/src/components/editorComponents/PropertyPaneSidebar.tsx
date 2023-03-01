@@ -117,7 +117,12 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     : true;
 
   return (
-    <div className="relative h-full">
+    <div
+      className={classNames({
+        "relative h-full": true,
+        "w-full": isMultiPane,
+      })}
+    >
       {/* PROPERTY PANE */}
       <div
         className={classNames({

@@ -10,11 +10,34 @@ import {
 } from "@appsmith/constants/messages";
 import Fuse from "fuse.js";
 import { WidgetCardProps } from "widgets/BaseWidget";
+import styled from "styled-components";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import classNames from "classnames";
+
+const StyledWrapper = styled.div<{ isMultiPane: boolean; isActive: boolean }>`
+  ${(props) =>
+    props.isMultiPane
+      ? `
+  min-width: 185px;
+  max-width: 185px;
+  height: inherit;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+`
+      : `
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  ${props.isActive && "display: hidden;"}
+`}
+`;
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   let fuse: Fuse<WidgetCardProps, Fuse.FuseOptions<WidgetCardProps>>;
 
@@ -67,9 +90,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   };
 
   return (
-    <div
-      className={`flex flex-col overflow-hidden ${isActive ? "" : "hidden"}`}
-    >
+    <StyledWrapper isActive={isActive} isMultiPane={isMultiPane}>
       <ExplorerSearch
         autoFocus
         clear={clearSearchInput}
@@ -84,13 +105,18 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400 t--widget-sidebar">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>
-        <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
+        <div
+          className={classNames({
+            "grid items-stretch gap-3 justify-items-stretch grid-cols-3": true,
+            "grid-cols-2": isMultiPane,
+          })}
+        >
           {filteredCards.map((card) => (
             <WidgetCard details={card} key={card.key} />
           ))}
         </div>
       </div>
-    </div>
+    </StyledWrapper>
   );
 }
 
