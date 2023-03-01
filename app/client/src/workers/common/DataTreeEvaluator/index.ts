@@ -128,7 +128,8 @@ export default class DataTreeEvaluator {
   allKeys: Record<string, true> = {};
   privateWidgets: PrivateWidgets = {};
   oldUnEvalTree: DataTree = {};
-  configTree: ConfigTree = {};
+  oldConfigTree: ConfigTree = {};
+  // configTree: ConfigTree = {};
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
@@ -256,7 +257,7 @@ export default class DataTreeEvaluator {
 
     const secondCloneStartTime = performance.now();
     this.oldUnEvalTree = klona(localUnEvalTree);
-    this.configTree = configTree;
+    this.oldConfigTree = configTree;
     const secondCloneEndTime = performance.now();
 
     const totalFirstTreeSetupEndTime = performance.now();
@@ -307,7 +308,7 @@ export default class DataTreeEvaluator {
       this.resolvedFunctions,
       this.sortedDependencies,
       undefined,
-      this.configTree,
+      this.oldConfigTree,
     );
     const evaluationEndTime = performance.now();
     const validationStartTime = performance.now();
@@ -318,7 +319,7 @@ export default class DataTreeEvaluator {
         {
           evalProps: this.evalProps,
         },
-        this.configTree,
+        this.oldConfigTree,
       ),
     );
 
@@ -415,9 +416,11 @@ export default class DataTreeEvaluator {
 
     const stringifiedOldUnEvalTreeJSCollections = convertJSFunctionsToString(
       oldUnEvalTreeJSCollections,
+      this.oldConfigTree,
     );
     const stringifiedLocalUnEvalTreeJSCollection = convertJSFunctionsToString(
       localUnEvalTreeJSCollection,
+      configTree,
     );
 
     const oldUnEvalTreeWithStrigifiedJSFunctions = Object.assign(
@@ -469,7 +472,7 @@ export default class DataTreeEvaluator {
       pathsToClearErrorsFor,
       removedPaths,
     } = updateDependencyMap({
-      configTree: configTree,
+      configTree,
       dataTreeEvalRef: this,
       translatedDiffs,
       unEvalDataTree: localUnEvalTree,
@@ -532,7 +535,7 @@ export default class DataTreeEvaluator {
     // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = klona(localUnEvalTree);
     // this.oldConfigTree = klona(localConfigTree);
-    this.configTree = configTree;
+    this.oldConfigTree = klona(configTree);
     const cloneEndTime = performance.now();
 
     const totalUpdateTreeSetupEndTime = performance.now();
@@ -736,7 +739,7 @@ export default class DataTreeEvaluator {
       unevalUpdates: [],
       metaWidgets: [],
     },
-    configTree: ConfigTree,
+    oldConfigTree: ConfigTree,
   ): {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
@@ -762,7 +765,7 @@ export default class DataTreeEvaluator {
             | DataTreeWidget
             | DataTreeAction;
           const unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
-          const entityConfig = configTree[entityName];
+          const entityConfig = oldConfigTree[entityName];
 
           const isADynamicBindingPath =
             (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
@@ -796,7 +799,7 @@ export default class DataTreeEvaluator {
               evalPropertyValue = this.getDynamicValue(
                 unEvalPropertyValue,
                 currentTree,
-                configTree,
+                oldConfigTree,
                 resolvedFunctions,
                 evaluationSubstitutionType,
                 contextData,
@@ -824,7 +827,7 @@ export default class DataTreeEvaluator {
                 fullPropertyPath,
                 widget: entity,
                 currentTree,
-                configTree: configTree,
+                configTree: oldConfigTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
                 evalProps: this.evalProps,
@@ -832,7 +835,7 @@ export default class DataTreeEvaluator {
 
               this.setParsedValue({
                 currentTree,
-                configTree: configTree,
+                configTree: oldConfigTree,
                 entity,
                 evalMetaUpdates,
                 fullPropertyPath,
@@ -847,7 +850,7 @@ export default class DataTreeEvaluator {
                   fullPropertyPath,
                   widget: entity,
                   currentTree,
-                  configTree: configTree,
+                  configTree: oldConfigTree,
                 });
               }
               staleMetaIds = staleMetaIds.concat(
@@ -882,7 +885,7 @@ export default class DataTreeEvaluator {
                   evalPropertyValue,
                   unEvalPropertyValue,
                   validationConfig,
-                  configTree,
+                  oldConfigTree,
                 );
               }
             }
@@ -979,7 +982,7 @@ export default class DataTreeEvaluator {
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
       const entity = get(this.oldUnEvalTree, entityName);
-      const entityConfig = get(this.configTree, entityName);
+      const entityConfig = get(this.oldConfigTree, entityName);
       if (entity && isWidget(entity)) {
         entityType = entity.type;
       } else if (entity && isAction(entity)) {
@@ -1452,7 +1455,7 @@ export default class DataTreeEvaluator {
       evaluatedExecutionParams = this.getDynamicValue(
         `{{${JSON.stringify(executionParams)}}}`,
         this.evalTree,
-        this.configTree,
+        this.oldConfigTree,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
       );
@@ -1469,7 +1472,7 @@ export default class DataTreeEvaluator {
       return this.getDynamicValue(
         `{{${replacedBinding}}}`,
         this.evalTree,
-        this.configTree,
+        this.oldConfigTree,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"

@@ -31,7 +31,6 @@ import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { JSActionEntityConfig, PrivateWidgets } from "entities/DataTree/types";
 import { EvalProps } from "workers/common/DataTreeEvaluator";
-import { JSActionConfig } from "entities/JSCollection";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options

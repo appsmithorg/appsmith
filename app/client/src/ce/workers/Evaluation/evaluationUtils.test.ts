@@ -844,7 +844,7 @@ describe("7. Test addErrorToEntityProperty method", () => {
       dataTree: dataTreeEvaluator.evalTree,
       evalProps: dataTreeEvaluator.evalProps,
       fullPropertyPath: "Api1.data",
-      configTree: dataTreeEvaluator.configTree,
+      configTree: dataTreeEvaluator.oldConfigTree,
     });
 
     expect(
@@ -861,12 +861,9 @@ describe("convertJSFunctionsToString", () => {
   const JSObject2MyFun2 = new String("async () => {}");
   set(JSObject2MyFun2, "data", {});
 
-  const jsCollections: Record<string, DataTreeJSAction> = {
+  const configTree = ({
     JSObject1: {
-      myFun1: JSObject1MyFun1,
-      body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-
+      variables: [],
       meta: {
         myFun1: {
           arguments: [],
@@ -876,6 +873,7 @@ describe("convertJSFunctionsToString", () => {
       },
       name: "JSObject1",
       actionId: "63ef4cb1a01b764626f2a6e5",
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       pluginType: PluginType.JS,
       bindingPaths: {
         body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -893,20 +891,12 @@ describe("convertJSFunctionsToString", () => {
           key: "myFun1",
         },
       ],
-      variables: [],
       dependencyMap: {
         body: ["myFun1"],
       },
     },
     JSObject2: {
-      myVar1: "[]",
-      myVar2: "{}",
-      myFun1: JSObject2MyFun1,
-      myFun2: JSObject2MyFun2,
-      body:
-        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
       ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-
       meta: {
         myFun1: {
           arguments: [],
@@ -958,6 +948,27 @@ describe("convertJSFunctionsToString", () => {
         body: ["myFun1", "myFun2"],
       },
     },
+  } as unknown) as ConfigTree;
+
+  const jsCollections: Record<string, DataTreeJSAction> = {
+    JSObject1: {
+      myFun1: JSObject1MyFun1,
+      body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+
+      actionId: "63ef4cb1a01b764626f2a6e5",
+    },
+    JSObject2: {
+      myVar1: "[]",
+      myVar2: "{}",
+      myFun1: JSObject2MyFun1,
+      myFun2: JSObject2MyFun2,
+      body:
+        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+
+      actionId: "63f78437d1a4ef55755952f1",
+    },
   };
   const expectedResult = {
     JSObject1: {
@@ -965,36 +976,7 @@ describe("convertJSFunctionsToString", () => {
       body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
       ENTITY_TYPE: "JSACTION",
       "myFun1.data": {},
-      meta: {
-        myFun1: {
-          arguments: [],
-          isAsync: false,
-          confirmBeforeExecute: false,
-        },
-      },
-      name: "JSObject1",
       actionId: "63ef4cb1a01b764626f2a6e5",
-      pluginType: PluginType.JS,
-      bindingPaths: {
-        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      reactivePaths: {
-        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      dynamicBindingPathList: [
-        {
-          key: "body",
-        },
-        {
-          key: "myFun1",
-        },
-      ],
-      variables: [],
-      dependencyMap: {
-        body: ["myFun1"],
-      },
     },
     JSObject2: {
       myVar1: "[]",
@@ -1006,59 +988,10 @@ describe("convertJSFunctionsToString", () => {
       ENTITY_TYPE: "JSACTION",
       "myFun1.data": {},
       "myFun2.data": {},
-      meta: {
-        myFun1: {
-          arguments: [],
-          isAsync: false,
-          confirmBeforeExecute: false,
-        },
-        myFun2: {
-          arguments: [],
-          isAsync: true,
-          confirmBeforeExecute: false,
-        },
-      },
-      name: "JSObject2",
       actionId: "63f78437d1a4ef55755952f1",
-      pluginType: PluginType.JS,
-      bindingPaths: {
-        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myVar1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myVar2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      reactivePaths: {
-        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myVar1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myVar2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      dynamicBindingPathList: [
-        {
-          key: "body",
-        },
-        {
-          key: "myVar1",
-        },
-        {
-          key: "myVar2",
-        },
-        {
-          key: "myFun1",
-        },
-        {
-          key: "myFun2",
-        },
-      ],
-      variables: ["myVar1", "myVar2"],
-      dependencyMap: {
-        body: ["myFun1", "myFun2"],
-      },
     },
   };
-  const actualResult = convertJSFunctionsToString(jsCollections);
+  const actualResult = convertJSFunctionsToString(jsCollections, configTree);
 
   expect(expectedResult).toStrictEqual(actualResult);
 });

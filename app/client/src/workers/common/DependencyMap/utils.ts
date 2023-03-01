@@ -21,6 +21,7 @@ import {
   DataTree,
   DataTreeAction,
   DataTreeEntity,
+  DataTreeEntityConfig,
   DataTreeJSAction,
   DataTreeWidget,
   WidgetEntityConfig,
@@ -320,6 +321,7 @@ export function listEntityDependencies(
 export function listEntityPathDependencies(
   entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
   fullPropertyPath: string,
+  entityConfig: DataTreeEntityConfig,
 ): {
   isTrigger: boolean;
   dependencies: string[];
@@ -328,19 +330,22 @@ export function listEntityPathDependencies(
   const isTrigger = false;
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   if (isWidget(entity)) {
-    if (isATriggerPath(entity, propertyPath)) {
+    if (
+      isATriggerPath(entity, propertyPath, entityConfig as WidgetEntityConfig)
+    ) {
       return {
         isTrigger: true,
         dependencies: listEntityPathTriggerFieldDependencies(
           entity,
           fullPropertyPath,
+          entityConfig as WidgetEntityConfig,
         ),
       };
     }
   }
 
   if (isJSAction(entity)) {
-    if (entity.bindingPaths.hasOwnProperty(propertyPath)) {
+    if (entityConfig.bindingPaths.hasOwnProperty(propertyPath)) {
       const unevalPropValue = get(entity, propertyPath);
       const unevalPropValueString =
         !!unevalPropValue && unevalPropValue.toString();
@@ -353,8 +358,8 @@ export function listEntityPathDependencies(
 
   if (isAction(entity) || isWidget(entity)) {
     if (
-      entity.bindingPaths.hasOwnProperty(propertyPath) ||
-      find(entity.dynamicBindingPathList, { key: propertyPath })
+      entityConfig.bindingPaths.hasOwnProperty(propertyPath) ||
+      find(entityConfig.dynamicBindingPathList, { key: propertyPath })
     ) {
       const unevalPropValue = get(entity, propertyPath);
       const { jsSnippets } = getDynamicBindings(unevalPropValue);
@@ -369,11 +374,12 @@ export function listEntityPathDependencies(
 export function listEntityPathTriggerFieldDependencies(
   entity: DataTreeWidget,
   fullPath: string,
+  entityConfig: WidgetEntityConfig,
 ) {
   let triggerFieldDependencies: string[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
 
-  if (isADynamicTriggerPath(entity, propertyPath)) {
+  if (isADynamicTriggerPath(entity, propertyPath, entityConfig)) {
     const unevalPropValue = get(entity, propertyPath);
     const { jsSnippets } = getDynamicBindings(unevalPropValue);
     triggerFieldDependencies = jsSnippets.filter((jsSnippet) => !!jsSnippet);
@@ -385,9 +391,10 @@ export function listEntityPathTriggerFieldDependencies(
 export function isADynamicTriggerPath(
   entity: DataTreeEntity,
   propertyPath: string,
+  entityConfig: WidgetEntityConfig,
 ) {
   if (isWidget(entity)) {
-    const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+    const dynamicTriggerPathlist = entityConfig?.dynamicTriggerPathList;
     const isTriggerPath = find(dynamicTriggerPathlist, { key: propertyPath });
     if (isTriggerPath) {
       return true;
@@ -396,9 +403,13 @@ export function isADynamicTriggerPath(
   }
 }
 
-function isATriggerPath(entity: DataTreeEntity, propertyPath: string) {
+function isATriggerPath(
+  entity: DataTreeEntity,
+  propertyPath: string,
+  entityConfig: WidgetEntityConfig,
+) {
   if (isWidget(entity)) {
-    const triggerPaths = entity.triggerPaths;
+    const triggerPaths = entityConfig.triggerPaths;
     return triggerPaths.hasOwnProperty(propertyPath);
   }
   return false;
