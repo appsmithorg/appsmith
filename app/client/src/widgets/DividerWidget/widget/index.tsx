@@ -5,7 +5,7 @@ import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { isAutoLayout } from "selectors/mainCanvasSelectors";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {

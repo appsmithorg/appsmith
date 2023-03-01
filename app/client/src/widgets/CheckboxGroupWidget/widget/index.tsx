@@ -22,7 +22,7 @@ import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { isAutoLayout } from "selectors/mainCanvasSelectors";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,

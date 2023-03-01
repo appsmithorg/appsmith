@@ -17,7 +17,6 @@ import {
 } from "selectors/dataTreeSelectors";
 import {
   computeMainContainerWidget,
-  getCanvasWidth,
   getChildWidgets,
   getCurrentAppPositioningType,
   getMainCanvasProps,
@@ -84,7 +83,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     );
     const isMobile = useSelector(getIsMobile);
     const appPositioningType = useSelector(getCurrentAppPositioningType);
-    const mainCanvasWidth = useSelector(getCanvasWidth);
 
     const dispatch = useDispatch();
 
@@ -145,7 +143,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
       widgetProps.isMobile = !!isMobile;
       widgetProps.appPositioningType = appPositioningType;
-      widgetProps.mainCanvasWidth = mainCanvasWidth;
 
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.

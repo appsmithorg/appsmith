@@ -8,7 +8,7 @@ import {
 import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import React from "react";
-import { isAutoLayout } from "selectors/mainCanvasSelectors";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";

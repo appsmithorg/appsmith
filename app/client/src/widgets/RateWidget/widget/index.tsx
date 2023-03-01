@@ -10,7 +10,7 @@ import { Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { isAutoLayout } from "selectors/mainCanvasSelectors";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
