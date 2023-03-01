@@ -81,7 +81,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
                 .flatMap(
-                        application -> getApplicationJsonString(application.getId())
+                        application -> getApplicationJsonStringFromSnapShot(application.getId())
                                 .zipWith(Mono.just(application))
                 )
                 .flatMap(objects -> {
@@ -94,7 +94,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 });
     }
 
-    private Mono<String> getApplicationJsonString(String applicationId) {
+    private Mono<String> getApplicationJsonStringFromSnapShot(String applicationId) {
         return applicationSnapshotRepository.findByApplicationId(applicationId)
                 .sort(Comparator.comparingInt(ApplicationSnapshot::getChunkOrder))
                 .map(ApplicationSnapshot::getData)
