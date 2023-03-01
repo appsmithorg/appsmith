@@ -19,17 +19,6 @@ export const getFlexLayers = (parentId: string) => {
   });
 };
 
-export const getSiblingCount = (widgetId: string, parentId: string) => {
-  return createSelector(getFlexLayers(parentId), (flexLayers): number => {
-    if (!flexLayers) return -1;
-    const selectedLayer = flexLayers?.find((layer: FlexLayer) =>
-      layer.children?.some((child: LayerChild) => child.id === widgetId),
-    );
-    if (!selectedLayer) return -1;
-    return selectedLayer.children?.length;
-  });
-};
-
 export const getLayerIndex = (widgetId: string, parentId: string) => {
   return createSelector(
     getFlexLayers(parentId),

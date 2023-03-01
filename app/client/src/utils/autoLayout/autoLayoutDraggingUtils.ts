@@ -86,7 +86,7 @@ export function updateRelationships(
       if (prevParentId !== undefined) {
         prevParents.push(prevParentId);
         const prevParent = Object.assign({}, widgets[prevParentId]);
-        if (prevParent && prevParent.children && isArray(prevParent.children)) {
+        if (isArray(prevParent.children)) {
           const updatedPrevParent = {
             ...prevParent,
             children: onlyUpdateFlexLayers
