@@ -27,7 +27,7 @@ import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
 import { Colors } from "constants/Colors";
 import {
   useDatasourceIdFromURL,
-  getExplorerStatus,
+  // getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { Icon } from "design-system-old";
@@ -60,7 +60,7 @@ const Datasources = React.memo(() => {
   const pageId = useSelector(getCurrentPageId) || "";
   const plugins = useSelector(getPlugins);
   const applicationId = useSelector(getCurrentApplicationId);
-  const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
+  // const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
 
   const userWorkspacePermissions = useSelector(
