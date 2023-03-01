@@ -197,11 +197,11 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true) {
+  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true, force = true) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
       .eq(index)
       .scrollIntoView()
-      .click({ force: true });
+      .click({ force: force });
     shouldSleep && this.Sleep();
   }
 
@@ -1054,7 +1054,7 @@ export class AggregateHelper {
 
   public AssertContains(
     text: string | RegExp,
-    exists: "exist" | "not.exist" = "exist",
+    exists: "exist" | "not.exist" | "be.visible" = "exist",
     selector?: string,
   ) {
     if (selector) {

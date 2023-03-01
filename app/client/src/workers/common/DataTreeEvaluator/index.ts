@@ -48,6 +48,7 @@ import {
   isValidEntity,
   isNewEntity,
   getStaleMetaStateIds,
+  convertJSFunctionsToString,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -412,8 +413,30 @@ export default class DataTreeEvaluator {
       configTree,
     );
 
+    const stringifiedOldUnEvalTreeJSCollections = convertJSFunctionsToString(
+      oldUnEvalTreeJSCollections,
+    );
+    const stringifiedLocalUnEvalTreeJSCollection = convertJSFunctionsToString(
+      localUnEvalTreeJSCollection,
+    );
+
+    const oldUnEvalTreeWithStrigifiedJSFunctions = Object.assign(
+      {},
+      this.oldUnEvalTree,
+      stringifiedOldUnEvalTreeJSCollections,
+    );
+
+    const localUnEvalTreeWithStrigifiedJSFunctions = Object.assign(
+      {},
+      localUnEvalTree,
+      stringifiedLocalUnEvalTreeJSCollection,
+    );
+
     const differences: Diff<DataTree, DataTree>[] =
-      diff(this.oldUnEvalTree, localUnEvalTree) || [];
+      diff(
+        oldUnEvalTreeWithStrigifiedJSFunctions,
+        localUnEvalTreeWithStrigifiedJSFunctions,
+      ) || [];
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
