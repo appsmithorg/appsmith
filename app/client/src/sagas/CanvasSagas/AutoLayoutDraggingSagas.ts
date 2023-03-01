@@ -1,13 +1,17 @@
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import {
   FlexLayerAlignment,
   LayoutDirection,
 } from "utils/autoLayout/constants";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -62,9 +66,19 @@ function* addWidgetAndReorderSaga(
     );
 
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
-    log.debug("reorder computations took", performance.now() - start, "ms");
-  } catch (e) {
-    // console.error(e);
+    log.debug(
+      "Auto Layout : add new widget took",
+      performance.now() - start,
+      "ms",
+    );
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+        error,
+      },
+    });
   }
 }
 
@@ -108,9 +122,19 @@ function* autoLayoutReorderSaga(
     );
 
     yield put(updateAndSaveLayout(updatedWidgets));
-    log.debug("reorder computations took", performance.now() - start, "ms");
-  } catch (e) {
-    // console.error(e);
+    log.debug(
+      "Auto Layout : reorder computations took",
+      performance.now() - start,
+      "ms",
+    );
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
+        error,
+      },
+    });
   }
 }
 
@@ -203,7 +227,8 @@ function* reorderAutolayoutChildren(params: {
       ...newItems.slice(pos),
     ],
   };
-  const parentWidget = allWidgets[allWidgets[parentId].parentId || "0"];
+  const parentWidget =
+    allWidgets[allWidgets[parentId].parentId || MAIN_CONTAINER_WIDGET_ID];
   const isAutoLayoutContainerCanvas = parentWidget.type === "CONTAINER_WIDGET";
   if (isAutoLayoutContainerCanvas) {
     const height =

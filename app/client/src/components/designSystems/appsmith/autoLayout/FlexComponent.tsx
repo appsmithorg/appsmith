@@ -12,8 +12,8 @@ import {
 } from "utils/autoLayout/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
-import { checkIsDropTarget } from "../PositionedContainer";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 export type AutoLayoutProps = {
   children: ReactNode;

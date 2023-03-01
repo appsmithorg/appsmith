@@ -9,7 +9,7 @@ import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
 import { getAppMode } from "selectors/entitiesSelector";
 import AutoLayoutLayer from "./AutoLayoutLayer";
-import { FLEXBOX_PADDING } from "constants/WidgetConstants";
+import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
@@ -32,7 +32,7 @@ export const DEFAULT_HIGHLIGHT_SIZE = 4;
 function FlexBoxComponent(props: FlexBoxProps) {
   const direction: LayoutDirection =
     props.direction || LayoutDirection.Horizontal;
-  const appMode = useSelector(getAppMode);
+  const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const leaveSpaceForWidgetName = appMode === APP_MODE.EDIT;
   const isMobile: boolean = props.isMobile || false;
   const alignmentColumnInfo: FlexBoxAlignmentColumnInfo = useSelector(
@@ -79,16 +79,21 @@ function FlexBoxComponent(props: FlexBoxProps) {
     const start = [],
       center = [],
       end = [];
+    let startColumns = 0,
+      centerColumns = 0,
+      endColumns = 0;
     const columnInfo: AlignmentColumnInfo = alignmentColumnInfo[index];
-    const startColumns = columnInfo ? columnInfo[FlexLayerAlignment.Start] : 0,
-      centerColumns = columnInfo ? columnInfo[FlexLayerAlignment.Center] : 0,
-      endColumns = columnInfo ? columnInfo[FlexLayerAlignment.End] : 0;
+    if (columnInfo) {
+      startColumns = columnInfo[FlexLayerAlignment.Start];
+      centerColumns = columnInfo[FlexLayerAlignment.Center];
+      endColumns = columnInfo[FlexLayerAlignment.End];
+    }
 
     for (const child of children) {
       const widget = map[child.id];
-      if (child.align === "end") {
+      if (child.align === FlexLayerAlignment.End) {
         end.push(widget);
-      } else if (child.align === "center") {
+      } else if (child.align === FlexLayerAlignment.Center) {
         center.push(widget);
       } else {
         start.push(widget);
@@ -105,10 +110,13 @@ function FlexBoxComponent(props: FlexBoxProps) {
         key={index}
         start={start}
         widgetId={props.widgetId}
-        wrapCenter={centerColumns > 64}
-        wrapEnd={endColumns > 64}
-        wrapLayer={startColumns + centerColumns + endColumns > 64}
-        wrapStart={startColumns > 64}
+        wrapCenter={centerColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
+        wrapEnd={endColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
+        wrapLayer={
+          startColumns + centerColumns + endColumns >
+          GridDefaults.DEFAULT_GRID_COLUMNS
+        }
+        wrapStart={startColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
       />
     );
   }

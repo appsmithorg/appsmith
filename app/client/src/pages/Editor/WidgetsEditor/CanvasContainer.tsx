@@ -34,8 +34,6 @@ import {
   useDynamicAppLayout,
 } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
-// import { noop } from "utils/AppsmithUtils";
-// import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { layoutConfigurations } from "constants/WidgetConstants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import Canvas from "../Canvas";
@@ -284,8 +282,5 @@ function CanvasContainer() {
     </Container>
   );
 }
-CanvasContainer.whyDidYouRender = {
-  logOnDifferentValues: true,
-};
 
 export default CanvasContainer;
