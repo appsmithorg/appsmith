@@ -3,7 +3,6 @@ import {
   ReduxActionTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ErrorReduxState } from "./errorReducer";
 import { FocusEntity } from "../../navigation/FocusEntity";
 
 const initialState: EditorTabsState = {
@@ -12,14 +11,26 @@ const initialState: EditorTabsState = {
 
 const editorTabsReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_EDITOR_TABS]: (
-    state: ErrorReduxState,
-    action: ReduxAction<Array<unknown>>,
+    state: EditorTabsState,
+    action: ReduxAction<Array<EditorTab>>,
   ) => ({
     openTabs: action.payload,
   }),
   [ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]: () => ({
     openTabs: [],
   }),
+  [ReduxActionTypes.CLOSE_EDITOR_TAB]: (
+    state: EditorTabsState,
+    action: ReduxAction<EditorTab>,
+  ) => {
+    return {
+      ...state,
+      openTabs: state.openTabs.filter(
+        (tab) =>
+          tab.id !== action.payload.id && tab.name !== action.payload.name,
+      ),
+    };
+  },
 });
 
 export type EditorTab = {
