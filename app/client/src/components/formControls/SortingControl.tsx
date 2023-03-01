@@ -46,19 +46,6 @@ const orderFieldConfig: any = {
       icon: "sort-desc",
     },
   ],
-  customStyles: {
-    width: "144px",
-  },
-};
-
-const updateDropdownWidth = (width: string) => {
-  return `
-  .t--form-control-DROP_DOWN,
-  .t--form-control-DROP_DOWN > div > div,
-  .t--form-control-DROP_DOWN > div > div > div > div {
-    width: ${width};
-  }
-  `;
 };
 
 // main container for the fsorting component
@@ -75,8 +62,6 @@ const SortingDropdownContainer = styled.div<{ size: string }>`
   width: min-content;
   justify-content: space-between;
   margin-bottom: 10px;
-
-  ${updateDropdownWidth("144px")}
 
   // Hide the icon by default
   .t--form-control-DROP_DOWN .remixicon-icon {
@@ -98,7 +83,6 @@ const SortingDropdownContainer = styled.div<{ size: string }>`
   .t--form-control-DROP_DOWN .remixicon-icon {
     display: initial;
   }
-  ${updateDropdownWidth("65px")}
   `}
 `;
 
@@ -157,6 +141,7 @@ function SortingComponent(props: any) {
 
   const targetRef = useRef<HTMLDivElement>(null);
   const size = useResponsiveBreakpoints(targetRef, [{ small: 450 }]);
+  const isBreakpointSmall = size === "small";
 
   useEffect(() => {
     // this path represents the path to the sortBy object, wherever the location is in the actionConfiguration object
@@ -233,6 +218,10 @@ function SortingComponent(props: any) {
                   ...orderFieldConfig,
                   configProperty: `${OrderPath}`,
                   nestedFormControl: true,
+                  customStyles: {
+                    width: isBreakpointSmall ? "65px" : "144px",
+                  },
+                  optionWidth: isBreakpointSmall ? "144px" : undefined,
                 }}
                 formName={props.formName}
               />

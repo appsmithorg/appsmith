@@ -224,7 +224,7 @@ function renderDropdown(
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
       onSelect={onSelectOptions}
-      optionWidth={props.width}
+      optionWidth={props.optionWidth || props.width}
       options={options}
       placeholder={props?.placeholderText}
       removeSelectedOption={onRemoveOptions}
@@ -237,6 +237,7 @@ function renderDropdown(
 
 export interface DropDownControlProps extends ControlProps {
   options: DropdownOption[];
+  optionWidth?: string;
   placeholderText: string;
   propertyValue: string;
   subtitle?: string;
