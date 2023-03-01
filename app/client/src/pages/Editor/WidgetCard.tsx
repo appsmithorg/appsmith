@@ -7,6 +7,9 @@ import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
+import { useSelector } from "react-redux";
+import { getIsAutoLayout } from "selectors/editorSelectors";
+import WidgetFactory from "utils/WidgetFactory";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -70,6 +73,7 @@ export const IconLabel = styled.h5`
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   const onDragStart = (e: any) => {
     e.preventDefault();
@@ -78,9 +82,20 @@ function WidgetCard(props: CardProps) {
       widgetType: props.details.type,
       widgetName: props.details.displayName,
     });
+    let rows = props.details.rows;
+    let columns = props.details.columns;
+    const autoLayoutConfig = WidgetFactory.getWidgetAutoLayoutConfig(
+      props.details.type,
+    );
+    if (isAutoLayout && autoLayoutConfig) {
+      rows = autoLayoutConfig?.defaults?.rows ?? rows;
+      columns = autoLayoutConfig?.defaults?.columns ?? columns;
+    }
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,
+        columns,
+        rows,
         widgetId: generateReactKey(),
       });
     deselectAll();

@@ -22,6 +22,7 @@ export type WidgetSizeConfig = {
 
 export type AutoLayoutConfig = {
   widgetSize: Array<WidgetSizeConfig>;
+  defaults?: Partial<WidgetProps> & WidgetConfigProps;
 };
 
 export interface WidgetConfiguration {

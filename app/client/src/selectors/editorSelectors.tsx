@@ -261,6 +261,11 @@ export const getCurrentAppPositioningType = createSelector(
   },
 );
 
+export const getIsAutoLayout = createSelector(
+  getCurrentAppPositioningType,
+  (positioningType) => positioningType === AppPositioningTypes.AUTO,
+);
+
 export const getCurrentApplicationLayout = createSelector(
   getAppLayout,
   getCurrentAppPositioningType,

@@ -847,6 +847,8 @@ export interface WidgetProps
 }
 
 export interface WidgetCardProps {
+  rows: number;
+  columns: number;
   type: WidgetType;
   key?: string;
   displayName: string;
