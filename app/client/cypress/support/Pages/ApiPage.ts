@@ -370,7 +370,7 @@ export class ApiPage {
 
   ResponseStatusCheck(statusCode: string) {
     this.agHelper.AssertElementVisible(this._responseStatus);
-    cy.get(this._responseStatus).contains(statusCode);
+    this.agHelper.GetNAssertContains(this._responseStatus, statusCode)
   }
   public SelectPaginationTypeViaIndex(index: number) {
     cy.get(this._paginationTypeLabels)
