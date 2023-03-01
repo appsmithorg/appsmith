@@ -342,7 +342,7 @@ describe("Autocomplete tests", () => {
     agHelper.Sleep();
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject2");
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject2.");
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, ".");
 
     agHelper.GetNAssertElementText(
       CommonLocators._hints,
