@@ -82,25 +82,30 @@ const ActionCreator = React.forwardRef(
         const newValueWithoutMoustache = getCodeFromMoustache(value);
         setActions((prev) => {
           const newActions = { ...prev };
-          if (value) {
-            const newFunction = getFunctionName(
-              newValueWithoutMoustache,
-              self.evaluationVersion,
-            );
-            const oldFunction = getFunctionName(
-              prev[id],
-              self.evaluationVersion,
-            );
-            if (newFunction !== oldFunction) {
-              Toaster.show({
-                text: `${oldFunction} was deleted`,
-                variant: Variant.success,
-                dispatchableAction: {
-                  dispatch: store.dispatch,
-                  ...undoAction(),
-                },
-              });
-            }
+          const prevValue = prev[id];
+          const newFunction = getFunctionName(
+            newValueWithoutMoustache,
+            self.evaluationVersion,
+          );
+          const oldFunction = getFunctionName(
+            prevValue,
+            self.evaluationVersion,
+          );
+
+          // We show the message only when an action is deleted or changed
+          // Prev value is ; when a new action is added
+          if (newFunction !== oldFunction && prevValue !== ";") {
+            Toaster.show({
+              text: `${oldFunction} was deleted`,
+              variant: Variant.success,
+              dispatchableAction: {
+                dispatch: store.dispatch,
+                ...undoAction(),
+              },
+            });
+          }
+
+          if (newValueWithoutMoustache) {
             newActions[id] = newValueWithoutMoustache;
           } else {
             delete newActions[id];
