@@ -2,6 +2,7 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const datasourceFormData = require("../../../../fixtures/datasources.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
+const multienv = require("../../../../locators/MultiEnvlocator.json");
 
 let guid, datasourceName;
 
@@ -25,10 +26,10 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
     //cy.get("[data-cy='t--invalid-page-go-back']").click({ force: true });
     //cy.get(datasource.PostgreSQL).click();
     // Validating save option before toggling env
-    cy.xpath("//input[contains(@name,'host')]")
+    cy.xpath(multienv.hostAddress)
       .clear()
       .type(datasourceFormData["postgres-host"]);
-    cy.xpath("//input[contains(@name,'port')]")
+    cy.xpath(multienv.portNumber)
       .clear()
       .type(datasourceFormData["postgres-port"]);
     /*  
@@ -50,97 +51,97 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
     cy.get(".t--edit-datasource").click();
     cy.toggleBetweenEnvironment("Production");
     */
-    cy.xpath("//input[contains(@name,'host')]")
+    cy.xpath(multienv.hostAddress)
       .clear()
       .type(datasourceFormData["postgres-host"]);
-    cy.xpath("//input[contains(@name,'port')]")
+    cy.xpath(multienv.portNumber)
       .clear()
       .type(datasourceFormData["postgres-port"]);
     cy.get(
-      "[data-cy='t--dropdown-datasourceConfiguration.connection.mode']",
+      multienv.connectionMode,
     ).click();
-    cy.get(".t--dropdown-option").should("contain.text", "Read Only");
-    cy.get(".t--dropdown-option").should("contain.text", "Read / Write");
-    cy.get(".t--dropdown-option")
+    cy.get(multienv.dropDownOption).should("contain.text", "Read Only");
+    cy.get(multienv.dropDownOption).should("contain.text", "Read / Write");
+    cy.get(multienv.dropDownOption)
       .contains("Read / Write")
       .click();
-    cy.get(".t--add-field").click();
-    cy.xpath("//input[contains(@name,'host')]")
+    cy.get(multienv.addField).click();
+    cy.xpath(multienv.hostAddress)
       .last()
       .type("Test");
-    cy.xpath("//input[contains(@name,'port')]")
+    cy.xpath(multienv.portNumber)
       .last()
       .type("1234");
-    cy.xpath("//input[contains(@name,'databaseName')]")
+    cy.get(multienv.databaseName)
       .clear()
       .type("TestDB");
-    cy.xpath("//div[text()='Authentication']").click();
-    cy.xpath("//input[contains(@name,'username')]").type(
+    cy.xpath(multienv.authenticationText).click();
+    cy.xpath(multienv.username).type(
       datasourceFormData["postgres-username"],
     );
-    cy.xpath("//input[contains(@name,'password')]").type(
+    cy.xpath(multienv.password).type(
       datasourceFormData["postgres-password"],
     );
-    cy.xpath("//div[text()='SSL (optional)']").click();
+    cy.xpath(multienv.sslText).click();
     cy.get(
-      "[data-cy='t--dropdown-datasourceConfiguration.connection.ssl.authType']",
+      multienv.sslMode,
     ).click();
-    cy.get(".t--dropdown-option")
+    cy.get(multienv.dropDownOption)
       .should("contain.text", "Default")
       .and("contain.text", "Allow")
       .and("contain.text", "Prefer")
       .and("contain.text", "Require")
       .and("contain.text", "Disable");
-    cy.get(".t--dropdown-option")
+    cy.get(multienv.dropDownOption)
       .contains("Default")
       .click();
-    cy.get(".t--delete-field")
+    cy.get(multienv.deleteField)
       .last()
       .click();
     cy.saveDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = JSON.stringify(httpResponse.response.body.data.name);
     });
-    cy.get(".t--edit-datasource").click({ force: true });
+    cy.get(multienv.editDatasource).click({ force: true });
   });
 
   it("2.Update DS details and create Production/Staging Env variables", function() {
     cy.wait(5000);
-    cy.get(".t--edit-datasource").click({ force: true });
+    cy.get(multienv.editDatasource).click({ force: true });
     //bindProductionEnvironmentVariable
     cy.fillPostgresDatasourceEnvironmentDetails();
     cy.wait(3000);
-    cy.get(".t--save-datasource").should("not.be.enabled");
+    cy.get(multienv.saveDatasource).should("not.be.enabled");
     cy.contains(datasourceFormData["postgres-host"]);
     cy.contains(datasourceFormData["postgres-port"]);
     cy.contains(datasourceFormData["postgres-username"]);
     //cy.contains(datasourceFormData["postgres-password"]);
     cy.get(
-      "[data-cy='datasourceConfiguration.authentication.databaseName']",
+      multienv.databaseName,
     ).should("not.be.enabled");
     //Staging Environment
-    cy.get(".t--edit-datasource").click({ force: true });
+    cy.get(multienv.editDatasource).click({ force: true });
     cy.wait(5000);
-    cy.get(".cs-text:contains('Production')")
+    cy.get(multienv.productionText)
       .first()
       .click({ force: true });
     //bindStagingEnvironmentVariable
-    cy.get('span[name="expand-more"]')
+    cy.get(multienv.expandMore)
       .first()
       .click({ force: true });
-    cy.get("[data-cy='t--dropdown-option-Staging']").click({ force: true });
-    cy.get(".cs-text:contains('Select a new field')").click({ force: true });
+    cy.get(multienv.stagingOption).click({ force: true });
+    cy.get(multienv.selectNewField).click({ force: true });
     cy.fillPostgresDatasourceEnvironmentDetailsStaging();
     cy.wait(3000);
-    cy.get(".t--save-datasource").should("not.be.enabled");
+    cy.get(multienv.saveDatasource).should("not.be.enabled");
     cy.contains(datasourceFormData["postgres-host"]);
     cy.contains(datasourceFormData["postgres-port"]);
     cy.contains(datasourceFormData["postgres-username"]);
     // cy.contains(datasourceFormData["postgres-password"]);
     cy.get(
-      "[data-cy='datasourceConfiguration.authentication.databaseName']",
+      multienv.databaseName,
     ).should("not.be.enabled");
-    cy.get(".t--toast-action .cs-text").should("not.be.visible");
+    cy.get(multienv.toast).should("not.be.visible");
     //ToggleBetweenEnv()
     cy.wait(3000);
     cy.toggleBetweenEnvironment("Staging");
@@ -155,7 +156,7 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
       200,
     );
     cy.wait(3000);
-    cy.xpath("//span[(@type='p1') and contains(text(),'Staging')]");
+    cy.xpath(multienv.stagingEnvText);
     cy.toggleBetweenEnvironment("Production");
     cy.wait("@getPagesForCreateApp").should(
       "have.nested.property",
@@ -168,8 +169,7 @@ describe("Postgres datasource test cases for Multi-Environment ", function() {
       200,
     );
     cy.wait(3000);
-    cy.xpath("//span[(@type='p1') and contains(text(),'Production')]");
-    cy.wait(10000);
+    cy.xpath(multienv.productionEnvText);
   });
 
   it.skip("3. Create a new query from the datasource editor", function() {

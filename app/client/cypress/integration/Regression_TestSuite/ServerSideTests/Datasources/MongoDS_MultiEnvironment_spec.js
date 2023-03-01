@@ -1,5 +1,6 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
+const multienv = require("../../../../locators/MultiEnvlocator.json");
 
 describe("Create, test, save then delete a mongo datasource with multiple environment", function() {
   beforeEach(() => {
@@ -34,88 +35,89 @@ describe("Create, test, save then delete a mongo datasource with multiple enviro
     cy.get(".bp3-dialog").should("be.visible");
     cy.get(".t--datasource-modal-save").click();
     cy.xpath("//div[text()='Datasource Saved']").should("be.visible");
-    cy.get(".t--edit-datasource").click();
+    cy.get(multienv.editDatasource).click();
     cy.toggleBetweenEnvironment("Production");
     */
-    cy.xpath("//input[contains(@name,'host')]").clear()
+    cy.xpath(multienv.hostAddress).clear()
         .type(datasourceFormData["mongo-host"]);
-    cy.xpath("//input[contains(@name,'port')]").clear()
+    cy.xpath(multienv.portNumber).clear()
         .type(datasourceFormData["mongo-port"]);
 
-    cy.get("[data-cy='t--dropdown-datasourceConfiguration.connection.mode']").click();
-    cy.get(".t--dropdown-option").should("contain.text", "Read Only");
-    cy.get(".t--dropdown-option").should("contain.text", "Read / Write");
-    cy.get(".t--dropdown-option").contains("Read / Write").click();
-    cy.get("[data-cy='t--dropdown-datasourceConfiguration.connection.type']").click();
-    cy.get(".t--dropdown-option").should("contain.text", "Direct Connection")
+    cy.get(multienv.connectionMode).click();
+    cy.get(multienv.dropDownOption).should("contain.text", "Read Only");
+    cy.get(multienv.dropDownOption).should("contain.text", "Read / Write");
+    cy.get(multienv.dropDownOption).contains("Read / Write").click();
+    cy.get(multienv.connectionType).click();
+    cy.get(multienv.dropDownOption).should("contain.text", "Direct Connection")
         .and("contain.text", "Replica set");
-    cy.get(".t--dropdown-option").contains("Direct Connection").click();
-    cy.xpath("//input[contains(@name,'host')]").clear()
+    cy.get(multienv.dropDownOption).contains("Direct Connection").click();
+    cy.xpath(multienv.hostAddress).clear()
         .type(datasourceFormData["mongo-host"]);
-    cy.xpath("//input[contains(@name,'port')]").clear()
+    cy.xpath(multienv.portNumber).clear()
         .type(datasourceFormData["mongo-port"]);
-    cy.get(".t--add-field").click();
-    cy.xpath("//input[contains(@name,'host')]").last().type("Test");
-    cy.xpath("//input[contains(@name,'port')]").last().type("1234");
-    cy.xpath("//div[text()='Authentication']").click();
-    cy.xpath("//input[contains(@name,'databaseName')]").clear().type("TestDB");
-    cy.xpath("//input[contains(@name,'username')]")
+    cy.get(multienv.addField).click();
+    cy.xpath(multienv.hostAddress).last().type("Test");
+    cy.xpath(multienv.portNumber).last().type("1234");
+    cy.xpath(multienv.authenticationText).click();
+    cy.wait(2000);
+    //cy.get(multienv.databaseName).clear().type("TestDB");
+    cy.xpath(multienv.username)
         .type(datasourceFormData["mongo-username"]);
-    cy.xpath("//input[contains(@name,'password')]")
+    cy.xpath(multienv.password)
         .type(datasourceFormData["mongo-password"]);
-    cy.get("[data-cy='t--dropdown-datasourceConfiguration.authentication.authType']").click();
-    cy.get(".t--dropdown-option").should("contain.text", "SCRAM-SHA-1")
+    cy.get(multienv.authenticationType).click();
+    cy.get(multienv.dropDownOption).should("contain.text", "SCRAM-SHA-1")
         .and("contain.text", "SCRAM-SHA-256")
         .and("contain.text", "MONGODB-CR");
-    cy.get(".t--dropdown-option").contains("SCRAM-SHA-1").click();
-    cy.xpath("//div[text()='SSL (optional)']").click();
-    cy.get("[data-cy='t--dropdown-datasourceConfiguration.connection.ssl.authType']")
+    cy.get(multienv.dropDownOption).contains("SCRAM-SHA-1").click();
+    cy.xpath(multienv.sslText).click();
+    cy.get(multienv.sslMode)
         .click();
-    cy.get(".t--dropdown-option").should("contain.text", "Default")
+    cy.get(multienv.dropDownOption).should("contain.text", "Default")
         .and("contain.text", "Enabled")
         .and("contain.text", "Disabled");
-    cy.get(".t--dropdown-option").contains("Default").click();
-    cy.get(".t--delete-field").last().click();
+    cy.get(multienv.dropDownOption).contains("Default").click();
+    cy.get(multienv.deleteField).last().click();
     cy.saveDatasource();
     cy.wait(2000);
-    cy.get(".t--edit-datasource").click({force: true});
+    cy.get(multienv.editDatasource).click({force: true});
   })
 
   it("2.Update DS details and create Production/Staging Env variables", function() {
     cy.fillMongoDatasourceForm();
     // cy.testSaveDeleteDatasource();
-    cy.get(".t--save-datasource").click();
+    cy.get(multienv.saveDatasource).click();
     cy.wait(2000);
     //Production Environment
-    cy.get(".t--edit-datasource").click({ force: true });
-    cy.get(".t--edit-datasource").click({ force: true });
+    cy.get(multienv.editDatasource).click({ force: true });
+    cy.get(multienv.editDatasource).click({ force: true });
     cy.wait(5000);
     cy.fillMongoDBDatasourceEnvironmentDetails();
-    cy.get("[data-cy='datasourceConfiguration.authentication.databaseName']")
+    cy.get(multienv.databaseName)
       .should("not.be.enabled");
-    cy.get("[data-cy='datasourceConfiguration.authentication.username']")
+    cy.xpath(multienv.username)
       .should("not.be.enabled");
-    cy.get("[data-cy='datasourceConfiguration.authentication.password']")
+    cy.xpath(multienv.password)
       .should("not.be.enabled"); 
-    cy.get(".t--edit-datasource").click({ force: true });
+    cy.get(multienv.editDatasource).click({ force: true });
     cy.wait(5000);
     //Staging Environment
-    cy.get(".cs-text:contains('Production')").first().click({ force: true });
+    cy.get(multienv.productionText).first().click({ force: true });
     //bindStagingEnvironmentVariable
-    cy.get('span[name="expand-more"]').first().click({ force: true });
-    cy.get("[data-cy='t--dropdown-option-Staging']").click({ force: true });
-    cy.get(".cs-text:contains('Select a new field')").click({ force: true });
+    cy.get(multienv.expandMore).first().click({ force: true });
+    cy.get(multienv.stagingOption).click({ force: true });
+    cy.get(multienv.selectNewField).click({ force: true });
     cy.fillMongoDatasourceEnvironmentDetailsStaging();
     cy.wait(3000);
-    cy.get(".t--save-datasource").should("not.be.enabled");
+    cy.get(multienv.saveDatasource).should("not.be.enabled");
     cy.contains(datasourceFormData["mongo-host"]);
     cy.contains(datasourceFormData["mongo-port"]);
     cy.contains(datasourceFormData["mongo-username"]);
-    cy.get("[data-cy='datasourceConfiguration.authentication.databaseName']")
+    cy.get(multienv.databaseName)
       .should("not.be.enabled");
-    cy.get("[data-cy='datasourceConfiguration.authentication.username']")
+    cy.get(multienv.databaseName)
       .should("not.be.enabled");
-    cy.get("[data-cy='datasourceConfiguration.authentication.password']")
+    cy.xpath(multienv.password)
       .should("not.be.enabled");    
   });
 })
