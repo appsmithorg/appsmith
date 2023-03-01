@@ -35,7 +35,7 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
     //Step3 & 4
     cy.get(`${datasource.datasourceCard}`)
     .filter(":contains('Users')")
-    .first()
+    .last()
     .within(() => {
       cy.get(`${datasource.createQuery}`).click({ force: true });
     });

@@ -84,6 +84,18 @@ describe("Autocomplete tests", () => {
 
   it("3. Bug #15568 Verify browser JavaScript APIs in autocomplete ", () => {
     // Using same js object
+    agHelper.SelectAllRemoveCodeText(".CodeMirror-code")
+    let codeToType = `export default {
+      myVar1: [],
+      myVar2: {},
+      myFun1(){
+
+      },
+      myFun2: async () => {
+        //use async-await or promises
+      `;
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, codeToType);
+    agHelper.GetNClick(jsEditor._lineinJsEditor(12));
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     // focus on 5th line
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
@@ -166,13 +178,25 @@ describe("Autocomplete tests", () => {
 
   it("6. Local variables & complex data autocompletion test", () => {
     // Using same js object
+    agHelper.SelectAllRemoveCodeText(".CodeMirror-code")
+    let codeToType = `export default {
+      myVar1: [],
+      myVar2: {},
+      myFun1(){
+
+      },
+      myFun2: async () => {
+        //use async-await or promises
+      `;
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, codeToType);
+    agHelper.GetNClick(jsEditor._lineinJsEditor(12));
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     const users = [
       { label: "a", value: "b" },
       { label: "a", value: "b" },
     ];
 
-    const codeToType = `const users = ${JSON.stringify(users)};
+    codeToType = `const users = ${JSON.stringify(users)};
     const data = { userCollection: [{ users }, { users }] };
 
     users.map(callBack);`;
@@ -183,7 +207,6 @@ describe("Autocomplete tests", () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, codeToType);
     agHelper.GetNClick(jsEditor._lineinJsEditor(7));
-    agHelper.Sleep()
     agHelper.TypeText(
       CommonLocators._codeMirrorTextArea,
       "const callBack = (user) => user.l",
@@ -316,9 +339,10 @@ describe("Autocomplete tests", () => {
 
     // Same check in JSObject1
     EntityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    agHelper.Sleep();
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.Sleep()
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject2.");
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject2");
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, ".");
 
     agHelper.GetNAssertElementText(
       CommonLocators._hints,
