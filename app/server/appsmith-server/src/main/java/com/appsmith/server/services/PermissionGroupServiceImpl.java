@@ -46,10 +46,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
@@ -424,14 +422,11 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     public Mono<Boolean> bulkAssignToUsersWithoutPermission(PermissionGroup pg, List<User> users) {
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
-        Set<String> assignedToUserIds = new HashSet<>(pg.getAssignedToUserIds());
-        assignedToUserIds.addAll(userIds);
+        Update updateAssignedToUserIdsUpdate = new Update();
+        updateAssignedToUserIdsUpdate.addToSet(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+                .each(userIds.toArray());
 
-        Update updateObj = new Update();
-        String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
-
-        updateObj.set(path, assignedToUserIds);
-        Mono<UpdateResult> permissionGroupUpdateMono = repository.updateById(pg.getId(), updateObj);
+        Mono<UpdateResult> permissionGroupUpdateMono = repository.updateById(pg.getId(), updateAssignedToUserIdsUpdate);
 
         return Mono.zip(
                         permissionGroupUpdateMono,
