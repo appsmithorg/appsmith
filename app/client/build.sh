@@ -18,6 +18,6 @@ fi
 echo "build finished"
 
 # build storybook and move to the static folder
-yarn --cwd packages/storybook build-storybook
+yarn --cwd packages/storybook build
 mv -f ./packages/storybook/storybook-static ./build/storybook
 

@@ -20,9 +20,7 @@ const typographyStyles = css`
     const { capHeight = 10, fontFamily, lineGap = 8 } = props;
     const styles = createTypographyStyles({ fontFamily, lineGap, capHeight });
 
-    return css`
-      ${styles}
-    `;
+    return styles;
   }}
 `;
 

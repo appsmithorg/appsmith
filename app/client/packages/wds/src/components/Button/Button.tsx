@@ -6,15 +6,12 @@ import { StyledButton } from "./index.styled";
 import { fontFamilyTypes } from "../../utils/typography";
 
 // types
-export const BUTTON_VARIANTS = [
-  "filled",
-  "outline",
-  "light",
-  "subtle",
-  "input",
-] as const;
-
-export type ButtonVariant = typeof BUTTON_VARIANTS[number];
+export enum ButtonVariant {
+  FILLED = "filled",
+  OUTLINE = "outline",
+  LIGHT = "light",
+  SUBTLE = "subtle",
+}
 
 export type ButtonProps = {
   accentColor?: string;
@@ -41,7 +38,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     isLoading,
     leadingIcon,
     trailingIcon,
-    variant = "filled",
+    variant = ButtonVariant.FILLED,
     ...rest
   } = props;
 
@@ -52,9 +49,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
       <>
         {leadingIcon && <span data-component="leadingIcon">{leadingIcon}</span>}
         {children && (
-          <span data-component="text">
-            <Text fontFamily={fontFamily}>{children}</Text>
-          </span>
+          <Text data-component="text" fontFamily={fontFamily}>
+            {children}
+          </Text>
         )}
         {trailingIcon && (
           <span data-component="trailingIcon">{trailingIcon}</span>

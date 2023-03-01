@@ -1,17 +1,19 @@
-export const transformV1ButtonProps = (v1Props: any) => {
-  const { buttonColor, buttonVariant, text, widgetName, ...rest } = v1Props;
+import { ButtonVariant } from "./Button";
 
-  const transformedProps: any = { ...rest };
+export const transformV1ButtonProps = (v1Props: any) => {
+  const { buttonColor, buttonVariant, text } = v1Props;
+
+  const transformedProps: any = {};
 
   switch (buttonVariant) {
     case "PRIMARY":
-      transformedProps.variant = "filled";
+      transformedProps.variant = ButtonVariant.FILLED;
       break;
     case "SECONDARY":
-      transformedProps.variant = "outline";
+      transformedProps.variant = ButtonVariant.OUTLINE;
       break;
     case "TERTIARY":
-      transformedProps.variant = "subtle";
+      transformedProps.variant = ButtonVariant.SUBTLE;
       break;
   }
 
@@ -19,7 +21,7 @@ export const transformV1ButtonProps = (v1Props: any) => {
   transformedProps.accentColor = buttonColor;
 
   return {
+    ...v1Props,
     ...transformedProps,
-    widgetName: widgetName || "Button",
   };
 };
