@@ -44,7 +44,6 @@ import { flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { Toaster } from "design-system-old";
 import { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";

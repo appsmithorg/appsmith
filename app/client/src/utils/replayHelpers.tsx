@@ -1,5 +1,3 @@
-import React from "react";
-
 import scrollIntoView from "scroll-into-view-if-needed";
 import {
   modText,

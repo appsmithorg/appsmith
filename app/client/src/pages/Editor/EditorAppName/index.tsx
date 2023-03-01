@@ -11,8 +11,6 @@ import {
   Icon,
   IconSize,
   SavingState,
-  Toaster,
-  Variant,
 } from "design-system-old";
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
