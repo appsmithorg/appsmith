@@ -330,7 +330,7 @@ function JSDependencies() {
       }
       entityId="library_section"
       icon={null}
-      isDefaultExpanded={isOpen}
+      isDefaultExpanded
       isSticky
       name="Libraries"
       showAddButton={canCreateActions}

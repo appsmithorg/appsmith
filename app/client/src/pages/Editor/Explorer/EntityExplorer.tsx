@@ -6,10 +6,8 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
-import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
 import { NonIdealState, Classes } from "@blueprintjs/core";
-import JSDependencies from "./Libraries";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -23,7 +21,6 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
@@ -69,11 +66,6 @@ const NoResult = styled(NonIdealState)`
     }
   }
 `;
-
-const StyledDivider = styled(Divider)`
-  border-bottom-color: #f0f0f0;
-`;
-
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -148,9 +140,6 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      <StyledDivider />
-      <Datasources />
-      <JSDependencies />
       <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
   );

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import explorerIcon from "assets/icons/header/explorer-side-nav.svg";
 import dataIcon from "assets/icons/header/database-side-nav.svg";
 import libIcon from "assets/icons/header/library-side-nav.svg";
+import { SideNavMode } from "pages/Editor/MultiPaneContainer";
 
 export const SIDE_NAV_WIDTH = 55;
 
@@ -56,16 +57,36 @@ const Button = styled.div`
   }
 `;
 
-function SideNav() {
+function SideNav(props: {
+  onSelect: (sideNavMode: SideNavMode | undefined) => void;
+}) {
   return (
-    <Container>
-      <Button>
+    <Container onClick={() => props.onSelect(undefined)}>
+      <Button
+        className="cursor-pointer"
+        onClick={(ev) => {
+          props.onSelect(SideNavMode.Explorer);
+          ev.stopPropagation();
+        }}
+      >
         <img alt="Explorer" src={explorerIcon} />
       </Button>
-      <Button>
+      <Button
+        className="cursor-pointer"
+        onClick={(ev) => {
+          props.onSelect(SideNavMode.DataSources);
+          ev.stopPropagation();
+        }}
+      >
         <img alt="Datasources" src={dataIcon} />
       </Button>
-      <Button>
+      <Button
+        className="cursor-pointer"
+        onClick={(ev) => {
+          props.onSelect(SideNavMode.Libraries);
+          ev.stopPropagation();
+        }}
+      >
         <img alt="library" src={libIcon} />
       </Button>
     </Container>

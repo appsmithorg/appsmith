@@ -34,7 +34,13 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
+import JSDependencies from "../../pages/Editor/Explorer/Libraries";
+import Datasources from "../../pages/Editor/Explorer/Datasources";
+import { SideNavMode } from "pages/Editor/MultiPaneContainer";
+
 type Props = {
+  setSideNavMode?: (sideNavMode: SideNavMode | undefined) => void;
+  sideNavMode?: SideNavMode;
   width: number;
   onWidthChange?: (width: number) => void;
   onDragEnd?: () => void;
@@ -65,6 +71,10 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
+  useEffect(() => {
+    props.sideNavMode && dispatch(setExplorerActiveAction(true));
+    !props.sideNavMode && dispatch(setExplorerActiveAction(false));
+  }, [props.sideNavMode]);
 
   // registering event listeners
   useEffect(() => {
@@ -104,14 +114,16 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       if (active) {
         // if user cursor is out of the entity explorer width ( with some extra window = 20px ), make the
         // entity explorer inactive. Also, 20px here is to increase the window in which a user can drag the resizer
-        if (currentX >= props.width + 20 && !resizer.resizing) {
+        // 55px to account for left positioning
+        if (currentX >= props.width + 20 + 55 && !resizer.resizing) {
           dispatch(setExplorerActiveAction(false));
+          props.setSideNavMode?.(undefined);
         }
       } else {
         // check if user cursor is at extreme left when the explorer is inactive, if yes, make the explorer active
-        if (currentX <= 20) {
-          dispatch(setExplorerActiveAction(true));
-        }
+        // if (currentX <= 20) {
+        //   dispatch(setExplorerActiveAction(true));
+        // }
       }
     }
   };
@@ -150,13 +162,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
+        [`js-entity-explorer t--entity-explorer transform flex h-[inherit] border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
         relative: pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewMode,
       })}
       id={SIDEBAR_ID}
+      style={{ left: (!pinned && !active) || isPreviewMode ? "" : "55px" }}
     >
       {/* SIDEBAR */}
       <div
@@ -166,12 +179,22 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       >
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
-        {/* PagesContainer */}
-        <Pages />
-        {/* Popover that contains the bindings info */}
-        <EntityProperties />
-        {/* Contains entity explorer & widgets library along with a switcher*/}
-        <Explorer />
+        {props.sideNavMode === SideNavMode.Explorer && (
+          <>
+            {/* PagesContainer */}
+            <Pages />
+            {/* Popover that contains the bindings info */}
+            <EntityProperties />
+            {/* Contains entity explorer & widgets library along with a switcher*/}
+            <Explorer />
+          </>
+        )}
+
+        {/* Libraries */}
+        {props.sideNavMode === SideNavMode.Libraries && <JSDependencies />}
+
+        {/* Datasources */}
+        {props.sideNavMode === SideNavMode.DataSources && <Datasources />}
       </div>
       {/* RESIZER */}
       <div

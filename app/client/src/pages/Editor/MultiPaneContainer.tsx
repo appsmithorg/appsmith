@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import SideNav, { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import classNames from "classnames";
@@ -41,11 +41,18 @@ const PropertyPanePane = styled.div`
   bottom: 0;
 `;
 
+export enum SideNavMode {
+  Explorer = 1,
+  Libraries,
+  DataSources,
+}
+
 const MultiPaneContainer = () => {
   const dispatch = useDispatch();
   const isPreviewMode = useSelector(previewModeSelector);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const [windowWidth] = useWindowDimensions();
+  const [sideNavMode, setSideNavMode] = useState<SideNavMode | undefined>();
 
   useEffect(() => {
     // Tabs width should be 1/3 of the screen but not less than minimum
@@ -68,8 +75,12 @@ const MultiPaneContainer = () => {
   return (
     <>
       <Container className="relative w-full overflow-x-hidden flex">
-        <EntityExplorerSidebar width={250} />
-        <SideNav />
+        <EntityExplorerSidebar
+          setSideNavMode={setSideNavMode}
+          sideNavMode={sideNavMode}
+          width={250}
+        />
+        <SideNav onSelect={setSideNavMode} />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
         <CanvasPane />
         {showPropertyPane && (
