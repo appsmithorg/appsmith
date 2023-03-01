@@ -200,11 +200,11 @@ export const updateDependencyMap = ({
       payload: { propertyPath: fullPropertyPath, value },
     } = dataTreeDiff;
     const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
-    const entityConfig = DataTreeDiffEvent.DELETE
-      ? oldConfigTree[entityName]
-      : configTree[entityName];
+    const entityConfig =
+      event === DataTreeDiffEvent.DELETE
+        ? oldConfigTree[entityName]
+        : configTree[entityName];
 
-    configTree[entityName];
     const entity =
       event === DataTreeDiffEvent.DELETE
         ? oldUnEvalTree[entityName]
@@ -399,6 +399,7 @@ export const updateDependencyMap = ({
                       propertyPath,
                     } = getEntityNameAndPropertyPath(fullPath);
                     const entity = unEvalDataTree[entityName];
+                    const entityConfig = configTree[entityName];
                     if (validReferences.length) {
                       // For trigger paths, update the triggerfield dependency map
                       // For other paths, update the dependency map
