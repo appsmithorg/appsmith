@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { getActionBlocks } from "@shared/ast";
+import { getActionBlocks, getFunctionName } from "@shared/ast";
 import { ActionCreatorProps } from "./types";
 import { Action } from "./viewComponents/Action";
 import { getCodeFromMoustache } from "./utils";
+import { Toaster, Variant } from "design-system-old";
+import store from "store";
+import { undoAction } from "actions/pageActions";
 
 function uuidv4() {
   return String(1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
@@ -22,7 +25,7 @@ const ActionCreator = React.forwardRef(
       );
 
       const res = blocks.reduce(
-        (acc: Record<string, string>, value) => ({
+        (acc: Record<string, string>, value: string) => ({
           ...acc,
           [uuidv4()]: value,
         }),
@@ -35,7 +38,7 @@ const ActionCreator = React.forwardRef(
     useEffect(() => {
       setActions((prev) => {
         const newActions: Record<string, string> = {};
-        const newBlocks = getActionBlocks(
+        const newBlocks: string[] = getActionBlocks(
           getCodeFromMoustache(props.value),
           self.evaluationVersion,
         );
@@ -76,10 +79,29 @@ const ActionCreator = React.forwardRef(
 
     const handleActionChange = useCallback(
       (id: string) => (value: string) => {
+        const newValueWithoutMoustache = getCodeFromMoustache(value);
         setActions((prev) => {
           const newActions = { ...prev };
           if (value) {
-            newActions[id] = getCodeFromMoustache(value);
+            const newFunction = getFunctionName(
+              newValueWithoutMoustache,
+              self.evaluationVersion,
+            );
+            const oldFunction = getFunctionName(
+              prev[id],
+              self.evaluationVersion,
+            );
+            if (newFunction !== oldFunction) {
+              Toaster.show({
+                text: `${oldFunction} was deleted`,
+                variant: Variant.success,
+                dispatchableAction: {
+                  dispatch: store.dispatch,
+                  ...undoAction(),
+                },
+              });
+            }
+            newActions[id] = newValueWithoutMoustache;
           } else {
             delete newActions[id];
           }
