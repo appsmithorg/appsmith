@@ -75,7 +75,6 @@ export default function(request: EvalWorkerSyncRequest) {
       evalOrder = setupFirstTreeResponse.evalOrder;
       lintOrder = setupFirstTreeResponse.lintOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
-
       initiateLinting(
         lintOrder,
         makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {

@@ -9,6 +9,7 @@ import {
   isValidEntity,
   getEntityNameAndPropertyPath,
   isDynamicLeaf,
+  isJSObject,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTree,
@@ -28,15 +29,20 @@ import {
 import {
   extractInfoFromBindings,
   extractInfoFromReferences,
+  getAsyncJSFunctionDependencies,
   isADynamicTriggerPath,
+  isAsyncJSFunction,
+  isJSFunction,
   listEntityDependencies,
   listEntityPathDependencies,
   listTriggerFieldDependencies,
   listValidationDependencies,
+  mergeArrays,
   updateMap,
 } from "./utils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { difference, isEmpty, set } from "lodash";
+import { isDataField } from "../DataTreeEvaluator/utils";
 
 interface CreateDependencyMap {
   dependencyMap: DependencyMap;
@@ -48,6 +54,7 @@ interface CreateDependencyMap {
    * */
   invalidReferencesMap: DependencyMap;
   validationDependencyMap: DependencyMap;
+  asyncJSFunctionsInDataFields: DependencyMap;
 }
 
 export function createDependencyMap(
@@ -57,6 +64,7 @@ export function createDependencyMap(
   let dependencyMap: DependencyMap = {};
   let triggerFieldDependencyMap: DependencyMap = {};
   let validationDependencyMap: DependencyMap = {};
+  const asyncJSFunctionsInDataFields: DependencyMap = {};
   const invalidReferencesMap: DependencyMap = {};
   Object.keys(unEvalTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
@@ -94,6 +102,17 @@ export function createDependencyMap(
     if (invalidReferences.length) {
       invalidReferencesMap[key] = invalidReferences;
     }
+
+    if (isDataField(key, unEvalTree)) {
+      const asyncJSFunctionDependencies = getAsyncJSFunctionDependencies(
+        validReferences,
+        unEvalTree,
+        key,
+      );
+      for (const asyncJSFunc of asyncJSFunctionDependencies) {
+        updateMap(asyncJSFunctionsInDataFields, asyncJSFunc, [key]);
+      }
+    }
     errors.forEach((error) => {
       dataTreeEvalRef.errors.push(error);
     });
@@ -130,6 +149,7 @@ export function createDependencyMap(
     triggerFieldDependencyMap,
     invalidReferencesMap,
     validationDependencyMap,
+    asyncJSFunctionsInDataFields,
   };
 }
 
@@ -162,6 +182,7 @@ export const updateDependencyMap = ({
   const extraPathsToLint = new Set<string>();
   const pathsToClearErrorsFor: any[] = [];
   const {
+    asyncJSFunctionsInSyncFields,
     dependencyMap,
     invalidReferencesMap,
     oldUnEvalTree,
@@ -218,6 +239,22 @@ export const updateDependencyMap = ({
                       invalidReferences,
                       { deleteOnEmpty: true, replaceValue: true },
                     );
+                    // Update asyncJSFunctionsInDatafieldsMap
+                    if (isDataField(entityDependent, unEvalDataTree)) {
+                      const asyncJSFunctionDependencies = getAsyncJSFunctionDependencies(
+                        validReferences,
+                        unEvalDataTree,
+                        entityDependent,
+                      );
+                      for (const asyncJSFunc of asyncJSFunctionDependencies) {
+                        updateMap(
+                          asyncJSFunctionsInSyncFields,
+                          asyncJSFunc,
+                          [entityDependent],
+                          { deleteOnEmpty: true },
+                        );
+                      }
+                    }
                     dataTreeEvalErrors = dataTreeEvalErrors.concat(
                       extractDependencyErrors,
                     );
@@ -315,6 +352,23 @@ export const updateDependencyMap = ({
                   invalidReferences,
                   { replaceValue: true, deleteOnEmpty: true },
                 );
+                // Update asyncJSFunctionsInDatafieldsMap
+
+                if (isDataField(fullPropertyPath, unEvalDataTree)) {
+                  const asyncJSFunctionDependencies = getAsyncJSFunctionDependencies(
+                    validReferences,
+                    unEvalDataTree,
+                    fullPropertyPath,
+                  );
+                  for (const asyncJSFunc of asyncJSFunctionDependencies) {
+                    dataTreeEvalRef.asyncJSFunctionsInSyncFields[
+                      asyncJSFunc
+                    ] = mergeArrays(
+                      dataTreeEvalRef.asyncJSFunctionsInSyncFields[asyncJSFunc],
+                      [fullPropertyPath],
+                    );
+                  }
+                }
                 dataTreeEvalErrors = dataTreeEvalErrors.concat(
                   extractDependencyErrors,
                 );
@@ -372,7 +426,20 @@ export const updateDependencyMap = ({
                         fullPath,
                         validReferences,
                       );
-
+                      // Update asyncJSMap
+                      validReferences.forEach((validReference) => {
+                        if (isAsyncJSFunction(unEvalDataTree, validReference)) {
+                          const boundDatafields = newlyValidReferencesMap[
+                            newlyValidReference
+                          ].filter((path) => isDataField(path, unEvalDataTree));
+                          updateMap(
+                            asyncJSFunctionsInSyncFields,
+                            validReference,
+                            boundDatafields,
+                            { deleteOnEmpty: true },
+                          );
+                        }
+                      });
                       // Since the previously invalid reference has become valid,
                       // remove it from the invalidReferencesMap
                       if (invalidReferencesMap[fullPath]) {
@@ -467,6 +534,13 @@ export const updateDependencyMap = ({
               didUpdateValidationDependencyMap = true;
             }
           }
+          if (isJSObject(entity) && entityName === fullPropertyPath) {
+            Object.keys(entity.meta).forEach((funcName) => {
+              if ((entity as DataTreeJSAction).meta[funcName].isAsync) {
+                delete asyncJSFunctionsInSyncFields[funcName];
+              }
+            });
+          }
           // Either an existing entity or an existing property path has been deleted. Update the global dependency map
           // by removing the bindings from the same.
           Object.keys(dependencyMap).forEach((dependencyPath) => {
@@ -543,6 +617,30 @@ export const updateDependencyMap = ({
               }
             }
           });
+          if (isDataField(fullPropertyPath, unEvalDataTree)) {
+            Object.keys(asyncJSFunctionsInSyncFields).forEach(
+              (asyncFuncName) => {
+                if (fullPropertyPath === asyncFuncName) {
+                  delete asyncJSFunctionsInSyncFields[asyncFuncName];
+                } else {
+                  const toRemove: Array<string> = [];
+                  asyncJSFunctionsInSyncFields[asyncFuncName].forEach(
+                    (dependantPath) => {
+                      if (
+                        isChildPropertyPath(fullPropertyPath, dependantPath)
+                      ) {
+                        toRemove.push(dependantPath);
+                      }
+                    },
+                  );
+                  asyncJSFunctionsInSyncFields[asyncFuncName] = difference(
+                    asyncJSFunctionsInSyncFields[asyncFuncName],
+                    toRemove,
+                  );
+                }
+              },
+            );
+          }
 
           break;
         }
@@ -587,6 +685,50 @@ export const updateDependencyMap = ({
               dataTreeEvalErrors = dataTreeEvalErrors.concat(
                 extractDependencyErrors,
               );
+              if (isDataField(fullPropertyPath, unEvalDataTree)) {
+                const asyncFunctionBindings = getAsyncJSFunctionDependencies(
+                  validReferences,
+                  unEvalDataTree,
+                  fullPropertyPath,
+                );
+                asyncFunctionBindings.forEach((funcName) => {
+                  asyncJSFunctionsInSyncFields[
+                    funcName
+                  ] = mergeArrays(asyncJSFunctionsInSyncFields[funcName], [
+                    fullPropertyPath,
+                  ]);
+                });
+
+                Object.keys(asyncJSFunctionsInSyncFields).forEach(
+                  (asyncFuncName) => {
+                    const toRemove: string[] = [];
+                    asyncJSFunctionsInSyncFields[asyncFuncName].forEach(
+                      (dependantPath) => {
+                        if (
+                          fullPropertyPath === dependantPath &&
+                          !asyncFunctionBindings.includes(asyncFuncName)
+                        ) {
+                          toRemove.push(dependantPath);
+                        }
+                      },
+                    );
+                    asyncJSFunctionsInSyncFields[asyncFuncName] = difference(
+                      asyncJSFunctionsInSyncFields[asyncFuncName],
+                      toRemove,
+                    );
+                  },
+                );
+              }
+
+              if (
+                isJSFunction(unEvalDataTree, fullPropertyPath) &&
+                !isAsyncJSFunction(unEvalDataTree, fullPropertyPath) &&
+                Object.keys(asyncJSFunctionsInSyncFields).includes(
+                  fullPropertyPath,
+                )
+              ) {
+                delete asyncJSFunctionsInSyncFields[fullPropertyPath];
+              }
 
               // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
               // dependencies for this property path with the newly found dependencies
