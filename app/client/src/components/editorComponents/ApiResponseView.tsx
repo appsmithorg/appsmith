@@ -158,7 +158,6 @@ const NoResponseContainer = styled.div`
 
   .${Classes.TEXT} {
     margin-top: ${(props) => props.theme.spaces[9]}px;
-    font-size: 12px;
   }
 `;
 
