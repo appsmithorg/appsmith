@@ -63,10 +63,11 @@ COPY ./app/client/build editor/
 # Add RTS - Application Layer
 COPY ./app/rts/package.json ./app/rts/dist rts/
 
-# Nginx & MongoDB config template - Configuration layer
+# Nginx, MongoDB and PostgreSQL data config template - Configuration layer
 COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/mongo-init.js.sh\
   ./deploy/docker/templates/docker.env.sh \
+  ./deploy/docker/templates/mockdb_postgres.sql \
   templates/
 
 # Add bootstrapfile
