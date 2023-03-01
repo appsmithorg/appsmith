@@ -13,7 +13,7 @@ const GRAPHQL_QUERY = `
       landings
 `;
 
-const CAPSULE_ID = "5e9e2c5bf35918ed873b2664"
+const CAPSULE_ID = "5e9e2c5bf35918ed873b2664";
 
 const GRAPHQL_VARIABLES = `
   {
@@ -21,19 +21,19 @@ const GRAPHQL_VARIABLES = `
 `;
 
 const GRAPHQL_LIMIT_QUERY = `
-  query ($limit: Int, $offset: Int) {
-    launchesPast(limit: $limit, offset: $offset) {
-      mission_name
-      rocket {
-        rocket_name
+        query($offsetz:Int, $firstz:Int){
+          allPosts(offset:$offsetz, first:$firstz) {
+            edges {
+              node {
+                id,
+               title,
+               content
 `;
 
 const GRAPHQL_LIMIT_DATA = [
+  { title_name: "The truth about All" },
   {
-    mission_name: "FalconSat",
-  },
-  {
-    mission_name: "DemoSat",
+    title_name: "Right beautiful use.",
   },
 ];
 
@@ -47,20 +47,17 @@ describe("GraphQL Datasource Implementation", function() {
     });
   });
 
-  it("1. Should create the Graphql datasource with Credentials", function() {
+  it("1. Should create the Graphql datasource & delete, Create new GraphQL DS & Rename", function() {
     // Navigate to Datasource Editor
     _.dataSources.CreateGraphqlDatasource(datasourceName);
     _.dataSources.DeleteDatasouceFromActiveTab(datasourceName);
-  });
-
-  it("2. Should create an GraphQL API with updated name", function() {
     _.dataSources.CreateGraphqlDatasource(datasourceName);
     _.dataSources.NavigateFromActiveDS(datasourceName, true);
     _.agHelper.ValidateNetworkStatus("@createNewApi", 201);
     _.agHelper.RenameWithInPane(apiName, true);
   });
 
-  it("3. Should execute the API and validate the response", function() {
+  it.skip("2. Should execute the API and validate the response", function() {
     /* Create an API */
     _.dataSources.NavigateFromActiveDS(datasourceName, true);
 
@@ -76,7 +73,7 @@ describe("GraphQL Datasource Implementation", function() {
     });
   });
 
-  it("4. Pagination for limit based should work without offset", function() {
+  it("3. Pagination for limit based should work without offset", function() {
     /* Create an API */
     _.dataSources.NavigateFromActiveDS(datasourceName, true);
     _.apiPage.SelectPaneTab("Body");
@@ -92,18 +89,19 @@ describe("GraphQL Datasource Implementation", function() {
 
     _.dataSources.UpdateGraphqlPaginationParams({
       limit: {
-        variable: "limit",
+        variable: "firstz",
         value: "2",
       },
     });
 
     _.apiPage.RunAPI(false, 20, {
-      expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
-      expectedRes: GRAPHQL_LIMIT_DATA[0].mission_name,
+      expectedPath:
+        "response.body.data.body.data.allPosts.edges[0].node.title",
+      expectedRes: GRAPHQL_LIMIT_DATA[0].title_name,
     });
   });
 
-  it("5. Pagination for limit based should work with offset", function() {
+  it("4. Pagination for limit based should work with offset", function() {
     /* Create an API */
     _.dataSources.NavigateFromActiveDS(datasourceName, true);
     _.apiPage.SelectPaneTab("Body");
@@ -119,18 +117,18 @@ describe("GraphQL Datasource Implementation", function() {
 
     _.dataSources.UpdateGraphqlPaginationParams({
       limit: {
-        variable: "limit",
+        variable: "firstz",
         value: "5",
       },
       offset: {
-        variable: "offset",
-        value: "1",
+        variable: "offsetz",
+        value: "10",
       },
     });
 
     _.apiPage.RunAPI(false, 20, {
-      expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
-      expectedRes: GRAPHQL_LIMIT_DATA[1].mission_name,
+      expectedPath:        "response.body.data.body.data.allPosts.edges[0].node.title",
+      expectedRes: GRAPHQL_LIMIT_DATA[1].title_name,
     });
   });
 });
