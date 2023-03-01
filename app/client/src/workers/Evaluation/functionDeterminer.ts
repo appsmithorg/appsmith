@@ -1,5 +1,5 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
+import { EvalContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import JSVariableUpdates from "./JSObject/JSVariableUpdates";
 import userLogs from "./fns/overrides/console";
@@ -20,9 +20,8 @@ class FunctionDeterminer {
       dataTree,
       EVAL_CONTEXT: evalContext,
       isTriggerBased: true,
+      enableJSObjectFactory: false,
     });
-
-    assignJSFunctionsToContext(evalContext, true);
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith

@@ -8,7 +8,7 @@ import {
   entityFns,
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
-import { setEntityToEvalContext } from "workers/Evaluation/setEntityToContext";
+import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -36,9 +36,11 @@ export const addDataTreeToContext = (args: {
   dataTree: Readonly<DataTree>;
   skipEntityFunctions?: boolean;
   isTriggerBased: boolean;
+  enableJSObjectFactory?: boolean;
 }) => {
   const {
     dataTree,
+    enableJSObjectFactory = false,
     EVAL_CONTEXT,
     isTriggerBased,
     skipEntityFunctions = false,
@@ -47,7 +49,11 @@ export const addDataTreeToContext = (args: {
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
   for (const [entityName, entity] of dataTreeEntries) {
-    setEntityToEvalContext(entity, entityName, EVAL_CONTEXT);
+    EVAL_CONTEXT[entityName] = getEntityForEvalContext(
+      entity,
+      entityName,
+      enableJSObjectFactory,
+    );
 
     if (skipEntityFunctions || !isTriggerBased) continue;
     for (const entityFn of entityFns) {

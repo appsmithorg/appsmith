@@ -65,6 +65,7 @@ export function getlintErrorsFromTree(
   const evalContext = createEvaluationContext({
     dataTree: unEvalTree,
     isTriggerBased: false,
+    enableJSObjectFactory: false,
     skipEntityFunctions: true,
   });
 
@@ -79,6 +80,7 @@ export function getlintErrorsFromTree(
   const evalContextWithOutFunctions = createEvaluationContext({
     dataTree: unEvalTree,
     isTriggerBased: true,
+    enableJSObjectFactory: false,
     skipEntityFunctions: true,
   });
 

@@ -9,13 +9,11 @@ import { Severity } from "entities/AppsmithConsole";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import JSVariableUpdates from "./JSObject/JSVariableUpdates";
-import JSObjectCollection from "./JSObject/Collection";
 import { removeProxyObject } from "./JSObject";
 
 export type EvalResult = {
@@ -126,6 +124,7 @@ export interface createEvaluationContextArgs {
   evalArguments?: Array<unknown>;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
+  enableJSObjectFactory?: boolean;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -137,6 +136,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   const {
     context,
     dataTree,
+    enableJSObjectFactory = true,
     evalArguments,
     isTriggerBased,
     skipEntityFunctions,
@@ -157,41 +157,10 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     skipEntityFunctions: !!skipEntityFunctions,
     isTriggerBased,
+    enableJSObjectFactory,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, isTriggerBased);
   return EVAL_CONTEXT;
-};
-
-export const assignJSFunctionsToContext = (
-  EVAL_CONTEXT: EvalContext,
-  isTriggerBased: boolean,
-) => {
-  const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
-  const jsObjectNames = Object.keys(resolvedFunctions || {});
-  for (const jsObjectName of jsObjectNames) {
-    const resolvedObject = resolvedFunctions[jsObjectName];
-    const jsObject = EVAL_CONTEXT[jsObjectName];
-    const jsObjectFunction: Record<string, Record<"data", unknown>> = {};
-    if (!jsObject) continue;
-    for (const fnName of Object.keys(resolvedObject)) {
-      const fn = resolvedObject[fnName];
-      if (typeof fn !== "function") continue;
-      // Investigate promisify of JSObject function confirmation
-      // Task: https://github.com/appsmithorg/appsmith/issues/13289
-      // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
-      const data = jsObject[fnName]?.data;
-      jsObjectFunction[fnName] = isTriggerBased
-        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
-        : fn;
-      if (!!data) {
-        jsObjectFunction[fnName]["data"] = data;
-      }
-    }
-
-    // TODO: check this once again
-    Object.assign(EVAL_CONTEXT[jsObjectName], jsObjectFunction);
-  }
 };
 
 export function sanitizeScript(js: string) {
