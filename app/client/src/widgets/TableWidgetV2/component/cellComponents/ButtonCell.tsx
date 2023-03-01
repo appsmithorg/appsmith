@@ -1,7 +1,7 @@
 import React from "react";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import { BaseCellComponentProps, TABLE_SIZES } from "../Constants";
+import { BaseCellComponentProps, TableSizes, TABLE_SIZES } from "../Constants";
 import { Button } from "./Button";
 import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
@@ -15,6 +15,7 @@ export interface RenderActionProps extends BaseCellComponentProps {
   columnActions?: ButtonColumnActions[];
   isDisabled: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  tableSizes: TableSizes;
 }
 
 export function ButtonCell(props: RenderActionProps) {
@@ -34,6 +35,7 @@ export function ButtonCell(props: RenderActionProps) {
     textColor,
     textSize,
     verticalAlignment,
+    tableSizes,
   } = props;
 
   if (!columnActions)
@@ -50,6 +52,7 @@ export function ButtonCell(props: RenderActionProps) {
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
+        tableSizes={tableSizes}
       />
     );
 
@@ -66,6 +69,7 @@ export function ButtonCell(props: RenderActionProps) {
       textColor={textColor}
       textSize={textSize}
       verticalAlignment={verticalAlignment}
+      tableSizes={tableSizes}
     >
       {columnActions.map((action: ButtonColumnActions) => {
         return (

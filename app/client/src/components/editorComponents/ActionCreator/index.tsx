@@ -430,6 +430,11 @@ function getFieldFromValue(
     );
   }
 
+  if (value.indexOf("addMessageHandler") !== -1) {
+    fields.push({
+      field: FieldType.CALLBACK_FUNCTION_FIELD,
+    });
+  }
   return fields;
 }
 

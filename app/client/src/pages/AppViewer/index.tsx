@@ -22,17 +22,18 @@ import webfontloader from "webfontloader";
 import { getSearchQuery } from "utils/helpers";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
-import BrandingBadge from "./BrandingBadge";
-import { setAppViewHeaderHeight } from "actions/appViewActions";
+import {
+  setAppViewHeaderHeight,
+  setLanguageAction,
+} from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import { fetchPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
-import { APP_MODE } from "entities/App";
+import { APP_MODE, LanguageEnums } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 
 const AppViewerBody = styled.section<{
@@ -50,12 +51,16 @@ const AppViewerBody = styled.section<{
 
 const AppViewerBodyContainer = styled.div<{
   width?: string;
-  backgroundColor: string;
+  backgroundColor?: string;
 }>`
   flex: 1;
   overflow: auto;
   margin: 0 auto;
-  background: ${({ backgroundColor }) => backgroundColor};
+  ${({ backgroundColor }) =>
+    backgroundColor &&
+    `
+    background: ${backgroundColor};
+  `}
 `;
 
 export type AppViewerProps = RouteComponentProps<BuilderRouteParams>;
@@ -78,8 +83,16 @@ function AppViewer(props: Props) {
   const showGuidedTourMessage = useSelector(showPostCompletionMessage);
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+  const langParam = getSearchQuery(search, "lang") as LanguageEnums;
+  const lang = Object.values(LanguageEnums).includes(langParam)
+    ? langParam
+    : LanguageEnums.EN;
+
   const prevValues = usePrevious({ branch, location: props.location, pageId });
-  const { hideWatermark } = getAppsmithConfigs();
+
+  useEffect(() => {
+    dispatch(setLanguageAction({ lang }));
+  }, [lang]);
 
   const focusRef = useWidgetFocus();
 
@@ -181,9 +194,7 @@ function AppViewer(props: Props) {
           fontFamily={selectedTheme.properties.fontFamily.appFont}
           primaryColor={selectedTheme.properties.colors.primaryColor}
         />
-        <AppViewerBodyContainer
-          backgroundColor={selectedTheme.properties.colors.backgroundColor}
-        >
+        <AppViewerBodyContainer>
           <AppViewerBody
             className={CANVAS_SELECTOR}
             hasPages={pages.length > 1}
@@ -193,20 +204,9 @@ function AppViewer(props: Props) {
           >
             {isInitialized && registered && <AppViewerPageContainer />}
           </AppViewerBody>
-          {!hideWatermark && (
-            <a
-              className="fixed hidden right-8 bottom-4 z-3 hover:no-underline md:flex"
-              href="https://appsmith.com"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <BrandingBadge />
-            </a>
-          )}
         </AppViewerBodyContainer>
       </EditorContextProvider>
     </ThemeProvider>
   );
 }
-
 export default withRouter(Sentry.withProfiler(AppViewer));

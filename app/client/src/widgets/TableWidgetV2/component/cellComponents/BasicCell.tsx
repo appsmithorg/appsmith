@@ -2,7 +2,7 @@ import React, { Ref, useCallback } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
-import { BaseCellComponentProps, TABLE_SIZES } from "../Constants";
+import { BaseCellComponentProps, TableSizes, TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 
@@ -81,6 +81,7 @@ type PropType = BaseCellComponentProps & {
   onEdit?: () => void;
   url?: string;
   disabledEditIconMessage: string;
+  tableSizes: TableSizes;
 };
 
 export const BasicCell = React.forwardRef(
@@ -108,6 +109,7 @@ export const BasicCell = React.forwardRef(
       url,
       value,
       verticalAlignment,
+      tableSizes,
     }: PropType,
     contentRef: Ref<HTMLDivElement>,
   ) => {
@@ -148,6 +150,7 @@ export const BasicCell = React.forwardRef(
           title={!!value ? value.toString() : ""}
           url={url}
           verticalAlignment={verticalAlignment}
+          tableSizes={tableSizes}
         >
           <Content ref={contentRef}>{value}</Content>
         </StyledAutoToolTipComponent>

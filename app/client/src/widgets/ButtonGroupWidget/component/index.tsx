@@ -30,6 +30,10 @@ import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import { ThemeProp } from "widgets/constants";
+import { LanguageEnums } from "entities/App";
+import { AppState } from "ce/reducers";
+import { connect } from "react-redux";
+import { translate } from "utils/translate";
 
 // Utility functions
 interface ButtonData {
@@ -316,6 +320,7 @@ interface PopoverContentProps {
       isVisible?: boolean;
       isDisabled?: boolean;
       label?: string;
+      translationJp?: string;
       backgroundColor?: string;
       textColor?: string;
       iconName?: IconName;
@@ -324,11 +329,12 @@ interface PopoverContentProps {
       onClick?: string;
     }
   >;
+  lang?: LanguageEnums;
   onItemClicked: (onClick: string | undefined, buttonId: string) => void;
 }
 
 function PopoverContent(props: PopoverContentProps) {
-  const { buttonId, menuItems, onItemClicked } = props;
+  const { buttonId, menuItems, onItemClicked, lang } = props;
 
   let items = Object.keys(menuItems)
     .map((itemKey) => menuItems[itemKey])
@@ -347,8 +353,8 @@ function PopoverContent(props: PopoverContentProps) {
       label,
       onClick,
       textColor,
+      translationJp,
     } = menuItem;
-
     return (
       <BaseMenuItem
         backgroundColor={backgroundColor}
@@ -365,7 +371,7 @@ function PopoverContent(props: PopoverContentProps) {
           ) : null
         }
         onClick={() => onItemClicked(onClick, buttonId)}
-        text={label}
+        text={translate(lang, label, translationJp)}
         textColor={textColor}
       />
     );
@@ -526,6 +532,7 @@ class ButtonGroupComponent extends React.Component<
       minPopoverWidth,
       orientation,
       widgetId,
+      lang,
     } = this.props;
     const { loadedBtnId } = this.state;
     const isHorizontal = orientation === "horizontal";
@@ -569,6 +576,7 @@ class ButtonGroupComponent extends React.Component<
                       buttonId={button.id}
                       menuItems={menuItems || {}}
                       onItemClicked={this.onButtonClick}
+                      lang={lang}
                     />
                   }
                   disabled={button.isDisabled}
@@ -606,7 +614,11 @@ class ButtonGroupComponent extends React.Component<
                             {button.iconName && <Icon icon={button.iconName} />}
                             {!!button.label && (
                               <span className={CoreClass.BUTTON_TEXT}>
-                                {button.label}
+                                {translate(
+                                  lang,
+                                  button.label,
+                                  button.translationJp,
+                                )}
                               </span>
                             )}
                           </>
@@ -652,7 +664,7 @@ class ButtonGroupComponent extends React.Component<
                       {button.iconName && <Icon icon={button.iconName} />}
                       {!!button.label && (
                         <span className={CoreClass.BUTTON_TEXT}>
-                          {button.label}
+                          {translate(lang, button.label, button.translationJp)}
                         </span>
                       )}
                     </>
@@ -674,6 +686,7 @@ interface GroupButtonProps {
   isVisible?: boolean;
   isDisabled?: boolean;
   label?: string;
+  translationJp?: string;
   buttonType?: string;
   buttonColor?: string;
   iconName?: IconName;
@@ -689,6 +702,7 @@ interface GroupButtonProps {
       isVisible?: boolean;
       isDisabled?: boolean;
       label?: string;
+      translationJp?: string;
       backgroundColor?: string;
       textColor?: string;
       iconName?: IconName;
@@ -714,6 +728,7 @@ export interface ButtonGroupComponentProps {
   width: number;
   minPopoverWidth: number;
   widgetId: string;
+  lang?: LanguageEnums;
 }
 
 export interface ButtonGroupComponentState {
@@ -722,4 +737,10 @@ export interface ButtonGroupComponentState {
   loadedBtnId: string;
 }
 
-export default ButtonGroupComponent;
+const mapStateToProps = (state: AppState) => {
+  return {
+    lang: state.ui.appView.lang,
+  };
+};
+
+export default connect(mapStateToProps, null)(ButtonGroupComponent);

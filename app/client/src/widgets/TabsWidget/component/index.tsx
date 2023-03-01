@@ -26,6 +26,7 @@ interface TabsComponentProps extends ComponentProps {
     label: string;
     widgetId: string;
     isVisible?: boolean;
+    translationJp: string;
   }>;
   width: number;
   $noScroll: boolean;

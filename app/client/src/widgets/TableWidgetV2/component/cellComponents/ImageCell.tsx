@@ -2,7 +2,7 @@ import React from "react";
 import { isString, noop } from "lodash";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import { BaseCellComponentProps, ImageSize } from "../Constants";
+import { BaseCellComponentProps, ImageSize, TableSizes } from "../Constants";
 
 /*
  * Function to split the CSV of image url's
@@ -27,6 +27,7 @@ type renderImageType = BaseCellComponentProps & {
   onClick?: () => void;
   isSelected?: boolean;
   imageSize?: ImageSize;
+  tableSizes: TableSizes;
 };
 
 export function ImageCell(props: renderImageType) {
@@ -45,6 +46,7 @@ export function ImageCell(props: renderImageType) {
     textSize,
     imageSize,
     isCellDisabled,
+    tableSizes,
   } = props;
 
   if (!value) {
@@ -62,6 +64,7 @@ export function ImageCell(props: renderImageType) {
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
+        tableSizes={tableSizes}
       />
     );
   } else if (!isString(value)) {
@@ -79,6 +82,7 @@ export function ImageCell(props: renderImageType) {
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
+        tableSizes={tableSizes}
       >
         <div>Invalid Image </div>
       </CellWrapper>
@@ -101,6 +105,7 @@ export function ImageCell(props: renderImageType) {
       textColor={textColor}
       textSize={textSize}
       verticalAlignment={verticalAlignment}
+      tableSizes={tableSizes}
     >
       {getImageArray(value).map((item: string, index: number) => {
         if (imageUrlRegex.test(item) || base64ImageRegex.test(item)) {

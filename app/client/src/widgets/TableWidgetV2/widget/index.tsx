@@ -33,7 +33,10 @@ import {
   AddNewRowActions,
   StickyType,
   DEFAULT_FILTER,
+  TABLE_SIZES,
 } from "../component/Constants";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import getQueryParamsObject from "utils/getQueryParamsObject";
 import {
   ActionColumnTypes,
   ColumnTypes,
@@ -52,7 +55,6 @@ import {
   TableWidgetProps,
   TABLE_COLUMN_ORDER_KEY,
   TransientDataPayload,
-  DEFAULT_COLUMN_NAME,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
@@ -104,13 +106,26 @@ import { Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
 import { MenuItem, MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import store from "store";
+import { getAppStoreName } from "constants/AppConstants";
+import { DEFAULT_ROWS_PER_PAGE } from "./derived";
+import { connect } from "react-redux";
+import { AppState } from "@appsmith/reducers";
+import { LanguageEnums } from "entities/App";
+import { translate } from "utils/translate";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
 );
 
-class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
+interface TableProps extends TableWidgetProps {
+  lang: LanguageEnums;
+}
+
+class TableWidgetV2 extends BaseWidget<TableProps, WidgetState> {
   inlineEditTimer: number | null = null;
+  static defaultProps: Partial<TableProps> | undefined;
 
   static getPropertyPaneContentConfig() {
     return contentConfig;
@@ -211,7 +226,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * based on columnType
    */
   getTableColumns = () => {
-    const { columnWidthMap = {}, orderedTableColumns = [] } = this.props;
+    const {
+      columnWidthMap = {},
+      orderedTableColumns = [],
+      widgetName,
+    } = this.props;
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
 
@@ -224,10 +243,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         const columnData = {
           id: column.id,
-          Header:
-            column.hasOwnProperty("label") && typeof column.label === "string"
-              ? column.label
-              : DEFAULT_COLUMN_NAME,
+          Header: translate(
+            this.props.lang,
+            column.label,
+            column.translationJp,
+          ),
           alias: column.alias,
           accessor: (row: any) => row[column.alias],
           width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
@@ -327,8 +347,24 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         columns = columns.concat(hiddenColumns);
       }
     }
+    const branch =
+      getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
+    const applicationId = getCurrentApplicationId(store.getState());
 
-    return columns.filter((column: ReactTableColumnProps) => !!column.id);
+    const appStoreName = getAppStoreName(applicationId, branch);
+    const existingStore = localStorage.getItem(appStoreName) || "{}";
+    const parsedStore = JSON.parse(existingStore);
+    const customColumn = [];
+    columns = columns.filter((column: ReactTableColumnProps) => !!column.id);
+    if (parsedStore[`${widgetName}_customColumns`] != undefined) {
+      for (const col of parsedStore[`${widgetName}_customColumns`]) {
+        const find = columns.find((x) => x.Header == col);
+        if (find) {
+          customColumn.push(find);
+        }
+      }
+    }
+    return customColumn.length > 0 ? customColumn : columns;
   };
 
   transformData = (
@@ -931,20 +967,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const {
       totalRecordsCount,
       delimiter,
-      pageSize,
       filteredTableData = [],
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      loadingTable,
     } = this.props;
+
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
-    const isVisibleHeaderOptions =
-      isVisibleDownload ||
-      isVisibleFilters ||
-      isVisiblePagination ||
-      isVisibleSearch;
+    // const isVisibleHeaderOptions =
+    //   isVisibleDownload ||
+    //   isVisibleFilters ||
+    //   isVisiblePagination ||
+    //   isVisibleSearch;
 
     const {
       componentHeight,
@@ -954,7 +991,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.isAddRowInProgress) {
       transformedData.unshift(this.props.newRowContent);
     }
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -989,6 +1025,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}
           isVisibleSearch={isVisibleSearch}
+          loadingTable={loadingTable}
           multiRowSelection={
             this.props.multiRowSelection && !this.props.isAddRowInProgress
           }
@@ -999,9 +1036,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditSave={this.onBulkEditSave}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
-          pageSize={
-            isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
-          }
+          pageSize={DEFAULT_ROWS_PER_PAGE}
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
           searchKey={this.props.searchText}
@@ -1525,7 +1560,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         props.cell.column.columnProperties.originalId,
       ) || props.cell.column.columnProperties;
     const rowIndex = props.cell.row.index;
-
+    const tableSizes =
+      TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
     /*
      * We don't need to render cells that don't display data (button, iconButton, etc)
      */
@@ -1534,7 +1570,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       rowIndex === 0 &&
       ActionColumnTypes.includes(column.columnType)
     ) {
-      return <CellWrapper />;
+      return <CellWrapper tableSizes={tableSizes} />;
     }
 
     const isHidden = !column.isVisible;
@@ -1655,6 +1691,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1726,6 +1763,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1779,6 +1817,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             width={
               this.props.columnWidthMap?.[column.id] || DEFAULT_COLUMN_WIDTH
             }
+            tableSizes={tableSizes}
           />
         );
 
@@ -1810,6 +1849,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1935,6 +1975,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1980,6 +2021,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1998,6 +2040,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -2032,6 +2075,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -2063,6 +2107,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -2164,6 +2209,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}
+            tableSizes={tableSizes}
           />
         );
     }
@@ -2501,4 +2547,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 }
 
-export default TableWidgetV2;
+TableWidgetV2.defaultProps = {
+  ...BaseWidget.defaultProps,
+  lang: LanguageEnums.EN,
+};
+
+const mapStateToProps = (state: AppState) => {
+  return {
+    lang: state.ui.appView.lang,
+  };
+};
+
+export default connect(mapStateToProps, null)(TableWidgetV2);

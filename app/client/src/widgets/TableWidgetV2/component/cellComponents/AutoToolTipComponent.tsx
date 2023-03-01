@@ -1,7 +1,7 @@
 import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
-import { CellAlignment, VerticalAlignment } from "../Constants";
+import { CellAlignment, VerticalAlignment, TableSizes } from "../Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
@@ -119,6 +119,7 @@ interface Props {
   disablePadding?: boolean;
   url?: string;
   isCellDisabled?: boolean;
+  tableSizes?: TableSizes;
 }
 
 function LinkWrapper(props: Props) {
@@ -144,6 +145,7 @@ function LinkWrapper(props: Props) {
       textColor={props.textColor}
       textSize={props.textSize}
       verticalAlignment={props.verticalAlignment}
+      tableSizes={props.tableSizes}
     >
       <div className="link-text">{content}</div>
       <OpenNewTabIconWrapper className="hidden-icon">
@@ -177,6 +179,7 @@ function AutoToolTipComponent(props: Props) {
         textColor={props.textColor}
         textSize={props.textSize}
         verticalAlignment={props.verticalAlignment}
+        tableSizes={props.tableSizes}
       >
         {content}
       </CellWrapper>

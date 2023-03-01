@@ -923,6 +923,7 @@ export function ApplicationsSection(props: any) {
                   <PaddingWrapper isMobile={isMobile} key={application.id}>
                     <ApplicationCard
                       application={application}
+                      currentEmail={currentUser?.email}
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
                       enableImportExport={enableImportExport}

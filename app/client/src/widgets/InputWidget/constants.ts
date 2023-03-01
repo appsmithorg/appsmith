@@ -7,6 +7,7 @@ export const InputTypes: { [key: string]: string } = {
   PASSWORD: "PASSWORD",
   CURRENCY: "CURRENCY",
   SEARCH: "SEARCH",
+  COLOR: "COLOR",
 };
 
 export type InputType = typeof InputTypes[keyof typeof InputTypes];

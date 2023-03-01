@@ -23,7 +23,6 @@ type AppPageProps = {
 
 export function AppPage(props: AppPageProps) {
   useDynamicAppLayout();
-
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {
       pageName: props.pageName,

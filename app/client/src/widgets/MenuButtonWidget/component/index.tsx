@@ -37,6 +37,9 @@ import {
   PopoverContentProps,
 } from "../constants";
 import { ThemeProp } from "widgets/constants";
+import { translate } from "utils/translate";
+import { getLang } from "selectors/appViewSelectors";
+import { useSelector } from "react-redux";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -241,7 +244,13 @@ const StyledMenu = styled(Menu)<{
 `;
 
 function PopoverContent(props: PopoverContentProps) {
-  const { backgroundColor, getVisibleItems, isCompact, onItemClicked } = props;
+  const {
+    backgroundColor,
+    getVisibleItems,
+    isCompact,
+    onItemClicked,
+    lang,
+  } = props;
 
   const visibleItems = getVisibleItems();
 
@@ -259,6 +268,7 @@ function PopoverContent(props: PopoverContentProps) {
         label,
         onClick,
         textColor,
+        translationJp,
       } = item;
 
       return (
@@ -278,7 +288,7 @@ function PopoverContent(props: PopoverContentProps) {
             ) : null
           }
           onClick={() => onItemClicked(onClick, index)}
-          text={label}
+          text={translate(lang, label, translationJp)}
           textColor={textColor}
         />
       );
@@ -365,7 +375,9 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     sourceData,
     widgetId,
     width,
+    translationJp,
   } = props;
+  const lang = useSelector(getLang);
 
   return (
     <>
@@ -387,6 +399,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
             menuItemsSource={menuItemsSource}
             onItemClicked={onItemClicked}
             sourceData={sourceData}
+            lang={lang}
           />
         }
         disabled={isDisabled}
@@ -403,7 +416,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           iconAlign={iconAlign}
           iconName={iconName}
           isDisabled={isDisabled}
-          label={label}
+          label={translate(lang, label, translationJp)}
           placement={placement}
           renderMode={renderMode}
         />

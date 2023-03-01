@@ -22,12 +22,10 @@ import {
 import { InputTypes, NumberInputStepButtonPosition } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { Icon } from "design-system-old";
 import { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import { lightenColor } from "widgets/WidgetUtils";
 import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
@@ -35,6 +33,10 @@ import LabelWithTooltip, {
 import { getLocale } from "utils/helpers";
 import AutoResizeTextArea from "components/editorComponents/AutoResizeTextArea";
 import { checkInputTypeText } from "../utils";
+import { AppState } from "ce/reducers";
+import { connect } from "react-redux";
+import { LanguageEnums } from "entities/App";
+import { translate } from "utils/translate";
 
 /**
  * All design system component specific logic goes here.
@@ -78,6 +80,66 @@ const InputComponentWrapper = styled((props) => (
   isDynamicHeightEnabled?: boolean;
   isMultiline?: boolean;
 }>`
+  height: 40px;
+  position: relative;
+  .label {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    z-index: 100;
+    pointer-events: none;
+    color: ${({ hasError }) =>
+      hasError ? "var(--wds-color-border-danger-focus)" : "rgb(117, 117, 117)"};
+  }
+  .label .text {
+    transition: all 0.1s ease-out;
+  }
+  .bp3-input{
+    height: 40px;
+  }
+  .bp3-input-group{
+    width: 100%;
+  }
+  .error-msg{
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    text-transform: none;
+    font-family: Roboto, sans-serif;
+    text-align: left;
+    color: var(--wds-color-border-danger-focus);
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+  }
+  
+  :focus-within{
+    .label {
+      .text{
+        font-size: 1rem;
+        transform: translate(-15px,-19px) scale(0.75);
+        background-color: white;
+        padding-left: 4px;
+        padding-right: 4px;
+      }
+      color: ${({ hasError }) =>
+        hasError ? "var(--wds-color-border-danger-focus)" : "#1976d2"};
+    }
+  }
+  ${(props) =>
+    props.value
+      ? `
+      .label .text{
+        font-size: 1rem;
+        transform: translate(-15px,-19px) scale(0.75);
+        background-color: white;
+        padding-left: 4px;
+        padding-right: 4px;
+      }`
+      : ""};
   ${labelLayoutStyles}
 
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
@@ -168,6 +230,10 @@ const InputComponentWrapper = styled((props) => (
           border-color: ${({ hasError }) =>
             hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
         }
+        :focus {
+          outline: none;
+          border: 2px solid blue;
+        }
       }
     }
 
@@ -196,7 +262,7 @@ const InputComponentWrapper = styled((props) => (
     .${Classes.INPUT} {
       box-shadow: none;
       border-radius: 0;
-      height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
+      height: ${(props) => (props.multiline === "true" ? "100%" : "40px")};
       width: 100%;
 
       ::placeholder {
@@ -375,7 +441,7 @@ const TextInputWrapper = styled.div<{
       }
 
       if (hasError) {
-        return "var(--wds-color-border-danger-hover)";
+        return "var(--wds-color-border-danger)";
       }
 
       return "var(--wds-color-border-hover)";
@@ -384,14 +450,9 @@ const TextInputWrapper = styled.div<{
 
   &:focus-within {
     outline: 0;
+    border-width: 2px;
     border-color: ${({ accentColor, hasError }) =>
       hasError ? "var(--wds-color-border-danger-focus)" : accentColor};
-    box-shadow: ${({ accentColor, hasError }) =>
-      `0px 0px 0px 2px ${
-        hasError
-          ? "var(--wds-color-border-danger-focus-light)"
-          : lightenColor(accentColor)
-      } !important;`};
   }
 
   ${({ inputHtmlType }) =>
@@ -403,17 +464,26 @@ const TextInputWrapper = styled.div<{
   height: ${({ isMultiLine }) => (isMultiLine ? "100%" : "auto")};
 `;
 
-export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
+export type InputHTMLType =
+  | "TEXT"
+  | "NUMBER"
+  | "PASSWORD"
+  | "EMAIL"
+  | "TEL"
+  | "COLOR";
 
 export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
 };
+interface BaseInputProps extends BaseInputComponentProps {
+  lang?: LanguageEnums;
+}
 
 class BaseInputComponent extends React.Component<
-  BaseInputComponentProps,
+  BaseInputProps,
   InputComponentState
 > {
-  constructor(props: BaseInputComponentProps) {
+  constructor(props: BaseInputProps) {
     super(props);
     this.state = { showPassword: false };
   }
@@ -487,6 +557,8 @@ class BaseInputComponent extends React.Component<
         return "tel";
       case "EMAIL":
         return "email";
+      case "COLOR":
+        return "color";
       default:
         return "text";
     }
@@ -552,7 +624,6 @@ class BaseInputComponent extends React.Component<
         onKeyDown={this.onKeyDown}
         onKeyUp={this.onKeyUp}
         onValueChange={this.onNumberChange}
-        placeholder={this.props.placeholder}
         stepSize={this.props.stepSize}
         value={this.props.value}
         {...conditionalProps}
@@ -600,7 +671,9 @@ class BaseInputComponent extends React.Component<
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
         onKeyUp={this.onKeyUp}
-        placeholder={this.props.placeholder}
+        autoComplete={
+          this.props.inputType === "PASSWORD" ? "new-password" : "off"
+        }
         rightElement={
           this.props.inputType === "PASSWORD" ? (
             <Icon
@@ -646,6 +719,7 @@ class BaseInputComponent extends React.Component<
       compactMode,
       disabled,
       errorMessage,
+      errorMessageJp,
       inputHTMLType,
       inputType,
       isDynamicHeightEnabled,
@@ -659,10 +733,15 @@ class BaseInputComponent extends React.Component<
       labelTextSize,
       labelWidth,
       multiline,
-      showError,
       tooltip,
+      tooltipJp,
+      lang,
+      translationJp,
+      value,
     } = this.props;
-    const showLabelHeader = label || tooltip;
+    const translateLabel = translate(lang, label, translationJp);
+    const translateErrorMsg = translate(lang, errorMessage, errorMessageJp);
+    const translateTooltip = translate(lang, tooltip, tooltipJp);
 
     return (
       <InputComponentWrapper
@@ -680,8 +759,9 @@ class BaseInputComponent extends React.Component<
         labelTextSize={labelTextSize ?? "inherit"}
         multiline={(!!multiline).toString()}
         numeric={isNumberInputType(inputHTMLType)}
+        value={value}
       >
-        {showLabelHeader && (
+        {tooltip && (
           <LabelWithTooltip
             alignment={labelAlignment}
             className="t--input-widget-label"
@@ -691,11 +771,11 @@ class BaseInputComponent extends React.Component<
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
-            helpText={tooltip}
+            helpText={translateTooltip}
             isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
-            text={label}
+            text={translateLabel}
             width={labelWidth}
           />
         )}
@@ -712,17 +792,17 @@ class BaseInputComponent extends React.Component<
           isMultiLine={!!multiline}
           labelPosition={labelPosition}
         >
-          <ErrorTooltip
-            boundary={this.props.errorTooltipBoundary}
-            isOpen={isInvalid && showError}
-            message={
-              errorMessage ||
-              createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
-            }
-          >
-            {this.renderInputComponent(inputHTMLType, !!multiline)}
-          </ErrorTooltip>
+          <label className="label" id="label-fname">
+            <div className="text">{this.props.label}</div>
+          </label>
+          {this.renderInputComponent(inputHTMLType, !!multiline)}
         </TextInputWrapper>
+        {isInvalid && (
+          <p className="error-msg">
+            {translateErrorMsg ||
+              createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)}
+          </p>
+        )}
       </InputComponentWrapper>
     );
   }
@@ -741,6 +821,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   isDynamicHeightEnabled?: boolean;
   defaultValue?: string | number;
   label: string;
+  translationJp?: string;
   labelAlignment?: Alignment;
   labelPosition?: LabelPosition;
   labelWidth?: number;
@@ -748,13 +829,16 @@ export interface BaseInputComponentProps extends ComponentProps {
   labelTextSize?: string;
   labelStyle?: string;
   tooltip?: string;
+  tooltipJp?: string;
   leftIcon?: IconName | JSX.Element;
   allowNumericCharactersOnly?: boolean;
   fill?: boolean;
   errorMessage?: string;
+  errorMessageJp?: string;
   onValueChange: (valueAsString: string) => void;
   stepSize?: number;
   placeholder?: string;
+  placeholderJp?: string;
   isLoading: boolean;
   multiline?: boolean;
   compactMode: boolean;
@@ -792,4 +876,10 @@ export interface BaseInputComponentProps extends ComponentProps {
   buttonPosition?: NumberInputStepButtonPosition;
 }
 
-export default BaseInputComponent;
+const mapStateToProps = (state: AppState) => {
+  return {
+    lang: state.ui.appView.lang,
+  };
+};
+
+export default connect(mapStateToProps, null)(BaseInputComponent);

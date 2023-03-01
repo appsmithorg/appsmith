@@ -158,6 +158,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 label: "Phone Number",
                 value: "PHONE_NUMBER",
               },
+              {
+                label: "Color",
+                value: "COLOR",
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,

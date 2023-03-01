@@ -7,6 +7,7 @@ import {
   ButtonPlacement,
 } from "components/constants";
 import { RenderMode } from "constants/WidgetConstants";
+import { LanguageEnums } from "entities/App";
 
 export enum MenuItemsSource {
   STATIC = "STATIC",
@@ -26,6 +27,7 @@ export interface MenuItem {
   iconName?: IconName;
   iconColor?: string;
   iconAlign?: Alignment;
+  translationJp?: string;
 }
 
 export interface ConfigureMenuItems {
@@ -78,6 +80,7 @@ export interface MenuButtonComponentProps {
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
+  translationJp?: string;
 }
 
 export interface PopoverContentProps {
@@ -90,6 +93,9 @@ export interface PopoverContentProps {
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
+
+  translationJp?: string;
+  lang?: LanguageEnums;
 }
 
 export const ICON_NAMES = Object.keys(IconNames).map(

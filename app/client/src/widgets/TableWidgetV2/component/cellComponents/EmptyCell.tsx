@@ -37,7 +37,7 @@ export const renderEmptyRows = (
   if (page.length) {
     const row = page[0];
 
-    return rows.map((item: string, index: number) => {
+    return rows.map((__: string, index: number) => {
       prepareRow?.(row);
       const rowProps = {
         ...row.getRowProps(),

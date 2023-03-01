@@ -15,9 +15,25 @@ import { OverflowTypes } from "../constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";
 import { Stylesheet } from "entities/AppTheming";
+import styled from "styled-components";
+import { AppState } from "@appsmith/reducers";
+import { connect } from "react-redux";
+import { LanguageEnums } from "entities/App";
+import { translate } from "utils/translate";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
-class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
+
+const TextContainer = styled(WidgetStyleContainer)`
+  overflow: hidden;
+`;
+
+interface TextProps extends TextWidgetProps {
+  lang: LanguageEnums;
+}
+
+class TextWidget extends BaseWidget<TextProps, WidgetState> {
+  static defaultProps: Partial<TextProps> | undefined;
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -29,6 +45,19 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             label: "Text",
             controlType: "INPUT_TEXT",
             placeholderText: "Name:",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: { limitLineBreaks: true },
+            },
+          },
+          {
+            propertyName: "translationJp",
+            helpText: "Sets the translation of the widget",
+            label: "Translation JP",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter translation for JP",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -345,6 +374,28 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
           },
+          {
+            helpText: "Enter value for border radius",
+            propertyName: "borderRadius",
+            label: "Border Radius (E.g: 1px)",
+            placeholderText: "Enter text border radius",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Enter value for border shadow",
+            propertyName: "boxShadow",
+            label: "Box shadow",
+            placeholderText: "Enter value box shadow",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
       },
     ];
@@ -368,13 +419,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       ? true
       : this.shouldDisableLink();
     return (
-      <WidgetStyleContainer
+      <TextContainer
         className="t--text-widget-container"
         {...pick(this.props, [
           "widgetId",
           "containerStyle",
           "borderColor",
           "borderWidth",
+          "borderRadius",
+          "boxShadow",
+          "backgroundColor",
         ])}
       >
         <TextComponent
@@ -390,7 +444,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           leftColumn={this.props.leftColumn}
           overflow={this.props.overflow}
           rightColumn={this.props.rightColumn}
-          text={this.props.text}
+          text={translate(
+            this.props.lang,
+            this.props.text || "",
+            this.props.translationJp,
+          )}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
           topRow={this.props.topRow}
@@ -399,7 +457,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           }
           widgetId={this.props.widgetId}
         />
-      </WidgetStyleContainer>
+      </TextContainer>
     );
   }
 
@@ -437,4 +495,15 @@ export interface TextWidgetProps extends WidgetProps, TextStyles {
   overflow: OverflowTypes;
 }
 
-export default TextWidget;
+TextWidget.defaultProps = {
+  ...BaseWidget.defaultProps,
+  lang: LanguageEnums.EN,
+};
+
+const mapStateToProps = (state: AppState) => {
+  return {
+    lang: state.ui.appView.lang,
+  };
+};
+
+export default connect(mapStateToProps, null)(TextWidget);

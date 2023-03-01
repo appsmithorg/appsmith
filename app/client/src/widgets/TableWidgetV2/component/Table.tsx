@@ -15,7 +15,6 @@ import {
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
 import TableHeader from "./header";
-import { Classes } from "@blueprintjs/core";
 import {
   ReactTableColumnProps,
   ReactTableFilter,
@@ -40,6 +39,9 @@ import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
 import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
+import { Classes } from "@blueprintjs/core";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import TableBodyHasNoData from "./TableBody/TableBodyHasNoData";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -101,6 +103,7 @@ interface TableProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
   isVisibleDownload?: boolean;
+  loadingTable?: boolean;
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
@@ -262,12 +265,12 @@ export function Table(props: TableProps) {
     is set higher/lower than the visible number of rows in the table
   */
   const pageCount =
-    props.serverSidePaginationEnabled &&
-    props.totalRecordsCount &&
-    props.data.length
-      ? Math.ceil(props.totalRecordsCount / props.data.length)
-      : Math.ceil(props.data.length / props.pageSize);
+    (props.serverSidePaginationEnabled &&
+      props.totalRecordsCount &&
+      Math.ceil(props.totalRecordsCount / props.pageSize)) ||
+    0;
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
+
   const {
     getTableBodyProps,
     getTableProps,
@@ -361,11 +364,12 @@ export function Table(props: TableProps) {
     };
   }, [isHeaderVisible, props.height, tableSizes.TABLE_HEADER_HEIGHT]);
 
-  const shouldUseVirtual =
-    props.serverSidePaginationEnabled &&
-    !props.columns.some(
-      (column) => !!column.columnProperties.allowCellWrapping,
-    );
+  // const shouldUseVirtual =
+  //   props.serverSidePaginationEnabled &&
+  //   !props.columns.some(
+  //     (column) => !!column.columnProperties.allowCellWrapping,
+  //   );
+  const shouldUseVirtual = false;
 
   useEffect(() => {
     if (props.isAddRowInProgress && tableBodyRef) {
@@ -418,6 +422,8 @@ export function Table(props: TableProps) {
     ],
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const hasNoData = !props.loadingTable && subPage.length === 0;
   return (
     <TableWrapper
       accentColor={props.accentColor}
@@ -495,6 +501,7 @@ export function Table(props: TableProps) {
                 updatePageNo={props.updatePageNo}
                 widgetId={props.widgetId}
                 widgetName={props.widgetName}
+                pageSize={props.pageSize}
               />
             </TableHeaderInnerWrapper>
           </TableHeaderWrapper>

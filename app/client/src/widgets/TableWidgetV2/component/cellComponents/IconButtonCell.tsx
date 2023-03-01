@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { IconName } from "@blueprintjs/icons";
 import { ButtonVariant } from "components/constants";
-import { BaseCellComponentProps } from "../Constants";
+import { BaseCellComponentProps, TableSizes } from "../Constants";
 import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
 
@@ -17,6 +17,7 @@ interface RenderIconButtonProps extends BaseCellComponentProps {
   boxShadow: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   disabled: boolean;
+  tableSizes: TableSizes;
 }
 
 function IconButton(props: {
@@ -88,8 +89,8 @@ export function IconButtonCell(props: RenderIconButtonProps) {
     textColor,
     textSize,
     verticalAlignment,
+    tableSizes,
   } = props;
-
   if (!columnActions)
     return (
       <CellWrapper
@@ -102,6 +103,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
+        tableSizes={tableSizes}
       />
     );
 
@@ -118,6 +120,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
       textColor={textColor}
       textSize={textSize}
       verticalAlignment={verticalAlignment}
+      tableSizes={tableSizes}
     >
       {columnActions.map((action: ColumnAction, index: number) => {
         return (

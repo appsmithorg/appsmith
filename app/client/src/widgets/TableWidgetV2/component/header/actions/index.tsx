@@ -18,7 +18,6 @@ import TableDataDownload from "./Download";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { lightenColor } from "widgets/WidgetUtils";
-import { PageNumberInput } from "./PageNumberInput";
 import ActionItem from "./ActionItem";
 
 const SearchComponentWrapper = styled.div<{
@@ -124,9 +123,23 @@ export interface ActionsPropsType {
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
   disableAddNewRow: boolean;
+  pageSize: number;
 }
 
 function Actions(props: ActionsPropsType) {
+  const isLastPage = props.currentPageIndex === props.pageCount - 1;
+  let endIndex: number;
+  const startIndex = props.currentPageIndex * props.pageSize + 1;
+
+  if (
+    isLastPage ||
+    (props.tableData.length < props.pageSize && props.currentPageIndex === 0)
+  ) {
+    endIndex = props.totalRecordsCount || props.tableData.length || 0;
+  } else {
+    endIndex = startIndex + props.pageSize - 1;
+  }
+
   return (
     <>
       {props.isVisibleSearch && (
@@ -137,7 +150,7 @@ function Actions(props: ActionsPropsType) {
         >
           <SearchComponent
             onSearch={props.searchTableData}
-            placeholder="Search..."
+            placeholder={"Enter your keyword"}
             value={props.searchKey}
           />
         </SearchComponentWrapper>
@@ -182,12 +195,11 @@ function Actions(props: ActionsPropsType) {
           )}
         </CommonFunctionsMenuWrapper>
       )}
-
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           {props.totalRecordsCount ? (
-            <TableHeaderContentWrapper className="show-page-items">
-              {props.totalRecordsCount} Records
+            <TableHeaderContentWrapper>
+              {startIndex}-{endIndex} of {props.totalRecordsCount}
             </TableHeaderContentWrapper>
           ) : null}
           <PaginationItemWrapper
@@ -201,32 +213,6 @@ function Actions(props: ActionsPropsType) {
           >
             <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          {props.totalRecordsCount ? (
-            <TableHeaderContentWrapper>
-              Page&nbsp;
-              <PaginationItemWrapper
-                accentColor={props.accentColor}
-                borderRadius={props.borderRadius}
-                className="page-item"
-                selected
-              >
-                {props.pageNo + 1}
-              </PaginationItemWrapper>
-              &nbsp;
-              <span
-                data-pagecount={props.pageCount}
-              >{`of ${props.pageCount}`}</span>
-            </TableHeaderContentWrapper>
-          ) : (
-            <PaginationItemWrapper
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
-              className="page-item"
-              selected
-            >
-              {props.pageNo + 1}
-            </PaginationItemWrapper>
-          )}
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}
@@ -244,9 +230,15 @@ function Actions(props: ActionsPropsType) {
       )}
       {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
         <PaginationWrapper>
-          <TableHeaderContentWrapper className="show-page-items">
+          {/* <TableHeaderContentWrapper className="show-page-items">
             {props.tableData?.length} Records
-          </TableHeaderContentWrapper>
+          </TableHeaderContentWrapper> */}
+          {props.tableData.length ? (
+            <TableHeaderContentWrapper>
+              {startIndex}-{endIndex} of {props.tableData?.length}
+            </TableHeaderContentWrapper>
+          ) : null}
+
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}
@@ -261,18 +253,6 @@ function Actions(props: ActionsPropsType) {
           >
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          <TableHeaderContentWrapper>
-            Page{" "}
-            <PageNumberInput
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
-              disabled={props.pageCount === 1}
-              pageCount={props.pageCount}
-              pageNo={props.pageNo + 1}
-              updatePageNo={props.updatePageNo}
-            />{" "}
-            of {props.pageCount}
-          </TableHeaderContentWrapper>
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}

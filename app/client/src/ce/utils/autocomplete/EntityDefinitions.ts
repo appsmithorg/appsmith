@@ -803,6 +803,11 @@ export const GLOBAL_FUNCTIONS = {
       "Establish cross-origin communication between Window objects/page and iframes",
     "!type": "fn(message: unknown, source: string, targetOrigin: string)",
   },
+  addMessageHandler: {
+    "!doc":
+      "Add a handler for incoming message from parent host when page is embed as iframe",
+    "!type": "fn(callback: fn) -> void",
+  },
 };
 
 export const getPropsForJSActionEntity = ({

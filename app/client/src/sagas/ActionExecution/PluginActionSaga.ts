@@ -1,4 +1,12 @@
-import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  delay,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   executePluginActionError,
   executePluginActionRequest,
@@ -972,64 +980,86 @@ function* executePluginActionSaga(
   if (paginationField) {
     executeActionRequest.paginationField = paginationField;
   }
+  for (let i = 0; i < 5; i++) {
+    const formData = new FormData();
 
-  const formData = new FormData();
-
-  yield call(
-    evaluateActionParams,
-    pluginAction.jsonPathKeys,
-    formData,
-    executeActionRequest,
-    params,
-  );
-
-  let payload = EMPTY_RESPONSE;
-  let response: ActionExecutionResponse;
-  try {
-    response = yield ActionAPI.executeAction(formData, timeout);
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
+    yield call(
+      evaluateActionParams,
+      pluginAction.jsonPathKeys,
+      formData,
+      executeActionRequest,
+      params,
     );
-    yield validateResponse(response);
-    payload = createActionExecutionResponse(response);
 
-    yield put(
-      executePluginActionSuccess({
-        id: actionId,
-        response: payload,
-      }),
-    );
-    // TODO: Plugins are not always fetched before on page load actions are executed.
+    let payload = EMPTY_RESPONSE;
+    let response: ActionExecutionResponse;
     try {
-      let plugin: Plugin | undefined;
-      if (!!pluginAction.pluginId) {
-        plugin = shouldBeDefined<Plugin>(
-          yield select(getPlugin, pluginAction.pluginId),
-          `Plugin not found for id - ${pluginAction.pluginId}`,
+      response = yield ActionAPI.executeAction(formData, timeout);
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+      );
+      yield validateResponse(response);
+      payload = createActionExecutionResponse(response);
+      let hasError = false;
+      // HACK: for hasura or grpc gateway query error by token invalid
+      // Author: @Thanhloc
+      if (payload.body) {
+        const data: any = payload.body;
+        for (const key in data) {
+          if (
+            (key == "message" && data[key] == "Unauthenticated") ||
+            (key == "errors" && data[key].length > 0)
+          ) {
+            hasError = true;
+            yield delay(1000);
+          }
+        }
+      }
+      if (!hasError || i == 4) {
+        yield put(
+          executePluginActionSuccess({
+            id: actionId,
+            response: payload,
+          }),
         );
+        yield put(
+          executePluginActionSuccess({
+            id: actionId,
+            response: payload,
+          }),
+        );
+        // TODO: Plugins are not always fetched before on page load actions are executed.
+        try {
+          let plugin: Plugin | undefined;
+          if (!!pluginAction.pluginId) {
+            plugin = shouldBeDefined<Plugin>(
+              yield select(getPlugin, pluginAction.pluginId),
+              `Plugin not found for id - ${pluginAction.pluginId}`,
+            );
+          }
+          // sets the default display format for action response e.g Raw, Json or Table
+          yield setDefaultActionDisplayFormat(actionId, plugin, payload);
+        } catch (e) {
+          log.error("plugin not found", e);
+        }
+        return {
+          payload,
+          isError: isErrorResponse(response),
+        };
+      }
+    } catch (e) {
+      yield put(
+        executePluginActionSuccess({
+          id: actionId,
+          response: EMPTY_RESPONSE,
+        }),
+      );
+      if (e instanceof UserCancelledActionExecutionError) {
+        throw new UserCancelledActionExecutionError();
       }
 
-      // sets the default display format for action response e.g Raw, Json or Table
-      yield setDefaultActionDisplayFormat(actionId, plugin, payload);
-    } catch (e) {
-      log.error("plugin no found", e);
+      throw new PluginActionExecutionError("Response not valid", false);
     }
-    return {
-      payload,
-      isError: isErrorResponse(response),
-    };
-  } catch (e) {
-    yield put(
-      executePluginActionSuccess({
-        id: actionId,
-        response: EMPTY_RESPONSE,
-      }),
-    );
-    if (e instanceof UserCancelledActionExecutionError) {
-      throw new UserCancelledActionExecutionError();
-    }
-
-    throw new PluginActionExecutionError("Response not valid", false);
   }
 }
 

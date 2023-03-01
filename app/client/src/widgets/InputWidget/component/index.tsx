@@ -457,6 +457,8 @@ class InputComponent extends React.Component<
         return "email";
       case "SEARCH":
         return "search";
+      case "COLOR":
+        return "color";
       default:
         return "text";
     }

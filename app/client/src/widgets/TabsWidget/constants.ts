@@ -13,6 +13,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
     label: string;
     widgetId: string;
     isVisible?: boolean;
+    translationJp: string;
   }>;
   tabsObj: Record<
     string,
@@ -21,6 +22,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
       label: string;
       widgetId: string;
       isVisible?: boolean;
+      translationJp: string;
       index: number;
     }
   >;

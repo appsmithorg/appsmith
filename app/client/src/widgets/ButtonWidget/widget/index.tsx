@@ -48,6 +48,16 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "translationJp",
+            label: "Translation JP",
+            helpText: "Sets the translation of the button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter translation for JP",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Triggers an action when the button is clicked",
             propertyName: "onClick",
             label: "onClick",
@@ -446,6 +456,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
         text={this.props.text}
+        translation={this.props.translationJp}
         tooltip={this.props.tooltip}
         type={this.props.buttonType || ButtonType.BUTTON}
         widgetId={this.props.widgetId}
@@ -461,6 +472,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
 export interface ButtonWidgetProps extends WidgetProps {
   text?: string;
+  translationJp?: string;
   onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;

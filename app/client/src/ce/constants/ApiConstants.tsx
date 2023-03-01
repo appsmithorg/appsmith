@@ -41,3 +41,15 @@ export const SUPER_USER_SUBMIT_PATH = `${SIGNUP_SUBMIT_PATH}/super`;
 
 export const getExportAppAPIRoute = (applicationId: string) =>
   `/api/v1/applications/export/${applicationId}`;
+
+export enum POST_MESSAGE_TYPE {
+  TOKEN = "TOKEN",
+  SNACKBAR = "SNACKBAR",
+}
+
+export const enum Severity {
+  SUCCESS = "success",
+  INFO = "info",
+  WARNING = "warning",
+  ERROR = "error",
+}

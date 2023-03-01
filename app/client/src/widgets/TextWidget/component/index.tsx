@@ -86,14 +86,12 @@ export const TextContainer = styled.div`
   }
 `;
 
-const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
+const StyledIcon = styled(Icon)`
   cursor: pointer;
   bottom: 0;
   left: 0;
   right: 0;
   height: ${ELLIPSIS_HEIGHT}px;
-  background: ${(props) =>
-    props.backgroundColor ? props.backgroundColor : "transparent"};
 `;
 
 type StyledTextProps = React.PropsWithChildren<{

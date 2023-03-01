@@ -4,11 +4,14 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { ChangeLanguageAction } from "actions/appViewActions";
+import { LanguageEnums } from "entities/App";
 
 const initialState: AppViewReduxState = {
   isFetchingPage: false,
   initialized: false,
   headerHeight: 0,
+  lang: LanguageEnums.EN,
 };
 
 const appViewReducer = createReducer(initialState, {
@@ -48,12 +51,22 @@ const appViewReducer = createReducer(initialState, {
       headerHeight: action.payload,
     };
   },
+  [ReduxActionTypes.CHANGE_LANGUAGE]: (
+    state: AppViewReduxState,
+    action: ReduxAction<ChangeLanguageAction>,
+  ) => {
+    return {
+      ...state,
+      lang: action.payload,
+    };
+  },
 });
 
 export interface AppViewReduxState {
   initialized: boolean;
   isFetchingPage: boolean;
   headerHeight: number;
+  lang: LanguageEnums;
 }
 
 export default appViewReducer;

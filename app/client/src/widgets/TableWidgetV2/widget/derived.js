@@ -1,3 +1,4 @@
+export const DEFAULT_ROWS_PER_PAGE = 10;
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
@@ -151,44 +152,7 @@ export default {
   },
   //
   getPageSize: (props, moment, _) => {
-    const TABLE_SIZES = {
-      DEFAULT: {
-        COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
-        ROW_HEIGHT: 40,
-        ROW_FONT_SIZE: 14,
-        VERTICAL_PADDING: 6,
-        EDIT_ICON_TOP: 10,
-      },
-      SHORT: {
-        COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
-        ROW_HEIGHT: 30,
-        ROW_FONT_SIZE: 12,
-        VERTICAL_PADDING: 0,
-        EDIT_ICON_TOP: 5,
-      },
-      TALL: {
-        COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
-        ROW_HEIGHT: 60,
-        ROW_FONT_SIZE: 18,
-        VERTICAL_PADDING: 16,
-        EDIT_ICON_TOP: 21,
-      },
-    };
-    const compactMode = props.compactMode || "DEFAULT";
-    const componentHeight =
-      (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
-    const tableSizes = TABLE_SIZES[compactMode];
-
-    let pageSize =
-      (componentHeight -
-        tableSizes.TABLE_HEADER_HEIGHT -
-        tableSizes.COLUMN_HEADER_HEIGHT) /
-      tableSizes.ROW_HEIGHT;
-
-    return pageSize % 1 > 0.3 ? Math.ceil(pageSize) : Math.floor(pageSize);
+    return DEFAULT_ROWS_PER_PAGE;
   },
   //
   getProcessedTableData: (props, moment, _) => {
@@ -686,7 +650,6 @@ export default {
       props.serverSidePaginationEnabled && props.tableData
         ? props.tableData?.length
         : props.pageSize;
-
     if (
       Number.isFinite(props.pageNo) &&
       Number.isFinite(pageSize) &&

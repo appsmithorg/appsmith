@@ -96,6 +96,10 @@ COPY ./deploy/docker/watchtower-hooks /watchtower-hooks
 RUN chmod +x /watchtower-hooks/pre-check.sh
 RUN chmod +x /watchtower-hooks/pre-update.sh
 
+ARG SOPS_VERSION=3.7.1
+ADD https://github.com/mozilla/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux /usr/local/bin/sops
+
+RUN chmod 755 /usr/local/bin/sops
 
 EXPOSE 80
 EXPOSE 443

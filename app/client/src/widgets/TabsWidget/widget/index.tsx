@@ -112,6 +112,23 @@ class TabsWidget extends BaseWidget<
                     },
                   ],
                 },
+                {
+                  sectionName: "Translation",
+                  children: [
+                    {
+                      propertyName: "translationJp",
+                      controlType: "INPUT_TEXT",
+                      defaultValue: "",
+                      label: "Translation JP",
+                      placeholderText: "Enter translation for JP",
+                      helpText:
+                        "Controls content follows current language system",
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                  ],
+                },
               ],
             },
           },

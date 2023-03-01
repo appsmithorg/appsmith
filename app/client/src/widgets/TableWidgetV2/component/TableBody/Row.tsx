@@ -25,6 +25,7 @@ export function Row(props: RowType) {
     selectedRowIndex,
     selectedRowIndices,
     selectTableRow,
+    loadingTable,
   } = useContext(BodyContext);
 
   prepareRow?.(props.row);
@@ -61,6 +62,7 @@ export function Row(props: RowType) {
       }}
     >
       {multiRowSelection &&
+        !loadingTable &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
       {props.row.cells.map((cell, cellIndex) => {
         const cellProperties = cell.getCellProps();
@@ -71,7 +73,17 @@ export function Row(props: RowType) {
               ? cell.column.totalLeft + MULTISELECT_CHECKBOX_WIDTH
               : cellProperties?.style?.left,
         };
-        return (
+        return loadingTable ? (
+          <div
+            {...cellProperties}
+            className="td skeleton-cell"
+            data-colindex={cellIndex}
+            data-rowindex={props.index}
+            key={cellIndex}
+          >
+            <span className="skeleton" />
+          </div>
+        ) : (
           <div
             {...cellProperties}
             className={
@@ -110,7 +122,6 @@ export const EmptyRows = (props: {
     rows,
     width,
   } = useContext(BodyContext);
-
   return (
     <>
       {renderEmptyRows(

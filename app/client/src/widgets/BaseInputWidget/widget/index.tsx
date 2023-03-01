@@ -38,6 +38,15 @@ class BaseInputWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "translationJp",
+            label: "Translation JP",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Translation for label",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Sets the label position of the widget",
             propertyName: "labelPosition",
             label: "Position",
@@ -138,6 +147,15 @@ class BaseInputWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "errorMessageJp",
+            label: "Translation JP",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Translation for message",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isSpellCheck",
             label: "Spellcheck",
             helpText:
@@ -168,11 +186,10 @@ class BaseInputWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Sets a placeholder text for the input",
-            propertyName: "placeholderText",
-            label: "Placeholder",
+            propertyName: "tooltipJp",
+            label: "Translation JP",
             controlType: "INPUT_TEXT",
-            placeholderText: "Placeholder",
+            placeholderText: "Translation for tooltip",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -542,6 +559,7 @@ class BaseInputWidget<
         disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
         disabled={this.props.isDisabled}
         errorMessage={this.props.errorMessage}
+        errorMessageJp={this.props.errorMessageJp}
         fill={this.props.fill}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
@@ -551,6 +569,7 @@ class BaseInputWidget<
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        translationJp={this.props.translationJp}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
@@ -562,10 +581,10 @@ class BaseInputWidget<
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.props.onValueChange}
-        placeholder={this.props.placeholder}
         showError={this.props.showError}
         stepSize={1}
         tooltip={this.props.tooltip}
+        tooltipJp={this.props.tooltipJp}
         value={this.props.value}
         widgetId={this.props.widgetId}
       />
@@ -584,13 +603,15 @@ export interface BaseInputValidator {
 export interface BaseInputWidgetProps extends WidgetProps {
   inputType: InputTypes;
   tooltip?: string;
+  tooltipJp?: string;
   isDisabled?: boolean;
   validation: boolean;
   text: string;
   regex?: string;
   errorMessage?: string;
-  placeholderText?: string;
+  errorMessageJp?: string;
   label: string;
+  translationJp?: string;
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
   labelWidth?: number;
