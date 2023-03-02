@@ -12,6 +12,7 @@ import {
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
+import classNames from "classnames";
 
 export const SIDE_NAV_WIDTH = 55;
 
@@ -43,31 +44,44 @@ const Button = styled.div`
 `;
 
 function SideNav(props: {
+  sideNavMode: SideNavMode | undefined;
   onSelect: (sideNavMode: SideNavMode | undefined) => void;
 }) {
   const dispatch = useDispatch();
   return (
-    <Container onClick={() => props.onSelect(undefined)}>
+    <Container>
       <Button
-        onClick={(ev) => {
-          props.onSelect(SideNavMode.Explorer);
-          ev.stopPropagation();
+        className={classNames({
+          "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.Explorer,
+        })}
+        onClick={() => {
+          if (props.sideNavMode === SideNavMode.Explorer)
+            props.onSelect(undefined);
+          else props.onSelect(SideNavMode.Explorer);
         }}
       >
         <img alt="Explorer" src={explorerIcon} />
       </Button>
       <Button
-        onClick={(ev) => {
-          props.onSelect(SideNavMode.DataSources);
-          ev.stopPropagation();
+        className={classNames({
+          "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.DataSources,
+        })}
+        onClick={() => {
+          if (props.sideNavMode === SideNavMode.DataSources)
+            props.onSelect(undefined);
+          else props.onSelect(SideNavMode.DataSources);
         }}
       >
         <img alt="Datasources" src={dataIcon} />
       </Button>
       <Button
-        onClick={(ev) => {
-          props.onSelect(SideNavMode.Libraries);
-          ev.stopPropagation();
+        className={classNames({
+          "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.Libraries,
+        })}
+        onClick={() => {
+          if (props.sideNavMode === SideNavMode.Libraries)
+            props.onSelect(undefined);
+          else props.onSelect(SideNavMode.Libraries);
         }}
       >
         <img alt="library" src={libIcon} />
@@ -90,6 +104,7 @@ function SideNav(props: {
 
       <Button
         onClick={() => {
+          props.onSelect(undefined);
           dispatch(openAppSettingsPaneAction());
         }}
       >

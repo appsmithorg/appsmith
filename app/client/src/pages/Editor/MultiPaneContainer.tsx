@@ -78,7 +78,7 @@ const MultiPaneContainer = () => {
           sideNavMode={sideNavMode}
           width={250}
         />
-        <SideNav onSelect={setSideNavMode} />
+        <SideNav onSelect={setSideNavMode} sideNavMode={sideNavMode} />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
         <WidgetSidebar isActive />
         <CanvasPane />

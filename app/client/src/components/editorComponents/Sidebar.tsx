@@ -78,56 +78,56 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   }, [props.sideNavMode]);
 
   // registering event listeners
-  useEffect(() => {
-    document.addEventListener("mousemove", onMouseMove);
+  // useEffect(() => {
+  //   document.addEventListener("mousemove", onMouseMove);
 
-    return () => {
-      document.removeEventListener("mousemove", onMouseMove);
-    };
-  }, [active, pinned, resizer.resizing]);
+  //   return () => {
+  //     document.removeEventListener("mousemove", onMouseMove);
+  //   };
+  // }, [active, pinned, resizer.resizing]);
 
   /**
    * passing the event to touch move on mouse move
    *
    * @param event
    */
-  const onMouseMove = (event: MouseEvent) => {
-    const eventWithTouches = Object.assign({}, event, {
-      touches: [{ clientX: event.clientX, clientY: event.clientY }],
-    });
-    onTouchMove(eventWithTouches);
-  };
+  // const onMouseMove = (event: MouseEvent) => {
+  //   const eventWithTouches = Object.assign({}, event, {
+  //     touches: [{ clientX: event.clientX, clientY: event.clientY }],
+  //   });
+  //   onTouchMove(eventWithTouches);
+  // };
 
   /**
    * calculate the new width based on the pixel moved
    *
    * @param event
    */
-  const onTouchMove = (
-    event:
-      | TouchEvent
-      | (MouseEvent & { touches: { clientX: number; clientY: number }[] }),
-  ) => {
-    const currentX = event.touches[0].clientX;
+  // const onTouchMove = (
+  //   event:
+  //     | TouchEvent
+  //     | (MouseEvent & { touches: { clientX: number; clientY: number }[] }),
+  // ) => {
+  //   const currentX = event.touches[0].clientX;
 
-    // only calculate the following in unpin mode
-    if (!pinned) {
-      if (active) {
-        // if user cursor is out of the entity explorer width ( with some extra window = 20px ), make the
-        // entity explorer inactive. Also, 20px here is to increase the window in which a user can drag the resizer
-        // 55px to account for left positioning
-        if (currentX >= props.width + 20 + 55 && !resizer.resizing) {
-          dispatch(setExplorerActiveAction(false));
-          props.setSideNavMode?.(undefined);
-        }
-      } else {
-        // check if user cursor is at extreme left when the explorer is inactive, if yes, make the explorer active
-        // if (currentX <= 20) {
-        //   dispatch(setExplorerActiveAction(true));
-        // }
-      }
-    }
-  };
+  //   // only calculate the following in unpin mode
+  //   if (!pinned) {
+  //     if (active) {
+  //       // if user cursor is out of the entity explorer width ( with some extra window = 20px ), make the
+  //       // entity explorer inactive. Also, 20px here is to increase the window in which a user can drag the resizer
+  //       // 55px to account for left positioning
+  //       if (currentX >= props.width + 20 + 55 && !resizer.resizing) {
+  //         dispatch(setExplorerActiveAction(false));
+  //         props.setSideNavMode?.(undefined);
+  //       }
+  //     } else {
+  //       // check if user cursor is at extreme left when the explorer is inactive, if yes, make the explorer active
+  //       if (currentX <= 20) {
+  //         dispatch(setExplorerActiveAction(true));
+  //       }
+  //     }
+  //   }
+  // };
 
   /**
    * on hover of resizer, show tooltip
