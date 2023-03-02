@@ -32,6 +32,7 @@ import ContextualMenu from "../ContextualMenu";
 import LogEntityLink from "./components/LogEntityLink";
 import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
+import moment from "moment";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -167,6 +168,19 @@ const showToggleIcon = (e: Log) => {
   return !!e.state;
 };
 
+//format the requestedAt timestamp to a readable format.
+const getUpdateTimestamp = (state?: Record<string, any>) => {
+  if (state) {
+    //clone state to avoid mutating the original state.
+    const copyState = JSON.parse(JSON.stringify(state));
+    copyState.requestedAt = moment(copyState.requestedAt).format(
+      "YYYY-MM-DD HH:mm:ss",
+    );
+    return copyState;
+  }
+  return state;
+};
+
 // returns required parameters for log item
 export const getLogItemProps = (e: Log) => {
   return {
@@ -181,7 +195,7 @@ export const getLogItemProps = (e: Log) => {
     timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
     severity: e.severity,
     text: e.text,
-    state: e.state,
+    state: getUpdateTimestamp(e.state),
     id: e.source ? e.source.id : undefined,
     messages: e.messages,
     collapsable: showToggleIcon(e),

@@ -152,7 +152,7 @@ const searchAction: Record<
       if (intercomAppID && window.Intercom) {
         window.Intercom(
           "showNewMessage",
-          createMessage(DEBUGGER_INTERCOM_TEXT, error.message),
+          createMessage(DEBUGGER_INTERCOM_TEXT, error.message.message),
         );
       }
     },
@@ -195,8 +195,8 @@ const MenuItem = styled.a`
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
-  padding: 0px ${(props) => props.theme.spaces[6]}px;
-  height: 40px;
+  padding: 8px ${(props) => props.theme.spaces[7]}px;
+  height: 36px;
 
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.menuItem.hoverText};

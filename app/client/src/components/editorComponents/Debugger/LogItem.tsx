@@ -279,11 +279,6 @@ function LogItem(props: LogItemProps) {
     },
     collapsed: 1,
   };
-  // The error to sent to the contextual menu
-  const errorToSearch =
-    props.messages && props.messages.length
-      ? props.messages[0]
-      : { message: { name: "", message: props.text } };
 
   const messages = props.messages || [];
   const { collapsable } = props;
@@ -348,7 +343,10 @@ function LogItem(props: LogItemProps) {
             {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
               props.severity === Severity.ERROR && (
                 <ContextWrapper onClick={(e) => e.stopPropagation()}>
-                  <ContextualMenu entity={props.source} error={errorToSearch}>
+                  <ContextualMenu
+                    entity={props.source}
+                    error={{ message: { name: "", message: "" } }}
+                  >
                     <TooltipComponent
                       content={
                         <Text style={{ color: "#ffffff" }} type={TextType.P3}>
