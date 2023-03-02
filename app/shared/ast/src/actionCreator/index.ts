@@ -468,6 +468,11 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
     let firstCallExpressionNode: Node;
 
     // @ts-ignore
+    if (nodeToTraverse.callee.type === NodeTypes.Identifier) {
+        firstCallExpressionNode = nodeToTraverse;
+    }
+
+    // @ts-ignore
     while (nodeToTraverse?.callee?.object) {
         firstCallExpressionNode = klona(nodeToTraverse);
         // @ts-ignore

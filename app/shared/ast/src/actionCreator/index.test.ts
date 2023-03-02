@@ -44,6 +44,22 @@ describe("getFuncExpressionAtPosition", () => {
 
     expect(result).toEqual("location => {}");
   })
+
+  it("should return the arguments for function without properties", () => {
+    const value = "showAlert('Hello');"
+
+    const result = getFuncExpressionAtPosition(value, 0, 2);
+
+    expect(result).toEqual("'Hello'");
+  })
+
+  it("should return the callback function for setInterval", () => {
+    const value = "setInterval(() => { console.log('hello'); }, 1000);";
+
+    const result = getFuncExpressionAtPosition(value, 0, 2);
+
+    expect(result).toEqual("() => {\n  console.log('hello');\n}");
+  });
 });
 
 describe("setCallbackFunctionField", () => {
