@@ -3,10 +3,11 @@ import styled from "styled-components";
 export const PageViewContainer = styled.div<{
   hasPinnedSidebar: boolean;
   sidebarWidth: number;
+  isPreviewMode?: boolean;
 }>`
   ${({ hasPinnedSidebar, sidebarWidth }) =>
     hasPinnedSidebar ? `margin-left: ${sidebarWidth}px;` : ""};
-  width: 100%;
+  ${({ isPreviewMode }) => (isPreviewMode ? "width: 100%" : "")};
 `;
 
 export const PageView = styled.div<{ width: number }>`
