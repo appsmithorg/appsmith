@@ -75,9 +75,7 @@ import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "RouteBuilder";
 import { ApiResponse } from "api/ApiResponses";
 import { shouldBeDefined } from "utils/helpers";
-import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { requestModalConfirmationSaga } from "sagas/UtilSagas";
-import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
+
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
