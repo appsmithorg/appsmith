@@ -72,7 +72,7 @@ function EditorsRouter() {
 
   return (
     <Wrapper isVisible>
-      <EditorTabs />
+      {isMultiPane && <EditorTabs />}
       <Switch key={path}>
         <SentryRoute
           component={showPropertyPane ? PropertyPaneContainer : TabsEmptyState}

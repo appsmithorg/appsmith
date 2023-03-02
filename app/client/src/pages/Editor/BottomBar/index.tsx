@@ -9,10 +9,7 @@ import ManualUpgrades from "./ManualUpgrades";
 import { Icon, IconSize } from "design-system-old";
 import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
-import {
-  isMultiPaneActive,
-  isOnePaneLayout,
-} from "selectors/multiPaneSelectors";
+import { isOnePaneLayout } from "selectors/multiPaneSelectors";
 
 const Container = styled.div`
   width: 100%;
@@ -27,7 +24,6 @@ const Container = styled.div`
 `;
 
 export default function BottomBar(props: { className?: string }) {
-  const isMultiPane = useSelector(isMultiPaneActive);
   const isOnePane = useSelector(isOnePaneLayout);
   return (
     <Container
@@ -52,7 +48,7 @@ export default function BottomBar(props: { className?: string }) {
         </ManualUpgrades>
         <HelpButton />
         <DebuggerTrigger />
-        {isMultiPane && <PaneCountSwitcher />}
+        <PaneCountSwitcher />
       </div>
     </Container>
   );
