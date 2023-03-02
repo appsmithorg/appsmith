@@ -267,7 +267,7 @@ export function ReflowResizable(props: ResizableProps) {
     bottom: widget.bottomRow,
     id: widget.widgetId,
   };
-  if (!(isAutoLayout && widget.leftColumn === 0) && props.handles.left) {
+  if (!(isAutoLayout && widget?.leftColumn === 0) && props.handles.left) {
     handles.push({
       dragCallback: (x: number) => {
         const updatedPositions = { ...resizedPositions };
