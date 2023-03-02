@@ -405,6 +405,7 @@ export function* fetchJSCollectionsForViewModeSaga(
     );
     const resultJSCollections = response.data;
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,

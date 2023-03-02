@@ -68,9 +68,11 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
   return acc;
 }, {} as any);
 
-function resetWorkerGlobalScope() {
+function resetWorkerGlobalScope(dataTree: DataTree) {
   self.$isDataField = false;
   for (const key of Object.keys(self)) {
+    if (dataTree[key]) continue;
+
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     //TODO: Remove this once we have a better way to handle this
     if (["evaluationVersion", "window", "document", "location"].includes(key))
@@ -182,6 +184,7 @@ export const assignJSFunctionsToContext = (
     const resolvedObject = resolvedFunctions[jsObjectName];
     const jsObject = EVAL_CONTEXT[jsObjectName];
     const jsObjectFunction: Record<string, Record<"data", unknown>> = {};
+
     if (!jsObject) continue;
     for (const fnName of Object.keys(resolvedObject)) {
       const fn = resolvedObject[fnName];
@@ -256,7 +259,7 @@ export default function evaluateSync(
   evalArguments?: Array<any>,
 ): EvalResult {
   return (function() {
-    resetWorkerGlobalScope();
+    resetWorkerGlobalScope(dataTree);
     const errors: EvaluationError[] = [];
     let result;
 
@@ -331,7 +334,7 @@ export async function evaluateAsync(
   JSCollectionsForCurrentPage?: JSCollectionData[],
 ) {
   return (async function() {
-    resetWorkerGlobalScope();
+    resetWorkerGlobalScope(dataTree);
     const errors: EvaluationError[] = [];
     let result;
 

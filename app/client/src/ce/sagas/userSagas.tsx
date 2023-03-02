@@ -481,6 +481,7 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
 
 export function* waitForFetchUserSuccess() {
   const currentUser: string | undefined = yield select(getCurrentUser);
+
   if (!currentUser) {
     yield take(ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS);
   }

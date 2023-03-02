@@ -3,6 +3,8 @@ import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import userLogs from "./fns/overrides/console";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { dataTreeEvaluator } from "./handlers/evalTree";
+import _ from "lodash";
 
 class FunctionDeterminer {
   private evalContext: EvalContext = {};
@@ -18,8 +20,14 @@ class FunctionDeterminer {
       $isAsync: false,
     };
 
+    let newDataTree = dataTree;
+
+    if (dataTreeEvaluator && !_.isEmpty(dataTreeEvaluator.evalTree)) {
+      newDataTree = dataTreeEvaluator.evalTree;
+    }
+
     addDataTreeToContext({
-      dataTree,
+      dataTree: newDataTree,
       EVAL_CONTEXT: evalContext,
       isTriggerBased: true,
     });
@@ -42,12 +50,7 @@ class FunctionDeterminer {
 
   close() {
     userLogs.enable();
-    for (const entityName in this.evalContext) {
-      if (this.evalContext.hasOwnProperty(entityName)) {
-        // @ts-expect-error: Types are not available
-        delete self[entityName];
-      }
-    }
+    self["$isDataField"] = false;
   }
 
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {

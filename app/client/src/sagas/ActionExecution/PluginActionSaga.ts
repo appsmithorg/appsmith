@@ -718,13 +718,6 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
       (action) => action.id === pageAction.id,
     );
     if (!!jsAction) {
-      //Hacky way to wait for 1 second to ensure that evaluations are run before the page load action
-      yield new Promise((res) => {
-        setTimeout(() => {
-          res(null);
-        }, 1000);
-      });
-
       const data = {
         collectionName: collection.name,
         action: jsAction,
