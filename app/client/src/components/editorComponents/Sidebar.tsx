@@ -32,7 +32,7 @@ import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { isOnePaneLayout } from "selectors/multiPaneSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 import JSDependencies from "../../pages/Editor/Explorer/Libraries";
 import Datasources from "../../pages/Editor/Explorer/Datasources";
@@ -53,8 +53,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
   let pinned = useSelector(getExplorerPinned);
-  const isOnePane = useSelector(isOnePaneLayout);
-  if (!isOnePane) pinned = false;
+  const isMultiPane = useSelector(isMultiPaneActive);
+  if (isMultiPane) pinned = false;
   const isPreviewMode = useSelector(previewModeSelector);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -73,22 +73,22 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
   useEffect(() => {
-    if (!isOnePane) {
+    if (isMultiPane) {
       props.sideNavMode && dispatch(setExplorerActiveAction(true));
       !props.sideNavMode && dispatch(setExplorerActiveAction(false));
     }
-  }, [isOnePane, props.sideNavMode]);
+  }, [isMultiPane, props.sideNavMode]);
 
   // registering event listeners
   useEffect(() => {
-    if (isOnePane) {
+    if (!isMultiPane) {
       document.addEventListener("mousemove", onMouseMove);
 
       return () => {
         document.removeEventListener("mousemove", onMouseMove);
       };
     }
-  }, [active, pinned, resizer.resizing, isOnePane, isOnePane]);
+  }, [active, pinned, resizer.resizing, isMultiPane]);
 
   /**
    * passing the event to touch move on mouse move
@@ -166,7 +166,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     <div
       className={classNames({
         [`js-entity-explorer t--entity-explorer transform flex h-[inherit] border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
-        "transition-all duration-400": isOnePane,
+        "transition-all duration-400": !isMultiPane,
         relative: pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
@@ -174,7 +174,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       })}
       id={SIDEBAR_ID}
       style={{
-        ...(!isOnePane && {
+        ...(isMultiPane && {
           left: (!pinned && !active) || isPreviewMode ? "" : "55px",
           height: `calc(100% - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`,
         }),
@@ -184,7 +184,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       <div
         className={classNames({
           "flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group": true,
-          "h-full": !isOnePane,
+          "h-full": isMultiPane,
         })}
         ref={sidebarRef}
         style={{ width: props.width }}
@@ -192,7 +192,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
 
-        {!isOnePane && (
+        {isMultiPane && (
           <>
             <div
               className={classNames({
@@ -228,7 +228,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           </>
         )}
 
-        {isOnePane && (
+        {!isMultiPane && (
           <>
             {/* PagesContainer */}
             <Pages />

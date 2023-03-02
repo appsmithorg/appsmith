@@ -9,7 +9,7 @@ import ManualUpgrades from "./ManualUpgrades";
 import { Icon, IconSize } from "design-system-old";
 import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
-import { isOnePaneLayout } from "selectors/multiPaneSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Container = styled.div`
   width: 100%;
@@ -24,12 +24,12 @@ const Container = styled.div`
 `;
 
 export default function BottomBar(props: { className?: string }) {
-  const isOnePane = useSelector(isOnePaneLayout);
+  const isMultiPane = useSelector(isMultiPaneActive);
   return (
     <Container
       className={props.className ?? ""}
       style={{
-        ...(!isOnePane && {
+        ...(isMultiPane && {
           width: "calc(100% - 55px)",
           bottom: "0px",
           left: "55px",

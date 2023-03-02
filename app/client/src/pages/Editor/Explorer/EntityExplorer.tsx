@@ -32,7 +32,7 @@ import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { isOnePaneLayout } from "selectors/multiPaneSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Wrapper = styled.div`
   height: 100%; // check height and scroll
@@ -100,7 +100,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
   }, [isFirstTimeUserOnboardingEnabled, pageId]);
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
-  const isOnePane = useSelector(isOnePaneLayout);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
@@ -150,7 +150,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      {isOnePane && (
+      {!isMultiPane && (
         <>
           <StyledDivider />
           <Datasources />

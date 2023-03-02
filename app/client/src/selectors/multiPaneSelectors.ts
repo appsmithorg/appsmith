@@ -8,9 +8,6 @@ export const getTabsPaneWidth = (state: AppState) =>
 export const getPaneCount = (state: AppState) =>
   state.ui.multiPaneConfig.paneCount;
 
-export const isOnePaneLayout = (state: AppState) =>
-  state.ui.multiPaneConfig.paneCount === PaneLayoutOptions.ONE_PANE;
-
 export const isMultiPaneActive = createSelector(getPaneCount, (paneCount) => {
   return paneCount !== PaneLayoutOptions.ONE_PANE;
 });

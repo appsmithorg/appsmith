@@ -8,7 +8,7 @@ import { TooltipComponent, Button, Size, Category } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-import { isOnePaneLayout } from "selectors/multiPaneSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Title = styled.p`
   color: ${Colors.GRAY_800};
@@ -21,7 +21,7 @@ export function CanvasPropertyPane() {
     dispatch(openAppSettingsPaneAction());
   };
 
-  const isOnePane = useSelector(isOnePaneLayout);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   return (
     <div className="relative ">
@@ -32,7 +32,7 @@ export function CanvasPropertyPane() {
           <Title className="text-sm">Canvas Size</Title>
           <MainContainerLayoutControl />
 
-          {isOnePane && (
+          {!isMultiPane && (
             <TooltipComponent
               content={
                 <>
