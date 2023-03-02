@@ -238,10 +238,12 @@ export const quickScrollToWidget = (
     if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
       const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);
       if (scrollElement) {
-        scrollElement.scrollIntoView({
-          block: "center",
-          inline: "nearest",
-          behavior: "smooth",
+        window.requestIdleCallback(() => {
+          scrollElement.scrollIntoView({
+            block: "center",
+            inline: "nearest",
+            behavior: "smooth",
+          });
         });
       }
     }
@@ -276,7 +278,9 @@ function getWidgetElementToScroll(
   const parentId = widget.parentId || "";
   const containerId = getContainerIdForCanvas(parentId);
   if (containerId === MAIN_CONTAINER_WIDGET_ID) {
-    return document.getElementById(widgetId);
+    if (widget.type !== "MODAL_WIDGET") {
+      return document.getElementById(widgetId);
+    }
   }
   const containerWidget = canvasWidgets[containerId] as ContainerWidgetProps<
     WidgetProps
