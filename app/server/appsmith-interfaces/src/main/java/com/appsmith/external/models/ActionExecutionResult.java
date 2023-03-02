@@ -60,6 +60,10 @@ public class ActionExecutionResult {
             if (StringUtils.hasLength(pluginErrorDetails.getDownstreamErrorMessage())) {
                 this.body = pluginErrorDetails.getDownstreamErrorMessage();
             }
+
+            if (StringUtils.hasLength(pluginErrorDetails.getDownstreamErrorCode())) {
+                this.statusCode = pluginErrorDetails.getDownstreamErrorCode();
+            }
         } else if (error instanceof BaseException) {
             this.statusCode = ((BaseException) error).getAppErrorCode();
             this.title = ((BaseException) error).getTitle();
