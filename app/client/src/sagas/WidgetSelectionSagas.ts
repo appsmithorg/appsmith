@@ -273,13 +273,6 @@ function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
   if (widgetId) {
     quickScrollToWidget(widgetId, allWidgets);
-    // setTimeout(() => {
-    //   // Scrolling will hide some part of the content at the top during guided tour. To avoid that
-    //   // we skip scrolling altogether during guided tour as we don't have
-    //   // too many widgets during the same
-    //   // flashElementsById(widgetId);
-    //
-    // }, 0);
   }
 }
 
