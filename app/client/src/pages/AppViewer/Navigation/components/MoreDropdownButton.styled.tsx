@@ -32,6 +32,14 @@ export const StyleMoreDropdownButton = styled(Button)<{
     align-items: center;
   }
 
+  &:hover,
+  &.is-active {
+    span {
+      color: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)} !important;
+    }
+  }
+
   .page-icon svg path {
     fill: ${({ navColorStyle, primaryColor }) =>
       getMenuItemTextColor(primaryColor, navColorStyle, true)};
