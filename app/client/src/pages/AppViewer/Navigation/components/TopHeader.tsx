@@ -24,6 +24,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import TopStacked from "../TopStacked";
 import { HeaderRow, StyledNav } from "./TopHeader.styled";
 import TopInline from "../TopInline";
+import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
 
 type TopHeaderProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -79,6 +80,13 @@ const TopHeader = (props: TopHeaderProps) => {
             primaryColor={primaryColor}
             setMenuOpen={setMenuOpen}
           />
+
+          {currentUser?.username !== ANONYMOUS_USERNAME && (
+            <BackToHomeButton
+              navColorStyle={navColorStyle}
+              primaryColor={primaryColor}
+            />
+          )}
 
           <ApplicationName
             appName={currentApplicationDetails?.name}

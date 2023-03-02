@@ -18,7 +18,7 @@ import {
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
@@ -35,6 +35,7 @@ import {
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
+import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -133,6 +134,14 @@ export function Sidebar(props: SidebarProps) {
       sidebarHeight={calculateSidebarHeight()}
     >
       <StyledHeader>
+        {currentUser?.username !== ANONYMOUS_USERNAME && (
+          <BackToHomeButton
+            forSidebar
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+          />
+        )}
+
         {!isMinimal && (
           <ApplicationName
             appName={currentApplicationDetails?.name}
