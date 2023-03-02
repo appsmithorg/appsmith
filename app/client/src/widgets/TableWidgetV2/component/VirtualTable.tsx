@@ -35,12 +35,11 @@ type VirtualTableProps = HeaderComponentProps & {
   totalColumnsWidth?: number;
   scrollContainerStyles: any;
   useVirtual: boolean;
-  tableBodyRef: React.MutableRefObject<HTMLDivElement | null>;
 };
 
-const VirtualTable = (props: VirtualTableProps) => {
+const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
   return (
-    <SimpleBar style={props.scrollContainerStyles}>
+    <SimpleBar ref={ref} style={props.scrollContainerStyles}>
       {({ scrollableNodeRef }) => (
         <TableBody
           accentColor={props.accentColor}
@@ -61,11 +60,10 @@ const VirtualTable = (props: VirtualTableProps) => {
           isResizingColumn={props.isResizingColumn}
           isSortable={props.isSortable}
           multiRowSelection={!!props.multiRowSelection}
-          outerRef={scrollableNodeRef}
           pageSize={props.pageSize}
           prepareRow={props.prepareRow}
           primaryColumnId={props.primaryColumnId}
-          ref={props.tableBodyRef}
+          ref={scrollableNodeRef}
           rowSelectionState={props.rowSelectionState}
           rows={props.subPage}
           selectTableRow={props.selectTableRow}
@@ -83,4 +81,4 @@ const VirtualTable = (props: VirtualTableProps) => {
   );
 };
 
-export default VirtualTable;
+export default React.forwardRef(VirtualTable);

@@ -44,12 +44,12 @@ type StaticTableProps = HeaderComponentProps & {
   totalColumnsWidth?: number;
   scrollContainerStyles: any;
   useVirtual: boolean;
-  tableBodyRef: React.MutableRefObject<HTMLDivElement | null>;
+  tableBodyRef?: React.MutableRefObject<HTMLDivElement | null>;
 };
 
-const StaticTable = (props: StaticTableProps) => {
+const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
   return (
-    <SimpleBar style={props.scrollContainerStyles}>
+    <SimpleBar ref={ref} style={props.scrollContainerStyles}>
       <HeaderComponent
         accentColor={props.accentColor}
         borderRadius={props.borderRadius}
@@ -88,7 +88,6 @@ const StaticTable = (props: StaticTableProps) => {
         pageSize={props.pageSize}
         prepareRow={props.prepareRow}
         primaryColumnId={props.primaryColumnId}
-        ref={props.tableBodyRef}
         rows={props.subPage}
         selectTableRow={props.selectTableRow}
         selectedRowIndex={props.selectedRowIndex}
@@ -101,4 +100,4 @@ const StaticTable = (props: StaticTableProps) => {
   );
 };
 
-export default StaticTable;
+export default React.forwardRef(StaticTable);

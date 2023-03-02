@@ -247,7 +247,7 @@ export function Table(props: TableProps) {
   const selectedRowIndices = props.selectedRowIndices || [];
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
-  const tableBodyRef = useRef<HTMLDivElement | null>(null);
+  const scrollBarRef = useRef<SimpleBar | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
@@ -297,8 +297,8 @@ export function Table(props: TableProps) {
     );
 
   useEffect(() => {
-    if (props.isAddRowInProgress && tableBodyRef) {
-      tableBodyRef.current?.scrollTo({ top: 0 });
+    if (props.isAddRowInProgress && scrollBarRef && scrollBarRef?.current) {
+      scrollBarRef.current.getScrollElement().scrollTop = 0;
     }
   }, [props.isAddRowInProgress]);
 
@@ -417,6 +417,7 @@ export function Table(props: TableProps) {
               pageSize={props.pageSize}
               prepareRow={prepareRow}
               primaryColumnId={props.primaryColumnId}
+              ref={scrollBarRef}
               rowSelectionState={rowSelectionState}
               scrollContainerStyles={scrollContainerStyles}
               selectTableRow={props.selectTableRow}
@@ -424,7 +425,6 @@ export function Table(props: TableProps) {
               selectedRowIndices={props.selectedRowIndices}
               sortTableColumn={props.sortTableColumn}
               subPage={subPage}
-              tableBodyRef={tableBodyRef}
               tableSizes={tableSizes}
               totalColumnsWidth={totalColumnsWidth}
               useVirtual={shouldUseVirtual}
@@ -455,6 +455,7 @@ export function Table(props: TableProps) {
               pageSize={props.pageSize}
               prepareRow={prepareRow}
               primaryColumnId={props.primaryColumnId}
+              ref={scrollBarRef}
               rowSelectionState={rowSelectionState}
               scrollContainerStyles={scrollContainerStyles}
               selectTableRow={props.selectTableRow}
@@ -462,7 +463,6 @@ export function Table(props: TableProps) {
               selectedRowIndices={props.selectedRowIndices}
               sortTableColumn={props.sortTableColumn}
               subPage={subPage}
-              tableBodyRef={tableBodyRef}
               tableSizes={tableSizes}
               totalColumnsWidth={totalColumnsWidth}
               useVirtual={shouldUseVirtual}

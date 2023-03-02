@@ -14,6 +14,7 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EmptyRows, EmptyRow, Row } from "./Row";
 import { ReactTableColumnProps, TableSizes } from "../Constants";
 import { HeaderComponentProps } from "../Table";
+import SimpleBar from "simplebar-react";
 
 export type BodyContextType = {
   accentColor: string;
@@ -84,7 +85,7 @@ type BodyPropsType = {
 };
 
 const TableVirtualBodyComponent = React.forwardRef(
-  (props: BodyPropsType & { outerRef?: any }) => {
+  (props: BodyPropsType, ref: Ref<SimpleBar>) => {
     return (
       <div className="simplebar-content-wrapper">
         <FixedSizeList
@@ -100,7 +101,7 @@ const TableVirtualBodyComponent = React.forwardRef(
           itemSize={
             props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
           }
-          outerRef={props.outerRef}
+          outerRef={ref}
           width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
         >
           {rowRenderer}
@@ -110,30 +111,23 @@ const TableVirtualBodyComponent = React.forwardRef(
   },
 );
 
-const TableBodyComponent = React.forwardRef(
-  (props: BodyPropsType, ref: Ref<HTMLDivElement>) => {
-    return (
-      <div {...props.getTableBodyProps()} className="tbody body" ref={ref}>
-        {props.rows.map((row, index) => {
-          return <Row index={index} key={index} row={row} />;
-        })}
-        {props.pageSize > props.rows.length && (
-          <EmptyRows rowCount={props.pageSize - props.rows.length} />
-        )}
-      </div>
-    );
-  },
-);
+const TableBodyComponent = (props: BodyPropsType) => {
+  return (
+    <div {...props.getTableBodyProps()} className="tbody body">
+      {props.rows.map((row, index) => {
+        return <Row index={index} key={index} row={row} />;
+      })}
+      {props.pageSize > props.rows.length && (
+        <EmptyRows rowCount={props.pageSize - props.rows.length} />
+      )}
+    </div>
+  );
+};
 
 export const TableBody = React.forwardRef(
   (
-    props: BodyPropsType &
-      BodyContextType & {
-        useVirtual: boolean;
-        innerRef?: any;
-        outerRef?: any;
-      },
-    ref: Ref<HTMLDivElement>,
+    props: BodyPropsType & BodyContextType & { useVirtual: boolean },
+    ref: Ref<SimpleBar>,
   ) => {
     const {
       accentColor,
@@ -207,7 +201,7 @@ export const TableBody = React.forwardRef(
             {...restOfProps}
           />
         ) : (
-          <TableBodyComponent ref={ref} rows={rows} {...restOfProps} />
+          <TableBodyComponent rows={rows} {...restOfProps} />
         )}
       </BodyContext.Provider>
     );
