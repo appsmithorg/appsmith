@@ -125,6 +125,7 @@ class Editor extends Component<Props> {
       nextProps.isPublishing !== this.props.isPublishing ||
       nextProps.isEditorLoading !== this.props.isEditorLoading ||
       nextProps.errorPublishing !== this.props.errorPublishing ||
+      nextProps.isMultiPane !== this.props.isMultiPane ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
       nextProps.loadingGuidedTour !== this.props.loadingGuidedTour ||
