@@ -275,7 +275,7 @@ configure_supervisord() {
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
       cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
     fi
-    if [[ ${APPSMITH_DISABLE_EMBEDDED_POSTGRES: -0} != 1 ]] && [[ ${startEmbededPostgres} == 1 ]]; then
+    if [[ ${runEmbeddedPostgres} == 1 ]]; then
       cp "$SUPERVISORD_CONF_PATH/postgres.conf" /etc/supervisor/conf.d/
       # Update hosts lookup to resolve to embedded postgres
       echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
@@ -332,8 +332,9 @@ init_postgres() {
       
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
-
     fi
+  else
+    startEmbededPostgres=0 
   fi
   
 }
@@ -371,8 +372,9 @@ mount_letsencrypt_directory
 
 check_redis_compatible_page_size
 
-startEmbededPostgres=1
-init_postgres || startEmbededPostgres=0 
+runEmbeddedPostgres=1
+# fail safe to prevent entrypoint from exiting
+init_postgres || runEmbeddedPostgres=0 
 
 configure_supervisord
 
