@@ -40,7 +40,7 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { isThreePaneLayout } from "selectors/multiPaneSelectors";
+import { isOnePaneLayout } from "selectors/multiPaneSelectors";
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;
@@ -63,7 +63,7 @@ const Datasources = React.memo(() => {
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const isThreePane = useSelector(isThreePaneLayout);
+  const isOnePane = useSelector(isOnePaneLayout);
 
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
@@ -131,7 +131,7 @@ const Datasources = React.memo(() => {
       entityId="datasources_section"
       icon={null}
       isDefaultExpanded={
-        isThreePane ||
+        !isOnePane ||
         isDatasourcesOpen === null ||
         isDatasourcesOpen === undefined
           ? false

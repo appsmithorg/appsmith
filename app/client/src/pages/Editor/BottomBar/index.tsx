@@ -11,7 +11,7 @@ import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
 import {
   isMultiPaneActive,
-  isThreePaneLayout,
+  isOnePaneLayout,
 } from "selectors/multiPaneSelectors";
 
 const Container = styled.div`
@@ -28,12 +28,12 @@ const Container = styled.div`
 
 export default function BottomBar(props: { className?: string }) {
   const isMultiPane = useSelector(isMultiPaneActive);
-  const isThreePane = useSelector(isThreePaneLayout);
+  const isOnePane = useSelector(isOnePaneLayout);
   return (
     <Container
       className={props.className ?? ""}
       style={{
-        ...(isThreePane && {
+        ...(!isOnePane && {
           width: "calc(100% - 55px)",
           bottom: "0px",
           left: "55px",

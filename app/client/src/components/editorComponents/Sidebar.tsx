@@ -32,10 +32,7 @@ import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
-import {
-  isOnePaneLayout,
-  isThreePaneLayout,
-} from "selectors/multiPaneSelectors";
+import { isOnePaneLayout } from "selectors/multiPaneSelectors";
 
 import JSDependencies from "../../pages/Editor/Explorer/Libraries";
 import Datasources from "../../pages/Editor/Explorer/Datasources";
@@ -56,9 +53,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
   let pinned = useSelector(getExplorerPinned);
-  const isThreePane = useSelector(isThreePaneLayout);
   const isOnePane = useSelector(isOnePaneLayout);
-  if (isThreePane) pinned = false;
+  if (!isOnePane) pinned = false;
   const isPreviewMode = useSelector(previewModeSelector);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -77,11 +73,11 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
   useEffect(() => {
-    if (isThreePane) {
+    if (!isOnePane) {
       props.sideNavMode && dispatch(setExplorerActiveAction(true));
       !props.sideNavMode && dispatch(setExplorerActiveAction(false));
     }
-  }, [isThreePane, props.sideNavMode]);
+  }, [isOnePane, props.sideNavMode]);
 
   // registering event listeners
   useEffect(() => {
@@ -92,7 +88,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         document.removeEventListener("mousemove", onMouseMove);
       };
     }
-  }, [active, pinned, resizer.resizing, isOnePane, isThreePane]);
+  }, [active, pinned, resizer.resizing, isOnePane, isOnePane]);
 
   /**
    * passing the event to touch move on mouse move
@@ -178,7 +174,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       })}
       id={SIDEBAR_ID}
       style={{
-        ...(isThreePane && {
+        ...(!isOnePane && {
           left: (!pinned && !active) || isPreviewMode ? "" : "55px",
           height: `calc(100% - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`,
         }),
@@ -188,7 +184,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       <div
         className={classNames({
           "flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group": true,
-          "h-full": isThreePane,
+          "h-full": !isOnePane,
         })}
         ref={sidebarRef}
         style={{ width: props.width }}
@@ -196,7 +192,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
 
-        {isThreePane && (
+        {!isOnePane && (
           <>
             <div
               className={classNames({

@@ -35,7 +35,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { isOnePaneLayout } from "selectors/multiPaneSelectors";
 
 const Wrapper = styled.div`
-  // height: 100%; check height and scroll
+  height: 100%; // check height and scroll
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;

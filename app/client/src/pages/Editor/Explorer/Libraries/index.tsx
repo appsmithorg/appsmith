@@ -35,7 +35,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
-import { isThreePaneLayout } from "selectors/multiPaneSelectors";
+import { isOnePaneLayout } from "selectors/multiPaneSelectors";
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;
@@ -286,7 +286,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
 }
 
 function JSDependencies() {
-  const isThreePane = useSelector(isThreePaneLayout);
+  const isOnePane = useSelector(isOnePaneLayout);
   const libraries = useSelector(selectLibrariesForExplorer);
   const transitions = useTransition(libraries, {
     keys: (lib) => lib.name,
@@ -332,7 +332,7 @@ function JSDependencies() {
       }
       entityId="library_section"
       icon={null}
-      isDefaultExpanded={isOpen || isThreePane}
+      isDefaultExpanded={!isOnePane || isOpen}
       isSticky
       name="Libraries"
       showAddButton={canCreateActions}
