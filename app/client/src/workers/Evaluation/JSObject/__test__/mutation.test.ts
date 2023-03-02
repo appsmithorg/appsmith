@@ -48,7 +48,7 @@ describe("Mutation", () => {
       skipEntityFunctions: true,
     });
 
-    JSVariableUpdates.enable();
+    JSVariableUpdates.enableTracking();
 
     Object.assign(self, evalContext);
 
@@ -60,7 +60,7 @@ describe("Mutation", () => {
     JSObject1.var2.add(3);
     `);
 
-    JSVariableUpdates.disable();
+    JSVariableUpdates.disableTracking();
 
     expect(JSVariableUpdates.getAll()).toEqual([
       { path: "JSObject1.var", method: "SET", value: { b: { a: [2] } } },

@@ -18,10 +18,11 @@ export type Patch = {
 
 class JSVariableUpdates {
   private static patches: Patch[] = [];
-  private static disableTracking = true;
+  private static trackingDisabled = true;
+  static disableUpdate = false;
 
   static add(patch: Patch) {
-    if (this.disableTracking) return;
+    if (this.trackingDisabled) return;
     this.patches.push(patch);
     // For every update on variable, we register a task to check for update and
     registerJSVarUpdateTask();
@@ -35,12 +36,24 @@ class JSVariableUpdates {
     this.patches = [];
   }
 
-  static disable() {
-    this.disableTracking = true;
+  static disableTracking() {
+    this.trackingDisabled = true;
+    return this;
   }
 
-  static enable() {
-    this.disableTracking = false;
+  static enableTracking() {
+    this.trackingDisabled = false;
+    return this;
+  }
+
+  static disableVarUpdate() {
+    this.disableUpdate = true;
+    return this;
+  }
+
+  static enableVarUpdate() {
+    this.disableUpdate = false;
+    return this;
   }
 }
 

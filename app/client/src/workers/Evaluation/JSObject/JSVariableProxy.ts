@@ -44,6 +44,7 @@ export function jsObjectProxyHandler(
       return target[prop];
     },
     set: function(target: any, prop: string, value: unknown, rec: any) {
+      if (JSVariableUpdates.disableUpdate) return true;
       addPatch({
         path: `${path}.${prop}`,
         method: PatchType.SET,
@@ -52,6 +53,7 @@ export function jsObjectProxyHandler(
       return Reflect.set(target, prop, value, rec);
     },
     deleteProperty: function(target: any, prop: string) {
+      if (JSVariableUpdates.disableUpdate) return true;
       addPatch({
         path: `${path}.${prop}`,
         method: PatchType.DELETE,

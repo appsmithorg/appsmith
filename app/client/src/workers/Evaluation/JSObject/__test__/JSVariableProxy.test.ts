@@ -17,7 +17,7 @@ describe("JSVariableProxy", () => {
 
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
-    JSVariableUpdates.enable();
+    JSVariableUpdates.enableTracking();
 
     proxiedJSObject.number = 5;
     proxiedJSObject.string = "hello world";
@@ -70,7 +70,7 @@ describe("JSVariableProxy", () => {
 
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
-    JSVariableUpdates.disable();
+    JSVariableUpdates.disableTracking();
 
     proxiedJSObject.number = 5;
     proxiedJSObject.string = "hello world";
@@ -98,7 +98,7 @@ describe("JSVariableProxy", () => {
 
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
-    JSVariableUpdates.enable();
+    JSVariableUpdates.enableTracking();
 
     proxiedJSObject.number;
     proxiedJSObject.string;

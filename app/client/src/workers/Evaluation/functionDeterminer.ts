@@ -14,7 +14,7 @@ class FunctionDeterminer {
       $isAsync: false,
     };
 
-    JSVariableUpdates.disable();
+    JSVariableUpdates.disableTracking();
 
     addDataTreeToContext({
       dataTree,
@@ -34,7 +34,7 @@ class FunctionDeterminer {
 
   close() {
     userLogs.enable();
-    JSVariableUpdates.enable();
+    JSVariableUpdates.enableTracking();
     for (const entityName in this.evalContext) {
       if (this.evalContext.hasOwnProperty(entityName)) {
         // @ts-expect-error: Types are not available

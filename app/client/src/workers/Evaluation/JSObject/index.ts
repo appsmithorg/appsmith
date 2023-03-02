@@ -280,7 +280,7 @@ export function getJSEntities(dataTree: DataTree) {
 }
 
 export function updateJSCollectionStateFromContext() {
-  JSVariableUpdates.disable();
+  JSVariableUpdates.disableTracking();
   const newVarState = {};
   const currentEvalContext = self;
 
@@ -305,7 +305,7 @@ export function updateJSCollectionStateFromContext() {
     }
   }
   JSObjectCollection.setVariableState(newVarState);
-  JSVariableUpdates.enable();
+  JSVariableUpdates.enableTracking();
 }
 
 export function removeProxyObject(objOrArr: any) {
@@ -347,7 +347,7 @@ export function updateEvalTreeWithJSCollectionState(
 }
 
 export function updateEvalTreeValueFromContext(paths: string[][]) {
-  JSVariableUpdates.disable();
+  JSVariableUpdates.disableTracking();
   const currentEvalContext = self;
 
   const evalTree = dataTreeEvaluator?.evalTree;
@@ -369,5 +369,5 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
       );
     }
   }
-  JSVariableUpdates.enable();
+  JSVariableUpdates.enableTracking();
 }

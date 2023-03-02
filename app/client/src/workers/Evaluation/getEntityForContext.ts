@@ -62,7 +62,7 @@ export function getEntityForEvalContext(
         }
 
         if (self.$isDataField) {
-          return Object.assign(jsObjectForEval, fns);
+          return Object.assign({}, jsObjectForEval, fns);
         }
 
         jsObjectForEval = JSProxy.create(entity, entityName, jsObjectForEval);

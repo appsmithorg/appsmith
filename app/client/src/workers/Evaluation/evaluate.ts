@@ -210,9 +210,11 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope(dataTree);
-    JSVariableUpdates.disable();
+    JSVariableUpdates.disableTracking().disableVarUpdate();
     const errors: EvaluationError[] = [];
     let result;
+
+    self["$isDataField"] = true;
 
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
@@ -223,8 +225,6 @@ export default function evaluateSync(
       evalArguments,
       isTriggerBased: isJSCollection,
     });
-
-    evalContext["$isDataField"] = true;
 
     const { script } = getUserScriptToEvaluate(
       userScript,
@@ -265,7 +265,7 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      JSVariableUpdates.enable();
+      JSVariableUpdates.enableTracking().enableVarUpdate();
       self["$isDataField"] = false;
     }
     return { result, errors };
@@ -283,6 +283,8 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
 
+    self["$isDataField"] = false;
+
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
@@ -292,7 +294,6 @@ export async function evaluateAsync(
     });
 
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
-    evalContext["$isDataField"] = false;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
