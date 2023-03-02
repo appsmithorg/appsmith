@@ -32,7 +32,10 @@ import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import {
+  isOnePaneLayout,
+  isThreePaneLayout,
+} from "selectors/multiPaneSelectors";
 
 import JSDependencies from "../../pages/Editor/Explorer/Libraries";
 import Datasources from "../../pages/Editor/Explorer/Datasources";
@@ -53,8 +56,9 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
   let pinned = useSelector(getExplorerPinned);
-  const isMultiPane = useSelector(isMultiPaneActive);
-  if (isMultiPane) pinned = false;
+  const isThreePane = useSelector(isThreePaneLayout);
+  const isOnePane = useSelector(isOnePaneLayout);
+  if (isThreePane) pinned = false;
   const isPreviewMode = useSelector(previewModeSelector);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -73,61 +77,63 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
   useEffect(() => {
-    props.sideNavMode && dispatch(setExplorerActiveAction(true));
-    !props.sideNavMode && dispatch(setExplorerActiveAction(false));
-  }, [props.sideNavMode]);
+    if (isThreePane) {
+      props.sideNavMode && dispatch(setExplorerActiveAction(true));
+      !props.sideNavMode && dispatch(setExplorerActiveAction(false));
+    }
+  }, [isThreePane, props.sideNavMode]);
 
   // registering event listeners
-  // useEffect(() => {
-  //   document.addEventListener("mousemove", onMouseMove);
+  useEffect(() => {
+    if (isOnePane) {
+      document.addEventListener("mousemove", onMouseMove);
 
-  //   return () => {
-  //     document.removeEventListener("mousemove", onMouseMove);
-  //   };
-  // }, [active, pinned, resizer.resizing]);
+      return () => {
+        document.removeEventListener("mousemove", onMouseMove);
+      };
+    }
+  }, [active, pinned, resizer.resizing, isOnePane, isThreePane]);
 
   /**
    * passing the event to touch move on mouse move
    *
    * @param event
    */
-  // const onMouseMove = (event: MouseEvent) => {
-  //   const eventWithTouches = Object.assign({}, event, {
-  //     touches: [{ clientX: event.clientX, clientY: event.clientY }],
-  //   });
-  //   onTouchMove(eventWithTouches);
-  // };
+  const onMouseMove = (event: MouseEvent) => {
+    const eventWithTouches = Object.assign({}, event, {
+      touches: [{ clientX: event.clientX, clientY: event.clientY }],
+    });
+    onTouchMove(eventWithTouches);
+  };
 
   /**
    * calculate the new width based on the pixel moved
    *
    * @param event
    */
-  // const onTouchMove = (
-  //   event:
-  //     | TouchEvent
-  //     | (MouseEvent & { touches: { clientX: number; clientY: number }[] }),
-  // ) => {
-  //   const currentX = event.touches[0].clientX;
+  const onTouchMove = (
+    event:
+      | TouchEvent
+      | (MouseEvent & { touches: { clientX: number; clientY: number }[] }),
+  ) => {
+    const currentX = event.touches[0].clientX;
 
-  //   // only calculate the following in unpin mode
-  //   if (!pinned) {
-  //     if (active) {
-  //       // if user cursor is out of the entity explorer width ( with some extra window = 20px ), make the
-  //       // entity explorer inactive. Also, 20px here is to increase the window in which a user can drag the resizer
-  //       // 55px to account for left positioning
-  //       if (currentX >= props.width + 20 + 55 && !resizer.resizing) {
-  //         dispatch(setExplorerActiveAction(false));
-  //         props.setSideNavMode?.(undefined);
-  //       }
-  //     } else {
-  //       // check if user cursor is at extreme left when the explorer is inactive, if yes, make the explorer active
-  //       if (currentX <= 20) {
-  //         dispatch(setExplorerActiveAction(true));
-  //       }
-  //     }
-  //   }
-  // };
+    // only calculate the following in unpin mode
+    if (!pinned) {
+      if (active) {
+        // if user cursor is out of the entity explorer width ( with some extra window = 20px ), make the
+        // entity explorer inactive. Also, 20px here is to increase the window in which a user can drag the resizer
+        if (currentX >= props.width + 20 && !resizer.resizing) {
+          dispatch(setExplorerActiveAction(false));
+        }
+      } else {
+        // check if user cursor is at extreme left when the explorer is inactive, if yes, make the explorer active
+        if (currentX <= 20) {
+          dispatch(setExplorerActiveAction(true));
+        }
+      }
+    }
+  };
 
   /**
    * on hover of resizer, show tooltip
@@ -164,6 +170,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     <div
       className={classNames({
         [`js-entity-explorer t--entity-explorer transform flex h-[inherit] border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
+        "transition-all duration-400": isOnePane,
         relative: pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
@@ -171,50 +178,70 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       })}
       id={SIDEBAR_ID}
       style={{
-        left: (!pinned && !active) || isPreviewMode ? "" : "55px",
-        height: `calc(100% - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`,
+        ...(isThreePane && {
+          left: (!pinned && !active) || isPreviewMode ? "" : "55px",
+          height: `calc(100% - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`,
+        }),
       }}
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group h-full"
+        className={classNames({
+          "flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group": true,
+          "h-full": isThreePane,
+        })}
         ref={sidebarRef}
         style={{ width: props.width }}
       >
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
 
-        <div
-          className={classNames({
-            "h-full": true,
-            hidden: active && props.sideNavMode !== SideNavMode.Explorer,
-          })}
-        >
-          {/* PagesContainer */}
-          <Pages />
-          {/* Popover that contains the bindings info */}
-          <EntityProperties />
-          {/* Contains entity explorer & widgets library along with a switcher*/}
-          <Explorer />
-        </div>
+        {isThreePane && (
+          <>
+            <div
+              className={classNames({
+                "h-full": true,
+                hidden: active && props.sideNavMode !== SideNavMode.Explorer,
+              })}
+            >
+              {/* PagesContainer */}
+              <Pages />
+              {/* Popover that contains the bindings info */}
+              <EntityProperties />
+              {/* Contains entity explorer & widgets library along with a switcher*/}
+              <Explorer />
+            </div>
 
-        {/* Libraries */}
-        <div
-          className={classNames({
-            hidden: active && props.sideNavMode !== SideNavMode.Libraries,
-          })}
-        >
-          <JSDependencies />
-        </div>
+            {/* Libraries */}
+            <div
+              className={classNames({
+                hidden: active && props.sideNavMode !== SideNavMode.Libraries,
+              })}
+            >
+              <JSDependencies />
+            </div>
 
-        {/* Datasources */}
-        <div
-          className={classNames({
-            hidden: active && props.sideNavMode !== SideNavMode.DataSources,
-          })}
-        >
-          <Datasources />
-        </div>
+            {/* Datasources */}
+            <div
+              className={classNames({
+                hidden: active && props.sideNavMode !== SideNavMode.DataSources,
+              })}
+            >
+              <Datasources />
+            </div>
+          </>
+        )}
+
+        {isOnePane && (
+          <>
+            {/* PagesContainer */}
+            <Pages />
+            {/* Popover that contains the bindings info */}
+            <EntityProperties />
+            {/* Contains entity explorer & widgets library along with a switcher*/}
+            <Explorer />
+          </>
+        )}
       </div>
       {/* RESIZER */}
       <div

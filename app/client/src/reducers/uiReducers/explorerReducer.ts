@@ -35,7 +35,7 @@ const initialState: ExplorerReduxState = {
   pinnedState: ExplorerPinnedState.PINNED,
   entity: {},
   width: DEFAULT_ENTITY_EXPLORER_WIDTH,
-  active: false,
+  active: true,
   entityInfo: {
     show: false,
     entityId: "",

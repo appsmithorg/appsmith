@@ -17,7 +17,10 @@ import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import {
+  isMultiPaneActive,
+  isOnePaneLayout,
+} from "selectors/multiPaneSelectors";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -74,6 +77,7 @@ function ExplorerContent() {
   };
   const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
   const isMultiPane = useSelector(isMultiPaneActive);
+  const isOnePane = useSelector(isOnePaneLayout);
 
   useEffect(() => {
     const currentIndex = openWidgetPanel ? 1 : 0;
