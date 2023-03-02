@@ -1,14 +1,14 @@
 import { useLocation } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
-import { get } from "lodash";
-import { useSelector } from "react-redux";
+// import { get } from "lodash";
+// import { useSelector } from "react-redux";
 import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+// import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { useWindowSizeHooks } from "utils/hooks/dragResizeHooks";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+// import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import MenuItem from "./components/MenuItem";
 import { Container } from "./TopInline.styled";
 import MenuItemContainer from "./components/MenuItemContainer";
@@ -24,15 +24,15 @@ type TopInlineProps = {
 
 export function TopInline(props: TopInlineProps) {
   const { currentApplicationDetails, pages } = props;
-  const selectedTheme = useSelector(getSelectedAppTheme);
-  const navColorStyle =
-    currentApplicationDetails?.navigationSetting?.colorStyle ||
-    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
-  const primaryColor = get(
-    selectedTheme,
-    "properties.colors.primaryColor",
-    "inherit",
-  );
+  // const selectedTheme = useSelector(getSelectedAppTheme);
+  // const navColorStyle =
+  //   currentApplicationDetails?.navigationSetting?.colorStyle ||
+  //   NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  // const primaryColor = get(
+  //   selectedTheme,
+  //   "properties.colors.primaryColor",
+  //   "inherit",
+  // );
   const location = useLocation();
   const { pathname } = location;
   const [query, setQuery] = useState("");
@@ -68,7 +68,10 @@ export function TopInline(props: TopInlineProps) {
   if (appPages.length <= 1) return null;
 
   return (
-    <Container className="flex gap-x-2 items-center" ref={navRef}>
+    <Container
+      className="hidden md:flex gap-x-2 items-center grow"
+      ref={navRef}
+    >
       {appPages.map(
         (page, index) =>
           index < maxMenuItemsThatCanFit && (

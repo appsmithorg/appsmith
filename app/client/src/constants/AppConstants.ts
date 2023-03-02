@@ -66,8 +66,7 @@ export const NAVIGATION_SETTINGS = {
   },
   COLOR_STYLE: {
     LIGHT: "light",
-    DARK: "dark",
-    SOLID: "solid",
+    THEME: "theme",
   },
   LOGO_CONFIGURATION: {
     LOGO_AND_APPLICATION_TITLE: "logoAndApplicationTitle",
@@ -80,7 +79,6 @@ export const NAVIGATION_SETTINGS = {
 export type NavigationSetting = {
   showNavbar: boolean;
   showSignIn: boolean;
-  showShareApp: boolean;
   orientation: typeof NAVIGATION_SETTINGS.ORIENTATION[keyof typeof NAVIGATION_SETTINGS.ORIENTATION];
   navStyle: typeof NAVIGATION_SETTINGS.NAV_STYLE[keyof typeof NAVIGATION_SETTINGS.NAV_STYLE];
   position: typeof NAVIGATION_SETTINGS.POSITION[keyof typeof NAVIGATION_SETTINGS.POSITION];
@@ -91,17 +89,16 @@ export type NavigationSetting = {
 
 export type StringsFromNavigationSetting = Omit<
   NavigationSetting,
-  "showNavbar" | "showSignIn" | "showShareApp"
+  "showNavbar" | "showSignIn"
 >;
 
 export const defaultNavigationSetting = {
   showNavbar: true,
   showSignIn: true,
-  showShareApp: true,
   orientation: NAVIGATION_SETTINGS.ORIENTATION.TOP,
   navStyle: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
   position: NAVIGATION_SETTINGS.POSITION.STATIC,
-  itemStyle: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
+  itemStyle: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT,
   colorStyle: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
   logoConfiguration:
     NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,

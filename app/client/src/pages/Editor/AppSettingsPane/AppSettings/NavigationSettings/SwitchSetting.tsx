@@ -26,18 +26,9 @@ const SwitchSetting = (props: {
           <Switch
             checked={value}
             className="mb-0"
-            // disabled={isFetchingApplication || isChangingViewAccess}
             id={`t--navigation-settings-${_.kebabCase(keyName)}`}
             large
             onChange={() => {
-              // application &&
-              // dispatch(
-              //   changeAppViewAccessInit(
-              //     application?.id,
-              //     !value?.showNavbar,
-              //   ),
-              // )
-
               updateSetting(keyName, !value);
             }}
           />

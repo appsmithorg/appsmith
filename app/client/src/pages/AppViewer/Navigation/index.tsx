@@ -22,6 +22,7 @@ import { builderURL } from "RouteBuilder";
 import TopHeader from "./components/TopHeader";
 import Sidebar from "./Sidebar";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 export function Navigation() {
   const { search } = useLocation();
@@ -41,6 +42,7 @@ export function Navigation() {
     getCurrentApplication,
   );
   const pages = useSelector(getViewModePageList);
+  const isMobile = useIsMobileDevice();
 
   const renderNavigation = () => {
     if (
@@ -48,12 +50,29 @@ export function Navigation() {
       NAVIGATION_SETTINGS.ORIENTATION.SIDE
     ) {
       return (
-        <Sidebar
-          currentApplicationDetails={currentApplicationDetails}
-          currentUser={currentUser}
-          currentWorkspaceId={currentWorkspaceId}
-          pages={pages}
-        />
+        <>
+          {/*
+           * We need to add top header since we want the current mobile
+           * navigation experience until we create the new sidebar for mobile.
+           */}
+          {isMobile ? (
+            <TopHeader
+              currentApplicationDetails={currentApplicationDetails}
+              currentUser={currentUser}
+              currentWorkspaceId={currentWorkspaceId}
+              isMenuOpen={isMenuOpen}
+              pages={pages}
+              setMenuOpen={setMenuOpen}
+            />
+          ) : (
+            <Sidebar
+              currentApplicationDetails={currentApplicationDetails}
+              currentUser={currentUser}
+              currentWorkspaceId={currentWorkspaceId}
+              pages={pages}
+            />
+          )}
+        </>
       );
     }
 

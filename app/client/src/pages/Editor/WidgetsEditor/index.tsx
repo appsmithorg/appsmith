@@ -188,6 +188,7 @@ function WidgetsEditor() {
                         isAppSidebarPinned
                       : false
                   }
+                  isPreviewMode={isPreviewMode}
                   sidebarWidth={
                     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
                       ? sidebarWidth

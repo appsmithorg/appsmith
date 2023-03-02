@@ -106,6 +106,7 @@ const MoreDropdownButton = ({
 
         return (
           <StyledMenuItemInDropdown
+            activeClassName="is-active"
             borderRadius={borderRadius}
             key={page.pageId}
             navColorStyle={navColorStyle}

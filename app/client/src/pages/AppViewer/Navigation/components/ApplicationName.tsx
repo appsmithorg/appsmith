@@ -3,7 +3,7 @@ import { NavigationSetting } from "constants/AppConstants";
 import { StyledApplicationName } from "./ApplicationName.styled";
 
 type ApplicationNameProps = {
-  appName: string;
+  appName?: string;
   navColorStyle: NavigationSetting["navStyle"];
   primaryColor: string;
   forSidebar?: boolean;
@@ -19,7 +19,7 @@ const ApplicationName = (props: ApplicationNameProps) => {
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
     >
-      {appName}
+      {appName || ""}
     </StyledApplicationName>
   );
 };

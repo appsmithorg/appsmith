@@ -1465,7 +1465,6 @@ export const APP_NAVIGATION_SETTING = {
   logoLabel: () => "Logo",
   logoConfigurationLabel: () => "Logo Configuration",
   showSignInLabel: () => "Show Sign In",
-  showShareAppLabel: () => "Show Share App",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;

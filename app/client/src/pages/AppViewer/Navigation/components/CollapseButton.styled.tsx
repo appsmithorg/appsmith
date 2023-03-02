@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import {
   getApplicationNameTextColor,
   getMenuItemBackgroundColorOnHover,
@@ -50,4 +50,10 @@ export const CollapseIconContainer = styled.div<{
       `;
     }
   }}
+`;
+
+export const TooltipStyles = createGlobalStyle`
+  .app-sidebar-tooltip {
+    transform: translateX(40px);
+  }
 `;

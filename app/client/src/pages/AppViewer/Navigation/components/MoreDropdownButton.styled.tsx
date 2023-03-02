@@ -32,6 +32,14 @@ export const StyleMoreDropdownButton = styled(Button)<{
     align-items: center;
   }
 
+  &:hover,
+  &.is-active {
+    span {
+      color: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)} !important;
+    }
+  }
+
   .page-icon svg path {
     fill: ${({ navColorStyle, primaryColor }) =>
       getMenuItemTextColor(primaryColor, navColorStyle, true)};
@@ -126,6 +134,18 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
     text-decoration: none;
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
+
+    .page-icon svg path {
+      fill: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+      stroke: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+    }
+  }
+
+  &.is-active {
+    background-color: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
 
     .page-icon svg path {
       fill: ${({ navColorStyle, primaryColor }) =>
