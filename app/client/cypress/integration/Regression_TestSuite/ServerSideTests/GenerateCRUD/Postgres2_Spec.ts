@@ -93,34 +93,34 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 2, "v1" ,"v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v1" , 2000).then(($cellData) => {
       expect($cellData).to.eq("EMMA MAERSK");
     });
-    table.ReadTableRowColumnData(1, 2, "v1" ,"v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 2, "v1" , 200).then(($cellData) => {
       expect($cellData).to.eq("ECLIPSE");
     });
-    table.ReadTableRowColumnData(2, 2, "v1" ,"v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 2, "v1" , 200).then(($cellData) => {
       expect($cellData).to.eq("QUEEN ELIZABETH");
     });
-    table.ReadTableRowColumnData(3, 2, "v1" ,"v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(3, 2, "v1" , 200).then(($cellData) => {
       expect($cellData).to.eq("QUEEN MARY 2");
     });
-    table.ReadTableRowColumnData(4, 2, "v1" ,"v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 2, "v1" , 200).then(($cellData) => {
       expect($cellData).to.eq("OASIS OF THE SEAS");
     });
-    table.ReadTableRowColumnData(5, 2, "v1" ,"v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 2, "v1" , 200).then(($cellData) => {
       expect($cellData).to.eq("TIME BANDIT");
     });
-    table.ReadTableRowColumnData(6, 2, "v1" ,"v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(6, 2, "v1" , 200).then(($cellData) => {
       expect($cellData).to.eq("PAUL R TREGURTHA");
     });
-    table.ReadTableRowColumnData(7, 2, "v1" ,"v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 2, "v1" , 200).then(($cellData) => {
       expect($cellData).to.eq("WIZARD");
     });
     table.ReadTableRowColumnData(8, 2,  "v1",200).then(($cellData) => {
       expect($cellData).to.eq("NORTHWESTERN");
     });
-    table.ReadTableRowColumnData(9, 2, "v1" ,"v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(9, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("EVER GIVEN");
     });
 
@@ -242,7 +242,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("7. Verify Update data from Deploy page - on Vessels - existing record", () => {
     updateNVerify(5, 2, "DISNEY DREAM");
-    table.ReadTableRowColumnData(5, 3, "v1" ,"v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 3, "v1" , 200).then(($cellData) => {
       expect($cellData).to.eq("France");
     });
     table.ReadTableRowColumnData(5, 4, "v1",100).then(($cellData) => {

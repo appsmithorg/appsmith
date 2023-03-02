@@ -116,16 +116,16 @@ describe("UUID Datatype tests", function() {
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($v1) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($v1) => {
       expect($v1).not.empty;
     });
-    table.ReadTableRowColumnData(0, 2, 200).then(($v4) => {
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($v4) => {
       expect($v4).not.empty;
     });
-    table.ReadTableRowColumnData(0, 3, 200).then(($guid) => {
+    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($guid) => {
       expect($guid).not.empty;
     });
-    table.ReadTableRowColumnData(0, 4, 200).then(($nil) => {
+    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($nil) => {
       expect($nil).not.empty;
     });
   });

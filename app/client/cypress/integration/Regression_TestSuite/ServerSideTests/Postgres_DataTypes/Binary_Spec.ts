@@ -342,7 +342,7 @@ describe("Binary Datatype tests", function() {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.AssertElementAbsence(locator._spinner, 20000); //Allowing time for delete to be success
     agHelper.Sleep(6000); //Allwowing time for delete to be success
-    table.ReadTableRowColumnData(1, "v1", 0).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
     });
     table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {

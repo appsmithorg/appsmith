@@ -393,7 +393,7 @@ describe("Verify various Table_Filter combinations", function() {
   it("13. Verify all filters for same FullName (two word column) + Bug 13334", () => {
     //Contains
     table.OpenNFilterTable("FullName", "contains", "torres");
-    table.ReadTableRowColumnData(0, 2).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
       expect($cellData).to.eq("Virgie");
     });
 
@@ -404,7 +404,7 @@ describe("Verify various Table_Filter combinations", function() {
     filterOnlyCondition("empty", "0");
     filterOnlyCondition("not empty", "50");
     filterOnlyCondition("contains", "1", "wolf");
-    table.ReadTableRowColumnData(0, 2).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2,"v2").then(($cellData) => {
       expect($cellData).to.eq("Teresa");
     });
 

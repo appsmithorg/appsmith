@@ -511,10 +511,10 @@ describe("Json & JsonB Datatype tests", function() {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0,"v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1",200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
