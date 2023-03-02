@@ -29,7 +29,7 @@ const StyledWrapper = styled.div<{ isMultiPane: boolean; isActive: boolean }>`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  ${props.isActive && "display: hidden;"}
+  ${props.isActive ? "" : "display: none;"}
 `}
 `;
 

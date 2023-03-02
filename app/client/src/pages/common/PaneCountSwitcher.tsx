@@ -19,13 +19,13 @@ const PaneCountSwitcher = () => {
       className="px-2 cursor-pointer"
       onClick={() =>
         updateCount(
-          paneCount === PaneLayoutOptions.TWO_PANE
-            ? PaneLayoutOptions.THREE_PANE
-            : PaneLayoutOptions.TWO_PANE,
+          paneCount === PaneLayoutOptions.THREE_PANE
+            ? PaneLayoutOptions.ONE_PANE
+            : PaneLayoutOptions.THREE_PANE,
         )
       }
     >
-      {paneCount === PaneLayoutOptions.TWO_PANE ? (
+      {paneCount === PaneLayoutOptions.ONE_PANE ? (
         <img alt={"Show 2 panes"} src={MultiPaneSwitch2} />
       ) : (
         <img alt={"Show 3 panes"} src={MultiPaneSwitch3} />
