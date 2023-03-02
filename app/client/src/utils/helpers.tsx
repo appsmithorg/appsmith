@@ -230,24 +230,21 @@ export const quickScrollToWidget = (
   canvasWidgets: CanvasWidgetsReduxState,
 ) => {
   if (!widgetId || widgetId === "") return;
-
-  setTimeout(() => {
+  window.requestIdleCallback(() => {
     const el = document.getElementById(widgetId);
     const canvas = document.getElementById("canvas-viewport");
 
     if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
       const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);
       if (scrollElement) {
-        window.requestIdleCallback(() => {
-          scrollElement.scrollIntoView({
-            block: "center",
-            inline: "nearest",
-            behavior: "smooth",
-          });
+        scrollElement.scrollIntoView({
+          block: "center",
+          inline: "nearest",
+          behavior: "smooth",
         });
       }
     }
-  }, 200);
+  });
 };
 
 // Checks if the element in a container is visible or not.
