@@ -85,7 +85,11 @@ export const primaryColumnValidation = (
 
     const areKeysUnique = _.uniq(inputValue).length === listData.length;
 
-    if (!areKeysUnique) {
+    const isDataTypeUnique =
+      _.uniqBy(inputValue, (item: any) => item.toString()).length ===
+      listData.length;
+
+    if (!areKeysUnique || !isDataTypeUnique) {
       return {
         isValid: false,
         parsed: [], // Empty array as the inputValue is an array type

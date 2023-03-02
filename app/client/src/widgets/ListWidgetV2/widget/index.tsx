@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { isEmpty, floor, isString, isNil } from "lodash";
+import { isEmpty, floor, isString, isNil, map } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -547,8 +547,13 @@ class ListWidget extends BaseWidget<
     if (rowIndex === -1) return;
 
     const pageNo = this.calculatePageNumber(rowIndex);
-    this.pageChangeEventTriggerFromSelectedKey = true;
-    this.onPageChange(pageNo);
+
+    if (this.props.pageNo === pageNo) {
+      this.updateSelectedItemFromDefaultSelectedKey();
+    } else {
+      this.pageChangeEventTriggerFromSelectedKey = true;
+      this.onPageChange(pageNo);
+    }
   };
 
   updateSelectedItemFromDefaultSelectedKey = () => {
@@ -557,9 +562,12 @@ class ListWidget extends BaseWidget<
     const rowIndex = this.getRowIndexOfSelectedItem();
 
     if (rowIndex === -1) return;
+    const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
 
-    this.handleSelectedItemAndKey(rowIndex);
-    this.updateSelectedItemView(rowIndex);
+    if (this.props.selectedItemKey !== key) {
+      this.handleSelectedItemAndKey(rowIndex);
+      this.updateSelectedItemView(rowIndex);
+    }
   };
 
   getRowIndexOfSelectedItem = () => {
@@ -567,7 +575,9 @@ class ListWidget extends BaseWidget<
 
     if (!primaryKeys || isNil(defaultSelectedItem)) return -1;
 
-    return primaryKeys?.indexOf(defaultSelectedItem);
+    return map(primaryKeys, (key) => key.toString()).indexOf(
+      defaultSelectedItem.toString(),
+    );
   };
 
   calculatePageNumber = (index: number) => {
