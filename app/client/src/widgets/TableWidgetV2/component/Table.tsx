@@ -400,7 +400,6 @@ export function Table(props: TableProps) {
               accentColor={props.accentColor}
               borderRadius={props.borderRadius}
               canFreezeColumn={props.canFreezeColumn}
-              columnOrder={columns.map((item) => item.alias)}
               columns={props.columns}
               disableDrag={props.disableDrag}
               editMode={props.editMode}
@@ -427,6 +426,7 @@ export function Table(props: TableProps) {
               subPage={subPage}
               tableBodyRef={tableBodyRef}
               tableSizes={tableSizes}
+              totalColumnsWidth={totalColumnsWidth}
               useVirtual={shouldUseVirtual}
               widgetId={props.widgetId}
               width={props.width}
@@ -438,7 +438,6 @@ export function Table(props: TableProps) {
               accentColor={props.accentColor}
               borderRadius={props.borderRadius}
               canFreezeColumn={props.canFreezeColumn}
-              columnOrder={columns.map((item) => item.alias)}
               columns={props.columns}
               disableDrag={props.disableDrag}
               editMode={props.editMode}

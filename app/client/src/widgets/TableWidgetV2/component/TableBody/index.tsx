@@ -31,12 +31,11 @@ export type BodyContextType = {
   rows: ReactTableRowType<Record<string, unknown>>[];
   primaryColumnId?: string;
   isAddRowInProgress: boolean;
-  headerProps?: HeaderComponentProps | Record<string, never>;
   getTableBodyProps?(
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
   ): TableBodyProps;
   totalColumnsWidth?: number;
-};
+} & Partial<HeaderComponentProps>;
 
 export const BodyContext = React.createContext<BodyContextType>({
   accentColor: "",
@@ -49,7 +48,6 @@ export const BodyContext = React.createContext<BodyContextType>({
   rows: [],
   primaryColumnId: "",
   isAddRowInProgress: false,
-  headerProps: {},
   totalColumnsWidth: 0,
 });
 
@@ -130,22 +128,40 @@ const TableBodyComponent = React.forwardRef(
 export const TableBody = React.forwardRef(
   (
     props: BodyPropsType &
-      BodyContextType & { useVirtual: boolean; innerRef?: any; outerRef?: any },
+      BodyContextType & {
+        useVirtual: boolean;
+        innerRef?: any;
+        outerRef?: any;
+      },
     ref: Ref<HTMLDivElement>,
   ) => {
     const {
       accentColor,
       borderRadius,
+      canFreezeColumn,
       columns,
+      disableDrag,
+      editMode,
+      enableDrag,
+      handleAllRowSelectClick,
+      handleColumnFreeze,
+      handleReorderColumn,
+      headerGroups,
       isAddRowInProgress,
+      isResizingColumn,
+      isSortable,
       multiRowSelection,
       prepareRow,
       primaryColumnId,
       rows,
+      rowSelectionState,
       selectedRowIndex,
       selectedRowIndices,
       selectTableRow,
+      sortTableColumn,
+      subPage,
       useVirtual,
+      widgetId,
       width,
       ...restOfProps
     } = props;
@@ -154,18 +170,31 @@ export const TableBody = React.forwardRef(
       <BodyContext.Provider
         value={{
           accentColor,
+          canFreezeColumn,
+          disableDrag,
+          editMode,
+          enableDrag,
+          handleAllRowSelectClick,
+          handleColumnFreeze,
+          handleReorderColumn,
+          headerGroups,
+          isResizingColumn,
+          isSortable,
+          rowSelectionState,
+          sortTableColumn,
+          subPage,
+          widgetId,
           isAddRowInProgress,
           borderRadius,
           multiRowSelection,
           prepareRow,
           primaryColumnId,
-          selectTableRow,
           selectedRowIndex,
           selectedRowIndices,
+          selectTableRow,
           columns,
           width,
           rows,
-          headerProps: props.headerProps,
           getTableBodyProps: props.getTableBodyProps,
           totalColumnsWidth: props.totalColumnsWidth,
         }}

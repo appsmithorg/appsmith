@@ -3,7 +3,7 @@ import { useContext } from "react";
 import styled from "styled-components";
 import { MULTISELECT_CHECKBOX_WIDTH } from "../Constants";
 import { BodyContext } from "../TableBody";
-import { HeaderComponent } from "./TableHeaderComponent";
+import HeaderComponent from "./TableColumnHeader";
 
 const StyledTableBodyWrapper = styled.div<{
   multiRowSelection?: boolean;
@@ -15,22 +15,66 @@ const StyledTableBodyWrapper = styled.div<{
       : props.totalColumnsWidth}px !important;
 `;
 
-export const VirtualTableInnerElement = ({
+const VirtualTableInnerElement = ({
   children,
   outerRef,
   style,
   ...rest
 }: any) => {
   const {
+    accentColor,
+    borderRadius,
+    canFreezeColumn,
+    columns,
+    disableDrag,
+    editMode,
+    enableDrag,
     getTableBodyProps,
-    headerProps,
+    handleAllRowSelectClick,
+    handleColumnFreeze,
+    handleReorderColumn,
+    headerGroups,
+    isResizingColumn,
+    isSortable,
     multiRowSelection,
+    prepareRow,
+    rows,
+    rowSelectionState,
+    sortTableColumn,
     totalColumnsWidth,
+    widgetId,
+    width,
   } = useContext(BodyContext) as any;
 
   return (
     <>
-      <HeaderComponent {...headerProps} />
+      <HeaderComponent
+        accentColor={accentColor}
+        borderRadius={borderRadius}
+        canFreezeColumn={canFreezeColumn}
+        columns={columns}
+        disableDrag={disableDrag}
+        editMode={editMode}
+        enableDrag={enableDrag}
+        handleAllRowSelectClick={handleAllRowSelectClick}
+        handleColumnFreeze={handleColumnFreeze}
+        handleReorderColumn={handleReorderColumn}
+        headerGroups={headerGroups}
+        headerWidth={
+          multiRowSelection && totalColumnsWidth
+            ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
+            : totalColumnsWidth
+        }
+        isResizingColumn={isResizingColumn}
+        isSortable={isSortable}
+        multiRowSelection={multiRowSelection}
+        prepareRow={prepareRow}
+        rowSelectionState={rowSelectionState}
+        sortTableColumn={sortTableColumn}
+        subPage={rows}
+        widgetId={widgetId}
+        width={width}
+      />
       <StyledTableBodyWrapper
         className="tbody body"
         multiRowSelection={multiRowSelection}
@@ -44,3 +88,5 @@ export const VirtualTableInnerElement = ({
     </>
   );
 };
+
+export default VirtualTableInnerElement;

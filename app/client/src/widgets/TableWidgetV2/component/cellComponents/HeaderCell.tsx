@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
 import Check from "remixicon-react/CheckFillIcon";
 import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
@@ -183,6 +183,47 @@ export const HeaderCell = (props: HeaderProps) => {
       );
   };
 
+  const onDragStart = useCallback(
+    (e) => {
+      props.onDragStart(e, props.columnIndex);
+    },
+    [props.columnIndex, props.onDragStart],
+  );
+  const onDragEnter = useCallback(
+    (e) => {
+      if (props.column.sticky === StickyType.NONE && !props.isHidden) {
+        props.onDragEnter(e, props.columnIndex);
+      }
+    },
+    [props.onDragEnter, props.column.sticky, props.columnIndex, props.isHidden],
+  );
+
+  const onDragLeave = useCallback(
+    (e) => {
+      if (props.column.sticky === StickyType.NONE && !props.isHidden) {
+        props.onDragLeave(e);
+      }
+    },
+    [props.onDragLeave, props.column.sticky, props.isHidden],
+  );
+
+  const onDragOver = useCallback(
+    (e) => {
+      // Below condition will disable the ability to drop a column on a frozen column
+      if (props.column.sticky === StickyType.NONE && !props.isHidden) {
+        props.onDragOver(e, props.columnIndex);
+      }
+    },
+    [props.onDragOver, props.column.sticky, props.columnIndex, props.isHidden],
+  );
+
+  const onDrop = useCallback(
+    (e) => {
+      props.onDrop(e, props.columnIndex);
+    },
+    [props.onDrop, props.columnIndex],
+  );
+
   return (
     <div
       {...headerProps}
@@ -198,26 +239,11 @@ export const HeaderCell = (props: HeaderProps) => {
         onClick={!disableSort && props ? handleSortColumn : undefined}
         onDrag={props.onDrag}
         onDragEnd={props.onDragEnd}
-        onDragEnter={(e) => {
-          if (props.column.sticky === StickyType.NONE && !props.isHidden) {
-            props.onDragEnter(e, props.columnIndex);
-          }
-        }}
-        onDragLeave={(e) => {
-          if (props.column.sticky === StickyType.NONE && !props.isHidden) {
-            props.onDragLeave(e);
-          }
-        }}
-        onDragOver={(e) => {
-          // Below condition will disable the ability to drop a column on a frozen column
-          if (props.column.sticky === StickyType.NONE && !props.isHidden) {
-            props.onDragOver(e, props.columnIndex);
-          }
-        }}
-        onDragStart={(e) => props.onDragStart(e, props.columnIndex)}
-        onDrop={(e) => {
-          props.onDrop(e, props.columnIndex);
-        }}
+        onDragEnter={onDragEnter}
+        onDragLeave={onDragLeave}
+        onDragOver={onDragOver}
+        onDragStart={onDragStart}
+        onDrop={onDrop}
       >
         <ColumnNameContainer
           horizontalAlignment={column.columnProperties.horizontalAlignment}

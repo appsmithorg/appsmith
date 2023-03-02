@@ -5,6 +5,7 @@ import { ReactTableColumnProps, StickyType } from "../Constants";
 import { Row as ReactTableRowType } from "react-table";
 import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
+import styled from "styled-components";
 
 export type HeaderComponentProps = {
   enableDrag: () => void;
@@ -14,7 +15,6 @@ export type HeaderComponentProps = {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
-  columnOrder?: string[];
   accentColor: string;
   borderRadius: string;
   headerGroups: any;
@@ -33,8 +33,15 @@ export type HeaderComponentProps = {
   widgetId: string;
 };
 
-export const HeaderComponent = (props: HeaderComponentProps) => {
+const StyledHeaderGroup = styled.div<{
+  headerWidth: number;
+}>`
+  display: flex;
+  width: ${(props) => props.headerWidth}px !important;
+`;
+const HeaderComponent = (props: HeaderComponentProps) => {
   const currentDraggedColumn = React.useRef<string>("");
+  const columnOrder = props.columns.map((col) => col.alias);
   const {
     onDrag,
     onDragEnd,
@@ -47,7 +54,7 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
     props.columns,
     currentDraggedColumn,
     props.handleReorderColumn,
-    props.columnOrder,
+    columnOrder,
   );
 
   return (
@@ -59,10 +66,15 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
       {props.headerGroups.map((headerGroup: any, index: number) => {
         const headerRowProps = {
           ...headerGroup.getHeaderGroupProps(),
-          style: { display: "flex", width: props.headerWidth },
         };
+
         return (
-          <div {...headerRowProps} className="tr header" key={index}>
+          <StyledHeaderGroup
+            {...headerRowProps}
+            className="tr header"
+            headerWidth={props.headerWidth}
+            key={index}
+          >
             {props.multiRowSelection &&
               renderHeaderCheckBoxCell(
                 props.handleAllRowSelectClick,
@@ -70,6 +82,7 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
                 props.accentColor,
                 props.borderRadius,
               )}
+
             {headerGroup.headers.map((column: any, columnIndex: number) => {
               const stickyRightModifier = !column.isHidden
                 ? columnIndex !== 0 &&
@@ -78,13 +91,14 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
                   ? "sticky-right-modifier"
                   : ""
                 : "";
+
               return (
                 <HeaderCell
                   canFreezeColumn={props.canFreezeColumn}
                   column={column}
                   columnIndex={columnIndex}
                   columnName={column.Header}
-                  columnOrder={props.columnOrder}
+                  columnOrder={columnOrder}
                   editMode={props.editMode}
                   handleColumnFreeze={props.handleColumnFreeze}
                   handleReorderColumn={props.handleReorderColumn}
@@ -108,9 +122,10 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
                 />
               );
             })}
-          </div>
+          </StyledHeaderGroup>
         );
       })}
+
       {props.headerGroups.length === 0 &&
         renderEmptyRows(
           1,
@@ -126,3 +141,5 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
     </div>
   );
 };
+
+export default HeaderComponent;

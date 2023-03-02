@@ -8,14 +8,14 @@ import { ReactElementType } from "react-window";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import {
+  MULTISELECT_CHECKBOX_WIDTH,
   ReactTableColumnProps,
   TableSizes,
   TABLE_SCROLLBAR_WIDTH,
 } from "./Constants";
-import {
-  HeaderComponent,
+import HeaderComponent, {
   HeaderComponentProps,
-} from "./header/TableHeaderComponent";
+} from "./header/TableColumnHeader";
 import { TableBody } from "./TableBody";
 
 type StaticTableProps = HeaderComponentProps & {
@@ -54,7 +54,6 @@ const StaticTable = (props: StaticTableProps) => {
         accentColor={props.accentColor}
         borderRadius={props.borderRadius}
         canFreezeColumn={props.canFreezeColumn}
-        columnOrder={props.columns.map((item) => item.alias)}
         columns={props.columns}
         disableDrag={props.disableDrag}
         editMode={props.editMode}
@@ -63,6 +62,11 @@ const StaticTable = (props: StaticTableProps) => {
         handleColumnFreeze={props.handleColumnFreeze}
         handleReorderColumn={props.handleReorderColumn}
         headerGroups={props.headerGroups}
+        headerWidth={
+          props.multiRowSelection && props.totalColumnsWidth
+            ? MULTISELECT_CHECKBOX_WIDTH + props.totalColumnsWidth
+            : props.totalColumnsWidth
+        }
         isResizingColumn={props.isResizingColumn}
         isSortable={props.isSortable}
         multiRowSelection={props.multiRowSelection}
