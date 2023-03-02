@@ -14,10 +14,12 @@ const {
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
+
 const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
+
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
@@ -542,13 +544,13 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("PublishtheApp", () => {
+Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  cy.assertPageSave();
+  cy.assertPageSave(validateSavedState);
 
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {
@@ -1186,7 +1188,7 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 Cypress.Commands.add("CheckForPageSaveError", () => {
   // Wait for "saving" status to disappear
   cy.get(commonlocators.statusSaving, {
-    timeout: 60000,
+    timeout: 30000,
   }).should("not.exist");
   // Check for page save error
   cy.get("body").then(($ele) => {
@@ -1196,11 +1198,13 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
   });
 });
 
-Cypress.Commands.add("assertPageSave", () => {
-  cy.CheckForPageSaveError();
-  cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-    timeout: 30000,
-  });
+Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
+  if (validateSavedState) {
+    cy.CheckForPageSaveError();
+    cy.get(commonlocators.saveStatusContainer).should("not.exist", {
+      timeout: 30000,
+    });
+  }
   //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
@@ -2066,6 +2070,14 @@ Cypress.Commands.add("RemoveMultiSelectItems", (dropdownOptions) => {
   dropdownOptions.forEach(($each) => {
     cy.get(`.rc-select-selection-overflow-item [title=${$each}] .remove-icon`)
       .eq(0)
+      .click({ force: true })
+      .wait(1000);
+  });
+});
+
+Cypress.Commands.add("RemoveAllSelections", () => {
+  cy.get(`.rc-select-selection-overflow-item .remove-icon`).each(($each) => {
+    cy.wrap($each)
       .click({ force: true })
       .wait(1000);
   });

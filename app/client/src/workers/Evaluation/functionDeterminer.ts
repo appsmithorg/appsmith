@@ -35,7 +35,7 @@ class FunctionDeterminer {
     assignJSFunctionsToContext(
       evalContext,
       resolvedFunctions,
-      true,
+      false,
       JSCollectionsForCurrentPage,
     );
 
