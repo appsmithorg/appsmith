@@ -7,6 +7,11 @@ import { SideNavMode } from "pages/Editor/MultiPaneContainer";
 import { Icon, IconSize } from "design-system-old";
 import { useDispatch } from "react-redux";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
+import {
+  filterCategories,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
 
 export const SIDE_NAV_WIDTH = 55;
 
@@ -69,13 +74,17 @@ function SideNav(props: {
       </Button>
 
       {/* Bottom buttons */}
-      <Button className="mt-auto !cursor-not-allowed">
-        <Icon
-          className="!cursor-not-allowed"
-          fillColor="#828080"
-          name="search"
-          size={IconSize.XXXXL}
-        />
+      <Button
+        className="mt-auto"
+        onClick={() => {
+          dispatch(
+            setGlobalSearchCategory(
+              filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
+            ),
+          );
+        }}
+      >
+        <Icon fillColor="#828080" name="search" size={IconSize.XXXXL} />
         <span className="text-[9px]">Search</span>
       </Button>
 
