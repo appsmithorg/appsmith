@@ -234,7 +234,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
     <Popover2
       className="t--debugger-contextual-error-menu"
       content={
-        <MenuWrapper width={"264px"}>
+        <MenuWrapper width={"200px"}>
           {options.map((e) => {
             const menuProps = searchAction[e];
             const onSelect = () => {
@@ -258,9 +258,9 @@ export default function ContextualMenu(props: ContextualMenuProps) {
                   <Icon
                     fillColor="#858282"
                     name={menuProps.icon}
-                    size={IconSize.SMALL}
+                    size={IconSize.XL}
                   />
-                  <Text type={TextType.P1} weight={FontWeight.NORMAL}>
+                  <Text type={TextType.P3} weight={FontWeight.NORMAL}>
                     {menuProps.text}
                   </Text>
                 </IconContainer>

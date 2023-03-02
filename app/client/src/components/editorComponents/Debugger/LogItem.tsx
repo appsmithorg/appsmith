@@ -48,10 +48,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 
   &.${Severity.ERROR} {
-    background-color: ${(props) =>
-      props.theme.colors.debugger.error.backgroundColor};
-    border-bottom: 1px solid
-      ${(props) => props.theme.colors.debugger.error.borderBottom};
+    background-color: #fff8f8;
+    border-bottom: 1px solid #ffebeb;
   }
 
   &.${Severity.WARNING} {
@@ -70,6 +68,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       props.collapsed
         ? `transform: rotate(-90deg);`
         : `transform: rotate(0deg); `};
+    padding-right: 4px;
   }
   .debugger-time {
     ${getTypographyByKey("h6")}
@@ -299,15 +298,6 @@ function LogItem(props: LogItemProps) {
     >
       <InnerWrapper>
         <Icon
-          className={`${Classes.ICON} debugger-toggle`}
-          clickable={collapsable}
-          fillColor={get(theme, "colors.debugger.jsonIcon")}
-          invisible={!collapsable}
-          name={"expand-more"}
-          onClick={() => setIsOpen(!isOpen)}
-          size={IconSize.MEDIUM}
-        />
-        <Icon
           clickable={collapsable}
           fillColor={
             props.severity === Severity.ERROR
@@ -320,6 +310,16 @@ function LogItem(props: LogItemProps) {
         <span className={`debugger-time ${props.severity}`}>
           {props.timestamp}
         </span>
+
+        <Icon
+          className={`${Classes.ICON} debugger-toggle`}
+          clickable={collapsable}
+          fillColor={get(theme, "colors.debugger.jsonIcon")}
+          invisible={!collapsable}
+          name={"expand-more"}
+          onClick={() => setIsOpen(!isOpen)}
+          size={IconSize.XL}
+        />
         {!(
           props.collapsable &&
           isOpen &&

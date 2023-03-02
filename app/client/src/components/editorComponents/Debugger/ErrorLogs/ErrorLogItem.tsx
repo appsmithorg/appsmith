@@ -143,11 +143,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 `;
 
 const StyledSearchIcon = styled(AppIcon)`
-  height: 14px;
-  width: 14px;
+  height: 16px;
+  width: 16px;
   svg {
-    height: 14px;
-    width: 14px;
+    height: 16px;
+    width: 16px;
   }
 `;
 
@@ -253,7 +253,7 @@ function ErrorLogItem(props: LogItemProps) {
               fillColor={get(theme, "colors.debugger.collapseIcon")}
               name={"expand-more"}
               onClick={() => setIsOpen(!isOpen)}
-              size={IconSize.MEDIUM}
+              size={IconSize.XL}
             />
           )}
           <div className={`debugger-error-type`}>
