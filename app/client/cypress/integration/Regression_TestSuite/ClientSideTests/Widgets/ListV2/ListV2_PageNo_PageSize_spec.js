@@ -173,10 +173,11 @@ describe("List widget V2 page number and page size", () => {
 
     // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
     cy.get(`${datasource.datasourceCard}`)
-      .contains("Users")
-      .get(`${datasource.createQuery}`)
-      .last()
-      .click({ force: true });
+      .filter(":contains('Users')")
+      .first()
+      .within(() => {
+        cy.get(`${datasource.createQuery}`).click({ force: true });
+      });
 
     // Click the editing field
     cy.get(".t--action-name-edit-field").click({ force: true });

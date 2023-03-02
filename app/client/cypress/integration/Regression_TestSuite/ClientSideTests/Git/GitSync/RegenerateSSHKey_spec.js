@@ -2,16 +2,7 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git regenerate SSH key flow", function() {
-  let repoName, newWorkspaceName;
-
-  before(() => {
-    cy.NavigateToHome();
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      newWorkspaceName = interception.response.body.data.name;
-      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-    });
-  });
+  let repoName;
 
   it("1. Verify SSH key regeneration flow ", () => {
     _.gitSync.CreateNConnectToGit(repoName);
@@ -23,7 +14,7 @@ describe("Git regenerate SSH key flow", function() {
     cy.wait(2000);
   });
 
-  it("2. Verify error meesage is displayed when ssh key is not added to github", () => {
+  it("2. Verify error meesage is displayed when ssh key is not added to github and verify RSA SSH key regeneration flow", () => {
     cy.wait(2000);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
@@ -41,16 +32,8 @@ describe("Git regenerate SSH key flow", function() {
       "response.body.responseMeta.status",
       400,
     );
-  });
-
-  it("3. Verify RSA SSH key regeneration flow ", () => {
     cy.regenerateSSHKey(repoName, true, "RSA");
     cy.get("body").click(0, 0);
     cy.wait(2000);
-  });
-
-  after(() => {
-    //clean up
-    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });

@@ -26,7 +26,7 @@ const UpgradePage = {
 const locators = { ...Access, ...UpgradePage };
 
 describe("Audit logs", () => {
-  it("super user can access audit logs page", () => {
+  it("1. Super user can access audit logs page", () => {
     if (Cypress.env("Edition") === 0) {
       cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
