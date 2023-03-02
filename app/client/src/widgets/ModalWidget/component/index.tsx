@@ -159,7 +159,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
   );
-
+  const disabledResizeHandles = get(props, "disabledResizeHandles", []);
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -168,8 +168,8 @@ export default function ModalComponent(props: ModalComponentProps) {
       right: RightHandleStyles,
     };
 
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+    return omit(allHandles, disabledResizeHandles);
+  }, [disabledResizeHandles]);
 
   useEffect(() => {
     setTimeout(() => {
