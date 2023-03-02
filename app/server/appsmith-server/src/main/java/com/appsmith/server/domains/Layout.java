@@ -58,9 +58,6 @@ public class Layout extends BaseDomain {
     Set<String> allOnPageLoadActionNames;
 
     @JsonIgnore
-    Set<ActionDependencyEdge> allOnPageLoadActionEdges;
-
-    @JsonIgnore
     Set<String> actionsUsedInDynamicBindings;
 
     @JsonIgnore
@@ -90,7 +87,6 @@ public class Layout extends BaseDomain {
         this.setAllOnPageLoadActionNames(null);
         this.setCreatedAt(null);
         this.setUpdatedAt(null);
-        this.setAllOnPageLoadActionEdges(null);
         this.setActionsUsedInDynamicBindings(null);
         this.setWidgetNames(null);
         List<Set<DslActionDTO>> layoutOnLoadActions = this.getLayoutOnLoadActions();
