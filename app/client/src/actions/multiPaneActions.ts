@@ -18,9 +18,3 @@ export const setPaneCount = (count: PaneLayoutOptions) => {
     },
   };
 };
-
-export const toggleMultipaneView = () => {
-  return {
-    type: ReduxActionTypes.TOGGLE_MULITPANE_VIEW,
-  };
-};

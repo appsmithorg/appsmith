@@ -14,8 +14,7 @@ export enum PaneLayoutOptions {
 
 const initialState: MultiPaneReduxState = {
   tabsPaneWidth: TABS_PANE_MIN_WIDTH,
-  paneCount: PaneLayoutOptions.TWO_PANE,
-  showMultipane: true,
+  paneCount: PaneLayoutOptions.THREE_PANE,
 };
 
 const multiPaneReducer = createImmerReducer(initialState, {
@@ -31,13 +30,9 @@ const multiPaneReducer = createImmerReducer(initialState, {
   ) => {
     state.paneCount = action.payload.count;
   },
-  [ReduxActionTypes.TOGGLE_MULITPANE_VIEW]: (state: MultiPaneReduxState) => {
-    state.showMultipane = !state.showMultipane;
-  },
 });
 
 export interface MultiPaneReduxState {
-  showMultipane: boolean;
   tabsPaneWidth: number;
   paneCount: PaneLayoutOptions;
 }
