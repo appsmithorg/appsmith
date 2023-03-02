@@ -315,7 +315,10 @@ init_postgres() {
     else
       echo "Initializing local postgresql database"
       
-      su postgres -c "mkdir -p $POSTGRES_DB_PATH"
+      mkdir -p $POSTGRES_DB_PATH
+
+      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
+      chown postgres:postgres $POSTGRES_DB_PATH
 
       # Initialize the postgres db file system
       su -m postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
@@ -324,7 +327,7 @@ init_postgres() {
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
 
       # Create mockdb db and user and populate it with the data
-      create_postgres_mockdb
+      seed_postgres_mockdb
       
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
@@ -334,7 +337,7 @@ init_postgres() {
   
 }
 
-create_postgres_mockdb(){
+seed_postgres_mockdb(){
     # Create mockdb database 
     psql -U postgres -c "CREATE DATABASE mockdb;"
     # Create mockdb superuser
