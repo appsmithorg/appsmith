@@ -18,14 +18,14 @@ describe("Table Widget row multi select validation", function() {
     cy.get(".t--table-multiselect")
       .first()
       .should("be.visible");
-  //Test click on header cell selects all row
+    //Test click on header cell selects all row
     // click on header check cell
     cy.get(".t--table-multiselect-header")
       .first()
       .click({ force: true });
     // check if rows selected
     cy.get(".tr").should("have.class", "selected-row");
-  //Test click on single row cell changes header select cell state
+    //Test click on single row cell changes header select cell state
     // un-select all rows
     cy.get(".t--table-multiselect-header")
       .first()
