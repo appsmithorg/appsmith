@@ -740,28 +740,28 @@ export function getThenCatchBlocksFromQuery(value: string, evaluationVersion: nu
             ranges: true,
             onComment: commentArray,
         });
+
+        const astWithComments = attachCommentsToAst(ast, commentArray);
+        const changeValueNodeFound = findNodeAt(astWithComments, 0, undefined, (type) => type === "Program");
+
+        // @ts-ignore
+        const requiredNode = changeValueNodeFound && changeValueNodeFound.node.body[0];
+        firstBlock = ((requiredNode as ExpressionStatement).expression as CallExpressionNode).arguments[0];
+        firstBlockType = ((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name;
+        returnValue = {
+            [firstBlockType]: `${generate(firstBlock)}`,
+        };
+
+        if (value.indexOf("then") >= 0 && value.indexOf("catch") >= 0) {
+            secondBlock = ((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).object as CallExpressionNode).arguments[0];
+            secondBlockType = ((((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).object as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name;
+            returnValue = { ...returnValue, [secondBlockType]: `${generate(secondBlock)}`};
+        }
+
+        return returnValue;
     } catch (error) {
         return returnValue;
     }
-
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-    const changeValueNodeFound = findNodeAt(astWithComments, 0, undefined, (type) => type === "Program");
-
-    // @ts-ignore
-    const requiredNode = changeValueNodeFound && changeValueNodeFound.node.body[0];
-    firstBlock = ((requiredNode as ExpressionStatement).expression as CallExpressionNode).arguments[0];
-    firstBlockType = ((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name;
-    returnValue = {
-        [firstBlockType]: `${generate(firstBlock)}`,
-    };
-
-    if (value.indexOf("then") >= 0 && value.indexOf("catch") >= 0) {
-        secondBlock = ((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).object as CallExpressionNode).arguments[0];
-        secondBlockType = ((((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).object as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name;
-        returnValue = { ...returnValue, [secondBlockType]: `${generate(secondBlock)}`};
-    }
-
-    return returnValue;
 }
 
 export function setThenBlockInQuery(
