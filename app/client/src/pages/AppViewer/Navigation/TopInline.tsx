@@ -68,7 +68,10 @@ export function TopInline(props: TopInlineProps) {
   if (appPages.length <= 1) return null;
 
   return (
-    <Container className="hidden md:flex gap-x-2 items-center" ref={navRef}>
+    <Container
+      className="hidden md:flex gap-x-2 items-center grow"
+      ref={navRef}
+    >
       {appPages.map(
         (page, index) =>
           index < maxMenuItemsThatCanFit && (
