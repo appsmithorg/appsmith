@@ -76,7 +76,7 @@ export const Colors = {
   TROUT_DARK: "#535B62",
   ALABASTER: "#F9F8F8",
   // WATUSI: "#FF9B4E",
-  WATUSI: "FFE0D2",
+  WATUSI: "#FFE0D2",
   GRAY: "#858282",
   GRAY2: "#939090",
   DOVE_GRAY2: "#716e6e",
