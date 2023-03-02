@@ -307,7 +307,8 @@ check_redis_compatible_page_size() {
 init_postgres() {
   # Initialize embedded postgres by default; set APPSMITH_DISABLE_EMBEDDED_POSTGRES to 1, to use existing cloud postgres mockdb instance
   if [[ ${APPSMITH_DISABLE_EMBEDDED_POSTGRES: -0} != 1 ]]; then
-    echo "\nChecking initialized local postgres"
+    echo ""
+    echo "Checking initialized local postgres"
     POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
 
     if [ -e "$POSTGRES_DB_PATH/PG_VERSION" ]; then
