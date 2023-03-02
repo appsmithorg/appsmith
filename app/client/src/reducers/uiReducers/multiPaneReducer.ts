@@ -14,7 +14,7 @@ export enum PaneLayoutOptions {
 
 const initialState: MultiPaneReduxState = {
   tabsPaneWidth: TABS_PANE_MIN_WIDTH,
-  paneCount: PaneLayoutOptions.ONE_PANE,
+  paneCount: PaneLayoutOptions.TWO_PANE,
 };
 
 const multiPaneReducer = createImmerReducer(initialState, {

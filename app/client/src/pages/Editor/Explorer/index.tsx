@@ -17,7 +17,10 @@ import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import {
+  isMultiPaneActive,
+  isOnePaneLayout,
+} from "selectors/multiPaneSelectors";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -28,6 +31,7 @@ function ExplorerContent() {
     getIsFirstTimeUserOnboardingEnabled,
   );
   const pageId = useSelector(getCurrentPageId);
+  const isOnePane = useSelector(isOnePaneLayout);
   const location = useLocation();
   const switches = useMemo(
     () => [
@@ -86,7 +90,9 @@ function ExplorerContent() {
     <div
       className={`flex-1 flex flex-col overflow-hidden ${tailwindLayers.entityExplorer}`}
       style={{
-        maxHeight: `calc(100% - 164px)`, // 164px page list max-height
+        ...(!isOnePane && {
+          maxHeight: `calc(100% - 164px)`, // 164px page list max-height
+        }),
       }}
     >
       {!isMultiPane && (
