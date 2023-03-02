@@ -10,7 +10,6 @@ import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { animated, Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   GridProps,
   MovementLimitMap,
@@ -18,10 +17,7 @@ import {
   ReflowedSpace,
 } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
-import {
-  getContainerOccupiedSpacesSelectorWhileResizing,
-  getCurrentAppPositioningType,
-} from "selectors/editorSelectors";
+import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { getCanvasWidth } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import styled, { StyledComponent } from "styled-components";
