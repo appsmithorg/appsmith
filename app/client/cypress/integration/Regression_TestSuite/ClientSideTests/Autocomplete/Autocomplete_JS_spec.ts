@@ -1,14 +1,7 @@
 import { WIDGET } from "../../../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const {
-  AggregateHelper: agHelper,
-  ApiPage,
-  CommonLocators,
-  DataSources,
-  EntityExplorer,
-  JSEditor: jsEditor,
-} = ObjectsRegistry;
+let jsName: any;
 
 const jsObjectBody = `export default {
 	myVar1: [],
@@ -23,11 +16,11 @@ const jsObjectBody = `export default {
 
 describe("Autocomplete tests", () => {
   it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
-    EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
-    EntityExplorer.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
+    _.ee.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
+    _.ee.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
 
     // create js object
-    jsEditor.CreateJSObject(jsObjectBody, {
+    _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -36,31 +29,41 @@ describe("Autocomplete tests", () => {
     });
 
     // focus on 5th line
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
 
     // 1. Button group widget autocomplete verification
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "ButtonGroup1.");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "isVisible");
-    agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "isVisible");
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "ButtonGroup1.");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "isVisible");
+    _.agHelper.Sleep();
+    _.agHelper.GetNClickByContains(_.locators._hints, "isVisible");
 
     // 2. Document view widget autocomplete verification
 
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
-    agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5), 0, true);
+    _.agHelper.SelectNRemoveLineText(_.locators._codeMirrorTextArea);
 
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "DocumentViewer1.");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "docUrl");
-    agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "docUrl");
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "DocumentViewer1.");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "docUrl");
+    _.agHelper.Sleep();
+    _.agHelper.GetNClickByContains(_.locators._hints, "docUrl");
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
+      _.ee.SelectEntityByName(jsName as string, "Queries/JS");
+      _.ee.ActionContextMenuByEntityName(
+        jsName as string,
+        "Delete",
+        "Are you sure?",
+        true,
+      );
+    });
   });
 
   it("2. Check for bindings not available in other page", () => {
     // dependent on above case: 1st page should have DocumentViewer widget
-    EntityExplorer.AddNewPage();
+    _.ee.AddNewPage();
 
     // create js object
-    jsEditor.CreateJSObject(jsObjectBody, {
+    _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -69,24 +72,40 @@ describe("Autocomplete tests", () => {
     });
 
     // focus on 5th line
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "D");
-    agHelper.GetNAssertElementText(
-      CommonLocators._hints,
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "D");
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
       "docUrl",
       "not.have.text",
     );
-    agHelper.TypeText(
-      CommonLocators._codeMirrorTextArea,
+    _.agHelper.TypeText(
+      _.locators._codeMirrorTextArea,
       "ocumentViewer.docUrl",
     );
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
+      _.ee.SelectEntityByName(jsName as string, "Queries/JS");
+      _.ee.ActionContextMenuByEntityName(
+        jsName as string,
+        "Delete",
+        "Are you sure?",
+        true,
+      );
+    });
   });
 
   it("3. Bug #15568 Verify browser JavaScript APIs in autocomplete ", () => {
-    // Using same js object
-    agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
+    _.jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
     // focus on 5th line
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
 
     const JSAPIsToTest = [
       // console API verification
@@ -125,91 +144,109 @@ describe("Autocomplete tests", () => {
     ];
 
     JSAPIsToTest.forEach((test, index) => {
-      agHelper.TypeText(CommonLocators._codeMirrorTextArea, test.type);
-      agHelper.GetNAssertElementText(
-        CommonLocators._hints,
+      _.agHelper.TypeText(_.locators._codeMirrorTextArea, test.type);
+      _.agHelper.GetNAssertElementText(
+        _.locators._hints,
         test.expected,
         test.haveOrNotHave ? "have.text" : "not.have.text",
       );
-      agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
+      _.agHelper.SelectNRemoveLineText(_.locators._codeMirrorTextArea);
     });
   });
 
   it("4. JSObject this. autocomplete", () => {
     // Using same js object
     // focus on 5th line
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "this.");
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "this.");
 
     ["myFun2()", "myVar1", "myVar2"].forEach((element, index) => {
-      agHelper.AssertContains(element);
+      _.agHelper.AssertContains(element);
     });
   });
 
   it("5. Api data with array of object autocompletion test", () => {
-    ApiPage.CreateAndFillApi(agHelper.mockApiUrl);
-    agHelper.Sleep(2000);
-    ApiPage.RunAPI();
+    _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl);
+    _.agHelper.Sleep(2000);
+    _.apiPage.RunAPI();
     // Using same js object
-    EntityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
-    agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
-    //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "Api1.d");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "data");
-    agHelper.Sleep();
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "ata[0].e");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "email");
-    agHelper.Sleep();
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "mail");
+    _.ee.SelectEntityByName("JSObject1", "Queries/JS");
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5), 0, true);
+    _.agHelper.SelectNRemoveLineText(_.locators._codeMirrorTextArea);
+    //_.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "Api1.d");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "data");
+    _.agHelper.Sleep();
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "ata[0].e");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "email");
+    _.agHelper.Sleep();
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "mail");
+    _.ee.SelectEntityByName(jsName as string, "Queries/JS");
+    _.ee.ActionContextMenuByEntityName(
+      "JSObject1",
+      "Delete",
+      "Are you sure?",
+      true,
+    )
   });
 
   it("6. Local variables & complex data autocompletion test", () => {
-    // Using same js object
-    agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
+
+    _.jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
     const users = [
       { label: "a", value: "b" },
       { label: "a", value: "b" },
     ];
 
-    const codeToType = `const users = ${JSON.stringify(users)};
+    let codeToType = `const users = ${JSON.stringify(users)};
     const data = { userCollection: [{ users }, { users }] };
 
     users.map(callBack);`;
 
     // component re-render cause DOM element of cy.get to lost
     // added wait to finish re-render before cy.get
-    agHelper.Sleep();
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, codeToType);
-    agHelper.GetNClick(jsEditor._lineinJsEditor(7));
-    agHelper.TypeText(
-      CommonLocators._codeMirrorTextArea,
+    //_.agHelper.Sleep();
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, codeToType);
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(7));
+    _.agHelper.TypeText(
+      _.locators._codeMirrorTextArea,
       "const callBack = (user) => user.l",
     );
-    agHelper.GetNAssertElementText(CommonLocators._hints, "label");
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "abel;");
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "data.");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "userCollection");
-    agHelper.Sleep();
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "userCollection[0].");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "users");
-    agHelper.Sleep();
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "users[0].");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "label");
-    agHelper.GetNAssertElementText(
-      CommonLocators._hints,
+    _.agHelper.GetNAssertElementText(_.locators._hints, "label");
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "abel;");
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "data.");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "userCollection");
+    _.agHelper.Sleep();
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "userCollection[0].");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "users");
+    _.agHelper.Sleep();
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "users[0].");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "label");
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
       "value",
       "have.text",
       1,
     );
-    EntityExplorer.ActionContextMenuByEntityName(
-      "JSObject1",
-      "Delete",
-      "Are you sure?",
-      true,
-    );
-    EntityExplorer.ActionContextMenuByEntityName(
+
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
+      _.ee.SelectEntityByName(jsName as string, "Queries/JS");
+      _.ee.ActionContextMenuByEntityName(
+        jsName as string,
+        "Delete",
+        "Are you sure?",
+        true,
+      );
+    });
+    _.ee.ActionContextMenuByEntityName(
       "Api1",
       "Delete",
       "Are you sure?",
@@ -217,18 +254,18 @@ describe("Autocomplete tests", () => {
   });
 
   it("7. Autocompletion for bindings inside array and objects", () => {
-    DataSources.CreateDataSource("Mongo", true, false);
+    _.dataSources.CreateDataSource("Mongo", true, false);
     cy.get("@dsName").then(($dsName) => {
-      DataSources.CreateNewQueryInDS(($dsName as unknown) as string);
-      DataSources.ValidateNSelectDropdown(
+      _.dataSources.CreateNewQueryInDS(($dsName as unknown) as string);
+      _.dataSources.ValidateNSelectDropdown(
         "Commands",
         "Find Document(s)",
         "Insert Document(s)",
       );
 
-      cy.xpath(CommonLocators._inputFieldByName("Documents")).then(
+      cy.xpath(_.locators._inputFieldByName("Documents")).then(
         ($field: any) => {
-          agHelper.UpdateCodeInput($field, `{\n"_id": "{{appsmith}}"\n}`);
+          _.agHelper.UpdateCodeInput($field, `{\n"_id": "{{appsmith}}"\n}`);
 
           cy.wrap($field)
             .find(".CodeMirror")
@@ -239,7 +276,7 @@ describe("Autocomplete tests", () => {
               const input = ins[0].CodeMirror;
               input.focus();
               cy.wait(200);
-              cy.get(CommonLocators._codeMirrorTextArea)
+              cy.get(_.locators._codeMirrorTextArea)
                 .eq(1)
                 .focus()
                 .type(
@@ -247,8 +284,8 @@ describe("Autocomplete tests", () => {
                 )
                 .type(".");
 
-              agHelper.GetNAssertElementText(
-                CommonLocators._hints,
+              _.agHelper.GetNAssertElementText(
+                _.locators._hints,
                 "geolocation",
               );
 
@@ -260,26 +297,26 @@ describe("Autocomplete tests", () => {
   });
 
   it("8. Multiple binding in single line", () => {
-    DataSources.CreateDataSource("Postgres", true, false);
+    _.dataSources.CreateDataSource("Postgres", true, false);
     cy.get("@dsName").then(($dsName) => {
-      DataSources.CreateNewQueryInDS(
+      _.dataSources.CreateNewQueryInDS(
         ($dsName as unknown) as string,
         "SELECT * FROM worldCountryInfo where {{appsmith.store}} {{appsmith}}",
       );
 
-      cy.get(CommonLocators._codeMirrorTextArea)
+      cy.get(_.locators._codeMirrorTextArea)
         .eq(0)
         .focus()
         .type("{downArrow}{leftArrow}{leftArrow}");
 
-      agHelper.TypeText(CommonLocators._codeMirrorTextArea, ".");
-      agHelper.GetNAssertElementText(CommonLocators._hints, "geolocation");
+      _.agHelper.TypeText(_.locators._codeMirrorTextArea, ".");
+      _.agHelper.GetNAssertElementText(_.locators._hints, "geolocation");
     });
   });
 
   it("9. Bug #17059 Autocomplete does not suggest same function name that belongs to a different object", () => {
-    // create js object
-    jsEditor.CreateJSObject(jsObjectBody, {
+    // create js object - JSObject1
+    _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -287,8 +324,8 @@ describe("Autocomplete tests", () => {
       prettify: false,
     });
 
-    // create js object
-    jsEditor.CreateJSObject(jsObjectBody, {
+    // create js object - JSObject2
+    _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -296,46 +333,60 @@ describe("Autocomplete tests", () => {
       prettify: false,
     });
 
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject1.");
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "JSObject1.");
 
-    agHelper.GetNAssertElementText(
-      CommonLocators._hints,
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
       "myFun1.data",
       "have.text",
       0,
     );
 
-    agHelper.GetNAssertElementText(
-      CommonLocators._hints,
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
       "myFun1()",
       "have.text",
       4,
     );
 
     // Same check in JSObject1
-    EntityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject2.");
+    _.ee.SelectEntityByName("JSObject1", "Queries/JS");
+    _.agHelper.Sleep();
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "JSObject2");
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, ".");
 
-    agHelper.GetNAssertElementText(
-      CommonLocators._hints,
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
       "myFun1.data",
       "have.text",
       0,
     );
 
-    agHelper.GetNAssertElementText(
-      CommonLocators._hints,
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
       "myFun1()",
       "have.text",
       4,
     );
+    _.ee.ActionContextMenuByEntityName(
+      "JSObject1",
+      "Delete",
+      "Are you sure?",
+      true,
+    );
+    _.ee.ActionContextMenuByEntityName(
+      "JSObject2",
+      "Delete",
+      "Are you sure?",
+      true,
+    );
   });
 
-  it("9. Bug #10115 Autocomplete needs to show async await keywords instead of showing 'no suggestions'", () => {
+  it("10. Bug #10115 Autocomplete needs to show async await keywords instead of showing 'no suggestions'", () => {
     // create js object
-    jsEditor.CreateJSObject(jsObjectBody, {
+    _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -343,22 +394,32 @@ describe("Autocomplete tests", () => {
       prettify: false,
     });
 
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "aw");
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "aw");
 
-    agHelper.GetNAssertElementText(
-      CommonLocators._hints,
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
       "await",
       "have.text",
       0,
     );
 
-    agHelper.RemoveCharsNType(CommonLocators._codeMirrorTextArea, 2, "as");
-    agHelper.GetNAssertElementText(
-      CommonLocators._hints,
+    _.agHelper.RemoveCharsNType(_.locators._codeMirrorTextArea, 2, "as");
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
       "async",
       "have.text",
       0,
     );
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
+      _.ee.SelectEntityByName(jsName as string, "Queries/JS");
+      _.ee.ActionContextMenuByEntityName(
+        jsName as string,
+        "Delete",
+        "Are you sure?",
+        true,
+      );
+    });
   });
 });

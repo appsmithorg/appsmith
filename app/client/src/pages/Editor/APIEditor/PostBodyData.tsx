@@ -48,6 +48,7 @@ const NoBodyMessage = styled.div`
     color: ${(props) => props.theme.colors.apiPane.body.text};
   }
 `;
+
 interface PostDataProps {
   displayFormat: any;
   dataTreePath: string;
@@ -104,7 +105,7 @@ function PostBodyData(props: Props) {
           key={key}
           label=""
           name="actionConfiguration.bodyFormData"
-          // pushFields
+          pushFields
           theme={theme}
         />
       ),
@@ -116,7 +117,7 @@ function PostBodyData(props: Props) {
           key={key}
           label=""
           name="actionConfiguration.bodyFormData"
-          // pushFields
+          pushFields
           theme={theme}
         />
       ),
@@ -171,6 +172,7 @@ export default connect((state: AppState) => {
     label: POST_BODY_FORMAT_OPTIONS.NONE,
     value: POST_BODY_FORMAT_OPTIONS.NONE,
   };
+
   return {
     displayFormat,
     apiId,

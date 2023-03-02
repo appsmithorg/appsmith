@@ -62,12 +62,11 @@ export const APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING: Setting = {
 
 export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
   id: "APPSMITH_DISABLE_TELEMETRY",
+  name: "APPSMITH_DISABLE_TELEMETRY",
   category: SettingCategories.GENERAL,
-  controlType: SettingTypes.TOGGLE,
-  label: "Share anonymous usage data",
-  subText: "Share anonymous usage data to help improve the product",
-  toggleText: (value: boolean) =>
-    value ? "Don't share any data" : "Share Anonymous Telemetry",
+  controlType: SettingTypes.CHECKBOX,
+  label: "Anonymous Usage Data",
+  text: "Share anonymous usage data to help improve the product",
 };
 
 export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
