@@ -69,12 +69,14 @@ const ActionCreator = React.forwardRef(
     }, [props.value]);
 
     useEffect(() => {
-      props.onValueChange(
-        `{{${Object.values(actions)
-          .filter(Boolean)
-          .join("\n")}}}`,
-        false,
-      );
+      if (Object.values(actions).length > 0) {
+        props.onValueChange(
+          `{{${Object.values(actions)
+            .filter(Boolean)
+            .join("\n")}}}`,
+          false,
+        );
+      }
     }, [actions]);
 
     const handleActionChange = useCallback(
