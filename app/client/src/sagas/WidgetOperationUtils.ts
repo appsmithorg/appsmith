@@ -271,6 +271,7 @@ export const handleSpecificCasesWhilePasting = (
     });
   }
 
+  widgets = handleListWidgetV2Pasting(widget, widgets, widgetNameMap);
   widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
 
   return widgets;
@@ -302,6 +303,7 @@ export function getWidgetChildrenIds(
   }
   return childrenIds;
 }
+
 function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
   return reduce(
     widgetsMeta,
@@ -436,7 +438,11 @@ export const getParentWidgetIdForPasting = function*(
       }
     }
     // Select the selected widget if the widget is container like ( excluding list widget )
-    if (selectedWidget.children && selectedWidget.type !== "LIST_WIDGET") {
+    if (
+      selectedWidget.children &&
+      selectedWidget.type !== "LIST_WIDGET" &&
+      selectedWidget.type !== "LIST_WIDGET_V2"
+    ) {
       parentWidget = widgets[selectedWidget.widgetId];
     }
   }
@@ -460,7 +466,7 @@ export const getParentWidgetIdForPasting = function*(
       // Find the currently selected tab canvas widget
       const { selectedTabWidgetId } = yield select(
         getWidgetMetaProps,
-        parentWidget.widgetId,
+        parentWidget,
       );
       if (selectedTabWidgetId) childWidget = widgets[selectedTabWidgetId];
     }
@@ -1746,3 +1752,47 @@ export function resizePublishedMainCanvasToLowestWidget(
       GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
 }
+
+export const handleListWidgetV2Pasting = (
+  widget: FlattenedWidgetProps,
+  widgets: CanvasWidgetsReduxState,
+  widgetNameMap: Record<string, string>,
+) => {
+  if (widget?.type !== "LIST_WIDGET_V2") return widgets;
+
+  widgets = updateListWidgetBindings(widgetNameMap, widgets, widget.widgetId);
+
+  return widgets;
+};
+
+// Updating PrimaryKeys, mainCanvasId and mainContainerId for ListWidgetV2
+const updateListWidgetBindings = (
+  widgetNameMap: Record<string, string>,
+  widgets: CanvasWidgetsReduxState,
+  listWidgetId: string,
+) => {
+  let mainCanvasId = "";
+  let mainContainerId = "";
+  const oldWidgetName =
+    Object.keys(widgetNameMap).find(
+      (widgetName) =>
+        widgetNameMap[widgetName] === widgets[listWidgetId].widgetName,
+    ) ?? "";
+  Object.keys(widgets).forEach((widgetId) => {
+    if (widgets[widgetId].parentId === listWidgetId) {
+      mainCanvasId = widgetId;
+      mainContainerId = widgets[widgetId].children?.[0] ?? "";
+    }
+  });
+
+  widgets[listWidgetId].mainCanvasId = mainCanvasId;
+  widgets[listWidgetId].mainContainerId = mainContainerId;
+  const primaryKeys = widgets[listWidgetId].primaryKeys.replaceAll(
+    oldWidgetName,
+    widgets[listWidgetId].widgetName,
+  );
+
+  widgets[listWidgetId].primaryKeys = primaryKeys;
+
+  return widgets;
+};

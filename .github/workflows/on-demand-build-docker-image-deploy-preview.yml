@@ -68,13 +68,13 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact

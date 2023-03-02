@@ -619,7 +619,10 @@ export const getCanCreateApplications = (currentWorkspace: Workspace) => {
 
 export const getIsSafeRedirectURL = (redirectURL: string) => {
   try {
-    return new URL(redirectURL).origin === window.location.origin;
+    return (
+      new URL(redirectURL, window.location.origin).origin ===
+      window.location.origin
+    );
   } catch (e) {
     return false;
   }

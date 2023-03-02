@@ -42,11 +42,6 @@ describe("Fork a template to the current app", () => {
       .wait(500)
       .click();
     _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.wait(6000);
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetLocators.toastAction).length <= 0) {

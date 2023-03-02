@@ -29,7 +29,7 @@ export function* getLayoutTree(layoutUpdated: boolean) {
     getAutoHeightLayoutTree,
   );
   for (const canvasWidgetId in occupiedSpaces) {
-    if (occupiedSpaces[canvasWidgetId].length > 0) {
+    if (Object.keys(occupiedSpaces[canvasWidgetId]).length > 0) {
       const treeForThisCanvas = generateTree(
         occupiedSpaces[canvasWidgetId],
         !shouldCollapse && layoutUpdated,
@@ -39,7 +39,7 @@ export function* getLayoutTree(layoutUpdated: boolean) {
     }
   }
   log.debug(
-    "Dynamic Height: Tree generation time taken:",
+    "Auto Height: Tree generation time taken:",
     performance.now() - start,
     "ms",
   );

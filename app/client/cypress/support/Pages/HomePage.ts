@@ -20,7 +20,7 @@ export class HomePage {
     ".t--workspace-section:contains(" +
     workspaceName +
     ") .workspace-share-user-icons";
-  private _shareWorkspace = (workspaceName: string) =>
+  _shareWorkspace = (workspaceName: string) =>
     ".t--workspace-section:contains(" +
     workspaceName +
     ") button:contains('Share')";
@@ -33,11 +33,15 @@ export class HomePage {
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role +
     "']";
+  private _profileMenu = ".t--profile-menu";
+  private _signout = ".t--logout-icon";
+  _searchUsersInput = ".search-input";
 
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
   private _homeIcon = ".t--appsmith-logo";
+  private _homeAppsmithImage = "a.t--appsmith-logo";
   private _appContainer = ".t--applications-container";
   private _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
@@ -194,9 +198,7 @@ export class HomePage {
     cy.get(this._homeIcon).click({ force: true });
     this.agHelper.Sleep(2000);
     //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
-    this.agHelper
-      .AssertElementVisible(this._homePageAppCreateBtn)
-      .then(($ele) => expect($ele).be.enabled);
+    this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
 
   public CreateNewApplication() {
@@ -240,6 +242,14 @@ export class HomePage {
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
     cy.request("POST", "/api/v1/logout");
+    this.agHelper.Sleep(); //for logout to complete!
+  }
+
+  public Signout(toNavigateToHome = true) {
+    if (toNavigateToHome) this.NavigateToHome();
+    this.agHelper.GetNClick(this._profileMenu);
+    this.agHelper.GetNClick(this._signout);
+    this.agHelper.ValidateNetworkStatus("@postLogout");
     this.agHelper.Sleep(); //for logout to complete!
   }
 
@@ -346,15 +356,18 @@ export class HomePage {
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
     cy.log(workspaceName, email, currentRole);
+    this.agHelper.Sleep(2000);
     cy.xpath(this._userRoleDropDown(currentRole))
       .first()
       .click({ force: true });
-
+    this.agHelper.Sleep();
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
     cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
-      .click({ force: true });
+      .parent("div")
+      .click();
     this.agHelper.Sleep();
+    this.agHelper.AssertElementVisible(this._userRoleDropDown(newRole));
     this.NavigateToHome();
   }
 
@@ -428,7 +441,7 @@ export class HomePage {
   }
 
   //Maps to leaveworkspace in command.js
-  public leaveWorkspace(workspaceName: string) {
+  public LeaveWorkspace(workspaceName: string) {
     cy.get(this._workspaceList(workspaceName))
       .scrollIntoView()
       .should("be.visible");

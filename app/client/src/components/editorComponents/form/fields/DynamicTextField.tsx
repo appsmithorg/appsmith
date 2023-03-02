@@ -24,6 +24,7 @@ class DynamicTextField extends React.Component<
       height?: string;
       disabled?: boolean;
       lineCommentString?: string;
+      evaluatedPopUpLabel?: string;
     }
 > {
   render() {

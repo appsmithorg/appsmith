@@ -31,6 +31,18 @@
         </dependency>
 
         <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-bom.version}</version>
@@ -134,6 +146,14 @@
                                 <artifactItem>
                                     <groupId>io.jsonwebtoken</groupId>
                                     <artifactId>jjwt-jackson</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.zaxxer</groupId>
+                                    <artifactId>HikariCP</artifactId>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>net.snowflake</groupId>
+                                    <artifactId>snowflake-jdbc</artifactId>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
