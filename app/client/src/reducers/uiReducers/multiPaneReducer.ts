@@ -7,6 +7,7 @@ import {
 export const TABS_PANE_MIN_WIDTH = 390;
 
 export enum PaneLayoutOptions {
+  ONE_PANE = 1,
   TWO_PANE = 2,
   THREE_PANE = 3,
 }
