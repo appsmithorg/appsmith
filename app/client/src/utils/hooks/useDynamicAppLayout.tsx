@@ -40,6 +40,7 @@ import {
   getSidebarWidth,
 } from "selectors/applicationSelectors";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
+import { useIsMobileDevice } from "./useDeviceDetect";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -66,6 +67,7 @@ export const useDynamicAppLayout = () => {
   const isAppSettingsPaneWithNavigationTabOpen =
     AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
   const currentApplicationDetails = useSelector(getCurrentApplication);
+  const isMobile = useIsMobileDevice();
 
   // /**
   //  * calculates min height
@@ -142,8 +144,11 @@ export const useDynamicAppLayout = () => {
     }
 
     /**
-     * If there is a sidebar for navigation, and it is pinned, we need
-     * to subtract the sidebar width as well in the following modes -
+     * If there is
+     * 1. a sidebar for navigation,
+     * 2. it is pinned,
+     * 3. and device is not mobile
+     * we need to subtract the sidebar width as well in the following modes -
      * 1. Preview
      * 2. App settings open with navigation tab
      * 3. Published
@@ -152,6 +157,7 @@ export const useDynamicAppLayout = () => {
       (appMode === APP_MODE.PUBLISHED ||
         isPreviewMode ||
         isAppSettingsPaneWithNavigationTabOpen) &&
+      !isMobile &&
       sidebarWidth
     ) {
       calculatedWidth -= sidebarWidth;
@@ -241,6 +247,7 @@ export const useDynamicAppLayout = () => {
    *  - any of the following navigation settings changes
    *    - orientation
    *    - nav style
+   *  - device changes to/from mobile
    */
   useEffect(() => {
     resizeToLayout();
@@ -258,6 +265,7 @@ export const useDynamicAppLayout = () => {
     isAppSidebarPinned,
     currentApplicationDetails?.navigationSetting?.orientation,
     currentApplicationDetails?.navigationSetting?.navStyle,
+    isMobile,
   ]);
 
   return isCanvasInitialized;
