@@ -46,7 +46,7 @@ describe("Modal focus", function() {
     cy.addDsl(dsl);
   });
 
-  it("should focus on the input field when autofocus for the input field is enabled", () => {
+  it("1. Should focus on the input field when autofocus for the input field is enabled", () => {
     setupModalWithInputWidget();
     cy.openPropertyPane("inputwidgetv2");
 
@@ -69,7 +69,7 @@ describe("Modal focus", function() {
     //check if the focus is on the input field
     cy.focused().should("have.value", someInputText);
   });
-  it("should not focus on the input field if autofocus is disabled", () => {
+  it("2. Should not focus on the input field if autofocus is disabled", () => {
     cy.openPropertyPane("inputwidgetv2");
 
     // autofocus for input field is disabled
@@ -80,7 +80,7 @@ describe("Modal focus", function() {
 
     cy.get(widgets.modalCloseButton).click({ force: true });
     //open the modal
-
+    cy.get(widgets.modalWidget).should("not.exist");
     cy.get(widgets.widgetBtn)
       .contains("Submit")
       .click({ force: true });
