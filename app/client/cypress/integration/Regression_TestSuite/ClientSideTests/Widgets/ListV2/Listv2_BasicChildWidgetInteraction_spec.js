@@ -60,7 +60,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("1.  Child widgets", () => {
+  it("1. Child widgets", () => {
     // Drop Input widget
     dragAndDropToWidget("inputwidgetv2", "containerwidget", {
       x: 250,
@@ -162,13 +162,13 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Verify checked
     cy.get(publishLocators.switchwidget)
       .find("input")
-      .should("be.checked");
-
+      .should("be.checked");   
     // Uncheck
     cy.get(publishLocators.switchwidget)
       .find("label")
       .first()
-      .click({ force: true });
+      .click()
+      .wait(500);
 
     // Verify unchecked
     cy.get(publishLocators.switchwidget)
