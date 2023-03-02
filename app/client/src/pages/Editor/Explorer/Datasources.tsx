@@ -132,10 +132,9 @@ const Datasources = React.memo(() => {
       icon={null}
       isDefaultExpanded={
         !isOnePane ||
-        isDatasourcesOpen === null ||
-        isDatasourcesOpen === undefined
+        (isDatasourcesOpen === null || isDatasourcesOpen === undefined
           ? false
-          : isDatasourcesOpen
+          : isDatasourcesOpen)
       }
       isSticky
       name="Datasources"
