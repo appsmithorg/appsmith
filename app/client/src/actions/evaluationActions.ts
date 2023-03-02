@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
-import { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
 import { QueryActionConfig } from "entities/Action";
@@ -126,15 +126,6 @@ export const setEvaluatedTree = (
   return {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: { updates },
-  };
-};
-
-export const setConfigTree = (
-  configTree: ConfigTree,
-): ReduxAction<{ configTree: ConfigTree }> => {
-  return {
-    type: ReduxActionTypes.SET_CONFIG_TREE,
-    payload: { configTree },
   };
 };
 

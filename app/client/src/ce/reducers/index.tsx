@@ -75,7 +75,6 @@ import lintErrorReducer from "reducers/lintingReducers";
 import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 import { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
-import { ConfigTree } from "entities/DataTree/dataTreeFactory";
 import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const reducerObject = {
@@ -160,7 +159,6 @@ export interface AppState {
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
     triggers: TriggerValuesEvaluationState;
-    configTree: ConfigTree;
   };
   linting: {
     errors: LintErrors;

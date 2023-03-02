@@ -34,6 +34,7 @@ import { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
+import ConfigTreeActions from "utils/configTree";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -76,10 +77,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       equal,
     );
 
-    const evaluatedWidgetConfig = useSelector(
-      (state: AppState) =>
-        state.evaluations.configTree[canvasWidget?.widgetName],
-    ) as WidgetEntityConfig;
+    const configTree = ConfigTreeActions.getConfigTree();
+    const evaluatedWidgetConfig = configTree[
+      canvasWidget?.widgetName
+    ] as WidgetEntityConfig;
 
     const dispatch = useDispatch();
 

@@ -534,8 +534,7 @@ export default class DataTreeEvaluator {
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = klona(localUnEvalTree);
-    // this.oldConfigTree = klona(localConfigTree);
-    this.oldConfigTree = klona(configTree);
+    this.oldConfigTree = Object.assign({}, configTree);
     const cloneEndTime = performance.now();
 
     const totalUpdateTreeSetupEndTime = performance.now();
