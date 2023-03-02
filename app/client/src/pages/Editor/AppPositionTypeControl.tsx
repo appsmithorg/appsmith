@@ -65,16 +65,16 @@ export function AppPositionTypeControl() {
     );
   }, [selectedOption]);
 
-  const [focusedIndex, setFocusedIndex] = React.useState(selectedIndex);
+  // const [focusedIndex, setFocusedIndex] = React.useState(selectedIndex);
 
-  useEffect(() => {
-    if (!isAutoLayoutActive) {
-      /**
-       * if feature flag is disabled, set the layout to fixed.
-       */
-      updateAppPositioningLayout(AppsmithLayoutTypes[0]);
-    }
-  }, [isAutoLayoutActive]);
+  // useEffect(() => {
+  //   if (!isAutoLayoutActive) {
+  //     /**
+  //      * if feature flag is disabled, set the layout to fixed.
+  //      */
+  //     updateAppPositioningLayout(AppsmithLayoutTypes[0]);
+  //   }
+  // }, [isAutoLayoutActive]);
 
   const updateAppPositioningLayout = (
     layoutOption: ApplicationPositionTypeConfigOption,
@@ -99,28 +99,28 @@ export function AppPositionTypeControl() {
     );
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
-    if (!buttonRefs.length) return;
+  // const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+  //   if (!buttonRefs.length) return;
 
-    switch (event.key) {
-      case "ArrowRight":
-      case "Right":
-        const rightIndex = index === buttonRefs.length - 1 ? 0 : index + 1;
-        buttonRefs[rightIndex]?.focus();
-        setFocusedIndex(rightIndex);
-        break;
-      case "ArrowLeft":
-      case "Left":
-        const leftIndex = index === 0 ? buttonRefs.length - 1 : index - 1;
-        buttonRefs[leftIndex]?.focus();
-        setFocusedIndex(leftIndex);
-        break;
-    }
-  };
+  //   switch (event.key) {
+  //     case "ArrowRight":
+  //     case "Right":
+  //       const rightIndex = index === buttonRefs.length - 1 ? 0 : index + 1;
+  //       buttonRefs[rightIndex]?.focus();
+  //       setFocusedIndex(rightIndex);
+  //       break;
+  //     case "ArrowLeft":
+  //     case "Left":
+  //       const leftIndex = index === 0 ? buttonRefs.length - 1 : index - 1;
+  //       buttonRefs[leftIndex]?.focus();
+  //       setFocusedIndex(leftIndex);
+  //       break;
+  //   }
+  // };
 
   return (
     <>
-      {isAutoLayoutActive ? (
+      {/* {isAutoLayoutActive ? (
         <>
           <Title className="text-sm">App Positioning Type</Title>
           <div className="pb-6 space-y-2 t--layout-control-wrapper">
@@ -151,7 +151,7 @@ export function AppPositionTypeControl() {
                         updateAppPositioningLayout(layoutOption);
                         setFocusedIndex(index);
                       }}
-                      onKeyDown={(event) => handleKeyDown(event, index)}
+                      // onKeyDown={(event) => handleKeyDown(event, index)}
                       ref={(input) => buttonRefs.push(input)}
                       tabIndex={index === focusedIndex ? 0 : -1}
                     >
@@ -165,7 +165,7 @@ export function AppPositionTypeControl() {
             </div>
           </div>
         </>
-      ) : null}
+      ) : null} */}
       {selectedOption === AppPositioningTypes.FIXED && (
         <>
           <Title className="text-sm">Canvas Size</Title>
