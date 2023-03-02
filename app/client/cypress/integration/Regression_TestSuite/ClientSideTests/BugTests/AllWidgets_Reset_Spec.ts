@@ -187,7 +187,7 @@ function selectTabAndReset() {
 }
 
 function selectTableAndReset() {
-  table.SelectTableRowV2(1);
+  table.SelectTableRow(1,0, true, "v2");
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
     "#2",
