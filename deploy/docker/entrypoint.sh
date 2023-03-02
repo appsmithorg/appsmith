@@ -334,7 +334,7 @@ init_postgres() {
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
   else
-    startEmbededPostgres=0 
+    runEmbededPostgres=0 
   fi
   
 }
