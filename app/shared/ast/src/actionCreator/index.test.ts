@@ -277,7 +277,7 @@ describe("getThenCatchBlocksFromQuery", () => {
 });
 
 describe("setThenBlockInQuery", () => {
-  it("should set then callback when catch block is present", () => {
+  it("should set then callback when both then and catch block are present", () => {
     const value = "Api1.run().then(() => { a() }).catch(() => { c() });";
 
     const result = setThenBlockInQuery(value, "() => { b() }", 2);
@@ -286,11 +286,31 @@ describe("setThenBlockInQuery", () => {
       "Api1.run().then(() => {\n  b();\n}).catch(() => {\n  c();\n});",
     );
   });
+  
+  it("should set then callback even when then block is absent", () => {
+    const value = "Api1.run()";
+
+    const result = setThenBlockInQuery(value, "() => { b() }", 2);
+
+    expect(result).toEqual(
+      "Api1.run().then(() => {\n  b();\n});",
+    );
+  });
 });
 
 describe("setCatchBlockInQuery", () => {
   it("should set catch callback appropriately", () => {
     const value = "Api2.run().then(() => { a() }).catch(() => { c() });";
+
+    const result = setCatchBlockInQuery(value, "() => { b() }", 2);
+
+    expect(result).toEqual(
+      "Api2.run().then(() => {\n  a();\n}).catch(() => {\n  b();\n});",
+    );
+  });
+
+  it("should set catch callback even when it's not present", () => {
+    const value = "Api2.run().then(() => { a() });";
 
     const result = setCatchBlockInQuery(value, "() => { b() }", 2);
 

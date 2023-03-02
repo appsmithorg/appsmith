@@ -779,28 +779,45 @@ export function setThenBlockInQuery(
             ranges: true,
             onComment: commentArray,
         });
+
+        const astWithComments = attachCommentsToAst(ast, commentArray);
+
+        // @ts-ignore
+        const thenNodeInGivenQuery = findNodeAt(astWithComments, null, null, (type, node) => type === NodeTypes.MemberExpression && node.property.name === "then");
+
+        if (!thenNodeInGivenQuery) {
+            const astClone = klona(astWithComments);
+
+            const expression = astClone.body[0].expression;
+
+            astWithComments.body[0].expression.callee.object = expression;
+            astWithComments.body[0].expression.callee.property = {
+                type: NodeTypes.Identifier,
+                name: "then",
+            };
+        }
+
+        const thenBlockNode = getAST(thenBlock, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+        const thenBlockNodeWithComments = attachCommentsToAst(thenBlockNode, commentArray);
+
+        // @ts-ignore
+        const thenCallExpressionNode = findNodeAt(astWithComments, undefined, undefined, (type, node) => type === NodeTypes.CallExpression && node?.callee?.property?.name === "then");
+
+        if (thenCallExpressionNode) {
+            // @ts-ignore
+            thenCallExpressionNode.node.arguments[0] = thenBlockNodeWithComments.body[0].expression;
+        }
+
+        requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
+
+        return requiredQuery;
     } catch (error) {
         return requiredQuery;
     }
-
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
-    const changeValueNodeFound = findNodeAt(astWithComments, 0, undefined, (type) => type === "Program");
-
-    // @ts-ignore
-    const requiredNode = changeValueNodeFound && changeValueNodeFound.node.body[0];
-    const thenBlockNode = getAST(thenBlock, {
-        locations: true,
-        ranges: true,
-        onComment: commentArray,
-    });
-    const thenBlockNodeWithComments = attachCommentsToAst(thenBlockNode, commentArray);
-    // @ts-ignore
-    ((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee.object.arguments[0] = thenBlockNodeWithComments.body[0].expression;
-
-    requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
-
-    return requiredQuery;
 }
 
 export function setCatchBlockInQuery(
@@ -818,29 +835,47 @@ export function setCatchBlockInQuery(
             ranges: true,
             onComment: commentArray,
         });
+
+        const astWithComments = attachCommentsToAst(ast, commentArray);
+
+        // @ts-ignore
+        const catchNodeInGivenQuery = findNodeAt(astWithComments, null, null, (type, node) => type === NodeTypes.MemberExpression && node.property.name === "catch");
+
+        if (!catchNodeInGivenQuery) {
+            const astClone = klona(astWithComments);
+
+            const expression = astClone.body[0].expression;
+
+            astWithComments.body[0].expression.callee.object = expression;
+            astWithComments.body[0].expression.callee.property = {
+                type: NodeTypes.Identifier,
+                name: "catch",
+            };
+        }
+
+        const catchBlockNode = getAST(catchBlock, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+        const catchBlockNodeWithComments = attachCommentsToAst(catchBlockNode, commentArray);
+
+        // @ts-ignore
+        const catchCallExpressionNode = findNodeAt(astWithComments, undefined, undefined, (type, node) => type === NodeTypes.CallExpression && node?.callee?.property?.name === "catch");
+
+        if (catchCallExpressionNode) {
+            // @ts-ignore
+            catchCallExpressionNode.node.arguments[0] = catchBlockNodeWithComments.body[0].expression;
+        }
+
+        requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
+
+        return requiredQuery;
     } catch (error) {
         return requiredQuery;
     }
-
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
-    const changeValueNodeFound = findNodeAt(astWithComments, 0, undefined, (type) => type === "Program");
-
-    // @ts-ignore
-    const requiredNode = changeValueNodeFound && changeValueNodeFound.node.body[0];
-    const catchBlockNode = getAST(catchBlock, {
-        locations: true,
-        ranges: true,
-        onComment: commentArray,
-    });
-    const catchBlockNodeWithComments = attachCommentsToAst(catchBlockNode, commentArray);
-    // @ts-ignore
-    (((requiredNode as ExpressionStatement).expression as CallExpressionNode).arguments[0] = catchBlockNodeWithComments.body[0].expression);
-
-    requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
-
-    return requiredQuery;
 }
+
 
 export function getFunctionArguments(value: string, evaluationVersion: number): string {
     let ast: Node = { end: 0, start: 0, type: "" };
