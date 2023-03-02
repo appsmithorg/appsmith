@@ -177,7 +177,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group overflow-y-auto"
+        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group h-full"
         ref={sidebarRef}
         style={{ width: props.width }}
       >
@@ -186,6 +186,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
 
         <div
           className={classNames({
+            "h-full": true,
             hidden: active && props.sideNavMode !== SideNavMode.Explorer,
           })}
         >
