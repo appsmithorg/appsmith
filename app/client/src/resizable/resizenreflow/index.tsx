@@ -609,6 +609,7 @@ export function ReflowResizable(props: ResizableProps) {
         allowResize={
           props.allowResize &&
           !(
+            isAutoLayout &&
             props.responsiveBehavior === ResponsiveBehavior.Fill &&
             handle?.affectsWidth
           )

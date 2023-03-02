@@ -241,7 +241,11 @@ export const ResizableComponent = memo(function ResizableComponent(
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
     // If resizing a fill widget "horizontally", then convert it to a hug widget.
-    if (props.responsiveBehavior === ResponsiveBehavior.Fill && affectsWidth)
+    if (
+      props.isFlexChild &&
+      props.responsiveBehavior === ResponsiveBehavior.Fill &&
+      affectsWidth
+    )
       dispatch(
         batchUpdateMultipleWidgetProperties([
           {
