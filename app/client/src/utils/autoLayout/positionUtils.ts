@@ -1,4 +1,4 @@
-import { FlexLayer } from "./autoLayoutTypes";
+import { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -254,20 +254,6 @@ export function placeWidgetsWithoutWrap(
         },
       };
       left += width;
-    }
-  }
-
-  // Trigger a position update for the widgets inside container widgets
-  for (const each of arr) {
-    for (const widget of each.children) {
-      if (widget.type === "CONTAINER_WIDGET" && widget.children?.length) {
-        widgets = updateWidgetPositions(
-          widgets,
-          widget.children[0],
-          isMobile,
-          mainCanvasWidth,
-        );
-      }
     }
   }
 
@@ -660,4 +646,59 @@ export function getTotalRowsOfAllChildren(
     bottom = Math.max(bottom, getBottomRow(child, isMobile) / divisor);
   }
   return bottom - top;
+}
+
+/**
+ * Update sizes and positions of all the canvas containing widgets in the affected flex layer and its parent canvas.
+ * Sibling canvases in flex layers are updated to recheck the minSize situations within them.
+ * @param allWidgets | CanvasWidgetsReduxState: all widgets.
+ * @param parentId | string: parent id.
+ * @param layerIndex | number: layer index of the affected flex layer.
+ * @param isMobile | boolean: is mobile viewport.
+ * @param mainCanvasWidth | number: width of the main canvas.
+ * @returns CanvasWidgetsReduxState
+ */
+export function updatePositionsOfParentAndSiblings(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  layerIndex: number,
+  isMobile: boolean,
+  mainCanvasWidth: number,
+): CanvasWidgetsReduxState {
+  let widgets = { ...allWidgets };
+  const parent = widgets[parentId];
+  if (!parent) return widgets;
+  const { children, flexLayers } = parent;
+  if (!children || !children?.length || !flexLayers || !flexLayers?.length)
+    return widgets;
+  // Extract all widgets to be updated. => parent canvas + all other canvas containing widgets in the same flex layer.
+  let widgetsToBeParsed: string[] = [parentId];
+  if (
+    layerIndex > -1 &&
+    layerIndex < flexLayers.length &&
+    flexLayers[layerIndex]?.children?.length
+  ) {
+    flexLayers[layerIndex]?.children.forEach((child: LayerChild) => {
+      const widget = widgets[child.id];
+      if (!widget || !widget.children || !widget.children?.length) return;
+      // Due to canvas / cell splitting, a widget can contain multiple canvases.
+      const canvases: string[] = widget.children?.filter(
+        (id: string) => widgets[id] && widgets[id].type === "CANVAS_WIDGET",
+      );
+      if (canvases.length) {
+        widgetsToBeParsed = [...widgetsToBeParsed, ...canvases];
+      }
+    });
+  }
+  // Update positions of all the widgets.
+  for (const widgetId of widgetsToBeParsed) {
+    widgets = updateWidgetPositions(
+      widgets,
+      widgetId,
+      isMobile,
+      mainCanvasWidth,
+    );
+  }
+
+  return widgets;
 }

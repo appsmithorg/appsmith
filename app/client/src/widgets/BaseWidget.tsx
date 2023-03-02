@@ -763,7 +763,6 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
-  mainCanvasWidth?: number;
   flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   metaWidgetChildrenStructure?: CanvasWidgetStructure[];
   referencedWidgetId?: string;
@@ -847,6 +846,8 @@ export interface WidgetProps
 }
 
 export interface WidgetCardProps {
+  rows: number;
+  columns: number;
   type: WidgetType;
   key?: string;
   displayName: string;

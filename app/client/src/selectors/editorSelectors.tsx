@@ -40,11 +40,11 @@ import {
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -259,6 +259,11 @@ export const getCurrentAppPositioningType = createSelector(
       ? AppPositioningTypes.AUTO
       : AppPositioningTypes.FIXED;
   },
+);
+
+export const getIsAutoLayout = createSelector(
+  getCurrentAppPositioningType,
+  (positioningType) => positioningType === AppPositioningTypes.AUTO,
 );
 
 export const getCurrentApplicationLayout = createSelector(

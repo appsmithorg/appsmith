@@ -1,5 +1,4 @@
-import { Colors } from "constants/Colors";
-import { invisible } from "constants/DefaultTheme";
+import { invisible, theme } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import styled, { css } from "styled-components";
 
@@ -21,49 +20,21 @@ export const VisibilityContainer = styled.div<{
     `}
 `;
 
-const VerticalResizeIndicators = css<{
+const ResizeIndicatorStyle = css<{
   showLightBorder: boolean;
-  isHovered: boolean;
 }>`
   &::after {
     position: absolute;
     content: "";
-    width: 7px;
-    height: 16px;
-    border-radius: 50%/16%;
-    background: ${Colors.GREY_1};
-    top: calc(50% - 8px);
-    left: calc(50% - 2.5px);
-    border: ${(props) => {
-      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
-    }};
-    outline: 1px solid ${Colors.GREY_1};
-  }
-  &:hover::after {
-    background: #f86a2b;
-  }
-`;
-
-const HorizontalResizeIndicators = css<{
-  showLightBorder: boolean;
-  isHovered: boolean;
-}>`
-  &::after {
-    position: absolute;
-    content: "";
-    width: 16px;
-    height: 7px;
-    border-radius: 16%/50%;
-    border: ${(props) => {
-      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
-    }};
-    background: ${Colors.GREY_1};
-    top: calc(50% - 2.5px);
-    left: calc(50% - 8px);
-    outline: 1px solid ${Colors.GREY_1};
-  }
-  &:hover::after {
-    background: #f86a2b;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: ${(props) =>
+      props.showLightBorder
+        ? theme.colors.widgetLightBorder
+        : theme.colors.widgetBorder};
+    top: calc(50% - 2px);
+    left: calc(50% - 2px);
   }
 `;
 
@@ -71,27 +42,29 @@ export const EdgeHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
-  isHovered: boolean;
 }>`
   position: absolute;
   width: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   height: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   &::before {
     position: absolute;
-    background: "transparent";
+    background: ${(props) => {
+      if (props.showLightBorder) return theme.colors.widgetLightBorder;
+      if (props.showAsBorder) return theme.colors.widgetMultiSelectBorder;
+      return theme.colors.widgetBorder;
+    }};
     content: "";
   }
+  ${(props) =>
+    props.showAsBorder || props.disableDot ? "" : ResizeIndicatorStyle}
 `;
 
 export const VerticalHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
-  isHovered: boolean;
 }>`
   ${EdgeHandleStyles}
-  ${(props) =>
-    props.showAsBorder || props.disableDot ? "" : VerticalResizeIndicators}
   top:${~(WIDGET_PADDING - 1) + 1}px;
   height: calc(100% + ${2 * WIDGET_PADDING - 1}px);
   ${(props) =>
@@ -108,11 +81,8 @@ export const HorizontalHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
-  isHovered: boolean;
 }>`
   ${EdgeHandleStyles}
-  ${(props) =>
-    props.showAsBorder || props.disableDot ? "" : HorizontalResizeIndicators}
   left: ${~WIDGET_PADDING + 1}px;
   width: calc(100% + ${2 * WIDGET_PADDING}px);
   ${(props) =>
@@ -127,23 +97,23 @@ export const HorizontalHandleStyles = css<{
 
 export const LeftHandleStyles = styled.div`
   ${VerticalHandleStyles}
-  left: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1}px;
+  left: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING}px;
 `;
 
 export const RightHandleStyles = styled.div`
   ${VerticalHandleStyles};
-  right: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3}px;
+  right: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1}px;
   height: calc(100% + ${2 * WIDGET_PADDING}px);
 `;
 
 export const TopHandleStyles = styled.div`
   ${HorizontalHandleStyles};
-  top: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1}px;
+  top: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING}px;
 `;
 
 export const BottomHandleStyles = styled.div`
   ${HorizontalHandleStyles};
-  bottom: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3}px;
+  bottom: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING}px;
 `;
 
 export const CornerHandleStyles = css`

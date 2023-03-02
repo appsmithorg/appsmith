@@ -18,7 +18,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import RadioGroupComponent from "../component";
 import { RadioOption } from "../constants";
-import { isAutoLayout } from "selectors/mainCanvasSelectors";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 /**
  * Validation rules:

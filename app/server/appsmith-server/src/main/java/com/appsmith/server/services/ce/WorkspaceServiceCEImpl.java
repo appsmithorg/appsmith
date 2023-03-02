@@ -241,7 +241,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return repository.save(createdWorkspace);
     }
 
-    protected Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
+    @Override
+    public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
         return Mono.just(TRUE);
     }
 
@@ -269,7 +270,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         // Administrator permission group
         PermissionGroup adminPermissionGroup = new PermissionGroup();
         adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
-        adminPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        adminPermissionGroup.setDefaultDomainId(workspaceId);
+        adminPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
         adminPermissionGroup.setPermissions(Set.of());
@@ -277,7 +279,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         // Developer permission group
         PermissionGroup developerPermissionGroup = new PermissionGroup();
         developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
-        developerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        developerPermissionGroup.setDefaultDomainId(workspaceId);
+        developerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
         developerPermissionGroup.setPermissions(Set.of());
@@ -285,7 +288,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         // App viewer permission group
         PermissionGroup viewerPermissionGroup = new PermissionGroup();
         viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
-        viewerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        viewerPermissionGroup.setDefaultDomainId(workspaceId);
+        viewerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
         viewerPermissionGroup.setPermissions(Set.of());

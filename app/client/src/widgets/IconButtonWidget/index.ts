@@ -31,6 +31,10 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    defaults: {
+      rows: 4,
+      columns: 2.21,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,

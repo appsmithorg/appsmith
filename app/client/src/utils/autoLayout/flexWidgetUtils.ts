@@ -1,3 +1,5 @@
+import { getIsAutoLayout } from "selectors/editorSelectors";
+import store from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetSizeConfig } from "widgets/constants";
 
@@ -208,4 +210,9 @@ export function getWidgetMinMaxDimensionsInPixel(
   );
 
   return returnValue;
+}
+
+export function isAutoLayout() {
+  const appState = store.getState();
+  return !!getIsAutoLayout(appState);
 }

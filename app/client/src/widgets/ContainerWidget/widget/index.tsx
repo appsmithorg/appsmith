@@ -21,6 +21,7 @@ import { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -150,10 +151,6 @@ export class ContainerWidget extends BaseWidget<
     return {};
   }
 
-  componentDidMount(): void {
-    super.componentDidMount();
-  }
-
   static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -226,13 +223,15 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    //ToDo: Ashok Need a better way of doing this.
     const useAutoLayout = this.props.positioning
-      ? this.props.positioning !== Positioning.Fixed
+      ? this.props.positioning === Positioning.Vertical
       : false;
-    const shouldScroll = props.shouldScrollContents && !useAutoLayout;
+    const isAutoHeightEnabled: boolean =
+      isAutoHeightEnabledForWidget(this.props) &&
+      !isAutoHeightEnabledForWidget(this.props, true) &&
+      !useAutoLayout;
     return (
-      <ContainerComponent {...props} shouldScrollContents={shouldScroll}>
+      <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}

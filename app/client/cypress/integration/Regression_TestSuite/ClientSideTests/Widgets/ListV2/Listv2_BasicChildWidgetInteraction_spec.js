@@ -60,7 +60,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("1.  Child widgets", () => {
+  it("1. Child widgets", () => {
     // Drop Input widget
     dragAndDropToWidget("inputwidgetv2", "containerwidget", {
       x: 250,
@@ -92,6 +92,8 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     cy.get(publishLocators.selectwidget).should("exist");
 
     cy.PublishtheApp();
+
+    cy.wait(3000);
 
     // open the select widget
     cy.get(publishLocators.selectwidget)
@@ -155,16 +157,18 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
+    cy.wait(3000);
+
     // Verify checked
     cy.get(publishLocators.switchwidget)
       .find("input")
       .should("be.checked");
-
     // Uncheck
     cy.get(publishLocators.switchwidget)
       .find("label")
       .first()
-      .click({ force: true });
+      .click()
+      .wait(500);
 
     // Verify unchecked
     cy.get(publishLocators.switchwidget)
@@ -184,6 +188,8 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     cy.get(publishLocators.radioWidget).should("exist");
 
     cy.PublishtheApp();
+
+    cy.wait(3000);
 
     // Check radio with value=1 is selected
     checkSelectedRadioValue(publishLocators.radioWidget, "Y");
