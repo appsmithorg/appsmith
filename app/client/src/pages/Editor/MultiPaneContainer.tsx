@@ -78,6 +78,7 @@ const MultiPaneContainer = () => {
   const showPropertyPane = isMultiPane
     ? paneCount === PaneLayoutOptions.THREE_PANE
     : true;
+
   return (
     <>
       <Container className="relative w-full overflow-x-hidden flex">
