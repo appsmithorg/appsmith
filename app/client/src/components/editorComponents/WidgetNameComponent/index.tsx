@@ -1,5 +1,4 @@
 import { AppState } from "@appsmith/reducers";
-import { Popover2 } from "@blueprintjs/popover2";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { Layers } from "constants/Layers";
 import { WidgetType } from "constants/WidgetConstants";
@@ -40,7 +39,9 @@ const PositionStyle = styled.div<{
   isSnipingMode: boolean;
 }>`
   height: ${(props) => props.theme.spaces[10]}px;
+  position: absolute;
   ${(props) => (props.isSnipingMode ? "left: -7px" : "left: 0px")};
+  top: -${(props) => props.theme.spaces[10]}px;
   display: flex;
   cursor: pointer;
   z-index: ${Layers.widgetName};
@@ -252,62 +253,29 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     (props.widgetProps.rightColumn - props.widgetProps.leftColumn) *
     props.widgetProps.parentColumnSpace;
   return (
-    <Popover2
-      autoFocus={false}
-      content={
-        // adding this here as well to instantly remove popper content. popper seems to be adding a transition state before hiding itself.
-        // I could not find a way to turn it off.
-        showWidgetName ? (
-          <PositionStyle
-            className={isSnipingMode ? "t--settings-sniping-control" : ""}
-            data-testid="t--settings-controls-positioned-wrapper"
-            draggable={allowDrag}
-            id={"widget_name_" + props.widgetId}
-            isSnipingMode={isSnipingMode}
-            onDragStart={onDragStart}
-          >
-            <ControlGroup>
-              <SettingsControl
-                activity={currentActivity}
-                errorCount={shouldHideErrors ? 0 : props.errorCount}
-                name={props.widgetName}
-                toggleSettings={togglePropertyEditor}
-                widgetWidth={widgetWidth}
-              />
-            </ControlGroup>
-          </PositionStyle>
-        ) : (
-          <div />
-        )
-      }
-      enforceFocus={false}
-      hoverCloseDelay={0}
-      isOpen={showWidgetName}
-      minimal
-      modifiers={{
-        offset: {
-          enabled: true,
-          options: {
-            // offset: popperOffset,
-          },
-        },
-        flip: {
-          enabled: false,
-        },
-        computeStyles: {
-          options: {
-            roundOffsets: false,
-          },
-        },
-      }}
-      placement="top-start"
-      popoverClassName="widget-name-popper"
-      portalContainer={document.getElementById("widgets-editor") || undefined}
-      targetTagName="div"
-      usePortal
-    >
+    <>
+      {showWidgetName && (
+        <PositionStyle
+          className={isSnipingMode ? "t--settings-sniping-control" : ""}
+          data-testid="t--settings-controls-positioned-wrapper"
+          draggable={allowDrag}
+          id={"widget_name_" + props.widgetId}
+          isSnipingMode={isSnipingMode}
+          onDragStart={onDragStart}
+        >
+          <ControlGroup>
+            <SettingsControl
+              activity={currentActivity}
+              errorCount={shouldHideErrors ? 0 : props.errorCount}
+              name={props.widgetName}
+              toggleSettings={togglePropertyEditor}
+              widgetWidth={widgetWidth}
+            />
+          </ControlGroup>
+        </PositionStyle>
+      )}
       {props.children}
-    </Popover2>
+    </>
   );
 }
 
