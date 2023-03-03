@@ -7,7 +7,7 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Test case while reloading and on submission", function() {
+  it("1. Test case while reloading and on submission", function() {
     /**
      * Use case:
      * 1. Open Datasource editor
@@ -34,10 +34,11 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
 
     //Step3 & 4
     cy.get(`${datasource.datasourceCard}`)
-      .contains("Users")
-      .get(`${datasource.createQuery}`)
-      .last()
-      .click({ force: true });
+    .filter(":contains('Users')")
+    .last()
+    .within(() => {
+      cy.get(`${datasource.createQuery}`).click({ force: true });
+    });
 
     //Step5.1: Click the editing field
     cy.get(".t--action-name-edit-field").click({ force: true });
