@@ -37,10 +37,10 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   closedFunction.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
-  ${ScriptTemplate}?.apply(THIS_CONTEXT, ARGUMENTS)
+  (${ScriptTemplate})?.apply(THIS_CONTEXT, ARGUMENTS)
   `,
   [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
-  Promise.resolve(${ScriptTemplate}?.apply(THIS_CONTEXT, ARGUMENTS))
+  Promise.resolve((${ScriptTemplate})?.apply(THIS_CONTEXT, ARGUMENTS))
   `,
   [EvaluationScriptType.TRIGGERS]: `
   function closedFunction () {

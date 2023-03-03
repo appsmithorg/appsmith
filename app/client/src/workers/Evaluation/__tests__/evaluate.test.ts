@@ -81,8 +81,7 @@ describe("evaluateSync", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    const result = wrongJS
-    return result;
+    return wrongJS
   }
   closedFunction.call(THIS_CONTEXT)
   `,
@@ -103,8 +102,7 @@ describe("evaluateSync", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    const result = {}.map()
-    return result;
+    return {}.map()
   }
   closedFunction.call(THIS_CONTEXT)
   `,
@@ -133,8 +131,7 @@ describe("evaluateSync", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    const result = setImmediate(() => {}, 100)
-    return result;
+    return setImmediate(() => {}, 100)
   }
   closedFunction.call(THIS_CONTEXT)
   `,
