@@ -481,7 +481,7 @@ export class DataSources {
 
   public NavigateToActiveTab() {
     this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab,0,true);
+    this.agHelper.GetNClick(this._activeTab, 0, true);
   }
 
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
@@ -506,7 +506,11 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
   }
 
-  public CreateQuery(datasourceName: string) {
+  public CreateQueryFromActiveTab(
+    datasourceName: string,
+    toNavigateToActive = true,
+  ) {
+    if (toNavigateToActive) this.NavigateToActiveTab();
     cy.get(this._datasourceCard, { withinSubject: null })
       .find(this._activeDS)
       .contains(datasourceName)
@@ -517,6 +521,15 @@ export class DataSources {
         cy.get(this._createQuery).click({ force: true });
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
+  }
+
+  CreateQueryAfterDSSaved(query = "", queryName = "") {
+    this.agHelper.GetNClick(this._createQuery);
+    if (queryName) this.agHelper.RenameWithInPane(queryName);
+    if (query) {
+      this.agHelper.GetNClick(this._templateMenu);
+      this.EnterQuery(query);
+    }
   }
 
   DeleteQuery(queryName: string) {
@@ -655,7 +668,7 @@ export class DataSources {
   public CreateDataSource(
     dsType: "Postgres" | "Mongo" | "MySql",
     navigateToCreateNewDs = true,
-    verifyBeforeSave = true,
+    testNSave = true,
   ) {
     let guid: any;
     let dataSourceName = "";
@@ -670,7 +683,7 @@ export class DataSources {
       else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
       else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
 
-      if (verifyBeforeSave) {
+      if (testNSave) {
         this.TestSaveDatasource();
       } else {
         this.SaveDatasource();
@@ -679,14 +692,12 @@ export class DataSources {
     });
   }
 
-  public CreateNewQueryInDS(dsName: string, query = "", queryName = "") {
+  public CreateQueryFromOverlay(dsName: string, query = "", queryName = "", sleep = 500) {
     this.ee.CreateNewDsQuery(dsName);
-
     if (queryName) this.agHelper.RenameWithInPane(queryName);
-
     if (query) {
       this.agHelper.GetNClick(this._templateMenu);
-      this.EnterQuery(query);
+      this.EnterQuery(query, sleep);
     }
   }
 
