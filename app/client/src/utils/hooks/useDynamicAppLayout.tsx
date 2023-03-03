@@ -97,7 +97,6 @@ export const useDynamicAppLayout = () => {
   const calculateCanvasWidth = () => {
     const { maxWidth, minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
-    debugger;
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (

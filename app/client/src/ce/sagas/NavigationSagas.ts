@@ -18,11 +18,11 @@ import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
-import {
-  setLastSelectedWidget,
-  setSelectedWidgets,
-} from "actions/widgetSelectionActions";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+// import {
+//   setLastSelectedWidget,
+//   setSelectedWidgets,
+// } from "actions/widgetSelectionActions";
+// import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
   contextSwitchingSaga,
   isPageChange,
@@ -97,27 +97,27 @@ function* logNavigationAnalytics(payload: {
   });
 }
 
-function* setSelectedWidgetsSaga() {
-  const pathname = window.location.pathname;
-  const entityInfo = identifyEntityFromPath(pathname);
-  let widgets: string[] | undefined;
-  let lastSelectedWidget: string | undefined;
-  if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
-    widgets = entityInfo.id.split(",");
-    if (widgets.length) {
-      lastSelectedWidget = widgets[widgets.length - 1];
-    }
-  } else if (entityInfo.entity === FocusEntity.CANVAS) {
-    widgets = [];
-    lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
-  }
-  if (Array.isArray(widgets)) {
-    yield put(setSelectedWidgets(widgets));
-  }
-  if (lastSelectedWidget) {
-    yield put(setLastSelectedWidget(lastSelectedWidget));
-  }
-}
+// function* setSelectedWidgetsSaga() {
+//   const pathname = window.location.pathname;
+//   const entityInfo = identifyEntityFromPath(pathname);
+//   let widgets: string[] | undefined;
+//   let lastSelectedWidget: string | undefined;
+//   if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
+//     widgets = entityInfo.id.split(",");
+//     if (widgets.length) {
+//       lastSelectedWidget = widgets[widgets.length - 1];
+//     }
+//   } else if (entityInfo.entity === FocusEntity.CANVAS) {
+//     widgets = [];
+//     lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
+//   }
+//   if (Array.isArray(widgets)) {
+//     yield put(setSelectedWidgets(widgets));
+//   }
+//   if (lastSelectedWidget) {
+//     yield put(setLastSelectedWidget(lastSelectedWidget));
+//   }
+// }
 
 function* updateEditorTabsSaga(
   entityInfo: FocusEntityInfo,
