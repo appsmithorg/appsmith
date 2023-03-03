@@ -32,33 +32,21 @@ export const ScriptTemplate = "<<string>>";
 export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
   function closedFunction () {
-    const result = ${ScriptTemplate}
-    return result;
+    return ${ScriptTemplate}
   }
   closedFunction.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
-  function callback (script) {
-    const userFunction = script;
-    const result = userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
-    return result;
-  }
-  callback(${ScriptTemplate})
+  ${ScriptTemplate}?.apply(THIS_CONTEXT, ARGUMENTS)
   `,
   [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
-  async function callback (script) {
-    const userFunction = script;
-    const result = await userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
-    return result;
-  }
-  callback(${ScriptTemplate})
+  Promise.resolve(${ScriptTemplate}?.apply(THIS_CONTEXT, ARGUMENTS))
   `,
   [EvaluationScriptType.TRIGGERS]: `
-  async function closedFunction () {
-    const result = await ${ScriptTemplate};
-    return result;
+  function closedFunction () {
+    return Promise.resolve(${ScriptTemplate})
   }
-  closedFunction.call(THIS_CONTEXT);
+  closedFunction.call(THIS_CONTEXT)
   `,
 };
 
