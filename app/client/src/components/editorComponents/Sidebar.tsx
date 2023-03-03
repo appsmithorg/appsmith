@@ -34,7 +34,14 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
+import JSDependencies from "../../pages/Editor/Explorer/Libraries";
+import Datasources from "../../pages/Editor/Explorer/Datasources";
+import { SideNavMode } from "pages/Editor/MultiPaneContainer";
+import { theme } from "constants/DefaultTheme";
+
 type Props = {
+  setSideNavMode?: (sideNavMode: SideNavMode | undefined) => void;
+  sideNavMode?: SideNavMode;
   width: number;
   onWidthChange?: (width: number) => void;
   onDragEnd?: () => void;
@@ -65,15 +72,23 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
+  useEffect(() => {
+    if (isMultiPane) {
+      props.sideNavMode && dispatch(setExplorerActiveAction(true));
+      !props.sideNavMode && dispatch(setExplorerActiveAction(false));
+    }
+  }, [isMultiPane, props.sideNavMode]);
 
   // registering event listeners
   useEffect(() => {
-    document.addEventListener("mousemove", onMouseMove);
+    if (!isMultiPane) {
+      document.addEventListener("mousemove", onMouseMove);
 
-    return () => {
-      document.removeEventListener("mousemove", onMouseMove);
-    };
-  }, [active, pinned, resizer.resizing]);
+      return () => {
+        document.removeEventListener("mousemove", onMouseMove);
+      };
+    }
+  }, [active, pinned, resizer.resizing, isMultiPane]);
 
   /**
    * passing the event to touch move on mouse move
@@ -147,31 +162,105 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     });
   }, [resizerLeft, pinned, isPreviewMode]);
 
+  const handleClickOutside = (event: any) => {
+    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+      const menus = document.getElementsByClassName("t--entity-context-menu");
+      const node = menus[0];
+      if (!document.body.contains(node)) {
+        dispatch(setExplorerActiveAction(false));
+        dispatch({
+          type: ReduxActionTypes.SIDE_NAV_MODE,
+          payload: undefined,
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isMultiPane) {
+      document.addEventListener("click", handleClickOutside, true);
+      return () => {
+        document.removeEventListener("click", handleClickOutside, true);
+      };
+    }
+  }, [isMultiPane]);
+
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
+        [`js-entity-explorer t--entity-explorer transform flex h-[inherit] border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
+        "transition-all duration-400": !isMultiPane,
         relative: pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewMode,
       })}
       id={SIDEBAR_ID}
+      style={{
+        ...(isMultiPane && {
+          left: (!pinned && !active) || isPreviewMode ? "" : "55px",
+          height: `calc(100% - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`,
+        }),
+      }}
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group"
+        className={classNames({
+          "flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group": true,
+          "h-full": isMultiPane,
+        })}
         ref={sidebarRef}
         style={{ width: props.width }}
       >
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
-        {/* PagesContainer */}
-        <Pages />
-        {/* Popover that contains the bindings info */}
-        <EntityProperties />
-        {/* Contains entity explorer & widgets library along with a switcher*/}
-        <Explorer />
+
+        {isMultiPane && (
+          <>
+            <div
+              className={classNames({
+                "h-full": true,
+                hidden: active && props.sideNavMode !== SideNavMode.Explorer,
+              })}
+            >
+              {/* PagesContainer */}
+              <Pages />
+              {/* Popover that contains the bindings info */}
+              <EntityProperties />
+              {/* Contains entity explorer & widgets library along with a switcher*/}
+              <Explorer />
+            </div>
+
+            {/* Libraries */}
+            <div
+              className={classNames({
+                hidden: active && props.sideNavMode !== SideNavMode.Libraries,
+              })}
+            >
+              <JSDependencies />
+            </div>
+
+            {/* Datasources */}
+            <div
+              className={classNames({
+                hidden: active && props.sideNavMode !== SideNavMode.DataSources,
+              })}
+            >
+              <Datasources />
+            </div>
+          </>
+        )}
+
+        {!isMultiPane && (
+          <>
+            {/* PagesContainer */}
+            <Pages />
+            {/* Popover that contains the bindings info */}
+            <EntityProperties />
+            {/* Contains entity explorer & widgets library along with a switcher*/}
+            <Explorer />
+          </>
+        )}
       </div>
       {/* RESIZER */}
       <div

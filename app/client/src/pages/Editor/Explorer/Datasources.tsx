@@ -40,6 +40,7 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;
@@ -62,6 +63,7 @@ const Datasources = React.memo(() => {
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
@@ -129,9 +131,10 @@ const Datasources = React.memo(() => {
       entityId="datasources_section"
       icon={null}
       isDefaultExpanded={
-        isDatasourcesOpen === null || isDatasourcesOpen === undefined
+        isMultiPane ||
+        (isDatasourcesOpen === null || isDatasourcesOpen === undefined
           ? false
-          : isDatasourcesOpen
+          : isDatasourcesOpen)
       }
       isSticky
       name="Datasources"

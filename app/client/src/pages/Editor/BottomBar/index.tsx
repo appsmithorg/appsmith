@@ -8,6 +8,8 @@ import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
 import { Icon, IconSize } from "design-system-old";
 import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
+import { useSelector } from "react-redux";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Container = styled.div`
   width: 100%;
@@ -22,8 +24,18 @@ const Container = styled.div`
 `;
 
 export default function BottomBar(props: { className?: string }) {
+  const isMultiPane = useSelector(isMultiPaneActive);
   return (
-    <Container className={props.className ?? ""}>
+    <Container
+      className={props.className ?? ""}
+      style={{
+        ...(isMultiPane && {
+          width: "calc(100% - 55px)",
+          bottom: "0px",
+          left: "55px",
+        }),
+      }}
+    >
       <QuickGitActions />
       <div className="flex justify-between items-center gap-1">
         <ManualUpgrades showTooltip>

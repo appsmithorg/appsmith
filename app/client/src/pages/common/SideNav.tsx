@@ -3,15 +3,23 @@ import styled from "styled-components";
 import explorerIcon from "assets/icons/header/explorer-side-nav.svg";
 import dataIcon from "assets/icons/header/database-side-nav.svg";
 import libIcon from "assets/icons/header/library-side-nav.svg";
+import { SideNavMode } from "pages/Editor/MultiPaneContainer";
+import { Icon, IconSize } from "design-system-old";
+import { useDispatch } from "react-redux";
+import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
+import {
+  filterCategories,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
+import classNames from "classnames";
 
 export const SIDE_NAV_WIDTH = 55;
 
 const Container = styled.div`
+  display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
   width: ${SIDE_NAV_WIDTH}px;
-  display: block;
 
   background: #ffffff;
   box-shadow: 1px 0 0 #f1f1f1;
@@ -21,52 +29,91 @@ const Container = styled.div`
 `;
 
 const Button = styled.div`
+  // for icon alignment inside button
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 3px;
 
+  cursor: pointer;
   width: ${SIDE_NAV_WIDTH}px;
   height: 50px;
 
-  /* Grays/White
-
-  White color mostly used on backgrounds. We’re minimal and clean product and we use a lot of white.
-  */
   background: #ffffff;
   box-shadow: inset -1px -1px 0px #e8e8e8;
-
-  /* Inside auto layout */
-
-  img {
-    height: 20px;
-    width: 18px;
-  }
-
-  span {
-    /* Explorer */
-    font-style: normal;
-    font-weight: 600;
-    font-size: 8px;
-    line-height: 140%;
-    /* or 11px */
-
-    color: #000000;
-  }
 `;
 
-function SideNav() {
+function SideNav(props: {
+  sideNavMode: SideNavMode | undefined;
+  onSelect: (sideNavMode: SideNavMode | undefined) => void;
+}) {
+  const dispatch = useDispatch();
   return (
     <Container>
-      <Button>
+      <Button
+        className={classNames({
+          "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.Explorer,
+        })}
+        onClick={() => {
+          if (props.sideNavMode === SideNavMode.Explorer)
+            props.onSelect(undefined);
+          else props.onSelect(SideNavMode.Explorer);
+        }}
+      >
         <img alt="Explorer" src={explorerIcon} />
       </Button>
-      <Button>
+      <Button
+        className={classNames({
+          "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.DataSources,
+        })}
+        onClick={() => {
+          if (props.sideNavMode === SideNavMode.DataSources)
+            props.onSelect(undefined);
+          else props.onSelect(SideNavMode.DataSources);
+        }}
+      >
         <img alt="Datasources" src={dataIcon} />
       </Button>
-      <Button>
+      <Button
+        className={classNames({
+          "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.Libraries,
+        })}
+        onClick={() => {
+          if (props.sideNavMode === SideNavMode.Libraries)
+            props.onSelect(undefined);
+          else props.onSelect(SideNavMode.Libraries);
+        }}
+      >
         <img alt="library" src={libIcon} />
+      </Button>
+
+      {/* Bottom buttons */}
+      <Button
+        className="mt-auto"
+        onClick={() => {
+          dispatch(
+            setGlobalSearchCategory(
+              filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
+            ),
+          );
+        }}
+      >
+        <Icon fillColor="#828080" name="search" size={IconSize.XXXXL} />
+        <span className="text-[9px]">Search</span>
+      </Button>
+
+      <Button
+        onClick={() => {
+          props.onSelect(undefined);
+          dispatch(openAppSettingsPaneAction());
+        }}
+      >
+        <Icon
+          fillColor="#828080"
+          name="settings-2-line"
+          size={IconSize.XXXXL}
+        />
+        <span className="text-[9px]">Settings</span>
       </Button>
     </Container>
   );
