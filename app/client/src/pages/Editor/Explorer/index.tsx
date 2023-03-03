@@ -28,6 +28,7 @@ function ExplorerContent() {
     getIsFirstTimeUserOnboardingEnabled,
   );
   const pageId = useSelector(getCurrentPageId);
+  const isMultiPane = useSelector(isMultiPaneActive);
   const location = useLocation();
   const switches = useMemo(
     () => [
@@ -73,7 +74,6 @@ function ExplorerContent() {
     dispatch(setExplorerSwitchIndex(index));
   };
   const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
-  const isMultiPane = useSelector(isMultiPaneActive);
 
   useEffect(() => {
     const currentIndex = openWidgetPanel ? 1 : 0;
@@ -86,7 +86,9 @@ function ExplorerContent() {
     <div
       className={`flex-1 flex flex-col overflow-hidden ${tailwindLayers.entityExplorer}`}
       style={{
-        maxHeight: `calc(100% - 164px)`, // 164px page list max-height
+        ...(isMultiPane && {
+          maxHeight: `calc(100% - 164px)`, // 164px page list max-height
+        }),
       }}
     >
       {!isMultiPane && (

@@ -12,12 +12,10 @@ import { useSelector } from "react-redux";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Container = styled.div`
-  width: calc(100% - 55px);
+  width: 100%;
   height: ${(props) => props.theme.bottomBarHeight};
   display: flex;
   position: fixed;
-  bottom: 0;
-  left: 55px;
   justify-content: space-between;
   background-color: ${(props) => props.theme.colors.editorBottomBar.background};
   z-index: ${Layers.bottomBar};
@@ -28,7 +26,16 @@ const Container = styled.div`
 export default function BottomBar(props: { className?: string }) {
   const isMultiPane = useSelector(isMultiPaneActive);
   return (
-    <Container className={props.className ?? ""}>
+    <Container
+      className={props.className ?? ""}
+      style={{
+        ...(isMultiPane && {
+          width: "calc(100% - 55px)",
+          bottom: "0px",
+          left: "55px",
+        }),
+      }}
+    >
       <QuickGitActions />
       <div className="flex justify-between items-center gap-1">
         <ManualUpgrades showTooltip>
@@ -41,7 +48,7 @@ export default function BottomBar(props: { className?: string }) {
         </ManualUpgrades>
         <HelpButton />
         <DebuggerTrigger />
-        {isMultiPane && <PaneCountSwitcher />}
+        <PaneCountSwitcher />
       </div>
     </Container>
   );

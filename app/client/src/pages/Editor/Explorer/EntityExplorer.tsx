@@ -6,8 +6,10 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
+import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
 import { NonIdealState, Classes } from "@blueprintjs/core";
+import JSDependencies from "./Libraries";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -21,6 +23,7 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
@@ -29,8 +32,10 @@ import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Wrapper = styled.div`
+  height: 100%; // check height and scroll
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -65,6 +70,11 @@ const NoResult = styled(NonIdealState)`
     }
   }
 `;
+
+const StyledDivider = styled(Divider)`
+  border-bottom-color: #f0f0f0;
+`;
+
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -90,6 +100,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
   }, [isFirstTimeUserOnboardingEnabled, pageId]);
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
@@ -138,6 +149,13 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           icon={<NoEntityFoundSvg />}
           title="No entities found"
         />
+      )}
+      {!isMultiPane && (
+        <>
+          <StyledDivider />
+          <Datasources />
+          <JSDependencies />
+        </>
       )}
       <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
