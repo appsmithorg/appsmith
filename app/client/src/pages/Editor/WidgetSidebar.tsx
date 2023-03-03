@@ -19,7 +19,7 @@ const StyledWrapper = styled.div<{ isMultiPane: boolean; isActive: boolean }>`
     props.isMultiPane
       ? `
   min-width: 185px;
-  max-width: 185px;
+  max-width: 265px;
   height: inherit;
   overflow-y: auto;
   overflow-x: hidden;
@@ -108,7 +108,6 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         <div
           className={classNames({
             "grid items-stretch gap-3 justify-items-stretch grid-cols-3": true,
-            "grid-cols-2": isMultiPane,
           })}
         >
           {filteredCards.map((card) => (
