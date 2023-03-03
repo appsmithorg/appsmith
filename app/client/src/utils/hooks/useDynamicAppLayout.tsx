@@ -33,7 +33,7 @@ import {
 import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 
 const BORDERS_WIDTH = 2;
-const GUTTER_WIDTH = 72;
+const GUTTER_WIDTH = 0;
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
@@ -97,6 +97,7 @@ export const useDynamicAppLayout = () => {
   const calculateCanvasWidth = () => {
     const { maxWidth, minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
+    debugger;
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (
@@ -122,8 +123,7 @@ export const useDynamicAppLayout = () => {
     }
 
     if (isMultiPane) {
-      calculatedWidth =
-        screenWidth - scrollbarWidth() - tabsPaneWidth - 100 - 185;
+      calculatedWidth = screenWidth - scrollbarWidth() - tabsPaneWidth - 60;
       if (paneCount === 3) calculatedWidth -= propertyPaneWidth;
     }
 
@@ -164,7 +164,6 @@ export const useDynamicAppLayout = () => {
         tabsPaneWidth -
         SIDE_NAV_WIDTH -
         GUTTER_WIDTH -
-        185 -
         BORDERS_WIDTH;
       if (paneCount === 3) canvasSpace -= propertyPaneWidth;
       // Scale will always be between 0.5 to 1

@@ -97,7 +97,7 @@ function CanvasContainer() {
   }
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
-  const heightWithTopMargin = `calc(100vh - 2.25rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
+  const heightWithTopMargin = `calc(100vh - 0.25rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
   return (
     <Container
       background={
@@ -109,7 +109,7 @@ function CanvasContainer() {
         [`${getCanvasClassName()} scrollbar-thin`]: true,
         "mt-0": !shouldHaveTopMargin,
         "mt-4": showCanvasTopSection,
-        "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
+        "mt-1": shouldHaveTopMargin && !showCanvasTopSection,
       })}
       id={"canvas-viewport"}
       key={currentPageId}

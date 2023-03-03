@@ -15,8 +15,9 @@ const CanvasPane = () => {
   if (paneCount === PaneLayoutOptions.THREE_PANE) {
     width -= propertyPaneWidth;
   }
+  width = width - 5;
   return (
-    <div className="ml-5" style={{ width: width.toFixed(0) + "px" }}>
+    <div className="ml-1" style={{ width: width.toFixed(0) + "px" }}>
       <WidgetsEditor />
     </div>
   );

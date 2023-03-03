@@ -20,7 +20,6 @@ import {
   TABS_PANE_MIN_WIDTH,
 } from "reducers/uiReducers/multiPaneReducer";
 import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
-import WidgetSidebar from "./WidgetSidebar";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 const Container = styled.div`
@@ -89,7 +88,6 @@ const MultiPaneContainer = () => {
         />
         <SideNav onSelect={setSideNavMode} sideNavMode={sideNavMode} />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
-        <WidgetSidebar isActive />
         <CanvasPane />
         {showPropertyPane && (
           <PropertyPanePane>
