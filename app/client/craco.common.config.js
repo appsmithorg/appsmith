@@ -68,8 +68,8 @@ module.exports = {
     {
       plugin: {
         // Prioritize the local src directory over node_modules.
-        // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist,
-        // e.g., when the dirname is `entities`.
+        // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist –
+        // e.g., when `<dirname>` is `entities`: https://github.com/appsmithorg/appsmith/pull/20964#discussion_r1124782356
         overrideWebpackConfig: ({ webpackConfig }) => {
           webpackConfig.resolve.modules = [
             path.resolve(__dirname, "src"),
