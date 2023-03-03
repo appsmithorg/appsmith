@@ -428,19 +428,20 @@ abstract class BaseWidget<
    */
   showWidgetName(content: ReactNode, showControls = false) {
     return !this.props.disablePropertyPane ? (
-      <WidgetNameComponent
-        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
-        isFlexChild={!!this.props.isFlexChild}
-        parentId={this.props.parentId}
-        showControls={showControls}
-        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
-        type={this.props.type}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        widgetProps={this.props}
-      >
+      <>
+        <WidgetNameComponent
+          errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+          isFlexChild={!!this.props.isFlexChild}
+          parentId={this.props.parentId}
+          showControls={showControls}
+          topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+          type={this.props.type}
+          widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
+          widgetProps={this.props}
+        />
         {content}
-      </WidgetNameComponent>
+      </>
     ) : (
       content
     );
