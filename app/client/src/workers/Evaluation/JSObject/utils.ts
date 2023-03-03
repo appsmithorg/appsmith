@@ -67,6 +67,7 @@ export const updateJSCollectionInUnEvalTree = (
             `${jsCollection.name}.${action.name}.data`,
             data,
           );
+          set(oldConfig.meta[action.name], `isAsync`, action.isAsync);
         }
       } else {
         const reactivePaths = oldConfig.reactivePaths;
