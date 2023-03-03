@@ -334,9 +334,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     }
 
                     // Now update the policies to change the access to the application
-                    return generateAndSetPoliciesForPublicView(
+                    return generateAndSetPoliciesForPublicViewOrDefaultApplicationRole(
                             application,
                             publicPermissionGroupId,
+                            Set.of(applicationPermission.getReadPermission()),
+                            Set.of(datasourcePermission.getExecutePermission()),
                             applicationAccessDTO.getPublicAccess()
                     );
                 })
@@ -384,17 +386,20 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, String permissionGroupId,
-                                                                            Boolean addViewAccess) {
+    protected Mono<? extends Application> generateAndSetPoliciesForPublicViewOrDefaultApplicationRole(Application application,
+                                                                                                      String permissionGroupId,
+                                                                                                      Set<AclPermission> applicationPermissions,
+                                                                                                      Set<AclPermission> datasourcePermissions,
+                                                                                                      Boolean addViewAccess) {
 
         Map<String, Policy> applicationPolicyMap = policyUtils
-                .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
+                .generatePolicyFromPermissionsWithPermissionGroup(applicationPermissions, permissionGroupId);
         Map<String, Policy> pagePolicyMap = policyUtils
                 .generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils
                 .generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> datasourcePolicyMap = policyUtils
-                .generatePolicyFromPermissionWithPermissionGroup(datasourcePermission.getExecutePermission(), permissionGroupId);
+                .generatePolicyFromPermissionsWithPermissionGroup(datasourcePermissions, permissionGroupId);
         Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class
         );
