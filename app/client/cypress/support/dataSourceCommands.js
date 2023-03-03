@@ -10,6 +10,8 @@ const datasourceFormData = require("../fixtures/datasources.json");
 const explorer = require("../locators/explorerlocators.json");
 const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
 const apiEditorLocators = require("../locators/ApiEditor");
+const api = require("../locators/AuthenticatedApi.json");
+
 const dataSources = ObjectsRegistry.DataSources;
 
 const backgroundColorBlack = "rgb(0, 0, 0)";
@@ -846,3 +848,106 @@ Cypress.Commands.add(
     // );
   }
 );
+
+Cypress.Commands.add(
+  "fillAuthenticatedApiEnvironmentDetails", () => {
+    cy.get(api.selectNewField).click({force:true});
+    cy.get(api.url).click({force:true});
+    cy.get(api.urlValue).type("https://example.com")
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.signatureHeader).click();
+    cy.get(api.signatureHeaderValue).click();
+    cy.get(api.dropDownOption).contains('No').click();
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.signatureKey).click();
+    cy.get(api.signatureKeyValue).type("xyz");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.accessToken).click();
+    cy.get(api.accessTokenValue).click();
+    cy.get(api.dropDownOption).contains('Request Header').click();
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.headerPrefixDropdown).click();
+    cy.get(api.headerPrefixValue).type("Bearer");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.clientSecretDropdown).click();
+    cy.get(api.clientSecretValue).type("abcd");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.scope).click();
+    cy.get(api.scopeValue).type("Read");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.authorizationUrl).click();
+    cy.get(api.authorizationUrlValue).type("https://abcd.com");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.resource).click();
+    cy.get(api.resourceValue).type("resource");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.username).click();
+    cy.get(api.usernameValue).type("user");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.password).click();
+    cy.get(api.passwordValue).type("test");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.apiKey).click();
+    cy.get(api.apiKeyValue).type("apikey");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.apiValueOption).click();
+    cy.get(api.apiValue).type("api value"); 
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.addApiKey).click();
+    cy.get(api.addApiKeyValue).click();
+    cy.get(api.dropDownOption).contains('Header').click();
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.bearerToken).click();
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.refreshToken).click();
+    cy.get(api.refreshTokenValue).click();
+    cy.get(api.dropDownOption).contains('No').click();
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.sendCredentials).click();
+    cy.get(api.sendCredentialsValue).click();
+    cy.get(api.dropDownOption).contains('Body').click();
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.selfSignedCertificate).click();
+    cy.get(api.selfSignedCertificateValue).click();
+    cy.get(api.dropDownOption).contains('No').click();
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.audience).click();
+    cy.get(api.audienceValue).type("audience");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.clientIdDropdown).click();
+    cy.get(api.clientIdValue).type("1234");
+    cy.get(api.expandMore).last().click({force: true});
+    cy.get(api.accessTokenUrlDropdown).click();
+    cy.get(api.accessTokenUrlValue).type("https://accesstoken.com");    
+  })
+
+  Cypress.Commands.add(
+    "fillAuthenticatedApiEnvironmentDetailsStaging", () => {
+      cy.get(api.urlValue).type("https://example.com")
+      cy.get(api.signatureHeaderValue).click();
+      cy.get(api.dropDownOption).contains('No').click();
+      cy.get(api.signatureKeyValue).type("xyz");
+      cy.get(api.accessTokenValue).click();
+      cy.get(api.dropDownOption).contains('Request Header').click();
+      cy.get(api.headerPrefixValue).type("Bearer");
+      cy.get(api.clientSecretValue).type("abcd");
+      cy.get(api.scopeValue).type("Read");
+      cy.get(api.authorizationUrlValue).type("https://abcd.com");
+      cy.get(api.resourceValue).type("resource");
+      cy.get(api.usernameValue).type("user");
+      cy.get(api.passwordValue).type("test");
+      cy.get(api.apiKeyValue).type("apikey");
+      cy.get(api.apiValue).type("api value"); 
+      cy.get(api.addApiKeyValue).click();
+      cy.get(api.dropDownOption).contains('Header').click();
+      cy.get(api.refreshTokenValue).click();
+      cy.get(api.dropDownOption).contains('No').click();
+      cy.get(api.sendCredentialsValue).click();
+      cy.get(api.dropDownOption).contains('Body').click();
+      cy.get(api.selfSignedCertificateValue).click();
+      cy.get(api.dropDownOption).contains('No').click();
+      cy.get(api.audienceValue).type("audience");
+      cy.get(api.clientIdValue).type("1234");
+      cy.get(api.accessTokenUrlValue).type("https://accesstoken.com");    
+    })  
+
