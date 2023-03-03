@@ -69,6 +69,9 @@ public class Application extends BaseDomain {
     @JsonIgnore
     String clonedFromApplicationId;
 
+    ApplicationDetail unpublishedApplicationDetail;
+    ApplicationDetail publishedApplicationDetail;
+
     String color;
 
     String icon;
@@ -112,16 +115,16 @@ public class Application extends BaseDomain {
     EmbedSetting embedSetting;
 
     @JsonIgnore
-    NavigationSetting unpublishedNavigationSetting;
-
-    @JsonIgnore
-    NavigationSetting publishedNavigationSetting;
-
-    @JsonIgnore
-    AppPositioning publishedAppPositioning;
-
-    @JsonIgnore
-    AppPositioning unpublishedAppPositioning;
+//    NavigationSetting unpublishedNavigationSetting;
+//
+//    @JsonIgnore
+//    NavigationSetting publishedNavigationSetting;
+//
+//    @JsonIgnore
+//    AppPositioning publishedAppPositioning;
+//
+//    @JsonIgnore
+//    AppPositioning unpublishedAppPositioning;
 
     Boolean collapseInvisibleWidgets;
 
@@ -189,10 +192,12 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
-        this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
-        this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
-        this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
-        this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
+        AppPositioning unpublishedAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(getUnpublishedApplicationDetail().getAppPositioning().type);
+        this.getUnpublishedApplicationDetail().setAppPositioning(unpublishedAppPositioning);
+        AppPositioning publishedAppPositioning = application.getPublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(getPublishedApplicationDetail().getAppPositioning().type);
+        this.getPublishedApplicationDetail().setAppPositioning(publishedAppPositioning);
+        this.unpublishedApplicationDetail.setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
+        this.publishedApplicationDetail.setNavigationSetting(application.getPublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -279,18 +284,6 @@ public class Application extends BaseDomain {
         private Boolean showNavigationBar;
     }
 
-    public NavigationSetting getNavigationSetting() {
-        return Boolean.TRUE.equals(viewMode) ? publishedNavigationSetting : unpublishedNavigationSetting;
-    }
-
-    public void setNavigationSetting(NavigationSetting navigationSetting) {
-        if (Boolean.TRUE.equals(viewMode)) {
-            publishedNavigationSetting = navigationSetting;
-        } else {
-            unpublishedNavigationSetting = navigationSetting;
-        }
-    }
-
     /**
      * NavigationSetting stores the navigation configuration for the app
      */
@@ -307,17 +300,6 @@ public class Application extends BaseDomain {
         private Boolean showSignIn;
     }
 
-    public AppPositioning getAppPositioning() {
-        return Boolean.TRUE.equals(viewMode) ? publishedAppPositioning : unpublishedAppPositioning;
-    }
-
-    public void setAppPositioning(AppPositioning appPositioning) {
-        if (Boolean.TRUE.equals(viewMode)) {
-            publishedAppPositioning = appPositioning;
-        } else {
-            unpublishedAppPositioning = appPositioning;
-        }
-    }
 
     /**
      * AppPositioning captures widget positioning Mode of the application

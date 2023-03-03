@@ -298,13 +298,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     /**
                      * Retaining the logoAssetId field value while updating NavigationSetting
                      */
-                    Application.NavigationSetting requestNavSetting = application.getUnpublishedNavigationSetting();
+                    Application.NavigationSetting requestNavSetting = application.getUnpublishedApplicationDetail().getNavigationSetting();
                     if (requestNavSetting != null) {
-                        Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
+                        Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(), new Application.NavigationSetting());
                         String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
                         String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
                         requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
-                        application.setUnpublishedNavigationSetting(requestNavSetting);
+                        application.getUnpublishedApplicationDetail().setNavigationSetting(requestNavSetting);
                     }
                     return this.update(branchedApplication.getId(), application);
                 });
@@ -759,7 +759,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(branchedApplication -> {
 
                     Application.NavigationSetting rootAppUnpublishedNavigationSetting = ObjectUtils.defaultIfNull(
-                            branchedApplication.getUnpublishedNavigationSetting(),
+                            branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
                             new Application.NavigationSetting()
                     );
 
@@ -777,10 +777,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                 final String oldAssetId = tuple.getT1();
                                 final Asset uploadedAsset = tuple.getT2();
                                 Application.NavigationSetting navSetting = ObjectUtils.defaultIfNull(
-                                        branchedApplication.getUnpublishedNavigationSetting(),
+                                        branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
                                         new Application.NavigationSetting());
                                 navSetting.setLogoAssetId(uploadedAsset.getId());
-                                branchedApplication.setUnpublishedNavigationSetting(navSetting);
+                                branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(navSetting);
 
                                 final Mono<Application> updateMono = this.update(applicationId, branchedApplication, branchName);
 
@@ -806,12 +806,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
 
-                    Application.NavigationSetting unpublishedNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
+                    Application.NavigationSetting unpublishedNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(), new Application.NavigationSetting());
 
                     String navLogoAssetId = ObjectUtils.defaultIfNull(unpublishedNavSetting.getLogoAssetId(), "");
 
                     unpublishedNavSetting.setLogoAssetId(null);
-                    branchedApplication.setUnpublishedNavigationSetting(unpublishedNavSetting);
+                    branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(unpublishedNavSetting);
                     return repository.save(branchedApplication).thenReturn(navLogoAssetId);
                 })
                 .flatMap(assetService::remove);
