@@ -154,6 +154,7 @@ export function PageWrapper(props: PageWrapperProps) {
                     TRIAL_EXPIRY_WARNING(gracePeriod, suffix),
                   ),
                 }}
+                data-testid="t--trial-expiry-warning"
                 type={TextType.P1}
                 weight="600"
               />
@@ -163,6 +164,7 @@ export function PageWrapper(props: PageWrapperProps) {
                     as="button"
                     className="upgrade-btn"
                     color={color}
+                    data-testid="t--trial-expiry-upgrade-btn"
                     onClick={goToCustomerPortal}
                     type={TextType.P1}
                     underline
@@ -170,13 +172,19 @@ export function PageWrapper(props: PageWrapperProps) {
                   >
                     {capitalize(createMessage(UPGRADE))}
                   </StyledText>{" "}
-                  <StyledText color={color} type={TextType.P1} weight="600">
+                  <StyledText
+                    color={color}
+                    data-testid="t--trial-expiry-continue-using-features"
+                    type={TextType.P1}
+                    weight="600"
+                  >
                     {createMessage(CONTINUE_USING_FEATURES)}
                   </StyledText>
                 </ContentWrapper>
               ) : (
                 <StyledText
                   color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
+                  data-testid="t--non-admin-trial-expiry-warning"
                   type={TextType.P1}
                   weight="600"
                 >
@@ -188,6 +196,7 @@ export function PageWrapper(props: PageWrapperProps) {
               <ActionBtnWrapper className="wrapper-cta">
                 <StyledText
                   color={Colors.SCORPION}
+                  data-testid="t--already-upgraded"
                   type={TextType.P1}
                   weight="600"
                 >
@@ -195,6 +204,7 @@ export function PageWrapper(props: PageWrapperProps) {
                 </StyledText>
                 <RefreshButton
                   category={Category.secondary}
+                  data-testid="t--license-refresh-btn"
                   isLoading={isCheckingLicense}
                   onClick={() => dispatch(forceLicenseCheck())}
                   text={createMessage(REFRESH)}
@@ -212,7 +222,10 @@ export function PageWrapper(props: PageWrapperProps) {
   return (
     <Wrapper isFixed={isFixed}>
       {showBanner && isHomePage && getBannerMessage && (
-        <StyledBanner {...getBannerMessage()} className="wrapper-container" />
+        <StyledBanner
+          {...getBannerMessage()}
+          className="trial-warning-banner"
+        />
       )}
       <Helmet>
         <title>{`${

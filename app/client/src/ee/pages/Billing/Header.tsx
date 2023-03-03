@@ -6,7 +6,7 @@ import { PageHeader } from "./styles";
 export function BillingPageHeader(props: HeaderProps) {
   const { subtitle, title } = props;
   return (
-    <PageHeader>
+    <PageHeader data-testid="t--billing-header">
       <Text className="header-text" type={TextType.H1} weight="600">
         {title}
       </Text>

@@ -73,8 +73,14 @@ export function StatusBadge(props: StatusBadgeProps) {
     <StatusBadgeContainer
       background={statusColors.background}
       className={className}
+      data-testid="t--status-badge"
     >
-      <StatusText color={statusColors.text} type={TextType.P3} weight="600">
+      <StatusText
+        color={statusColors.text}
+        data-testid="t--status-text"
+        type={TextType.P3}
+        weight="600"
+      >
         {statusText.toLocaleUpperCase()}
       </StatusText>
     </StatusBadgeContainer>

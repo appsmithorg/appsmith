@@ -70,7 +70,12 @@ export function Billing() {
     {
       icon: "money-dollar-circle-line",
       title: (
-        <Text color={Colors.SCORPION} type={TextType.P0} weight="500">
+        <Text
+          color={Colors.SCORPION}
+          data-testid="t--card-title"
+          type={TextType.P0}
+          weight="500"
+        >
           {createMessage(BILLING_AND_USAGE)}
         </Text>
       ),
@@ -88,7 +93,12 @@ export function Billing() {
       icon: "key-2-line",
       title: (
         <FlexWrapper align="center" dir="row">
-          <Text color={Colors.SCORPION} type={TextType.P0} weight="500">
+          <Text
+            color={Colors.SCORPION}
+            data-testid="t--card-title"
+            type={TextType.P0}
+            weight="500"
+          >
             {createMessage(LICENSE_KEY)}
           </Text>
           <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
@@ -96,11 +106,21 @@ export function Billing() {
       ),
       content: (
         <FlexWrapper dir="column">
-          <Text color={Colors.GRAY_500} type={TextType.P3} weight="500">
+          <Text
+            color={Colors.GRAY_500}
+            data-testid="t--license-key"
+            type={TextType.P3}
+            weight="500"
+          >
             {licenseKey}
           </Text>
           {isTrial && (
-            <Text color={Colors.GREEN} type={TextType.P3} weight="500">
+            <Text
+              color={Colors.GREEN}
+              data-testid="t--license-expiry"
+              type={TextType.P3}
+              weight="500"
+            >
               {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
             </Text>
           )}
