@@ -22,8 +22,8 @@
     "typescript": "^4.5.5"
   },
   "scripts": {
-    "test:unit": "export APPSMITH_API_BASE_URL=http && $(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'",
-    "test:jest": "export APPSMITH_API_BASE_URL=http && $(npm bin)/jest --watch ",
+    "test:unit": "export APPSMITH_API_BASE_URL=http && jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'",
+    "test:jest": "export APPSMITH_API_BASE_URL=http && jest --watch ",
     "preinstall": "CURRENT_SCOPE=rts node ../shared/build-shared-dep.js",
     "build": "./build.sh",
     "postinstall": "CURRENT_SCOPE=rts node ../shared/install-dependencies.js",

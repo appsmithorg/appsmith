@@ -13,8 +13,8 @@
     "directory": "build"
   },
   "scripts": {
-    "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../' --coverageReporters='json-summary'",
-    "test:jest": "$(npm bin)/jest --watch",
+    "test:unit": "jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../' --coverageReporters='json-summary'",
+    "test:jest": "jest --watch",
     "build": "rollup -c",
     "start": "rollup -c",
     "postinstall": "yarn build"
