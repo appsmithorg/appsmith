@@ -552,10 +552,10 @@ export class DataSources {
     cy.get(this._saveDs).click();
   }
 
-  public CloseReconnectDataSourceModal() {
+  public CheckForReconnectDataSourceModal() {
     cy.get("body").then(($ele) => {
       if ($ele.find(this._reconnectDataSourceModal).length) {
-        this.agHelper.GetNClick(this._closeDataSourceModal);
+        this.ReconnectDataSource("admin","PostgreSQL")
       }
     });
   }
