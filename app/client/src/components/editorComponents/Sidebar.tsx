@@ -162,6 +162,29 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     });
   }, [resizerLeft, pinned, isPreviewMode]);
 
+  const handleClickOutside = (event: any) => {
+    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+      const menus = document.getElementsByClassName("t--entity-context-menu");
+      const node = menus[0];
+      if (!document.body.contains(node)) {
+        dispatch(setExplorerActiveAction(false));
+        dispatch({
+          type: ReduxActionTypes.SIDE_NAV_MODE,
+          payload: undefined,
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isMultiPane) {
+      document.addEventListener("click", handleClickOutside, true);
+      return () => {
+        document.removeEventListener("click", handleClickOutside, true);
+      };
+    }
+  }, [isMultiPane]);
+
   return (
     <div
       className={classNames({

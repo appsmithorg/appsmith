@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import SideNav, { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import classNames from "classnames";
@@ -21,6 +21,7 @@ import {
 } from "reducers/uiReducers/multiPaneReducer";
 import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
 import WidgetSidebar from "./WidgetSidebar";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 const Container = styled.div`
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
@@ -50,7 +51,6 @@ const MultiPaneContainer = () => {
   const isPreviewMode = useSelector(previewModeSelector);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const [windowWidth] = useWindowDimensions();
-  const [sideNavMode, setSideNavMode] = useState<SideNavMode | undefined>();
 
   useEffect(() => {
     // Tabs width should be 1/3 of the screen but not less than minimum
@@ -65,8 +65,17 @@ const MultiPaneContainer = () => {
     const newWidth = Math.max(TABS_PANE_MIN_WIDTH, width);
     dispatch(setTabsPaneWidth(newWidth));
   };
+  const setSideNavMode = (mode: any) => {
+    dispatch({
+      type: ReduxActionTypes.SIDE_NAV_MODE,
+      payload: mode,
+    });
+  };
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
+  const sideNavMode = useSelector(
+    (state) => state.ui.multiPaneConfig.sideNavMode,
+  );
   const showPropertyPane = isMultiPane
     ? paneCount === PaneLayoutOptions.THREE_PANE
     : true;
