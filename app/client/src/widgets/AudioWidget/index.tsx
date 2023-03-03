@@ -40,8 +40,7 @@ export const CONFIG = {
       },
     ],
     disableResizeHandles: {
-      vertical: false,
-      horizontal: false,
+      vertical: true,
     },
   },
 };

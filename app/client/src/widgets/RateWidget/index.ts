@@ -45,6 +45,10 @@ export const CONFIG = {
         },
       },
     ],
+    disableResizeHandles: {
+      horizontal: true,
+      vertical: true,
+    },
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

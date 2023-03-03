@@ -39,9 +39,6 @@ export const CONFIG = {
         },
       },
     ],
-    disableResizeHandles: {
-      horizontal: true,
-    },
   },
 };
 
