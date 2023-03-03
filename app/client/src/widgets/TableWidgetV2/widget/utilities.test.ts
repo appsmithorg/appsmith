@@ -2547,15 +2547,15 @@ describe("generateNewColumnOrderFromStickyValue", () => {
 });
 
 describe("getHeaderClassNameOnDragDirection", () => {
-  test("Should return righ highlight class when dragging from left to right", () => {
+  test("Should return left highlight class when dragging from right to left", () => {
     expect(getHeaderClassNameOnDragDirection(3, 2)).toEqual(
-      "th header-reorder highlight-right",
+      "th header-reorder highlight-left",
     );
   });
 
-  test("Should return left highlight class when dragging from right to left", () => {
+  test("Should return right highlight class when dragging from left to right", () => {
     expect(getHeaderClassNameOnDragDirection(1, 2)).toEqual(
-      "th header-reorder highlight-left",
+      "th header-reorder highlight-right",
     );
   });
 });
