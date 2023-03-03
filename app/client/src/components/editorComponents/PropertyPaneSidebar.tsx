@@ -33,8 +33,13 @@ const TabHeader = styled.div`
   display: flex;
   gap: 10px;
   padding: 0 0 10px 10px;
-  .tab-header-title.selected {
-    border-bottom: 1px solid #f86a2b;
+  .tab-header-title {
+    width: 50%;
+    text-align: center;
+    cursor: pointer;
+    &.selected {
+      border-bottom: 1px solid #f86a2b;
+    }
   }
 `;
 
