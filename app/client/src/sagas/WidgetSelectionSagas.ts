@@ -54,6 +54,7 @@ import {
 import { areArraysEqual } from "utils/AppsmithUtils";
 // import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "../constants/WidgetConstants";
+import { quickScrollToWidget } from "../utils/helpers";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
