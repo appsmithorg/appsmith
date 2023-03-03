@@ -221,42 +221,42 @@ export const NonResizableWidgets = [
   "NUMBER_SLIDER_WIDGET",
 ];
 
-export const DefaultFillWidgets = [
-  "CANVAS_WIDGET",
-  "AUDIO_WIDGET",
-  "AUDIO_RECORDER_WIDGET",
-  "BASE_INPUT_WIDGET",
-  "BUTTON_GROUP_WIDGET",
-  "CHART_WIDGET",
-  "CHECKBOX_WIDGET",
-  "CHECKBOX_GROUP_WIDGET",
-  "CURRENCY_INPUT_WIDGET",
-  "CONTAINER_WIDGET",
-  "DATE_PICKER_WIDGET2",
-  "DIVIDER_WIDGET",
-  "FORM_WIDGET",
-  "INPUT_WIDGET_V2",
-  "JSON_FORM_WIDGET",
-  "LIST_WIDGET",
-  "MAP_WIDGET",
-  "MAP_CHART_WIDGET",
-  "MULTI_SELECT_TREE_WIDGET",
-  "MULTI_SELECT_WIDGET",
-  "MULTI_SELECT_WIDGET_V2",
-  "MENU_BUTTON_WIDGET",
-  "PHONE_INPUT_WIDGET",
-  "SELECT_WIDGET",
-  "TEXT_WIDGET",
-  "SINGLE_SELECT_TREE_WIDGET",
-  "RICH_TEXT_EDITOR_WIDGET",
-  "TABS_WIDGET",
-  "TABLE_WIDGET_V2",
-  "PROGRESS_WIDGET",
-  "SWITCH_WIDGET",
-  "CATEGORY_SLIDER_WIDGET",
-  "RANGE_SLIDER_WIDGET",
-  "NUMBER_SLIDER_WIDGET",
-];
+// export const DefaultFillWidgets = [
+//   "CANVAS_WIDGET",
+//   "AUDIO_WIDGET",
+//   "AUDIO_RECORDER_WIDGET",
+//   "BASE_INPUT_WIDGET",
+//   "BUTTON_GROUP_WIDGET",
+//   "CHART_WIDGET",
+//   "CHECKBOX_WIDGET",
+//   "CHECKBOX_GROUP_WIDGET",
+//   "CURRENCY_INPUT_WIDGET",
+//   "CONTAINER_WIDGET",
+//   "DATE_PICKER_WIDGET2",
+//   "DIVIDER_WIDGET",
+//   "FORM_WIDGET",
+//   "INPUT_WIDGET_V2",
+//   "JSON_FORM_WIDGET",
+//   "LIST_WIDGET",
+//   "MAP_WIDGET",
+//   "MAP_CHART_WIDGET",
+//   "MULTI_SELECT_TREE_WIDGET",
+//   "MULTI_SELECT_WIDGET",
+//   "MULTI_SELECT_WIDGET_V2",
+//   "MENU_BUTTON_WIDGET",
+//   "PHONE_INPUT_WIDGET",
+//   "SELECT_WIDGET",
+//   "TEXT_WIDGET",
+//   "SINGLE_SELECT_TREE_WIDGET",
+//   "RICH_TEXT_EDITOR_WIDGET",
+//   "TABS_WIDGET",
+//   "TABLE_WIDGET_V2",
+//   "PROGRESS_WIDGET",
+//   "SWITCH_WIDGET",
+//   "CATEGORY_SLIDER_WIDGET",
+//   "RANGE_SLIDER_WIDGET",
+//   "NUMBER_SLIDER_WIDGET",
+// ];
 
 // TODO(aswathkk): See if this needs to be moved to widget config
 export const WIDGET_WITH_DYNAMIC_WIDTH = [
@@ -285,23 +285,23 @@ export const WIDGET_WITH_DYNAMIC_HEIGHT = [
   "MULTI_SELECT_WIDGET_V2",
 ];
 
-export function getDefaultResponsiveBehavior(widgetType: string) {
-  return DefaultFillWidgets.includes(widgetType)
-    ? ResponsiveBehavior.Fill
-    : ResponsiveBehavior.Hug;
-}
+// export function getDefaultResponsiveBehavior(widgetType: string) {
+//   return DefaultFillWidgets.includes(widgetType)
+//     ? ResponsiveBehavior.Fill
+//     : ResponsiveBehavior.Hug;
+// }
 
 export function getResponsiveLayoutConfig(widgetType: string) {
   // ToDO(Ashok): disabling for now, will be revisited at a later point
   return [];
-  const defaultBehavior = getDefaultResponsiveBehavior(widgetType);
-  return [
-    {
-      sectionName: "Responsive Layout",
-      children: [
-        generateResponsiveBehaviorConfig(defaultBehavior),
-        generateVerticalAlignmentConfig(),
-      ],
-    },
-  ];
+  // const defaultBehavior = getDefaultResponsiveBehavior(widgetType);
+  // return [
+  //   {
+  //     sectionName: "Responsive Layout",
+  //     children: [
+  //       generateResponsiveBehaviorConfig(defaultBehavior),
+  //       generateVerticalAlignmentConfig(),
+  //     ],
+  //   },
+  // ];
 }

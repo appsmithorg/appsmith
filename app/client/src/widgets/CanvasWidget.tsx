@@ -1,4 +1,8 @@
-import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
+import {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
@@ -9,7 +13,6 @@ import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionA
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import React, { CSSProperties } from "react";
 import { getCanvasClassName } from "utils/generators";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -209,9 +212,7 @@ export const CONFIG = {
     version: 1,
     detachFromLayout: true,
     flexLayers: [],
-    responsiveBehavior: getDefaultResponsiveBehavior(
-      CanvasWidget.getWidgetType(),
-    ),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

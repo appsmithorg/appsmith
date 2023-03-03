@@ -1,5 +1,6 @@
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+
 import FileDataTypes from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -27,7 +28,7 @@ export const CONFIG = {
     isRequired: false,
     isDisabled: false,
     animateLoading: true,
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Hug,
     minWidth: BUTTON_MIN_WIDTH,
   },
   properties: {
