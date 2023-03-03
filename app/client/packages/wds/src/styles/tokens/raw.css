@@ -1,0 +1,64 @@
+:root {
+  /**
+  * ----------------------------------------------------------------------------
+  * color pallette
+  *-----------------------------------------------------------------------------
+  */
+  --wds-v2-color-transparent: "#00000000";
+  --wds-v2-color-white: #ffffff;
+
+  --wds-v2-color-gray-100: #e3e3e3;
+  --wds-v2-color-gray-200: #a9a7a7;
+  --wds-v2-color-gray-300: #858283;
+  --wds-v2-color-gray-400: #4b4849;
+  --wds-v2-color-gray-500: #202020;
+  --wds-v2-color-gray-600: #090707;
+
+  --wds-v2-color-green-100: #b0f7c2;
+  --wds-v2-color-green-200: #37c56e;
+  --wds-v2-color-green-300: #149c51;
+  --wds-v2-color-green-400: #00592a;
+  --wds-v2-color-green-500: #00280f;
+  --wds-v2-color-green-600: #000b03;
+
+  --wds-v2-color-red-100: #ffd9d2;
+  --wds-v2-color-red-200: #ff7a65;
+  --wds-v2-color-red-300: #e43e29;
+  --wds-v2-color-red-400: #891103;
+  --wds-v2-color-red-500: #39110b;
+  --wds-v2-color-red-600: #120402;
+
+  --wds-v2-color-yellow-100: #ffdbb8;
+  --wds-v2-color-yellow-200: #ed9012;
+  --wds-v2-color-yellow-300: #cc7b00;
+  --wds-v2-color-yellow-400: #733800;
+  --wds-v2-color-yellow-500: #381900;
+  --wds-v2-color-yellow-600: #1a0900;
+
+  --wds-v2-color-purple-100: #dde1ff;
+  --wds-v2-color-purple-200: #969cff;
+  --wds-v2-color-purple-300: #6f69ff;
+  --wds-v2-color-purple-400: #4000c7;
+  --wds-v2-color-purple-500: #1b0063;
+  --wds-v2-color-purple-600: #060026;
+
+  --wds-v2-color-blue-100: #cce2ff;
+  --wds-v2-color-blue-200: #68aaff;
+  --wds-v2-color-blue-300: #2a82ea;
+  --wds-v2-color-blue-400: #024790;
+  --wds-v2-color-blue-500: #001f46;
+  --wds-v2-color-blue-600: #000719;
+
+  /**
+  * ----------------------------------------------------------------------------
+  * spacing
+  *-----------------------------------------------------------------------------
+  */
+  --wds-v2-spacing-root: 4px;
+
+  --wds-v2-spacing-0: 0px;
+  --wds-v2-spacing-1: var(--wds-v2-spacing-root);
+  --wds-v2-spacing-2: calc(var(--wds-v2-spacing-root) * 2);
+  --wds-v2-spacing-4: calc(var(--wds-v2-spacing-root) * 4);
+}
+
