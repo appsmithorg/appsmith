@@ -2,6 +2,7 @@
   "private": true,
   "workspaces": [
     "shared/*",
+    "rts",
     "client"
   ],
   "resolutions": {
