@@ -261,29 +261,6 @@ export const PropertyPaneContentConfig = [
           },
         },
       },
-      {
-        propertyName: "defaultSelectedItem",
-        helpText: "Selects Item by default",
-        label: "Default Selected Item",
-        controlType: "INPUT_TEXT",
-        placeholderText: "001",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        hidden: (props: ListWidgetProps<WidgetProps>) =>
-          !!props.serverSidePagination,
-        dependencies: ["serverSidePagination"],
-        validation: {
-          type: ValidationTypes.FUNCTION,
-          params: {
-            fn: defaultSelectedItemValidation,
-            expected: {
-              type: "string or number",
-              example: `John | 123`,
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
-      },
     ],
   },
   {
@@ -322,7 +299,10 @@ export const PropertyPaneContentConfig = [
         placeholderText: "Enter total record count",
         validation: {
           type: ValidationTypes.NUMBER,
-          params: { min: MIN_TOTAL_RECORD_COUNT, max: MAX_TOTAL_RECORD_COUNT },
+          params: {
+            min: MIN_TOTAL_RECORD_COUNT,
+            max: MAX_TOTAL_RECORD_COUNT,
+          },
         },
         hidden: (props: ListWidgetProps<WidgetProps>) =>
           !props.serverSidePagination,
@@ -340,6 +320,63 @@ export const PropertyPaneContentConfig = [
         hidden: (props: ListWidgetProps<WidgetProps>) =>
           !props.serverSidePagination,
         dependencies: ["serverSidePagination"],
+      },
+    ],
+  },
+  {
+    sectionName: "Item Selection",
+    children: [
+      {
+        propertyName: "defaultSelectedItem",
+        helpText: "Selects Item by default",
+        label: "Default Selected Item",
+        controlType: "INPUT_TEXT",
+        placeholderText: "001",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          !!props.serverSidePagination,
+        dependencies: ["serverSidePagination"],
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: defaultSelectedItemValidation,
+            expected: {
+              type: "string or number",
+              example: `John | 123`,
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+      },
+      {
+        propertyName: "onItemClick",
+        helpText: "Triggers an action when an item in this List is clicked",
+        label: "onItemClick",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
+          let items = get(props, `${EVAL_VALUE_PATH}.listData`, []);
+
+          if (Array.isArray(items)) {
+            items = items.filter(Boolean);
+          } else {
+            items = [];
+          }
+
+          return {
+            currentItem: Object.assign(
+              {},
+              ...Object.keys(get(items, "0", {})).map((key) => ({
+                [key]: "",
+              })),
+            ),
+            currentIndex: 0,
+          };
+        },
+        dependencies: ["listData"],
       },
     ],
   },
@@ -369,40 +406,6 @@ export const PropertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
-      },
-    ],
-  },
-  {
-    sectionName: "Events",
-    children: [
-      {
-        propertyName: "onItemClick",
-        helpText: "Triggers an action when an item in this List is clicked",
-        label: "onItemClick",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
-          let items = get(props, `${EVAL_VALUE_PATH}.listData`, []);
-
-          if (Array.isArray(items)) {
-            items = items.filter(Boolean);
-          } else {
-            items = [];
-          }
-
-          return {
-            currentItem: Object.assign(
-              {},
-              ...Object.keys(get(items, "0", {})).map((key) => ({
-                [key]: "",
-              })),
-            ),
-            currentIndex: 0,
-          };
-        },
-        dependencies: ["listData"],
       },
     ],
   },

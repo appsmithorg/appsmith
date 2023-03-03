@@ -575,7 +575,7 @@ class ListWidget extends BaseWidget<
 
     if (!primaryKeys || isNil(defaultSelectedItem)) return -1;
 
-    return map(primaryKeys, (key) => key.toString()).indexOf(
+    return map(primaryKeys, (key) => String(key)).indexOf(
       defaultSelectedItem.toString(),
     );
   };
@@ -1156,7 +1156,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   selectedItemView: Record<string, unknown>;
   selectedItem?: Record<string, unknown>;
   triggeredItem?: Record<string, unknown>;
-  primaryKeys?: (string | number)[];
+  primaryKeys?: (string | number | null)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
   defaultSelectedItem?: string | number | null;
