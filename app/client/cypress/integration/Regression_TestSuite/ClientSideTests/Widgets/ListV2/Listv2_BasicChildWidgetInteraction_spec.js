@@ -186,7 +186,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Verify checked
     cy.get(publishLocators.switchwidget)
       .find("input")
-      .should("be.checked");   
+      .should("be.checked");
     // Uncheck
     cy.get(publishLocators.switchwidget)
       .find("label")
