@@ -14,7 +14,6 @@ describe("Guided Tour", function() {
     cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
   });
 
-  //Failing in fat migration - hence skipping
   it("1. Guided Tour", function() {
     // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
@@ -30,7 +29,7 @@ describe("Guided Tour", function() {
     });
     _.dataSources.SetQueryTimeout();
     // Step 1: Run query
-    cy.runQuery();
+    _.dataSources.RunQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");
