@@ -51,8 +51,6 @@ import {
   shiftSelectWidgets,
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
-// import { inGuidedTour } from "selectors/onboardingSelectors";
-import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 // import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "../constants/WidgetConstants";
@@ -278,13 +276,7 @@ function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   }
   const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
   if (widgetId) {
-    setTimeout(() => {
-      // Scrolling will hide some part of the content at the top during guided tour. To avoid that
-      // we skip scrolling altogether during guided tour as we don't have
-      // too many widgets during the same
-      flashElementsById(widgetId);
-      quickScrollToWidget(widgetId, allWidgets);
-    }, 0);
+    quickScrollToWidget(widgetId, allWidgets);
   }
 }
 
