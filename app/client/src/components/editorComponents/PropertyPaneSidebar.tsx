@@ -176,30 +176,36 @@ export const PropertyPaneSidebar = memo((props: Props) => {
               : "100%",
           }}
         >
-          <Wrapper>
-            <TabHeader className="tab-header">
-              <div
-                className={classNames({
-                  "tab-header-title": true,
-                  selected: rightPaneTabIndex === 0,
-                })}
-                onClick={() => setRightPaneTabIndex(0)}
-              >
-                Create
+          {isMultiPane ? (
+            <Wrapper>
+              <TabHeader className="tab-header">
+                <div
+                  className={classNames({
+                    "tab-header-title": true,
+                    selected: rightPaneTabIndex === 0,
+                  })}
+                  onClick={() => setRightPaneTabIndex(0)}
+                >
+                  Create
+                </div>
+                <div
+                  className={classNames({
+                    "tab-header-title": true,
+                    selected: rightPaneTabIndex === 1,
+                  })}
+                  onClick={() => setRightPaneTabIndex(1)}
+                >
+                  Properties
+                </div>
+              </TabHeader>
+              <div style={{ height: "100%" }}>
+                {rightPaneTabIndex === 0 && <WidgetSidebar isActive />}
+                {rightPaneTabIndex === 1 && propertyPane}
               </div>
-              <div
-                className={classNames({
-                  "tab-header-title": true,
-                  selected: rightPaneTabIndex === 1,
-                })}
-                onClick={() => setRightPaneTabIndex(1)}
-              >
-                Properties
-              </div>
-            </TabHeader>
-            {rightPaneTabIndex === 0 && <WidgetSidebar isActive />}
-            {rightPaneTabIndex === 1 && propertyPane}
-          </Wrapper>
+            </Wrapper>
+          ) : (
+            propertyPane
+          )}
         </div>
       </div>
     </div>
