@@ -8363,9 +8363,9 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001332, caniuse-lite@^1.0.30001335, can
   integrity sha512-ecER9xgJQVMqcrxThKptsW0pPxSae8R2RB87LNa+ivW9ppNWRHEplXcDzkCOP4LYWGj8hunXLqaiC41iBATNyg==
 
 caniuse-lite@^1.0.30001109:
-  version "1.0.30001458"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001458.tgz#871e35866b4654a7d25eccca86864f411825540c"
-  integrity sha512-lQ1VlUUq5q9ro9X+5gOEyH7i3vm+AYVT1WDCVB69XOZ17KZRhnZ9J0Sqz7wTHQaLBJccNCHq8/Ww5LlOIZbB0w==
+  version "1.0.30001459"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001459.tgz#a659c80b7be37861a699290a33fa05f628fcbd61"
+  integrity sha512-WmuS7UmOyuMxDquiA3BUKrKPBcpaIHrFnlEzlIYKecjmHMABYsqp6eeZLjcLCW5aFb/dRJNYCiuGNEssQgLfaA==
 
 capital-case@^1.0.4:
   version "1.0.4"
@@ -9968,10 +9968,10 @@ des.js@^1.0.0:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.0.50":
-  version "1.0.50"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.0.50.tgz#5d41257c71bf0ba8620858bec9a79b70090c9857"
-  integrity sha512-0SgeKURwh7XvMmeYv3Yz3ldCgjuBW6yD1hnXc/9Pndm1Rtcth34jjvsqtUfZmh1Dvs7xhbtOtCAxfHEPKZ4wQg==
+"design-system-old@npm:@appsmithorg/design-system-old@1.0.51":
+  version "1.0.51"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.0.51.tgz#da9a79bcb60bd25ac08fdb54face9e6c279dfb5a"
+  integrity sha512-d3yS6uu9dnNzPJ6+mxZXWOHtM+IaQaypC0m9XWI9aUGyVfdFuNZUoL0mercGAftivPKymQC5oqxiusWAm8qCcQ==
   dependencies:
     emoji-mart "3.0.1"
 
