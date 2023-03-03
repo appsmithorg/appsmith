@@ -26,15 +26,15 @@ import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppState } from "@appsmith/reducers";
 import { closeAllModals, showModal } from "actions/widgetActions";
-import history, { NavigationMethod } from "utils/history";
+// import history, { NavigationMethod } from "utils/history";
 import {
-  getCurrentPageId,
+  // getCurrentPageId,
   getIsEditorInitialized,
-  snipingModeSelector,
+  // snipingModeSelector,
 } from "selectors/editorSelectors";
-import { builderURL, widgetURL } from "RouteBuilder";
+// import { builderURL, widgetURL } from "RouteBuilder";
 import {
-  getAppMode,
+  // getAppMode,
   getCanvasWidgets,
   getParentModalId,
 } from "selectors/entitiesSelector";
@@ -51,11 +51,10 @@ import {
   shiftSelectWidgets,
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
-import { APP_MODE } from "entities/App";
+// import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "../constants/WidgetConstants";
+import { quickScrollToWidget } from "../utils/helpers";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
@@ -189,39 +188,39 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   }
 }
 
-/**
- * Append Selected widgetId as hash to the url path
- * @param selectedWidgets
- * @param pageId
- * @param invokedBy
- */
-function* appendSelectedWidgetToUrlSaga(
-  selectedWidgets: string[],
-  pageId?: string,
-  invokedBy?: NavigationMethod,
-) {
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
-  const isSnipingMode: boolean = yield select(snipingModeSelector);
-  const appMode: APP_MODE = yield select(getAppMode);
-  const viewMode = appMode === APP_MODE.PUBLISHED;
-  if (guidedTourEnabled || isSnipingMode || viewMode) return;
-  const { pathname } = window.location;
-  const currentPageId: string = yield select(getCurrentPageId);
-  const currentURL = pathname;
-  const newUrl = selectedWidgets.length
-    ? widgetURL({
-        pageId: pageId ?? currentPageId,
-        persistExistingParams: true,
-        selectedWidgets,
-      })
-    : builderURL({
-        pageId: pageId ?? currentPageId,
-        persistExistingParams: true,
-      });
-  if (currentURL !== newUrl) {
-    history.push(newUrl, { invokedBy });
-  }
-}
+// /**
+//  * Append Selected widgetId as hash to the url path
+//  * @param selectedWidgets
+//  * @param pageId
+//  * @param invokedBy
+//  */
+// function* appendSelectedWidgetToUrlSaga(
+//   selectedWidgets: string[],
+//   pageId?: string,
+//   invokedBy?: NavigationMethod,
+// ) {
+//   const guidedTourEnabled: boolean = yield select(inGuidedTour);
+//   const isSnipingMode: boolean = yield select(snipingModeSelector);
+//   const appMode: APP_MODE = yield select(getAppMode);
+//   const viewMode = appMode === APP_MODE.PUBLISHED;
+//   if (guidedTourEnabled || isSnipingMode || viewMode) return;
+//   const { pathname } = window.location;
+//   const currentPageId: string = yield select(getCurrentPageId);
+//   const currentURL = pathname;
+//   const newUrl = selectedWidgets.length
+//     ? widgetURL({
+//         pageId: pageId ?? currentPageId,
+//         persistExistingParams: true,
+//         selectedWidgets,
+//       })
+//     : builderURL({
+//         pageId: pageId ?? currentPageId,
+//         persistExistingParams: true,
+//       });
+//   if (currentURL !== newUrl) {
+//     history.push(newUrl, { invokedBy });
+//   }
+// }
 
 function* canPerformSelectionSaga(saga: any, action: any) {
   const isDragging: boolean = yield select(
@@ -278,13 +277,7 @@ function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   }
   const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
   if (widgetId) {
-    setTimeout(() => {
-      // Scrolling will hide some part of the content at the top during guided tour. To avoid that
-      // we skip scrolling altogether during guided tour as we don't have
-      // too many widgets during the same
-      flashElementsById(widgetId);
-      quickScrollToWidget(widgetId, allWidgets);
-    }, 0);
+    quickScrollToWidget(widgetId, allWidgets);
   }
 }
 
