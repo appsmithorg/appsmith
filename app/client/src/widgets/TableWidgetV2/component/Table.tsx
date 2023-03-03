@@ -42,6 +42,7 @@ import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import { Classes } from "@blueprintjs/core";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import TableBodyHasNoData from "./TableBody/TableBodyHasNoData";
+import Scrollbars from "react-custom-scrollbars";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -258,6 +259,15 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
+
+  function ScrollbarHorizontalThumb(props: any) {
+    return <div {...props} className="thumb-horizontal" />;
+  }
+
+  function ScrollbarHorizontalTrack(props: any) {
+    return <div {...props} className="track-horizontal" />;
+  }
+
   /*
     For serverSidePaginationEnabled we are taking props.data.length as the page size.
     As props.pageSize is being set by the visible number of rows in the table (without scrolling),
@@ -371,6 +381,14 @@ export function Table(props: TableProps) {
   //   );
   const shouldUseVirtual = false;
 
+  const style = useMemo(
+    () => ({
+      width: props.width,
+      height: 38,
+    }),
+    [props.width],
+  );
+
   useEffect(() => {
     if (props.isAddRowInProgress && tableBodyRef) {
       tableBodyRef.current?.scrollTo({ top: 0 });
@@ -422,7 +440,6 @@ export function Table(props: TableProps) {
     ],
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const hasNoData = !props.loadingTable && subPage.length === 0;
   return (
     <TableWrapper
@@ -447,66 +464,6 @@ export function Table(props: TableProps) {
         borderRadius={props.borderRadius}
         widgetId={props.widgetId}
       />
-      {isHeaderVisible && (
-        <SimpleBar
-          style={{
-            maxHeight: tableSizes.TABLE_HEADER_HEIGHT,
-          }}
-        >
-          <TableHeaderWrapper
-            backgroundColor={Colors.WHITE}
-            ref={tableHeaderWrapperRef}
-            serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-            tableSizes={tableSizes}
-            width={props.width}
-          >
-            <TableHeaderInnerWrapper
-              backgroundColor={Colors.WHITE}
-              serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-              tableSizes={tableSizes}
-              variant={props.variant}
-              width={props.width}
-            >
-              <TableHeader
-                accentColor={props.accentColor}
-                allowAddNewRow={props.allowAddNewRow}
-                applyFilter={props.applyFilter}
-                borderRadius={props.borderRadius}
-                boxShadow={props.boxShadow}
-                columns={tableHeadercolumns}
-                currentPageIndex={currentPageIndex}
-                delimiter={props.delimiter}
-                disableAddNewRow={!!props.editableCell.column}
-                disabledAddNewRowSave={props.disabledAddNewRowSave}
-                filters={props.filters}
-                isAddRowInProgress={props.isAddRowInProgress}
-                isVisibleDownload={props.isVisibleDownload}
-                isVisibleFilters={props.isVisibleFilters}
-                isVisiblePagination={props.isVisiblePagination}
-                isVisibleSearch={props.isVisibleSearch}
-                nextPageClick={props.nextPageClick}
-                onAddNewRow={props.onAddNewRow}
-                onAddNewRowAction={props.onAddNewRowAction}
-                pageCount={pageCount}
-                pageNo={props.pageNo}
-                pageOptions={pageOptions}
-                prevPageClick={props.prevPageClick}
-                searchKey={props.searchKey}
-                searchTableData={props.searchTableData}
-                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-                tableColumns={columns}
-                tableData={data}
-                tableSizes={tableSizes}
-                totalRecordsCount={props.totalRecordsCount}
-                updatePageNo={props.updatePageNo}
-                widgetId={props.widgetId}
-                widgetName={props.widgetName}
-                pageSize={props.pageSize}
-              />
-            </TableHeaderInnerWrapper>
-          </TableHeaderWrapper>
-        </SimpleBar>
-      )}
       <div
         className={
           props.isLoading
@@ -530,31 +487,34 @@ export function Table(props: TableProps) {
                 subPage={subPage}
                 {...props}
               />
-              <TableBody
-                accentColor={props.accentColor}
-                borderRadius={props.borderRadius}
-                columns={props.columns}
-                getTableBodyProps={getTableBodyProps}
-                height={props.height}
-                innerElementType={MemoizedInnerElement}
-                isAddRowInProgress={props.isAddRowInProgress}
-                multiRowSelection={!!props.multiRowSelection}
-                pageSize={props.pageSize}
-                prepareRow={prepareRow}
-                primaryColumnId={props.primaryColumnId}
-                ref={tableBodyRef}
-                rows={subPage}
-                selectTableRow={props.selectTableRow}
-                selectedRowIndex={props.selectedRowIndex}
-                selectedRowIndices={props.selectedRowIndices}
-                tableSizes={tableSizes}
-                useVirtual={shouldUseVirtual}
-                width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
-              />
+              {!hasNoData && (
+                <TableBody
+                  accentColor={props.accentColor}
+                  borderRadius={props.borderRadius}
+                  columns={props.columns}
+                  getTableBodyProps={getTableBodyProps}
+                  height={props.height}
+                  innerElementType={MemoizedInnerElement}
+                  isAddRowInProgress={props.isAddRowInProgress}
+                  multiRowSelection={!!props.multiRowSelection}
+                  pageSize={props.pageSize}
+                  prepareRow={prepareRow}
+                  primaryColumnId={props.primaryColumnId}
+                  ref={tableBodyRef}
+                  rows={subPage}
+                  selectTableRow={props.selectTableRow}
+                  selectedRowIndex={props.selectedRowIndex}
+                  selectedRowIndices={props.selectedRowIndices}
+                  tableSizes={tableSizes}
+                  useVirtual={shouldUseVirtual}
+                  width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
+                />
+              )}
+              {hasNoData && <TableBodyHasNoData />}
             </SimpleBar>
           )}
-
-          {shouldUseVirtual && (
+          {/*should use virtual is always false */}
+          {shouldUseVirtual && !hasNoData && (
             <SimpleBar style={scrollContainerStyles}>
               {({ scrollableNodeRef }) => (
                 <TableBody
@@ -582,8 +542,82 @@ export function Table(props: TableProps) {
               )}
             </SimpleBar>
           )}
+          {shouldUseVirtual && hasNoData && (
+            <SimpleBar style={scrollContainerStyles}>
+              <TableBodyHasNoData />
+            </SimpleBar>
+          )}
         </div>
       </div>
+      {isHeaderVisible && (
+        <SimpleBar
+          style={{
+            maxHeight: tableSizes.TABLE_HEADER_HEIGHT,
+          }}
+        >
+          <TableHeaderWrapper
+            backgroundColor={Colors.WHITE}
+            ref={tableHeaderWrapperRef}
+            serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+            tableSizes={tableSizes}
+            width={props.width}
+          >
+            <Scrollbars
+              renderThumbHorizontal={ScrollbarHorizontalThumb}
+              // renderThumbVertical={ScrollbarVerticalThumb}
+              renderTrackHorizontal={ScrollbarHorizontalTrack}
+              style={style}
+            >
+              <TableHeaderInnerWrapper
+                backgroundColor={Colors.WHITE}
+                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+                tableSizes={tableSizes}
+                variant={props.variant}
+                width={props.width}
+              >
+                <TableHeader
+                  accentColor={props.accentColor}
+                  allowAddNewRow={props.allowAddNewRow}
+                  applyFilter={props.applyFilter}
+                  borderRadius={props.borderRadius}
+                  boxShadow={props.boxShadow}
+                  columns={tableHeadercolumns}
+                  currentPageIndex={currentPageIndex}
+                  delimiter={props.delimiter}
+                  disableAddNewRow={!!props.editableCell.column}
+                  disabledAddNewRowSave={props.disabledAddNewRowSave}
+                  filters={props.filters}
+                  isAddRowInProgress={props.isAddRowInProgress}
+                  isVisibleDownload={props.isVisibleDownload}
+                  isVisibleFilters={props.isVisibleFilters}
+                  isVisiblePagination={props.isVisiblePagination}
+                  isVisibleSearch={props.isVisibleSearch}
+                  nextPageClick={props.nextPageClick}
+                  onAddNewRow={props.onAddNewRow}
+                  onAddNewRowAction={props.onAddNewRowAction}
+                  pageCount={pageCount}
+                  pageNo={props.pageNo}
+                  pageOptions={pageOptions}
+                  prevPageClick={props.prevPageClick}
+                  searchKey={props.searchKey}
+                  searchTableData={props.searchTableData}
+                  serverSidePaginationEnabled={
+                    props.serverSidePaginationEnabled
+                  }
+                  tableColumns={columns}
+                  tableData={data}
+                  tableSizes={tableSizes}
+                  totalRecordsCount={props.totalRecordsCount}
+                  updatePageNo={props.updatePageNo}
+                  widgetId={props.widgetId}
+                  widgetName={props.widgetName}
+                  pageSize={props.pageSize}
+                />
+              </TableHeaderInnerWrapper>
+            </Scrollbars>
+          </TableHeaderWrapper>
+        </SimpleBar>
+      )}
     </TableWrapper>
   );
 }

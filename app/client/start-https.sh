@@ -225,6 +225,8 @@ events {
 }
 
 http {
+    error_log /var/log/nginx/error.log debug; # todo testing remove me not for production use
+    
     map \$http_x_forwarded_proto \$origin_scheme {
         default \$http_x_forwarded_proto;
         '' \$scheme;
