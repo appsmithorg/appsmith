@@ -6324,6 +6324,7 @@ __metadata:
     instantsearch.css: ^7.4.2
     interweave: ^12.7.2
     interweave-autolink: ^4.4.2
+    jest: ^27.4.1
     jest-canvas-mock: ^2.3.1
     jest-preview: ^0.3.1
     jest-styled-components: ^7.0.8
@@ -14655,7 +14656,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^27.4.3":
+"jest@npm:^27.4.1, jest@npm:^27.4.3":
   version: 27.5.1
   resolution: "jest@npm:27.5.1"
   dependencies:
