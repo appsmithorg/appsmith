@@ -60,7 +60,7 @@ export function* handleRouteChange(
       yield fork(contextSwitchingSaga, pathname, previousPath, state);
       yield fork(appBackgroundHandler);
       yield fork(updateRecentEntitySaga, entityInfo);
-      yield fork(setSelectedWidgetsSaga);
+      // yield fork(setSelectedWidgetsSaga);
     }
   } catch (e) {
     log.error("Error in focus change", e);

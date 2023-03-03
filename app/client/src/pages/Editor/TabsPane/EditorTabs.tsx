@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { AppState } from "../../../ce/reducers";
 import { EditorTab } from "../../../reducers/uiReducers/editorTabsReducer";
-import { getSelectedWidget } from "../../../sagas/selectors";
 import {
   FocusEntity,
   identifyEntityFromPath,
@@ -16,12 +15,10 @@ import {
   datasourcesEditorIdURL,
   jsCollectionIdURL,
   queryEditorIdURL,
-  widgetURL,
 } from "../../../RouteBuilder";
-import { getPaneCount } from "../../../selectors/multiPaneSelectors";
-import { PaneLayoutOptions } from "../../../reducers/uiReducers/multiPaneReducer";
 import CloseIcon from "remixicon-react/CloseLineIcon";
 import { ReduxActionTypes } from "../../../ce/constants/ReduxActionConstants";
+import { indexOf } from "lodash";
 
 const Tab = styled.div<{ isActive: boolean }>`
   display: flex;
@@ -54,11 +51,9 @@ const EditorTabs = () => {
   const tabs: Array<EditorTab> = useSelector(
     (state: AppState) => state.ui.editorTabs.openTabs,
   );
-  const selectedWidget = useSelector(getSelectedWidget);
   const location = useLocation();
   const dispatch = useDispatch();
   const selectedEntity = identifyEntityFromPath(location.pathname);
-  const paneCount = useSelector(getPaneCount);
 
   const navigateToTab = useCallback((entity: EditorTab) => {
     if (!selectedEntity.pageId) return;
@@ -85,14 +80,6 @@ const EditorTabs = () => {
           }),
         );
         break;
-      case FocusEntity.PROPERTY_PANE:
-        history.push(
-          widgetURL({
-            selectedWidgets: [entity.id],
-            pageId: selectedEntity.pageId,
-          }),
-        );
-        break;
       case FocusEntity.DATASOURCE:
         history.push(
           datasourcesEditorIdURL({
@@ -106,51 +93,33 @@ const EditorTabs = () => {
     }
   }, []);
 
-  const closeTab = useCallback((e: MouseEvent, tab: EditorTab) => {
-    e.stopPropagation();
-    if (selectedEntity.pageId) {
-      history.push(builderURL({ pageId: selectedEntity.pageId }));
-    }
-    dispatch({
-      type: ReduxActionTypes.CLOSE_EDITOR_TAB,
-      payload: tab,
-    });
-  }, []);
+  const closeTab = useCallback(
+    (e: MouseEvent, tab: EditorTab) => {
+      e.stopPropagation();
+      const tabIndex = indexOf(tabs, tab);
+      if (tabIndex === 0) {
+        if (tabs.length > 1) {
+          navigateToTab(tabs[tabs.length - 1]);
+        } else {
+          navigateToTab({
+            entityType: FocusEntity.CANVAS,
+            name: "Canvas",
+            id: "0",
+          });
+        }
+      } else {
+        navigateToTab(tabs[tabIndex - 1]);
+      }
+      dispatch({
+        type: ReduxActionTypes.CLOSE_EDITOR_TAB,
+        payload: tab,
+      });
+    },
+    [tabs],
+  );
 
   return (
     <TabContainer>
-      {paneCount === PaneLayoutOptions.TWO_PANE && (
-        <Tab
-          isActive={
-            (selectedEntity.entity === FocusEntity.PROPERTY_PANE &&
-              selectedEntity.id === selectedWidget?.widgetId) ||
-            selectedEntity.entity === FocusEntity.CANVAS
-          }
-          key={selectedWidget?.widgetId || "Canvas"}
-          onClick={() => {
-            if (!selectedWidget || selectedWidget.widgetId === "0") {
-              navigateToTab({
-                id: "",
-                entityType: FocusEntity.CANVAS,
-                name: "Canvas",
-              });
-              return;
-            }
-            navigateToTab({
-              id: selectedWidget.widgetId,
-              entityType: FocusEntity.PROPERTY_PANE,
-              name: selectedWidget.widgetName,
-            });
-          }}
-        >
-          {selectedEntity.entity === FocusEntity.CANVAS ||
-          selectedWidget?.widgetId === "0"
-            ? "Canvas"
-            : selectedWidget
-            ? selectedWidget.widgetName
-            : "Canvas"}
-        </Tab>
-      )}
       {tabs.map((entity) => {
         const isActive =
           selectedEntity.entity === entity.entityType &&

@@ -117,7 +117,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     : true;
 
   return (
-    <div className="relative" style={{ height: "calc(100% - 50px)" }}>
+    <div className="relative" style={{ height: "100%" }}>
       {/* PROPERTY PANE */}
       <div
         className={classNames({
