@@ -11,7 +11,15 @@ type MarkerProps = google.maps.MarkerOptions & {
 };
 
 const Marker: React.FC<MarkerProps> = (options) => {
-  const { color, map, markerClusterer, onClick, onDragEnd, position } = options;
+  const {
+    color,
+    map,
+    markerClusterer,
+    onClick,
+    onDragEnd,
+    position,
+    title,
+  } = options;
   const [marker, setMarker] = useState<google.maps.Marker>();
 
   const icon = {
@@ -26,6 +34,7 @@ const Marker: React.FC<MarkerProps> = (options) => {
         position,
         icon,
         map,
+        title,
       });
 
       googleMapMarker.addListener("click", () => {
@@ -64,6 +73,13 @@ const Marker: React.FC<MarkerProps> = (options) => {
 
     marker.setPosition(position);
   }, [marker, position]);
+
+  // track title
+  useEffect(() => {
+    if (!marker) return;
+
+    marker.setTitle(title);
+  }, [marker, title]);
 
   // track on onclick
   useEffect(() => {
