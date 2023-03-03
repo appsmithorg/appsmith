@@ -35,6 +35,7 @@ export class DataSources {
   _editButton = ".t--edit-datasource";
   _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
+  _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
@@ -552,10 +553,10 @@ export class DataSources {
     cy.get(this._saveDs).click();
   }
 
-  public CheckForReconnectDataSourceModal() {
+  public CloseReconnectDataSourceModal() {
     cy.get("body").then(($ele) => {
       if ($ele.find(this._reconnectDataSourceModal).length) {
-        this.ReconnectDataSource("admin","PostgreSQL")
+        this.agHelper.GetNClick(this._skiptoApplicationBtn);
       }
     });
   }
