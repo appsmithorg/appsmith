@@ -34,7 +34,7 @@ export const getDateSuffix = (date = "") => {
 export const getDateString = (timestamp?: number) => {
   if (timestamp) {
     const [, month, date, year] = new Date(timestamp).toDateString().split(" ");
-    return `${date}${getDateSuffix(date)} ${month} ${year}`;
+    return `${date.replace(/\b0/g, "")}${getDateSuffix(date)} ${month} ${year}`;
   } else {
     return createMessage(NOT_AVAILABLE);
   }
