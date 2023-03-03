@@ -16,12 +16,13 @@ describe("List widget v2 - Basic server side data tests", () => {
     // Click on sample(mock) user database.
     cy.get(datasource.mockUserDatabase).click();
 
-    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
+    // Choose the recently created data source which consists of users keyword & Click on the "New Query +"" button
     cy.get(`${datasource.datasourceCard}`)
-      .contains("Users")
-      .get(`${datasource.createQuery}`)
+      .filter(":contains('Users')")
       .last()
-      .click({ force: true });
+      .within(() => {
+        cy.get(`${datasource.createQuery}`).click({ force: true });
+      });
 
     // Click the editing field
     cy.get(".t--action-name-edit-field").click({ force: true });
