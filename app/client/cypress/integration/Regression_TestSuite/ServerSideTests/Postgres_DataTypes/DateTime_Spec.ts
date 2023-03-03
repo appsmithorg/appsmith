@@ -228,7 +228,7 @@ describe("DateTime Datatype tests", function() {
     table.ReadTableRowColumnData(1, 6,  "v1",200).then(($cellData) => {
       expect($cellData).to.eq("1 years 3 mons 2 days 6 hours 4 mins 5.0 secs");
     });
-    table.ReadTableRowColumnData(1, 7,v 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 7,"v1", 200).then(($cellData) => {
       expect($cellData).to.eq("17.03.2014");
     });
     agHelper
