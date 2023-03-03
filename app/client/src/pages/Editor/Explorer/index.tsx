@@ -19,7 +19,7 @@ import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
-const selectForceOpenWidgetPanel = (state: AppState) =>
+export const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
 
 function ExplorerContent() {

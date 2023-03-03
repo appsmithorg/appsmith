@@ -54,6 +54,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
@@ -63,6 +64,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       invokedBy,
       pageId,
     } = action.payload;
+    yield put(forceOpenWidgetPanel(false));
 
     if (payload.some(isInvalidSelectionRequest)) {
       // Throw error

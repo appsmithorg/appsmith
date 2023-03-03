@@ -21,6 +21,7 @@ import {
 } from "reducers/uiReducers/multiPaneReducer";
 import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
 import WidgetSidebar from "./WidgetSidebar";
+import { selectForceOpenWidgetPanel } from "./Explorer";
 
 const Container = styled.div`
   height: calc(
@@ -46,6 +47,7 @@ const MultiPaneContainer = () => {
   const dispatch = useDispatch();
   const isPreviewMode = useSelector(previewModeSelector);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
+  const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
   const [windowWidth] = useWindowDimensions();
 
   useEffect(() => {
@@ -66,17 +68,22 @@ const MultiPaneContainer = () => {
   const showPropertyPane = isMultiPane
     ? paneCount === PaneLayoutOptions.THREE_PANE
     : true;
+
   return (
     <>
       <Container className="relative w-full overflow-x-hidden flex">
         <EntityExplorerSidebar width={250} />
         <SideNav />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
-        <WidgetSidebar isActive />
         <CanvasPane />
-        {showPropertyPane && (
+        {showPropertyPane && !openWidgetPanel && (
           <PropertyPanePane>
             <PropertyPaneContainer />
+          </PropertyPanePane>
+        )}
+        {openWidgetPanel && (
+          <PropertyPanePane>
+            <WidgetSidebar isActive />
           </PropertyPanePane>
         )}
       </Container>
