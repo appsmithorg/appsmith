@@ -13,12 +13,12 @@ import {
   TableSizes,
   TABLE_SCROLLBAR_WIDTH,
 } from "./Constants";
-import HeaderComponent, {
-  HeaderComponentProps,
+import TableColumnHeader, {
+  TableColumnHeaderProps,
 } from "./header/TableColumnHeader";
 import { TableBody } from "./TableBody";
 
-type StaticTableProps = HeaderComponentProps & {
+type StaticTableProps = TableColumnHeaderProps & {
   getTableBodyProps(
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
   ): TableBodyProps;
@@ -40,7 +40,7 @@ type StaticTableProps = HeaderComponentProps & {
   columns: ReactTableColumnProps[];
   primaryColumnId?: string;
   isAddRowInProgress: boolean;
-  headerProps?: HeaderComponentProps | Record<string, never>;
+  headerProps?: TableColumnHeaderProps | Record<string, never>;
   totalColumnsWidth?: number;
   scrollContainerStyles: any;
   useVirtual: boolean;
@@ -50,7 +50,7 @@ type StaticTableProps = HeaderComponentProps & {
 const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
   return (
     <SimpleBar ref={ref} style={props.scrollContainerStyles}>
-      <HeaderComponent
+      <TableColumnHeader
         accentColor={props.accentColor}
         borderRadius={props.borderRadius}
         canFreezeColumn={props.canFreezeColumn}

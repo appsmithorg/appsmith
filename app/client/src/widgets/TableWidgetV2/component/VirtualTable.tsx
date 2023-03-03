@@ -7,11 +7,11 @@ import {
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { ReactTableColumnProps, TableSizes } from "./Constants";
-import { HeaderComponentProps } from "./header/TableColumnHeader";
+import { TableColumnHeaderProps } from "./header/TableColumnHeader";
 import VirtualTableInnerElement from "./header/VirtualTableInnerElement";
 import { TableBody } from "./TableBody";
 
-type VirtualTableProps = HeaderComponentProps & {
+type VirtualTableProps = TableColumnHeaderProps & {
   getTableBodyProps(
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
   ): TableBodyProps;

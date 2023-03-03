@@ -3,7 +3,7 @@ import { useContext } from "react";
 import styled from "styled-components";
 import { MULTISELECT_CHECKBOX_WIDTH } from "../Constants";
 import { BodyContext } from "../TableBody";
-import HeaderComponent from "./TableColumnHeader";
+import TableColumnHeader from "./TableColumnHeader";
 
 const StyledTableBodyWrapper = styled.div<{
   multiRowSelection?: boolean;
@@ -48,7 +48,7 @@ const VirtualTableInnerElement = ({
 
   return (
     <>
-      <HeaderComponent
+      <TableColumnHeader
         accentColor={accentColor}
         borderRadius={borderRadius}
         canFreezeColumn={canFreezeColumn}

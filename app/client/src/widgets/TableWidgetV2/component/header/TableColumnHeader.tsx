@@ -7,7 +7,7 @@ import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCel
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import styled from "styled-components";
 
-export type HeaderComponentProps = {
+export type TableColumnHeaderProps = {
   enableDrag: () => void;
   disableDrag: () => void;
   multiRowSelection?: boolean;
@@ -39,7 +39,7 @@ const StyledHeaderGroup = styled.div<{
   display: flex;
   width: ${(props) => props.headerWidth}px !important;
 `;
-const HeaderComponent = (props: HeaderComponentProps) => {
+const TableColumnHeader = (props: TableColumnHeaderProps) => {
   const currentDraggedColumn = React.useRef<string>("");
   const columnOrder = props.columns.map((col) => col.alias);
   const {
@@ -142,4 +142,4 @@ const HeaderComponent = (props: HeaderComponentProps) => {
   );
 };
 
-export default HeaderComponent;
+export default TableColumnHeader;

@@ -35,6 +35,7 @@ import { createGlobalStyle } from "styled-components";
 import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import StaticTable from "./StaticTable";
 import VirtualTable from "./VirtualTable";
+import fastdom from "fastdom";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -297,8 +298,12 @@ export function Table(props: TableProps) {
     );
 
   useEffect(() => {
-    if (props.isAddRowInProgress && scrollBarRef && scrollBarRef?.current) {
-      scrollBarRef.current.getScrollElement().scrollTop = 0;
+    if (props.isAddRowInProgress) {
+      fastdom.mutate(() => {
+        if (scrollBarRef && scrollBarRef?.current) {
+          scrollBarRef.current.getScrollElement().scrollTop = 0;
+        }
+      });
     }
   }, [props.isAddRowInProgress]);
 
