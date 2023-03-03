@@ -21,7 +21,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import WidgetFactory from "utils/WidgetFactory";
-import { canDrag } from "../DraggableComponent";
 import SettingsControl, { Activities } from "./SettingsControl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -170,21 +169,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   )
     currentActivity = Activities.ACTIVE;
 
-  // This state tells us to disable dragging,
-  // This is usually true when widgets themselves implement drag/drop
-  // This flag resolves conflicting drag/drop triggers.
-  const isDraggingDisabled: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
-  );
-
-  const allowDrag = canDrag(
-    isResizingOrDragging,
-    isDraggingDisabled,
-    props.widgetProps,
-    isSnipingMode,
-    isPreviewMode,
-  );
-
   // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
   // const popperOffset: any = [-RESIZE_BORDER_BUFFER, RESIZE_BORDER_BUFFER - 1];
   const widgetWidth =
@@ -194,7 +178,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
       data-testid="t--settings-controls-positioned-wrapper"
-      draggable={allowDrag}
       id={"widget_name_" + props.widgetId}
       isSnipingMode={isSnipingMode}
     >
