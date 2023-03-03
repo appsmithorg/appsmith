@@ -4,21 +4,18 @@ public class MongoPluginErrorMessages {
     private MongoPluginErrorMessages() {
         //Prevents instantiation
     }
-    public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Mongo query failed to execute. To know more please check the error details.";
+    public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your Mongo query failed to execute.";
 
-    public static final String CONNECTION_STRING_PARSING_FAILED_ERROR_MSG = "Appsmith server has failed to parse the Mongo connection string URI. Please check " +
-            "if the URI has the correct format.";
+    public static final String CONNECTION_STRING_PARSING_FAILED_ERROR_MSG = "The Appsmith server has failed to parse the Mongo connection string URI.";
 
-    public static final String NO_CONNECTION_STRING_URI_ERROR_MSG = "Could not find any Mongo connection string URI. Please edit the 'Mongo Connection String" +
-            " URI' field to provide the URI to connect to.";
+    public static final String NO_CONNECTION_STRING_URI_ERROR_MSG = "Could not find any Mongo connection string URI.";
 
-    public static final String UNEXPECTED_SSL_OPTION_ERROR_MSG = "Appsmith server has found an unexpected SSL option: %s. Please reach out to" +
+    public static final String UNEXPECTED_SSL_OPTION_ERROR_MSG = "The Appsmith server has found an unexpected SSL option: %s. Please reach out to" +
             " Appsmith customer support to resolve this.";
 
-    public static final String UNPARSABLE_FIELDNAME_ERROR_MSG =  "%s could not be parsed into expected JSON format.";
+    public static final String UNPARSABLE_FIELDNAME_ERROR_MSG =  "%s has an invalid JSON format.";
 
-    public static final String NO_VALID_MONGO_COMMAND_FOUND_ERROR_MSG = "No valid mongo command found. Please select a command from the \"Command\" dropdown and try " +
-            "again";
+    public static final String NO_VALID_MONGO_COMMAND_FOUND_ERROR_MSG = "No valid mongo command found.";
 
     public static final String FIELD_WITH_NO_CONFIGURATION_ERROR_MSG = "Try again after configuring the fields : %s";
 
@@ -34,7 +31,7 @@ public class MongoPluginErrorMessages {
 
     public static final String UNSUPPORTED_OPERATION_GET_RAW_QUERY_ERROR_MSG = "Unsupported Operation : All mongo commands must implement getRawQuery.";
 
-    public static final String QUERY_INVALID_ERROR_MSG = "Query is not valid";
+    public static final String QUERY_INVALID_ERROR_MSG = "Your query is invalid";
 
     /*
      ************************************************************************************************************************************************
