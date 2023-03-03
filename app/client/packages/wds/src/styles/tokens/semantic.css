@@ -1,0 +1,11 @@
+:root {
+  --wds-v2-color-bg-disabled: var(--wds-v2-color-gray-100);
+  --wds-v2-color-text-disabled: var(--wds-v2-color-gray-400);
+
+  --wds-v2-color-border: var(--wds-v2-color-gray-200);
+  --wds-v2-color-border-disabled: var(--wds-v2-color-gray-200);
+  --wds-v2-color-border-focus: var(--wds-v2-color-blue-300);
+
+  --wds-v2-color-bg-select: var(--wds-v2-color-white);
+  --wds-v2-color-bg-select-hover: var(--wds-v2-color-gray-100);
+}
