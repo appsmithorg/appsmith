@@ -12,12 +12,11 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTree,
-  DataTreeAction,
-  DataTreeWidget,
-  DataTreeJSAction,
+  WidgetEntity,
   ConfigTree,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
+import { ActionEntity, JSActionEntity } from "entities/DataTree/types";
 import {
   DependencyMap,
   isChildPropertyPath,
@@ -600,12 +599,12 @@ export const updateDependencyMap = ({
             typeof value === "string"
           ) {
             const entity:
-              | DataTreeAction
-              | DataTreeWidget
-              | DataTreeJSAction = unEvalDataTree[entityName] as
-              | DataTreeAction
-              | DataTreeWidget
-              | DataTreeJSAction;
+              | ActionEntity
+              | WidgetEntity
+              | JSActionEntity = unEvalDataTree[entityName] as
+              | ActionEntity
+              | WidgetEntity
+              | JSActionEntity;
             const entityConfig = configTree[entityName];
             const fullPropertyPath = dataTreeDiff.payload.propertyPath;
             const entityPropertyPath = getPropertyPath(fullPropertyPath);

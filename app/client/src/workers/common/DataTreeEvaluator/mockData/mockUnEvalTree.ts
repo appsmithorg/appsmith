@@ -1,8 +1,8 @@
 import { PaginationType } from "entities/Action";
 import {
   DataTree,
-  DataTreeWidget,
-  DataTreeAppsmith,
+  WidgetEntity,
+  AppsmithEntity,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 
@@ -253,7 +253,7 @@ export const asyncTagUnevalTree: DataTree = {
     children: [],
     meta: {},
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-  } as unknown) as DataTreeWidget,
+  } as unknown) as WidgetEntity,
   appsmith: ({
     user: {
       email: "anand@appsmith.com",
@@ -318,7 +318,7 @@ export const asyncTagUnevalTree: DataTree = {
     },
     mode: "EDIT",
     ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
-  } as unknown) as DataTreeAppsmith,
+  } as unknown) as AppsmithEntity,
 };
 
 export const lintingUnEvalTree = {

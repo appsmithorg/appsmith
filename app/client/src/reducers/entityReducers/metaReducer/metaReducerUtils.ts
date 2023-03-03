@@ -1,5 +1,5 @@
 import {
-  DataTreeWidget,
+  WidgetEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
@@ -7,7 +7,7 @@ import { WidgetMetaState } from ".";
 import { PropertyOverrideDependency } from "entities/DataTree/types";
 
 export function getMetaWidgetResetObj(
-  evaluatedWidget: DataTreeWidget | undefined,
+  evaluatedWidget: WidgetEntity | undefined,
   evaluatedWidgetConfig: WidgetEntityConfig,
 ) {
   // reset widget: sets the meta values to current default values of widget

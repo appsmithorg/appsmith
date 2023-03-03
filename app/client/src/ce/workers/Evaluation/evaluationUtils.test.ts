@@ -8,13 +8,12 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import {
   ConfigTree,
   DataTreeEntity,
-  DataTreeJSAction,
-  DataTreeWidget,
+  WidgetEntity,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import { PrivateWidgets } from "entities/DataTree/types";
+import { PrivateWidgets, JSActionEntity } from "entities/DataTree/types";
 import {
   addErrorToEntityProperty,
   convertJSFunctionsToString,
@@ -51,7 +50,7 @@ import { PluginType } from "entities/Action";
 // use jest.unmock, if the mock needs to be removed.
 jest.mock("loglevel");
 
-const BASE_WIDGET: DataTreeWidget = {
+const BASE_WIDGET: WidgetEntity = {
   widgetId: "randomID",
   widgetName: "randomWidgetName",
   bottomRow: 0,
@@ -84,7 +83,7 @@ const BASE_WIDGET_CONFIG: WidgetEntityConfig = {
   defaultMetaProps: [],
 };
 
-const testDataTree: Record<string, DataTreeWidget> = {
+const testDataTree: Record<string, WidgetEntity> = {
   Text1: {
     ...BASE_WIDGET,
     widgetName: "Text1",
@@ -265,7 +264,7 @@ describe("2. privateWidgets", () => {
   it("3. Returns data tree without privateWidgets", () => {
     const expectedDataTreeWithoutPrivateWidgets: Record<
       string,
-      DataTreeWidget
+      WidgetEntity
     > = {
       Text1: {
         ...BASE_WIDGET,
@@ -636,7 +635,7 @@ describe("5. overrideWidgetProperties", () => {
     it("1. defaultText updating meta.text and text", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        entity: currentTree.Input1 as DataTreeWidget,
+        entity: currentTree.Input1 as WidgetEntity,
         propertyPath: "defaultText",
         value: "abcde",
 
@@ -674,7 +673,7 @@ describe("5. overrideWidgetProperties", () => {
     it("2. meta.text updating text", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        entity: currentTree.Input1 as DataTreeWidget,
+        entity: currentTree.Input1 as WidgetEntity,
         propertyPath: "meta.text",
         value: "abcdefg",
         currentTree,
@@ -722,7 +721,7 @@ describe("5. overrideWidgetProperties", () => {
     it("1. On change of defaultSelectedRow ", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        entity: currentTree.Table1 as DataTreeWidget,
+        entity: currentTree.Table1 as WidgetEntity,
         propertyPath: "defaultSelectedRow",
         value: [0, 1],
         currentTree,
@@ -758,7 +757,7 @@ describe("5. overrideWidgetProperties", () => {
     it("2. meta.selectedRowIndex updating selectedRowIndex", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        entity: currentTree.Table1 as DataTreeWidget,
+        entity: currentTree.Table1 as WidgetEntity,
         propertyPath: "meta.selectedRowIndex",
         value: 0,
         currentTree,
@@ -950,7 +949,7 @@ describe("convertJSFunctionsToString", () => {
     },
   } as unknown) as ConfigTree;
 
-  const jsCollections: Record<string, DataTreeJSAction> = {
+  const jsCollections: Record<string, JSActionEntity> = {
     JSObject1: {
       myFun1: JSObject1MyFun1,
       body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',

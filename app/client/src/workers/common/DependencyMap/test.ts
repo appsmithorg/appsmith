@@ -12,7 +12,7 @@ import SelectWidget, {
 import {
   DataTree,
   ConfigTree,
-  DataTreeWidget,
+  WidgetEntity,
   WidgetEntityConfig,
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
@@ -113,7 +113,7 @@ describe("DependencyMap utils", function() {
       onClick: "",
       meta: {},
       type: "BUTTON_WIDGET",
-    } as unknown) as DataTreeWidget;
+    } as unknown) as WidgetEntity;
 
     const entityConfig = ({
       widgetId: "hmqejzs6wz",
@@ -223,7 +223,7 @@ describe("DependencyMap utils", function() {
       googleRecaptchaKey: "{{JSObject.myVar1}}",
       meta: {},
       type: "BUTTON_WIDGET",
-    } as unknown) as DataTreeWidget;
+    } as unknown) as WidgetEntity;
 
     const entityConfig2 = ({
       ENTITY_TYPE: "WIDGET",

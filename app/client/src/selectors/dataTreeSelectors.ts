@@ -9,7 +9,7 @@ import {
 import {
   DataTree,
   DataTreeFactory,
-  DataTreeWidget,
+  WidgetEntity,
 } from "entities/DataTree/dataTreeFactory";
 import {
   getMetaWidgets,
@@ -90,7 +90,7 @@ export const getConfigTree = (): any => {
 
 export const getWidgetEvalValues = createSelector(
   [getDataTree, (_state: AppState, widgetName: string) => widgetName],
-  (tree: DataTree, widgetName: string) => tree[widgetName] as DataTreeWidget,
+  (tree: DataTree, widgetName: string) => tree[widgetName] as WidgetEntity,
 );
 
 // For autocomplete. Use actions cached responses if

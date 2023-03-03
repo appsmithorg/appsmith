@@ -17,7 +17,7 @@ import {
 } from "widgets/WidgetUtils";
 import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { getLayoutTree } from "./layoutTree";
 
 export function* dynamicallyUpdateContainersSaga(
@@ -54,7 +54,7 @@ export function* dynamicallyUpdateContainersSaga(
       // If the widget exists, is not visible and we can collapse widgets
       if (
         dataTreeWidget &&
-        (dataTreeWidget as DataTreeWidget).isVisible !== true &&
+        (dataTreeWidget as WidgetEntity).isVisible !== true &&
         shouldCollapse
       ) {
         continue;

@@ -1,6 +1,6 @@
 import {
   DataTree,
-  DataTreeAppsmith,
+  AppsmithEntity,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
@@ -92,7 +92,7 @@ export const getEntitiesForNavigation = createSelector(
       });
     });
     navigationData["appsmith"] = getAppsmithNavData(
-      dataTree.appsmith as DataTreeAppsmith,
+      dataTree.appsmith as AppsmithEntity,
     );
     return navigationData;
   },

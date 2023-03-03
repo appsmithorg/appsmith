@@ -44,7 +44,7 @@ import {
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import { CanvasWidgetStructure } from "./constants";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { Stylesheet } from "entities/AppTheming";
 import { CSSProperties } from "styled-components";
@@ -651,7 +651,7 @@ export interface WidgetBaseProps {
   parentId?: string;
   renderMode: RenderMode;
   version: number;
-  childWidgets?: DataTreeWidget[];
+  childWidgets?: WidgetEntity[];
   flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   metaWidgetChildrenStructure?: CanvasWidgetStructure[];
   referencedWidgetId?: string;

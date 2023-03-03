@@ -1,7 +1,6 @@
 import {
   ConfigTree,
-  DataTreeAction,
-  DataTreeWidget,
+  WidgetEntity,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
   UnEvalTree,
@@ -15,7 +14,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
-import { ActionEntityConfig } from "entities/DataTree/types";
+import { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -237,7 +236,7 @@ const BASE_WIDGET = ({
   version: 1,
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   meta: {},
-} as unknown) as DataTreeWidget;
+} as unknown) as WidgetEntity;
 
 const BASE_WIDGET_CONFIG = ({
   logBlackList: {},
@@ -246,7 +245,7 @@ const BASE_WIDGET_CONFIG = ({
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
 } as unknown) as WidgetEntityConfig;
 
-export const BASE_ACTION: DataTreeAction = {
+export const BASE_ACTION: ActionEntity = {
   clear: {},
   actionId: "randomId",
   datasourceUrl: "",

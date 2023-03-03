@@ -1,8 +1,7 @@
 import {
   ConfigTree,
   DataTree,
-  DataTreeAppsmith,
-  DataTreeJSAction,
+  AppsmithEntity,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -22,7 +21,7 @@ import {
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
-import { JSActionEntityConfig } from "entities/DataTree/types";
+import { JSActionEntityConfig, JSActionEntity } from "entities/DataTree/types";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -35,7 +34,7 @@ import { JSActionEntityConfig } from "entities/DataTree/types";
  */
 export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
-  jsCollection: DataTreeJSAction,
+  jsCollection: JSActionEntity,
   unEvalTree: DataTree,
   configTree: ConfigTree,
   entityName: string,
@@ -192,11 +191,11 @@ export const updateJSCollectionInUnEvalTree = (
  */
 export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: DataTree,
-  entity: DataTreeJSAction,
+  entity: JSActionEntity,
   entityName: string,
   configTree: ConfigTree,
 ) => {
-  // const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
+  // const oldConfig = Object.getPrototypeOf(entity) as JSActionEntity;
   const oldConfig = configTree[entityName] as JSActionEntityConfig;
   const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
@@ -248,7 +247,7 @@ export function isJSObjectFunction(
 }
 
 export function getAppMode(dataTree: DataTree) {
-  const appsmithObj = dataTree.appsmith as DataTreeAppsmith;
+  const appsmithObj = dataTree.appsmith as AppsmithEntity;
   return appsmithObj.mode as APP_MODE;
 }
 

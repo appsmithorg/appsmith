@@ -10,12 +10,10 @@ import {
 import { Diff } from "deep-diff";
 import {
   DataTree,
-  DataTreeAction,
-  DataTreeAppsmith,
+  AppsmithEntity,
   DataTreeEntity,
-  DataTreeWidget,
+  WidgetEntity,
   ENTITY_TYPE,
-  DataTreeJSAction,
   DataTreeEntityConfig,
   ConfigTree,
   WidgetEntityConfig,
@@ -27,9 +25,14 @@ import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
-import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTreeEntityObject } from "entities/DataTree/dataTreeFactory";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
-import { JSActionEntityConfig, PrivateWidgets } from "entities/DataTree/types";
+import {
+  JSActionEntityConfig,
+  PrivateWidgets,
+  JSActionEntity,
+  ActionEntity,
+} from "entities/DataTree/types";
 import { EvalProps } from "workers/common/DataTreeEvaluator";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
@@ -357,7 +360,7 @@ export const addDependantsOfNestedPropertyPaths = (
 
 export function isWidget(
   entity: Partial<DataTreeEntity> | WidgetEntityConfig,
-): entity is DataTreeWidget | WidgetEntityConfig {
+): entity is WidgetEntity | WidgetEntityConfig {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -365,15 +368,15 @@ export function isWidget(
   );
 }
 
-export const shouldSuppressAutoComplete = (widget: DataTreeWidget) =>
+export const shouldSuppressAutoComplete = (widget: WidgetEntity) =>
   Boolean(widget.suppressAutoComplete);
 
-export const shouldSuppressDebuggerError = (widget: DataTreeWidget) =>
+export const shouldSuppressDebuggerError = (widget: WidgetEntity) =>
   Boolean(widget.suppressDebuggerError);
 
 export function isAction(
   entity: Partial<DataTreeEntity>,
-): entity is DataTreeAction {
+): entity is ActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -383,7 +386,7 @@ export function isAction(
 
 export function isAppsmithEntity(
   entity: DataTreeEntity,
-): entity is DataTreeAppsmith {
+): entity is AppsmithEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -391,7 +394,7 @@ export function isAppsmithEntity(
   );
 }
 
-export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
+export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -399,7 +402,7 @@ export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
   );
 }
 
-export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -768,7 +771,7 @@ export const getDataTreeForAutocomplete = (
  *  we override the values like text and meta.text in dataTree, these values are called as overriddenPropertyPaths
  *
  * @param {{
- *   entity: DataTreeWidget;
+ *   entity: WidgetEntity;
  *   propertyPath: string;
  *   value: unknown;
  *   currentTree: DataTree;
@@ -777,7 +780,7 @@ export const getDataTreeForAutocomplete = (
  * @return {*}
  */
 export const overrideWidgetProperties = (params: {
-  entity: DataTreeWidget;
+  entity: WidgetEntity;
   propertyPath: string;
   value: unknown;
   currentTree: DataTree;
@@ -860,7 +863,7 @@ export const overrideWidgetProperties = (params: {
 };
 export function isValidEntity(
   entity: DataTreeEntity,
-): entity is DataTreeObjectEntity {
+): entity is DataTreeEntityObject {
   if (!isObject(entity)) {
     return false;
   }
@@ -923,13 +926,13 @@ const isWidgetDefaultPropertyPath = (
   return false;
 };
 
-const isMetaWidgetTemplate = (widget: DataTreeWidget) => {
+const isMetaWidgetTemplate = (widget: WidgetEntity) => {
   return !!widget.siblingMetaWidgets;
 };
 
 // When a default value changes in a template(widgets used to generate other widgets), meta values of metaWidgets not present in the unevalTree become stale
 export function getStaleMetaStateIds(args: {
-  entity: DataTreeWidget;
+  entity: WidgetEntity;
   entityConfig: WidgetEntityConfig;
   propertyPath: string;
   isNewWidget: boolean;
@@ -944,7 +947,7 @@ export function getStaleMetaStateIds(args: {
 }
 
 export function convertJSFunctionsToString(
-  jscollections: Record<string, DataTreeJSAction>,
+  jscollections: Record<string, JSActionEntity>,
   configTree: ConfigTree,
 ) {
   const collections = klona(jscollections);

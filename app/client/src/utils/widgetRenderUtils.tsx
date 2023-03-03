@@ -5,7 +5,7 @@ import {
 import {
   ConfigTree,
   DataTree,
-  DataTreeWidget,
+  WidgetEntity,
   ENTITY_TYPE,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
@@ -18,7 +18,7 @@ import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReduce
 
 export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
-  evaluatedWidget: DataTreeWidget,
+  evaluatedWidget: WidgetEntity,
   evaluatedWidgetConfig: WidgetEntityConfig,
   specificChildProps?: string[],
 ) => {
@@ -42,7 +42,7 @@ export const createCanvasWidget = (
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const createLoadingWidget = (
   canvasWidget: FlattenedWidgetProps,
-): DataTreeWidget => {
+): WidgetEntity => {
   const widgetStaticProps = pick(
     canvasWidget,
     Object.keys(WIDGET_STATIC_PROPS),
@@ -98,7 +98,7 @@ export function buildChildWidgetTree(
         canvasWidgets[childWidgetId] || metaWidgets[childWidgetId];
       const evaluatedWidget = evaluatedDataTree[
         childWidget.widgetName
-      ] as DataTreeWidget;
+      ] as WidgetEntity;
       const evaluatedWidgetConfig = configTree[
         childWidget.widgetName
       ] as WidgetEntityConfig;

@@ -19,11 +19,9 @@ import {
 import {
   ConfigTree,
   DataTree,
-  DataTreeAction,
   DataTreeEntity,
   DataTreeEntityConfig,
-  DataTreeJSAction,
-  DataTreeWidget,
+  WidgetEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import {
@@ -35,6 +33,8 @@ import { libraryReservedIdentifiers } from "workers/common/JSLibrary";
 import {
   ActionEntityConfig,
   JSActionEntityConfig,
+  ActionEntity,
+  JSActionEntity,
 } from "entities/DataTree/types";
 
 /** This function extracts validReferences and invalidReferences from a binding {{}}
@@ -150,7 +150,7 @@ export const extractInfoFromBindings = (
 };
 
 export function listTriggerFieldDependencies(
-  entity: DataTreeWidget,
+  entity: WidgetEntity,
   entityName: string,
   entityConfig: WidgetEntityConfig,
 ): DependencyMap {
@@ -174,7 +174,7 @@ export function listTriggerFieldDependencies(
 }
 
 export function listValidationDependencies(
-  entity: DataTreeWidget,
+  entity: WidgetEntity,
   entityName: string,
   entityConfig: WidgetEntityConfig,
 ): DependencyMap {
@@ -222,7 +222,7 @@ const invalidEntityIdentifiers: Record<string, unknown> = {
 };
 
 export function listEntityDependencies(
-  entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
+  entity: WidgetEntity | ActionEntity | JSActionEntity,
   entityName: string,
   allPaths: Record<string, true>,
   unEvalDataTree: DataTree,
@@ -319,7 +319,7 @@ export function listEntityDependencies(
 }
 
 export function listEntityPathDependencies(
-  entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
+  entity: WidgetEntity | ActionEntity | JSActionEntity,
   fullPropertyPath: string,
   entityConfig: DataTreeEntityConfig,
 ): {
@@ -372,7 +372,7 @@ export function listEntityPathDependencies(
 }
 
 export function listEntityPathTriggerFieldDependencies(
-  entity: DataTreeWidget,
+  entity: WidgetEntity,
   fullPath: string,
   entityConfig: WidgetEntityConfig,
 ) {

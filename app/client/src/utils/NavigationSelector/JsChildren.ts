@@ -1,8 +1,4 @@
-import {
-  DataTree,
-  DataTreeJSAction,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { keyBy } from "lodash";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { jsCollectionIdURL } from "RouteBuilder";
@@ -11,6 +7,7 @@ import {
   NavigationData,
 } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
+import { JSActionEntity } from "entities/DataTree/types";
 
 export const getJsChildrenNavData = (
   jsAction: JSCollectionData,
@@ -20,7 +17,7 @@ export const getJsChildrenNavData = (
   const peekData: Record<string, unknown> = {};
   let childNavData: EntityNavigationData = {};
 
-  const dataTreeAction = dataTree[jsAction.config.name] as DataTreeJSAction;
+  const dataTreeAction = dataTree[jsAction.config.name] as JSActionEntity;
 
   if (dataTreeAction) {
     let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {

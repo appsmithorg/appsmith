@@ -3,7 +3,7 @@ import { Severity } from "entities/AppsmithConsole";
 import {
   ConfigTree,
   DataTree,
-  DataTreeWidget,
+  WidgetEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { get, isUndefined, set } from "lodash";
@@ -33,7 +33,7 @@ export function validateAndParseWidgetProperty({
   widget,
 }: {
   fullPropertyPath: string;
-  widget: DataTreeWidget;
+  widget: WidgetEntity;
   currentTree: DataTree;
   configTree: ConfigTree;
   evalPropertyValue: unknown;

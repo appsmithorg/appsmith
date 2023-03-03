@@ -1,7 +1,7 @@
 import evaluate, { evaluateAsync } from "workers/Evaluation/evaluate";
 import {
   DataTree,
-  DataTreeWidget,
+  WidgetEntity,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
@@ -11,7 +11,7 @@ import { resetJSLibraries } from "workers/common/JSLibrary";
 import { EVAL_WORKER_ACTIONS } from "ce/workers/Evaluation/evalWorkerActions";
 
 describe("evaluateSync", () => {
-  const widget: DataTreeWidget = {
+  const widget: WidgetEntity = {
     bottomRow: 0,
     isLoading: false,
     leftColumn: 0,

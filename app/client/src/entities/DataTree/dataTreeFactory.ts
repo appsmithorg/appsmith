@@ -16,48 +16,37 @@ import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
   ActionDispatcher,
   ActionEntityConfig,
-  ActionEntityEvalTree,
+  ActionEntity,
   ENTITY_TYPE,
   JSActionEntityConfig,
-  JSActionEvalTree,
+  JSActionEntity,
   WidgetConfig,
   EvaluationSubstitutionType,
 } from "./types";
 
-export type UnEvalTreeAction = ActionEntityEvalTree;
-export type UnEvalTreeJSAction = JSActionEvalTree;
-export type UnEvalTreeWidget = WidgetEvalTree;
-
 export type UnEvalTreeEntityObject =
-  | UnEvalTreeAction
-  | UnEvalTreeJSAction
-  | UnEvalTreeWidget;
+  | ActionEntity
+  | JSActionEntity
+  | WidgetEntity;
 
-export type UnEvalTreeEntity =
-  | UnEvalTreeEntityObject
-  | DataTreeAppsmith
-  | Page[];
+export type UnEvalTreeEntity = UnEvalTreeEntityObject | AppsmithEntity | Page[];
 
 export type UnEvalTree = {
   [entityName: string]: UnEvalTreeEntity;
 };
 
-export type DataTreeAction = ActionEntityEvalTree;
-export type DataTreeJSAction = JSActionEvalTree;
-export type DataTreeWidget = WidgetEvalTree;
-
-export interface WidgetEvalTree extends WidgetProps {
+export interface WidgetEntity extends WidgetProps {
   meta: Record<string, unknown>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
-export type DataTreeObjectEntity =
-  | DataTreeAction
-  | DataTreeJSAction
-  | DataTreeWidget
-  | DataTreeAppsmith;
+export type DataTreeEntityObject =
+  | ActionEntity
+  | JSActionEntity
+  | WidgetEntity
+  | AppsmithEntity;
 
-export type DataTreeEntity = DataTreeObjectEntity | Page[] | ActionDispatcher;
+export type DataTreeEntity = DataTreeEntityObject | Page[] | ActionDispatcher;
 
 export type DataTree = {
   [entityName: string]: DataTreeEntity;
@@ -71,7 +60,7 @@ export interface WidgetEntityConfig
   type: string;
 }
 
-export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
+export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
@@ -165,8 +154,8 @@ export class DataTreeFactory {
       // taking precedence in case the key is the same
       store: appData.store,
       theme,
-    } as DataTreeAppsmith;
-    (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
+    } as AppsmithEntity;
+    (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
 
     const startMetaWidgets = performance.now();
 

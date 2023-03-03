@@ -15,7 +15,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 
 export function* shouldWidgetsCollapse() {
@@ -166,7 +166,7 @@ export function* getMinHeightBasedOnChildren(
 
     if (
       dataTreeWidget &&
-      (dataTreeWidget as DataTreeWidget).isVisible !== true &&
+      (dataTreeWidget as WidgetEntity).isVisible !== true &&
       shouldCollapse
     ) {
       continue;

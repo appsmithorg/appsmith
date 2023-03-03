@@ -10,7 +10,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import {
   ENTITY_TYPE,
   WidgetEntityConfig,
-  UnEvalTreeWidget,
+  WidgetEntity,
 } from "./dataTreeFactory";
 import {
   OverridingPropertyPaths,
@@ -26,7 +26,7 @@ import { setOverridingProperty } from "./utils";
 const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
 ): {
-  dataTreeWidgetWithoutMetaProps: UnEvalTreeWidget;
+  dataTreeWidgetWithoutMetaProps: WidgetEntity;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
   entityConfig: WidgetEntityConfig;

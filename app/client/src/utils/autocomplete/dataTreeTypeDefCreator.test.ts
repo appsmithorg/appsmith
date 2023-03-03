@@ -5,7 +5,7 @@ import {
   getFunctionsArgsType,
 } from "utils/autocomplete/dataTreeTypeDefCreator";
 import {
-  DataTreeWidget,
+  WidgetEntity,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
   WidgetEntityConfig,
@@ -14,7 +14,7 @@ import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinition
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
-    const dataTreeEntity: DataTreeWidget = {
+    const dataTreeEntity: WidgetEntity = {
       widgetId: "yolo",
       widgetName: "Input1",
       parentId: "123",

@@ -1,10 +1,6 @@
 import { PluginType } from "entities/Action";
-import {
-  DataTreeAction,
-  DataTreeJSAction,
-  DataTreeWidget,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import { WidgetEntity, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ActionEntity, JSActionEntity } from "entities/DataTree/types";
 import {
   findLoadingEntities,
   getEntityDependantPaths,
@@ -12,7 +8,7 @@ import {
 } from "utils/WidgetLoadingStateUtils";
 import WidgetFactory from "./WidgetFactory";
 
-const JS_object_tree: DataTreeJSAction = {
+const JS_object_tree: JSActionEntity = {
   pluginType: PluginType.JS,
   name: "",
   ENTITY_TYPE: ENTITY_TYPE.JSACTION,
@@ -27,7 +23,7 @@ const JS_object_tree: DataTreeJSAction = {
 };
 
 // @ts-expect-error: meta property not provided
-const Select_tree: DataTreeWidget = {
+const Select_tree: WidgetEntity = {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   widgetId: "",
   type: "",
@@ -44,7 +40,7 @@ const Select_tree: DataTreeWidget = {
   animateLoading: true,
 };
 
-const Query_tree: DataTreeAction = {
+const Query_tree: ActionEntity = {
   data: {},
   actionId: "",
   config: {},
@@ -58,7 +54,7 @@ const Query_tree: DataTreeAction = {
   isLoading: false,
 };
 
-const Api_tree: DataTreeAction = {
+const Api_tree: ActionEntity = {
   data: {},
   actionId: "",
   config: {},
@@ -72,7 +68,7 @@ const Api_tree: DataTreeAction = {
   isLoading: false,
 };
 
-const Table_tree: DataTreeWidget = {
+const Table_tree: WidgetEntity = {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   widgetId: "",
   type: "TABLE_WIDGET",

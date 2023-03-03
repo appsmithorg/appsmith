@@ -19,16 +19,19 @@ import {
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import {
   DataTree,
-  DataTreeAction,
   DataTreeEntity,
-  DataTreeJSAction,
-  DataTreeWidget,
+  WidgetEntity,
   EvaluationSubstitutionType,
   ConfigTree,
   WidgetEntityConfig,
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE, PrivateWidgets } from "entities/DataTree/types";
+import {
+  ENTITY_TYPE,
+  PrivateWidgets,
+  ActionEntity,
+  JSActionEntity,
+} from "entities/DataTree/types";
 import {
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,
@@ -390,8 +393,8 @@ export default class DataTreeEvaluator {
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
     const jsDifferences: Diff<
-      Record<string, DataTreeJSAction>,
-      Record<string, DataTreeJSAction>
+      Record<string, JSActionEntity>,
+      Record<string, JSActionEntity>
     >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
     const jsTranslatedDiffs = flatten(
       jsDifferences.map((diff) =>
@@ -760,9 +763,7 @@ export default class DataTreeEvaluator {
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
-          const entity = currentTree[entityName] as
-            | DataTreeWidget
-            | DataTreeAction;
+          const entity = currentTree[entityName] as WidgetEntity | ActionEntity;
           const unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
           const entityConfig = oldConfigTree[entityName];
 
@@ -1182,7 +1183,7 @@ export default class DataTreeEvaluator {
   }: {
     currentTree: DataTree;
     configTree: ConfigTree;
-    entity: DataTreeWidget;
+    entity: WidgetEntity;
     evalMetaUpdates: EvalMetaUpdates;
     fullPropertyPath: string;
     isNewWidget: boolean;
@@ -1217,7 +1218,7 @@ export default class DataTreeEvaluator {
     widget,
   }: {
     fullPropertyPath: string;
-    widget: DataTreeWidget;
+    widget: WidgetEntity;
     currentTree: DataTree;
     configTree: ConfigTree;
   }) {
@@ -1267,7 +1268,7 @@ export default class DataTreeEvaluator {
   // validates the user input saved as action property based on a validationConfig
   validateActionProperty(
     fullPropertyPath: string,
-    action: DataTreeAction,
+    action: ActionEntity,
     currentTree: DataTree,
     evalPropertyValue: any,
     unEvalPropertyValue: string,

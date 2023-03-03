@@ -2,12 +2,11 @@ import { PluginType, PaginationType } from "entities/Action";
 import {
   DataTree,
   EvaluationSubstitutionType,
-  DataTreeAction,
-  DataTreeWidget,
+  WidgetEntity,
   ENTITY_TYPE,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import { ActionEntityConfig } from "entities/DataTree/types";
+import { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
 
 export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {
@@ -44,7 +43,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
-    } as unknown) as DataTreeAction,
+    } as unknown) as ActionEntity,
     Text1: ({
       widgetName: "Text1",
       displayName: "Text",
@@ -78,7 +77,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       value: "{{ Text1.text }}",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       meta: {},
-    } as unknown) as DataTreeWidget,
+    } as unknown) as WidgetEntity,
   },
   apiSuccessUnEvalTree: {
     // success: response -> [{...}, {...}, {...}]
@@ -197,7 +196,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       value: "{{ Text1.text }}",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       meta: {},
-    } as unknown) as DataTreeWidget,
+    } as unknown) as WidgetEntity,
   },
   apiFailureUnEvalTree: {
     // failure: response -> {}
@@ -292,7 +291,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       value: "{{ Text1.text }}",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       meta: {},
-    } as unknown) as DataTreeWidget,
+    } as unknown) as WidgetEntity,
   },
   apiSuccessUnEvalTree2: {
     // success: response -> [{...}, {...}]
@@ -405,7 +404,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       value: "{{ Text1.text }}",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       meta: {},
-    } as unknown) as DataTreeWidget,
+    } as unknown) as WidgetEntity,
   },
 };
 

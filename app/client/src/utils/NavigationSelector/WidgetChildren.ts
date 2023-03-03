@@ -4,7 +4,7 @@ import {
 } from "ce/utils/autocomplete/EntityDefinitions";
 import {
   DataTree,
-  DataTreeWidget,
+  WidgetEntity,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { isFunction } from "lodash";
@@ -20,15 +20,15 @@ export const getWidgetChildrenNavData = (
 ) => {
   const peekData: Record<string, unknown> = {};
   const childNavData: EntityNavigationData = {};
-  const dataTreeWidget: DataTreeWidget = dataTree[
+  const dataTreeWidget: WidgetEntity = dataTree[
     widget.widgetName
-  ] as DataTreeWidget;
+  ] as WidgetEntity;
   if (widget.type === "FORM_WIDGET") {
     const children: EntityNavigationData = {};
     const formChildren: EntityNavigationData = {};
     if (dataTreeWidget) {
       Object.keys(dataTreeWidget.data || {}).forEach((widgetName) => {
-        const childWidgetId = (dataTree[widgetName] as DataTreeWidget).widgetId;
+        const childWidgetId = (dataTree[widgetName] as WidgetEntity).widgetId;
         formChildren[widgetName] = createNavData({
           id: `${widget.widgetName}.data.${widgetName}`,
           name: widgetName,

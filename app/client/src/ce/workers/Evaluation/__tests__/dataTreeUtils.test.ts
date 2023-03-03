@@ -1,6 +1,6 @@
 import {
   UnEvalTree,
-  UnEvalTreeAction,
+  ActionEntity,
   DataTree,
 } from "entities/DataTree/dataTreeFactory";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";

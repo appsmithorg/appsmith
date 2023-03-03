@@ -23,7 +23,7 @@ import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import {
   ConfigTree,
   DataTree,
-  DataTreeWidget,
+  WidgetEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
@@ -336,7 +336,7 @@ export const getMainContainer = (
   //TODO: Need to verify why `evaluatedDataTree` is required here.
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
-  }) as DataTreeWidget;
+  }) as WidgetEntity;
   const evaluatedWidgetConfig = find(configTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
   }) as WidgetEntityConfig;
@@ -360,7 +360,7 @@ export const getCanvasWidgetDsl = createSelector(
     loadingEntities,
     mainCanvasProps,
   ): ContainerWidgetProps<WidgetProps> => {
-    const widgets: Record<string, DataTreeWidget> = {
+    const widgets: Record<string, WidgetEntity> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
         canvasWidgets,
         evaluatedDataTree,
@@ -374,7 +374,7 @@ export const getCanvasWidgetDsl = createSelector(
         const canvasWidget = canvasWidgets[widgetKey];
         const evaluatedWidget = find(evaluatedDataTree, {
           widgetId: widgetKey,
-        }) as DataTreeWidget;
+        }) as WidgetEntity;
         const evaluatedWidgetConfig = find(configTree, {
           widgetId: widgetKey,
         });

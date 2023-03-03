@@ -51,7 +51,7 @@ import {
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { MetaState } from "reducers/entityReducers/metaReducer";
@@ -341,7 +341,7 @@ function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
 export type DescendantWidgetMap = {
   id: string;
   // To accomodate metaWidgets which might not be present on the evalTree, evaluatedWidget might be undefined
-  evaluatedWidget: DataTreeWidget | undefined;
+  evaluatedWidget: WidgetEntity | undefined;
 };
 
 /**
@@ -365,7 +365,7 @@ export function getWidgetDescendantToReset(
   )) {
     const evaluatedChildWidget = find(evaluatedDataTree, function(entity) {
       return isWidget(entity) && entity.widgetId === childMetaWidgetId;
-    }) as DataTreeWidget | undefined;
+    }) as WidgetEntity | undefined;
     descendantList.push({
       id: childMetaWidgetId,
       evaluatedWidget: evaluatedChildWidget,

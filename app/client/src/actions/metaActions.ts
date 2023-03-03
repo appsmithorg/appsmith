@@ -5,7 +5,7 @@ import {
 import { BatchAction, batchAction } from "actions/batchActions";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
-  DataTreeWidget,
+  WidgetEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,
 } from "../entities/DataTree/dataTreeFactory";
@@ -33,13 +33,13 @@ export const updateWidgetMetaPropAndEval = (
 
 export type ResetWidgetMetaPayload = {
   widgetId: string;
-  evaluatedWidget: DataTreeWidget | undefined;
+  evaluatedWidget: WidgetEntity | undefined;
   evaluatedWidgetConfig: DataTreeEntityConfig | undefined;
 };
 
 export const resetWidgetMetaProperty = (
   widgetId: string,
-  evaluatedWidget: DataTreeWidget | undefined,
+  evaluatedWidget: WidgetEntity | undefined,
   evaluatedWidgetConfig: WidgetEntityConfig | undefined,
 ): BatchAction<ResetWidgetMetaPayload> => {
   return batchAction({
