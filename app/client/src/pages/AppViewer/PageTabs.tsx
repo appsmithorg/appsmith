@@ -7,7 +7,7 @@ import {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { isEllipsisActive, trimQueryString } from "utils/helpers";
-import { getTypographyByKey, TooltipComponent } from "design-system";
+import { getTypographyByKey, TooltipComponent } from "design-system-old";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";
@@ -49,7 +49,7 @@ const StyleTabText = styled.div`
   justify-content: center;
   ${getTypographyByKey("h6")}
   color: ${(props) => props.theme.colors.header.tabText};
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
+  height: ${(props) => props.theme.pageTabsHeight};
   & span {
     height: 100%;
     max-width: 138px;

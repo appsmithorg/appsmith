@@ -1,8 +1,8 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import styled from "constants/DefaultTheme";
-import { Category, Size } from "design-system";
+import styled from "styled-components";
+import { Category, Size } from "design-system-old";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;

@@ -35,8 +35,8 @@ import {
   TextType,
   TooltipComponent,
   Variant,
-} from "design-system";
-import styled from "constants/DefaultTheme";
+} from "design-system-old";
+import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";

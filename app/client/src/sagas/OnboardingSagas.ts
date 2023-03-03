@@ -5,12 +5,12 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
+  call,
+  delay,
   put,
   select,
-  takeLatest,
-  delay,
-  call,
   take,
+  takeLatest,
 } from "redux-saga/effects";
 import {
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
@@ -29,7 +29,7 @@ import {
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import {
   enableGuidedTour,
@@ -40,7 +40,6 @@ import {
 } from "actions/onboardingActions";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -73,8 +72,6 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { User } from "constants/userConstants";
 import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import { shouldBeDefined } from "utils/helpers";
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
 import store from "store";
@@ -82,6 +79,7 @@ import {
   createMessage,
   ONBOARDING_SKIPPED_FIRST_TIME_USER,
 } from "@appsmith/constants/messages";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -358,18 +356,14 @@ function* selectWidgetSaga(
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
-  const pageId = shouldBeDefined<string>(
-    yield select(getCurrentPageId),
-    "Page not found in state.entities.pageList.currentPageId",
-  );
   const widget = Object.values(widgets).find((widget) => {
     return widget.widgetName === action.payload.widgetName;
   });
 
   if (widget) {
-    // Navigate to the widget as well, usefull especially when we are not on the canvas
-    navigateToCanvas(pageId, widget.widgetId);
-    yield put(selectWidgetInitAction(widget.widgetId));
+    yield put(
+      selectWidgetInitAction(SelectionRequestType.One, [widget.widgetId]),
+    );
     // Delay to wait for the fields to render
     yield delay(1000);
     // If the propertyName exist then we focus the respective input field as well

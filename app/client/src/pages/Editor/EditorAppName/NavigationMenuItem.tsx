@@ -4,10 +4,10 @@ import styled from "styled-components";
 import { Classes, MenuItem } from "@blueprintjs/core";
 import _, { noop } from "lodash";
 
-import { getTypographyByKey, CommonComponentProps } from "design-system";
+import { getTypographyByKey, CommonComponentProps } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { HeaderIcons } from "icons/HeaderIcons";
-import { MenuDivider } from "design-system";
+import { MenuDivider } from "design-system-old";
 
 const ShareIcon = HeaderIcons.SHARE;
 

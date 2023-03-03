@@ -11,6 +11,8 @@ public class PageNameIdDTO {
 
     String name;
 
+    String icon;
+
     String slug;
 
     String customSlug;

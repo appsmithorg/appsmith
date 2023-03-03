@@ -40,7 +40,7 @@ function useToolTip(
   const [requiresTooltip, setRequiresTooltip] = useState(false);
 
   useEffect(() => {
-    let timeout: number;
+    let timeout: ReturnType<typeof setTimeout>;
 
     const mouseEnterHandler = () => {
       const element = ref.current?.querySelector("div") as HTMLDivElement;

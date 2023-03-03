@@ -185,7 +185,7 @@ export const generateQuickCommands = (
         const pluginType = data.data.pluginType as PluginType;
         let icon = null;
         if (pluginType === PluginType.JS) {
-          icon = JsFileIconV2;
+          icon = JsFileIconV2();
         } else if (pluginIdToImageLocation[data.data.pluginId]) {
           icon = (
             <EntityIcon>

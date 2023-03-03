@@ -60,7 +60,7 @@ import {
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";

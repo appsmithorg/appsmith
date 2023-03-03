@@ -1,6 +1,3 @@
-{
-}
-
 import * as Factory from "factory.ts";
 import { generateReactKey } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -38,6 +35,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
                 props: {
                   text: "Title",
                   textStyle: "HEADING",
+                  parentId: "nxlutw2g3v",
                 },
               },
               {
@@ -55,6 +53,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
                   disabledWhenInvalid: true,
                   buttonStyle: "PRIMARY_BUTTON",
                   text: "Submit",
+                  parentId: "nxlutw2g3v",
                 },
               },
               {
@@ -72,6 +71,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
                   disabledWhenInvalid: false,
                   buttonStyle: "SECONDARY_BUTTON",
                   text: "Reset",
+                  parentId: "nxlutw2g3v",
                 },
               },
             ],
@@ -116,6 +116,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
             props: {
               text: "Title",
               textStyle: "HEADING",
+              parentId: "nxlutw2g3v",
             },
           },
           {
@@ -133,6 +134,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
               disabledWhenInvalid: true,
               buttonStyle: "PRIMARY_BUTTON",
               text: "Submit",
+              parentId: "nxlutw2g3v",
             },
           },
           {
@@ -150,6 +152,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
               disabledWhenInvalid: false,
               buttonStyle: "SECONDARY_BUTTON",
               text: "Reset",
+              parentId: "nxlutw2g3v",
             },
           },
         ],
@@ -172,6 +175,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
           textStyle: "HEADING",
           type: "TEXT_WIDGET",
           dynamicBindingPathList: [],
+          parentId: "nxlutw2g3v",
         },
         {
           resetFormOnClick: false,
@@ -189,6 +193,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
           disabledWhenInvalid: true,
           leftColumn: 12,
           text: "Submit",
+          parentId: "nxlutw2g3v",
         },
         {
           resetFormOnClick: true,
@@ -206,6 +211,7 @@ export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
           disabledWhenInvalid: false,
           leftColumn: 8,
           text: "Reset",
+          parentId: "nxlutw2g3v",
         },
       ],
     },

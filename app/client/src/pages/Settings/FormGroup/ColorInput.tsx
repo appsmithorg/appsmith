@@ -7,7 +7,7 @@ import {
 import { startCase } from "lodash";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import { InputGroup, Classes } from "@blueprintjs/core";
 import QuestionIcon from "remixicon-react/QuestionFillIcon";
 

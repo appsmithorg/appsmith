@@ -3,7 +3,7 @@ import { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
 import { AppState } from "@appsmith/reducers";

@@ -25,7 +25,6 @@ const useWidget = (
   widgetId: string,
   widgetType: WidgetType,
   pageId: string,
-  widgetsInStep: string[],
 ) => {
   const selectedWidgets = useSelector(getSelectedWidgets);
   const lastSelectedWidget = useSelector(getLastSelectedWidget);
@@ -46,17 +45,9 @@ const useWidget = (
         isWidgetSelected,
         isMultiSelect,
         isShiftSelect,
-        widgetsInStep,
       );
     },
-    [
-      widgetId,
-      widgetType,
-      pageId,
-      isWidgetSelected,
-      widgetsInStep,
-      navigateToWidget,
-    ],
+    [widgetId, widgetType, pageId, isWidgetSelected, navigateToWidget],
   );
 
   return {
@@ -98,12 +89,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     lastSelectedWidget,
     multipleWidgetsSelected,
     navigateToWidget,
-  } = useWidget(
-    props.widgetId,
-    props.widgetType,
-    props.pageId,
-    props.widgetsInStep,
-  );
+  } = useWidget(props.widgetId, props.widgetType, props.pageId);
 
   const { parentModalId, widgetId, widgetType } = props;
   /**

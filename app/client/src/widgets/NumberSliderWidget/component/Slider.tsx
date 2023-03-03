@@ -1,6 +1,6 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 
-import { LabelWithTooltip } from "design-system";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";

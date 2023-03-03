@@ -6,11 +6,13 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -48,6 +50,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.FieldName.ACTION_LIST;
+import static com.appsmith.server.constants.FieldName.CUSTOM_JS_LIB_LIST;
 import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
 import static com.appsmith.server.constants.FieldName.DECRYPTED_FIELDS;
 import static com.appsmith.server.constants.FieldName.EDIT_MODE_THEME;
@@ -68,8 +71,8 @@ public class GitFileUtils {
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-            = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS, EDIT_MODE_THEME);
-
+        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST,
+            DECRYPTED_FIELDS, EDIT_MODE_THEME, CUSTOM_JS_LIB_LIST);
     /**
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
@@ -150,6 +153,7 @@ public class GitFileUtils {
 
         // Insert only active pages which will then be committed to repo as individual file
         Map<String, Object> resourceMap = new HashMap<>();
+        Map<String, String> resourceMapBody = new HashMap<>();
         applicationJson
                 .getPageList()
                 .stream()
@@ -185,13 +189,25 @@ public class GitFileUtils {
                             newAction.getUnpublishedAction().getValidName() + NAME_SEPARATOR + newAction.getUnpublishedAction().getPageId()
                             : newAction.getPublishedAction().getValidName() + NAME_SEPARATOR + newAction.getPublishedAction().getPageId();
                     removeUnwantedFieldFromAction(newAction);
+                    String body = newAction.getUnpublishedAction().getActionConfiguration().getBody() != null ? newAction.getUnpublishedAction().getActionConfiguration().getBody() : "";
+                    // This is a special case where we are handling JS actions as we don't want to commit the body of JS actions
+                    if (newAction.getPluginType().equals(PluginType.JS)) {
+                        newAction.getUnpublishedAction().getActionConfiguration().setBody(null);
+                        newAction.getUnpublishedAction().setJsonPathKeys(null);
+                    } else {
+                        // For the regular actions we save the body field to git repo
+                        resourceMapBody.put(prefix, body);
+                    }
                     resourceMap.put(prefix, newAction);
                 });
         applicationReference.setActions(new HashMap<>(resourceMap));
+        applicationReference.setActionBody(new HashMap<>(resourceMapBody));
         resourceMap.clear();
+        resourceMapBody.clear();
 
         // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
         // JSObjectName_pageName => nomenclature for the keys
+        Map<String, String> resourceMapActionCollectionBody = new HashMap<>();
         applicationJson
                 .getActionCollectionList()
                 .stream()
@@ -205,11 +221,16 @@ public class GitFileUtils {
                             : actionCollection.getPublishedCollection().getName() + NAME_SEPARATOR + actionCollection.getPublishedCollection().getPageId();
                     removeUnwantedFieldFromActionCollection(actionCollection);
 
+                    String body = actionCollection.getUnpublishedCollection().getBody() != null ? actionCollection.getUnpublishedCollection().getBody() : "";
+                    actionCollection.getUnpublishedCollection().setBody(null);
+                    resourceMapActionCollectionBody.put(prefix, body);
                     resourceMap.put(prefix, actionCollection);
                 });
         applicationReference.setActionCollections(new HashMap<>(resourceMap));
+        applicationReference.setActionCollectionBody(new HashMap<>(resourceMapActionCollectionBody));
         applicationReference.setUpdatedResources(updatedResources);
         resourceMap.clear();
+        resourceMapActionCollectionBody.clear();
 
         // Send datasources
         applicationJson
@@ -218,6 +239,14 @@ public class GitFileUtils {
                     resourceMap.put(datasource.getName(), datasource);
                 });
         applicationReference.setDatasources(new HashMap<>(resourceMap));
+        resourceMap.clear();
+
+        applicationJson
+                .getCustomJSLibList()
+                .forEach(jsLib -> {
+                    resourceMap.put(jsLib.getUidString(), jsLib);
+                });
+        applicationReference.setJsLibraries(new HashMap<>(resourceMap));
         resourceMap.clear();
 
         return applicationReference;
@@ -268,7 +297,7 @@ public class GitFileUtils {
         return deserializedResources;
     }
 
-    private <T> T getApplicationResource(Object resource, Type type) {
+    public <T> T getApplicationResource(Object resource, Type type) {
         if (resource == null) {
             return null;
         }
@@ -356,6 +385,10 @@ public class GitFileUtils {
             application.setPublishedPages(applicationPages);
         }
 
+        List<CustomJSLib> customJSLibList = getApplicationResource(applicationReference.getJsLibraries(),
+                CustomJSLib.class);
+        applicationJson.setCustomJSLibList(customJSLibList);
+
         // Extract pages
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
         // Remove null values
@@ -371,10 +404,17 @@ public class GitFileUtils {
         if (CollectionUtils.isNullOrEmpty(applicationReference.getActions())) {
             applicationJson.setActionList(new ArrayList<>());
         } else {
+            Map<String, String> actionBody = applicationReference.getActionBody();
             List<NewAction> actions = getApplicationResource(applicationReference.getActions(), NewAction.class);
             // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actions, PredicateUtils.notNullPredicate());
             actions.forEach(newAction -> {
+                // With the file version v4 we have split the actions and metadata separately into two files
+                // So we need to set the body to the unpublished action
+                String keyName = newAction.getUnpublishedAction().getName() + newAction.getUnpublishedAction().getPageId();
+                if (actionBody != null && (actionBody.containsKey(keyName))) {
+                    newAction.getUnpublishedAction().getActionConfiguration().setBody(actionBody.get(keyName));
+                }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionDTO will be same, so we create a deep copy for the published version for action from
                 // unpublishedActionDTO
@@ -387,10 +427,17 @@ public class GitFileUtils {
         if (CollectionUtils.isNullOrEmpty(applicationReference.getActionCollections())) {
             applicationJson.setActionCollectionList(new ArrayList<>());
         } else {
+            Map<String, String> actionCollectionBody = applicationReference.getActionCollectionBody();
             List<ActionCollection> actionCollections = getApplicationResource(applicationReference.getActionCollections(), ActionCollection.class);
             // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actionCollections, PredicateUtils.notNullPredicate());
             actionCollections.forEach(actionCollection -> {
+                // Set the js object body to the unpublished collection
+                // Since file version v3 we are splitting the js object code and metadata separately
+                String keyName = actionCollection.getUnpublishedCollection().getName() + actionCollection.getUnpublishedCollection().getPageId();
+                if (actionCollectionBody!= null && actionCollectionBody.containsKey(keyName)) {
+                    actionCollection.getUnpublishedCollection().setBody(actionCollectionBody.get(keyName));
+                }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionCollectionDTO will be same, so we create a deep copy for the published version for
                 // actionCollection from unpublishedActionCollectionDTO

@@ -8,7 +8,7 @@ import {
   DialogComponent as Dialog,
   Size,
   TextInput,
-} from "design-system";
+} from "design-system-old";
 import { saveSelectedThemeAction } from "actions/appThemingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getAppThemes } from "selectors/appThemingSelectors";

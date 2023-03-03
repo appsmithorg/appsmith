@@ -8,7 +8,7 @@ import {
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Button, Category, Checkbox } from "design-system";
+import { Button, Category, Checkbox } from "design-system-old";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";

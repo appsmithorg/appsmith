@@ -80,7 +80,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                     } else {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.CLOUD_SERVICES_ERROR,
-                                "Unable to connect to cloud-services with error status {}", response.statusCode()));
+                                "Unable to connect to cloud-services with error status {0}", response.statusCode()));
                     }
                 })
                 .map(ResponseDTO::getData)

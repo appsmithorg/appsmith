@@ -11,6 +11,8 @@ import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -23,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
@@ -45,6 +48,18 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
+
+        // If the user is anonymous, then we don't need to fetch the permission groups from the database. We can just
+        // return the cached permission group ids.
+        if (ANONYMOUS_USER.equals(user.getUsername())) {
+            return getPermissionGroupsOfAnonymousUser();
+        }
+
+        if (user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null || user.getId().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
+        }
+
+
         Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
         Criteria notDeletedCriteria = notDeleted();
 
@@ -60,9 +75,9 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     }
 
     @Override
-    public Mono<Set<String>> getPermissionGroupsOfAnonymousUser() {
+    public Mono<Set<String>> preFillAnonymousUserPermissionGroupIdsCache() {
 
-        if (anonymousUserPermissionGroupIds != null) {
+        if (anonymousUserPermissionGroupIds != null && !anonymousUserPermissionGroupIds.isEmpty()) {
             return Mono.just(anonymousUserPermissionGroupIds);
         }
 
@@ -72,6 +87,19 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         return mongoOperations.findOne(Query.query(Criteria.where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP)), Config.class)
                 .map(publicPermissionGroupConfig -> Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
                 .doOnSuccess(permissionGroupIds -> anonymousUserPermissionGroupIds = permissionGroupIds);
+    }
+
+    @Override
+    public Mono<Set<String>> getPermissionGroupsOfAnonymousUser() {
+
+        if (anonymousUserPermissionGroupIds != null) {
+            return Mono.just(anonymousUserPermissionGroupIds);
+        }
+
+        // If we have reached this state, then the cache is not populated. We need to wait for this to get populated
+        // Anonymous user cache is getting populated at #InstanceConfig.onApplicationEvent
+        // Return an error to the user so that the user can re-try in some time
+        return Mono.error(new AppsmithException(AppsmithError.SERVER_NOT_READY));
     }
 
     @CacheEvict(cacheName = "permissionGroupsForUser", key = "{#email + #tenantId}")

@@ -7,7 +7,7 @@ import {
   IconPositions,
   Toaster,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import {
   createMessage,
   ERROR_ADD_API_INVALID_URL,

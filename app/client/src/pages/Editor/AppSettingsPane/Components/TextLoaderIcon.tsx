@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 
 const Wrapper = styled.div`
   position: absolute;

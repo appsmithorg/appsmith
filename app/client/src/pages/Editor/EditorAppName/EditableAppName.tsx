@@ -9,7 +9,7 @@ import {
   EditInteractionKind,
   SavingState,
   UNFILLED_WIDTH,
-} from "design-system";
+} from "design-system-old";
 
 export type EditableAppNameProps = CommonComponentProps & {
   defaultValue: string;

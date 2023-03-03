@@ -12,7 +12,7 @@ import { connect, useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { change } from "redux-form";
-import { JSToggleButton, TooltipComponent } from "design-system";
+import { JSToggleButton, TooltipComponent } from "design-system-old";
 import { get } from "lodash";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 

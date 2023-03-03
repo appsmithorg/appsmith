@@ -5,7 +5,7 @@ import {
   DialogComponent as Dialog,
   Dropdown,
   Size,
-} from "design-system";
+} from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {
@@ -43,7 +43,7 @@ const StyledDialog = styled(Dialog)`
 `;
 
 interface ForkTemplateProps {
-  children: ReactNode;
+  children?: ReactNode;
   showForkModal: boolean;
   onClose: (e?: React.MouseEvent<HTMLElement>) => void;
   templateId: string;

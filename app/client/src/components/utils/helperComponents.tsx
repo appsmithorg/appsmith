@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, IconSize, SearchInput } from "design-system";
+import { Icon, IconSize, SearchInput } from "design-system-old";
 import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";

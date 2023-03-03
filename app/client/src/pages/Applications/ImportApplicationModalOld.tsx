@@ -8,7 +8,7 @@ import {
   Size,
   Toaster,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { StyledDialog } from "./ForkModalStyles";
 import { useDispatch, useSelector } from "react-redux";
 import { importApplication } from "actions/applicationActions";

@@ -9,7 +9,7 @@ import {
   TextType,
   IconWrapper,
   IconSize,
-} from "design-system";
+} from "design-system-old";
 import { EntityClassNames } from "../Entity";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";

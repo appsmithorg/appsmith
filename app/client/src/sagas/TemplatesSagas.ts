@@ -33,7 +33,7 @@ import {
 } from "actions/pluginActionActions";
 import { fetchJSCollections } from "actions/jsActionActions";
 import { failFastApiCalls } from "./InitSagas";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";

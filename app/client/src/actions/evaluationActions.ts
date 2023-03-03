@@ -65,13 +65,15 @@ export const EVALUATE_REDUX_ACTIONS = [
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
-  ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
+  ReduxActionTypes.UPDATE_APP_STORE,
   ReduxActionTypes.SET_USER_CURRENT_GEO_LOCATION,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
+  // Meta Widgets
+  ReduxActionTypes.MODIFY_META_WIDGETS,
+  ReduxActionTypes.DELETE_META_WIDGETS,
   // Widget Meta
   ReduxActionTypes.SET_META_PROP_AND_EVAL,
   ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,

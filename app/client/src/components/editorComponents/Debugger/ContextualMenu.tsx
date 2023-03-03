@@ -4,7 +4,7 @@ import { Classes as BPClasses, Position } from "@blueprintjs/core";
 import { Popover2, IPopover2Props } from "@blueprintjs/popover2";
 import { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system";
+import { Text, FontWeight, TextType } from "design-system-old";
 import { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -21,7 +21,7 @@ import {
   DEBUGGER_OPEN_DOCUMENTATION,
   DEBUGGER_SEARCH_SNIPPET,
 } from "@appsmith/constants/messages";
-import { Classes, Icon, IconName, IconSize } from "design-system";
+import { Classes, Icon, IconName, IconSize } from "design-system-old";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
@@ -135,7 +135,7 @@ const searchAction: Record<
         searchTerm: error.message,
         errorType: error.type,
       });
-      dispatch(setGlobalSearchQuery(error.message || ""));
+      dispatch(setGlobalSearchQuery(error.message.message || ""));
       dispatch(
         setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
       );
@@ -258,7 +258,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
                   <Icon
                     fillColor="#858282"
                     name={menuProps.icon}
-                    size={IconSize.XXXL}
+                    size={IconSize.SMALL}
                   />
                   <Text type={TextType.P1} weight={FontWeight.NORMAL}>
                     {menuProps.text}

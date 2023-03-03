@@ -11,7 +11,7 @@ import {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
-import { TooltipComponent, Icon, IconName, IconSize } from "design-system";
+import { TooltipComponent, Icon, IconName, IconSize } from "design-system-old";
 import { updateApplicationLayout } from "actions/applicationActions";
 
 interface AppsmithLayoutConfigOption {

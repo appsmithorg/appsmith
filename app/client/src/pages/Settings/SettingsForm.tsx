@@ -29,7 +29,7 @@ import {
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   connectedMethods,
   saveAllowed,

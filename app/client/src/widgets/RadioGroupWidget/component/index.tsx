@@ -36,6 +36,7 @@ export interface StyledRadioGroupProps {
   optionCount: number;
   accentColor: string;
   isDynamicHeightEnabled?: boolean;
+  children?: React.ReactNode;
 }
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`

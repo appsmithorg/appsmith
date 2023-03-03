@@ -1,5 +1,5 @@
 {
-"dsl": {
+  "dsl": {
     "widgetName": "MainContainer",
     "backgroundColor": "none",
     "rightColumn": 966,
@@ -19,7 +19,7 @@
     "dynamicBindingPathList": [],
     "leftColumn": 0,
     "children": [
-        {
+      {
         "labelTextSize": "0.875rem",
         "boxShadow": "none",
         "backgroundColor": "#FFFFFF",
@@ -40,8 +40,9 @@
         "dynamicBindingPathList": [],
         "leftColumn": 0,
         "borderRadius": "0px",
+        "parentId": "0",
         "children": [
-            {
+          {
             "boxShadow": "none",
             "widgetName": "7hf8kkvvgv",
             "topRow": 0,
@@ -55,7 +56,7 @@
             "leftColumn": 0,
             "dynamicBindingPathList": [],
             "children": [
-                {
+              {
                 "labelTextSize": "0.875rem",
                 "boxShadow": "none",
                 "widgetName": "Text1",
@@ -67,7 +68,7 @@
                 "parentRowSpace": 38,
                 "isVisible": true,
                 "type": "TEXT_WIDGET",
-                "parentId": "hjiybwqair",
+                "parentId": "e3tq9qwta6",
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "overflow": "SCROLL",
@@ -77,8 +78,8 @@
                 "borderRadius": "0px",
                 "text": "Test text",
                 "textStyle": "HEADING"
-                },
-                {
+              },
+              {
                 "labelTextSize": "0.875rem",
                 "isRequired": false,
                 "boxShadow": "none",
@@ -98,12 +99,16 @@
                 "parentColumnSpace": 71.75,
                 "resetOnSubmit": false,
                 "leftColumn": 0,
-                "dynamicBindingPathList": [{ "key": "accentColor" }],
+                "dynamicBindingPathList": [
+                  {
+                    "key": "accentColor"
+                  }
+                ],
                 "borderRadius": "0px",
                 "inputType": "TEXT",
                 "isDisabled": false
-                },
-                {
+              },
+              {
                 "labelTextSize": "0.875rem",
                 "isRequired": false,
                 "boxShadow": "none",
@@ -123,12 +128,16 @@
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "leftColumn": 40,
-                "dynamicBindingPathList": [{ "key": "accentColor" }],
+                "dynamicBindingPathList": [
+                  {
+                    "key": "accentColor"
+                  }
+                ],
                 "borderRadius": "0px",
                 "options": "",
                 "isDisabled": false
-                },
-                {
+              },
+              {
                 "labelTextSize": "0.875rem",
                 "boxShadow": "none",
                 "widgetName": "Button1",
@@ -152,8 +161,8 @@
                 "buttonVariant": "PRIMARY",
                 "text": "Submit",
                 "isDisabled": false
-                },
-                {
+              },
+              {
                 "boxShadow": "none",
                 "widgetName": "Checkbox1",
                 "topRow": 16,
@@ -178,8 +187,8 @@
                 "isLoading": false,
                 "borderRadius": "0px",
                 "defaultCheckedState": true
-                },
-                {
+              },
+              {
                 "labelTextSize": "0.875rem",
                 "boxShadow": "none",
                 "widgetName": "Switch1",
@@ -203,8 +212,8 @@
                 "borderRadius": "0px",
                 "labelPosition": "Right",
                 "isDisabled": false
-                },
-                {
+              },
+              {
                 "labelTextSize": "0.875rem",
                 "isRequired": false,
                 "boxShadow": "none",
@@ -226,13 +235,19 @@
                 "dynamicBindingPathList": [],
                 "borderRadius": "0px",
                 "options": [
-                    { "label": "Male", "value": "M" },
-                    { "label": "Female", "value": "F" }
+                  {
+                    "label": "Male",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Female",
+                    "value": "F"
+                  }
                 ],
                 "isDisabled": false,
                 "alignment": "left"
-                },
-                {
+              },
+              {
                 "boxShadow": "none",
                 "widgetName": "DatePicker1",
                 "dateFormat": "DD/MM/YYYY",
@@ -242,7 +257,9 @@
                 "type": "DATE_PICKER_WIDGET",
                 "parentColumnSpace": 71.75,
                 "dynamicTriggerPathList": [
-                    { "key": "onDateSelected" }
+                  {
+                    "key": "onDateSelected"
+                  }
                 ],
                 "leftColumn": 40,
                 "dynamicBindingPathList": [],
@@ -259,8 +276,8 @@
                 "parentId": "e3tq9qwta6",
                 "isLoading": false,
                 "borderRadius": "0px"
-                },
-                {
+              },
+              {
                 "labelTextSize": "0.875rem",
                 "isRequired": false,
                 "boxShadow": "none",
@@ -284,8 +301,8 @@
                 "borderRadius": "0px",
                 "files": [],
                 "isDisabled": false
-                },
-                {
+              },
+              {
                 "labelTextSize": "0.875rem",
                 "boxShadow": "none",
                 "widgetName": "RichTextEditor1",
@@ -307,8 +324,8 @@
                 "defaultText": "",
                 "inputType": "html",
                 "isDisabled": false
-                },
-                {
+              },
+              {
                 "boxShadow": "none",
                 "widgetName": "MultiSelect2",
                 "topRow": 49,
@@ -319,7 +336,11 @@
                 "parentColumnSpace": 13.662109375,
                 "dynamicTriggerPathList": [],
                 "leftColumn": 37,
-                "dynamicBindingPathList": [{ "key": "accentColor" }],
+                "dynamicBindingPathList": [
+                  {
+                    "key": "accentColor"
+                  }
+                ],
                 "options": "",
                 "placeholderText": "",
                 "isDisabled": false,
@@ -334,13 +355,17 @@
                 "parentId": "e3tq9qwta6",
                 "isLoading": false,
                 "borderRadius": "0px"
-                },
-                {
+              },
+              {
                 "boxShadow": "none",
                 "widgetName": "Button2",
                 "onClick": "{{resetWidget('MultiSelect2')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "dynamicPropertyPathList": [{ "key": "onClick" }],
+                "dynamicPropertyPathList": [
+                  {
+                    "key": "onClick"
+                  }
+                ],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
                 "topRow": 68,
@@ -350,11 +375,19 @@
                 "hideCard": false,
                 "animateLoading": true,
                 "parentColumnSpace": 18.49609375,
-                "dynamicTriggerPathList": [{ "key": "onClick" }],
+                "dynamicTriggerPathList": [
+                  {
+                    "key": "onClick"
+                  }
+                ],
                 "leftColumn": 41,
                 "dynamicBindingPathList": [
-                    { "key": "buttonColor" },
-                    { "key": "borderRadius" }
+                  {
+                    "key": "buttonColor"
+                  },
+                  {
+                    "key": "borderRadius"
+                  }
                 ],
                 "text": "Reset MultiSelect",
                 "isDisabled": false,
@@ -372,8 +405,8 @@
                 "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                 "buttonVariant": "PRIMARY",
                 "placement": "CENTER"
-                },
-                {
+              },
+              {
                 "widgetName": "Text2",
                 "displayName": "Text",
                 "iconSVG": "/static/media/icon.97c59b52.svg",
@@ -389,9 +422,15 @@
                 "dynamicTriggerPathList": [],
                 "leftColumn": 37,
                 "dynamicBindingPathList": [
-                    { "key": "fontFamily" },
-                    { "key": "borderRadius" },
-                    { "key": "text" }
+                  {
+                    "key": "fontFamily"
+                  },
+                  {
+                    "key": "borderRadius"
+                  },
+                  {
+                    "key": "text"
+                  }
                 ],
                 "shouldTruncate": false,
                 "truncateButtonColor": "#FFC13D",
@@ -410,7 +449,7 @@
                 "isLoading": false,
                 "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                 "fontSize": "1rem"
-                }
+              }
             ],
             "labelTextSize": "0.875rem",
             "backgroundColor": "transparent",
@@ -423,10 +462,11 @@
             "isVisible": true,
             "version": 1,
             "isLoading": false,
-            "borderRadius": "0px"
-            }
+            "borderRadius": "0px",
+            "parentId": "jaftzrmtin"
+          }
         ]
-        }
+      }
     ]
-    }
+  }
 }

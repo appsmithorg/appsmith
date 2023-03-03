@@ -9,7 +9,7 @@ import {
   FontStyleTypes,
   TextSize,
 } from "constants/WidgetConstants";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import { get } from "lodash";
 import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
@@ -96,7 +96,7 @@ const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
     props.backgroundColor ? props.backgroundColor : "transparent"};
 `;
 
-export const StyledText = styled(Text)<{
+type StyledTextProps = React.PropsWithChildren<{
   overflow: OverflowTypes;
   isTruncated: boolean;
   textAlign: string;
@@ -104,7 +104,9 @@ export const StyledText = styled(Text)<{
   textColor?: string;
   fontStyle?: string;
   fontSize?: TextSize;
-}>`
+}>;
+
+export const StyledText = styled(Text)<StyledTextProps>`
   height: ${(props) =>
     props.overflow === OverflowTypes.TRUNCATE
       ? `calc(100% - ${ELLIPSIS_HEIGHT}px)`
@@ -182,7 +184,7 @@ const Content = styled.div<{
   color: ${(props) => props?.textColor};
   max-height: 70vh;
   overflow: auto;
-  word-break: break-all;
+  overflow-wrap: break-word;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   font-style: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};

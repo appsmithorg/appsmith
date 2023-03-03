@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import { DatePicker } from "design-system";
+import { DatePicker } from "design-system-old";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`

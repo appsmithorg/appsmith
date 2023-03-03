@@ -3,7 +3,7 @@ import {
   EVAL_WORKER_ACTIONS,
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
-} from "workers/Evaluation/evalWorkerActions";
+} from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
 import evalActionBindings from "./evalActionBindings";
 import evalExpression from "./evalExpression";

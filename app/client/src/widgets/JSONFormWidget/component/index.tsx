@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, PropsWithChildren } from "react";
 import styled from "styled-components";
 import { Text } from "@blueprintjs/core";
 
@@ -72,7 +72,11 @@ const MessageStateWrapper = styled.div<{ $fixHeight: boolean }>`
   justify-content: center;
 `;
 
-const Message = styled(Text)<{ $fixHeight: boolean }>`
+type MessageProps = PropsWithChildren<{
+  $fixHeight: boolean;
+}>;
+
+const Message = styled(Text)<MessageProps>`
   font-size: ${TEXT_SIZES.HEADING3};
   text-align: center;
   width: 100%;

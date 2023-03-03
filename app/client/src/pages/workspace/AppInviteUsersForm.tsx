@@ -5,14 +5,14 @@ import { PopoverPosition } from "@blueprintjs/core";
 import { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Case, Icon, IconSize, TooltipComponent } from "design-system";
+import { Case, Icon, IconSize, TooltipComponent } from "design-system-old";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Text, TextType, Toggle } from "design-system";
+import { Text, TextType, Toggle } from "design-system-old";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
@@ -35,8 +35,9 @@ const ShareToggle = styled.div`
   height: 23px;
 `;
 
-const BottomContainer = styled.div`
-  border-top: 1px solid ${Colors.GREY_200};
+const BottomContainer = styled.div<{ canInviteToWorkspace?: boolean }>`
+  ${({ canInviteToWorkspace }) =>
+    canInviteToWorkspace ? `border-top: 1px solid ${Colors.GREY_200}` : ``};
 `;
 
 function AppInviteUsersForm(props: any) {
@@ -93,7 +94,12 @@ function AppInviteUsersForm(props: any) {
           workspaceId={props.workspaceId}
         />
       )}
-      <BottomContainer className="flex space-between mt-6 pt-5">
+      <BottomContainer
+        canInviteToWorkspace={canInviteToWorkspace}
+        className={`flex space-between ${
+          canInviteToWorkspace ? "mt-6 pt-5" : ""
+        }`}
+      >
         <div
           className="flex gap-1.5 cursor-pointer"
           data-cy={"copy-application-url"}

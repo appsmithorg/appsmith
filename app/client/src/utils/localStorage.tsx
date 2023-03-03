@@ -1,4 +1,4 @@
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import * as log from "loglevel";
 import {
   LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE,

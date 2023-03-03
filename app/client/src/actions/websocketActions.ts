@@ -31,20 +31,12 @@ export const pageLevelWebsocketWriteEvent = (payload: {
 export const reconnectAppLevelWebsocket = () =>
   appLevelWebsocketWriteEvent(reconnectWebsocketEvent());
 
-export const retryAppLevelSocketConnection = () => ({
-  type: ReduxActionTypes.RETRY_APP_LEVEL_WEBSOCKET_CONNECTION,
-});
-
 export const initAppLevelSocketConnection = () => ({
   type: ReduxActionTypes.INIT_APP_LEVEL_SOCKET_CONNECTION,
 });
 
 export const reconnectPageLevelWebsocket = () =>
   pageLevelWebsocketWriteEvent(reconnectWebsocketEvent());
-
-export const retryPageLevelSocketConnection = () => ({
-  type: ReduxActionTypes.RETRY_PAGE_LEVEL_WEBSOCKET_CONNECTION,
-});
 
 export const initPageLevelSocketConnection = () => ({
   type: ReduxActionTypes.INIT_PAGE_LEVEL_SOCKET_CONNECTION,

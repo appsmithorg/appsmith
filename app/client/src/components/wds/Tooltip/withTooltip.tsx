@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { TooltipComponent as Tooltip } from "design-system";
+import { TooltipComponent as Tooltip } from "design-system-old";
 
 const ToolTipWrapper = styled.div`
   height: 100%;

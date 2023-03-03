@@ -7,7 +7,7 @@ import {
   Case,
   Classes,
   Icon,
-} from "design-system";
+} from "design-system-old";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {

@@ -13,7 +13,7 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";

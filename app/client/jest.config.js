@@ -17,7 +17,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|design-system|react-dnd|dnd-core|@babel|(@blueprintjs/core/lib/esnext)|(@blueprintjs/core/lib/esm)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
+    "<rootDir>/node_modules/(?!codemirror|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core/lib/esnext)|(@blueprintjs/core/lib/esm)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -28,7 +28,7 @@ module.exports = {
     "^!!raw-loader!": "<rootDir>/test/__mocks__/derivedMock.js",
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",
-    "design-system": "<rootDir>/node_modules/design-system/build",
+    "design-system-old": "<rootDir>/node_modules/design-system-old/build",
     "^proxy-memoize$": "<rootDir>/node_modules/proxy-memoize/dist/wrapper.cjs",
   },
   globals: {
@@ -77,7 +77,6 @@ module.exports = {
         CONFIG_LOG_LEVEL_INDEX > -1
           ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]
           : LOG_LEVELS[1],
-      google: parseConfig("__APPSMITH_GOOGLE_MAPS_API_KEY__"),
       cloudHosting: "CLOUD_HOSTING",
       enableTNCPP: parseConfig("__APPSMITH_TNC_PP__"),
       appVersion: {
@@ -87,7 +86,6 @@ module.exports = {
       intercomAppID: "APP_ID",
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
 
-      disableTelemetry: "DISABLE_TELEMETRY" === "" || "DISABLE_TELEMETRY",
       hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
       disableIframeWidgetSandbox: parseConfig(
         "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",

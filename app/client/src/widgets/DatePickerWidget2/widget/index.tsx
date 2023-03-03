@@ -23,7 +23,19 @@ function allowedRange(value: any) {
   return {
     isValid: isValid,
     parsed: isValid ? Number(value) : 0,
-    messages: isValid ? [] : ["Number should be between 0-6."],
+    messages: isValid
+      ? [
+          {
+            name: "",
+            message: "",
+          },
+        ]
+      : [
+          {
+            name: "RangeError",
+            message: "Number should be between 0-6.",
+          },
+        ],
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
@@ -504,11 +516,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           )
         }
         dateFormat={this.props.dateFormat}
-        datePickerType={"DATE_PICKER"}
+        datePickerType="DATE_PICKER"
         firstDayOfWeek={this.props.firstDayOfWeek}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}

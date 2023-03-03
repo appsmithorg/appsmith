@@ -16,6 +16,7 @@ export type DraggableListControlProps<
 > = DroppableComponentProps<TItem> & {
   defaultPanelIndex?: number;
   propertyPath: string | undefined;
+  keyAccessor?: string;
 };
 export const DraggableListControl = <TItem extends BaseItemProps>(
   props: DraggableListControlProps<TItem>,

@@ -8,7 +8,7 @@ import {
 } from "@appsmith/constants/messages";
 import { RecaptchaType, RecaptchaTypes } from "components/constants";
 import ReCAPTCHA from "react-google-recaptcha";
-import { Variant } from "design-system";
+import { Variant } from "design-system-old";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -25,7 +25,7 @@ export interface RecaptchaProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
-import { Toaster } from "design-system";
+import { Toaster } from "design-system-old";
 
 export default function withRecaptcha<
   T extends RecaptchaProps = RecaptchaProps

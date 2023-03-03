@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system";
+import { Text, FontWeight, TextType } from "design-system-old";
 import { IconWrapper } from "constants/IconConstants";
 import { getWidgetCards } from "selectors/editorSelectors";
 

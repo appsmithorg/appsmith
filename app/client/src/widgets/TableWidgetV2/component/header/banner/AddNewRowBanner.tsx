@@ -1,5 +1,5 @@
 import { ButtonVariantTypes } from "components/constants";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import React, { useState } from "react";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { AddNewRowActions } from "../../Constants";

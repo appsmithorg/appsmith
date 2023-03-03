@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Button, Category, getTypographyByKey, Size } from "design-system";
+import { Button, Category, getTypographyByKey, Size } from "design-system-old";
 import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";

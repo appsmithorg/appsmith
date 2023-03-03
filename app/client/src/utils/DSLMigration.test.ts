@@ -727,6 +727,24 @@ const migrations: Migration[] = [
     ],
     version: 74,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateAutoHeight,
+        functionName: "migrateInputWidgetsMultiLineInputType",
+      },
+    ],
+    version: 75,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateColumnFreezeAttributes",
+      },
+    ],
+    version: 76,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};

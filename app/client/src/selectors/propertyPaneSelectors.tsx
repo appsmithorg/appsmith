@@ -23,6 +23,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
+import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -211,15 +212,22 @@ export const getWidgetPropsForPropertyName = (
   return createSelector(
     getCurrentWidgetProperties,
     getCurrentEvaluatedWidget,
+    getGoogleMapsApiKey,
     (
       widget: WidgetProps | undefined,
       evaluatedWidget: DataTreeWidget,
+      googleMapsApiKey?: string,
     ): WidgetProperties => {
       const widgetProperties = populateWidgetProperties(
         widget,
         propertyName,
         dependencies,
       );
+
+      // if the widget has a googleMapsApiKey dependency, add it to the widget properties
+      if (dependencies.includes("googleMapsApiKey")) {
+        widgetProperties.googleMapsApiKey = googleMapsApiKey;
+      }
 
       widgetProperties[EVALUATION_PATH] = populateEvaluatedWidgetProperties(
         evaluatedWidget,

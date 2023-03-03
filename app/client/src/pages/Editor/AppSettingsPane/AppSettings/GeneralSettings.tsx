@@ -12,7 +12,7 @@ import {
   IconSelector,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";

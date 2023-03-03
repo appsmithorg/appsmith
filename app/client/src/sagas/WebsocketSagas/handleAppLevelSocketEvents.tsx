@@ -2,7 +2,7 @@ import { put } from "redux-saga/effects";
 import { APP_LEVEL_SOCKET_EVENTS } from "./socketEvents";
 
 import { collabSetAppEditors } from "actions/appCollabActions";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,

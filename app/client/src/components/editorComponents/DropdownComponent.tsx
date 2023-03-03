@@ -28,7 +28,6 @@ interface MenuProps {
 type MenuComponentProps = IMenuProps & MenuProps;
 
 const Dropdown = Select.ofType<DropdownOption>();
-const StyledDropdown = styled(Dropdown)``;
 
 const StyledButtonWrapper = styled.div<ButtonWrapperProps>`
   width: ${(props) => props.width || "100%"};
@@ -191,7 +190,7 @@ class DropdownComponent extends Component<
     const { autocomplete, height, options, width } = this.props;
 
     return (
-      <StyledDropdown
+      <Dropdown
         activeItem={this.getActiveOption()}
         filterable={!!autocomplete}
         itemListRenderer={this.renderItemList}
@@ -215,7 +214,7 @@ class DropdownComponent extends Component<
             />
           </StyledButtonWrapper>
         )}
-      </StyledDropdown>
+      </Dropdown>
     );
   }
 }

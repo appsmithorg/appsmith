@@ -87,3 +87,14 @@ export const syncUpdateWidgetMetaProperty = (
     },
   };
 };
+
+export const resetWidgetsMetaState = (
+  widgetIdsToClear: string[],
+): ReduxAction<{ widgetIdsToClear: string[] }> => {
+  return {
+    type: ReduxActionTypes.RESET_WIDGETS_META_STATE,
+    payload: {
+      widgetIdsToClear,
+    },
+  };
+};

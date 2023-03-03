@@ -15,6 +15,8 @@ import {
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
 import { ColumnTypes } from "../constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import { generateReactKey } from "widgets/WidgetUtils";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -54,7 +56,7 @@ export enum ImageSizes {
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 32,
-    TABLE_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 40,
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
     VERTICAL_PADDING: 6,
@@ -64,7 +66,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
   },
   [CompactModeTypes.SHORT]: {
     COLUMN_HEADER_HEIGHT: 32,
-    TABLE_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 40,
     ROW_HEIGHT: 30,
     ROW_FONT_SIZE: 12,
     VERTICAL_PADDING: 0,
@@ -74,7 +76,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
   },
   [CompactModeTypes.TALL]: {
     COLUMN_HEADER_HEIGHT: 32,
-    TABLE_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 40,
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 18,
     VERTICAL_PADDING: 16,
@@ -111,6 +113,7 @@ export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
 export type ImageSize = keyof typeof ImageSizes;
 
 export interface ReactTableFilter {
+  id: string;
   column: string;
   operator: Operator;
   condition: Condition;
@@ -182,6 +185,13 @@ export interface ImageCellProperties {
   imageSize?: ImageSize;
 }
 
+export interface DateCellProperties {
+  inputFormat: string;
+  outputFormat: string;
+  shortcuts: boolean;
+  timePrecision?: TimePrecision;
+}
+
 export interface BaseCellProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
@@ -206,6 +216,7 @@ export interface CellLayoutProperties
     MenuButtonCellProperties,
     SelectCellProperties,
     ImageCellProperties,
+    DateCellProperties,
     BaseCellProperties {}
 
 export interface TableColumnMetaProps {
@@ -215,6 +226,11 @@ export interface TableColumnMetaProps {
   type: ColumnTypes;
 }
 
+export enum StickyType {
+  LEFT = "left",
+  RIGHT = "right",
+  NONE = "",
+}
 export interface TableColumnProps {
   id: string;
   Header: string;
@@ -228,6 +244,7 @@ export interface TableColumnProps {
   metaProperties?: TableColumnMetaProps;
   isDerived?: boolean;
   columnProperties: ColumnProperties;
+  sticky?: StickyType;
 }
 export interface ReactTableColumnProps extends TableColumnProps {
   Cell: (props: any) => JSX.Element;
@@ -264,6 +281,8 @@ export interface ColumnStyleProperties {
 export interface DateColumnProperties {
   outputFormat?: string;
   inputFormat?: string;
+  shortcuts?: boolean;
+  timePrecision?: TimePrecision;
 }
 
 export interface ColumnEditabilityProperties {
@@ -276,6 +295,8 @@ export interface ColumnEditabilityProperties {
     isEditableCellRequired?: boolean;
     min?: number;
     max?: number;
+    minDate?: string;
+    maxDate?: string;
   };
 }
 
@@ -330,6 +351,7 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
+  sticky?: StickyType;
   getVisibleItems?: () => Array<MenuItem>;
   menuItemsSource?: MenuItemsSource;
   configureMenuItems?: ConfigureMenuItems;
@@ -493,3 +515,23 @@ export enum AddNewRowActions {
 }
 
 export const EDITABLE_CELL_PADDING_OFFSET = 8;
+
+export const TABLE_SCROLLBAR_WIDTH = 10;
+export const TABLE_SCROLLBAR_HEIGHT = 8;
+
+export const POPOVER_ITEMS_TEXT_MAP = {
+  SORT_ASC: "Sort column ascending",
+  SORT_DSC: "Sort column descending",
+  FREEZE_LEFT: "Freeze column left",
+  FREEZE_RIGHT: "Freeze column right",
+};
+
+export const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
+export const MENU_CONTENT_CLASS = ".menu-content";
+export const DEFAULT_FILTER = {
+  id: generateReactKey(),
+  column: "",
+  operator: OperatorTypes.OR,
+  value: "",
+  condition: "",
+};

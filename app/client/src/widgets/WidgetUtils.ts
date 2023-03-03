@@ -23,7 +23,7 @@ import {
   ButtonBorderRadiusTypes,
 } from "components/constants";
 import tinycolor from "tinycolor2";
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle, css } from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Classes as DTClasses } from "@blueprintjs/datetime";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
@@ -35,6 +35,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { isArray } from "lodash";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import { getLocale } from "utils/helpers";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 
 const punycode = require("punycode/");
 
@@ -754,6 +755,19 @@ export const isAutoHeightEnabledForWidget = (
 };
 
 /**
+ * Check if a container is scrollable or has scrollbars
+ */
+export function checkContainerScrollable(
+  widget: ContainerWidgetProps<WidgetProps>,
+): boolean {
+  // if both scrolling and auto height is disabled, container is not scrollable
+  return !(
+    !isAutoHeightEnabledForWidget(widget) &&
+    widget.shouldScrollContents === false
+  );
+}
+
+/**
  * Gets the max possible height for the widget
  * @param props: WidgetProperties
  * @returns: The max possible height of the widget (in rows)
@@ -849,3 +863,21 @@ export function shouldUpdateWidgetHeightAutomatically(
   // If we reach this point, we don't have to change height
   return false;
 }
+// This is to be applied to only those widgets which will scroll for example, container widget, etc.
+// But this won't apply to CANVAS_WIDGET.
+export const scrollCSS = css`
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: overlay;
+
+  scrollbar-color: #cccccc transparent;
+  scroolbar-width: thin;
+
+  &::-webkit-scrollbar-thumb {
+    background: #cccccc !important;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+`;

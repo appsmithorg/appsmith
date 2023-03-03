@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Category, Size } from "design-system";
+import { Button, Category, Size } from "design-system-old";
 
 const StyledButton = styled(Button)`
   display: inline-block;

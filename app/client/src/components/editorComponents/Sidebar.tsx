@@ -24,7 +24,7 @@ import {
   getExplorerPinned,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
@@ -41,7 +41,7 @@ type Props = {
 };
 
 export const EntityExplorerSidebar = memo((props: Props) => {
-  let tooltipTimeout: number;
+  let tooltipTimeout: ReturnType<typeof setTimeout>;
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);

@@ -1,4 +1,4 @@
-import { TooltipComponent as Tooltip } from "design-system";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
 

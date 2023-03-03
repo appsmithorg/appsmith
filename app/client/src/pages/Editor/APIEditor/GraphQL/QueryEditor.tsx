@@ -16,7 +16,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 
 const QueryHeader = styled.div`
   display: flex;
@@ -56,7 +56,12 @@ function QueryEditor(props: QueryProps) {
           Query
         </Text>
       </QueryHeader>
-      <Field component={CodeEditor} {...props} {...editorProps} />
+      <Field
+        component={CodeEditor}
+        evaluatedPopUpLabel="Query"
+        {...props}
+        {...editorProps}
+      />
     </QueryWrapper>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "design-system-old";
 
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE,

@@ -1,7 +1,7 @@
 import React from "react";
 import { Field, WrappedFieldMetaProps } from "redux-form";
 import { Intent } from "constants/DefaultTheme";
-import { FieldError } from "design-system";
+import { FieldError } from "design-system-old";
 import {
   EditorModes,
   EditorSize,

@@ -31,7 +31,7 @@ import {
   Category,
   FormGroup as StyledFormGroup,
   Size,
-} from "design-system";
+} from "design-system-old";
 import { roleOptions, useCaseOptions } from "./constants";
 
 const DetailsFormWrapper = styled.div`

@@ -397,6 +397,7 @@ class ButtonGroupComponent extends React.Component<
       };
     });
 
+    // @ts-expect-error: setTimeout return type mismatch
     this.timer = setTimeout(() => {
       this.setState(() => {
         return {

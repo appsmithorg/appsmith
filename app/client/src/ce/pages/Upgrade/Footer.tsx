@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import React from "react";
-import { Button, Size, Text, TextType } from "design-system";
-import { Variant } from "design-system/build/constants/variants";
+import { Button, Size, Text, TextType } from "design-system-old";
+import { Variant } from "design-system-old/build/constants/variants";
 import { FooterProps } from "./types";
-import { createMessage } from "design-system/build/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 import { AVAILABLE_ON_BUSINESS, UPGRADE } from "../../constants/messages";
 
 const FooterContainer = styled.div`
@@ -34,16 +34,20 @@ const FooterContainer = styled.div`
 `;
 
 export function FooterComponent(props: FooterProps) {
-  const { message, onClick } = props;
+  const { message, onClick, showHeading = true } = props;
   return (
     <FooterContainer
       className="upgrade-page-footer-container"
       data-testid="t--upgrade-page-footer-container"
     >
       <div className="left">
-        <div className="heading-container">
-          <Text type={TextType.H1}>{createMessage(AVAILABLE_ON_BUSINESS)}</Text>
-        </div>
+        {showHeading && (
+          <div className="heading-container">
+            <Text type={TextType.H1}>
+              {createMessage(AVAILABLE_ON_BUSINESS)}
+            </Text>
+          </div>
+        )}
         <div className="text-container">
           <Text type={TextType.P1}>{message}</Text>
         </div>

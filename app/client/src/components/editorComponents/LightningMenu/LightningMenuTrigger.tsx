@@ -6,8 +6,8 @@ import {
 } from "@appsmith/constants/messages";
 import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system";
-import { TooltipComponent as Tooltip } from "design-system";
+import { Icon, IconSize } from "design-system-old";
+import { TooltipComponent as Tooltip } from "design-system-old";
 
 const LightningIconWrapper = styled.span<{
   background: string;

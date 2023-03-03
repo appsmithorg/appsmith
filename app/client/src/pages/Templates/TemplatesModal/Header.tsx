@@ -2,7 +2,7 @@ import {
   createMessage,
   TEMPLATES_BACK_BUTTON,
 } from "@appsmith/constants/messages";
-import { Icon, IconSize, Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 

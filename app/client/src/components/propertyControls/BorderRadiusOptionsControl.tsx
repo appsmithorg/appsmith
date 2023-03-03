@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { ButtonGroup, TooltipComponent } from "design-system";
+import { ButtonGroup, TooltipComponent } from "design-system-old";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import {

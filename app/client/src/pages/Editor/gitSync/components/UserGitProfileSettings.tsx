@@ -15,7 +15,7 @@ import {
   emailValidator,
   getTypographyByKey,
   TextInput,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {

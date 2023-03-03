@@ -1,4 +1,4 @@
-import { TextInput } from "design-system";
+import { TextInput } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 

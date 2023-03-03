@@ -20,7 +20,7 @@ import {
   TextInput,
   TextInputProps,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
 export interface KeyValueArrayControlProps extends ControlProps {

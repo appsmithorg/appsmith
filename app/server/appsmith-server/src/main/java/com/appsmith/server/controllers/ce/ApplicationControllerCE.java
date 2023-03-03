@@ -4,22 +4,26 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -43,7 +47,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -55,6 +58,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ApplicationForkingService applicationForkingService;
     private final ImportExportApplicationService importExportApplicationService;
     private final ThemeService themeService;
+    private final ApplicationSnapshotService applicationSnapshotService;
 
     @Autowired
     public ApplicationControllerCE(
@@ -62,13 +66,16 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportExportApplicationService importExportApplicationService, ThemeService themeService) {
+            ImportExportApplicationService importExportApplicationService,
+            ThemeService themeService,
+            ApplicationSnapshotService applicationSnapshotService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
         this.importExportApplicationService = importExportApplicationService;
         this.themeService = themeService;
+        this.applicationSnapshotService = applicationSnapshotService;
     }
 
     @PostMapping
@@ -125,6 +132,13 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 
+    @GetMapping("/releaseItems")
+    public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
+        log.debug("Going to get version release items");
+        return applicationFetcher.getReleaseItems()
+                .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
+    }
+
     @PutMapping("/{defaultApplicationId}/changeAccess")
     public Mono<ResponseDTO<Application>> shareApplication(@PathVariable String defaultApplicationId,
                                                            @RequestBody ApplicationAccessDTO applicationAccessDTO,
@@ -168,6 +182,31 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                     Object applicationResource = fetchedResource.getApplicationResource();
                     return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
                 });
+    }
+
+    @PostMapping("/snapshot/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<Boolean>> createSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to create snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.createApplicationSnapshot(id, branchName)
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
+    }
+
+    @GetMapping("/snapshot/{id}")
+    public Mono<ResponseDTO<ApplicationSnapshot>> getSnapshotWithoutApplicationJson(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to get snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.getWithoutDataByApplicationId(id, branchName)
+                .map(applicationSnapshot -> new ResponseDTO<>(HttpStatus.OK.value(), applicationSnapshot, null));
+    }
+
+    @PostMapping("/snapshot/{id}/restore")
+    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.restoreSnapshot(id, branchName)
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -214,11 +253,28 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
+    @PostMapping(value = "/{defaultApplicationId}/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ResponseDTO<Application>> uploadAppNavigationLogo(@PathVariable String defaultApplicationId,
+                                                                  @RequestPart("file") Mono<Part> fileMono,
+                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return fileMono
+                .flatMap(part -> service.saveAppNavigationLogo(branchName, defaultApplicationId, part))
+                .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
+    }
+
+    @DeleteMapping("/{defaultApplicationId}/logo")
+    public Mono<ResponseDTO<Void>> deleteAppNavigationLogo(@PathVariable String defaultApplicationId,
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName){
+        return service.deleteAppNavigationLogo(branchName, defaultApplicationId)
+                .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+    }
+
+
     // !! This API endpoint should not be exposed !!
     @Override
     @GetMapping("")
     public Mono<ResponseDTO<List<Application>>> getAll(@RequestParam MultiValueMap<String, String> params,
-                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return Mono.just(
                 new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), null, AppsmithError.UNSUPPORTED_OPERATION.getMessage())
         );

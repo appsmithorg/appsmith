@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { ButtonGroup, ButtonGroupOption } from "design-system";
+import { ButtonGroup, ButtonGroupOption } from "design-system-old";
 import {
   DSEventDetail,
   DSEventTypes,

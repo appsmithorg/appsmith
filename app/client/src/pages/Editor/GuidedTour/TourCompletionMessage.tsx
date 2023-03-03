@@ -7,7 +7,7 @@ import {
   Icon,
   IconSize,
   Size,
-} from "design-system";
+} from "design-system-old";
 import {
   getPostWelcomeTourState,
   setPostWelcomeTourState,

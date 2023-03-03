@@ -21,7 +21,7 @@ import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import useDropdown from "widgets/useDropdown";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 

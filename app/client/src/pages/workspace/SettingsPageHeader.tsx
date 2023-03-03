@@ -10,7 +10,7 @@ import {
   MenuItemProps,
   Icon,
   SearchVariant,
-} from "design-system";
+} from "design-system-old";
 import { HeaderWrapper } from "pages/Settings/components";
 import {
   HelpPopoverStyle,
@@ -19,7 +19,7 @@ import {
 } from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { useMediaQuery } from "react-responsive";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 
 type PageHeaderProps = {
   buttonText?: string;

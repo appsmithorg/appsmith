@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setThemeMode } from "actions/themeActions";
-import { MenuItem, RectangularSwitcher } from "design-system";
+import { MenuItem, RectangularSwitcher } from "design-system-old";
 import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
 
 export default function ThemeSwitcher(props: { className?: string }) {

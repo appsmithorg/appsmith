@@ -28,7 +28,7 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
-import { Button, FormGroup, FormMessage, Size } from "design-system";
+import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
@@ -46,8 +46,6 @@ import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "@appsmith/constants/forms";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
-import { withTheme } from "styled-components";
-import { Theme } from "constants/DefaultTheme";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
 
@@ -77,7 +75,7 @@ type SignUpFormProps = InjectedFormProps<
   SignupFormValues,
   { emailValue: string }
 > &
-  RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
+  RouteComponentProps<{ email: string }> & { emailValue: string };
 
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
@@ -239,5 +237,5 @@ export default connect((state: AppState, props: SignUpFormProps) => {
     validate,
     form: SIGNUP_FORM_NAME,
     touchOnBlur: true,
-  })(withRouter(withTheme(SignUp))),
+  })(withRouter(SignUp)),
 );

@@ -5,6 +5,7 @@ import {
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
+  StickyType,
 } from "./Constants";
 import { Row } from "react-table";
 
@@ -98,6 +99,8 @@ interface ReactTableComponentProps {
   allowRowSelection: boolean;
   allowSorting: boolean;
   disabledAddNewRowSave: boolean;
+  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
+  canFreezeColumn?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -108,6 +111,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     applyFilter,
     borderColor,
     borderWidth,
+    canFreezeColumn,
     columns,
     columnWidthMap,
     compactMode,
@@ -117,6 +121,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     editableCell,
     editMode,
     filters,
+    handleColumnFreeze,
     handleReorderColumn,
     handleResizeColumn,
     height,
@@ -156,27 +161,39 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
-  const { columnOrder, hiddenColumns } = useMemo(() => {
-    const order: string[] = [];
+  const { hiddenColumns } = useMemo(() => {
     const hidden: string[] = [];
     columns.forEach((item) => {
       if (item.isHidden) {
         hidden.push(item.alias);
-      } else {
-        order.push(item.alias);
       }
     });
     return {
-      columnOrder: order,
       hiddenColumns: hidden,
     };
   }, [columns]);
 
   useEffect(() => {
     let dragged = -1;
-    const headers = Array.prototype.slice.call(
-      document.querySelectorAll(`#table${widgetId} .draggable-header`),
-    );
+    const leftOrder: string[] = [];
+    const rightOrder: string[] = [];
+    const middleOrder: string[] = [];
+    columns.forEach((item) => {
+      if (item.sticky === StickyType.LEFT) {
+        leftOrder.push(item.alias);
+      } else if (item.sticky === StickyType.RIGHT) {
+        rightOrder.push(item.alias);
+      } else {
+        middleOrder.push(item.alias);
+      }
+    });
+    const headers = Array.prototype.slice
+      .call(document.querySelectorAll(`#table${widgetId} .draggable-header`))
+      .filter((header) => {
+        // Filter out columns that are not sticky.
+        const parentDataAtrributes = header.parentElement.dataset;
+        return !("stickyTd" in parentDataAtrributes);
+      });
     headers.forEach((header, i) => {
       header.setAttribute("draggable", true);
 
@@ -232,7 +249,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         header.parentElement.className = "th header-reorder";
         if (i !== dragged && dragged !== -1) {
           e.preventDefault();
-          const newColumnOrder = [...columnOrder];
+          const newColumnOrder = [...middleOrder];
           // The dragged column
           const movedColumnName = newColumnOrder.splice(dragged, 1);
 
@@ -240,13 +257,23 @@ function ReactTableComponent(props: ReactTableComponentProps) {
           if (movedColumnName && movedColumnName.length === 1) {
             newColumnOrder.splice(i, 0, movedColumnName[0]);
           }
-          handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
+          handleReorderColumn([
+            ...leftOrder,
+            ...newColumnOrder,
+            ...hiddenColumns,
+            ...rightOrder,
+          ]);
         } else {
           dragged = -1;
         }
       };
     });
-  }, [props.columns.map((column) => column.alias).toString()]);
+  }, [
+    props.columns.map((column) => column.alias).toString(),
+    props.serverSidePaginationEnabled,
+    props.searchKey,
+    props.multiRowSelection,
+  ]);
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
     if (allowSorting) {
@@ -303,6 +330,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={borderWidth}
       boxShadow={props.boxShadow}
+      canFreezeColumn={canFreezeColumn}
       columnWidthMap={columnWidthMap}
       columns={columns}
       compactMode={compactMode}
@@ -314,6 +342,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
       filters={filters}
+      handleColumnFreeze={handleColumnFreeze}
       handleResizeColumn={handleResizeColumn}
       height={height}
       isAddRowInProgress={isAddRowInProgress}
@@ -404,6 +433,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.allowAddNewRow === next.allowAddNewRow &&
     prev.allowRowSelection === next.allowRowSelection &&
     prev.allowSorting === next.allowSorting &&
-    prev.disabledAddNewRowSave === next.disabledAddNewRowSave
+    prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
+    prev.canFreezeColumn === next.canFreezeColumn
   );
 });

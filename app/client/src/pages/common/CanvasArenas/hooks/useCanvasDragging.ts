@@ -456,6 +456,7 @@ export const useCanvasDragging = (
         const reflowAfterTimeoutCallback = (reflowParams: {
           movementMap: ReflowedSpaceMap;
           spacePositionMap: SpaceMap | undefined;
+          movementLimitMap: MovementLimitMap | undefined;
         }) => {
           currentReflowParams = { ...currentReflowParams, ...reflowParams };
           updateParamsPostReflow();
@@ -573,7 +574,7 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend]);
+  }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend, scale]);
   return {
     showCanvas: isDragging && !isResizing,
   };

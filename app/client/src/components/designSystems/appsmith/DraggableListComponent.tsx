@@ -1,6 +1,7 @@
 import React from "react";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+
 const ItemWrapper = styled.div`
   padding-right: 0;
   margin: 8px 0 0 0;

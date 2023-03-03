@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
+
 import GeneratePageForm from "./GeneratePageForm/GeneratePageForm";
 
 const Container = styled.div`

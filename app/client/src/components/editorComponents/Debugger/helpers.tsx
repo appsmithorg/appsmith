@@ -1,7 +1,7 @@
 import { Log, LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import {
   createMessage,
   OPEN_THE_DEBUGGER,

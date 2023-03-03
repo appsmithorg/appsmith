@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
-import { Checkbox, Text, TextType } from "design-system";
+import { Checkbox, Text, TextType } from "design-system-old";
 import { filterTemplates } from "actions/templateActions";
 import { createMessage, FILTERS } from "@appsmith/constants/messages";
 import {

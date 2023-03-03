@@ -8,7 +8,7 @@ import {
   Severity,
   SourceEntity,
 } from "entities/AppsmithConsole";
-import React, { useState } from "react";
+import React, { useState, PropsWithChildren } from "react";
 import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
@@ -23,13 +23,14 @@ import {
   Text,
   TextType,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 import {
   createMessage,
   TROUBLESHOOT_ISSUE,
 } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
+import { Theme } from "constants/DefaultTheme";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -179,7 +180,11 @@ const JsonWrapper = styled.div`
   }
 `;
 
-const StyledCollapse = styled(Collapse)<{ category: LOG_CATEGORY }>`
+type StyledCollapseProps = PropsWithChildren<{
+  category: LOG_CATEGORY;
+}>;
+
+const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
 margin-top:${(props) =>
   props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
     ? " -20px"
@@ -267,11 +272,11 @@ function LogItem(props: LogItemProps) {
   const errorToSearch =
     props.messages && props.messages.length
       ? props.messages[0]
-      : { message: props.text };
+      : { message: { name: "", message: props.text } };
 
   const messages = props.messages || [];
   const { collapsable } = props;
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   return (
     <Wrapper
       className={props.severity}
@@ -371,7 +376,7 @@ function LogItem(props: LogItemProps) {
           {messages.map((e) => {
             return (
               <MessageWrapper
-                key={e.message}
+                key={e.message.message}
                 onClick={(e) => e.stopPropagation()}
               >
                 <ContextualMenu entity={props.source} error={e}>

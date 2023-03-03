@@ -7,9 +7,9 @@ import {
   cancelActionConfirmationModal,
   acceptActionConfirmationModal,
 } from "actions/pluginActionActions";
-import { DialogComponent } from "design-system";
+import { DialogComponent } from "design-system-old";
 import styled from "styled-components";
-import { Button, Category, Size } from "design-system";
+import { Button, Category, Size } from "design-system-old";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,

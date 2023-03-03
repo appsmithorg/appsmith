@@ -499,48 +499,6 @@ class CheckboxGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
-    if (
-      Array.isArray(prevProps.options) &&
-      Array.isArray(this.props.options) &&
-      this.props.options.length !== prevProps.options.length
-    ) {
-      const prevOptions = compact(prevProps.options).map(
-        (prevOption) => prevOption.value,
-      );
-      const options = compact(this.props.options).map((option) => option.value);
-
-      // Get an array containing all the options of prevOptions that are not in options and vice-versa
-      const diffOptions = prevOptions
-        .filter((option) => !options.includes(option))
-        .concat(options.filter((option) => !prevOptions.includes(option)));
-
-      // TODO(abhinav): Not sure why we have to do this.
-      // Stuff breaks after release merge, fixing it here.
-      let _selectedValues = this.props.selectedValues;
-      if (!Array.isArray(_selectedValues)) {
-        if (
-          this.props.defaultSelectedValues &&
-          this.props.defaultSelectedValues.length &&
-          !Array.isArray(this.props.defaultSelectedValues)
-        ) {
-          _selectedValues = [this.props.defaultSelectedValues];
-        } else {
-          _selectedValues = [];
-        }
-      }
-
-      const selectedValues = _selectedValues.filter(
-        (selectedValue: string) => !diffOptions.includes(selectedValue),
-      );
-
-      this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
-        triggerPropertyName: "onSelectionChange",
-        dynamicString: this.props.onSelectionChange,
-        event: {
-          type: EventType.ON_CHECK_CHANGE,
-        },
-      });
-    }
     // Reset isDirty to false whenever defaultSelectedValues changes
     if (
       xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)

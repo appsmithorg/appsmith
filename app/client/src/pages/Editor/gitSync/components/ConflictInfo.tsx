@@ -16,7 +16,7 @@ import {
   TextType,
   Icon,
   IconSize,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 
 const Row = styled.div`

@@ -12,7 +12,13 @@ import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
 import { Datasource, MockDatasource } from "entities/Datasource";
-import { IconSize, TabComponent, TabProp, Text, TextType } from "design-system";
+import {
+  IconSize,
+  TabComponent,
+  TabProp,
+  Text,
+  TextType,
+} from "design-system-old";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
@@ -62,6 +68,9 @@ const ApiHomePage = styled.div`
 const MainTabsContainer = styled.div`
   width: 100%;
   height: 100%;
+  .react-tabs__tab-list {
+    margin: 2px;
+  }
 `;
 
 const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
@@ -147,19 +156,6 @@ const getSecondaryMenuIds = (hasActiveSources = false) => {
     MOCK_DATABASE: 2 - (hasActiveSources ? 0 : 2),
   };
 };
-
-// const TERTIARY_MENU: TabProp[] = [
-//   {
-//     key: "ACTIVE_CONNECTIONS",
-//     title: "Active Connections",
-//     panelComponent: <div />,
-//   },
-//   {
-//     key: "MOCK_DATABASE",
-//     title: "Mock Databases",
-//     panelComponent: <div />,
-//   },
-// ];
 
 const TERTIARY_MENU_IDS = {
   ACTIVE_CONNECTIONS: 0,

@@ -6,9 +6,10 @@ import {
 } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import VideoComponent, { VideoComponentProps } from "./";
-import styled, { AnyStyledComponent } from "styled-components";
+import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
-const PlayIcon = styled(ControlIcons.PLAY_VIDEO as AnyStyledComponent)`
+
+const PlayIcon = styled(ControlIcons.PLAY_VIDEO)`
   position: relative;
   cursor: pointer;
   &:hover {

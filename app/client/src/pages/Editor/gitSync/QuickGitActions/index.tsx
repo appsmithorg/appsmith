@@ -48,7 +48,7 @@ import {
   IconSize,
   Size,
   TooltipComponent as Tooltip,
-} from "design-system";
+} from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
