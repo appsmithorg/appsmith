@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
-import React, { memo, useEffect, useMemo, useRef } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -26,6 +26,22 @@ import {
   isMultiPaneActive,
 } from "selectors/multiPaneSelectors";
 import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import WidgetSidebar from "pages/Editor/WidgetSidebar";
+import styled from "styled-components";
+
+const TabHeader = styled.div`
+  display: flex;
+  gap: 10px;
+  padding: 0 0 10px 10px;
+  .tab-header-title.selected {
+    border-bottom: 1px solid #f86a2b;
+  }
+`;
+
+const Wrapper = styled.div`
+  height: 100%;
+  overflow: hidden;
+`;
 
 type Props = {
   width: number;
@@ -56,6 +72,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
+  const [rightPaneTabIndex, setRightPaneTabIndex] = useState(0);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget id,
@@ -159,7 +176,30 @@ export const PropertyPaneSidebar = memo((props: Props) => {
               : "100%",
           }}
         >
-          {propertyPane}
+          <Wrapper>
+            <TabHeader className="tab-header">
+              <div
+                className={classNames({
+                  "tab-header-title": true,
+                  selected: rightPaneTabIndex === 0,
+                })}
+                onClick={() => setRightPaneTabIndex(0)}
+              >
+                Create
+              </div>
+              <div
+                className={classNames({
+                  "tab-header-title": true,
+                  selected: rightPaneTabIndex === 1,
+                })}
+                onClick={() => setRightPaneTabIndex(1)}
+              >
+                Properties
+              </div>
+            </TabHeader>
+            {rightPaneTabIndex === 0 && <WidgetSidebar isActive />}
+            {rightPaneTabIndex === 1 && propertyPane}
+          </Wrapper>
         </div>
       </div>
     </div>

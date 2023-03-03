@@ -18,8 +18,8 @@ const StyledWrapper = styled.div<{ isMultiPane: boolean; isActive: boolean }>`
   ${(props) =>
     props.isMultiPane
       ? `
-  min-width: 185px;
-  max-width: 265px;
+  min-width: 286px;
+  max-width: 286px;
   height: inherit;
   overflow-y: auto;
   overflow-x: hidden;
