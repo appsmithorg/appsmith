@@ -1,36 +1,36 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { AppState } from "@appsmith/reducers";
-import { stopReflowAction } from "actions/reflowActions";
-import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
-import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
+import { useContext, useEffect, useRef } from "react";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import equal from "fast-deep-equal/es6";
-import { isEmpty } from "lodash";
-import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { useContext, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
+import { AppState } from "@appsmith/reducers";
+import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { getSelectedWidgets } from "selectors/ui";
-import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { snapToGrid } from "utils/helpers";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
+import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import {
   getDropZoneOffsets,
   WidgetOperationParams,
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
-import { XYCord } from "./useRenderBlocksOnCanvas";
+import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
+import { isEmpty } from "lodash";
+import equal from "fast-deep-equal/es6";
+import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { snapToGrid } from "utils/helpers";
+import { stopReflowAction } from "actions/reflowActions";
+import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { getIsReflowing } from "selectors/widgetReflowSelectors";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
 import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
