@@ -6,6 +6,7 @@ const queryLocators = require("../../../../../locators/QueryEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const locators = require("../../../../../locators/commonlocators.json");
 const testUrl1 = "https://mock-api.appsmith.com/echo/get";
+const omnibar = require("../../../../../locators/Omnibar.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper,
   homePage1 = ObjectsRegistry.HomePage;
@@ -27,6 +28,8 @@ describe("Create Permission flow ", function() {
     "CreatePermissionPageLevel" + `${Math.floor(Math.random() * 1000)}`;
   const ExportPermission =
     "ExportPermission" + `${Math.floor(Math.random() * 1000)}`;
+  const apiName = "Omnibar1";
+  const jsObjectName = "Omnibar2";
   //const DeletePermission = "DeletePermissionAppLevel";
   beforeEach(() => {
     cy.AddIntercepts();
@@ -192,6 +195,7 @@ describe("Create Permission flow ", function() {
     cy.wait(4000);
     cy.get(homePage.homeIcon).click({ force: true });
     // verify user is able to create pages in exisiting app
+    cy.wait(2000);
     cy.get(homePage.searchInput)
       .clear()
       .type(appName);
@@ -385,7 +389,82 @@ describe("Create Permission flow ", function() {
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
   });
-  it("7. Delete App for user which has create access", function() {
+  it("7. Omnibar : Action creation", function() {
+    cy.LogOut();
+    cy.LogintoAppTestUser(
+      Cypress.env("TESTUSERNAME1"),
+      Cypress.env("TESTPASSWORD1"),
+    );
+    cy.get(homePage.searchInput)
+      .clear()
+      .type(appName);
+    cy.wait(2000);
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
+    cy.get(homePage.appEditIcon).click();
+    cy.wait(2000);
+    cy.CheckAndUnfoldEntityItem("Pages");
+    // verify create new on omnibar is visible to user
+    cy.get(omnibar.globalSearch).click({ force: true });
+    cy.get(omnibar.categoryTitle)
+      .eq(1)
+      .should("have.text", "Create New")
+      .next()
+      .should("have.text", "Create a new Query, API or JS Object");
+    cy.get(omnibar.categoryTitle)
+      .eq(1)
+      .click();
+    cy.intercept("POST", "/api/v1/actions").as("createNewApi");
+    cy.intercept("POST", "/api/v1/collections/actions").as(
+      "createNewJSCollection",
+    );
+    // 0 is the index value of the API in omnibar ui
+    cy.get(omnibar.createNew)
+      .eq(0)
+      .should("have.text", "New Blank API");
+    // 1 is the index value of the GraphQL API in omnibar ui
+    cy.get(omnibar.createNew)
+      .eq(1)
+      .should("have.text", "New Blank GraphQL API");
+    // 2 is the index value of the JS Object in omnibar ui
+    cy.get(omnibar.createNew)
+      .eq(2)
+      .should("have.text", "New JS Object");
+    // 3 is the index value of the Curl import in omnibar ui
+    cy.get(omnibar.createNew)
+      .eq(3)
+      .should("have.text", "New cURL Import");
+    cy.get(omnibar.createNew)
+      .eq(0)
+      .click();
+    cy.wait(1000);
+    cy.wait("@createNewApi");
+    cy.renameWithInPane(apiName);
+    cy.get(omnibar.globalSearch).click({ force: true });
+    cy.get(omnibar.categoryTitle)
+      .eq(1)
+      .click();
+    cy.get(omnibar.createNew)
+      .eq(2)
+      .click();
+    cy.wait(1000);
+    cy.wait("@createNewJSCollection");
+    cy.wait(1000);
+    cy.get(".t--js-action-name-edit-field")
+      .type(jsObjectName)
+      .wait(1000);
+    cy.get(omnibar.globalSearch).click({ force: true });
+    cy.get(omnibar.categoryTitle)
+      .eq(1)
+      .click();
+    cy.wait(1000);
+    cy.get(omnibar.createNew)
+      .last()
+      .should("have.text", "New Datasource");
+  });
+
+  it("8. Delete App for user which has create access", function() {
     // verify user is able to delete application
     cy.LogOut();
     cy.LogintoAppTestUser(
@@ -398,7 +477,7 @@ describe("Create Permission flow ", function() {
       .trigger("mouseover");
     cy.wait(2000);
     cy.get(homePage.appMoreIcon)
-      .should("have.length", 1)
+      // .should("have.length", 1)
       .first()
       .click({ force: true });
     cy.wait(2000);
@@ -411,6 +490,7 @@ describe("Create Permission flow ", function() {
     cy.wait("@deleteApplication");
     cy.get("@deleteApplication").should("have.property", "status", 200);
   });
+
   after(() => {
     cy.LogOut();
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));

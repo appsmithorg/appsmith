@@ -8,6 +8,7 @@ const datasourceFormData = require("../../../../../fixtures/datasources.json");
 const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const jsEditorLocators = require("../../../../../locators/JSEditor.json");
+const omnibar = require("../../../../../locators/Omnibar.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const dataSources = ObjectsRegistry.DataSources;
 let ee = ObjectsRegistry.EntityExplorer,
@@ -242,6 +243,12 @@ describe("Edit Permission flow ", function() {
       "response.body.responseMeta.status",
       200,
     );
+    // verify create new on omnibar is visible to user
+    cy.get(omnibar.globalSearch).click({ force: true });
+    cy.get(omnibar.categoryTitle)
+      .eq(1)
+      .should("not.have.text", "Create New");
+    cy.get("body").click(0, 0);
   });
 
   it("2. Edit permission : Workspace level, Verify user is not able to create or delete resources", function() {

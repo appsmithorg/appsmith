@@ -37,6 +37,9 @@ describe("SSO with SAML test functionality", function() {
     // adding wait for server to restart
     cy.wait(120000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
+    cy.get(adminSettings.disconnectBtn)
+      .should("be.visible")
+      .should("contain", "Disconnect");
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
     cy.wait(500);
