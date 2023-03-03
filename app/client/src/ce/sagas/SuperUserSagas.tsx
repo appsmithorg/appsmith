@@ -1,4 +1,3 @@
-import React from "react";
 import UserApi, { SendTestEmailPayload } from "@appsmith/api/UserApi";
 import {
   ReduxAction,
