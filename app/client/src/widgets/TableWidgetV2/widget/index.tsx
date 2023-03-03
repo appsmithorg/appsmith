@@ -2161,6 +2161,7 @@ class TableWidgetV2 extends BaseWidget<TableProps, WidgetState> {
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}
+            tableSizes={tableSizes}
           />
         );
 
