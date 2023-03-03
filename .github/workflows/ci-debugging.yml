@@ -1,4 +1,4 @@
-name: Upgrde Appsmith Test Workflow
+name: CI Debugging
 
 on:
   # This line enables manual triggering of this workflow.
