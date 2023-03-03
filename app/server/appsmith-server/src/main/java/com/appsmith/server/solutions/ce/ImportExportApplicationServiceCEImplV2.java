@@ -51,6 +51,7 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
@@ -78,7 +79,6 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -135,6 +135,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     private final ActionPermission actionPermission;
     private final Gson gson;
     private final TransactionalOperator transactionalOperator;
+    private final ApplicationSnapshotService applicationSnapshotService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -887,6 +888,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                     // The isPublic flag has a default value as false and this would be confusing to user
                                                     // when it is reset to false during importing where the application already is present in DB
                                                     importedApplication.setIsPublic(null);
+                                                    importedApplication.setPolicies(null);
                                                     copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // We are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
@@ -894,7 +896,16 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                     // the changes from remote
                                                     // We are using the save instead of update as we are using @Encrypted
                                                     // for GitAuth
-                                                    return applicationService.findById(existingApplication.getGitApplicationMetadata().getDefaultApplicationId())
+                                                    Mono<Application> parentApplicationMono;
+                                                    if (existingApplication.getGitApplicationMetadata() != null) {
+                                                        parentApplicationMono = applicationService.findById(
+                                                                existingApplication.getGitApplicationMetadata().getDefaultApplicationId()
+                                                        );
+                                                    } else {
+                                                        parentApplicationMono = Mono.just(existingApplication);
+                                                    }
+
+                                                    return parentApplicationMono
                                                             .flatMap(application1 -> {
                                                                 // Set the policies from the defaultApplication
                                                                 existingApplication.setPolicies(application1.getPolicies());

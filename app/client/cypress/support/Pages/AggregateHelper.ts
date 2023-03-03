@@ -197,11 +197,11 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true) {
+  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true, force = true) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
       .eq(index)
       .scrollIntoView()
-      .click({ force: true });
+      .click({ force: force });
     shouldSleep && this.Sleep();
   }
 
@@ -545,6 +545,13 @@ export class AggregateHelper {
       : cy.get(selector);
     locator.type(this.selectLine);
     return locator.type(this.removeLine);
+  }
+
+  public SelectAllRemoveCodeText(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.type(this.selectAll+"{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
