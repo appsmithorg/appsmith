@@ -574,7 +574,7 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend, scale]);
+  }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend]);
   return {
     showCanvas: isDragging && !isResizing,
   };
