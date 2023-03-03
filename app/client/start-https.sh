@@ -28,6 +28,7 @@ if [[ ${1-} =~ ^-*h(elp)?$ ]]; then
         If neither of the above are set, then we use 443 for https, and 80 for http.
 
 --env-file: Specify an alternate env file. Defaults to '.env' at the root of the project.
+--use-k8s: Use appsmith.local-green.manabie.io as backend
 
 A single positional argument can be given to set the backend server proxy address. Example:
 
@@ -68,6 +69,10 @@ while [[ $# -gt 0 ]]; do
         --env-file)
             env_file=$2
             shift
+            shift
+            ;;
+        --use-k8s)  # check if --use-k8s option is passed
+            use_k8s=1
             shift
             ;;
         -*|--*)
@@ -149,9 +154,13 @@ rts_port=${rts_port-8091}
 backend="${backend-http://$backend_host:$backend_port}"
 frontend="http://$frontend_host:$frontend_port"
 rts="http://$rts_host:$rts_port"
-
 http_listen_port="${http_listen_port-80}"
 https_listen_port="${https_listen_port-443}"
+
+## Use manabie appsmith
+if [[ ${use_k8s-} == 1 ]]; then
+  backend=https://appsmith.local-green.manabie.io:31600
+fi
 
 
 if [[ -n ${env_file-} && ! -f $env_file ]]; then
@@ -192,6 +201,10 @@ nginx_error_log="$working_dir/error.log"
 rm -f "$nginx_access_log" "$nginx_error_log"
 
 nginx_dev_conf="$working_dir/nginx.dev.conf"
+
+# logging
+echo "Connecting to backend:" $backend
+
 
 # Rare case, if this file doesn't exist, and the `docker run` command
 # (from further below) the script runs, then it'll auto-create a _directory_
