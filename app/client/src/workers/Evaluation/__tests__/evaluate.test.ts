@@ -80,10 +80,10 @@ describe("evaluateSync", () => {
           },
           errorType: "PARSE",
           raw: `
-  function closedFunction () {
+  function $$closedFn () {
     return wrongJS
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "wrongJS",
@@ -101,10 +101,10 @@ describe("evaluateSync", () => {
           },
           errorType: "PARSE",
           raw: `
-  function closedFunction () {
+  function $$closedFn () {
     return {}.map()
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "{}.map()",
@@ -130,10 +130,10 @@ describe("evaluateSync", () => {
           },
           errorType: "PARSE",
           raw: `
-  function closedFunction () {
+  function $$closedFn () {
     return setImmediate(() => {}, 100)
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "setImmediate(() => {}, 100)",

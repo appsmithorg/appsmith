@@ -31,22 +31,30 @@ export const ScriptTemplate = "<<string>>";
 
 export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
-  function closedFunction () {
+  function $$closedFn () {
     return ${ScriptTemplate}
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
-  (${ScriptTemplate})?.apply(THIS_CONTEXT, ARGUMENTS)
+  function $$closedFn () {
+    return (${ScriptTemplate})?.apply(THIS_CONTEXT, ARGUMENTS)
+  }
+  $$closedFn.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
-  Promise.resolve((${ScriptTemplate})?.apply(THIS_CONTEXT, ARGUMENTS))
+  async function $$closedFn () {
+    const $$return = (${ScriptTemplate})?.apply(THIS_CONTEXT, ARGUMENTS)
+    return await $$return
+  }
+  $$closedFn.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.TRIGGERS]: `
-  function closedFunction () {
-    return Promise.resolve(${ScriptTemplate})
+  async function $$closedFn () {
+    const $$return = (${ScriptTemplate})
+    return $$return
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
 };
 
