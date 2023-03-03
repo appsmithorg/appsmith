@@ -39,7 +39,7 @@ function CloseEditor() {
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
   const pageId = useSelector(getCurrentPageId);
-  if (paneCount === PaneLayoutOptions.TWO_PANE) {
+  if (paneCount !== PaneLayoutOptions.ONE_PANE) {
     return null;
   }
 

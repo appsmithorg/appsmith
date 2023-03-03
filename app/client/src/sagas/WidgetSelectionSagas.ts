@@ -57,12 +57,7 @@ import { APP_MODE } from "entities/App";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
-    const {
-      payload = [],
-      selectionRequestType,
-      invokedBy,
-      pageId,
-    } = action.payload;
+    const { payload = [], selectionRequestType } = action.payload;
 
     if (payload.some(isInvalidSelectionRequest)) {
       // Throw error
@@ -173,7 +168,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       yield call(focusOnWidgetSaga, setSelectedWidgets(newSelection));
       return;
     }
-    yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
+    yield put(setSelectedWidgets(newSelection));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,

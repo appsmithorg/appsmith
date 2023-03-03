@@ -682,7 +682,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     currentActionDatasourceId,
     formName,
     headersCount,
-    hintMessages,
     isRunning,
     onRunClick,
     paramsCount,
@@ -794,13 +793,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             </DatasourceWrapper>
           </FormRow>
         </MainConfiguration>
-        {hintMessages && (
-          <HelpSection>
-            {hintMessages.map((msg, i) => (
-              <Callout fill key={i} text={msg} variant={Variant.warning} />
-            ))}
-          </HelpSection>
-        )}
         <Wrapper>
           <SecondaryWrapper>
             <TabbedViewContainer>
