@@ -34,11 +34,11 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
 
     //Step3 & 4
     cy.get(`${datasource.datasourceCard}`)
-    .filter(":contains('Users')")
-    .last()
-    .within(() => {
-      cy.get(`${datasource.createQuery}`).click({ force: true });
-    });
+      .filter(":contains('Users')")
+      .last()
+      .within(() => {
+        cy.get(`${datasource.createQuery}`).click({ force: true });
+      });
 
     //Step5.1: Click the editing field
     cy.get(".t--action-name-edit-field").click({ force: true });
