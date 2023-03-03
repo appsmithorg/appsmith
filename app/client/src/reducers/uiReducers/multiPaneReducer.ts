@@ -12,6 +12,12 @@ export enum PaneLayoutOptions {
   THREE_PANE = 3,
 }
 
+export enum SideNavMode {
+  Explorer = 1,
+  Libraries,
+  DataSources,
+}
+
 const initialState: MultiPaneReduxState = {
   tabsPaneWidth: TABS_PANE_MIN_WIDTH,
   paneCount: PaneLayoutOptions.THREE_PANE,
@@ -30,11 +36,18 @@ const multiPaneReducer = createImmerReducer(initialState, {
   ) => {
     state.paneCount = action.payload.count;
   },
+  [ReduxActionTypes.SIDE_NAV_MODE]: (
+    state: MultiPaneReduxState,
+    action: ReduxAction<SideNavMode | undefined>,
+  ) => {
+    state.sideNavMode = action.payload;
+  },
 });
 
 export interface MultiPaneReduxState {
   tabsPaneWidth: number;
   paneCount: PaneLayoutOptions;
+  sideNavMode?: SideNavMode;
 }
 
 export default multiPaneReducer;

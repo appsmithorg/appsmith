@@ -22,12 +22,10 @@ import {
 import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
 import WidgetSidebar from "./WidgetSidebar";
 import { selectForceOpenWidgetPanel } from "./Explorer";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 const Container = styled.div`
-  height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.bottomBarHeight}
-  );
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   background-color: ${(props) => props.theme.appBackground};
 `;
 
@@ -42,6 +40,12 @@ const PropertyPanePane = styled.div`
   right: 0;
   bottom: 0;
 `;
+
+export enum SideNavMode {
+  Explorer = 1,
+  Libraries,
+  DataSources,
+}
 
 const MultiPaneContainer = () => {
   const dispatch = useDispatch();
@@ -63,8 +67,17 @@ const MultiPaneContainer = () => {
     const newWidth = Math.max(TABS_PANE_MIN_WIDTH, width);
     dispatch(setTabsPaneWidth(newWidth));
   };
+  const setSideNavMode = (mode: any) => {
+    dispatch({
+      type: ReduxActionTypes.SIDE_NAV_MODE,
+      payload: mode,
+    });
+  };
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
+  const sideNavMode = useSelector(
+    (state) => state.ui.multiPaneConfig.sideNavMode,
+  );
   const showPropertyPane = isMultiPane
     ? paneCount === PaneLayoutOptions.THREE_PANE
     : true;
@@ -72,8 +85,12 @@ const MultiPaneContainer = () => {
   return (
     <>
       <Container className="relative w-full overflow-x-hidden flex">
-        <EntityExplorerSidebar width={250} />
-        <SideNav />
+        <EntityExplorerSidebar
+          setSideNavMode={setSideNavMode}
+          sideNavMode={sideNavMode}
+          width={250}
+        />
+        <SideNav onSelect={setSideNavMode} sideNavMode={sideNavMode} />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
         <CanvasPane />
         {showPropertyPane && !openWidgetPanel && (
