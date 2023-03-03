@@ -18,6 +18,7 @@ import {
   getWidgets,
 } from "./selectors";
 import {
+  setLastSelectedWidget,
   setSelectedWidgets,
   WidgetSelectionRequestPayload,
 } from "actions/widgetSelectionActions";
@@ -54,6 +55,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
+import { MAIN_CONTAINER_WIDGET_ID } from "../constants/WidgetConstants";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
@@ -169,6 +171,13 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       return;
     }
     yield put(setSelectedWidgets(newSelection));
+    let lastWidgetSelected: string;
+    if (newSelection.length) {
+      lastWidgetSelected = newSelection[newSelection.length - 1];
+    } else {
+      lastWidgetSelected = MAIN_CONTAINER_WIDGET_ID;
+    }
+    yield put(setLastSelectedWidget(lastWidgetSelected));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,

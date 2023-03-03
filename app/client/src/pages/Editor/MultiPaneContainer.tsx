@@ -20,8 +20,6 @@ import {
   TABS_PANE_MIN_WIDTH,
 } from "reducers/uiReducers/multiPaneReducer";
 import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
-import WidgetSidebar from "./WidgetSidebar";
-import { selectForceOpenWidgetPanel } from "./Explorer";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 const Container = styled.div`
@@ -51,7 +49,6 @@ const MultiPaneContainer = () => {
   const dispatch = useDispatch();
   const isPreviewMode = useSelector(previewModeSelector);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
-  const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
   const [windowWidth] = useWindowDimensions();
 
   useEffect(() => {
@@ -93,14 +90,9 @@ const MultiPaneContainer = () => {
         <SideNav onSelect={setSideNavMode} sideNavMode={sideNavMode} />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
         <CanvasPane />
-        {showPropertyPane && !openWidgetPanel && (
+        {showPropertyPane && (
           <PropertyPanePane>
             <PropertyPaneContainer />
-          </PropertyPanePane>
-        )}
-        {openWidgetPanel && (
-          <PropertyPanePane>
-            <WidgetSidebar isActive />
           </PropertyPanePane>
         )}
       </Container>
