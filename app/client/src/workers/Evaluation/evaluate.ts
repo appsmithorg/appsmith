@@ -40,19 +40,19 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   function $$closedFn () {
     return (${ScriptTemplate})?.apply(THIS_CONTEXT, ARGUMENTS)
   }
-  $$closedFn.call(THIS_CONTEXT)
+  $$closedFn()
   `,
   [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
   async function $$closedFn () {
     const $$return = (${ScriptTemplate})?.apply(THIS_CONTEXT, ARGUMENTS)
     return await $$return
   }
-  $$closedFn.call(THIS_CONTEXT)
+  $$closedFn()
   `,
   [EvaluationScriptType.TRIGGERS]: `
   async function $$closedFn () {
     const $$return = (${ScriptTemplate})
-    return $$return
+    return await $$return
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
