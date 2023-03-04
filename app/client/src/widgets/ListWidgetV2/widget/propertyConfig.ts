@@ -328,7 +328,7 @@ export const PropertyPaneContentConfig = [
     children: [
       {
         propertyName: "defaultSelectedItem",
-        helpText: "Selects Item by default",
+        helpText: "Selects Item by default by using a valid data identifier",
         label: "Default Selected Item",
         controlType: "INPUT_TEXT",
         placeholderText: "001",
