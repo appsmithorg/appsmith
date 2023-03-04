@@ -58,7 +58,7 @@ type WidgetNameComponentProps = {
   topRow: number;
   errorCount: number;
   isFlexChild: boolean;
-  widgetProps: any;
+  widgetWidth: number;
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
@@ -171,9 +171,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
 
   // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
   // const popperOffset: any = [-RESIZE_BORDER_BUFFER, RESIZE_BORDER_BUFFER - 1];
-  const widgetWidth =
-    (props.widgetProps.rightColumn - props.widgetProps.leftColumn) *
-    props.widgetProps.parentColumnSpace;
   return showWidgetName ? (
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
@@ -187,7 +184,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
           errorCount={shouldHideErrors ? 0 : props.errorCount}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
-          widgetWidth={widgetWidth}
+          widgetWidth={props.widgetWidth}
         />
       </ControlGroup>
     </PositionStyle>

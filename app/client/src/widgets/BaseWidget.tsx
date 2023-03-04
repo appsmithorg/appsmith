@@ -427,6 +427,8 @@ abstract class BaseWidget<
    * @param showControls
    */
   showWidgetName(content: ReactNode, showControls = false) {
+    const { componentWidth } = this.getComponentDimensions();
+
     return !this.props.disablePropertyPane ? (
       <>
         <WidgetNameComponent
@@ -438,7 +440,7 @@ abstract class BaseWidget<
           type={this.props.type}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
-          widgetProps={this.props}
+          widgetWidth={componentWidth}
         />
         {content}
       </>

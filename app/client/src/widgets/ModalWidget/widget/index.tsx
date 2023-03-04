@@ -219,7 +219,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const artBoard = document.getElementById("art-board");
     const portalContainer = isEditMode && artBoard ? artBoard : undefined;
     const { isPreviewMode, isSnipingMode } = this.props;
-
+    const modalWidth = this.getModalWidth(this.props.width);
     const isResizeEnabled = isEditMode && !isSnipingMode && !isPreviewMode;
     const settingsComponent = isEditMode ? (
       <WidgetNameComponent
@@ -231,7 +231,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         type={this.props.type}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
-        widgetProps={this.props}
+        widgetWidth={modalWidth}
       />
     ) : null;
     return (
@@ -256,7 +256,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         settingsComponent={settingsComponent}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
-        width={this.getModalWidth(this.props.width)}
+        width={modalWidth}
       >
         {content}
       </ModalComponent>
