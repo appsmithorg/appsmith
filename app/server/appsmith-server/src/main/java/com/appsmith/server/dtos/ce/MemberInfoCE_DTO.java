@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class WorkspaceMemberInfoCE_DTO {
+public class MemberInfoCE_DTO {
     String userId;
     String username;
     String name;

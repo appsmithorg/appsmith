@@ -2,7 +2,7 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.MemberInfoDTO;
 
 import java.util.Comparator;
 
@@ -17,10 +17,10 @@ public class AppsmithComparatorsCE {
         };
     }
 
-    public static Comparator<WorkspaceMemberInfoDTO> getWorkspaceMemberComparator() {
+    public static Comparator<MemberInfoDTO> getWorkspaceMemberComparator() {
         return new Comparator<>() {
             @Override
-            public int compare(WorkspaceMemberInfoDTO o1, WorkspaceMemberInfoDTO o2) {
+            public int compare(MemberInfoDTO o1, MemberInfoDTO o2) {
                 int order1 = getOrder(o1.getPermissionGroupName());
                 int order2 = getOrder(o2.getPermissionGroupName());
 
