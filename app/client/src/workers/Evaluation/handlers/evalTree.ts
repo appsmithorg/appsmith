@@ -10,7 +10,7 @@ import {
 import { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { initiateLinting } from "workers/Linting/utils";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import {
   createUnEvalTreeForEval,
   makeEntityConfigsAsObjProperties,
@@ -20,6 +20,7 @@ import {
   DataTreeDiff,
   getSafeToRenderDataTree,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -227,4 +228,19 @@ export function clearCache() {
   dataTreeEvaluator = undefined;
   clearAllIntervals();
   return true;
+}
+
+function initiateLinting(
+  lintOrder: string[],
+  unevalTree: DataTree,
+  requiresLinting: boolean,
+) {
+  if (!requiresLinting) return;
+  WorkerMessenger.ping({
+    data: {
+      lintOrder,
+      unevalTree,
+    },
+    method: MAIN_THREAD_ACTION.LINT_TREE,
+  });
 }

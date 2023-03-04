@@ -7,7 +7,6 @@ import {
   LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import {
   JSHINT as jshint,
   LintError as JSHintError,
@@ -53,7 +52,6 @@ import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
 import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
-import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -484,19 +482,4 @@ function getInvalidPropertyErrorsFromScript(
     },
   );
   return invalidPropertyErrors;
-}
-
-export function initiateLinting(
-  lintOrder: string[],
-  unevalTree: DataTree,
-  requiresLinting: boolean,
-) {
-  if (!requiresLinting) return;
-  WorkerMessenger.ping({
-    data: {
-      lintOrder,
-      unevalTree,
-    },
-    method: MAIN_THREAD_ACTION.LINT_TREE,
-  });
 }
