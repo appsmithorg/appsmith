@@ -14,7 +14,7 @@ import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ApplicationVersion } from "actions/applicationActions";
-// import { Positioning } from "utils/autoLayout/constants";
+import { Positioning } from "utils/autoLayout/constants";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import {
@@ -236,35 +236,29 @@ const defaultLayout: AppLayoutConfig = {
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
-// export const getMainCanvasPositioning = createSelector(
-//   getWidgets,
-//   (widgets) => {
-//     return (
-//       widgets &&
-//       widgets[MAIN_CONTAINER_WIDGET_ID] &&
-//       widgets[MAIN_CONTAINER_WIDGET_ID].positioning
-//     );
-//   },
-// );
+export const getMainCanvasPositioning = createSelector(
+  getWidgets,
+  (widgets) => {
+    return (
+      widgets &&
+      widgets[MAIN_CONTAINER_WIDGET_ID] &&
+      widgets[MAIN_CONTAINER_WIDGET_ID].positioning
+    );
+  },
+);
 
 export const isAutoLayoutEnabled = (state: AppState): boolean => {
   return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
 };
 
-// export const getCurrentAppPositioningType = createSelector(
-//   () => AppPositioningTypes.FIXED,
-// );
-
 export const getCurrentAppPositioningType = createSelector(
-  // getMainCanvasPositioning,
-  // isAutoLayoutEnabled,
-  // (positioning: any, autoLayoutEnabled: boolean): AppPositioningTypes => {
-  //   return positioning && positioning !== Positioning.Fixed && autoLayoutEnabled
-  //     ? AppPositioningTypes.AUTO
-  //     : AppPositioningTypes.FIXED;
-  // },
+  getMainCanvasPositioning,
   isAutoLayoutEnabled,
-  (): AppPositioningTypes => AppPositioningTypes.FIXED,
+  (positioning: any, autoLayoutEnabled: boolean): AppPositioningTypes => {
+    return positioning && positioning !== Positioning.Fixed && autoLayoutEnabled
+      ? AppPositioningTypes.AUTO
+      : AppPositioningTypes.FIXED;
+  },
 );
 
 export const getCurrentApplicationLayout = createSelector(
