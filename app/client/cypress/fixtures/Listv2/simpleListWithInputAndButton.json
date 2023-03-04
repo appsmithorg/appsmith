@@ -73,6 +73,7 @@
                 "templateBottomRow": 16,
                 "mainContainerId": "5usx7zt5y3",
                 "animateLoading": true,
+                "positioning": "fixed",
                 "parentColumnSpace": 42.5625,
                 "dynamicTriggerPathList": [],
                 "dynamicBindingPathList": [
@@ -130,6 +131,7 @@
                                 ],
                                 "topRow": 0,
                                 "bottomRow": 12,
+                                "positioning": "fixed",
                                 "dragDisabled": true,
                                 "type": "CONTAINER_WIDGET",
                                 "hideCard": false,

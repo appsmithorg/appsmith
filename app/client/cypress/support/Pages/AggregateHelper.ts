@@ -205,6 +205,14 @@ export class AggregateHelper {
     shouldSleep && this.Sleep();
   }
 
+  public clickMultipleButtons(btnVisibleText: string, shouldSleep = true) {
+    cy.xpath(this.locator._spanButton(btnVisibleText)).each(($el) => {
+      $el.trigger("click", { force: true });
+      cy.wait(200);
+    });
+    shouldSleep && this.Sleep();
+  }
+
   public Paste(selector: any, pastePayload: string) {
     cy.wrap(selector).then(($destination) => {
       const pasteEvent = Object.assign(

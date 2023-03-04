@@ -10,7 +10,11 @@ describe("Video Widget Functionality", function() {
 
   it("Video Widget play functionality validation", function() {
     cy.openPropertyPane("videowidget");
-    cy.widgetText("Video1", widgetsPage.videoWidget, commonlocators.videoInner);
+    cy.widgetText(
+      "Video1",
+      widgetsPage.videoWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.get(commonlocators.onPlay).click();
     cy.selectShowMsg();
     cy.addSuccessMessage("Play success");
@@ -80,7 +84,7 @@ describe("Video Widget Functionality", function() {
     cy.widgetText(
       "Button1",
       widgetsPage.buttonWidget,
-      commonlocators.buttonInner,
+      widgetsPage.widgetNameSpan,
     );
     cy.get(commonlocators.onClick).click();
     cy.selectResetWidget();
