@@ -1159,7 +1159,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   primaryKeys?: (string | number | null)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
-  defaultSelectedItem?: string | number | null;
+  defaultSelectedItem?: string | number;
   totalRecordsCount?: number | string;
 }
 

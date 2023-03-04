@@ -133,10 +133,10 @@ export function defaultSelectedItemValidation(
 
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
 
-  if (_.isNil(value)) {
+  if (value === undefined) {
     return {
       isValid: true,
-      parsed: null,
+      parsed: value,
       messages: [EMPTY_ERROR_MESSAGE],
     };
   }
