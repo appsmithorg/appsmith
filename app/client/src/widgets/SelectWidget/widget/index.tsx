@@ -13,13 +13,13 @@ import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import type { LoDashStatic } from "lodash";
 import {
   findIndex,
   isArray,
   isNil,
   isNumber,
   isString,
-  LoDashStatic,
 } from "lodash";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import equal from "fast-deep-equal/es6";

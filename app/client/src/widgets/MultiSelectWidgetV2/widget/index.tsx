@@ -3,7 +3,8 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import derivedProperties from "./parseDerivedProperties";
-import { isArray, isFinite, isString, LoDashStatic, xorWith } from "lodash";
+import type { LoDashStatic } from "lodash";
+import { isArray, isFinite, isString, xorWith } from "lodash";
 import equal from "fast-deep-equal/es6";
 import {
   ValidationResponse,

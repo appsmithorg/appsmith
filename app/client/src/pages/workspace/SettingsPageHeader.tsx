@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
-import { DebouncedFunc } from "lodash";
+import type { DebouncedFunc } from "lodash";
 import {
   Button,
   IconSize,

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "./lodash-wrapper";
 import moment from "moment-timezone";
 import parser from "fast-xml-parser";
 import forge from "node-forge";
