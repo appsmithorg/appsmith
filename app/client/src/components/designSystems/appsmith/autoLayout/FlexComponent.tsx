@@ -102,6 +102,8 @@ export function FlexComponent(props: AutoLayoutProps) {
   return (
     <FlexWidget
       className={className}
+      data-testid="test-widget"
+      data-widgetname-cy={props.widgetName}
       id={"auto_" + props.widgetId}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}

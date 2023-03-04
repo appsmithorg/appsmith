@@ -401,6 +401,7 @@ jobs:
         if: always()
         run: |
           mkdir -p  ~/failed_spec_ci
+          rm -rf ~/failed_spec_ci/*
           echo  "empty" >> ~/failed_spec_ci/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
