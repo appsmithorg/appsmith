@@ -14,6 +14,7 @@ describe("Dynamic Height Width validation with limits", function() {
         cy.openPropertyPane("textwidget");
         cy.get(commonlocators.generalSectionHeight).should("be.visible");
         cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
+        cy.openPropertyPaneFromModal("textwidget");
         cy.get(".t--widget-textwidget")
           .invoke("css", "height")
           .then((theight) => {

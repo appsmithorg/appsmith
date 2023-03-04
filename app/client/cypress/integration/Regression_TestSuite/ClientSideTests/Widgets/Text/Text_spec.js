@@ -17,7 +17,7 @@ describe("Text Widget Functionality", function() {
     cy.widgetText(
       this.data.TextName,
       widgetsPage.textWidget,
-      widgetsPage.textWidget + " " + commonlocators.widgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
     //Changing the text label
     cy.testCodeMirror(this.data.TextLabelValue);
