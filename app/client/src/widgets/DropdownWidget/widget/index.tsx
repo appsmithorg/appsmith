@@ -22,7 +22,12 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
     return {
       isValid: false,
       parsed: "",
-      messages: ["This value does not evaluate to type: string"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string",
+        },
+      ],
     };
   return { isValid: true, parsed: value };
 }
@@ -297,7 +302,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           {
             propertyName: "labelStyle",
             label: "Label Font Style",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

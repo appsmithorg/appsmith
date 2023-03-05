@@ -1,9 +1,18 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+
+export enum CursorPositionOrigin {
+  Navigation = "Navigation",
+  LastFocus = "LastFocus",
+}
 
 export type CursorPosition = {
   line: number;
   ch: number;
+  origin: CursorPositionOrigin;
 };
 
 export type EvaluatedPopupState = {
@@ -198,5 +207,11 @@ export const editorContextReducer = createImmerReducer(initialState, {
     action: { payload: number },
   ) => {
     state.explorerSwitchIndex = action.payload;
+  },
+  [ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN]: (
+    state: EditorContextState,
+    action: ReduxAction<boolean>,
+  ) => {
+    state.explorerSwitchIndex = action.payload ? 1 : 0;
   },
 });

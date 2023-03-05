@@ -1,6 +1,6 @@
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { Button } from "design-system";
+import { Button } from "design-system-old";
 import {
   ONBOARDING_TASK_DATASOURCE_BODY,
   ONBOARDING_TASK_DATASOURCE_HEADER,

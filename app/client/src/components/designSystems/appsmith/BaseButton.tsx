@@ -152,7 +152,7 @@ const StyledButton = styled((props) => (
       } !important;
     }
 
-    &:hover:enabled, &:active:enabled {
+    &:hover:enabled, &:active:enabled. &:focus:enabled {
       background: ${
         buttonStyle === ButtonStyleTypes.WARNING
           ? buttonVariant === ButtonVariantTypes.SECONDARY

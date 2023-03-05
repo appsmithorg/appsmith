@@ -29,6 +29,7 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import { TJSLibrary } from "workers/common/JSLibrary";
@@ -899,3 +900,22 @@ export const selectLibrariesForExplorer = createSelector(
     return [...queuedInstalls, ...libs];
   },
 );
+
+export const getAllJSActionsData = (state: AppState) => {
+  const jsActionsData: Record<string, unknown> = {};
+  const jsCollections = state.entities.jsActions;
+  jsCollections.forEach((collection) => {
+    if (collection.data) {
+      Object.keys(collection.data).forEach((actionId) => {
+        const jsAction = getJSActions(state, collection.config.id).find(
+          (action) => action.id === actionId,
+        );
+        if (jsAction) {
+          jsActionsData[`${collection.config.name}.${jsAction.name}`] =
+            collection.data?.[actionId];
+        }
+      });
+    }
+  });
+  return jsActionsData;
+};

@@ -1,14 +1,22 @@
-import { ColumnProperties, TableStyles } from "../component/Constants";
+import { klona } from "klona/lite";
+import {
+  ColumnProperties,
+  StickyType,
+  TableStyles,
+} from "../component/Constants";
 import { ColumnTypes } from "../constants";
 import {
   escapeString,
+  generateNewColumnOrderFromStickyValue,
   getAllTableColumnKeys,
   getArrayPropertyValue,
   getColumnType,
   getDerivedColumns,
+  getHeaderClassNameOnDragDirection,
   getOriginalRowIndex,
   getSelectRowIndex,
   getSelectRowIndices,
+  getSourceDataAndCaluclateKeysForEventAutoComplete,
   getTableStyles,
   reorderColumns,
 } from "./utilities";
@@ -1992,6 +2000,264 @@ describe("getColumnType", () => {
   });
 });
 
+describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
+  it("Should test with valid values", () => {
+    const mockProps = {
+      type: "TABLE_WIDGET_V2",
+      widgetName: "Table1",
+      widgetId: "9oh3qyw84m",
+      primaryColumns: {
+        action: {
+          configureMenuItems: {
+            config: {
+              label:
+                "{{Table1.primaryColumns.action.sourceData.map((currentItem, currentIndex) => ( currentItem.))}}",
+            },
+          },
+        },
+      },
+      __evaluation__: {
+        errors: {
+          primaryColumns: [],
+        },
+        evaluatedValues: {
+          primaryColumns: {
+            step: {
+              index: 0,
+              width: 150,
+              id: "step",
+              originalId: "step",
+              alias: "step",
+              columnType: "text",
+              label: "step",
+              computedValue: ["#1", "#2", "#3"],
+              validation: {},
+              labelColor: "#FFFFFF",
+            },
+            action: {
+              index: 3,
+              width: 150,
+              id: "action",
+              originalId: "action",
+              alias: "action",
+              columnType: "menuButton",
+              label: "action",
+              computedValue: ["", "", ""],
+              labelColor: "#FFFFFF",
+              buttonLabel: ["Action", "Action", "Action"],
+              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+              menuItemsSource: "DYNAMIC",
+              menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+              sourceData: [
+                {
+                  gender: "male",
+                  name: "Victor",
+                  email: "victor.garrett@example.com",
+                },
+                {
+                  gender: "male",
+                  name: "Tobias",
+                  email: "tobias.hansen@example.com",
+                },
+                {
+                  gender: "female",
+                  name: "Jane",
+                  email: "jane.coleman@example.com",
+                },
+                {
+                  gender: "female",
+                  name: "Yaromira",
+                  email: "yaromira.manuylenko@example.com",
+                },
+                {
+                  gender: "male",
+                  name: "Andre",
+                  email: "andre.ortiz@example.com",
+                },
+              ],
+              configureMenuItems: {
+                label: "Configure Menu Items",
+                id: "config",
+                config: {
+                  id: "config",
+                  label: ["male", "male", "female", "female", "male"],
+                  isVisible: true,
+                  isDisabled: false,
+                  onClick: "",
+                  backgroundColor: ["red", "red", "tan", "tan", "red"],
+                  iconName: "add-row-top",
+                  iconAlign: "right",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
+    const expected = {
+      currentItem: {
+        name: "",
+        email: "",
+        gender: "",
+      },
+    };
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("Should test with empty sourceData", () => {
+    const mockProps = {
+      type: "TABLE_WIDGET_V2",
+      widgetName: "Table1",
+      widgetId: "9oh3qyw84m",
+      primaryColumns: {
+        action: {
+          configureMenuItems: {
+            config: {
+              label:
+                "{{Table1.primaryColumns.action.sourceData.map((currentItem, currentIndex) => ( currentItem.))}}",
+            },
+          },
+        },
+      },
+      __evaluation__: {
+        errors: {
+          primaryColumns: [],
+        },
+        evaluatedValues: {
+          primaryColumns: {
+            step: {
+              index: 0,
+              width: 150,
+              id: "step",
+              originalId: "step",
+              alias: "step",
+              columnType: "text",
+              label: "step",
+              computedValue: ["#1", "#2", "#3"],
+              validation: {},
+              labelColor: "#FFFFFF",
+            },
+            action: {
+              index: 3,
+              width: 150,
+              id: "action",
+              originalId: "action",
+              alias: "action",
+              columnType: "menuButton",
+              label: "action",
+              computedValue: ["", "", ""],
+              labelColor: "#FFFFFF",
+              buttonLabel: ["Action", "Action", "Action"],
+              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+              menuItemsSource: "DYNAMIC",
+              menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+              sourceData: [],
+              configureMenuItems: {
+                label: "Configure Menu Items",
+                id: "config",
+                config: {
+                  id: "config",
+                  label: ["male", "male", "female", "female", "male"],
+                  isVisible: true,
+                  isDisabled: false,
+                  onClick: "",
+                  backgroundColor: ["red", "red", "tan", "tan", "red"],
+                  iconName: "add-row-top",
+                  iconAlign: "right",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
+    const expected = { currentItem: {} };
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("Should test without sourceData", () => {
+    const mockProps = {
+      type: "TABLE_WIDGET_V2",
+      widgetName: "Table1",
+      widgetId: "9oh3qyw84m",
+      primaryColumns: {
+        action: {
+          configureMenuItems: {
+            config: {
+              label:
+                "{{Table1.primaryColumns.action.sourceData.map((currentItem, currentIndex) => ( currentItem.))}}",
+            },
+          },
+        },
+      },
+      __evaluation__: {
+        errors: {
+          primaryColumns: [],
+        },
+        evaluatedValues: {
+          primaryColumns: {
+            step: {
+              index: 0,
+              width: 150,
+              id: "step",
+              originalId: "step",
+              alias: "step",
+              columnType: "text",
+              label: "step",
+              computedValue: ["#1", "#2", "#3"],
+              validation: {},
+              labelColor: "#FFFFFF",
+            },
+            action: {
+              index: 3,
+              width: 150,
+              id: "action",
+              originalId: "action",
+              alias: "action",
+              columnType: "menuButton",
+              label: "action",
+              computedValue: ["", "", ""],
+              labelColor: "#FFFFFF",
+              buttonLabel: ["Action", "Action", "Action"],
+              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+              menuItemsSource: "DYNAMIC",
+              menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+              configureMenuItems: {
+                label: "Configure Menu Items",
+                id: "config",
+                config: {
+                  id: "config",
+                  label: ["male", "male", "female", "female", "male"],
+                  isVisible: true,
+                  isDisabled: false,
+                  onClick: "",
+                  backgroundColor: ["red", "red", "tan", "tan", "red"],
+                  iconName: "add-row-top",
+                  iconAlign: "right",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
+    const expected = { currentItem: {} };
+    expect(result).toStrictEqual(expected);
+  });
+});
+
 describe("getArrayPropertyValue", () => {
   it("should test that it returns the same value when value is not of expected type", () => {
     expect(getArrayPropertyValue("test", 1)).toEqual("test");
@@ -2078,5 +2344,218 @@ describe("getArrayPropertyValue", () => {
         value: "test2",
       },
     ]);
+  });
+});
+
+describe("generateNewColumnOrderFromStickyValue", () => {
+  const baseTableConfig: {
+    primaryColumns: Record<string, Pick<ColumnProperties, "sticky">>;
+    columnOrder: string[];
+    columnName: string;
+    sticky?: string;
+  } = {
+    primaryColumns: {
+      step: {
+        sticky: StickyType.NONE,
+      },
+      task: {
+        sticky: StickyType.NONE,
+      },
+      status: {
+        sticky: StickyType.NONE,
+      },
+      action: {
+        sticky: StickyType.NONE,
+      },
+    },
+    columnOrder: ["step", "task", "status", "action"],
+    columnName: "",
+    sticky: "",
+  };
+
+  let tableConfig: {
+    primaryColumns: any;
+    columnOrder: any;
+    columnName?: string;
+    sticky?: string | undefined;
+  };
+  let newColumnOrder;
+
+  const resetValues = (config: {
+    primaryColumns: any;
+    columnOrder: any;
+    columnName?: string;
+    sticky?: string | undefined;
+  }) => {
+    config.primaryColumns = {
+      step: {
+        sticky: "",
+        id: "step",
+      },
+      task: {
+        sticky: "",
+        id: "task",
+      },
+      status: {
+        sticky: "",
+        id: "status",
+      },
+      action: {
+        sticky: "",
+        id: "action",
+      },
+    };
+    config.columnOrder = ["step", "task", "status", "action"];
+    config.columnName = "";
+    config.sticky = "";
+    return config;
+  };
+
+  test("Column order should remain same when leftmost or the right-most columns are frozen", () => {
+    tableConfig = { ...baseTableConfig };
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "step",
+      "left",
+    );
+    tableConfig.primaryColumns.step.sticky = "left";
+    expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "action",
+      "right",
+    );
+    tableConfig.primaryColumns.action.sticky = "right";
+    expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
+  });
+
+  test("Column that is frozen to left should appear first in the column order", () => {
+    tableConfig = resetValues(baseTableConfig);
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "action",
+      "left",
+    );
+    expect(newColumnOrder).toEqual(["action", "step", "task", "status"]);
+  });
+
+  test("Column that is frozen to right should appear last in the column order", () => {
+    tableConfig = resetValues(baseTableConfig);
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "step",
+      "right",
+    );
+    expect(newColumnOrder).toEqual(["task", "status", "action", "step"]);
+  });
+
+  test("Column that is frozen to left should appear after the last left frozen column in the column order", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder step to be already frozen to left.
+    tableConfig.primaryColumns.step.sticky = "left";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "action",
+      "left",
+    );
+    expect(newColumnOrder).toEqual(["step", "action", "task", "status"]);
+  });
+
+  test("Column that is frozen to right should appear before the first right frozen column in the column order", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder action to be already frozen to right.
+    tableConfig.primaryColumns.action.sticky = "right";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "step",
+      "right",
+    );
+    expect(newColumnOrder).toEqual(["task", "status", "step", "action"]);
+  });
+
+  test("When leftmost and rightmost columns are only frozen, then on unfreeze left column should be first and right most column should at last", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder step to be left frozen and action to be frozen to right.
+    tableConfig.primaryColumns.step.sticky = "left";
+    tableConfig.primaryColumns.action.sticky = "right";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "step",
+      "",
+    );
+    tableConfig.primaryColumns.step.sticky = "";
+
+    expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "action",
+      "",
+    );
+
+    expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
+  });
+
+  test("Unfreezing first column from multiple left frozen columns, should place the unfrozen column after the last frozen column", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder step to be left frozen and action to be frozen to right.
+    tableConfig.primaryColumns.step.sticky = "left";
+    tableConfig.primaryColumns.action.sticky = "left";
+    tableConfig.primaryColumns.task.sticky = "left";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      ["step", "action", "task", "status"],
+      "step",
+      "",
+    );
+    tableConfig.primaryColumns.step.sticky = "";
+
+    expect(newColumnOrder).toEqual(["action", "task", "step", "status"]);
+  });
+
+  test("Unfreezing last column from multiple right frozen columns, should place the unfrozen column before the first frozen column", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder step to be left frozen and action to be frozen to right.
+    tableConfig.primaryColumns.step.sticky = "right";
+    tableConfig.primaryColumns.action.sticky = "right";
+    tableConfig.primaryColumns.task.sticky = "right";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      ["status", "step", "action", "task"],
+      "task",
+      "",
+    );
+    tableConfig.primaryColumns.step.sticky = "";
+
+    expect(newColumnOrder).toEqual(["status", "task", "step", "action"]);
+  });
+});
+
+describe("getHeaderClassNameOnDragDirection", () => {
+  test("Should return left highlight class when dragging from right to left", () => {
+    expect(getHeaderClassNameOnDragDirection(3, 2)).toEqual(
+      "th header-reorder highlight-left",
+    );
+  });
+
+  test("Should return right highlight class when dragging from left to right", () => {
+    expect(getHeaderClassNameOnDragDirection(1, 2)).toEqual(
+      "th header-reorder highlight-right",
+    );
   });
 });

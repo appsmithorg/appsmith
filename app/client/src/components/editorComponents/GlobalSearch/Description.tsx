@@ -3,7 +3,7 @@ import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
 import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
 import { retryPromise } from "utils/AppsmithUtils";

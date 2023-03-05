@@ -1,26 +1,27 @@
-import React from "react";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import SettingsControl, { Activities } from "./SettingsControl";
-import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { bindDataToWidget } from "actions/propertyPaneActions";
 import { WidgetType } from "constants/WidgetConstants";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import WidgetFactory from "utils/WidgetFactory";
-
-const WidgetTypes = WidgetFactory.widgetTypes;
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { hideErrors } from "selectors/debuggerSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { bindDataToWidget } from "actions/propertyPaneActions";
-import { hideErrors } from "selectors/debuggerSelectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
+import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
+import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import WidgetFactory from "utils/WidgetFactory";
+import SettingsControl, { Activities } from "./SettingsControl";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -39,6 +40,7 @@ const ControlGroup = styled.div`
   justify-content: flex-start;
   align-items: center;
   height: 100%;
+
   & > span {
     height: 100%;
   }
@@ -109,7 +111,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      selectWidget && selectWidget(props.widgetId);
+      selectWidget && selectWidget(SelectionRequestType.One, [props.widgetId]);
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,

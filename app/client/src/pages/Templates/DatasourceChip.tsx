@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import React from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";

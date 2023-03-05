@@ -13,6 +13,7 @@ const initialState: DatasourcePaneReduxState = {
   newDatasource: "",
   viewMode: true,
   collapsibleState: {},
+  defaultKeyValueArrayConfig: [],
 };
 
 export interface DatasourcePaneReduxState {
@@ -27,6 +28,7 @@ export interface DatasourcePaneReduxState {
   newDatasource: string;
   viewMode: boolean;
   collapsibleState: Record<string, boolean>;
+  defaultKeyValueArrayConfig: Array<string>;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
@@ -135,6 +137,25 @@ const datasourcePaneReducer = createReducer(initialState, {
     return {
       ...state,
       expandDatasourceId: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      defaultKeyValueArrayConfig: state.defaultKeyValueArrayConfig.concat(
+        action.payload,
+      ),
+    };
+  },
+  [ReduxActionTypes.RESET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET]: (
+    state: DatasourcePaneReduxState,
+  ) => {
+    return {
+      ...state,
+      defaultKeyValueArrayConfig: [],
     };
   },
 });

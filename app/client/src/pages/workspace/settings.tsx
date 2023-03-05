@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import { MenuItemProps, TabComponent, TabProp } from "design-system";
+import { MenuItemProps, TabComponent, TabProp } from "design-system-old";
 import styled from "styled-components";
 
 import MemberSettings from "@appsmith/pages/workspace/Members";
@@ -30,6 +30,9 @@ import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -106,7 +109,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (currentWorkspace) {
-      setPageTitle(`Members in ${currentWorkspace?.name}`);
+      setPageTitle(`${currentWorkspace?.name}`);
     }
   }, [currentWorkspace]);
 
@@ -194,6 +197,7 @@ export default function Settings() {
             pageMenuItems={pageMenuItems}
             searchPlaceholder="Search"
             showMoreOptions={false}
+            showSearchNButton={isMembersPage}
             title={pageTitle}
           />
         </StyledStickyHeader>
@@ -215,7 +219,7 @@ export default function Settings() {
         canOutsideClickClose
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
+        placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
         title={`Invite Users to ${currentWorkspace?.name}`}
         trigger
         workspaceId={workspaceId}

@@ -1,10 +1,10 @@
 import React, { RefObject, useEffect, useRef } from "react";
+import styled, { css } from "styled-components";
 import { Classes, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
-import styled, { Skin } from "constants/DefaultTheme";
-import { AnyStyledComponent, css } from "styled-components";
+import { Skin } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import {
@@ -13,10 +13,10 @@ import {
   InputWrapper,
   TextInput,
   TextInputProps,
-} from "design-system";
+} from "design-system-old";
 import { IconWrapper } from "constants/IconConstants";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
-import { Checkbox } from "design-system";
+import { Checkbox } from "design-system-old";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -282,13 +282,29 @@ export const FieldWrapper = styled.div`
   width: 100%;
 `;
 
-export const StyledDragIcon = styled(
-  ControlIcons.DRAG_CONTROL as AnyStyledComponent,
-)`
+export const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL)`
   padding: 0;
   position: absolute;
   margin-right: 15px;
   cursor: move;
+  z-index: 1;
+  left: 4px;
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    top: 2px;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledPinIcon = styled(ControlIcons.PIN)`
+  padding: 0;
+  position: absolute;
+  margin-right: 15px;
+  cursor: default;
   z-index: 1;
   left: 4px;
   && svg {
@@ -359,9 +375,7 @@ const CommonIconStyles = css`
   align-items: center;
 `;
 
-export const StyledEditIcon = styled(
-  ControlIcons.SETTINGS_CONTROL as AnyStyledComponent,
-)`
+export const StyledEditIcon = styled(ControlIcons.SETTINGS_CONTROL)`
   ${CommonIconStyles}
 
   && svg {
@@ -374,9 +388,7 @@ export const StyledEditIcon = styled(
   }
 `;
 
-export const StyledVisibleIcon = styled(
-  ControlIcons.SHOW_COLUMN as AnyStyledComponent,
-)`
+export const StyledVisibleIcon = styled(ControlIcons.SHOW_COLUMN)`
   ${CommonIconStyles}
 
   && svg {
@@ -389,9 +401,7 @@ export const StyledVisibleIcon = styled(
   }
 `;
 
-export const StyledHiddenIcon = styled(
-  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
-)`
+export const StyledHiddenIcon = styled(ControlIcons.HIDE_COLUMN)`
   ${CommonIconStyles}
 
   && svg {
@@ -404,9 +414,7 @@ export const StyledHiddenIcon = styled(
   }
 `;
 
-export const StyledDeleteIcon = styled(
-  FormIcons.DELETE_ICON as AnyStyledComponent,
-)`
+export const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
   ${CommonIconStyles}
 
   && svg {

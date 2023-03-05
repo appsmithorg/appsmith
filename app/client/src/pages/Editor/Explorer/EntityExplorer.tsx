@@ -14,7 +14,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
-import { ScrollIndicator } from "design-system";
+import { ScrollIndicator } from "design-system-old";
 
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";

@@ -8,7 +8,7 @@ import {
   APP_THEME_BETA_CARD_HEADING,
   APP_THEME_BETA_CARD_CONTENT,
 } from "@appsmith/constants/messages";
-import { Button, Size, Category, Variant } from "design-system";
+import { Button, Size, Category, Variant } from "design-system-old";
 import { Colors } from "constants/Colors";
 
 const StyledButton = styled(Button)`

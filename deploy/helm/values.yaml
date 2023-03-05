@@ -12,7 +12,7 @@ mongodb:
     nameOverride: appsmith-mongodb
   auth:
     rootUser: root
-    rootPassword : password
+    rootPassword: password
   replicaCount: 2
   architecture: "replicaset"
   replicaSetName: rs0
@@ -49,12 +49,21 @@ schedulerName: ""
 ## It can be set to RollingUpdate or Recreate by default.
 ##
 strategyType: RollingUpdate
+##
+## Init containers for redis & mongodb
+##
+initContainer: {}
+  # redis:
+  #   image: alpine
+  # mongodb:
+  #   image:  docker.io/bitnami/mongodb:4.4.11-debian-10-r12
 ## Image
 ##
 image:
   registry: index.docker.io
   repository: appsmith/appsmith-ce
   pullPolicy: IfNotPresent
+  pullSecrets: ""
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 ## ServiceAccount
@@ -172,7 +181,7 @@ ingress:
   ## e.g:
   ## className: "nginx"
   ##
-  className: ""
+  className: "nginx"
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious

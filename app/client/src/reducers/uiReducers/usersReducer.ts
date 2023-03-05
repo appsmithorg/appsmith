@@ -12,7 +12,7 @@ import FeatureFlags from "entities/FeatureFlags";
 const initialState: UsersReduxState = {
   loadingStates: {
     fetchingUsers: false,
-    fetchingUser: false,
+    fetchingUser: true,
   },
   list: [],
   users: [],
@@ -116,6 +116,7 @@ const usersReducer = createReducer(initialState, {
   ) => ({
     ...initialState,
     error: action.payload.error,
+    loadingStates: { ...state.loadingStates, fetchingUser: false },
   }),
   [ReduxActionErrorTypes.FETCH_USER_ERROR]: (state: UsersReduxState) => ({
     ...state,

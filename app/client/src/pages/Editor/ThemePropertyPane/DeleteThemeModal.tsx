@@ -12,7 +12,7 @@ import {
   DialogComponent as Dialog,
   Size,
   Variant,
-} from "design-system";
+} from "design-system-old";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;

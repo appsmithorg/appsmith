@@ -9,7 +9,7 @@ import {
   TooltipComponent,
   UneditableField,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 
 const HelpIcon = HelpIcons.HELP_ICON;

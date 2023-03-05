@@ -1,18 +1,14 @@
 import copy from "copy-to-clipboard";
 import AppsmithConsole from "utils/AppsmithConsole";
-import {
-  ActionTriggerType,
-  CopyToClipboardDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
+import { TCopyToClipboardDescription } from "workers/Evaluation/fns/copyToClipboard";
 
-export default function copySaga(
-  payload: CopyToClipboardDescription["payload"],
-) {
+export default function copySaga(action: TCopyToClipboardDescription) {
+  const { payload } = action;
   if (typeof payload.data !== "string") {
     throw new ActionValidationError(
-      ActionTriggerType.COPY_TO_CLIPBOARD,
+      "COPY_TO_CLIPBOARD",
       "data",
       Types.STRING,
       getType(payload.data),

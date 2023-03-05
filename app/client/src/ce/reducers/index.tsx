@@ -73,6 +73,9 @@ import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReduce
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import lintErrorReducer from "reducers/lintingReducers";
 import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
+import { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
+import { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -86,6 +89,7 @@ export const reducerObject = {
 
 export interface AppState {
   ui: {
+    analytics: AnalyticsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     tableFilterPane: TableFilterPaneReduxState;
@@ -132,10 +136,12 @@ export interface AppState {
     editorContext: EditorContextState;
     libraries: LibraryState;
     autoHeightUI: AutoHeightUIState;
+    multiPaneConfig: MultiPaneReduxState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
     canvasWidgets: CanvasWidgetsReduxState;
+    metaWidgets: MetaWidgetsReduxState;
     actions: ActionDataState;
     widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;
@@ -161,5 +167,5 @@ export interface AppState {
     [key: string]: any;
   };
   settings: SettingsReduxState;
-  tenant: TenantReduxState;
+  tenant: TenantReduxState<any>;
 }

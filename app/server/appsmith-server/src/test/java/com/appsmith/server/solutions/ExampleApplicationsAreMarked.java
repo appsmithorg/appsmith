@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -50,10 +52,10 @@ public class ExampleApplicationsAreMarked {
     @Autowired
     private SessionUserService sessionUserService;
 
-    @MockBean
+    @SpyBean
     private ConfigService configService;
 
-    @MockBean
+    @SpyBean
     private InstanceConfig instanceConfig;
 
     @Test
@@ -71,9 +73,7 @@ public class ExampleApplicationsAreMarked {
 
                     assert workspace.getId() != null;
                     Mockito.when(configService.getTemplateWorkspaceId()).thenReturn(Mono.just(workspace.getId()));
-                    Mockito.doNothing().when(instanceConfig).onApplicationEvent(
-                            Mockito.any(ApplicationReadyEvent.class)
-                    );
+
                     // Create 4 applications inside the example workspace but only mark three applications as example
                     final Application app1 = new Application();
                     app1.setName("first application");

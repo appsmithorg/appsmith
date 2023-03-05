@@ -1,15 +1,15 @@
 import { getAppsmithConfigs } from "@appsmith/configs";
-import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "./AnalyticsUtil";
-import { Property } from "api/ActionAPI";
-import _ from "lodash";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import * as log from "loglevel";
-import { AppIconCollection, AppIconName } from "design-system";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import * as Sentry from "@sentry/react";
+import { Property } from "api/ActionAPI";
+import { AppIconCollection, AppIconName } from "design-system-old";
+import _ from "lodash";
+import * as log from "loglevel";
 import { osName } from "react-device-detect";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import AnalyticsUtil from "./AnalyticsUtil";
 
 export const initializeAnalyticsAndTrackers = () => {
   const appsmithConfigs = getAppsmithConfigs();
@@ -72,15 +72,33 @@ export const initializeAnalyticsAndTrackers = () => {
     if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
       if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
+        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
       } else if (appsmithConfigs.segment.ceKey) {
         // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
+        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
       }
     }
   } catch (e) {
     Sentry.captureException(e);
     log.error(e);
+  }
+};
+
+export const initializeSegmentWithoutTracking = () => {
+  const appsmithConfigs = getAppsmithConfigs();
+
+  if (appsmithConfigs.segment.apiKey) {
+    // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
+    return AnalyticsUtil.initializeSegmentWithoutTracking(
+      appsmithConfigs.segment.apiKey,
+    );
+  } else if (appsmithConfigs.segment.ceKey) {
+    // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+    return AnalyticsUtil.initializeSegmentWithoutTracking(
+      appsmithConfigs.segment.ceKey,
+    );
+  } else {
+    return Promise.resolve();
   }
 };
 
@@ -424,8 +442,8 @@ export const isMacOs = () => {
  */
 export function areArraysEqual(arr1: string[], arr2: string[]) {
   if (arr1.length !== arr2.length) return false;
-
-  if (arr1.sort().join(",") === arr2.sort().join(",")) return true;
+  // Because the array is frozen in strict mode, you'll need to copy the array before sorting it
+  if ([...arr1].sort().join(",") === [...arr2].sort().join(",")) return true;
 
   return false;
 }

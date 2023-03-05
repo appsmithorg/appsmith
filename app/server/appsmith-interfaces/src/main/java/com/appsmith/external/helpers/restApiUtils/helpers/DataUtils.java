@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -75,6 +73,8 @@ public class DataUtils {
                 return BodyInserters.fromValue(formData);
             case MediaType.MULTIPART_FORM_DATA_VALUE:
                 return parseMultipartFileData((List<Property>) body);
+            case MediaType.TEXT_PLAIN_VALUE:
+                return BodyInserters.fromValue((String) body);
             default:
                 return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
         }

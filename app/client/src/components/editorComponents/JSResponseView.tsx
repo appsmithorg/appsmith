@@ -38,14 +38,14 @@ import {
   Text,
   TextType,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { DebugButton } from "./Debugger/DebugCTA";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
-import { TAB_MIN_HEIGHT } from "design-system";
+import { TAB_MIN_HEIGHT } from "design-system-old";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";

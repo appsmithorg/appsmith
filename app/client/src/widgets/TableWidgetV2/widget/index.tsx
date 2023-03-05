@@ -13,6 +13,10 @@ import _, {
   isEmpty,
   union,
   isObject,
+  pickBy,
+  findIndex,
+  orderBy,
+  filter,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -26,8 +30,9 @@ import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 import {
   ReactTableFilter,
-  OperatorTypes,
   AddNewRowActions,
+  StickyType,
+  DEFAULT_FILTER,
 } from "../component/Constants";
 import {
   ActionColumnTypes,
@@ -45,7 +50,9 @@ import {
   OnColumnEventArgs,
   ORIGINAL_INDEX_KEY,
   TableWidgetProps,
+  TABLE_COLUMN_ORDER_KEY,
   TransientDataPayload,
+  DEFAULT_COLUMN_NAME,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
@@ -58,6 +65,13 @@ import {
   getCellProperties,
   isColumnTypeEditable,
   getColumnType,
+  getBooleanPropertyValue,
+  deleteLocalTableColumnOrderByWidgetId,
+  fetchSticky,
+  getColumnOrderByWidgetIdFromLS,
+  generateLocalNewColumnOrderFromStickyValue,
+  updateAndSyncTableLocalColumnOrders,
+  getAllStickyColumnsCount,
 } from "./utilities";
 import {
   ColumnProperties,
@@ -84,19 +98,16 @@ import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
+import localStorage from "utils/localStorage";
+import { generateNewColumnOrderFromStickyValue } from "./utilities";
 import { Stylesheet } from "entities/AppTheming";
+import { DateCell } from "../component/cellComponents/DateCell";
+import { MenuItem, MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
 );
-const defaultFilter = [
-  {
-    column: "",
-    operator: OperatorTypes.OR,
-    value: "",
-    condition: "",
-  },
-];
 
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
@@ -210,9 +221,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (isArray(orderedTableColumns)) {
       orderedTableColumns.forEach((column: any) => {
         const isHidden = !column.isVisible;
+
         const columnData = {
           id: column.id,
-          Header: column.label,
+          Header:
+            column.hasOwnProperty("label") && typeof column.label === "string"
+              ? column.label
+              : DEFAULT_COLUMN_NAME,
           alias: column.alias,
           accessor: (row: any) => row[column.alias],
           width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
@@ -221,6 +236,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isHidden: false,
           isAscOrder: column.isAscOrder,
           isDerived: column.isDerived,
+          sticky: fetchSticky(
+            column.id,
+            this.props.primaryColumns,
+            this.props.renderMode,
+            this.props.widgetId,
+          ),
           metaProperties: {
             isHidden: isHidden,
             type: column.columnType,
@@ -295,7 +316,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
-      columns = columns.concat(hiddenColumns);
+      // Get the index of the first column that is frozen to right
+      const rightFrozenColumnIdx = findIndex(
+        columns,
+        (col) => col.sticky === StickyType.RIGHT,
+      );
+      if (rightFrozenColumnIdx !== -1) {
+        columns.splice(rightFrozenColumnIdx, 0, ...hiddenColumns);
+      } else {
+        columns = columns.concat(hiddenColumns);
+      }
     }
 
     return columns.filter((column: ReactTableColumnProps) => !!column.id);
@@ -564,8 +594,55 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  hydrateStickyColumns = () => {
+    const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(
+      this.props.widgetId,
+    );
+    const leftLen: number = Object.keys(
+      pickBy(this.props.primaryColumns, (col) => col.sticky === "left"),
+    ).length;
+
+    const leftOrder = [...(this.props.columnOrder || [])].slice(0, leftLen);
+
+    const rightLen: number = Object.keys(
+      pickBy(this.props.primaryColumns, (col) => col.sticky !== "right"),
+    ).length;
+
+    const rightOrder: string[] = [...(this.props.columnOrder || [])].slice(
+      rightLen,
+    );
+
+    if (localTableColumnOrder) {
+      const { columnOrder, columnUpdatedAt } = localTableColumnOrder;
+
+      if (this.props.columnUpdatedAt !== columnUpdatedAt) {
+        // Delete and set the column orders defined by the developer
+        deleteLocalTableColumnOrderByWidgetId(this.props.widgetId);
+
+        this.persistColumnOrder(
+          this.props.columnOrder ?? [],
+          leftOrder,
+          rightOrder,
+        );
+      } else {
+        this.props.updateWidgetMetaProperty("columnOrder", columnOrder);
+      }
+    } else {
+      // If user deletes local storage or no column orders for the given table widget exists hydrate it with the developer changes.
+      this.persistColumnOrder(
+        this.props.columnOrder ?? [],
+        leftOrder,
+        rightOrder,
+      );
+    }
+  };
+
   componentDidMount() {
-    const { tableData } = this.props;
+    const { canFreezeColumn, renderMode, tableData } = this.props;
+
+    if (canFreezeColumn && renderMode === RenderModes.PAGE) {
+      this.hydrateStickyColumns();
+    }
 
     if (_.isArray(tableData) && !!tableData.length) {
       const newPrimaryColumns = this.createTablePrimaryColumns();
@@ -593,6 +670,25 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       return;
     }
 
+    if (
+      this.props.primaryColumns &&
+      (!equal(prevProps.columnOrder, this.props.columnOrder) ||
+        filter(prevProps.orderedTableColumns, { isVisible: false }).length !==
+          filter(this.props.orderedTableColumns, { isVisible: false }).length ||
+        getAllStickyColumnsCount(prevProps.orderedTableColumns) !==
+          getAllStickyColumnsCount(this.props.orderedTableColumns))
+    ) {
+      if (this.props.renderMode === RenderModes.CANVAS) {
+        super.batchUpdateWidgetProperty(
+          {
+            modify: {
+              columnUpdatedAt: Date.now(),
+            },
+          },
+          false,
+        );
+      }
+    }
     // Check if tableData is modifed
     const isTableDataModified = !equal(
       this.props.tableData,
@@ -623,7 +719,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           this.updateColumnProperties(newTableColumns);
         }
 
-        this.props.updateWidgetMetaProperty("filters", defaultFilter);
+        this.props.updateWidgetMetaProperty("filters", [DEFAULT_FILTER]);
       }
     }
 
@@ -814,7 +910,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("filters", filters);
 
     // Reset Page only when a filter is added
-    if (!isEmpty(xorWith(filters, defaultFilter, equal))) {
+    if (!isEmpty(xorWith(filters, [DEFAULT_FILTER], equal))) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
   };
@@ -871,6 +967,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
+          canFreezeColumn={this.props.canFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
@@ -880,6 +977,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           editMode={this.props.renderMode === RenderModes.CANVAS}
           editableCell={this.props.editableCell}
           filters={this.props.filters}
+          handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
@@ -931,12 +1029,143 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   }
 
+  /**
+   * Function to update or add the tableWidgetColumnOrder key in the local storage
+   * tableWidgetColumnOrder = {
+   *  <widget-id>: {
+   *    columnOrder: [],
+   *    leftOrder: [],
+   *    rightOrder: [],
+   *  }
+   * }
+   */
+  persistColumnOrder = (
+    newColumnOrder: string[],
+    leftOrder: string[],
+    rightOrder: string[],
+  ) => {
+    const widgetId = this.props.widgetId;
+    const localTableWidgetColumnOrder = localStorage.getItem(
+      TABLE_COLUMN_ORDER_KEY,
+    );
+    let newTableColumnOrder;
+
+    if (localTableWidgetColumnOrder) {
+      try {
+        let parsedTableWidgetColumnOrder = JSON.parse(
+          localTableWidgetColumnOrder,
+        );
+
+        let columnOrder;
+
+        if (newColumnOrder) {
+          columnOrder = newColumnOrder;
+        } else if (parsedTableWidgetColumnOrder[widgetId]) {
+          columnOrder = parsedTableWidgetColumnOrder[widgetId];
+        } else {
+          columnOrder = this.props.columnOrder;
+        }
+
+        parsedTableWidgetColumnOrder = {
+          ...parsedTableWidgetColumnOrder,
+          [widgetId]: {
+            columnOrder,
+            columnUpdatedAt: this.props.columnUpdatedAt,
+            leftOrder,
+            rightOrder,
+          },
+        };
+
+        newTableColumnOrder = parsedTableWidgetColumnOrder;
+      } catch (e) {
+        log.debug("Unable to parse local column order:", { e });
+      }
+    } else {
+      const tableWidgetColumnOrder = {
+        [widgetId]: {
+          columnOrder: newColumnOrder,
+          columnUpdatedAt: this.props.columnUpdatedAt,
+          leftOrder,
+          rightOrder,
+        },
+      };
+      newTableColumnOrder = tableWidgetColumnOrder;
+    }
+    localStorage.setItem(
+      TABLE_COLUMN_ORDER_KEY,
+      JSON.stringify(newTableColumnOrder),
+    );
+  };
+
+  handleColumnFreeze = (columnName: string, sticky?: StickyType) => {
+    if (this.props.columnOrder) {
+      let newColumnOrder;
+      const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(
+        this.props.widgetId,
+      );
+      if (this.props.renderMode === RenderModes.CANVAS) {
+        newColumnOrder = generateNewColumnOrderFromStickyValue(
+          this.props.primaryColumns,
+          this.props.columnOrder,
+          columnName,
+          sticky,
+        );
+
+        // Updating these properties in batch so that undo/redo gets executed in a combined way.
+        super.batchUpdateWidgetProperty(
+          {
+            modify: {
+              [`primaryColumns.${columnName}.sticky`]: sticky,
+              columnOrder: newColumnOrder,
+            },
+          },
+          true,
+        );
+      } else if (
+        localTableColumnOrder &&
+        this.props.renderMode === RenderModes.PAGE
+      ) {
+        const { leftOrder, rightOrder } = localTableColumnOrder;
+        newColumnOrder = generateLocalNewColumnOrderFromStickyValue(
+          localTableColumnOrder.columnOrder,
+          columnName,
+          sticky,
+          leftOrder,
+          rightOrder,
+        );
+        const updatedOrders = updateAndSyncTableLocalColumnOrders(
+          columnName,
+          leftOrder,
+          rightOrder,
+          sticky,
+        );
+        this.persistColumnOrder(
+          newColumnOrder,
+          updatedOrders.leftOrder,
+          updatedOrders.rightOrder,
+        );
+        this.props.updateWidgetMetaProperty("columnOrder", newColumnOrder);
+      }
+    }
+  };
+
   handleReorderColumn = (columnOrder: string[]) => {
     columnOrder = columnOrder.map((alias) => this.getColumnIdByAlias(alias));
 
     if (this.props.renderMode === RenderModes.CANVAS) {
       super.updateWidgetProperty("columnOrder", columnOrder);
     } else {
+      if (this.props.canFreezeColumn) {
+        const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(
+          this.props.widgetId,
+        );
+        if (localTableColumnOrder) {
+          const { leftOrder, rightOrder } = localTableColumnOrder;
+          this.persistColumnOrder(columnOrder, leftOrder, rightOrder);
+        } else {
+          this.persistColumnOrder(columnOrder, [], []);
+        }
+      }
       this.props.updateWidgetMetaProperty("columnOrder", columnOrder);
     }
   };
@@ -1585,6 +1814,70 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       case ColumnTypes.MENU_BUTTON:
+        const getVisibleItems = (rowIndex: number) => {
+          const {
+            configureMenuItems,
+            menuItems,
+            menuItemsSource,
+            sourceData,
+          } = cellProperties;
+
+          if (menuItemsSource === MenuItemsSource.STATIC && menuItems) {
+            const visibleItems = Object.values(menuItems)?.filter((item) =>
+              getBooleanPropertyValue(item.isVisible, rowIndex),
+            );
+
+            return visibleItems?.length
+              ? orderBy(visibleItems, ["index"], ["asc"])
+              : [];
+          } else if (
+            menuItemsSource === MenuItemsSource.DYNAMIC &&
+            isArray(sourceData) &&
+            sourceData?.length &&
+            configureMenuItems?.config
+          ) {
+            const { config } = configureMenuItems;
+
+            const getValue = (
+              propertyName: keyof MenuItem,
+              index: number,
+              rowIndex: number,
+            ) => {
+              const value = config[propertyName];
+
+              if (isArray(value) && isArray(value[rowIndex])) {
+                return value[rowIndex][index];
+              } else if (isArray(value)) {
+                return value[index];
+              }
+
+              return value ?? null;
+            };
+
+            const visibleItems = sourceData
+              .map((item, index) => ({
+                ...item,
+                id: index.toString(),
+                isVisible: getValue("isVisible", index, rowIndex),
+                isDisabled: getValue("isDisabled", index, rowIndex),
+                index: index,
+                widgetId: "",
+                label: getValue("label", index, rowIndex),
+                onClick: config?.onClick,
+                textColor: getValue("textColor", index, rowIndex),
+                backgroundColor: getValue("backgroundColor", index, rowIndex),
+                iconAlign: getValue("iconAlign", index, rowIndex),
+                iconColor: getValue("iconColor", index, rowIndex),
+                iconName: getValue("iconName", index, rowIndex),
+              }))
+              .filter((item) => item.isVisible === true);
+
+            return visibleItems;
+          }
+
+          return [];
+        };
+
         return (
           <MenuButtonCell
             allowCellWrapping={cellProperties.allowCellWrapping}
@@ -1594,7 +1887,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             boxShadow={cellProperties.boxShadow}
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            configureMenuItems={cellProperties.configureMenuItems}
             fontStyle={cellProperties.fontStyle}
+            getVisibleItems={getVisibleItems}
             horizontalAlignment={cellProperties.horizontalAlignment}
             iconAlign={cellProperties.iconAlign}
             iconName={cellProperties.menuButtoniconName || undefined}
@@ -1609,17 +1904,34 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               cellProperties.menuColor || this.props.accentColor || Colors.GREEN
             }
             menuItems={cellProperties.menuItems}
+            menuItemsSource={cellProperties.menuItemsSource}
             menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
-            onCommandClick={(action: string, onComplete?: () => void) =>
-              this.onColumnEvent({
+            onCommandClick={(
+              action: string,
+              index?: number,
+              onComplete?: () => void,
+            ) => {
+              const additionalData: Record<
+                string,
+                string | number | Record<string, unknown>
+              > = {};
+
+              if (cellProperties?.sourceData && _.isNumber(index)) {
+                additionalData.currentItem = cellProperties.sourceData[index];
+                additionalData.currentIndex = index;
+              }
+
+              return this.onColumnEvent({
                 rowIndex,
                 action,
                 onComplete,
                 triggerPropertyName: "onClick",
                 eventType: EventType.ON_CLICK,
-              })
-            }
+                additionalData,
+              });
+            }}
             rowIndex={originalIndex}
+            sourceData={cellProperties.sourceData}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
@@ -1751,6 +2063,59 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.DATE:
+        return (
+          <DateCell
+            accentColor={this.props.accentColor}
+            alias={props.cell.column.columnProperties.alias}
+            borderRadius={this.props.borderRadius}
+            cellBackground={cellProperties.cellBackground}
+            closeOnSelection
+            columnType={column.columnType}
+            compactMode={compactMode}
+            disabledEditIcon={
+              shouldDisableEdit || this.props.isAddRowInProgress
+            }
+            disabledEditIconMessage={disabledEditMessage}
+            firstDayOfWeek={props.cell.column.columnProperties.firstDayOfWeek}
+            fontStyle={cellProperties.fontStyle}
+            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            inputFormat={cellProperties.inputFormat}
+            isCellDisabled={cellProperties.isCellDisabled}
+            isCellEditMode={isCellEditMode}
+            isCellEditable={isCellEditable}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isEditableCellValid={this.isColumnCellValid(alias)}
+            isHidden={isHidden}
+            isNewRow={isNewRow}
+            isRequired={
+              props.cell.column.columnProperties.validation
+                .isColumnEditableCellRequired
+            }
+            maxDate={props.cell.column.columnProperties.validation.maxDate}
+            minDate={props.cell.column.columnProperties.validation.minDate}
+            onCellTextChange={this.onCellTextChange}
+            onDateSave={this.onDateSave}
+            onDateSelectedString={
+              props.cell.column.columnProperties.onDateSelected
+            }
+            outputFormat={cellProperties.outputFormat}
+            rowIndex={rowIndex}
+            shortcuts={cellProperties.shortcuts}
+            tableWidth={this.getComponentDimensions().componentWidth}
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
+            timePrecision={cellProperties.timePrecision || TimePrecision.NONE}
+            toggleCellEditMode={this.toggleCellEditMode}
+            updateNewRowValues={this.updateNewRowValues}
+            validationErrorMessage="This field is required"
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+            widgetId={this.props.widgetId}
           />
         );
 
@@ -1903,6 +2268,35 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  onDateSave = (
+    rowIndex: number,
+    alias: string,
+    value: string,
+    onSubmit?: string,
+  ) => {
+    if (this.isColumnCellValid(alias)) {
+      this.updateTransientTableData({
+        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
+        [alias]: value,
+      });
+
+      if (onSubmit && this.props.editableCell?.column) {
+        this.onColumnEvent({
+          rowIndex: rowIndex,
+          action: onSubmit,
+          triggerPropertyName: "onSubmit",
+          eventType: EventType.ON_SUBMIT,
+          row: {
+            ...this.props.filteredTableData[rowIndex],
+            [this.props.editableCell.column]: value,
+          },
+        });
+      }
+
+      this.clearEditableCell();
+    }
+  };
+
   clearEditableCell = (skipTimeout?: boolean) => {
     const clear = () => {
       this.props.updateWidgetMetaProperty("editableCell", defaultEditableCell);
@@ -1916,6 +2310,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
        * We need to let the evaulations compute derived property (filteredTableData)
        * before we clear the editableCell to avoid the text flickering
        */
+      // @ts-expect-error: setTimeout return type mismatch
       this.inlineEditTimer = setTimeout(clear, 100);
     }
   };

@@ -1,9 +1,9 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.solutions.ce.PageLoadActionsUtilCEImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,8 @@ public class PageLoadActionsUtilImpl extends PageLoadActionsUtilCEImpl implement
 
     public PageLoadActionsUtilImpl(NewActionService newActionService,
                                    AstService astService,
-                                   ActionPermission actionPermission) {
-        super(newActionService, astService, actionPermission);
+                                   ActionPermission actionPermission,
+                                   ObjectMapper objectMapper) {
+        super(newActionService, astService, actionPermission, objectMapper);
     }
 }

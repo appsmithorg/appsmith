@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.services.ce.UserServiceCEImpl.INVITE_USER_EMAIL_TEMPLATE;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementServiceCE {
@@ -101,25 +102,40 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
 
         // Check if the current user has assign permissions to the permission group and permission group is workspace's default permission group.
         Mono<PermissionGroup> permissionGroupMono = permissionGroupService.getById(inviteUsersDTO.getPermissionGroupId(), permissionGroupPermission.getAssignPermission())
-                .filter(permissionGroup -> StringUtils.hasText(permissionGroup.getDefaultWorkspaceId()))
+                .filter(permissionGroup -> permissionGroup.getDefaultDomainType().equals(Workspace.class.getSimpleName()) && StringUtils.hasText(permissionGroup.getDefaultDomainId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ROLE)))
                 .cache();
 
         // Get workspace from the default group.
-        Mono<Workspace> workspaceMono = permissionGroupMono.flatMap(permissionGroup -> workspaceService.getById(permissionGroup.getDefaultWorkspaceId())).cache();
+        Mono<Workspace> workspaceMono = permissionGroupMono.flatMap(permissionGroup -> workspaceService.getById(permissionGroup.getDefaultDomainId())).cache();
+
+        // Get all the default permision groups of the workspace
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceMono.flatMap(workspace ->
+                        permissionGroupService.findAllByIds(workspace.getDefaultPermissionGroups())
+                                .collectList()
+                ).cache();
 
         // Check if the invited user exists. If yes, return the user, else create a new user by triggering
         // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
         Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
-                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, permissionGroupMono))
+                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, permissionGroupMono, defaultPermissionGroupsMono))
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
                     Workspace workspace = tuple.getT2();
                     eventData.put(FieldName.WORKSPACE, workspace);
                     User currentUser = tuple.getT3();
                     PermissionGroup permissionGroup = tuple.getT4();
+                    List<PermissionGroup> defaultPermissionGroups = tuple.getT5();
 
-                    return userRepository.findByEmail(username)
+                    Mono<User> getUserFromDbAndCheckIfUserExists = userRepository.findByEmail(username)
+                            .flatMap(user -> {
+                                return throwErrorIfUserAlreadyExistsInWorkspace(user, defaultPermissionGroups)
+                                        // If no errors, proceed forward
+                                        .thenReturn(user);
+                            });
+
+                    return getUserFromDbAndCheckIfUserExists
                             .flatMap(existingUser -> {
                                 // The user already existed, just send an email informing that the user has been added
                                 // to a new workspace
@@ -129,7 +145,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                 // Email template parameters initialization below.
                                 Map<String, String> params = userService.getEmailParams(workspace, currentUser, originHeader, false);
 
-                                return userService.updateTenantLogoInParams(params)
+                                return userService.updateTenantLogoInParams(params, originHeader)
                                         .flatMap(updatedParams ->
                                                 emailSender.sendMail(
                                                         existingUser.getEmail(),
@@ -162,12 +178,25 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                     long numberOfUsers = users.size();
                     List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
                     analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
-                    analyticsProperties.put("userEmails", invitedUsers);
+                    eventData.put(FieldName.USER_EMAILS, invitedUsers);
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
                 });
 
         return bulkAddUserResultMono.then(sendAnalyticsEventMono).then(inviteUsersMono);
+    }
+
+    private Mono<Boolean> throwErrorIfUserAlreadyExistsInWorkspace(User user,
+                                                                   List<PermissionGroup> defaultPermissionGroups) {
+
+        return Flux.fromIterable(defaultPermissionGroups)
+                .map(permissionGroup -> {
+                    if (permissionGroup.getAssignedToUserIds().contains(user.getId())) {
+                        throw new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_IN_WORKSPACE, user.getUsername(), permissionGroup.getName());
+                    }
+                    return TRUE;
+                })
+                .then(Mono.just(TRUE));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -11,7 +12,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -38,7 +38,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,9 +50,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -317,6 +314,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> this.update(id, actionCollection))
+                .flatMap(repository::setUserPermissionsInObject)
                 .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),

@@ -1,8 +1,20 @@
 // import React, { JSXElementConstructor } from "react";
 // import { IconProps, IconWrapper } from "constants/IconConstants";
 
-import { Alignment } from "@blueprintjs/core";
+import { Alignment, Classes } from "@blueprintjs/core";
+import { Classes as DTClasses } from "@blueprintjs/datetime";
 import { IconName } from "@blueprintjs/icons";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonPlacement,
+  ButtonPlacementTypes,
+  ButtonStyleTypes,
+  ButtonVariant,
+  ButtonVariantTypes,
+} from "components/constants";
+import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
+import { Theme } from "constants/DefaultTheme";
+import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
@@ -11,30 +23,17 @@ import {
   WidgetHeightLimits,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
-import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
-import { Theme } from "constants/DefaultTheme";
-import {
-  ButtonStyleTypes,
-  ButtonVariant,
-  ButtonVariantTypes,
-  ButtonPlacement,
-  ButtonPlacementTypes,
-  ButtonBorderRadiusTypes,
-} from "components/constants";
+import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
-import { createGlobalStyle } from "styled-components";
-import { Classes } from "@blueprintjs/core";
-import { Classes as DTClasses } from "@blueprintjs/datetime";
-import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { SchemaItem } from "./JSONFormWidget/constants";
-import { find, isEmpty } from "lodash";
-import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
-import { DynamicHeight } from "utils/WidgetFeatures";
-import { isArray } from "lodash";
-import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import { getLocale } from "utils/helpers";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
+import { rgbaMigrationConstantV56 } from "./constants";
+import { ContainerWidgetProps } from "./ContainerWidget/widget";
+import { SchemaItem } from "./JSONFormWidget/constants";
 
 const punycode = require("punycode/");
 
@@ -744,6 +743,7 @@ export const isAutoHeightEnabledForWidget = (
   props: WidgetProps,
   shouldCheckIfEnabledWithLimits = false,
 ) => {
+  if (props.isFlexChild) return false;
   if (shouldCheckIfEnabledWithLimits) {
     return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
   }
@@ -752,6 +752,19 @@ export const isAutoHeightEnabledForWidget = (
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
   );
 };
+
+/**
+ * Check if a container is scrollable or has scrollbars
+ */
+export function checkContainerScrollable(
+  widget: ContainerWidgetProps<WidgetProps>,
+): boolean {
+  // if both scrolling and auto height is disabled, container is not scrollable
+  return !(
+    !isAutoHeightEnabledForWidget(widget) &&
+    widget.shouldScrollContents === false
+  );
+}
 
 /**
  * Gets the max possible height for the widget
@@ -849,3 +862,27 @@ export function shouldUpdateWidgetHeightAutomatically(
   // If we reach this point, we don't have to change height
   return false;
 }
+// This is to be applied to only those widgets which will scroll for example, container widget, etc.
+// But this won't apply to CANVAS_WIDGET.
+export const scrollCSS = css`
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: overlay;
+
+  scrollbar-color: #cccccc transparent;
+  scroolbar-width: thin;
+
+  &::-webkit-scrollbar-thumb {
+    background: #cccccc !important;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+`;
+
+export const widgetTypeClassname = (widgetType: string): string =>
+  `t--widget-${widgetType
+    .split("_")
+    .join("")
+    .toLowerCase()}`;

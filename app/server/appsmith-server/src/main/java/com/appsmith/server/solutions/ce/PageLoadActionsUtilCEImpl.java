@@ -49,10 +49,9 @@ import static java.lang.Boolean.TRUE;
 public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
     private final NewActionService newActionService;
-
     private final AstService astService;
     private final ActionPermission actionPermission;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     /**
      * The following regex finds the immediate parent of an entity path.
@@ -789,7 +788,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
         Set<String> bindingPaths = actionBindingMap.keySet();
 
-        return Flux.fromIterable(bindingPaths).flatMap(bindingPath -> {
+        return Flux.fromIterable(bindingPaths)
+                .flatMap(bindingPath -> {
                     EntityDependencyNode actionDependencyNode = new EntityDependencyNode(entityDependencyNode.getEntityReferenceType(), entityDependencyNode.getValidEntityName(), bindingPath, null, false, action);
                     return getPossibleEntityReferences(actionNameToActionMapMono, actionBindingMap.get(bindingPath), evalVersion, bindingsInDsl)
                             .flatMapMany(Flux::fromIterable)

@@ -30,7 +30,7 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import { ScrollIndicator } from "design-system";
+import { ScrollIndicator } from "design-system-old";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 

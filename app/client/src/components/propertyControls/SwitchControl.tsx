@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { Switch } from "design-system";
+import { Switch } from "design-system-old";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -57,7 +57,6 @@ class SwitchControl extends BaseControl<ControlProps> {
         <StyledSwitch
           checked={this.props.propertyValue}
           className={this.props.propertyValue ? "checked" : "unchecked"}
-          defaultChecked={this.props.propertyValue}
           large
           onChange={this.onToggle}
         />

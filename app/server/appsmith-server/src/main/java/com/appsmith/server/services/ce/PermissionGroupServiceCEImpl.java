@@ -26,7 +26,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -270,7 +270,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     return Flux.fromIterable(userIds)
                             .flatMap(userId -> {
                                 String email = userMap.get(userId);
-                                return repository.evictPermissionGroupsUser(email, defaultTenantId)
+                                return repository.evictAllPermissionGroupCachesForUser(email, defaultTenantId)
                                         .thenReturn(TRUE);
                             });
                 })

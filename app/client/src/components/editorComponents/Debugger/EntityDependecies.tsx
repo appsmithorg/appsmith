@@ -11,7 +11,7 @@ import {
   Text,
   TextType,
   TooltipComponent as Tooltip,
-} from "design-system";
+} from "design-system-old";
 import InspectElement from "assets/images/InspectElement.svg";
 import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";
 import {

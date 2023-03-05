@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
-import { Dropdown, DropdownOption } from "design-system";
+import { Dropdown, DropdownOption } from "design-system-old";
 import { ControlType } from "constants/PropertyControlConstants";
 import { get, isNil } from "lodash";
 import {
@@ -202,8 +202,13 @@ function renderDropdown(
       });
 
       if (selectedValue !== tempSelectedValues) {
-        selectedValue = tempSelectedValues;
-        props.input?.onChange(tempSelectedValues);
+        // when pre-selected value is not found in dropdown options,
+        // initializing dropdown to initial value instead of blank
+        const tempValues = !isNil(props?.initialValue)
+          ? (props.initialValue as string[])
+          : tempSelectedValues;
+        selectedValue = tempValues;
+        props.input?.onChange(tempValues);
       }
     }
   }
@@ -220,7 +225,7 @@ function renderDropdown(
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
       onSelect={onSelectOptions}
-      optionWidth={props.width}
+      optionWidth={props.optionWidth || props.width}
       options={options}
       placeholder={props?.placeholderText}
       removeSelectedOption={onRemoveOptions}
@@ -233,6 +238,7 @@ function renderDropdown(
 
 export interface DropDownControlProps extends ControlProps {
   options: DropdownOption[];
+  optionWidth?: string;
   placeholderText: string;
   propertyValue: string;
   subtitle?: string;

@@ -8,6 +8,7 @@ export class AppSettings {
     _closeSettings: "#t--close-app-settings-pane",
     _themeSettingsHeader: "#t--theme-settings-header",
     _generalSettingsHeader: "#t--general-settings-header",
+    _embedSettingsHeader: "#t--share-embed-settings",
     _getPageSettingsHeader: (pageName: string) =>
       `#t--page-settings-${pageName}`,
   };
@@ -31,6 +32,10 @@ export class AppSettings {
 
   public GoToGeneralSettings() {
     this.agHelper.GetNClick(this.locators._generalSettingsHeader);
+  }
+
+  public GoToEmbedSettings() {
+    this.agHelper.GetNClick(this.locators._embedSettingsHeader);
   }
 
   public GoToPageSettings(pageName: string) {

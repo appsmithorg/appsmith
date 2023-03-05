@@ -6,10 +6,6 @@ import {
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
-  ActionTriggerType,
-  ResetWidgetDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
-import {
   ActionValidationError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
@@ -19,14 +15,16 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 
 export default function* resetWidgetActionSaga(
-  payload: ResetWidgetDescription["payload"],
+  action: TResetWidgetDescription,
 ) {
+  const { payload } = action;
   const { widgetName } = payload;
   if (getType(widgetName) !== Types.STRING) {
     throw new ActionValidationError(
-      ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
+      "RESET_WIDGET_META_RECURSIVE_BY_NAME",
       "widgetName",
       Types.STRING,
       getType(widgetName),

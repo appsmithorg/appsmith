@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import styled, { css } from "styled-components";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -249,7 +249,7 @@ function JSCollectionItem(props: {
 
   return (
     <>
-      {JsFileIconV2}
+      {JsFileIconV2()}
       <ItemTitle>
         <TextWrapper>
           <Highlight className="text" match={query} text={title} />

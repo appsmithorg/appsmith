@@ -77,7 +77,7 @@ class BlockSuggestionsRule implements AutocompleteRule {
     if (blockCompletions) {
       for (let index = 0; index < blockCompletions.length; index++) {
         const { subPath } = blockCompletions[index];
-        if (completion.text === subPath) {
+        if (completion.text === subPath && completion.origin !== "DATA_TREE") {
           score = BlockSuggestionsRule.threshold;
           break;
         }

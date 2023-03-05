@@ -1,5 +1,5 @@
 import React from "react";
-import { AppIcon as Icon, AppIconName, Size } from "design-system";
+import { AppIcon as Icon, AppIconName, Size } from "design-system-old";
 
 export function CollapseToggle(props: {
   isOpen: boolean;

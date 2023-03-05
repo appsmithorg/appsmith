@@ -1,25 +1,27 @@
-import React from "react";
-import { compact, xor } from "lodash";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Alignment } from "@blueprintjs/core";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import CheckboxGroupComponent from "../component";
-import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import { Stylesheet } from "entities/AppTheming";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
 import {
   CheckboxGroupAlignmentTypes,
   LabelPosition,
 } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { compact, xor } from "lodash";
+import { default as React } from "react";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import CheckboxGroupComponent from "../component";
+import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -286,6 +288,7 @@ class CheckboxGroupWidget extends BaseWidget<
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -365,7 +368,7 @@ class CheckboxGroupWidget extends BaseWidget<
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",
@@ -499,48 +502,6 @@ class CheckboxGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
-    if (
-      Array.isArray(prevProps.options) &&
-      Array.isArray(this.props.options) &&
-      this.props.options.length !== prevProps.options.length
-    ) {
-      const prevOptions = compact(prevProps.options).map(
-        (prevOption) => prevOption.value,
-      );
-      const options = compact(this.props.options).map((option) => option.value);
-
-      // Get an array containing all the options of prevOptions that are not in options and vice-versa
-      const diffOptions = prevOptions
-        .filter((option) => !options.includes(option))
-        .concat(options.filter((option) => !prevOptions.includes(option)));
-
-      // TODO(abhinav): Not sure why we have to do this.
-      // Stuff breaks after release merge, fixing it here.
-      let _selectedValues = this.props.selectedValues;
-      if (!Array.isArray(_selectedValues)) {
-        if (
-          this.props.defaultSelectedValues &&
-          this.props.defaultSelectedValues.length &&
-          !Array.isArray(this.props.defaultSelectedValues)
-        ) {
-          _selectedValues = [this.props.defaultSelectedValues];
-        } else {
-          _selectedValues = [];
-        }
-      }
-
-      const selectedValues = _selectedValues.filter(
-        (selectedValue: string) => !diffOptions.includes(selectedValue),
-      );
-
-      this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
-        triggerPropertyName: "onSelectionChange",
-        dynamicString: this.props.onSelectionChange,
-        event: {
-          type: EventType.ON_CHECK_CHANGE,
-        },
-      });
-    }
     // Reset isDirty to false whenever defaultSelectedValues changes
     if (
       xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)

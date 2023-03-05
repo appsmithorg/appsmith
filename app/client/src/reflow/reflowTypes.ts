@@ -1,7 +1,7 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
-export const HORIZONTAL_RESIZE_LIMIT = 2;
-export const VERTICAL_RESIZE_LIMIT = 4;
+export const HORIZONTAL_RESIZE_MIN_LIMIT = 2;
+export const VERTICAL_RESIZE_MIN_LIMIT = 4;
 
 export enum ReflowDirection {
   LEFT = "LEFT",
@@ -42,6 +42,7 @@ export type CollisionAccessors = {
   parallelMax: SpaceAttributes;
   parallelMin: SpaceAttributes;
   mathComparator: MathComparators;
+  oppositeMathComparator: MathComparators;
   directionIndicator: 1 | -1;
   isHorizontal: boolean;
   plane: "vertical" | "horizontal";
@@ -52,7 +53,7 @@ export type Delta = {
   Y: number;
 };
 
-export type CollidingSpace = OccupiedSpace & {
+export type CollidingSpace = BlockSpace & {
   direction: ReflowDirection;
   collidingValue: number;
   collidingId: string;
@@ -61,9 +62,9 @@ export type CollidingSpace = OccupiedSpace & {
   fixedHeight?: number;
 };
 
-export type SecondOrderCollision = OccupiedSpace & {
+export type SecondOrderCollision = BlockSpace & {
   children: {
-    [key: string]: OccupiedSpace & {
+    [key: string]: BlockSpace & {
       direction: ReflowDirection;
       isHorizontal: boolean;
       processed?: boolean;
@@ -87,7 +88,7 @@ export type CollisionMap = {
   [key: string]: CollidingSpace;
 };
 
-export type CollisionTree = OccupiedSpace & {
+export type CollisionTree = BlockSpace & {
   direction: ReflowDirection;
   children?: {
     [key: string]: CollisionTree;
@@ -154,7 +155,12 @@ export type PrevReflowState = {
   prevSecondOrderCollisionMap: SecondOrderCollisionMap;
 };
 
-export type SpaceMap = { [id: string]: OccupiedSpace };
+export type BlockSpace = OccupiedSpace & {
+  isDropTarget?: boolean;
+  fixedHeight?: number;
+};
+
+export type SpaceMap = { [id: string]: BlockSpace };
 
 export type DirectionalVariables = {
   [key: string]: {

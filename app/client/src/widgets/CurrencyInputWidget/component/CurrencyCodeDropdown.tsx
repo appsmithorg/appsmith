@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
-import { Dropdown, DropdownOption, Icon, IconSize } from "design-system";
+import { Dropdown, DropdownOption, Icon, IconSize } from "design-system-old";
 import { Classes } from "@blueprintjs/core";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
@@ -225,6 +225,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   const dropdownTrigger = (
     <DropdownTriggerIconWrapper
       className="t--input-currency-change currency-change-dropdown-trigger"
+      data-tabbable={false}
       disabled={props.isDisabled}
       tabIndex={0}
       type="button"

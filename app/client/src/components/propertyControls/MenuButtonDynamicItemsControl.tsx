@@ -18,6 +18,8 @@ import {
   stringToJS,
 } from "components/editorComponents/ActionCreator/utils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import { getUniqueKeysFromSourceData } from "widgets/MenuButtonWidget/widget/helper";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -93,18 +95,34 @@ class MenuButtonDynamicItemsControl extends BaseControl<
       label,
       propertyValue,
       theme,
+      widgetProperties,
     } = this.props;
-    const menuButtonId = this.props.widgetProperties.widgetName;
+    const widgetName = widgetProperties.widgetName;
+    const widgetType = widgetProperties.type;
     const value =
       propertyValue && isDynamicValue(propertyValue)
         ? MenuButtonDynamicItemsControl.getInputComputedValue(
             propertyValue,
-            menuButtonId,
+            widgetName,
+            widgetType,
+            widgetProperties.primaryColumns,
           )
         : propertyValue
         ? propertyValue
         : defaultValue;
-    const keys = this.props.widgetProperties.sourceDataKeys || [];
+    let sourceData;
+
+    if (widgetType === "TABLE_WIDGET_V2") {
+      sourceData =
+        widgetProperties?.__evaluation__?.evaluatedValues?.primaryColumns?.[
+          `${Object.keys(widgetProperties.primaryColumns)[0]}`
+        ]?.sourceData;
+    } else if (widgetType === "MENU_BUTTON_WIDGET") {
+      sourceData =
+        widgetProperties?.__evaluation__?.evaluatedValues?.sourceData;
+    }
+
+    const keys = getUniqueKeysFromSourceData(sourceData);
     const currentItem: { [key: string]: any } = {};
 
     Object.values(keys).forEach((key) => {
@@ -115,6 +133,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     if (value && !propertyValue) {
       this.onTextChange(value);
     }
+
     return (
       <InputText
         additionalDynamicData={{
@@ -131,30 +150,61 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     );
   }
 
-  static getBindingPrefix = (menuButtonId: string) => {
-    return `{{${menuButtonId}.sourceData.map((currentItem, currentIndex) => ( `;
+  static getBindingPrefix = (
+    widgetName: string,
+    widgetType?: string,
+    primaryColumns?: Record<string, ColumnProperties>,
+  ) => {
+    if (widgetType === "TABLE_WIDGET_V2" && primaryColumns) {
+      const columnName = Object.keys(primaryColumns)?.[0];
+
+      return `{{${widgetName}.processedTableData.map((currentRow, currentRowIndex) => {
+        let primaryColumnData = [];
+
+        if (${widgetName}.primaryColumns.${columnName}.sourceData[currentRowIndex].length) {
+          primaryColumnData = ${widgetName}.primaryColumns.${columnName}.sourceData[currentRowIndex];
+        } else if (${widgetName}.primaryColumns.${columnName}.sourceData.length) {
+          primaryColumnData = ${widgetName}.primaryColumns.${columnName}.sourceData;
+        }
+        
+        return primaryColumnData.map((currentItem, currentIndex) => `;
+    } else {
+      return `{{${widgetName}.sourceData.map((currentItem, currentIndex) => ( `;
+    }
   };
 
-  static bindingSuffix = `))}}`;
+  static getBindingSuffix = (widgetType?: string) =>
+    widgetType === "TABLE_WIDGET_V2" ? `);});}}` : `))}}`;
 
   static getInputComputedValue = (
     propertyValue: string,
-    menuButtonId: string,
+    widgetName: string,
+    widgetType?: string,
+    primaryColumns?: Record<string, ColumnProperties>,
   ) => {
-    if (!propertyValue.includes(this.getBindingPrefix(menuButtonId))) {
+    if (
+      !propertyValue.includes(
+        this.getBindingPrefix(widgetName, widgetType, primaryColumns),
+      )
+    ) {
       return propertyValue;
     }
 
     const value = `${propertyValue.substring(
-      this.getBindingPrefix(menuButtonId).length,
-      propertyValue.length - this.bindingSuffix.length,
+      this.getBindingPrefix(widgetName, widgetType, primaryColumns).length,
+      propertyValue.length - this.getBindingSuffix(widgetType).length,
     )}`;
     const stringValue = JSToString(value);
 
     return stringValue;
   };
 
-  getComputedValue = (value: string, menuButtonId: string) => {
+  getComputedValue = (
+    value: string,
+    widgetName: string,
+    widgetType?: string,
+    primaryColumns?: Record<string, ColumnProperties>,
+  ) => {
     if (!isDynamicValue(value)) {
       return value;
     }
@@ -166,8 +216,12 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     }
 
     return `${MenuButtonDynamicItemsControl.getBindingPrefix(
-      menuButtonId,
-    )}${stringToEvaluate}${MenuButtonDynamicItemsControl.bindingSuffix}`;
+      widgetName,
+      widgetType,
+      primaryColumns,
+    )}${stringToEvaluate}${MenuButtonDynamicItemsControl.getBindingSuffix(
+      widgetType,
+    )}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
@@ -181,6 +235,8 @@ class MenuButtonDynamicItemsControl extends BaseControl<
       const output = this.getComputedValue(
         value,
         this.props.widgetProperties.widgetName,
+        this.props.widgetProperties.type,
+        this.props.widgetProperties.primaryColumns,
       );
 
       this.updateProperty(this.props.propertyName, output);

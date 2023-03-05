@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import { ReactComponent as Layout } from "assets/images/layout.svg";
 import { ReactComponent as Database } from "assets/images/database.svg";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {

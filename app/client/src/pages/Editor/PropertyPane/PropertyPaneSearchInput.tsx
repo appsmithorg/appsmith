@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { SearchVariant } from "design-system";
-import { InputWrapper, SearchInput } from "design-system";
+import { SearchVariant } from "design-system-old";
+import { InputWrapper, SearchInput } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
@@ -43,17 +43,19 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
 
   useEffect(() => {
     // Checks if the property pane opened not because of focusing an input inside a widget
-    const isActiveFocusNotFromWidgetInput = !isCurrentFocusOnInput();
     if (
       shouldFocusSearch &&
-      isActiveFocusNotFromWidgetInput &&
       // while the panel transition happens, focus will be happening twice. Once on the main pane and then on the panel
       // The following check will make sure that the focus is only done once and prevents the UI jittering
       isPanel === shouldFocusPanelSearch
     ) {
       setTimeout(
         () => {
-          wrapperRef.current?.focus();
+          //checking for active element
+          //inside timeout to have updated active element
+          if (!isCurrentFocusOnInput()) {
+            wrapperRef.current?.focus();
+          }
         },
         // Layered panels like Column Panel's transition takes 300ms.
         // To avoid UI jittering, we are delaying the focus by 300ms.

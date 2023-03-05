@@ -10,7 +10,7 @@ import {
   Text,
   TextType,
   IconWrapper,
-} from "design-system";
+} from "design-system-old";
 import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import { Template } from "api/TemplatesApi";

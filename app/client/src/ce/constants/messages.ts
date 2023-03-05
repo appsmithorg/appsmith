@@ -130,9 +130,12 @@ export const ERROR_403 = (entity: string, userEmail: string) =>
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
-
+export const MAKE_APPLICATION_PUBLIC = () => "Make application public";
+export const MAKE_APPLICATION_PUBLIC_TOOLTIP = () =>
+  "A public app is accessible to anyone who can access your instance of appsmith";
+export const INVITE_TAB = () => "Invite";
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
-  `Invalid Email address(es) found`;
+  `Invalid email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
 
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
@@ -174,6 +177,16 @@ export const ENABLE_TIME = () => `Enable Time`;
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
+
+export const EDITOR_HEADER = {
+  saving: () => "Saving",
+  saveFailed: () => "Save failed",
+  share: () => "SHARE",
+  previewTooltip: {
+    text: () => "Preview",
+    shortcut: () => "P",
+  },
+};
 
 // Homepage
 export const CREATE_NEW_APPLICATION = () => `Create new`;
@@ -296,6 +309,8 @@ export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
 export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
+export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
+  `This selected widget cannot be cut.`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
@@ -332,7 +347,7 @@ export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
   "Create a new Query, API or JS Object";
-export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
+export const HELPBAR_PLACEHOLDER = () => "Search";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
 export const WIDGET_BIND_HELP = () =>
@@ -1046,6 +1061,7 @@ export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit Logs";
+export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
 
 // Audit logs Upgrade page begin
 export const INTRODUCING = (featureName: string) =>
@@ -1073,11 +1089,11 @@ export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
 export const GRANULAR_ACCESS_CONTROL_FOR_TEAMS = () =>
   "Granular Access Controls for teams";
 export const ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING = () =>
-  "Control view, create, edit, delete, share, and export permissions for all resources in your apps in a workspace. Manage permissions by attributes as granularly or broadly as you want. Use permissions and user groups to easily define access levels of new and existing users.";
+  "Control all permissions for all resources in your apps in a workspace. Manage permissions granularly by attributes. Use permissions and user groups to easily define access levels.";
 export const SECURITY_APPS_LEAST_PRIVILEGE = () =>
   "Secure apps by the least privilege needed";
 export const SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1 = () =>
-  "Create roles by the least privilege needed as defaults, e.g.: View only, assign them to users in groups, e.g.: Marketing, and modify for special access, e.g.: Content creators_Execute queries";
+  `Create roles by the least privilege needed as defaults, <span>e.g.: View only</span>, assign them to users in groups, <span>e.g.: Marketing</span>, and modify for special access, <span>e.g.: Content creators_Execute queries</span>`;
 export const PREVENT_ACCIDENTAL_DAMAGE = () =>
   "Prevent accidental damage to data";
 export const PREVENT_ACCIDENTAL_DAMAGE_DETAIL1 = () =>
@@ -1102,11 +1118,8 @@ export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
-  `The ${widgetName}widget you are currently using is now deprecated.`;
-export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
-  replacingWidgetName: string,
-) =>
-  ` You can drag a new ${replacingWidgetName} widget and configure it in place of the deprecated widget.`;
+  `Drag the latest ${widgetName} to unlock new features and prevent end-of-life headaches for this widget.`;
+
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
@@ -1117,11 +1130,17 @@ export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
+export const API_PANE_AUTO_GENERATED_HEADER = () =>
+  "This content-type header is auto-generated by appsmith based on body type of the API. Create a new header content-type to overwrite this value.";
+export const API_PANE_DUPLICATE_HEADER = (headerName: string) =>
+  `This is a duplicate header and will be overridden by the ${headerName} header added by you.`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
 export const ADD_QUERY_JS_TOOLTIP = () => "Add a new query / JS Object";
+export const LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP = () =>
+  "Count of all the records in the source data for the list. This helps us calculate the number of pages to be shown";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -1186,6 +1205,8 @@ export const ADMIN_BRANDING_COLOR_TOOLTIP_FONT = () =>
   `Used as text color for the buttons.`;
 export const ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED = () =>
   `Used as background color for disabled buttons.`;
+export const ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE = () =>
+  `I would like to enable Custom Branding for my workspace and am interested in Appsmith Business.`;
 
 // Guided tour
 // -- STEPS ---
@@ -1348,7 +1369,11 @@ export const CLEAN_URL_UPDATE = {
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
 
-export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+export const MEMBERS_TAB_TITLE = (
+  length: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `Users (${length})`;
 
 export const CREATE_PAGE = () => "New Blank Page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
@@ -1403,10 +1428,37 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
 
+export const IN_APP_EMBED_SETTING = {
+  applicationUrl: () => "application url",
+  allowEmbeddingLabel: () => "Embedding enabled",
+  allowEmbeddingTooltip: () =>
+    "This app can be embedded in all domains, including malicious ones",
+  copy: () => "Copy",
+  copied: () => "Copied",
+  limitEmbeddingLabel: () => "Embedding restricted",
+  limitEmbeddingTooltip: () => "This app can be embedded in approved URLs only",
+  disableEmbeddingLabel: () => "Embedding disabled",
+  disableEmbeddingTooltip: () =>
+    "This app cannot be embedded anywhere on the Internet",
+  embed: () => "Embed",
+  embedSnippetTitle: () => "Copy embed code",
+  change: () => "Change",
+  copiedEmbedCode: () => "Embed code copied to clipboard",
+  embedSize: () => "Embed size",
+  previewEmbeddedApp: () => "PREVIEW EMBEDDED APP",
+  sectionHeader: () => "Share & Embed",
+  sectionContentHeader: () => "Share",
+  sectionHeaderDesc: () => "Make public, embed properties",
+  showNavigationBar: () => "Show navigation bar",
+};
+
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
 export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
+export const SAVE_BUTTON_TEXT = () => "SAVE";
+export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
+export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
@@ -1427,7 +1479,7 @@ export const customJSLibraryMessages = {
     `Installation Successful. You can access the library via ${accessor}`,
   INSTALLATION_FAILED: () => "Installation failed",
   INSTALLED_ALREADY: (accessor: string) =>
-    `This library is installed already. You could access it via ${accessor}.`,
+    `This library is already installed. You could access it via ${accessor}.`,
   UNINSTALL_FAILED: (name: string) =>
     `Couldn't uninstall ${name}. Please try again after sometime.`,
   UNINSTALL_SUCCESS: (accessor: string) =>
@@ -1443,7 +1495,7 @@ export const customJSLibraryMessages = {
   CLIENT_LOAD_FAILED: (url: string) => `Failed to load the script at ${url}.`,
   LIB_OVERRIDE_ERROR: (
     name: string,
-  ) => `The library ${name} is already installed. 
+  ) => `The library ${name} is already installed.
   If you are trying to install a different version, uninstall the library first.`,
   DEFS_FAILED_ERROR: (name: string) =>
     `Failed to generate autocomplete definitions for ${name}.`,
@@ -1453,25 +1505,6 @@ export const customJSLibraryMessages = {
     `Name collision detected: ${accessors}`,
 };
 
-export const USAGE_AND_BILLING = {
-  usage: () => "Usage",
-  billing: () => "Billing",
-  usageAndBilling: () => "Usage & Billing",
-  usageOverNDays: (days: number) => `Usage over the past ${days} days!`,
-  usageDetails: () =>
-    "This is how much you have used Appsmith to build and run apps.",
-  unit: () => "minutes/day",
-  averaged: () => "*averaged",
-  approximated: () => "*approximated",
-  sell: () => "Figure out your usage before purchasing Appsmith",
-  upgradeToBusiness: () => "UPGRADE TO BUSINESS EDITION",
-  rbacHeading: () => "Role Based Access Control",
-  rbacDetails: () =>
-    "RBAC is here to allow you to control access to appsmith as easy as you maintain your organization.",
-  ssoHeading: () => "SSO and Custom Authentication",
-  ssoDetails: () => "SSO and custom auth allow you to onboard users faster.",
-  gitHeading: () => "Unlimited private git repositories",
-  gitDetails: () => "Expand your single source of truth capability to infinite",
-  exclusive: () =>
-    "These features are exclusively available on business edition.",
-};
+// Business Edition upgrade page
+export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
+  `Move to Business Edition${trailingChar ? trailingChar : ""}`;

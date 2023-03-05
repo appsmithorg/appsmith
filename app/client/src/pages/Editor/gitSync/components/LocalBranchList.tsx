@@ -1,4 +1,4 @@
-import { SegmentHeader } from "design-system";
+import { SegmentHeader } from "design-system-old";
 import { BranchListItem } from "./BranchListItem";
 import { getIsActiveItem } from "../utils";
 import React from "react";

@@ -30,6 +30,7 @@ import {
 } from "../component/utilities";
 import { LabelPosition } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
+import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 
 export function defaultValueValidation(
   value: any,
@@ -50,7 +51,7 @@ export function defaultValueValidation(
         return {
           isValid: true,
           parsed: undefined,
-          messages: [""],
+          messages: [{ name: "", message: "" }],
         };
       }
 
@@ -58,7 +59,12 @@ export function defaultValueValidation(
         return {
           isValid: false,
           parsed: undefined,
-          messages: ["This value must be a number"],
+          messages: [
+            {
+              name: "TypeError",
+              message: "This value must be a number",
+            },
+          ],
         };
       }
     }
@@ -70,14 +76,19 @@ export function defaultValueValidation(
     return {
       isValid: true,
       parsed,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
   if (_.isObject(value)) {
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: ["This value must be string"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be string",
+        },
+      ],
     };
   }
   let parsed = value;
@@ -89,14 +100,19 @@ export function defaultValueValidation(
       return {
         isValid: false,
         parsed: "",
-        messages: ["This value must be string"],
+        messages: [
+          {
+            name: "TypeError",
+            message: "This value must be string",
+          },
+        ],
       };
     }
   }
   return {
     isValid,
     parsed: parsed,
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 }
 
@@ -224,7 +240,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
             hidden: (props: InputWidgetProps) => {
-              return props.inputType !== InputTypes.TEXT;
+              return !checkInputTypeTextByProps(props);
             },
             dependencies: ["inputType"],
           },
@@ -377,7 +393,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: (props: InputWidgetProps) => {
-              return props.inputType !== InputTypes.TEXT;
+              return !checkInputTypeTextByProps(props);
             },
             dependencies: ["inputType"],
           },
@@ -541,7 +557,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           {
             propertyName: "labelStyle",
             label: "Label Font Style",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

@@ -188,7 +188,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
-        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), aclPermission);
+        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), null, aclPermission);
     }
 
     @Override
@@ -274,5 +274,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                                                                   String branchNamePath, AclPermission permission) {
         return super.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldValueMap, branchName,
                 branchNamePath, permission);
+    }
+
+    @Override
+    public Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        Criteria applicationNameCriteria = where(fieldName(QApplication.application.name)).is(applicationName);
+        return queryOne(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
     }
 }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import static com.appsmith.server.exceptions.AppsmithError.UNSUPPORTED_OPERATION;
 

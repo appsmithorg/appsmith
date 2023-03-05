@@ -42,7 +42,6 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(
             MediaType.IMAGE_JPEG,
             MediaType.IMAGE_PNG,
-            MediaType.valueOf("image/svg+xml"),
             MediaType.valueOf("image/x-icon"),
             MediaType.valueOf("image/vnd.microsoft.icon")
     );
@@ -98,6 +97,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
      * This function hard-deletes (read: not archive) the asset given by the ID. It is intended to be used to delete an
      * old asset when a user uploads a new one. For example, when a new profile photo or a workspace logo is,
      * uploaded, this method is used to completely delete the old one, if any.
+     *
      * @param assetId The ID string of the asset to delete.
      * @return empty Mono
      */
@@ -145,7 +145,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         }
         Image scaledImage = bufferedImage.getScaledInstance(dimension, dimension, Image.SCALE_SMOOTH);
         BufferedImage imageBuff = new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_RGB);
-        imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0,0,0), null);
+        imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0, 0, 0), null);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         ImageIO.write(imageBuff, "jpg", buffer);
         byte[] data = buffer.toByteArray();

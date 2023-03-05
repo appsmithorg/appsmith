@@ -10,9 +10,11 @@ import DraggablePageList from "./DraggablePageList";
 import PageSettings from "./PageSettings";
 import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
+  createMessage,
   GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER_DESC,
+  IN_APP_EMBED_SETTING,
   PAGE_SETTINGS_SECTION_CONTENT_HEADER,
   PAGE_SETTINGS_SECTION_HEADER,
   THEME_SETTINGS_SECTION_CONTENT_HEADER,
@@ -20,9 +22,11 @@ import {
   THEME_SETTINGS_SECTION_HEADER_DESC,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
+import EmbedSettings from "./EmbedSettings";
 
 export enum AppSettingsTabs {
   General,
+  Embed,
   Theme,
   Page,
 }
@@ -38,6 +42,10 @@ const Wrapper = styled.div`
 
 const SectionContent = styled.div`
   box-shadow: -1px 0 0 0 ${Colors.GRAY_300};
+  // property help label underline
+  .underline {
+    color: ${(props) => props.theme.colors.paneTextUnderline};
+  }
 `;
 
 const ThemeContentWrapper = styled.div`
@@ -73,21 +81,31 @@ function AppSettings() {
       id: "t--general-settings-header",
       icon: "settings-2-line",
       isSelected: selectedTab.type === AppSettingsTabs.General,
-      name: GENERAL_SETTINGS_SECTION_HEADER(),
+      name: createMessage(GENERAL_SETTINGS_SECTION_HEADER),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.General });
       },
-      subText: GENERAL_SETTINGS_SECTION_HEADER_DESC(),
+      subText: createMessage(GENERAL_SETTINGS_SECTION_HEADER_DESC),
+    },
+    {
+      id: "t--share-embed-settings",
+      icon: "share-line",
+      isSelected: selectedTab.type === AppSettingsTabs.Embed,
+      name: createMessage(IN_APP_EMBED_SETTING.sectionHeader),
+      onClick: () => {
+        setSelectedTab({ type: AppSettingsTabs.Embed });
+      },
+      subText: createMessage(IN_APP_EMBED_SETTING.sectionHeaderDesc),
     },
     {
       id: "t--theme-settings-header",
       icon: "edit-line",
       isSelected: selectedTab.type === AppSettingsTabs.Theme,
-      name: THEME_SETTINGS_SECTION_HEADER(),
+      name: createMessage(THEME_SETTINGS_SECTION_HEADER),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.Theme });
       },
-      subText: THEME_SETTINGS_SECTION_HEADER_DESC(),
+      subText: createMessage(THEME_SETTINGS_SECTION_HEADER_DESC),
     },
   ];
 
@@ -152,6 +170,8 @@ function AppSettings() {
                   </div>
                 )
               );
+            case AppSettingsTabs.Embed:
+              return <EmbedSettings />;
           }
         })()}
       </SectionContent>

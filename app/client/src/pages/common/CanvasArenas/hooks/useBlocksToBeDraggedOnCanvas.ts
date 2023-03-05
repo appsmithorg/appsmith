@@ -8,7 +8,7 @@ import { AppState } from "@appsmith/reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import {
   getDropZoneOffsets,
@@ -28,8 +28,10 @@ import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import { XYCord } from "./useCanvasDragging";
-import ContainerJumpMetrics from "./ContainerJumpMetric";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -45,31 +47,13 @@ export type WidgetDraggingBlock = {
   widgetId: string;
   isNotColliding: boolean;
   detachFromLayout?: boolean;
-};
-
-const containerJumpMetrics = new ContainerJumpMetrics<{
-  speed?: number;
-  acceleration?: number;
-  movingInto?: string;
-}>();
-
-// This method is called on drop,
-// This method logs the metrics container jump and marks it as successful container jump,
-// If widget has moves into a container and drops there.
-const logContainerJumpOnDrop = () => {
-  const { acceleration, movingInto, speed } = containerJumpMetrics.getMetrics();
-  // If it is dropped into a container after jumping, then
-  if (movingInto) {
-    AnalyticsUtil.logEvent("CONTAINER_JUMP", {
-      speed: speed,
-      acceleration: acceleration,
-      isAccidental: false,
-    });
-  }
-  containerJumpMetrics.clearMetrics();
+  fixedHeight?: number;
+  type: string;
 };
 
 export const useBlocksToBeDraggedOnCanvas = ({
+  alignItems,
+  direction,
   noPad,
   snapColumnSpace,
   snapRows,
@@ -119,7 +103,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const selectedWidgets = useSelector(getSelectedWidgets);
   const occupiedSpaces = useSelector(getOccupiedSpacesWhileMoving, equal) || {};
   const isNewWidget = !!newWidget && !dragParent;
-  const childrenOccupiedSpaces: OccupiedSpace[] =
+  const childrenOccupiedSpaces: WidgetSpace[] =
     (dragParent && occupiedSpaces[dragParent]) || [];
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
@@ -128,51 +112,11 @@ export const useBlocksToBeDraggedOnCanvas = ({
 
   const allWidgets = useSelector(getWidgets);
 
-  //This method is called whenever a there is a canvas change.
-  //canvas is the Layer inside the widgets or on main container where widgets are positioned or dragged.
-  //This method records the container jump metrics when a widget moves into a container from main Canvas,
-  // if the widget moves back to the main Canvas then, it is marked as accidental container jump.
-  const logContainerJump = (
-    dropTargetWidgetId: string,
-    dragSpeed?: number,
-    dragAcceleration?: number,
-  ) => {
-    //If triggered on the same canvas that it started dragging on return
-    if (!dragDetails.draggedOn || dropTargetWidgetId === dragDetails.draggedOn)
-      return;
-
-    const {
-      acceleration,
-      movingInto,
-      speed,
-    } = containerJumpMetrics.getMetrics();
-
-    // record Only
-    // if it was not previously recorded
-    // if not moving into mainContainer
-    // dragSpeed and dragAcceleration is not undefined
-    if (
-      !movingInto &&
-      dropTargetWidgetId !== MAIN_CONTAINER_WIDGET_ID &&
-      dragSpeed &&
-      dragAcceleration
-    ) {
-      containerJumpMetrics.setMetrics({
-        speed: dragSpeed,
-        acceleration: dragAcceleration,
-        movingInto: dropTargetWidgetId,
-      });
-    } // record only for mainContainer jumps,
-    //If it is coming back to main canvas after moving into a container then it is a accidental container jump
-    else if (movingInto && dropTargetWidgetId === MAIN_CONTAINER_WIDGET_ID) {
-      AnalyticsUtil.logEvent("CONTAINER_JUMP", {
-        speed: speed,
-        acceleration: acceleration,
-        isAccidental: true,
-      });
-      containerJumpMetrics.clearMetrics();
-    }
-  };
+  // modify the positions to have grab position on the right side for new widgets
+  if (isNewWidget) {
+    defaultHandlePositions.left =
+      newWidget.columns * snapColumnSpace - defaultHandlePositions.left;
+  }
   const getDragCenterSpace = () => {
     if (dragCenter && dragCenter.widgetId) {
       // Dragging by widget
@@ -227,6 +171,10 @@ export const useBlocksToBeDraggedOnCanvas = ({
             widgetId: newWidget.widgetId,
             detachFromLayout: newWidget.detachFromLayout,
             isNotColliding: true,
+            fixedHeight: newWidget.isDynamicHeight
+              ? newWidget.rows * snapRowSpace
+              : undefined,
+            type: newWidget.type,
           },
         ],
         draggingSpaces: [
@@ -254,13 +202,16 @@ export const useBlocksToBeDraggedOnCanvas = ({
           rowHeight: each.bottom - each.top,
           widgetId: each.id,
           isNotColliding: true,
+          fixedHeight: each.fixedHeight,
+          type: allWidgets[each.id].type,
         })),
       };
     }
   };
   const { blocksToDraw, draggingSpaces } = getBlocksToDraw();
-  const dragCenterSpace: any = getDragCenterSpace();
 
+  const dragCenterSpace: any = getDragCenterSpace();
+  // get spaces occupied by unselected children
   const filteredChildOccupiedSpaces = childrenOccupiedSpaces.filter(
     (each) => !selectedWidgets.includes(each.id),
   );
@@ -268,11 +219,73 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const stopReflowing = () => {
     if (isReflowing) dispatch(stopReflowAction());
   };
+  const updateChildrenPositions = (
+    dropPayload: HighlightInfo,
+    drawingBlocks: WidgetDraggingBlock[],
+  ): void => {
+    if (isNewWidget) addNewWidgetToAutoLayout(dropPayload, drawingBlocks);
+    else
+      dispatch({
+        type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
+        payload: {
+          dropPayload,
+          movedWidgets: selectedWidgets,
+          parentId: widgetId,
+          direction,
+        },
+      });
+  };
+  const addNewWidgetToAutoLayout = (
+    dropPayload: HighlightInfo,
+    drawingBlocks: WidgetDraggingBlock[],
+  ) => {
+    const blocksToUpdate = drawingBlocks.map((each) => {
+      const updateWidgetParams = widgetOperationParams(
+        newWidget,
+        { x: 0, y: each.top },
+        { x: 0, y: 0 },
+        snapColumnSpace,
+        snapRowSpace,
+        newWidget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
+        {
+          width: each.width,
+          height: each.height,
+        },
+        direction === LayoutDirection.Vertical &&
+          alignItems === AlignItems.Stretch,
+      );
+      return {
+        ...each,
+        updateWidgetParams,
+      };
+    });
+    // Add alignment to props of the new widget
+    const widgetPayload = {
+      ...blocksToUpdate[0]?.updateWidgetParams?.payload,
+      props: {
+        ...blocksToUpdate[0]?.updateWidgetParams?.payload?.props,
+        alignment: dropPayload.alignment,
+      },
+    };
+    setTimeout(() => {
+      selectWidget(widgetPayload.newWidgetId);
+    }, 100);
+    dispatch({
+      type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+      payload: {
+        dropPayload,
+        newWidget: widgetPayload,
+        parentId: newWidget.detachFromLayout
+          ? MAIN_CONTAINER_WIDGET_ID
+          : widgetId,
+        direction,
+      },
+    });
+  };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],
     reflowedPositionsUpdatesWidgets: OccupiedSpace[],
   ) => {
-    logContainerJumpOnDrop();
     const reflowedBlocks: WidgetDraggingBlock[] = reflowedPositionsUpdatesWidgets.map(
       (each) => {
         const widget = allWidgets[each.id];
@@ -286,6 +299,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           widgetId: widget.widgetId,
           isNotColliding: true,
           detachFromLayout: widget.detachFromLayout,
+          type: widget.type,
         };
       },
     );
@@ -303,7 +317,11 @@ export const useBlocksToBeDraggedOnCanvas = ({
         .map((each) => {
           const widget =
             newWidget && !reflowedIds.includes(each.widgetId)
-              ? newWidget
+              ? {
+                  ...newWidget,
+                  columns: each.columnWidth,
+                  rows: each.rowHeight,
+                }
               : allWidgets[each.widgetId];
           const updateWidgetParams = widgetOperationParams(
             widget,
@@ -386,7 +404,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
-      selectWidget(updateWidgetParams.payload.newWidgetId);
+      selectWidget(SelectionRequestType.One, [
+        updateWidgetParams.payload.newWidgetId,
+      ]);
     }, 100);
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: dragDetails.newWidget.type,
@@ -482,7 +502,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
     isNewWidgetInitialTargetCanvas,
     isResizing,
     lastDraggedCanvas,
-    logContainerJump,
     occSpaces,
     draggingSpaces,
     onDrop,
@@ -491,6 +510,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     rowRef,
     stopReflowing,
     updateBottomRow,
+    updateChildrenPositions,
     updateRelativeRows,
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,

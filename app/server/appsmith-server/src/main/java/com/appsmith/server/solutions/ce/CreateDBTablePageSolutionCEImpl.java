@@ -1,9 +1,11 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.converters.GsonISOStringToInstantConverter;
+import com.appsmith.external.converters.HttpMethodConverter;
+import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
@@ -18,7 +20,6 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
@@ -47,6 +48,7 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 import reactor.core.publisher.Flux;
@@ -132,6 +134,12 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     // Pattern to match all words in the text
     private static final Pattern WORD_PATTERN = Pattern.compile("\\w+");
+
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
+            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
+            .registerTypeAdapter(HttpMethod.class, new HttpMethodConverter())
+            .create();
 
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
@@ -495,11 +503,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 new DefaultResourceLoader().getResource(filePath).getInputStream(),
                 Charset.defaultCharset()
         );
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        Gson gson = gsonBuilder
-                .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
-                .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
-                .create();
+
         ApplicationJson applicationJson = gson.fromJson(jsonContent, ApplicationJson.class);
         return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
     }
@@ -1055,7 +1059,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private Mono<CRUDPageResponseDTO> sendGenerateCRUDPageAnalyticsEvent(CRUDPageResponseDTO crudPage, Datasource datasource, String pluginName) {
         PageDTO page = crudPage.getPage();
         return sessionUserService.getCurrentUser()
-                .map(currentUser -> {
+                .flatMap(currentUser -> {
                     try {
                         final Map<String, Object> data = Map.of(
                                 "applicationId", page.getApplicationId(),
@@ -1065,13 +1069,13 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 "datasourceId", datasource.getId(),
                                 "organizationId", datasource.getWorkspaceId()
                         );
-                        analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data);
+                        return analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data)
+                                .thenReturn(crudPage);
                     } catch (Exception e) {
                         log.warn("Error sending generate CRUD DB table page data point", e);
                     }
-                    return crudPage;
+                    return Mono.just(crudPage);
                 });
     }
-
 
 }

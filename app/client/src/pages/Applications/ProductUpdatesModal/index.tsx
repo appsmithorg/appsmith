@@ -14,7 +14,7 @@ import { LayersContext } from "constants/Layers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import ReleaseComponent, { Release } from "./ReleaseComponent";
-import { DialogComponent as Dialog, ScrollIndicator } from "design-system";
+import { DialogComponent as Dialog, ScrollIndicator } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const StyledDialog = styled(Dialog)`
@@ -81,11 +81,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
       onClose={onClose}
       onOpening={onOpening}
       title="Product Updates"
-      trigger={
-        props.hideTrigger ? null : (
-          <UpdatesButton newReleasesCount={newReleasesCount} />
-        )
-      }
+      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
       triggerZIndex={Layers.productUpdates}
       width={"580px"}
     >

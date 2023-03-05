@@ -1,4 +1,4 @@
-import { SegmentHeader } from "design-system";
+import { SegmentHeader } from "design-system-old";
 import { RemoteBranchListItem } from "./RemoteBranchListItem";
 import React from "react";
 import { createMessage, REMOTE_BRANCHES } from "@appsmith/constants/messages";

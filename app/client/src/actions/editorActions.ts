@@ -1,6 +1,18 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 /**
+ * init action that sets preview mode. navigates to canvas when payload is true
+ * navigates back when the payload is false i.e when switched to edit mode
+ *
+ * @param payload
+ * @returns
+ */
+export const setPreviewModeInitAction = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_PREVIEW_MODE_INIT,
+  payload,
+});
+
+/**
  * action that sets preview mode
  *
  * @param payload
@@ -36,13 +48,15 @@ export const deleteCanvasCardsState = () => ({
  * action that update canvas layout
  *
  * @param width
+ * @param scale
  * @returns
  */
-export const updateCanvasLayoutAction = (width: number) => {
+export const updateCanvasLayoutAction = (width: number, scale = 1) => {
   return {
     type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
     payload: {
       width,
+      scale,
     },
   };
 };

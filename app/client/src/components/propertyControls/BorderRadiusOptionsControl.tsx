@@ -1,9 +1,8 @@
 import * as React from "react";
 
-import { TooltipComponent } from "design-system";
+import { ButtonGroup, TooltipComponent } from "design-system-old";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
-import { ButtonTab } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -23,20 +22,14 @@ export interface BorderRadiusOptionsControlProps extends ControlProps {
 const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
   icon: (
     <TooltipComponent
-      content={
-        <div>
-          <div>{optionKey}</div>
-        </div>
-      }
+      content={optionKey}
       key={optionKey}
       openOnTargetFocus={false}
     >
-      <button tabIndex={-1}>
-        <div
-          className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
-          style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
-        />
-      </button>
+      <div
+        className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
+        style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
+      />
     </TooltipComponent>
   ),
   value: borderRadiusOptions[optionKey],
@@ -70,7 +63,7 @@ class BorderRadiusOptionsControl extends BaseControl<
 
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
-      e.detail.component === "ButtonTab" &&
+      e.detail.component === "ButtonGroup" &&
       e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
@@ -86,7 +79,7 @@ class BorderRadiusOptionsControl extends BaseControl<
 
   public render() {
     return (
-      <ButtonTab
+      <ButtonGroup
         options={options}
         ref={this.componentRef}
         selectButton={(value, isUpdatedViaKeyboard = false) => {

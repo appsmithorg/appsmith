@@ -8,7 +8,7 @@ import {
   TabComponent,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
 import history from "utils/history";
 import { TabbedViewContainer } from "./CommonEditorForm";

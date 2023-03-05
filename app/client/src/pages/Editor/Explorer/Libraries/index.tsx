@@ -7,7 +7,7 @@ import {
   Toaster,
   TooltipComponent,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
 import {
@@ -33,8 +33,8 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { TJSLibrary } from "workers/common/JSLibrary";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import recommendedLibraries from "./recommendedLibraries";
+import { useTransition, animated } from "react-spring";
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;
@@ -286,8 +286,16 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
 
 function JSDependencies() {
   const libraries = useSelector(selectLibrariesForExplorer);
-  const dependencyList = libraries.map((lib) => (
-    <LibraryEntity key={lib.name} lib={lib} />
+  const transitions = useTransition(libraries, {
+    keys: (lib) => lib.name,
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 1 },
+  });
+  const dependencyList = transitions((style, lib) => (
+    <animated.div style={style}>
+      <LibraryEntity lib={lib} />
+    </animated.div>
   ));
   const isOpen = useSelector(selectIsInstallerOpen);
   const dispatch = useDispatch();
@@ -299,8 +307,6 @@ function JSDependencies() {
   const openInstaller = useCallback(() => {
     dispatch(toggleInstaller(true));
   }, []);
-
-  const featureFlags = useSelector(selectFeatureFlags);
 
   return (
     <Entity
@@ -327,7 +333,7 @@ function JSDependencies() {
       isDefaultExpanded={isOpen}
       isSticky
       name="Libraries"
-      showAddButton={canCreateActions && featureFlags?.CUSTOM_JS_LIBRARY}
+      showAddButton={canCreateActions}
       step={0}
     >
       {dependencyList}

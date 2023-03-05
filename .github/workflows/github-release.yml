@@ -40,7 +40,7 @@ jobs:
             echo "is_beta=false" >> $GITHUB_OUTPUT
           fi
 
-  buildClient:
+  client-build:
     needs:
       - prelude
 
@@ -98,7 +98,7 @@ jobs:
           name: client-build
           path: app/client/build/
 
-  buildServer:
+  server-build:
     needs:
       - prelude
 
@@ -114,11 +114,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 1.11
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: "11.0.10"
-          distribution: adopt
+          distribution: 'temurin'
+          java-version: '17'
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
@@ -147,7 +147,7 @@ jobs:
           name: server-build
           path: app/server/dist/
 
-  buildRts:
+  rts-build:
     needs:
       - prelude
 
@@ -187,7 +187,7 @@ jobs:
           path: app/rts/rts-dist.tar
 
   package:
-    needs: [prelude, buildClient, buildServer, buildRts]
+    needs: [prelude, client-build, server-build, rts-build]
 
     runs-on: ubuntu-latest
     permissions:

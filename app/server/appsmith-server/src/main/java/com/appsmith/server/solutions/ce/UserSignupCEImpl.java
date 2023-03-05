@@ -225,9 +225,10 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return Mono.when(
                             userDataService.updateForUser(user, userData),
                             configService.getInstanceId()
-                                    .map(instanceId -> {
+                                    .flatMap(instanceId -> {
                                         log.debug("Installation setup complete.");
-                                        analyticsService.sendEvent(
+                                        analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
+                                        return analyticsService.sendEvent(
                                                 AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
                                                 instanceId,
                                                 Map.of(
@@ -239,8 +240,6 @@ public class UserSignupCEImpl implements UserSignupCE {
                                                 ),
                                                 false
                                         );
-                                        analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
-                                        return instanceId;
                                     }),
                             envManager.applyChanges(Map.of(
                                     APPSMITH_DISABLE_TELEMETRY.name(),

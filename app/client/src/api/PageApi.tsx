@@ -107,6 +107,7 @@ export type FetchPageListResponseData = {
     layouts: Array<PageLayout>;
     slug: string;
     userPermissions?: string[];
+    description?: string;
   }>;
   workspaceId: string;
 };

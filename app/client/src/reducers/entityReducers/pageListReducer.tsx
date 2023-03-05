@@ -1,18 +1,18 @@
-import { sortBy } from "lodash";
 import {
-  ReduxAction,
-  ReduxActionTypes,
-  Page,
   ClonePageSuccessPayload,
+  Page,
+  ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
 import {
   GenerateCRUDSuccess,
   UpdatePageErrorPayload,
 } from "actions/pageActions";
 import { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
+import { sortBy } from "lodash";
 import { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -67,7 +67,8 @@ export const pageListReducer = createReducer(initialState, {
       pages: state.pages.map((page) => {
         return {
           ...page,
-          userPermissions: pagePermissionsMap[page.pageId] ?? [],
+          userPermissions:
+            pagePermissionsMap[page.pageId] ?? (page.userPermissions || []),
         };
       }),
     };
@@ -77,6 +78,7 @@ export const pageListReducer = createReducer(initialState, {
     state: PageListReduxState,
     action: ReduxAction<{
       pageName: string;
+      description?: string;
       pageId: string;
       layoutId: string;
       isDefault: boolean;
@@ -206,6 +208,7 @@ export const pageListReducer = createReducer(initialState, {
         layoutId: action.payload.page.layouts[0].id,
         isDefault: !!action.payload.page.isDefault,
         slug: action.payload.page.slug,
+        description: action.payload.page.description,
       };
       _state.pages.push({ ...newPage, latest: true });
     }
@@ -243,8 +246,17 @@ export type SupportedLayouts =
   | "TABLET"
   | "MOBILE"
   | "FLUID";
+
 export interface AppLayoutConfig {
   type: SupportedLayouts;
+}
+
+export enum AppPositioningTypes {
+  "FIXED",
+  "AUTO",
+}
+export interface AppPositioningTypeConfig {
+  type: AppPositioningTypes;
 }
 
 export interface PageListReduxState {

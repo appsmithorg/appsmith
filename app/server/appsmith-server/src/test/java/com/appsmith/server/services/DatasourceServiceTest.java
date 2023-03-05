@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
@@ -20,7 +21,6 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -556,7 +556,7 @@ public class DatasourceServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1));
+        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
 
         StepVerifier
                 .create(testResultMono)
@@ -612,7 +612,7 @@ public class DatasourceServiceTest {
 
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
-            return datasourceService.testDatasource(datasource1);
+            return datasourceService.testDatasource(datasource1, null);
         });
 
         StepVerifier
@@ -862,7 +862,7 @@ public class DatasourceServiceTest {
                 .assertNext(savedDatasource -> {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
+                    assertThat(encryptionService.decryptString(authentication.getPassword())).isEqualTo(password);
                 })
                 .verifyComplete();
     }
@@ -961,7 +961,7 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth) updatedDatasource.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(encryptionService.encryptString(password)).isEqualTo(authentication.getPassword());
+                    assertThat(password).isEqualTo(encryptionService.decryptString(authentication.getPassword()));
                 })
                 .verifyComplete();
     }
@@ -1163,7 +1163,7 @@ public class DatasourceServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1));
+        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
 
         StepVerifier
                 .create(testResultMono)

@@ -6,7 +6,7 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import ErrorTooltip from "./ErrorTooltip";
-import { Icon, IconSize, Toaster, Variant } from "design-system";
+import { Icon, IconSize, Toaster, Variant } from "design-system-old";
 
 export enum EditInteractionKind {
   SINGLE,

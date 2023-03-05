@@ -13,7 +13,6 @@ import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -28,8 +27,8 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.mail.MessagingException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +50,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -74,7 +72,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
@@ -640,19 +637,19 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 });
     }
 
-  /**
-   * A filter function on getAll that returns env variables which are having non-empty values
-   */
+    /**
+     * A filter function on getAll that returns env variables which are having non-empty values
+     */
     @Override
     public Mono<Map<String, String>> getAllNonEmpty() {
         return getAll().flatMap(map -> {
-              Map<String, String> nonEmptyValuesMap = new HashMap<>();
-              for (Map.Entry<String, String> entry: map.entrySet()) {
-                  if (StringUtils.hasText(entry.getValue())) {
-                      nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
-                  }
-              }
-              return Mono.just(nonEmptyValuesMap);
+            Map<String, String> nonEmptyValuesMap = new HashMap<>();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if (StringUtils.hasText(entry.getValue())) {
+                    nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return Mono.just(nonEmptyValuesMap);
         });
     }
 

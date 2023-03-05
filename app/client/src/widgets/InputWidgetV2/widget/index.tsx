@@ -1,5 +1,5 @@
 import React from "react";
-import { WidgetState } from "widgets/BaseWidget";
+import { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, { InputComponentProps } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -30,15 +30,23 @@ import {
 import { getParsedText } from "./Utilities";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export function defaultValueValidation(
   value: any,
   props: InputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const STRING_ERROR_MESSAGE = "This value must be string";
-  const NUMBER_ERROR_MESSAGE = "This value must be number";
-  const EMPTY_ERROR_MESSAGE = "";
+  const STRING_ERROR_MESSAGE = {
+    name: "TypeError",
+    message: "This value must be string",
+  };
+  const NUMBER_ERROR_MESSAGE = {
+    name: "TypeError",
+    message: "This value must be number",
+  };
+  const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -86,6 +94,7 @@ export function defaultValueValidation(
         messages,
       };
     case "TEXT":
+    case "MULTI_LINE_TEXT":
     case "PASSWORD":
     case "EMAIL":
       parsed = value;
@@ -123,25 +132,45 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
     return {
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [
+        {
+          name: "",
+          message: "",
+        },
+      ],
     };
   } else if (!Number.isFinite(min)) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be number",
+        },
+      ],
     };
   } else if (max !== undefined && min >= max) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be lesser than max value"],
+      messages: [
+        {
+          name: "RangeError",
+          message: "This value must be lesser than max value",
+        },
+      ],
     };
   } else {
     return {
       isValid: true,
       parsed: Number(min),
-      messages: [""],
+      messages: [
+        {
+          name: "",
+          message: "",
+        },
+      ],
     };
   }
 }
@@ -155,28 +184,73 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
     return {
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [
+        {
+          name: "",
+          message: "",
+        },
+      ],
     };
   } else if (!Number.isFinite(max)) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be number",
+        },
+      ],
     };
   } else if (min !== undefined && max <= min) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be greater than min value"],
+      messages: [
+        {
+          name: "RangeError",
+          message: "This value must be greater than min value",
+        },
+      ],
     };
   } else {
     return {
       isValid: true,
       parsed: Number(max),
-      messages: [""],
+      messages: [
+        {
+          name: "",
+          message: "",
+        },
+      ],
     };
   }
 }
+
+function InputTypeUpdateHook(
+  props: WidgetProps,
+  propertyName: string,
+  propertyValue: unknown,
+) {
+  const updates = [
+    {
+      propertyPath: propertyName,
+      propertyValue: propertyValue,
+    },
+  ];
+
+  if (propertyValue === InputTypes.MULTI_LINE_TEXT) {
+    if (props.dynamicHeight === DynamicHeight.FIXED) {
+      updates.push({
+        propertyPath: "dynamicHeight",
+        propertyValue: DynamicHeight.AUTO_HEIGHT,
+      });
+    }
+  }
+
+  return updates;
+}
+
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
@@ -191,8 +265,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               controlType: "DROP_DOWN",
               options: [
                 {
-                  label: "Text",
+                  label: "Single-line text",
                   value: "TEXT",
+                },
+                {
+                  label: "Multi-line text",
+                  value: "MULTI_LINE_TEXT",
                 },
                 {
                   label: "Number",
@@ -209,6 +287,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               ],
               isBindProperty: false,
               isTriggerProperty: false,
+              updateHook: InputTypeUpdateHook,
+              dependencies: ["dynamicHeight"],
             },
             {
               helpText:
@@ -264,7 +344,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                 params: { min: 1, natural: true, passThroughOnZero: false },
               },
               hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.TEXT;
+                return !checkInputTypeTextByProps(props);
               },
               dependencies: ["inputType"],
             },
@@ -343,6 +423,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                   allowedValues: ICON_NAMES,
                 },
               },
+              hidden: (props: InputWidgetProps) =>
+                props.inputType === InputTypes.MULTI_LINE_TEXT,
             },
             {
               propertyName: "iconAlign",
@@ -363,7 +445,9 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isBindProperty: false,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: InputWidgetProps) => !props.iconName,
+              hidden: (props: InputWidgetProps) =>
+                props.inputType === InputTypes.MULTI_LINE_TEXT ||
+                !props.iconName,
               dependencies: ["iconName"],
             },
           ],
@@ -512,7 +596,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       conditionalProps.minNum = this.props.minNum;
     }
 
-    if (this.props.inputType === InputTypes.TEXT && this.props.maxChars) {
+    if (checkInputTypeTextByProps(this.props) && this.props.maxChars) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (
@@ -565,12 +649,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     } else {
       conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
-    const minInputSingleLineHeight =
-      this.props.label || this.props.tooltip
-        ? // adjust height for label | tooltip extra div
-          GRID_DENSITY_MIGRATION_V1 + 4
-        : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
-          GRID_DENSITY_MIGRATION_V1;
 
     return (
       <InputComponent
@@ -602,11 +680,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
-        multiline={
-          (this.props.bottomRow - this.props.topRow) /
-            minInputSingleLineHeight >
-            1 && this.props.inputType === InputTypes.TEXT
-        }
+        multiline={this.props.inputType === InputTypes.MULTI_LINE_TEXT}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}

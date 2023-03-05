@@ -1,18 +1,16 @@
-import React from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import MenuButtonComponent from "../component";
+import { Stylesheet } from "entities/AppTheming";
+import { isArray, orderBy } from "lodash";
+import { default as React } from "react";
+import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
+import MenuButtonComponent from "../component";
 import { MenuButtonWidgetProps, MenuItem, MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import equal from "fast-deep-equal/es6";
-import { isArray, orderBy } from "lodash";
-import { getSourceDataKeys } from "./helper";
-import { Stylesheet } from "entities/AppTheming";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -106,19 +104,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     }
 
     return [];
-  };
-
-  componentDidMount = () => {
-    super.updateWidgetProperty("sourceDataKeys", getSourceDataKeys(this.props));
-  };
-
-  componentDidUpdate = (prevProps: MenuButtonWidgetProps) => {
-    if (!equal(prevProps.sourceData, this.props.sourceData)) {
-      super.updateWidgetProperty(
-        "sourceDataKeys",
-        getSourceDataKeys(this.props),
-      );
-    }
   };
 
   getPageView() {

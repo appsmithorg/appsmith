@@ -23,7 +23,9 @@ import {
   migrateTableWidgetIconButtonVariant,
   migrateTableWidgetV2Validation,
   migrateTableWidgetV2ValidationBinding,
+  migrateMenuButtonDynamicItemsInsideTableWidget,
   migrateTableWidgetV2SelectOption,
+  migrateColumnFreezeAttributes,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -76,6 +78,7 @@ import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigration
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
 import {
+  migrateInputWidgetsMultiLineInputType,
   migrateListWidgetChildrenForAutoHeight,
   migratePropertiesForDynamicHeight,
 } from "./migrations/autoHeightMigrations";
@@ -865,10 +868,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 19) {
     currentDSL.snapColumns = GridDefaults.DEFAULT_GRID_COLUMNS;
-    currentDSL.snapRows = getCanvasSnapRows(
-      currentDSL.bottomRow,
-      currentDSL.detachFromLayout || false,
-    );
+    currentDSL.snapRows = getCanvasSnapRows(currentDSL.bottomRow);
     if (!newPage) {
       currentDSL = migrateToNewLayout(currentDSL);
     }
@@ -1155,6 +1155,21 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 73) {
     currentDSL = migrateInputWidgetShowStepArrows(currentDSL);
+    currentDSL.version = 74;
+  }
+
+  if (currentDSL.version === 74) {
+    currentDSL = migrateMenuButtonDynamicItemsInsideTableWidget(currentDSL);
+    currentDSL.version = 75;
+  }
+
+  if (currentDSL.version === 75) {
+    currentDSL = migrateInputWidgetsMultiLineInputType(currentDSL);
+    currentDSL.version = 76;
+  }
+
+  if (currentDSL.version === 76) {
+    currentDSL = migrateColumnFreezeAttributes(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

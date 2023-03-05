@@ -70,5 +70,8 @@ export function resetJSLibraries() {
     }
     delete libraryReservedIdentifiers[key];
   }
-  return JSLibraries;
+  JSLibraries.forEach((library) => {
+    // @ts-expect-error: Types are not available
+    self[library.accessor] = library.lib;
+  });
 }

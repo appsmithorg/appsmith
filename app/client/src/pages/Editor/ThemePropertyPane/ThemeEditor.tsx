@@ -12,7 +12,7 @@ import {
   DropdownList,
   DropdownItem,
   DropdownTrigger,
-} from "design-system";
+} from "design-system-old";
 import {
   AppThemingMode,
   getAppThemingStack,
@@ -29,7 +29,12 @@ import { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
-import { Button, Category, Classes as CsClasses, Size } from "design-system";
+import {
+  Button,
+  Category,
+  Classes as CsClasses,
+  Size,
+} from "design-system-old";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";

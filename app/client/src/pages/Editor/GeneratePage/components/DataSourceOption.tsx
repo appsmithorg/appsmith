@@ -10,7 +10,7 @@ import {
   Text,
   TextType,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
 

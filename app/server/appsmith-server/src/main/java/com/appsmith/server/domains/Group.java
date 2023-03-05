@@ -7,7 +7,7 @@ import lombok.ToString;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 
 @Getter

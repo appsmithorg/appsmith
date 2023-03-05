@@ -5,6 +5,11 @@ import AppEngineFactory from "entities/Engine/factory";
 import { call } from "redux-saga/effects";
 import { startAppEngine } from "sagas/InitSagas";
 
+jest.mock("../../api/Api", () => ({
+  __esModule: true,
+  default: class Api {},
+}));
+
 describe("tests the sagas in initSagas", () => {
   it("tests the order of execute in startAppEngine", () => {
     const action = {

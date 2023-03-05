@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.services.CrudService;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -77,7 +78,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
                                                                           String defaultApplicationId,
                                                                           String fieldName,
                                                                           AclPermission aclPermission);
-
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
     Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
@@ -93,4 +93,10 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 
     Mono<Application> findByIdAndExportWithConfiguration(String applicationId, Boolean exportWithConfiguration);
+
+    Mono<Application> saveAppNavigationLogo(String branchName, String applicationId, Part filePart);
+
+    public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId);
+
+    Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 }

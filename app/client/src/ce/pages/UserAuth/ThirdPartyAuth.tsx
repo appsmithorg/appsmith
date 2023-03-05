@@ -4,7 +4,7 @@ import {
   getSocialLoginButtonProps,
   SocialLoginType,
 } from "@appsmith/constants/SocialLogin";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
 import PerformanceTracker, {

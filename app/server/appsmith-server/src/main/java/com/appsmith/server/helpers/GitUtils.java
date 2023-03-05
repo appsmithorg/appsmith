@@ -30,7 +30,7 @@ public class GitUtils {
         }
         return sshUrl
                 .replaceFirst(".*git@", "https://")
-                .replaceFirst("(\\.[a-z]*):", "$1/")
+                .replaceFirst("(\\.[a-zA-Z0-9]*):", "$1/")
                 .replaceFirst("\\.git$", "");
     }
 

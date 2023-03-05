@@ -44,8 +44,8 @@ import {
 } from "reflow/reflowTypes";
 import {
   getBaseWidgetClassName,
-  getSlidingCanvasName,
   getStickyCanvasName,
+  getSlidingArenaName,
   POSITIONED_WIDGET,
 } from "constants/componentClassNameConstants";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
@@ -271,6 +271,7 @@ export const handleSpecificCasesWhilePasting = (
     });
   }
 
+  widgets = handleListWidgetV2Pasting(widget, widgets, widgetNameMap);
   widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
 
   return widgets;
@@ -302,6 +303,7 @@ export function getWidgetChildrenIds(
   }
   return childrenIds;
 }
+
 function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
   return reduce(
     widgetsMeta,
@@ -436,7 +438,11 @@ export const getParentWidgetIdForPasting = function*(
       }
     }
     // Select the selected widget if the widget is container like ( excluding list widget )
-    if (selectedWidget.children && selectedWidget.type !== "LIST_WIDGET") {
+    if (
+      selectedWidget.children &&
+      selectedWidget.type !== "LIST_WIDGET" &&
+      selectedWidget.type !== "LIST_WIDGET_V2"
+    ) {
       parentWidget = widgets[selectedWidget.widgetId];
     }
   }
@@ -460,7 +466,7 @@ export const getParentWidgetIdForPasting = function*(
       // Find the currently selected tab canvas widget
       const { selectedTabWidgetId } = yield select(
         getWidgetMetaProps,
-        parentWidget.widgetId,
+        parentWidget,
       );
       if (selectedTabWidgetId) childWidget = widgets[selectedTabWidgetId];
     }
@@ -705,7 +711,7 @@ export function getMousePositions(
 
   //get DOM of the overall canvas including it's total scroll height
   const stickyCanvasDOM = document.querySelector(
-    `#${getStickyCanvasName(canvasId)}`,
+    `#${getSlidingArenaName(canvasId)}`,
   );
   if (!stickyCanvasDOM) return;
 
@@ -780,7 +786,7 @@ export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
       canvasId: MAIN_CONTAINER_WIDGET_ID,
       containerWidget: canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
       canvasDOM: document.querySelector(
-        `#${getSlidingCanvasName(MAIN_CONTAINER_WIDGET_ID)}`,
+        `#${getSlidingArenaName(MAIN_CONTAINER_WIDGET_ID)}`,
       ),
     };
   }
@@ -795,7 +801,7 @@ export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
 export function getContainerIdForCanvas(canvasId: string) {
   if (canvasId === MAIN_CONTAINER_WIDGET_ID) return canvasId;
 
-  const selector = `#${getSlidingCanvasName(canvasId)}`;
+  const selector = `#${getStickyCanvasName(canvasId)}`;
   const canvasDOM = document.querySelector(selector);
   if (!canvasDOM) return "";
   //check for positionedWidget parent
@@ -821,11 +827,12 @@ export function getCanvasIdForContainer(layoutWidget: WidgetProps) {
         )}`;
   const containerDOM = document.querySelector(selector);
   if (!containerDOM) return {};
+  const dropTargetDOM = containerDOM.querySelector(".t--drop-target");
   const canvasDOM = containerDOM.getElementsByTagName("canvas");
 
   return {
-    canvasId: canvasDOM ? canvasDOM[0]?.id.split("-")[2] : undefined,
-    canvasDOM: canvasDOM[0],
+    canvasId: canvasDOM ? canvasDOM[0].id.split("-")[2] : undefined,
+    canvasDOM: dropTargetDOM,
   };
 }
 
@@ -1513,21 +1520,6 @@ export const getAllWidgetsInTree = (
   return widgetList;
 };
 
-export const getParentBottomRowAfterAddingWidget = (
-  stateParent: FlattenedWidgetProps,
-  newWidget: FlattenedWidgetProps,
-) => {
-  const parentRowSpace =
-    newWidget.parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-  const newBottomRow =
-    (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-    parentRowSpace;
-  const updateBottomRow =
-    stateParent.type === "CANVAS_WIDGET" &&
-    newBottomRow > stateParent.bottomRow;
-  return updateBottomRow ? newBottomRow : stateParent.bottomRow;
-};
-
 /**
  * sometimes, selected widgets contains the grouped widget,
  * in those cases, we will just selected the main container as the
@@ -1647,7 +1639,7 @@ export function getParentColumnSpace(
 
   const containerWidget = canvasWidgets[containerId];
   const canvasDOM = document.querySelector(
-    `#${getSlidingCanvasName(pastingIntoWidgetId)}`,
+    `#${getStickyCanvasName(pastingIntoWidgetId)}`,
   );
 
   if (!canvasDOM || !containerWidget) return;
@@ -1731,54 +1723,6 @@ export function mergeDynamicPropertyPaths(
 }
 
 /**
- * returns the BottomRow for CANVAS_WIDGET
- * @param finalWidgets
- * @param canvasWidgetId
- */
-export function resizeCanvasToLowestWidget(
-  finalWidgets: CanvasWidgetsReduxState,
-  canvasWidgetId: string | undefined,
-  currentBottomRow: number,
-  mainCanvasMinHeight?: number, //defined only if canvasWidgetId is MAIN_CONTAINER_ID
-) {
-  if (!canvasWidgetId) return currentBottomRow;
-
-  if (
-    !finalWidgets[canvasWidgetId] ||
-    finalWidgets[canvasWidgetId].type !== "CANVAS_WIDGET"
-  ) {
-    return currentBottomRow;
-  }
-
-  const defaultLowestBottomRow =
-    mainCanvasMinHeight ||
-    finalWidgets[canvasWidgetId].minHeight ||
-    CANVAS_DEFAULT_MIN_HEIGHT_PX;
-
-  const childIds = finalWidgets[canvasWidgetId].children || [];
-
-  let lowestBottomRow = 0;
-  // find the lowest row
-  childIds.forEach((cId) => {
-    const child = finalWidgets[cId];
-
-    if (!child.detachFromLayout && child.bottomRow > lowestBottomRow) {
-      lowestBottomRow = child.bottomRow;
-    }
-  });
-
-  const canvasOffset =
-    canvasWidgetId === MAIN_CONTAINER_WIDGET_ID
-      ? GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET
-      : GridDefaults.CANVAS_EXTENSION_OFFSET;
-
-  return Math.max(
-    defaultLowestBottomRow,
-    (lowestBottomRow + canvasOffset) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
-}
-
-/**
  * Note: Mutates widgets[0].bottomRow for CANVAS_WIDGET
  * @param widgets
  * @param parentId
@@ -1808,3 +1752,47 @@ export function resizePublishedMainCanvasToLowestWidget(
       GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
 }
+
+export const handleListWidgetV2Pasting = (
+  widget: FlattenedWidgetProps,
+  widgets: CanvasWidgetsReduxState,
+  widgetNameMap: Record<string, string>,
+) => {
+  if (widget?.type !== "LIST_WIDGET_V2") return widgets;
+
+  widgets = updateListWidgetBindings(widgetNameMap, widgets, widget.widgetId);
+
+  return widgets;
+};
+
+// Updating PrimaryKeys, mainCanvasId and mainContainerId for ListWidgetV2
+const updateListWidgetBindings = (
+  widgetNameMap: Record<string, string>,
+  widgets: CanvasWidgetsReduxState,
+  listWidgetId: string,
+) => {
+  let mainCanvasId = "";
+  let mainContainerId = "";
+  const oldWidgetName =
+    Object.keys(widgetNameMap).find(
+      (widgetName) =>
+        widgetNameMap[widgetName] === widgets[listWidgetId].widgetName,
+    ) ?? "";
+  Object.keys(widgets).forEach((widgetId) => {
+    if (widgets[widgetId].parentId === listWidgetId) {
+      mainCanvasId = widgetId;
+      mainContainerId = widgets[widgetId].children?.[0] ?? "";
+    }
+  });
+
+  widgets[listWidgetId].mainCanvasId = mainCanvasId;
+  widgets[listWidgetId].mainContainerId = mainContainerId;
+  const primaryKeys = widgets[listWidgetId].primaryKeys.replaceAll(
+    oldWidgetName,
+    widgets[listWidgetId].widgetName,
+  );
+
+  widgets[listWidgetId].primaryKeys = primaryKeys;
+
+  return widgets;
+};

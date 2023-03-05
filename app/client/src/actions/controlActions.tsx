@@ -79,10 +79,11 @@ export const setWidgetDynamicProperty = (
 
 export const updateMultipleWidgetPropertiesAction = (
   widgetsToUpdate: UpdateWidgetsPayload,
+  shouldEval = false,
 ) => {
   return {
     type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
-    payload: widgetsToUpdate,
+    payload: { widgetsToUpdate, shouldEval },
   };
 };
 
@@ -106,6 +107,7 @@ export interface UpdateWidgetPropertyPayload {
 export interface UpdateCanvasLayoutPayload {
   width: number;
   height: number;
+  scale: number;
 }
 
 export interface SetWidgetDynamicPropertyPayload {

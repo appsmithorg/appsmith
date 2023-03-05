@@ -1,11 +1,26 @@
 import {
   DataTree,
+  DataTreeAppsmith,
   DataTreeJSAction,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { unset, set, get } from "lodash";
-import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { unset, set, get, find } from "lodash";
+import {
+  BatchedJSExecutionData,
+  BatchedJSExecutionErrors,
+  JSCollectionData,
+  JSExecutionData,
+  JSExecutionError,
+} from "reducers/entityReducers/jsActionsReducer";
+import { select } from "redux-saga/effects";
+import { JSAction } from "entities/JSCollection";
+import { getJSCollectionsForCurrentPage } from "selectors/entitiesSelector";
+import {
+  getEntityNameAndPropertyPath,
+  isJSAction,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { APP_MODE } from "entities/App";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -190,6 +205,7 @@ export const updateJSCollectionInUnEvalTree = (
 export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: DataTree,
   entity: DataTreeJSAction,
+  jsEntityName: string,
 ) => {
   const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
   const modifiedDataTree: DataTree = unEvalTree;
@@ -199,10 +215,10 @@ export const removeFunctionsAndVariableJSCollection = (
   });
   //removed variables
   const varList: Array<string> = entity.variables;
-  set(modifiedDataTree, `${entity.name}.variables`, []);
+  set(modifiedDataTree, `${jsEntityName}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
-    unset(modifiedDataTree[entity.name], varName);
+    unset(modifiedDataTree[jsEntityName], varName);
   }
   //remove functions
 
@@ -213,7 +229,7 @@ export const removeFunctionsAndVariableJSCollection = (
     const actionName = functionsList[i];
     delete reactivePaths[actionName];
     delete meta[actionName];
-    unset(modifiedDataTree[entity.name], actionName);
+    unset(modifiedDataTree[jsEntityName], actionName);
 
     oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
       (path: any) => path["key"] !== actionName,
@@ -237,4 +253,98 @@ export function isJSObjectFunction(
     return entity.meta.hasOwnProperty(key);
   }
   return false;
+}
+
+export function getAppMode(dataTree: DataTree) {
+  const appsmithObj = dataTree.appsmith as DataTreeAppsmith;
+  return appsmithObj.mode as APP_MODE;
+}
+
+export function isPromise(value: any): value is Promise<unknown> {
+  return Boolean(value && typeof value.then === "function");
+}
+
+function updateJSExecutionError(
+  errors: BatchedJSExecutionErrors,
+  executionError: JSExecutionError,
+) {
+  const { collectionId } = executionError;
+  if (errors[collectionId]) {
+    errors[collectionId].push(executionError);
+  } else {
+    errors[collectionId] = [executionError];
+  }
+}
+
+function updateJSExecutionData(
+  sortedData: BatchedJSExecutionData,
+  executionData: JSExecutionData,
+) {
+  const { collectionId } = executionData;
+  if (sortedData[collectionId]) {
+    sortedData[collectionId].push(executionData);
+  } else {
+    sortedData[collectionId] = [executionData];
+  }
+}
+
+function getJSActionFromJSCollections(
+  jsCollections: JSCollectionData[],
+  jsfuncFullName: string,
+) {
+  const {
+    entityName: collectionName,
+    propertyPath: functionName,
+  } = getEntityNameAndPropertyPath(jsfuncFullName);
+
+  const jsCollection = find(
+    jsCollections,
+    (collection) => collection.config.name === collectionName,
+  );
+  if (!jsCollection) return;
+
+  const jsAction: JSAction | undefined = find(
+    jsCollection.config.actions,
+    (action) => action.name === functionName,
+  );
+  return jsAction;
+}
+
+export function* sortJSExecutionDataByCollectionId(
+  data: Record<string, unknown>,
+  errors: Record<string, unknown>,
+) {
+  // Sorted data by collectionId
+  const sortedData: BatchedJSExecutionData = {};
+  // Sorted errors by collectionId
+  const sortedErrors: BatchedJSExecutionErrors = {};
+
+  const JSCollectionsForCurrentPage: JSCollectionData[] = yield select(
+    getJSCollectionsForCurrentPage,
+  );
+
+  for (const jsfuncFullName of Object.keys(data)) {
+    const jsAction = getJSActionFromJSCollections(
+      JSCollectionsForCurrentPage,
+      jsfuncFullName,
+    );
+    if (!(jsAction && jsAction.collectionId)) continue;
+    const { collectionId, id: actionId } = jsAction;
+
+    if (errors[jsfuncFullName]) {
+      updateJSExecutionError(sortedErrors, {
+        collectionId,
+        isDirty: true,
+        actionId,
+      });
+    }
+
+    updateJSExecutionData(sortedData, {
+      collectionId,
+      actionId,
+      data: get(data, jsfuncFullName),
+    });
+  }
+
+  return { sortedData, sortedErrors };
 }

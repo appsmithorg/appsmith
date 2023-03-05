@@ -2,7 +2,7 @@ import { setPageOrder } from "actions/pageActions";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import classNames from "classnames";
 import { Colors } from "constants/Colors";
-import { ControlIcons, DraggableList } from "design-system";
+import { ControlIcons, DraggableList } from "design-system-old";
 import { MenuIcons } from "icons/MenuIcons";
 import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";

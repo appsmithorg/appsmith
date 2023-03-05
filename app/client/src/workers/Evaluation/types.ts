@@ -1,14 +1,14 @@
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { UserLogObject } from "entities/AppsmithConsole";
 import { AppTheme } from "entities/AppTheming";
 import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 import { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
-} from "workers/Evaluation/evalWorkerActions";
+} from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
@@ -33,7 +33,9 @@ export interface EvalTreeRequestData {
   };
   requiresLinting: boolean;
   forceEvaluation: boolean;
+  metaWidgets: MetaWidgetsReduxState;
 }
+
 export interface EvalTreeResponseData {
   dataTree: DataTree;
   dependencies: DependencyMap;
@@ -42,7 +44,8 @@ export interface EvalTreeResponseData {
   evaluationOrder: string[];
   jsUpdates: Record<string, JSUpdate>;
   logs: unknown[];
-  userLogs: UserLogObject[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
+  staleMetaIds: string[];
+  pathsToClearErrorsFor: any[];
 }

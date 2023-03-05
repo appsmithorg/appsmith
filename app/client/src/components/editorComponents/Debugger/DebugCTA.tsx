@@ -14,7 +14,7 @@ import {
   Icon,
   IconSize,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";

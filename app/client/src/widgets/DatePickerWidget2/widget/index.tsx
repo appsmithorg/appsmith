@@ -1,21 +1,22 @@
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
-import derivedProperties from "./parseDerivedProperties";
-import { DatePickerType, TimePrecision } from "../constants";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { DateFormatOptions } from "./constants";
+import { LabelPosition } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { DatePickerType, TimePrecision } from "../constants";
+import { DateFormatOptions } from "./constants";
+import derivedProperties from "./parseDerivedProperties";
 
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
@@ -23,7 +24,19 @@ function allowedRange(value: any) {
   return {
     isValid: isValid,
     parsed: isValid ? Number(value) : 0,
-    messages: isValid ? [] : ["Number should be between 0-6."],
+    messages: isValid
+      ? [
+          {
+            name: "",
+            message: "",
+          },
+        ]
+      : [
+          {
+            name: "RangeError",
+            message: "Number should be between 0-6.",
+          },
+        ],
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
@@ -294,6 +307,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -392,7 +406,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",
@@ -504,11 +518,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           )
         }
         dateFormat={this.props.dateFormat}
-        datePickerType={"DATE_PICKER"}
+        datePickerType="DATE_PICKER"
         firstDayOfWeek={this.props.firstDayOfWeek}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}

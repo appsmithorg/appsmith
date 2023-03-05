@@ -36,7 +36,7 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import { Text, FontWeight, TextType } from "design-system";
+import { Text, FontWeight, TextType } from "design-system-old";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 import { AuthType } from "entities/Datasource/RestAPIForm";
@@ -55,6 +55,11 @@ import {
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import {
+  hasCreateDatasourcePermission,
+  hasManageDatasourcePermission,
+} from "@appsmith/utils/permissionHelpers";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -64,6 +69,7 @@ type ReduxStateProps = {
   dataTree: DataTree;
   actionName: string;
   formName: string;
+  userWorkspacePermissions: string[];
 };
 
 type ReduxDispatchProps = {
@@ -443,6 +449,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       codeEditorVisibleOverflow,
       datasource,
       input: { value },
+      userWorkspacePermissions,
     } = this.props;
     const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
     const displayValue = `${datasourceUrl}${value}`;
@@ -451,6 +458,22 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       value: displayValue,
       onChange: this.handleOnChange,
     };
+
+    const shouldSave = datasource && !("id" in datasource);
+
+    const canCreateDatasource = hasCreateDatasourcePermission(
+      userWorkspacePermissions,
+    );
+
+    const datasourcePermissions = datasource?.userPermissions || [];
+
+    const canManageDatasource = hasManageDatasourcePermission(
+      datasourcePermissions,
+    );
+
+    const isEnabled =
+      (shouldSave && canCreateDatasource) ||
+      (!shouldSave && canManageDatasource);
 
     const props: EditorProps = {
       ...this.props,
@@ -508,8 +531,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
             datasourceId={
               datasource && "id" in datasource ? datasource.id : undefined
             }
-            enable
-            shouldSave={datasource && !("id" in datasource)}
+            enable={isEnabled}
+            shouldSave={shouldSave}
           />
         )}
       </DatasourceContainer>
@@ -547,6 +570,8 @@ const mapStateToProps = (
     dataTree: getDataTree(state),
     actionName: ownProps.actionName,
     formName: ownProps.formName,
+    userWorkspacePermissions:
+      getCurrentAppWorkspace(state)?.userPermissions ?? [],
   };
 };
 

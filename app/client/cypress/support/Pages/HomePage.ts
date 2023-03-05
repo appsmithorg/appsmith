@@ -20,22 +20,28 @@ export class HomePage {
     ".t--workspace-section:contains(" +
     workspaceName +
     ") .workspace-share-user-icons";
-  private _shareWorkspace = (workspaceName: string) =>
+  _shareWorkspace = (workspaceName: string) =>
     ".t--workspace-section:contains(" +
     workspaceName +
     ") button:contains('Share')";
   private _email =
-    "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
+    Cypress.env("Edition") === 0
+      ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
+      : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   private _userRole = (role: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role +
     "']";
+  private _profileMenu = ".t--profile-menu";
+  private _signout = ".t--logout-icon";
+  _searchUsersInput = ".search-input";
 
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
   private _homeIcon = ".t--appsmith-logo";
+  private _homeAppsmithImage = "a.t--appsmith-logo";
   private _appContainer = ".t--applications-container";
   private _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
@@ -78,6 +84,16 @@ export class HomePage {
   private _deleteAppConfirm = '[data-cy="t--delete"]';
   private _wsAction = (action: string) =>
     "//span[text()='" + action + "']/ancestor::a";
+  private _homeTab = ".t--apps-tab";
+  private _templatesTab = ".t--templates-tab";
+
+  public SwitchToAppsTab() {
+    this.agHelper.GetNClick(this._homeTab);
+  }
+
+  public SwitchToTemplatesTab() {
+    this.agHelper.GetNClick(this._templatesTab);
+  }
 
   public CreateNewWorkspace(workspaceNewName: string) {
     let oldName = "";
@@ -152,6 +168,26 @@ export class HomePage {
     cy.contains(successMessage);
   }
 
+  public InviteUserToWorkspaceErrorMessage(
+    workspaceName: string,
+    text: string,
+  ) {
+    const errorMessage =
+      Cypress.env("Edition") === 0
+        ? "Invalid email address(es) found"
+        : "Invalid email address(es) or group(s) found";
+    this.StubPostHeaderReq();
+    this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
+    this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
+    cy.xpath(this._email)
+      .click({ force: true })
+      .type(text);
+    this.agHelper.ClickButton("Invite");
+    cy.contains(text, { matchCase: false });
+    cy.contains(errorMessage, { matchCase: false });
+    cy.get(".bp3-dialog-close-button").click({ force: true });
+  }
+
   public StubPostHeaderReq() {
     cy.intercept("POST", "/api/v1/users/invite", (req) => {
       req.headers["origin"] = "Cypress";
@@ -162,9 +198,7 @@ export class HomePage {
     cy.get(this._homeIcon).click({ force: true });
     this.agHelper.Sleep(2000);
     //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
-    this.agHelper
-      .AssertElementVisible(this._homePageAppCreateBtn)
-      .then(($ele) => expect($ele).be.enabled);
+    this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
 
   public CreateNewApplication() {
@@ -208,6 +242,14 @@ export class HomePage {
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
     cy.request("POST", "/api/v1/logout");
+    this.agHelper.Sleep(); //for logout to complete!
+  }
+
+  public Signout(toNavigateToHome = true) {
+    if (toNavigateToHome) this.NavigateToHome();
+    this.agHelper.GetNClick(this._profileMenu);
+    this.agHelper.GetNClick(this._signout);
+    this.agHelper.ValidateNetworkStatus("@postLogout");
     this.agHelper.Sleep(); //for logout to complete!
   }
 
@@ -314,15 +356,18 @@ export class HomePage {
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
     cy.log(workspaceName, email, currentRole);
+    this.agHelper.Sleep(2000);
     cy.xpath(this._userRoleDropDown(currentRole))
       .first()
       .click({ force: true });
-
+    this.agHelper.Sleep();
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
     cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
-      .click({ force: true });
+      .parent("div")
+      .click();
     this.agHelper.Sleep();
+    this.agHelper.AssertElementVisible(this._userRoleDropDown(newRole));
     this.NavigateToHome();
   }
 
@@ -396,7 +441,7 @@ export class HomePage {
   }
 
   //Maps to leaveworkspace in command.js
-  public leaveWorkspace(workspaceName: string) {
+  public LeaveWorkspace(workspaceName: string) {
     cy.get(this._workspaceList(workspaceName))
       .scrollIntoView()
       .should("be.visible");

@@ -504,11 +504,12 @@ export type GitStatusData = {
   remoteBranch: string;
   modifiedJSObjects: number;
   modifiedDatasources: number;
+  modifiedJSLibs: number;
   discardDocUrl?: string;
 };
 
 type GitErrorPayloadType = {
-  code: number;
+  code: number | string;
   errorType?: string;
   message: string;
   referenceDoc?: string;

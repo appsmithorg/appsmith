@@ -8,9 +8,11 @@ import {
   uniqueColumnAliasValidation,
   updateCustomColumnAliasOnLabelChange,
   selectColumnOptionsValidation,
+  allowedFirstDayOfWeekRange,
 } from "./propertyUtils";
 import _ from "lodash";
 import { ColumnTypes, TableWidgetProps } from "../constants";
+import { StickyType } from "../component/Constants";
 
 describe("PropertyUtils - ", () => {
   it("totalRecordsCountValidation - should test with all possible values", () => {
@@ -236,10 +238,22 @@ describe("PropertyUtils - ", () => {
   });
 
   it("updateColumnOrderHook - should test with all possible values", () => {
+    const defaultStickyValuesForPrimaryCols = {
+      column1: {
+        sticky: StickyType.NONE,
+      },
+      column2: {
+        sticky: StickyType.NONE,
+      },
+      column3: {
+        sticky: StickyType.NONE,
+      },
+    };
     expect(
       updateColumnOrderHook(
         ({
-          columnOrder: ["column1", "columns2"],
+          columnOrder: ["column1", "column2"],
+          primaryColumns: defaultStickyValuesForPrimaryCols,
         } as any) as TableWidgetProps,
         "primaryColumns.column3",
         {
@@ -249,7 +263,7 @@ describe("PropertyUtils - ", () => {
     ).toEqual([
       {
         propertyPath: "columnOrder",
-        propertyValue: ["column1", "columns2", "column3"],
+        propertyValue: ["column1", "column2", "column3"],
       },
       {
         propertyPath: "primaryColumns.column3",
@@ -263,7 +277,7 @@ describe("PropertyUtils - ", () => {
     expect(
       updateColumnOrderHook(
         ({
-          columnOrder: ["column1", "columns2"],
+          columnOrder: ["column1", "column2"],
         } as any) as TableWidgetProps,
         "",
         {
@@ -281,7 +295,7 @@ describe("PropertyUtils - ", () => {
     expect(
       updateColumnOrderHook(
         ({
-          columnOrder: ["column1", "columns2"],
+          columnOrder: ["column1", "column2"],
         } as any) as TableWidgetProps,
         "primaryColumns.column3.iconAlignment",
         {
@@ -948,5 +962,39 @@ describe("updateCustomColumnAliasOnLabelChange", () => {
         propertyValue: "customColumn12",
       },
     ]);
+  });
+});
+
+describe("allowedFirstDayOfWeekRange", () => {
+  it("should return valid object value is within 0 to 6", () => {
+    expect(allowedFirstDayOfWeekRange(4)).toEqual({
+      isValid: true,
+      parsed: 4,
+      messages: [],
+    });
+  });
+
+  it("should return valid object value is within 0 to 6", () => {
+    expect(allowedFirstDayOfWeekRange(0)).toEqual({
+      isValid: true,
+      parsed: 0,
+      messages: [],
+    });
+  });
+
+  it("should return invalid object when value is not within 0 to 6", () => {
+    expect(allowedFirstDayOfWeekRange(8)).toEqual({
+      isValid: false,
+      parsed: 0,
+      messages: ["Number should be between 0-6."],
+    });
+  });
+
+  it("should return invalid object when value is not within 0 to 6", () => {
+    expect(allowedFirstDayOfWeekRange(-2)).toEqual({
+      isValid: false,
+      parsed: 0,
+      messages: ["Number should be between 0-6."],
+    });
   });
 });

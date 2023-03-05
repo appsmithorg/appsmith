@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import Entity from "./Entity";
 
 const ECContainer = styled.div`

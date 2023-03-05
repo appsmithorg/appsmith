@@ -15,11 +15,17 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
+import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
+
+export const getWidgetsByName = createSelector(getWidgets, (widgets) => {
+  return _.keyBy(widgets, "widgetName");
+});
 
 export const getWidgetsForEval = createSelector(getWidgets, (widgets) => {
   const widgetForEval: CanvasWidgetsReduxState = {};
@@ -32,11 +38,16 @@ export const getWidgetsForEval = createSelector(getWidgets, (widgets) => {
   return widgetForEval;
 });
 
+export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
+  return state.entities.metaWidgets;
+};
+
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
 export const getWidgetMetaProps = createSelector(
-  [getWidgetsMeta, (_state: AppState, widgetId: string) => widgetId],
-  (metaState, widgetId: string) => metaState[widgetId],
+  [getWidgetsMeta, (_state: AppState, widget: WidgetProps) => widget],
+  (metaState, widget: WidgetProps) =>
+    metaState[widget.metaWidgetId || widget.widgetId],
 );
 
 export const getWidgetByID = (widgetId: string) => {
@@ -174,6 +185,14 @@ export const getPluginIdOfPackageName = (
 export const getDragDetails = (state: AppState) => {
   return state.ui.widgetDragResize.dragDetails;
 };
+export const isCurrentCanvasDragging = createSelector(
+  (state: AppState) => state.ui.widgetDragResize.isDragging,
+  getDragDetails,
+  (state: AppState, canvasId: string) => canvasId,
+  (isDragging: boolean, dragDetails: DragDetails, canvasId: string) => {
+    return dragDetails?.draggedOn === canvasId && isDragging;
+  },
+);
 
 export const getSelectedWidget = (
   state: AppState,

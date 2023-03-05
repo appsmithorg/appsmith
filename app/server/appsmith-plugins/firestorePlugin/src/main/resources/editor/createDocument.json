@@ -6,7 +6,7 @@
   },
   "children": [
     {
-      "label": "Collection/Document Path",
+      "label": "Collection Name",
       "configProperty": "actionConfiguration.formData.path.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
@@ -14,19 +14,20 @@
       "initialValue": ""
     },
     {
-      "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
-      "configProperty": "actionConfiguration.formData.timestampValuePath.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
-      "initialValue": "",
-      "placeholderText": "[\"checkinLog.timestampKey\", \"auditLog.timestampKey\"]"
-    },
-    {
       "label": "Body",
       "configProperty": "actionConfiguration.formData.body.data",
       "controlType": "QUERY_DYNAMIC_TEXT",
-      "initialValue": ""
+      "initialValue": "",
+      "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
+    },
+    {
+      "label": "Timestamp Path",
+      "configProperty": "actionConfiguration.formData.timestampValuePath.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": "",
+      "placeholderText": "[ \"checkinLog.timestampKey\" ]"
     }
   ]
 }

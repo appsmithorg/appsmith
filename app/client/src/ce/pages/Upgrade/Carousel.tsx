@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
-import { Icon, IconSize, Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system-old";
 import { CarouselProps } from "./types";
 
 const CarouselContainer = styled.div`
@@ -26,17 +26,8 @@ const CarouselContainer = styled.div`
       height: 56px;
       cursor: pointer;
 
-      &.active {
-        height: max-content;
-        min-height: 156px;
-        box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
-          0 4px 8px -2px rgba(0, 0, 0, 0.1);
-
-        background-color: var(--ads-color-black-0);
-
-        & .icon-container .cs-icon svg {
-          fill: var(--ads-color-orange-500);
-        }
+      .icon-container .cs-icon svg {
+        fill: var(--ads-color-black-700);
       }
 
       & .trigger {
@@ -55,6 +46,42 @@ const CarouselContainer = styled.div`
              * and thus meet the design expectations.
              */
             margin-top: -2px;
+
+            span {
+              color: var(--ads-color-black-700);
+            }
+          }
+
+          & .trigger-details-container {
+            .cs-text {
+              span {
+                color: var(--ads-color-orange-500);
+                font-weight: 500;
+              }
+            }
+          }
+        }
+      }
+
+      &.active {
+        height: max-content;
+        min-height: 156px;
+        box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
+          0 4px 8px -2px rgba(0, 0, 0, 0.1);
+
+        background-color: var(--ads-color-black-0);
+
+        & .icon-container .cs-icon svg {
+          fill: var(--ads-color-orange-500);
+        }
+
+        & .trigger {
+          & .trigger-content {
+            & .trigger-heading {
+              span {
+                color: var(--ads-text-heading-color);
+              }
+            }
           }
         }
       }
@@ -129,7 +156,10 @@ export function CarouselComponent(props: CarouselProps) {
                             className={"expanded"}
                             key={`trigger-detail-${di}`}
                           >
-                            <Text type={TextType.P1}>{detail}</Text>
+                            <Text
+                              dangerouslySetInnerHTML={{ __html: detail }}
+                              type={TextType.P1}
+                            />
                           </div>
                         );
                       })}

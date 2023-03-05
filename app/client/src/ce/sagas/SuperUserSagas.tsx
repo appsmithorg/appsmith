@@ -1,6 +1,6 @@
 import React from "react";
 import UserApi, { SendTestEmailPayload } from "@appsmith/api/UserApi";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -23,6 +23,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
+import { getCurrentTenant } from "ce/actions/tenantActions";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -88,9 +89,7 @@ export function* SaveAdminSettingsSaga(
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
       });
 
-      yield put({
-        type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG,
-      });
+      yield put(getCurrentTenant());
 
       yield put({
         type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,

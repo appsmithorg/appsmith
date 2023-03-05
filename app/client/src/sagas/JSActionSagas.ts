@@ -32,7 +32,7 @@ import {
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   JS_ACTION_COPY_SUCCESS,

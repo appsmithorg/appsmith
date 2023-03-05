@@ -5,6 +5,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CustomJSLibService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j

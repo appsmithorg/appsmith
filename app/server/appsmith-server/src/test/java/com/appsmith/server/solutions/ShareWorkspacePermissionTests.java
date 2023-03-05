@@ -7,7 +7,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -20,6 +19,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
@@ -36,7 +36,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -98,6 +97,9 @@ public class ShareWorkspacePermissionTests {
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
+    @Autowired
+    SessionUserService sessionUserService;
+
     Application savedApplication;
 
     Workspace savedWorkspace;
@@ -105,7 +107,6 @@ public class ShareWorkspacePermissionTests {
     String workspaceId;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
 
@@ -119,9 +120,6 @@ public class ShareWorkspacePermissionTests {
         application.setWorkspaceId(workspaceId);
         savedApplication = applicationPageService.createApplication(application, workspaceId).block();
 
-        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-        ArrayList<String> emails = new ArrayList<>();
-
         PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
@@ -134,28 +132,17 @@ public class ShareWorkspacePermissionTests {
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
                 .findFirst().get();
 
-        // Invite Admin
-        emails.add("admin@solutiontest.com");
-        inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
-        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
-
-        emails.clear();
-
-        // Invite Developer
-        emails.add("developer@solutiontest.com");
-        inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setPermissionGroupId(developerPermissionGroup.getId());
-        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         User userAdmin = userService.findByEmail("admin@solutiontest.com").block();
         User userDeveloper = userService.findByEmail("developer@solutiontest.com").block();
 
-        // Set the correct ownerships and permissions
+        // Manually set the admin and developer access for the workspace (instead of going via the service functions)
         adminPermissionGroup.setAssignedToUserIds(Set.of(apiUser.getId(), userAdmin.getId()));
         permissionGroupRepository.save(adminPermissionGroup).block();
         developerPermissionGroup.setAssignedToUserIds(Set.of(userDeveloper.getId()));
         permissionGroupRepository.save(developerPermissionGroup).block();
+
+        permissionGroupService.cleanPermissionGroupCacheForUsers(List.of(userAdmin.getEmail(), userDeveloper.getEmail())).block();
     }
 
     @Test

@@ -1,9 +1,11 @@
-import IconSVG from "./icon.svg";
-import { Colors } from "constants/Colors";
-import Widget, { JSONFormWidgetProps } from "./widget";
 import { ButtonVariantTypes } from "components/constants";
-import { BlueprintOperationTypes } from "widgets/constants";
+import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { BlueprintOperationTypes } from "widgets/constants";
+import IconSVG from "./icon.svg";
+import Widget, { JSONFormWidgetProps } from "./widget";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -17,7 +19,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: {
       sectionIndex: 1,
-      defaultValue: DynamicHeight.FIXED,
+      defaultValue: DynamicHeight.AUTO_HEIGHT,
       active: true,
     },
   },
@@ -26,12 +28,15 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
+    useSourceData: false,
     animateLoading: true,
     backgroundColor: "#fff",
     columns: 25,
     disabledWhenInvalid: true,
     fixedFooter: true,
-    rows: 50,
+    rows: 41,
     schema: {},
     scrollContents: true,
     showReset: true,

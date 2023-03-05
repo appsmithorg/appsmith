@@ -2,7 +2,7 @@ import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
-import { AppIconName } from "design-system";
+import { AppIconName } from "design-system-old";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { APP_MODE } from "entities/App";
 import { ApplicationVersion } from "actions/applicationActions";
@@ -111,6 +111,7 @@ export type UpdateApplicationPayload = {
   currentApp?: boolean;
   appLayout?: AppLayoutConfig;
   applicationVersion?: number;
+  embedSetting?: AppEmbedSetting;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
@@ -151,11 +152,16 @@ export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
   data: {
     workspaceApplications: Array<WorkspaceApplicationObject>;
     user: string;
+    newReleasesCount?: string;
+    releaseItems?: Array<Record<string, any>>;
+  };
+}
+export interface FetchReleaseItemsResponse extends ApiResponse {
+  data: {
     newReleasesCount: string;
     releaseItems: Array<Record<string, any>>;
   };
 }
-
 export interface FetchUnconfiguredDatasourceListResponse extends ApiResponse {
   data: Array<Datasource>;
 }
@@ -165,6 +171,12 @@ export interface ImportApplicationRequest {
   applicationFile?: File;
   progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
+}
+
+export interface AppEmbedSetting {
+  height?: string;
+  width?: string;
+  showNavigationBar?: boolean;
 }
 
 export interface UpdateApplicationResponse {
@@ -187,6 +199,7 @@ export interface UpdateApplicationResponse {
   appLayout: AppLayoutConfig;
   new: boolean;
   modifiedAt: Date;
+  embedSetting: AppEmbedSetting;
 }
 
 export interface PageDefaultMeta {
@@ -222,6 +235,10 @@ class ApplicationApi extends Api {
 
   static getAllApplication(): AxiosPromise<GetAllApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + "/new");
+  }
+
+  static getReleaseItems(): AxiosPromise<FetchReleaseItemsResponse> {
+    return Api.get(ApplicationApi.baseURL + "/releaseItems");
   }
 
   static fetchApplication(

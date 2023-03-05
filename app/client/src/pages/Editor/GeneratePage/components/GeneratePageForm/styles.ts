@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 
 export const SelectWrapper = styled.div<{ width: string }>`
   display: inline-block;

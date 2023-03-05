@@ -1,4 +1,4 @@
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import React from "react";
 import { getSettings } from "selectors/settingsSelectors";
 import { useSelector } from "react-redux";

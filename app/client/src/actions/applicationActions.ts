@@ -1,17 +1,33 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ApplicationResponsePayload } from "api/ApplicationApi";
+import {
+  AppEmbedSetting,
+  ApplicationResponsePayload,
+} from "api/ApplicationApi";
 import {
   UpdateApplicationPayload,
   ImportApplicationRequest,
   FetchApplicationPayload,
 } from "api/ApplicationApi";
-import { AppIconName } from "design-system";
+import { AppIconName } from "design-system-old";
 import { Datasource } from "entities/Datasource";
 
 export enum ApplicationVersion {
   DEFAULT = 1,
   SLUG_URL = 2,
 }
+
+export const changeAppViewAccessInit = (
+  applicationId: string,
+  publicAccess: boolean,
+) => {
+  return {
+    type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,
+    payload: {
+      applicationId,
+      publicAccess,
+    },
+  };
+};
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -65,6 +81,15 @@ export const updateCurrentApplicationIcon = (icon: AppIconName) => {
   return {
     type: ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE,
     payload: icon,
+  };
+};
+
+export const updateCurrentApplicationEmbedSetting = (
+  embedSetting: AppEmbedSetting,
+) => {
+  return {
+    type: ReduxActionTypes.CURRENT_APPLICATION_EMBED_SETTING_UPDATE,
+    payload: embedSetting,
   };
 };
 

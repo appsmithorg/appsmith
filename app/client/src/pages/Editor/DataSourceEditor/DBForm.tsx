@@ -5,7 +5,7 @@ import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-import { Callout, Category, Variant } from "design-system";
+import { Callout, Category, Variant } from "design-system-old";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 import { Datasource } from "entities/Datasource";

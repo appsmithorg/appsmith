@@ -23,7 +23,7 @@ import {
   TextType,
   TextInput,
   TooltipComponent as Tooltip,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import { debounce } from "lodash";
 import {

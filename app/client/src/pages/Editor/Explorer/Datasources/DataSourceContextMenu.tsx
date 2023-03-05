@@ -21,7 +21,7 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { TreeDropdownOption } from "design-system";
+import { TreeDropdownOption } from "design-system-old";
 import { getDatasource } from "selectors/entitiesSelector";
 
 export function DataSourceContextMenu(props: {

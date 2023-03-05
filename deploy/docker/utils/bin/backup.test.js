@@ -83,7 +83,7 @@ it('Checks for the current Appsmith Version.', async () => {
   `Object.defineProperty(exports, "__esModule", { value: true });
   exports.VERSION = void 0;
   exports.VERSION = "v0.0.0-SNAPSHOT";`);
-  const res = await backup.getCurrentVersion()
+  const res = await utils.getCurrentAppsmithVersion()
   expect(res).toBe("v0.0.0-SNAPSHOT")
   console.log(res)
 })

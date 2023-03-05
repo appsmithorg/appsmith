@@ -1,5 +1,5 @@
 import { createModalAction } from "actions/widgetActions";
-import { TreeDropdownOption } from "design-system";
+import { TreeDropdownOption } from "design-system-old";
 import TreeStructure from "components/utils/TreeStructure";
 import { PluginType } from "entities/Action";
 import { isString, keyBy } from "lodash";
@@ -539,7 +539,7 @@ function getIntegrationOptionsWithChildren(
           id: jsAction.config.id,
           value: jsAction.config.name,
           type: jsOption.value,
-          icon: JsFileIconV2,
+          icon: JsFileIconV2(),
         } as unknown) as TreeDropdownOption;
         ((jsOption.children as unknown) as TreeDropdownOption[]).push(jsObject);
         if (jsObject) {

@@ -46,7 +46,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -808,6 +808,10 @@ public class ActionCollectionServiceImplTest {
                 .when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))
                 .thenReturn(layout);
 
+        Mockito
+                .when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+                .thenReturn(Mono.just(oldActionCollection));
+
         final Mono<LayoutDTO> layoutDTOMono = layoutCollectionService.refactorCollectionName(refactorActionCollectionNameDTO, null);
 
         StepVerifier
@@ -871,6 +875,10 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(reactiveMongoTemplate.updateFirst(Mockito.any(), Mockito.any(), Mockito.any(Class.class)))
                 .thenReturn(Mono.just(UpdateResult.acknowledged(1, 1L, new BsonObjectId())));
+
+        Mockito
+                .when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+                .thenReturn(Mono.just(oldActionCollection));
 
         LayoutDTO layout = new LayoutDTO();
         final JSONObject jsonObject = new JSONObject();
@@ -976,6 +984,10 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(layoutActionService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
+
+        Mockito
+                .when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+                .thenReturn(Mono.just(actionCollection));
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.moveCollection(actionCollectionMoveDTO);
 

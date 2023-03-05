@@ -99,7 +99,9 @@ const ToolTipIcon = styled(IconWrapper)`
   }
 `;
 
-const StyledTooltip = styled(Tooltip)`
+const StyledTooltip = styled(Tooltip)<{
+  children?: React.ReactNode;
+}>`
   margin-right: ${DEFAULT_GAP}px;
 `;
 

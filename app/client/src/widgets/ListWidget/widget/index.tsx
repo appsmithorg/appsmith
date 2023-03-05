@@ -1,48 +1,49 @@
-import React from "react";
-import log from "loglevel";
+import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
+import { Positioning } from "utils/autoLayout/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  GridDefaults,
+  RenderModes,
+  WidgetType,
+} from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import { PrivateWidgets } from "entities/DataTree/types";
+import equal from "fast-deep-equal/es6";
+import { klona } from "klona/lite";
 import {
   compact,
   get,
-  set,
-  xor,
-  isNumber,
-  range,
-  toString,
   isBoolean,
-  omit,
   isEmpty,
+  isNumber,
+  omit,
+  range,
+  set,
+  toString,
+  xor,
 } from "lodash";
+import log from "loglevel";
 import memoizeOne from "memoize-one";
+import React from "react";
 import shallowEqual from "shallowequal";
-import WidgetFactory from "utils/WidgetFactory";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { removeFalsyEntries } from "utils/helpers";
+import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import {
-  RenderModes,
-  WidgetType,
-  GridDefaults,
-} from "constants/WidgetConstants";
+import { DSLWidget } from "widgets/constants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
+import ListPagination, {
+  ServerSideListPagination,
+} from "../component/ListPagination";
+import derivedProperties from "./parseDerivedProperties";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import ListPagination, {
-  ServerSideListPagination,
-} from "../component/ListPagination";
-import { ValidationTypes } from "constants/WidgetValidation";
-import derivedProperties from "./parseDerivedProperties";
-import { DSLWidget } from "widgets/constants";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import { PrivateWidgets } from "entities/DataTree/types";
-import equal from "fast-deep-equal/es6";
-import { klona } from "klona/lite";
-import { Stylesheet } from "entities/AppTheming";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -370,6 +371,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.bottomRow = shouldPaginate
       ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
       : componentHeight;
+    const positioning: Positioning =
+      this.props.positioning || childWidgetData.positioning;
+    childWidgetData.positioning = positioning;
+    childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };

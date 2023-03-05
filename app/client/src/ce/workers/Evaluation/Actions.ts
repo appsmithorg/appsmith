@@ -1,16 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvalContext } from "workers/Evaluation/evaluate";
+import { EvaluationVersion } from "api/ApplicationApi";
+import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
+import { set } from "lodash";
 import {
-  ActionDescription,
-  ActionTriggerType,
-} from "@appsmith/entities/DataTree/actionTriggers";
-import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
-import { promisifyAction } from "workers/Evaluation/PromisifyAction";
-import { klona } from "klona/full";
-import uniqueId from "lodash/uniqueId";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
+  entityFns,
+  getPlatformFunctions,
+} from "@appsmith/workers/Evaluation/fns";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -18,367 +15,75 @@ declare global {
    * */
 
   interface Window {
-    ALLOW_ASYNC?: boolean;
-    IS_ASYNC?: boolean;
-    TRIGGER_COLLECTOR: ActionDescription[];
+    $isDataField: boolean;
+    $isAsync: boolean;
+    $evaluationVersion: EvaluationVersion;
+    $cloudHosting: boolean;
   }
 }
 
-enum ExecutionType {
+export enum ExecutionType {
   PROMISE = "PROMISE",
   TRIGGER = "TRIGGER",
 }
 
-type ActionDescriptionWithExecutionType = ActionDescription & {
-  executionType: ExecutionType;
-};
-
-type ActionDispatcherWithExecutionType = (
-  ...args: any[]
-) => ActionDescriptionWithExecutionType;
-
-export const DATA_TREE_FUNCTIONS: Record<
-  string,
-  | ActionDispatcherWithExecutionType
-  | {
-      qualifier: (entity: DataTreeEntity) => boolean;
-      func: (entity: DataTreeEntity) => ActionDispatcherWithExecutionType;
-      path?: string;
-    }
-> = {
-  navigateTo: function(
-    pageNameOrUrl: string,
-    params: Record<string, string>,
-    target?: NavigationTargetType,
-  ) {
-    return {
-      type: ActionTriggerType.NAVIGATE_TO,
-      payload: { pageNameOrUrl, params, target },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  showAlert: function(
-    message: string,
-    style: "info" | "success" | "warning" | "error" | "default",
-  ) {
-    return {
-      type: ActionTriggerType.SHOW_ALERT,
-      payload: { message, style },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  showModal: function(modalName: string) {
-    return {
-      type: ActionTriggerType.SHOW_MODAL_BY_NAME,
-      payload: { modalName },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  closeModal: function(modalName: string) {
-    return {
-      type: ActionTriggerType.CLOSE_MODAL,
-      payload: { modalName },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  storeValue: function(key: string, value: string, persist = true) {
-    // momentarily store this value in local state to support loops
-    _.set(self, ["appsmith", "store", key], value);
-    return {
-      type: ActionTriggerType.STORE_VALUE,
-      payload: {
-        key,
-        value,
-        persist,
-        uniqueActionRequestId: uniqueId("store_value_id_"),
-      },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  removeValue: function(key: string) {
-    return {
-      type: ActionTriggerType.REMOVE_VALUE,
-      payload: { key },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  clearStore: function() {
-    return {
-      type: ActionTriggerType.CLEAR_STORE,
-      executionType: ExecutionType.PROMISE,
-      payload: null,
-    };
-  },
-  download: function(data: string, name: string, type: string) {
-    return {
-      type: ActionTriggerType.DOWNLOAD,
-      payload: { data, name, type },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  copyToClipboard: function(
-    data: string,
-    options?: { debug?: boolean; format?: string },
-  ) {
-    return {
-      type: ActionTriggerType.COPY_TO_CLIPBOARD,
-      payload: {
-        data,
-        options: { debug: options?.debug, format: options?.format },
-      },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  resetWidget: function(widgetName: string, resetChildren = true) {
-    return {
-      type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
-      payload: { widgetName, resetChildren },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  run: {
-    qualifier: (entity) => isAction(entity),
-    func: (entity) =>
-      function(
-        onSuccessOrParams?: () => unknown | Record<string, unknown>,
-        onError?: () => unknown,
-        params = {},
-      ): ActionDescriptionWithExecutionType {
-        const noArguments =
-          !onSuccessOrParams && !onError && isTrueObject(params);
-        const isNewSignature = noArguments || isTrueObject(onSuccessOrParams);
-
-        const actionParams = isTrueObject(onSuccessOrParams)
-          ? onSuccessOrParams
-          : params;
-
-        if (isNewSignature) {
-          return {
-            type: ActionTriggerType.RUN_PLUGIN_ACTION,
-            payload: {
-              actionId: isAction(entity) ? entity.actionId : "",
-              params: actionParams,
-            },
-            executionType: ExecutionType.PROMISE,
-          };
-        }
-        // Backwards compatibility
-        return {
-          type: ActionTriggerType.RUN_PLUGIN_ACTION,
-          payload: {
-            actionId: isAction(entity) ? entity.actionId : "",
-            onSuccess: onSuccessOrParams
-              ? onSuccessOrParams.toString()
-              : undefined,
-            onError: onError ? onError.toString() : undefined,
-            params: actionParams,
-          },
-          executionType: ExecutionType.TRIGGER,
-        };
-      },
-  },
-  clear: {
-    qualifier: (entity) => isAction(entity),
-    func: (entity) =>
-      function() {
-        return {
-          type: ActionTriggerType.CLEAR_PLUGIN_ACTION,
-          payload: {
-            actionId: isAction(entity) ? entity.actionId : "",
-          },
-          executionType: ExecutionType.PROMISE,
-        };
-      },
-  },
-  setInterval: function(callback: Function, interval: number, id?: string) {
-    return {
-      type: ActionTriggerType.SET_INTERVAL,
-      payload: {
-        callback: callback.toString(),
-        interval,
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-  clearInterval: function(id: string) {
-    return {
-      type: ActionTriggerType.CLEAR_INTERVAL,
-      payload: {
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-  getGeoLocation: {
-    qualifier: (entity) => isAppsmithEntity(entity),
-    path: "appsmith.geolocation.getCurrentPosition",
-    func: () =>
-      function(
-        successCallback?: () => unknown,
-        errorCallback?: () => unknown,
-        options?: {
-          maximumAge?: number;
-          timeout?: number;
-          enableHighAccuracy?: boolean;
-        },
-      ) {
-        return {
-          type: ActionTriggerType.GET_CURRENT_LOCATION,
-          payload: {
-            options,
-            onError: errorCallback
-              ? `{{${errorCallback.toString()}}}`
-              : undefined,
-            onSuccess: successCallback
-              ? `{{${successCallback.toString()}}}`
-              : undefined,
-          },
-          executionType:
-            errorCallback || successCallback
-              ? ExecutionType.TRIGGER
-              : ExecutionType.PROMISE,
-        };
-      },
-  },
-  watchGeoLocation: {
-    qualifier: (entity) => isAppsmithEntity(entity),
-    path: "appsmith.geolocation.watchPosition",
-    func: () =>
-      function(
-        onSuccessCallback?: Function,
-        onErrorCallback?: Function,
-        options?: {
-          maximumAge?: number;
-          timeout?: number;
-          enableHighAccuracy?: boolean;
-        },
-      ) {
-        return {
-          type: ActionTriggerType.WATCH_CURRENT_LOCATION,
-          payload: {
-            options,
-            onSuccess: onSuccessCallback
-              ? `{{${onSuccessCallback.toString()}}}`
-              : undefined,
-            onError: onErrorCallback
-              ? `{{${onErrorCallback.toString()}}}`
-              : undefined,
-          },
-          executionType: ExecutionType.TRIGGER,
-        };
-      },
-  },
-  stopWatchGeoLocation: {
-    qualifier: (entity) => isAppsmithEntity(entity),
-    path: "appsmith.geolocation.clearWatch",
-    func: () =>
-      function() {
-        return {
-          type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION,
-          payload: {},
-          executionType: ExecutionType.PROMISE,
-        };
-      },
-  },
-  postWindowMessage: function(
-    message: unknown,
-    source: string,
-    targetOrigin: string,
-  ) {
-    return {
-      type: ActionTriggerType.POST_MESSAGE,
-      payload: {
-        message,
-        source,
-        targetOrigin,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-};
-
-export const enhanceDataTreeWithFunctions = (
-  dataTree: Readonly<DataTree>,
-  // Whether not to add functions like "run", "clear" to entity
-  skipEntityFunctions = false,
-  eventType?: EventType,
-): DataTree => {
-  const clonedDT = klona(dataTree);
-  self.TRIGGER_COLLECTOR = [];
-  Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
-    if (
-      typeof funcOrFuncCreator === "object" &&
-      "qualifier" in funcOrFuncCreator
-    ) {
-      !skipEntityFunctions &&
-        Object.entries(dataTree).forEach(([entityName, entity]) => {
-          if (funcOrFuncCreator.qualifier(entity)) {
-            const func = funcOrFuncCreator.func(entity);
-            const funcName = `${funcOrFuncCreator.path ||
-              `${entityName}.${name}`}`;
-            _.set(
-              clonedDT,
-              funcName,
-              pusher.bind(
-                {
-                  TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-                  EVENT_TYPE: eventType,
-                },
-                func,
-              ),
-            );
-          }
-        });
-    } else {
-      _.set(
-        clonedDT,
-        name,
-        pusher.bind(
-          {
-            TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-          },
-          funcOrFuncCreator,
-        ),
-      );
-    }
-  });
-
-  return clonedDT;
-};
-
 /**
- * The Pusher function is created to decide the proper execution method
- * and payload of a platform action. It is bound to the platform functions and
- * get a requestId and TriggerCollector array in its "this" context.
- * Depending on the executionType of an action, it will add the action trigger description
- * in the correct place.
- *
- * For old trigger based functions, it will add it to the trigger collector to be executed in parallel
- * like the old way of action execution and end the evaluation.
- *
- * For new promise based functions, it will promisify the action so that it can wait for an execution
- * before resolving and moving on with the promise workflow
- *
- * **/
-export const pusher = function(
-  this: {
-    TRIGGER_COLLECTOR: ActionDescription[];
-    EVENT_TYPE?: EventType;
-  },
-  action: ActionDispatcherWithExecutionType,
-  ...args: any[]
-) {
-  const actionDescription = action(...args);
-  const { executionType, payload, type } = actionDescription;
-  const actionPayload = {
-    type,
-    payload,
-  } as ActionDescription;
+ * This method returns new dataTree with entity function and platform function
+ */
+export const addDataTreeToContext = (args: {
+  EVAL_CONTEXT: EvalContext;
+  dataTree: Readonly<DataTree>;
+  skipEntityFunctions?: boolean;
+  isTriggerBased: boolean;
+}) => {
+  const {
+    dataTree,
+    EVAL_CONTEXT,
+    isTriggerBased,
+    skipEntityFunctions = false,
+  } = args;
+  const dataTreeEntries = Object.entries(dataTree);
+  const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
-  if (executionType && executionType === ExecutionType.TRIGGER) {
-    this.TRIGGER_COLLECTOR.push(actionPayload);
-  } else {
-    return promisifyAction(actionPayload, this.EVENT_TYPE);
+  for (const [entityName, entity] of dataTreeEntries) {
+    EVAL_CONTEXT[entityName] = entity;
+    if (skipEntityFunctions || !isTriggerBased) continue;
+    for (const entityFn of entityFns) {
+      if (!entityFn.qualifier(entity)) continue;
+      const func = entityFn.fn(entity);
+      const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
+      set(entityFunctionCollection, fullPath, func);
+    }
   }
+
+  // if eval is not trigger based i.e., sync eval then we skip adding entity and platform function to evalContext
+  if (!isTriggerBased) return;
+
+  for (const [entityName, funcObj] of Object.entries(
+    entityFunctionCollection,
+  )) {
+    EVAL_CONTEXT[entityName] = Object.assign({}, dataTree[entityName], funcObj);
+  }
+};
+
+export const addPlatformFunctionsToEvalContext = (context: any) => {
+  for (const fnDef of getPlatformFunctions(self.$cloudHosting)) {
+    addFn(context, fnDef.name, fnDef.fn.bind(context));
+  }
+};
+
+export const getAllAsyncFunctions = (dataTree: DataTree) => {
+  const asyncFunctionNameMap: Record<string, true> = {};
+  const dataTreeEntries = Object.entries(dataTree);
+  for (const [entityName, entity] of dataTreeEntries) {
+    for (const entityFn of entityFns) {
+      if (!entityFn.qualifier(entity)) continue;
+      const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
+      asyncFunctionNameMap[fullPath] = true;
+    }
+  }
+  for (const platformFn of getPlatformFunctions(self.$cloudHosting)) {
+    asyncFunctionNameMap[platformFn.name] = true;
+  }
+  return asyncFunctionNameMap;
 };
