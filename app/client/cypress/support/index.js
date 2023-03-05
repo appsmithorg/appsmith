@@ -43,7 +43,7 @@ Cypress.on("fail", (error) => {
 });
 
 Cypress.env("MESSAGES", MESSAGES);
-/*
+
 before(function() {
   //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
@@ -132,4 +132,4 @@ after(function() {
   // cy.log("Start the appsmith container");
   // cy.StartContainer(tedUrl, "appsmith"); // start the old container
 });
-*/
+
