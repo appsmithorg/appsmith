@@ -134,7 +134,7 @@ export const useDynamicAppLayout = () => {
 
     const ele: any = document.getElementById("canvas-viewport");
     if (
-      appMode === "EDIT" &&
+      appMode === APP_MODE.EDIT &&
       appLayout?.type === "FLUID" &&
       ele &&
       calculatedWidth > ele.clientWidth

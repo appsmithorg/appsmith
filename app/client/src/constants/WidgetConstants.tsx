@@ -190,4 +190,8 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   bottomRowBeforeCollapse: false,
 };
 
+/**
+ * This is the padding that is applied to the flexbox container.
+ * It is also used to calculate widget positions and highlight placements.
+ */
 export const FLEXBOX_PADDING = 4;
