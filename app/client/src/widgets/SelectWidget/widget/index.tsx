@@ -1,18 +1,14 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import SelectComponent from "../component";
-import { DropdownOption } from "../constants";
+import { WidgetType } from "constants/WidgetConstants";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { LabelPosition } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import equal from "fast-deep-equal/es6";
 import {
   findIndex,
   isArray,
@@ -21,10 +17,15 @@ import {
   isString,
   LoDashStatic,
 } from "lodash";
+import React from "react";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import equal from "fast-deep-equal/es6";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import SelectComponent from "../component";
+import { DropdownOption } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import { Stylesheet } from "entities/AppTheming";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -380,6 +381,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

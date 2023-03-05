@@ -230,8 +230,7 @@ export const quickScrollToWidget = (
   canvasWidgets: CanvasWidgetsReduxState,
 ) => {
   if (!widgetId || widgetId === "") return;
-
-  setTimeout(() => {
+  window.requestIdleCallback(() => {
     const el = document.getElementById(widgetId);
     const canvas = document.getElementById("canvas-viewport");
 
@@ -245,7 +244,7 @@ export const quickScrollToWidget = (
         });
       }
     }
-  }, 200);
+  });
 };
 
 // Checks if the element in a container is visible or not.
@@ -276,7 +275,9 @@ function getWidgetElementToScroll(
   const parentId = widget.parentId || "";
   const containerId = getContainerIdForCanvas(parentId);
   if (containerId === MAIN_CONTAINER_WIDGET_ID) {
-    return document.getElementById(widgetId);
+    if (widget.type !== "MODAL_WIDGET") {
+      return document.getElementById(widgetId);
+    }
   }
   const containerWidget = canvasWidgets[containerId] as ContainerWidgetProps<
     WidgetProps
