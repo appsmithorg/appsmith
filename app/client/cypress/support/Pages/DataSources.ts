@@ -63,6 +63,7 @@ export class DataSources {
   _generatePageBtn = "[data-cy=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
+  _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
   _contextMenuDatasource = "span[name='comment-context-menu']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
@@ -480,8 +481,12 @@ export class DataSources {
   }
 
   public NavigateToActiveTab() {
-    this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab, 0, true);
+   this.agHelper.GetElement(this.locator._body).then(($body) => {
+      if ($body.find(this._selectedActiveTab).length == 0) {
+        this.NavigateToDSCreateNew();
+        this.agHelper.GetNClick(this._activeTab, 0, true);
+      }
+    });
   }
 
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
@@ -692,7 +697,12 @@ export class DataSources {
     });
   }
 
-  public CreateQueryFromOverlay(dsName: string, query = "", queryName = "", sleep = 500) {
+  public CreateQueryFromOverlay(
+    dsName: string,
+    query = "",
+    queryName = "",
+    sleep = 500,
+  ) {
     this.ee.CreateNewDsQuery(dsName);
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
