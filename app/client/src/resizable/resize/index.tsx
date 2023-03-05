@@ -95,7 +95,6 @@ type ResizableProps = {
   resizeDualSides?: boolean;
   widgetId: string;
   showLightBorder?: boolean;
-  widgetId: string;
   zWidgetType?: string;
 };
 
