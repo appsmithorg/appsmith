@@ -169,12 +169,12 @@ describe("Git import flow ", function() {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
 
-    _.ee.ClonePage();
+    _.entityExplorer.ClonePage();
 
     // verify jsObject is not duplicated
     _.agHelper.Sleep(2000); //for cloning of table data to finish
-    _.ee.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
-    _.ee.SelectEntityByName("Page1 Copy");
+    _.entityExplorer.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
+    _.entityExplorer.SelectEntityByName("Page1 Copy");
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -236,7 +236,7 @@ describe("Git import flow ", function() {
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
     //_.canvasHelper.OpenWidgetPane();
-    _.ee.NavigateToSwitcher("widgets");
+    _.entityExplorer.NavigateToSwitcher("widgets");
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);
