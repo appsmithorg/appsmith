@@ -30,6 +30,7 @@ import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
 import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
@@ -51,6 +52,8 @@ export type WidgetDraggingBlock = {
 };
 
 export const useBlocksToBeDraggedOnCanvas = ({
+  alignItems,
+  direction,
   noPad,
   snapColumnSpace,
   snapRows,
@@ -228,6 +231,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           dropPayload,
           movedWidgets: selectedWidgets,
           parentId: widgetId,
+          direction,
         },
       });
   };
@@ -247,6 +251,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
           width: each.width,
           height: each.height,
         },
+        direction === LayoutDirection.Vertical &&
+          alignItems === AlignItems.Stretch,
       );
       return {
         ...each,
@@ -272,6 +278,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         parentId: newWidget.detachFromLayout
           ? MAIN_CONTAINER_WIDGET_ID
           : widgetId,
+        direction,
       },
     });
   };

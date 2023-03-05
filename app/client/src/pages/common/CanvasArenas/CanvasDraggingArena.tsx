@@ -1,6 +1,7 @@
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
+import { LayoutDirection } from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
 import { StickyCanvasArena } from "./StickyCanvasArena";
@@ -16,6 +17,7 @@ export interface CanvasDraggingArenaProps {
   alignItems?: string;
   canExtend: boolean;
   detachFromLayout?: boolean;
+  direction?: LayoutDirection;
   dropDisabled?: boolean;
   noPad?: boolean;
   snapColumnSpace: number;
@@ -30,6 +32,7 @@ export interface CanvasDraggingArenaProps {
 export function CanvasDraggingArena({
   alignItems,
   canExtend,
+  direction,
   dropDisabled = false,
   noPad,
   parentId = "",
@@ -49,6 +52,7 @@ export function CanvasDraggingArena({
   const { showCanvas } = useCanvasDragging(slidingArenaRef, stickyCanvasRef, {
     alignItems,
     canExtend,
+    direction,
     dropDisabled,
     noPad,
     parentId,

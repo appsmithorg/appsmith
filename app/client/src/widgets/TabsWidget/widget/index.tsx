@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Positioning } from "utils/autoLayout/constants";
+import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import {
@@ -377,6 +377,10 @@ class TabsWidget extends BaseWidget<
         : Positioning.Fixed;
     childWidgetData.positioning = positioning;
     childWidgetData.useAutoLayout = positioning !== Positioning.Fixed;
+    childWidgetData.direction =
+      positioning === Positioning.Vertical
+        ? LayoutDirection.Vertical
+        : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
 

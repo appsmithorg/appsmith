@@ -4,7 +4,10 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import { FlexLayerAlignment } from "utils/autoLayout/constants";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+} from "utils/autoLayout/constants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -29,11 +32,12 @@ function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
     newWidget: WidgetAddChild;
     parentId: string;
+    direction: LayoutDirection;
     dropPayload: HighlightInfo;
   }>,
 ) {
   const start = performance.now();
-  const { dropPayload, newWidget, parentId } = actionPayload.payload;
+  const { direction, dropPayload, newWidget, parentId } = actionPayload.payload;
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
   const isMobile: boolean = yield select(getIsMobile);
   try {
@@ -54,6 +58,7 @@ function* addWidgetAndReorderSaga(
         parentId,
         allWidgets: updatedWidgetsOnAddition,
         alignment,
+        direction,
         layerIndex,
         rowIndex,
         isMobile,
@@ -81,12 +86,18 @@ function* autoLayoutReorderSaga(
   actionPayload: ReduxAction<{
     movedWidgets: string[];
     parentId: string;
+    direction: LayoutDirection;
     dropPayload: HighlightInfo;
   }>,
 ) {
   const start = performance.now();
 
-  const { dropPayload, movedWidgets, parentId } = actionPayload.payload;
+  const {
+    direction,
+    dropPayload,
+    movedWidgets,
+    parentId,
+  } = actionPayload.payload;
 
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
 
@@ -103,6 +114,7 @@ function* autoLayoutReorderSaga(
         parentId,
         allWidgets,
         alignment,
+        direction,
         layerIndex,
         rowIndex,
         isMobile,
@@ -133,6 +145,7 @@ function* reorderAutolayoutChildren(params: {
   parentId: string;
   allWidgets: CanvasWidgetsReduxState;
   alignment: FlexLayerAlignment;
+  direction: LayoutDirection;
   layerIndex?: number;
   rowIndex: number;
   isMobile?: boolean;
@@ -140,6 +153,7 @@ function* reorderAutolayoutChildren(params: {
   const {
     alignment,
     allWidgets,
+    direction,
     index,
     isMobile,
     isNewLayer,
@@ -161,40 +175,42 @@ function* reorderAutolayoutChildren(params: {
   );
 
   // Update flexLayers for a vertical stack.
-  const canvas = widgets[parentId];
-  if (!canvas) return widgets;
-  const flexLayers = canvas.flexLayers || [];
+  if (direction === LayoutDirection.Vertical) {
+    const canvas = widgets[parentId];
+    if (!canvas) return widgets;
+    const flexLayers = canvas.flexLayers || [];
 
-  // Remove moved widgets from the flex layers.
-  const filteredLayers = removeWidgetsFromCurrentLayers(
-    selectedWidgets,
-    flexLayers,
-  );
+    // Remove moved widgets from the flex layers.
+    const filteredLayers = removeWidgetsFromCurrentLayers(
+      selectedWidgets,
+      flexLayers,
+    );
 
-  // Create a temporary layer from moved widgets.
-  const newLayer: FlexLayer = createFlexLayer(
-    selectedWidgets,
-    widgets,
-    alignment,
-  );
+    // Create a temporary layer from moved widgets.
+    const newLayer: FlexLayer = createFlexLayer(
+      selectedWidgets,
+      widgets,
+      alignment,
+    );
 
-  // Add the new layer to the flex layers.
-  updatedWidgets = isNewLayer
-    ? addNewLayer(
-        newLayer,
-        updatedWidgets,
-        parentId,
-        filteredLayers,
-        layerIndex,
-      )
-    : updateExistingLayer(
-        newLayer,
-        updatedWidgets,
-        parentId,
-        filteredLayers,
-        layerIndex,
-        rowIndex,
-      );
+    // Add the new layer to the flex layers.
+    updatedWidgets = isNewLayer
+      ? addNewLayer(
+          newLayer,
+          updatedWidgets,
+          parentId,
+          filteredLayers,
+          layerIndex,
+        )
+      : updateExistingLayer(
+          newLayer,
+          updatedWidgets,
+          parentId,
+          filteredLayers,
+          layerIndex,
+          rowIndex,
+        );
+  }
 
   // update children of the parent canvas.
   const items = [...(widgets[parentId].children || [])];

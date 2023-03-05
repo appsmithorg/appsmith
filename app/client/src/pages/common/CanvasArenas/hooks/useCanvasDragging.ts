@@ -46,6 +46,7 @@ export const useCanvasDragging = (
   {
     alignItems,
     canExtend,
+    direction,
     dropDisabled,
     noPad,
     snapColumnSpace,
@@ -84,6 +85,7 @@ export const useCanvasDragging = (
   } = useBlocksToBeDraggedOnCanvas({
     alignItems,
     canExtend,
+    direction,
     noPad,
     snapColumnSpace,
     snapRows,

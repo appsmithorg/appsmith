@@ -223,6 +223,7 @@ export const widgetOperationParams = (
     width: number;
     height: number;
   },
+  fullWidth = false,
 ): WidgetOperationParams => {
   const [leftColumn, topRow] = getDropZoneOffsets(
     parentColumnSpace,
@@ -242,9 +243,11 @@ export const widgetOperationParams = (
         bottomRow: Math.round(
           topRow + widgetSizeUpdates.height / parentRowSpace,
         ),
-        rightColumn: Math.round(
-          leftColumn + widgetSizeUpdates.width / parentColumnSpace,
-        ),
+        rightColumn: fullWidth
+          ? GridDefaults.DEFAULT_GRID_COLUMNS
+          : Math.round(
+              leftColumn + widgetSizeUpdates.width / parentColumnSpace,
+            ),
         parentId: widget.parentId,
         newParentId: parentWidgetId,
       },
@@ -253,7 +256,7 @@ export const widgetOperationParams = (
     // Therefore, this is an operation to add child to this container
   }
   const widgetDimensions = {
-    columns: widget.columns,
+    columns: fullWidth ? GridDefaults.DEFAULT_GRID_COLUMNS : widget.columns,
     rows: widget.rows,
   };
 
@@ -304,7 +307,6 @@ export const generateWidgetProps = (
     renderMode: RenderMode;
   } & Partial<WidgetProps>,
   version: number,
-  isMobile: boolean,
 ): DSLWidget => {
   if (parent) {
     const sizes = {
@@ -328,8 +330,6 @@ export const generateWidgetProps = (
       ...others,
       parentId: parent.widgetId,
       version,
-      isMobile,
-      positioning: parent.positioning,
     };
     delete props.rows;
     delete props.columns;

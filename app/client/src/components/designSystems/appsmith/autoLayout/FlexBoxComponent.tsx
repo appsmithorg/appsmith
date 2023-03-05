@@ -1,7 +1,10 @@
 import { isArray } from "lodash";
-import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
+import React, { CSSProperties, ReactNode, useMemo } from "react";
 
-import { FlexLayerAlignment } from "utils/autoLayout/constants";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+} from "utils/autoLayout/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
 import { getAppMode } from "selectors/entitiesSelector";
@@ -15,17 +18,20 @@ import {
 import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
 
 export interface FlexBoxProps {
+  direction?: LayoutDirection;
   stretchHeight: boolean;
   useAutoLayout: boolean;
   children?: ReactNode;
   widgetId: string;
   flexLayers: FlexLayer[];
-  isMobile: boolean;
+  isMobile?: boolean;
 }
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
 
 function FlexBoxComponent(props: FlexBoxProps) {
+  const direction: LayoutDirection =
+    props.direction || LayoutDirection.Horizontal;
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const leaveSpaceForWidgetName = appMode === APP_MODE.EDIT;
   const isMobile: boolean = props.isMobile || false;
@@ -33,9 +39,12 @@ function FlexBoxComponent(props: FlexBoxProps) {
     getColumnsForAllLayers(props.widgetId),
   );
 
-  const renderChildren = useCallback(() => {
+  const renderChildren = () => {
     if (!props.children) return null;
     if (!props.useAutoLayout) return props.children;
+    if (direction === LayoutDirection.Horizontal) {
+      return props.children;
+    }
 
     /**
      * Wrap children of a Vertical Stack in a flex layer.
@@ -50,7 +59,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     const layers: any[] = processLayers(map);
 
     return layers;
-  }, [props]);
+  };
 
   function processLayers(map: { [key: string]: any }) {
     const layers = [];
@@ -94,6 +103,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     return (
       <AutoLayoutLayer
         center={center}
+        direction={direction}
         end={end}
         index={index}
         isMobile={isMobile}
@@ -114,7 +124,8 @@ function FlexBoxComponent(props: FlexBoxProps) {
   const flexBoxStyle: CSSProperties = useMemo(() => {
     return {
       display: !!props.useAutoLayout ? "flex" : "block",
-      flexDirection: "column",
+      flexDirection:
+        props.direction === LayoutDirection.Vertical ? "column" : "row",
       justifyContent: "flex-start",
       alignItems: "flex-start",
       flexWrap: "nowrap",
@@ -125,7 +136,12 @@ function FlexBoxComponent(props: FlexBoxProps) {
         ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px 22px ${FLEXBOX_PADDING}px`
         : "0px",
     };
-  }, [props.useAutoLayout, props.stretchHeight, leaveSpaceForWidgetName]);
+  }, [
+    props.useAutoLayout,
+    props.direction,
+    props.stretchHeight,
+    leaveSpaceForWidgetName,
+  ]);
 
   return (
     <div className={`flex-container-${props.widgetId}`} style={flexBoxStyle}>
