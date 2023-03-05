@@ -5,20 +5,18 @@ let datasourceName: string = "GraphQL_DS_";
 let apiName: string = "GraphQL_API_";
 
 const GRAPHQL_QUERY = `
-  query($id: ID!) {
-    capsule(id: $id) {
-      id
-      status
-      type
-      landings
+  query ($myid: Int!) {
+	postById(id: $myid) {
+	  id,
+    title,
+    content
 `;
 
-const CAPSULE_ID = "5e9e2c5bf35918ed873b2664";
+const CAPSULE_ID = 4;
 
 const GRAPHQL_VARIABLES = `
   {
-    "id": ${CAPSULE_ID}
-`;
+    "myid": ${CAPSULE_ID}`;
 
 const GRAPHQL_LIMIT_QUERY = `
         query($offsetz:Int, $firstz:Int){
@@ -27,8 +25,7 @@ const GRAPHQL_LIMIT_QUERY = `
               node {
                 id,
                title,
-               content
-`;
+               content`;
 
 const GRAPHQL_LIMIT_DATA = [
   { title_name: "The truth about All" },
@@ -57,7 +54,7 @@ describe("GraphQL Datasource Implementation", function() {
     _.agHelper.RenameWithInPane(apiName, true);
   });
 
-  it.skip("2. Should execute the API and validate the response", function() {
+  it("2. Should execute the API and validate the response", function() {
     /* Create an API */
     _.dataSources.NavigateFromActiveDS(datasourceName, true);
 
@@ -68,7 +65,7 @@ describe("GraphQL Datasource Implementation", function() {
     });
 
     _.apiPage.RunAPI(false, 20, {
-      expectedPath: "response.body.data.body.data.capsule.id",
+      expectedPath: "response.body.data.body.data.postById.id",
       expectedRes: CAPSULE_ID,
     });
   });
