@@ -1,17 +1,19 @@
-import React from "react";
 import { Alignment } from "@blueprintjs/core";
-import { isString, xor } from "lodash";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { isString, xor } from "lodash";
+import React from "react";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Stylesheet } from "entities/AppTheming";
-import SwitchGroupComponent, { OptionProps } from "../component";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import SwitchGroupComponent, { OptionProps } from "../component";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -230,6 +232,7 @@ class SwitchGroupWidget extends BaseWidget<
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
