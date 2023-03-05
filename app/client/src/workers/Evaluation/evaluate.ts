@@ -32,26 +32,30 @@ export const ScriptTemplate = "<<string>>";
 export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
   function $$closedFn () {
-    return ${ScriptTemplate}
+    const $$result = ${ScriptTemplate}
+    return $$result
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function $$closedFn (script) {
-    return (script)?.apply(THIS_CONTEXT, ARGUMENTS)
+    const $$userFunction = script;
+    const $$result = $$userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    return $$result
   }
   $$closedFn(${ScriptTemplate})
   `,
   [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
-  async function $$closedFn (script) {
-    const $$return = (script)?.apply(THIS_CONTEXT, ARGUMENTS)
-    return await $$return
+  async function callback (script) {
+    const $$userFunction = script;
+    const $$result = $$userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    return await $$result;
   }
   $$closedFn(${ScriptTemplate})
   `,
   [EvaluationScriptType.TRIGGERS]: `
   async function $$closedFn () {
-    const $$return = (${ScriptTemplate})
+    const $$return = ${ScriptTemplate};
     return await $$return
   }
   $$closedFn.call(THIS_CONTEXT)

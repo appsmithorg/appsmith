@@ -81,7 +81,8 @@ describe("evaluateSync", () => {
           errorType: "PARSE",
           raw: `
   function $$closedFn () {
-    return wrongJS
+    const $$result = wrongJS
+    return $$result
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
@@ -102,7 +103,8 @@ describe("evaluateSync", () => {
           errorType: "PARSE",
           raw: `
   function $$closedFn () {
-    return {}.map()
+    const $$result = {}.map()
+    return $$result
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
@@ -131,7 +133,8 @@ describe("evaluateSync", () => {
           errorType: "PARSE",
           raw: `
   function $$closedFn () {
-    return setImmediate(() => {}, 100)
+    const $$result = setImmediate(() => {}, 100)
+    return $$result
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
