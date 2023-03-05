@@ -31,7 +31,7 @@ const StyledAppIcon = styled(AppsIcon)<
   }
 >`
   color: ${({ navColorStyle, primaryColor }) =>
-    getMenuItemTextColor(primaryColor, navColorStyle)};
+    getMenuItemTextColor(primaryColor, navColorStyle, true)};
   border-radius: ${({ borderRadius }) => borderRadius};
   transition: all 0.3s ease-in-out;
   margin-top: ${({ forSidebar }) => (forSidebar ? " -3px" : "-2px")};
