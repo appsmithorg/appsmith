@@ -6,11 +6,7 @@ import { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import {
-  LayoutDirection,
-  Positioning,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
@@ -64,7 +60,6 @@ export interface DSLWidget extends WidgetProps {
 interface LayoutProps {
   positioning?: Positioning;
   useAutoLayout?: boolean;
-  direction?: LayoutDirection;
   isFlexChild?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
 }

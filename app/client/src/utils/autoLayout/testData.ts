@@ -1,5 +1,5 @@
 import { RenderModes } from "constants/WidgetConstants";
-import { LayoutDirection, ResponsiveBehavior } from "./constants";
+import { ResponsiveBehavior } from "./constants";
 
 export const data = {
   "0": {
@@ -39,7 +39,6 @@ export const data = {
         ],
       },
     ],
-    direction: LayoutDirection.Vertical,
     renderMode: RenderModes.CANVAS,
     isLoading: false,
   },

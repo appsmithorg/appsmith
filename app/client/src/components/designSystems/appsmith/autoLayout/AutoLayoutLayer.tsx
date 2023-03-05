@@ -1,19 +1,17 @@
 import React, { ReactNode } from "react";
 import styled from "styled-components";
 
-import { LayoutDirection } from "utils/autoLayout/constants";
-
 /**
- * 1. Given a direction if should employ flex in perpendicular direction.
- * 2. It should be able to render children within three nested wrappers for start, center and end alignment.
- * 3. Only render start wrapper if a fill widget is present.
+ * 1. Each row in a FlexBoxComponent (Column) is wrapped in an AutoLayoutLayer.
+ * 2. It employs a row flex to layout three child row flexes called alignments (start, center and end).
+ * Together these allow to horizontally align widgets inside a Vertical Stack.
+ * 3. On mobile viewport, if an alignment requires > 64 columns, then it used flex wrap to neatly place the widgets into subsequent rows.
  */
 
 export interface AutoLayoutLayerProps {
   start?: ReactNode;
   center?: ReactNode;
   end?: ReactNode;
-  direction: LayoutDirection;
   index: number;
   widgetId: string;
   isMobile?: boolean;

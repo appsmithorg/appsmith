@@ -26,10 +26,7 @@ import {
   getFillWidgetLengthForLayer,
   getLayerIndexOfWidget,
 } from "utils/autoLayout/AutoLayoutUtils";
-import {
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
@@ -217,7 +214,6 @@ type ResizableProps = {
   isFlexChild?: boolean;
   isHovered: boolean;
   responsiveBehavior?: ResponsiveBehavior;
-  direction?: LayoutDirection;
   paddingOffset: number;
   isMobile: boolean;
   showResizeBoundary: boolean;

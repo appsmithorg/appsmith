@@ -7,7 +7,6 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import {
   FlexVerticalAlignment,
-  LayoutDirection,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
@@ -19,7 +18,6 @@ export type AutoLayoutProps = {
   children: ReactNode;
   componentHeight: number;
   componentWidth: number;
-  direction?: LayoutDirection;
   focused?: boolean;
   minWidth?: number;
   parentId?: string;

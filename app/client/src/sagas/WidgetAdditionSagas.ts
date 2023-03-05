@@ -41,6 +41,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -106,7 +107,7 @@ function* getChildWidgetProps(
       });
     }
   }
-
+  const isMobile: boolean = yield select(getIsMobile);
   const isAutoLayout = isStack(widgets, parent);
   if (
     isAutoLayout &&
@@ -134,6 +135,7 @@ function* getChildWidgetProps(
     widgetName,
     widgetProps,
     restDefaultConfig.version,
+    isMobile,
   );
 
   widget.widgetId = newWidgetId;

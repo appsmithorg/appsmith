@@ -256,7 +256,6 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   noPad?: boolean;
-  positioning?: Positioning;
 }
 
 export default ContainerWidget;

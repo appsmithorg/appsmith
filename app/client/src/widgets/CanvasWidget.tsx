@@ -1,4 +1,4 @@
-import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
+import { Positioning } from "utils/autoLayout/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
@@ -38,6 +38,7 @@ class CanvasWidget extends ContainerWidget {
       detachFromLayout: true,
       minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
       shouldScrollContents: false,
+      positioning: this.props.positioning || Positioning.Fixed,
     };
   }
 
@@ -75,7 +76,6 @@ class CanvasWidget extends ContainerWidget {
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.isFlexChild = this.props.useAutoLayout;
-    childWidget.direction = this.getDirection();
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -83,7 +83,6 @@ class CanvasWidget extends ContainerWidget {
   renderAsContainerComponent(
     props: ContainerWidgetProps<WidgetProps>,
   ): JSX.Element {
-    const direction = this.getDirection();
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
       <ContainerComponent {...props}>
@@ -93,7 +92,6 @@ class CanvasWidget extends ContainerWidget {
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}
-              direction={direction}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               parentId={props.parentId}
@@ -113,17 +111,16 @@ class CanvasWidget extends ContainerWidget {
           </>
         )}
         {this.props.useAutoLayout
-          ? this.renderFlexCanvas(direction)
+          ? this.renderFlexCanvas()
           : this.renderFixedCanvas(props)}
       </ContainerComponent>
     );
   }
 
-  renderFlexCanvas(direction: LayoutDirection) {
+  renderFlexCanvas() {
     const stretchFlexBox = !this.props.children || !this.props.children?.length;
     return (
       <FlexBoxComponent
-        direction={direction}
         flexLayers={this.props.flexLayers || []}
         isMobile={this.props.isMobile}
         stretchHeight={stretchFlexBox}
@@ -147,12 +144,6 @@ class CanvasWidget extends ContainerWidget {
         {this.renderChildren()}
       </>
     );
-  }
-
-  getDirection(): LayoutDirection {
-    return this.props.positioning === Positioning.Vertical
-      ? LayoutDirection.Vertical
-      : LayoutDirection.Horizontal;
   }
 
   getPageView() {

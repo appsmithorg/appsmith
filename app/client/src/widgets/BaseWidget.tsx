@@ -46,7 +46,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
   FlexVerticalAlignment,
-  LayoutDirection,
+  Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import {
@@ -557,7 +557,6 @@ abstract class BaseWidget<
       <FlexComponent
         componentHeight={componentHeight}
         componentWidth={componentWidth}
-        direction={this.props.direction}
         flexVerticalAlignment={
           this.props.flexVerticalAlignment || FlexVerticalAlignment.Top
         }
@@ -762,12 +761,12 @@ export interface WidgetPositionProps extends WidgetRowCols {
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
   isFlexChild?: boolean;
-  direction?: LayoutDirection;
   responsiveBehavior?: ResponsiveBehavior;
   minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
-  isMobile?: boolean;
+  isMobile: boolean;
   flexVerticalAlignment?: FlexVerticalAlignment;
   appPositioningType?: AppPositioningTypes;
+  positioning: Positioning;
 }
 
 export const WIDGET_DISPLAY_PROPS = {
