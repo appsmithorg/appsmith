@@ -220,12 +220,9 @@ describe("Table widget - Select column type functionality", () => {
 
   it("8. should check that server side filering is working", () => {
     dataSources.CreateDataSource("Postgres");
-    cy.get("@dsName").then(($dsName) => {
-      dataSources.CreateNewQueryInDS(
-        $dsName,
-        "SELECT * FROM public.astronauts {{this.params.filterText ? `WHERE name LIKE '%${this.params.filterText}%'` : ''}} LIMIT 10;",
-      );
-    });
+    dataSources.CreateQueryAfterDSSaved(
+      "SELECT * FROM public.astronauts {{this.params.filterText ? `WHERE name LIKE '%${this.params.filterText}%'` : ''}} LIMIT 10;",
+    );
     cy.get(".t--form-control-SWITCH label")
       .scrollIntoView()
       .click({ force: true });

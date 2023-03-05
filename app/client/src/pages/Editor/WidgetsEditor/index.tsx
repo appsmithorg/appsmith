@@ -1,20 +1,18 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import Debugger from "components/editorComponents/Debugger";
+
 import {
   getCurrentPageId,
   getCurrentPageName,
-  getIsFetchingPage,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import NavigationPreview from "./NavigationPreview";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import CanvasContainer from "./CanvasContainer";
-import { quickScrollToWidget } from "utils/helpers";
-import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -32,28 +30,25 @@ import {
 } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
-import PropertyPaneContainer from "./PropertyPaneContainer";
+import CanvasContainer from "./CanvasContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
+import PropertyPaneContainer from "./PropertyPaneContainer";
 
-/* eslint-disable react/display-name */
 function WidgetsEditor() {
-  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
-  const canvasWidgets = useSelector(getCanvasWidgets);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
@@ -94,18 +89,6 @@ function WidgetsEditor() {
       });
     }
   }, [currentPageName, currentPageId]);
-
-  // navigate to widget
-  useEffect(() => {
-    if (
-      !isFetchingPage &&
-      window.location.hash.length > 0 &&
-      !guidedTourEnabled
-    ) {
-      const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash, canvasWidgets);
-    }
-  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
@@ -159,7 +142,6 @@ function WidgetsEditor() {
   };
 
   PerformanceTracker.stopTracking();
-
   return (
     <EditorContextProvider renderMode="CANVAS">
       {showOnboardingTasks ? (
@@ -174,6 +156,7 @@ function WidgetsEditor() {
                 className="relative flex flex-row w-full overflow-hidden justify-center"
                 data-testid="widgets-editor"
                 draggable
+                id="widgets-editor"
                 onClick={handleWrapperClick}
                 onDragStart={onDragStart}
               >

@@ -14,7 +14,7 @@ describe("Switch Widget within Form widget Functionality", function() {
     cy.widgetText(
       "Toggler",
       formWidgetsPage.switchWidget,
-      widgetsPage.switchInput,
+      widgetsPage.widgetNameSpan,
     );
     // Change the widget label name
     cy.testCodeMirror(this.data.switchInputName);

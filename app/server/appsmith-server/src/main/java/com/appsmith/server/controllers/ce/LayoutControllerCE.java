@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.solutions.RefactoringSolution;
@@ -57,6 +58,15 @@ public class LayoutControllerCE {
                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.getLayout(defaultPageId, layoutId, false, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
+    }
+
+    @PutMapping("/application/{applicationId}")
+    public Mono<ResponseDTO<Integer>> updateMultipleLayouts(@PathVariable String applicationId,
+                                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                             @RequestBody @Valid UpdateMultiplePageLayoutDTO request) {
+        log.debug("update multiple layout received for application {} branch {}", applicationId, branchName);
+        return layoutActionService.updateMultipleLayouts(applicationId, branchName, request)
+                .map(updatedCount -> new ResponseDTO<>(HttpStatus.OK.value(), updatedCount, null));
     }
 
     @PutMapping("/{layoutId}/pages/{pageId}")
