@@ -12,6 +12,7 @@ import {
   getArrayPropertyValue,
   getColumnType,
   getDerivedColumns,
+  getHeaderClassNameOnDragDirection,
   getOriginalRowIndex,
   getSelectRowIndex,
   getSelectRowIndices,
@@ -2542,5 +2543,19 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig.primaryColumns.step.sticky = "";
 
     expect(newColumnOrder).toEqual(["status", "task", "step", "action"]);
+  });
+});
+
+describe("getHeaderClassNameOnDragDirection", () => {
+  test("Should return left highlight class when dragging from right to left", () => {
+    expect(getHeaderClassNameOnDragDirection(3, 2)).toEqual(
+      "th header-reorder highlight-left",
+    );
+  });
+
+  test("Should return right highlight class when dragging from left to right", () => {
+    expect(getHeaderClassNameOnDragDirection(1, 2)).toEqual(
+      "th header-reorder highlight-right",
+    );
   });
 });
