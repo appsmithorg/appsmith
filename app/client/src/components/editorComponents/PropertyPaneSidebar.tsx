@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import PerformanceTracker, {
@@ -28,6 +28,8 @@ import {
 import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import styled from "styled-components";
+import { selectWidgetInitAction } from "../../actions/widgetSelectionActions";
+import { SelectionRequestType } from "../../sagas/WidgetSelectUtils";
 
 const TabHeader = styled.div`
   display: flex;
@@ -57,6 +59,7 @@ type Props = {
 export const PropertyPaneSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
+  const dispatch = useDispatch();
 
   const {
     onMouseDown,
@@ -78,6 +81,14 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const paneCount = useSelector(getPaneCount);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const [rightPaneTabIndex, setRightPaneTabIndex] = useState(0);
+
+  useEffect(() => {
+    if (isMultiPane) {
+      if (selectedWidgetIds.length > 0) {
+        setRightPaneTabIndex(1);
+      }
+    }
+  });
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget id,
@@ -187,20 +198,25 @@ export const PropertyPaneSidebar = memo((props: Props) => {
                 <div
                   className={classNames({
                     "tab-header-title": true,
-                    selected: rightPaneTabIndex === 0,
-                  })}
-                  onClick={() => setRightPaneTabIndex(0)}
-                >
-                  Create
-                </div>
-                <div
-                  className={classNames({
-                    "tab-header-title": true,
                     selected: rightPaneTabIndex === 1,
                   })}
                   onClick={() => setRightPaneTabIndex(1)}
                 >
                   Properties
+                </div>
+                <div
+                  className={classNames({
+                    "tab-header-title": true,
+                    selected: rightPaneTabIndex === 0,
+                  })}
+                  onClick={() => {
+                    dispatch(
+                      selectWidgetInitAction(SelectionRequestType.Empty),
+                    );
+                    setRightPaneTabIndex(0);
+                  }}
+                >
+                  Create
                 </div>
               </TabHeader>
               <div style={{ height: "100%" }}>

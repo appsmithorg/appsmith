@@ -1825,9 +1825,9 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
     yield take(ReduxActionTypes.UPDATE_LAYOUT);
 
-    yield put(
-      selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
-    );
+    // yield put(
+    //   selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
+    // );
   } catch (error) {
     log.error(error);
   }

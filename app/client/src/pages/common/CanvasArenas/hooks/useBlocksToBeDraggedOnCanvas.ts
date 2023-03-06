@@ -22,14 +22,12 @@ import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggi
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -56,7 +54,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   widgetId,
 }: CanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
-  const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
   const lastDraggedCanvas = useRef<string | undefined>(undefined);
 
@@ -331,11 +328,11 @@ export const useBlocksToBeDraggedOnCanvas = ({
       });
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
-    setTimeout(() => {
-      selectWidget(SelectionRequestType.One, [
-        updateWidgetParams.payload.newWidgetId,
-      ]);
-    }, 100);
+    // setTimeout(() => {
+    //   selectWidget(SelectionRequestType.One, [
+    //     updateWidgetParams.payload.newWidgetId,
+    //   ]);
+    // }, 100);
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: dragDetails.newWidget.type,
       widgetName: dragDetails.newWidget.widgetCardName,
