@@ -9968,10 +9968,10 @@ des.js@^1.0.0:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.0.51":
-  version "1.0.51"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.0.51.tgz#da9a79bcb60bd25ac08fdb54face9e6c279dfb5a"
-  integrity sha512-d3yS6uu9dnNzPJ6+mxZXWOHtM+IaQaypC0m9XWI9aUGyVfdFuNZUoL0mercGAftivPKymQC5oqxiusWAm8qCcQ==
+"design-system-old@npm:@appsmithorg/design-system-old@1.0.52":
+  version "1.0.52"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.0.52.tgz#031b179a9b3689a081e29c3994b7296935fa3edb"
+  integrity sha512-iB20Dhq+BGS1vac18UtgC+mSLCAOGLH3FpVGMyfVuw+S2ZugqECnLSLmpPYGDN4Bx9ohWqYTR1CQoJgTK1kw1w==
   dependencies:
     emoji-mart "3.0.1"
 

@@ -223,13 +223,10 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    const useAutoLayout = this.props.positioning
-      ? this.props.positioning === Positioning.Vertical
-      : false;
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
       !isAutoHeightEnabledForWidget(this.props, true) &&
-      !useAutoLayout;
+      this.props.positioning !== Positioning.Vertical;
     return (
       <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
         <WidgetsMultiSelectBox

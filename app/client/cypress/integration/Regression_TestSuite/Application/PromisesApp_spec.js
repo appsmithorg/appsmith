@@ -46,7 +46,7 @@ describe("JSEditor tests", function() {
         shouldCreateNewJSObj: true,
       },
     );
-    _.ee.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
       .eq(5)
@@ -115,7 +115,7 @@ describe("JSEditor tests", function() {
 
   //Skipping reason? to add
   it.skip("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
-    _.ee.SelectEntityByName("JSObject1", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     _.jsEditor.SelectFunctionDropdown("clearStore");
     _.jsEditor.RunJSObj();
     cy.wait("@postExecute").should(

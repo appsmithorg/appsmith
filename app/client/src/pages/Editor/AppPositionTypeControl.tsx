@@ -3,20 +3,21 @@ import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-import { updateApplication } from "actions/applicationActions";
+import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { ReactComponent as DesktopIcon } from "assets/icons/ads/app-icons/monitor-alt.svg";
 import { ReactComponent as MultiDeviceIcon } from "assets/icons/ads/app-icons/monitor-smartphone-alt.svg";
 import { Colors } from "constants/Colors";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { IconName, TooltipComponent } from "design-system-old";
 import {
   AppPositioningTypeConfig,
   AppPositioningTypes,
 } from "reducers/entityReducers/pageListReducer";
 import {
-  getCurrentApplicationId,
   getCurrentAppPositioningType,
   isAutoLayoutEnabled,
 } from "selectors/editorSelectors";
+import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 interface ApplicationPositionTypeConfigOption {
   name: string;
@@ -53,8 +54,6 @@ export const AppPositionTypeControl = () => {
   const buttonRefs: Array<HTMLButtonElement | null> = [];
   const selectedOption = useSelector(getCurrentAppPositioningType);
   const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
-  const appId = useSelector(getCurrentApplicationId);
-
   /**
    * return selected layout index. if there is no app
    * layout, use the default one ( fluid )
@@ -80,12 +79,23 @@ export const AppPositionTypeControl = () => {
   const updateAppPositioningLayout = (
     layoutOption: ApplicationPositionTypeConfigOption,
   ) => {
+    const selectedType =
+      layoutOption.type !== AppPositioningTypes.AUTO
+        ? Positioning.Fixed
+        : Positioning.Vertical;
     dispatch(
-      updateApplication(appId || "", {
-        appPositioning: {
-          type: layoutOption.type,
+      batchUpdateMultipleWidgetProperties([
+        {
+          widgetId: MAIN_CONTAINER_WIDGET_ID,
+          updates: {
+            modify: {
+              positioning: selectedType,
+              useAutoLayout: selectedType !== Positioning.Fixed,
+              direction: LayoutDirection.Vertical,
+            },
+          },
         },
-      }),
+      ]),
     );
   };
 
@@ -141,7 +151,7 @@ export const AppPositionTypeControl = () => {
                         updateAppPositioningLayout(layoutOption);
                         setFocusedIndex(index);
                       }}
-                      onKeyDown={(event) => handleKeyDown(event, index)}
+                      onKeyDown={(event) => handleKeyDown(event, index)} //TODO: Ashok - This event listener isn't being removed.
                       ref={(input) => buttonRefs.push(input)}
                       tabIndex={index === focusedIndex ? 0 : -1}
                     >

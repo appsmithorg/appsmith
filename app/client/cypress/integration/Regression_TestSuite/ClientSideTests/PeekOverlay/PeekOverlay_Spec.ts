@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("peek overlay", () => {
   it("main test", () => {
-    _.ee.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
+    _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
     _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl);
     _.apiPage.RunAPI();
     _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl);
