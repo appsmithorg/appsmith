@@ -33,7 +33,7 @@ import {
 import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 
 const BORDERS_WIDTH = 2;
-const GUTTER_WIDTH = 0;
+const GUTTER_WIDTH = 12;
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
@@ -122,7 +122,8 @@ export const useDynamicAppLayout = () => {
     }
 
     if (isMultiPane) {
-      calculatedWidth = screenWidth - scrollbarWidth() - tabsPaneWidth - 60;
+      calculatedWidth =
+        screenWidth - scrollbarWidth() - tabsPaneWidth - SIDE_NAV_WIDTH;
       if (paneCount === 3) calculatedWidth -= propertyPaneWidth;
     }
 
@@ -171,6 +172,8 @@ export const useDynamicAppLayout = () => {
         0.5,
       );
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
+    } else if (!isMultiPane) {
+      dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     } else if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     }
@@ -216,7 +219,6 @@ export const useDynamicAppLayout = () => {
     explorerWidth,
     propertyPaneWidth,
     isExplorerPinned,
-    propertyPaneWidth,
     isAppSettingsPaneOpen,
   ]);
 
