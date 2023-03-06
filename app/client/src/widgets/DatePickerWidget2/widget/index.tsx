@@ -1,21 +1,22 @@
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
-import derivedProperties from "./parseDerivedProperties";
-import { DatePickerType, TimePrecision } from "../constants";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { DateFormatOptions } from "./constants";
+import { LabelPosition } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { DatePickerType, TimePrecision } from "../constants";
+import { DateFormatOptions } from "./constants";
+import derivedProperties from "./parseDerivedProperties";
 
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
@@ -306,6 +307,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

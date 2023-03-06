@@ -20,6 +20,7 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidget, getWidgets } from "sagas/selectors";
@@ -29,10 +30,13 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
 import {
+  getCurrentAppPositioningType,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { updateRelationships } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
@@ -51,6 +55,8 @@ export type WidgetMoveParams = {
     */
   newParentId: string;
   allWidgets: CanvasWidgetsReduxState;
+  position?: number;
+  useAutoLayout?: boolean;
 };
 
 export function* getCanvasSizeAfterWidgetMove(
@@ -175,6 +181,8 @@ function* addWidgetAndMoveWidgetsSaga(
     });
   }
 }
+
+// function* update
 
 function* addWidgetAndMoveWidgets(
   newWidget: WidgetAddChild,
@@ -325,9 +333,27 @@ function* moveWidgetsSaga(
       );
     }
 
+    const appPositioningType: AppPositioningTypes = yield select(
+      getCurrentAppPositioningType,
+    );
+    let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+    if (appPositioningType === AppPositioningTypes.AUTO) {
+      /**
+       * If previous parent is an auto layout container,
+       * then update the flex layers.
+       */
+      const isMobile: boolean = yield select(getIsMobile);
+      updatedWidgets = updateRelationships(
+        draggedBlocksToUpdate.map((block) => block.widgetId),
+        updatedWidgets,
+        canvasId,
+        true,
+        isMobile,
+      );
+    }
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
       moveAndUpdateWidgets,
-      allWidgets,
+      updatedWidgets,
       draggedBlocksToUpdate,
       canvasId,
     );
@@ -341,10 +367,12 @@ function* moveWidgetsSaga(
     ) {
       throw Error;
     }
+
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     const block = draggedBlocksToUpdate[0];
+
     const oldParentId = block.updateWidgetParams.payload.parentId;
     const newParentId = block.updateWidgetParams.payload.newParentId;
 

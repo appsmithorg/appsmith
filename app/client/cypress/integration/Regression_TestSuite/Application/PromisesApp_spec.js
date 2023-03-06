@@ -2,17 +2,13 @@ import * as _ from "../../../support/Objects/ObjectsCore";
 const homePage = require("../../../locators/HomePage");
 const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
 const commonlocators = require("../../../locators/commonlocators.json");
-const jsEditorLocators = require("../../../locators/JSEditor.json");
 
 describe("JSEditor tests", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  beforeEach(() => {
-    cy.startServerAndRoutes();
-  });
 
-  it("Testing promises with resetWidget, storeValue action and API call", () => {
+  it("1. Testing promises with resetWidget, storeValue action and API call", () => {
     _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl, "TC1api");
     _.apiPage.RunAPI();
     _.jsEditor.CreateJSObject(
@@ -50,10 +46,10 @@ describe("JSEditor tests", function() {
         shouldCreateNewJSObj: true,
       },
     );
-    _.ee.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
-      .eq(2)
+      .eq(5)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal(
@@ -77,7 +73,7 @@ describe("JSEditor tests", function() {
     cy.wait(2000);
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
-      .eq(2)
+      .eq(5)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal(
@@ -118,8 +114,8 @@ describe("JSEditor tests", function() {
   });
 
   //Skipping reason? to add
-  it.skip("Testing dynamic widgets display using consecutive storeValue calls", () => {
-    _.ee.SelectEntityByName("JSObject1", "Queries/JS");
+  it.skip("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     _.jsEditor.SelectFunctionDropdown("clearStore");
     _.jsEditor.RunJSObj();
     cy.wait("@postExecute").should(
@@ -129,7 +125,7 @@ describe("JSEditor tests", function() {
     );
     cy.xpath("//span[text()='Clear store']").click({ force: true });
     cy.get(".t--draggable-textwidget span")
-      .eq(2)
+      .eq(5)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal(

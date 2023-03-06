@@ -1,3 +1,4 @@
+import { Alignment, Positioning, Spacing } from "utils/autoLayout/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 
 export interface TabContainerWidgetProps extends WidgetProps {
@@ -13,6 +14,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
     label: string;
     widgetId: string;
     isVisible?: boolean;
+    positioning: Positioning;
   }>;
   tabsObj: Record<
     string,
@@ -22,6 +24,9 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
       widgetId: string;
       isVisible?: boolean;
       index: number;
+      positioning: Positioning;
+      alignment: Alignment;
+      spacing: Spacing;
     }
   >;
   shouldShowTabs: boolean;

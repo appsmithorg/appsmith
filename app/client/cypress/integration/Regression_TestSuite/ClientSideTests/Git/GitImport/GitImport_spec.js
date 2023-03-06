@@ -1,9 +1,6 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
-const explorer = require("../../../../../locators/explorerlocators.json");
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
-const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
-const pages = require("../../../../../locators/Pages.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
 const jsObject = "JSObject1";
@@ -171,29 +168,17 @@ describe("Git import flow ", function() {
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
-    cy.CheckAndUnfoldEntityItem("Pages");
-    // clone the page1 and validate data binding
-    cy.get(".t--entity-name:contains(Page1)")
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.xpath(apiwidget.popover)
-      .first()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.get(pages.clonePage).click({ force: true });
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+
+    _.entityExplorer.ClonePage();
+
     // verify jsObject is not duplicated
-    _.ee.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
-    _.jsEditor.RunJSObj(); //Running sync function due to open bug
-    _.ee.SelectEntityByName("Page1 Copy");
+    _.agHelper.Sleep(2000); //for cloning of table data to finish
+    _.entityExplorer.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
+    _.entityExplorer.SelectEntityByName("Page1 Copy");
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
+
     // deploy the app and validate data binding
     cy.wait(2000);
     cy.get(homePage.publishButton).click();
@@ -208,9 +193,7 @@ describe("Git import flow ", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.latestDeployPreview();
-    cy.get(".tbody")
-      .last()
-      .should("contain.text", "New Config");
+    _.table.AssertTableLoaded();
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
@@ -219,9 +202,7 @@ describe("Git import flow ", function() {
     cy.get(".t--page-switch-tab")
       .contains("Page1")
       .click({ force: true });
-    cy.get(".tbody")
-      .last()
-      .should("contain.text", "New Config");
+    _.table.AssertTableLoaded();
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
@@ -255,7 +236,7 @@ describe("Git import flow ", function() {
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
     //_.canvasHelper.OpenWidgetPane();
-    _.ee.NavigateToSwitcher("widgets");
+    _.entityExplorer.NavigateToSwitcher("widgets");
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);
