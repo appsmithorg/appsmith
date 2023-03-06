@@ -38,6 +38,7 @@ import {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
+import { convertArrayToString } from "./helper";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -201,7 +202,7 @@ class ListWidget extends BaseWidget<
       this.updatePageSize();
     }
 
-    this.updatePageNoFromDefaultSelectedKey();
+    this.handlePageNumberAndSelectedItem();
 
     if (this.props.selectedItemKey || this.props.triggeredItemKey) {
       /**
@@ -270,7 +271,7 @@ class ListWidget extends BaseWidget<
     }
 
     if (this.props.defaultSelectedItem !== prevProps.defaultSelectedItem) {
-      this.updatePageNoFromDefaultSelectedKey();
+      this.handlePageNumberAndSelectedItem();
     }
   }
 
@@ -320,7 +321,7 @@ class ListWidget extends BaseWidget<
       levelData: this.props.levelData,
       nestedViewIndex: this.props.nestedViewIndex,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
-      primaryKeys,
+      primaryKeys: convertArrayToString(primaryKeys),
       scrollElement: this.componentRef.current,
       templateBottomRow: this.getTemplateBottomRow(),
       widgetName: this.props.widgetName,
@@ -539,7 +540,7 @@ class ListWidget extends BaseWidget<
   };
 
   // This is only for client-side data
-  updatePageNoFromDefaultSelectedKey = () => {
+  handlePageNumberAndSelectedItem = () => {
     if (this.props.serverSidePagination) return;
 
     const rowIndex = this.getRowIndexOfSelectedItem();
@@ -575,7 +576,7 @@ class ListWidget extends BaseWidget<
 
     if (!primaryKeys || isNil(defaultSelectedItem)) return -1;
 
-    return map(primaryKeys, (key) => String(key)).indexOf(
+    return convertArrayToString(primaryKeys).indexOf(
       defaultSelectedItem.toString(),
     );
   };

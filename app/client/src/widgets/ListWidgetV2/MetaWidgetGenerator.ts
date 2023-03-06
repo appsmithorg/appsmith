@@ -88,7 +88,7 @@ export type GeneratorOptions = {
   nestedViewIndex?: number;
   pageNo?: number;
   pageSize?: number;
-  primaryKeys?: (string | number | undefined | null)[];
+  primaryKeys?: string[];
   scrollElement: HTMLDivElement | null;
   serverSidePagination: boolean;
   templateBottomRow: number;
