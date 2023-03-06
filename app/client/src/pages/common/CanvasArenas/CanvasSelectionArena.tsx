@@ -1,31 +1,31 @@
+import { AppState } from "@appsmith/reducers";
 import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
 } from "actions/canvasSelectionActions";
-import { throttle } from "lodash";
-import React, { useEffect, useCallback, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import {
+  getSlidingArenaName,
+  getStickyCanvasName,
+} from "constants/componentClassNameConstants";
+import { theme } from "constants/DefaultTheme";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
+import { throttle } from "lodash";
+import React, { useCallback, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
+import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
-import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
-import { theme } from "constants/DefaultTheme";
-import { getIsDraggingForSelection } from "selectors/canvasSelectors";
-import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getAbsolutePixels } from "utils/helpers";
-import {
-  getStickyCanvasName,
-  getSlidingArenaName,
-} from "constants/componentClassNameConstants";
+import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
+import { XYCord } from "./hooks/useRenderBlocksOnCanvas";
+import { StickyCanvasArena } from "./StickyCanvasArena";
 
 export interface SelectedArenaDimensions {
   top: number;

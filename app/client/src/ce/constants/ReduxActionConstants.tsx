@@ -1,17 +1,17 @@
-import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
-import {
-  LayoutOnLoadActionErrors,
-  PageAction,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
+import { ApplicationVersion } from "actions/applicationActions";
 import {
   AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
 } from "api/ApplicationApi";
-import { ApplicationVersion } from "actions/applicationActions";
+import {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -757,6 +757,9 @@ export const ReduxActionTypes = {
   SEGMENT_INIT_UNCERTAIN: "SEGMENT_INIT_UNCERTAIN",
   SET_TABS_PANE_WIDTH: "SET_TABS_PANE_WIDTH",
   SET_PANE_COUNT: "SET_PANE_COUNT",
+  AUTOLAYOUT_REORDER_WIDGETS: "AUTOLAYOUT_REORDER_WIDGETS",
+  AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",
+  RECALCULATE_COLUMNS: "RECALCULATE_COLUMNS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

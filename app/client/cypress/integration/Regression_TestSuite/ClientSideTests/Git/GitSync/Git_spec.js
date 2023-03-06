@@ -70,7 +70,7 @@ describe.skip("Git sync:", function() {
         cy.widgetText(
           buttonNameTemp0Branch,
           widgetsPage.buttonWidget,
-          commonlocators.buttonInner,
+          widgetsPage.widgetNameSpan,
         );
         cy.commitAndPush();
         cy.switchGitBranch(tempBranch);
@@ -87,7 +87,7 @@ describe.skip("Git sync:", function() {
     cy.widgetText(
       buttonNameMainBranch,
       widgetsPage.buttonWidget,
-      commonlocators.buttonInner,
+      widgetsPage.widgetNameSpan,
     );
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
@@ -113,7 +113,7 @@ describe.skip("Git sync:", function() {
     cy.widgetText(
       buttonNameTempBranch1,
       widgetsPage.buttonWidget,
-      commonlocators.buttonInner,
+      widgetsPage.widgetNameSpan,
     );
     cy.commitAndPush();
 
@@ -121,7 +121,7 @@ describe.skip("Git sync:", function() {
     cy.widgetText(
       buttonNameMainBranchEdited,
       widgetsPage.buttonWidget,
-      commonlocators.buttonInner,
+      widgetsPage.widgetNameSpan,
     );
     cy.commitAndPush();
 
@@ -185,7 +185,7 @@ describe.skip("Git sync:", function() {
     cy.widgetText(
       inputNameTempBranch3,
       widgetsPage.inputWidget,
-      commonlocators.inputWidgetInner,
+      widgetsPage.widgetNameSpan,
     );
 
     cy.commitAndPush();
@@ -201,7 +201,7 @@ describe.skip("Git sync:", function() {
     cy.widgetText(
       inputNameTempBranch31,
       widgetsPage.inputWidget,
-      commonlocators.inputWidgetInner,
+      widgetsPage.widgetNameSpan,
     );
 
     cy.commitAndPush(true);
