@@ -328,7 +328,7 @@ init_postgres() {
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
 
       # Create mockdb db and user and populate it with the data
-      seed_postgres_mockdb
+      seed_embedded_postgres
       
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
@@ -339,13 +339,27 @@ init_postgres() {
   
 }
 
-seed_postgres_mockdb(){
+seed_embedded_postgres(){
+    # Extract sql dumps from the tar archive
+    tar -xf /opt/appsmith/templates/postgres_sql.tar.gz -C /opt/appsmith/templates
+
     # Create mockdb database 
     psql -U postgres -c "CREATE DATABASE mockdb;"
     # Create mockdb superuser
     su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
     # Dump the sql file containing mockdb data
     psql -U postgres -d mockdb --file='/opt/appsmith/templates/mockdb_postgres.sql'
+
+    # Create users database
+    psql -U postgres -c "CREATE DATABASE users;"
+    # Create mockdb superuser
+    su postgres -c "/usr/lib/postgresql/13/bin/createuser users -s"
+    # Dump the sql file containing mockdb data
+    psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
+
+    # Delete the extracted sql dumps
+    rm /opt/appsmith/templates/mockdb_postgres.sql /opt/appsmith/templates/users_postgres.sql
+
 
 }
 
