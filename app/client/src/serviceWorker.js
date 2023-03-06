@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { precacheAndRoute } from "workbox-precaching";
 import { clientsClaim, setCacheNameDetails, skipWaiting } from "workbox-core";
 import { registerRoute, Route } from "workbox-routing";
@@ -26,8 +27,6 @@ const regexMap = {
   providers: new RegExp(/v1\/marketplace\/(providers|templates)/),
 };
 
-/* eslint-disable no-restricted-globals */
-/* eslint-disable no-use-before-define */
 const toPrecache = self.__WB_MANIFEST.filter(
   (file) => !file.url.includes("index.html"),
 );
