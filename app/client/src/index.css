@@ -110,7 +110,13 @@ div.bp3-popover-arrow {
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
 }
+.widget-name-popper{
+  box-shadow: none !important;
+}
 
+.widget-name-popper > .bp3-popover2-content{
+  border-radius: 4px !important;
+}
 .bp3-overlay-backdrop {
   background-color: rgba(16, 22, 26, 0.7) !important;
 }

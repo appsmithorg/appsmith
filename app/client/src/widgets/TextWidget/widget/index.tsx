@@ -6,15 +6,16 @@ import { countOccurrences } from "workers/Evaluation/helpers";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
-import { Color } from "constants/Colors";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import TextComponent, { TextAlign } from "../component";
-import { ContainerStyle } from "widgets/ContainerWidget/component";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { OverflowTypes } from "../constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
-import { pick } from "lodash";
+import { Color } from "constants/Colors";
 import { Stylesheet } from "entities/AppTheming";
+import { pick } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { ContainerStyle } from "widgets/ContainerWidget/component";
+import TextComponent, { TextAlign } from "../component";
+import { OverflowTypes } from "../constants";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
@@ -93,6 +94,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
