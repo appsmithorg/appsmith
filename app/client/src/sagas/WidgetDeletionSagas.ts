@@ -1,18 +1,16 @@
 import {
-  ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-  WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import {
   MultipleWidgetDeletePayload,
   updateAndSaveLayout,
   WidgetDelete,
 } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import {
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+  WidgetReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
@@ -21,26 +19,28 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getCanvasWidth } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
-import {
-  inGuidedTour,
-  isExploringSelector,
-} from "selectors/onboardingSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { showUndoRedoToast } from "utils/replayHelpers";
-import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
-import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
 } from "./WidgetOperationUtils";
+import { showUndoRedoToast } from "utils/replayHelpers";
+import WidgetFactory from "utils/WidgetFactory";
+import {
+  inGuidedTour,
+  isExploringSelector,
+} from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
+import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

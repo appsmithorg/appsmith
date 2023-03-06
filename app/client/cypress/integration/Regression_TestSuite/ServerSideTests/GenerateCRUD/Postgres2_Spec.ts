@@ -463,7 +463,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.ClearJSONFieldValue("Ship Id");
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage(
-      `Error while inserting resource!\n Your PostgreSQL query failed to execute. Please check more information in the error details.`,
+      `null value in column "ship_id" violates not-null constraint`,
     );
     deployMode.EnterJSONInputValue("Ship Id", "159196");
   });

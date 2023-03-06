@@ -5,27 +5,12 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  batchUpdateWidgetProperty,
-  DeleteWidgetPropertyPayload,
-  SetWidgetDynamicPropertyPayload,
-  updateMultipleWidgetPropertiesAction,
-  UpdateWidgetPropertyPayload,
-  UpdateWidgetPropertyRequestPayload,
-} from "actions/controlActions";
-import { resetWidgetMetaProperty } from "actions/metaActions";
 import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
-import _, { cloneDeep, isString, set, uniq } from "lodash";
-import log from "loglevel";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 import {
   actionChannel,
   all,
@@ -38,14 +23,15 @@ import {
   takeLatest,
   takeLeading,
 } from "redux-saga/effects";
-import {
-  getCanvasWidth,
-  getContainerWidgetSpacesSelector,
-  getCurrentAppPositioningType,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertToString } from "utils/AppsmithUtils";
+import {
+  batchUpdateWidgetProperty,
+  DeleteWidgetPropertyPayload,
+  SetWidgetDynamicPropertyPayload,
+  updateMultipleWidgetPropertiesAction,
+  UpdateWidgetPropertyPayload,
+  UpdateWidgetPropertyRequestPayload,
+} from "actions/controlActions";
 import {
   DynamicPath,
   getEntityDynamicBindingPathList,
@@ -56,67 +42,46 @@ import {
   isPathADynamicBinding,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { generateReactKey } from "utils/generators";
-import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { WidgetProps } from "widgets/BaseWidget";
+import _, { cloneDeep, isString, set, uniq } from "lodash";
+import WidgetFactory from "utils/WidgetFactory";
+import { resetWidgetMetaProperty } from "actions/metaActions";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
+import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
+import { generateReactKey } from "utils/generators";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import log from "loglevel";
+import {
+  getCanvasWidth,
+  getCurrentPageId,
+  getCurrentAppPositioningType,
+  getContainerWidgetSpacesSelector,
+} from "selectors/editorSelectors";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { validateProperty } from "./EvaluationsSaga";
+import { Toaster, Variant } from "design-system-old";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import {
+  getAllPathsFromPropertyConfig,
+  nextAvailableRowInContainer,
+} from "entities/Widget/utils";
+import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   createMessage,
-  ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
+  ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
   WIDGET_COPY,
   WIDGET_CUT,
   ERROR_WIDGET_CUT_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
-import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { Toaster, Variant } from "design-system-old";
-import {
-  getAllPathsFromPropertyConfig,
-  nextAvailableRowInContainer,
-} from "entities/Widget/utils";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { validateProperty } from "./EvaluationsSaga";
 
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { stopReflowAction } from "actions/reflowActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { WidgetSpace } from "constants/CanvasEditorConstants";
-import { getSlidingArenaName } from "constants/componentClassNameConstants";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { MetaState } from "reducers/entityReducers/metaReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { widgetReflow } from "reducers/uiReducers/reflowReducer";
-import { reflow } from "reflow";
-import {
-  GridProps,
-  PrevReflowState,
-  ReflowDirection,
-  SpaceMap,
-} from "reflow/reflowTypes";
-import { getBottomMostRow } from "reflow/reflowUtils";
-import { builderURL } from "RouteBuilder";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
-import { getSelectedWidgets } from "selectors/ui";
-import { getReflow } from "selectors/widgetReflowSelectors";
-import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
-import { flashElementsById } from "utils/helpers";
-import history from "utils/history";
-import {
-  collisionCheckPostReflow,
-  getBottomRowAfterReflow,
-} from "utils/reflowHookUtils";
-import WidgetFactory from "utils/WidgetFactory";
-import {
-  addChildToPastedFlexLayers,
-  getLayerIndexOfWidget,
-  isStack,
-  pasteWidgetInFlexLayers,
-} from "../utils/autoLayout/AutoLayoutUtils";
-import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
-import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
-import widgetAdditionSagas from "./WidgetAdditionSagas";
-import widgetDeletionSagas from "./WidgetDeletionSagas";
 import {
   changeIdsOfPastePositions,
   CopiedWidgetGroup,
@@ -152,13 +117,50 @@ import {
   purgeOrphanedDynamicPaths,
   WIDGET_PASTE_PADDING,
 } from "./WidgetOperationUtils";
+import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import { SelectionRequestType } from "./WidgetSelectUtils";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
+import widgetAdditionSagas from "./WidgetAdditionSagas";
+import widgetDeletionSagas from "./WidgetDeletionSagas";
+import { getReflow } from "selectors/widgetReflowSelectors";
+import { widgetReflow } from "reducers/uiReducers/reflowReducer";
+import { stopReflowAction } from "actions/reflowActions";
+import {
+  collisionCheckPostReflow,
+  getBottomRowAfterReflow,
+} from "utils/reflowHookUtils";
+import {
+  GridProps,
+  PrevReflowState,
+  ReflowDirection,
+  SpaceMap,
+} from "reflow/reflowTypes";
+import { WidgetSpace } from "constants/CanvasEditorConstants";
+import { reflow } from "reflow";
+import { getBottomMostRow } from "reflow/reflowUtils";
+import { flashElementsById } from "utils/helpers";
+import { getSlidingArenaName } from "constants/componentClassNameConstants";
+import { builderURL } from "RouteBuilder";
+import history from "utils/history";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
+import { MetaState } from "reducers/entityReducers/metaReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "widgets/constants";
+
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
+import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
+import {
+  addChildToPastedFlexLayers,
+  getLayerIndexOfWidget,
+  isStack,
+  pasteWidgetInFlexLayers,
+} from "utils/autoLayout/AutoLayoutUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {

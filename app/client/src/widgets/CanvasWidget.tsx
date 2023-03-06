@@ -26,9 +26,6 @@ class CanvasWidget extends ContainerWidget {
   static getWidgetType() {
     return "CANVAS_WIDGET";
   }
-  componentDidMount(): void {
-    super.componentDidMount();
-  }
 
   getCanvasProps(): DSLWidget & { minHeight: number } {
     return {

@@ -1,15 +1,14 @@
-import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
-import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { getPropertyControlTypes } from "components/propertyControls";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
