@@ -81,9 +81,7 @@ function getIconForAction(
           apiAction.config.actionConfiguration.httpMethod;
 
         if (method) {
-          return () => (
-            <ApiMethodIcon height="12px" type={method} width="28px" />
-          );
+          return () => ApiMethodIcon(method, "12px", "28px");
         }
       }
 
