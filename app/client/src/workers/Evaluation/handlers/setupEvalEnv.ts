@@ -3,6 +3,7 @@ import setupDOM from "../SetupDOM";
 import { EvalWorkerSyncRequest } from "../types";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { overrideWebAPIs } from "../fns/overrides";
+import { initWindowProxy } from "../fns/overrides/windowProxy";
 
 export default function(request: EvalWorkerSyncRequest) {
   self.$isDataField = false;
@@ -12,12 +13,13 @@ export default function(request: EvalWorkerSyncRequest) {
     self[func] = undefined;
   });
   setupDOM();
-  overrideWebAPIs(self);
+  initWindowProxy();
   Object.defineProperty(self, "$cloudHosting", {
     value: request.data.cloudHosting,
     enumerable: false,
   });
   addPlatformFunctionsToEvalContext(self);
+  overrideWebAPIs(self);
   return true;
 }
 

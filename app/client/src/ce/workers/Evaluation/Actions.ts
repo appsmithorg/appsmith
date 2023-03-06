@@ -19,6 +19,9 @@ declare global {
     $isAsync: boolean;
     $evaluationVersion: EvaluationVersion;
     $cloudHosting: boolean;
+    crypto: {
+      randomUUID: () => string;
+    };
   }
 }
 
