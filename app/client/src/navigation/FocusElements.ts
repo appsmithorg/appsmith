@@ -142,7 +142,10 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.EntityCollapsibleState,
       selector: getAllEntityCollapsibleStates,
       setter: setAllEntityCollapsibleStates,
-      defaultValue: {},
+      defaultValue: {
+        Widgets: false,
+        "Queries/JS": true,
+      },
     },
     {
       name: FocusElement.SubEntityCollapsibleState,
