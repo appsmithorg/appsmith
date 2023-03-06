@@ -23,7 +23,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.widgetText(
       "Test",
       viewWidgetsPage.chartWidget,
-      commonlocators.containerInnerText,
+      widgetsPage.widgetNameSpan,
     );
     //changing the Chart Title
     /**

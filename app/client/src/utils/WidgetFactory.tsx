@@ -1,21 +1,21 @@
-import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
-import React from "react";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import React from "react";
+import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
 
-import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { RenderMode } from "constants/WidgetConstants";
+import { Stylesheet } from "entities/AppTheming";
 import * as log from "loglevel";
-import { WidgetFeatures } from "./WidgetFeatures";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import { CanvasWidgetStructure } from "widgets/constants";
 import {
   addPropertyConfigIds,
+  addSearchConfigToPanelConfig,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
   generatePropertyPaneSearchConfig,
-  addSearchConfigToPanelConfig,
   PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
-import { CanvasWidgetStructure } from "widgets/constants";
-import { Stylesheet } from "entities/AppTheming";
+import { WidgetFeatures } from "./WidgetFeatures";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;

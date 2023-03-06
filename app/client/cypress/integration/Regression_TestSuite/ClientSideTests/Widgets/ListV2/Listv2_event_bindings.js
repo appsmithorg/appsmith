@@ -19,9 +19,9 @@ describe("Listv2 - Event bindings", () => {
 
   it("1. simple list widget should have access to currentItem, currentIndex and currentView", () => {
     cy.addDsl(simpleListWithInputAndButtonDSL);
-
+    cy.wait(4000);
     // Open the property pane of button in the inner list widget
-    cy.openPropertyPaneByWidgetName("Button1", "buttonwidget");
+    cy.openPropertyPane("buttonwidget");
 
     // Enable JS mode for onClick
     cy.get(toggleJSButton("onclick")).click({ force: true });
@@ -62,9 +62,9 @@ describe("Listv2 - Event bindings", () => {
 
   it("3. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {
     cy.addDsl(nestedListDSL);
-
+    cy.wait(4000);
     // Open the property pane of button in the inner list widget
-    cy.openPropertyPaneByWidgetName("Button3", "buttonwidget");
+    cy.openPropertyPane("buttonwidget");
 
     // Enable JS mode for onClick
     cy.get(toggleJSButton("onclick")).click({ force: true });

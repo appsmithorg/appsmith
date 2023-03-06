@@ -16,8 +16,8 @@ const jsObjectBody = `export default {
 
 describe("Autocomplete tests", () => {
   it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
-    _.ee.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
-    _.ee.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
 
     // create js object
     _.jsEditor.CreateJSObject(jsObjectBody, {
@@ -48,8 +48,8 @@ describe("Autocomplete tests", () => {
     _.agHelper.GetNClickByContains(_.locators._hints, "docUrl");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      _.ee.SelectEntityByName(jsName as string, "Queries/JS");
-      _.ee.ActionContextMenuByEntityName(
+      _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      _.entityExplorer.ActionContextMenuByEntityName(
         jsName as string,
         "Delete",
         "Are you sure?",
@@ -60,7 +60,7 @@ describe("Autocomplete tests", () => {
 
   it("2. Check for bindings not available in other page", () => {
     // dependent on above case: 1st page should have DocumentViewer widget
-    _.ee.AddNewPage();
+    _.entityExplorer.AddNewPage();
 
     // create js object
     _.jsEditor.CreateJSObject(jsObjectBody, {
@@ -79,14 +79,11 @@ describe("Autocomplete tests", () => {
       "docUrl",
       "not.have.text",
     );
-    _.agHelper.TypeText(
-      _.locators._codeMirrorTextArea,
-      "ocumentViewer.docUrl",
-    );
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "ocumentViewer.docUrl");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      _.ee.SelectEntityByName(jsName as string, "Queries/JS");
-      _.ee.ActionContextMenuByEntityName(
+      _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      _.entityExplorer.ActionContextMenuByEntityName(
         jsName as string,
         "Delete",
         "Are you sure?",
@@ -170,7 +167,7 @@ describe("Autocomplete tests", () => {
     _.agHelper.Sleep(2000);
     _.apiPage.RunAPI();
     // Using same js object
-    _.ee.SelectEntityByName("JSObject1", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5), 0, true);
     _.agHelper.SelectNRemoveLineText(_.locators._codeMirrorTextArea);
     //_.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
@@ -181,17 +178,16 @@ describe("Autocomplete tests", () => {
     _.agHelper.GetNAssertElementText(_.locators._hints, "email");
     _.agHelper.Sleep();
     _.agHelper.TypeText(_.locators._codeMirrorTextArea, "mail");
-    _.ee.SelectEntityByName(jsName as string, "Queries/JS");
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+    _.entityExplorer.ActionContextMenuByEntityName(
       "JSObject1",
       "Delete",
       "Are you sure?",
       true,
-    )
+    );
   });
 
   it("6. Local variables & complex data autocompletion test", () => {
-
     _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
@@ -238,80 +234,67 @@ describe("Autocomplete tests", () => {
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      _.ee.SelectEntityByName(jsName as string, "Queries/JS");
-      _.ee.ActionContextMenuByEntityName(
+      _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      _.entityExplorer.ActionContextMenuByEntityName(
         jsName as string,
         "Delete",
         "Are you sure?",
         true,
       );
     });
-    _.ee.ActionContextMenuByEntityName(
-      "Api1",
-      "Delete",
-      "Are you sure?",
-    );
+    _.entityExplorer.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
   });
 
   it("7. Autocompletion for bindings inside array and objects", () => {
     _.dataSources.CreateDataSource("Mongo", true, false);
-    cy.get("@dsName").then(($dsName) => {
-      _.dataSources.CreateNewQueryInDS(($dsName as unknown) as string);
-      _.dataSources.ValidateNSelectDropdown(
-        "Commands",
-        "Find Document(s)",
-        "Insert Document(s)",
-      );
+    _.dataSources.CreateQueryAfterDSSaved();
 
-      cy.xpath(_.locators._inputFieldByName("Documents")).then(
-        ($field: any) => {
-          _.agHelper.UpdateCodeInput($field, `{\n"_id": "{{appsmith}}"\n}`);
+    _.dataSources.ValidateNSelectDropdown(
+      "Commands",
+      "Find Document(s)",
+      "Insert Document(s)",
+    );
 
-          cy.wrap($field)
-            .find(".CodeMirror")
-            .find("textarea")
-            .parents(".CodeMirror")
-            .first()
-            .then((ins: any) => {
-              const input = ins[0].CodeMirror;
-              input.focus();
-              cy.wait(200);
-              cy.get(_.locators._codeMirrorTextArea)
-                .eq(1)
-                .focus()
-                .type(
-                  "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
-                )
-                .type(".");
+    cy.xpath(_.locators._inputFieldByName("Documents")).then(($field: any) => {
+      _.agHelper.UpdateCodeInput($field, `{\n"_id": "{{appsmith}}"\n}`);
 
-              _.agHelper.GetNAssertElementText(
-                _.locators._hints,
-                "geolocation",
-              );
+      cy.wrap($field)
+        .find(".CodeMirror")
+        .find("textarea")
+        .parents(".CodeMirror")
+        .first()
+        .then((ins: any) => {
+          const input = ins[0].CodeMirror;
+          input.focus();
+          cy.wait(200);
+          cy.get(_.locators._codeMirrorTextArea)
+            .eq(1)
+            .focus()
+            .type(
+              "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
+            )
+            .type(".");
 
-              cy.get(".t--close-editor").click();
-            });
-        },
-      );
+          _.agHelper.GetNAssertElementText(_.locators._hints, "geolocation");
+
+          cy.get(".t--close-editor").click();
+        });
     });
   });
 
   it("8. Multiple binding in single line", () => {
     _.dataSources.CreateDataSource("Postgres", true, false);
-    cy.get("@dsName").then(($dsName) => {
-      _.dataSources.CreateNewQueryInDS(
-        ($dsName as unknown) as string,
-        "SELECT * FROM worldCountryInfo where {{appsmith.store}} {{appsmith}}",
-      );
 
-      cy.get(_.locators._codeMirrorTextArea)
-        .eq(0)
-        .focus()
-        .type("{downArrow}{leftArrow}{leftArrow}");
+    _.dataSources.CreateQueryAfterDSSaved(
+      "SELECT * FROM worldCountryInfo where {{appsmith.store}} {{appsmith}}",
+    );
+    cy.get(_.locators._codeMirrorTextArea)
+      .eq(0)
+      .focus()
+      .type("{downArrow}{leftArrow}{leftArrow}");
 
-      _.agHelper.TypeText(_.locators._codeMirrorTextArea, ".");
-      _.agHelper.GetNAssertElementText(_.locators._hints, "geolocation");
-    });
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, ".");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "geolocation");
   });
 
   it("9. Bug #17059 Autocomplete does not suggest same function name that belongs to a different object", () => {
@@ -351,7 +334,7 @@ describe("Autocomplete tests", () => {
     );
 
     // Same check in JSObject1
-    _.ee.SelectEntityByName("JSObject1", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     _.agHelper.Sleep();
     _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
     _.agHelper.TypeText(_.locators._codeMirrorTextArea, "JSObject2");
@@ -370,13 +353,13 @@ describe("Autocomplete tests", () => {
       "have.text",
       4,
     );
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "JSObject1",
       "Delete",
       "Are you sure?",
       true,
     );
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "JSObject2",
       "Delete",
       "Are you sure?",
@@ -413,8 +396,8 @@ describe("Autocomplete tests", () => {
     );
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      _.ee.SelectEntityByName(jsName as string, "Queries/JS");
-      _.ee.ActionContextMenuByEntityName(
+      _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      _.entityExplorer.ActionContextMenuByEntityName(
         jsName as string,
         "Delete",
         "Are you sure?",
