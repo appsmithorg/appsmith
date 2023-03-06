@@ -67,6 +67,7 @@ const Wrapper = styled.div<{ left: number }>`
   z-index: 25;
   left: ${(props) => props.left}px;
   bottom: 15px;
+  top: 50px;
   .installation-header {
     padding: 20px 0 0;
     display: flex;

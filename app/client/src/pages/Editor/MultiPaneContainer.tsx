@@ -21,6 +21,7 @@ import {
 } from "reducers/uiReducers/multiPaneReducer";
 import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { Installer } from "./Explorer/Libraries/Installer";
 
 const Container = styled.div`
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
@@ -103,6 +104,7 @@ const MultiPaneContainer = () => {
           "transition-all transform duration-400": true,
         })}
       />
+      <Installer left={250 + SIDE_NAV_WIDTH} />
     </>
   );
 };
