@@ -1,18 +1,18 @@
 import { get } from "lodash";
 
-import IconSVG from "./icon.svg";
-import Widget from "./widget";
+import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
+import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
   FlattenedWidgetProps,
 } from "widgets/constants";
-import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
-import { WidgetProps } from "widgets/BaseWidget";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,
 } from "./widget/helper";
-import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 
 const DEFAULT_LIST_DATA = [
   {

@@ -4,7 +4,6 @@ import { Layers } from "constants/Layers";
 import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import { RESIZE_BORDER_BUFFER } from "resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {

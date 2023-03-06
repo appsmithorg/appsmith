@@ -4,7 +4,10 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,
@@ -347,4 +350,73 @@ export function getAlignmentColumnInfo(
     [FlexLayerAlignment.Center]: center,
     [FlexLayerAlignment.End]: end,
   };
+}
+
+/**
+ * This method preserves the flexLayers of the parent canvas,
+ * but only for the selected widgets
+ * @param selectedWidgets
+ * @param parentCanvas
+ * @returns
+ */
+export function getFlexLayersForSelectedWidgets(
+  selectedWidgets: string[],
+  parentCanvas: FlattenedWidgetProps | undefined,
+): FlexLayer[] {
+  if (
+    !parentCanvas ||
+    !parentCanvas.flexLayers ||
+    parentCanvas.flexLayers.length <= 0
+  )
+    return [];
+
+  const currFlexLayers: FlexLayer[] = parentCanvas.flexLayers;
+
+  const selectedFlexLayers: FlexLayer[] = [];
+
+  for (const flexLayer of currFlexLayers) {
+    const layerChildren = [];
+
+    for (const layerChild of flexLayer.children) {
+      if (selectedWidgets.indexOf(layerChild.id) > -1) {
+        layerChildren.push(layerChild);
+      }
+    }
+
+    if (layerChildren.length > 0) {
+      selectedFlexLayers.push({ children: layerChildren });
+    }
+  }
+
+  return selectedFlexLayers;
+}
+
+/**
+ * This method helps in Converting the widgetId inside flexLayers
+ * to the new corresponding widgetIds in widgetIdMap
+ * @param flexLayers
+ * @param widgetIdMap
+ * @returns
+ */
+export function getNewFlexLayers(
+  flexLayers: FlexLayer[],
+  widgetIdMap: Record<string, string>,
+) {
+  const newFlexLayers: FlexLayer[] = [];
+
+  for (const flexLayer of flexLayers) {
+    const newChildren = [];
+
+    for (const layerChild of flexLayer.children) {
+      if (widgetIdMap[layerChild.id]) {
+        newChildren.push({
+          id: widgetIdMap[layerChild.id],
+          align: layerChild.align,
+        });
+      }
+    }
+    newFlexLayers.push({ children: newChildren });
+  }
+
+  return newFlexLayers;
 }
