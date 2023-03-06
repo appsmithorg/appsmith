@@ -39,6 +39,8 @@ import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -105,6 +107,13 @@ function* getChildWidgetProps(
     }
   }
 
+  const isAutoLayout = isStack(widgets, parent);
+  if (
+    isAutoLayout &&
+    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill
+  )
+    columns = 64;
+
   const widgetProps = {
     ...restDefaultConfig,
     ...props,
@@ -156,7 +165,7 @@ function* getChildWidgetProps(
   return widget;
 }
 
-function* generateChildWidgets(
+export function* generateChildWidgets(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },

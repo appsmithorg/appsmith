@@ -9,13 +9,13 @@ import {
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
 
-import { all, put, takeLatest } from "redux-saga/effects";
 import {
   CodeEditorFocusState,
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { all, put, takeLatest } from "redux-saga/effects";
 
 /**
  * This method appends the PageId along with the focusable propertyPath

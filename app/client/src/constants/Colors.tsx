@@ -69,12 +69,13 @@ export const Colors = {
   BUTTER_CUP: "#F7AF22",
   BLUE_CHARCOAL: "#23292E",
   TROUT: "#4C565E",
-  JAFFA_DARK: "#EF7541",
+  JAFFA_DARK: "#F86A2B",
   BURNING_ORANGE: "#FF7742",
   TIA_MARIA: "#CB4810",
   SOLID_MERCURY: "#E5E5E5",
   TROUT_DARK: "#535B62",
   ALABASTER: "#F9F8F8",
+  // WATUSI: "#FF9B4E",
   WATUSI: "#FFE0D2",
   GRAY: "#858282",
   GRAY2: "#939090",
@@ -230,6 +231,9 @@ export const Colors = {
   CTA_PURPLE: "#5E5DC1",
 
   APPSMITH_BEIGE: "#faf5ed",
+
+  HIGHLIGHT_FILL: "#C273EF",
+  HIGHLIGHT_OUTLINE: "rgba(255, 255, 255, 0.5)",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

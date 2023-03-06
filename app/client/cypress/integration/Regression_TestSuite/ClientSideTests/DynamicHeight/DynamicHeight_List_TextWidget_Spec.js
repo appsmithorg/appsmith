@@ -85,9 +85,13 @@ describe("Dynamic Height Width validation list widget", function() {
         cy.wait(2000);
         cy.get(commonlocators.generalSectionHeight).should("be.visible");
         cy.get(".t--widget-textwidget")
-          .last()
+          .first()
+          .click({ force: true });
+        cy.get(".t--widget-textwidget")
+          .first()
           .invoke("css", "height")
           .then((height) => {
+            cy.log("height", height);
             cy.changeLayoutHeight(commonlocators.autoHeight);
             cy.wait("@updateLayout").should(
               "have.nested.property",
@@ -96,9 +100,14 @@ describe("Dynamic Height Width validation list widget", function() {
             );
             cy.wait(3000);
             cy.get(".t--widget-textwidget")
-              .last()
+              .first()
+              .click({ force: true });
+            cy.get(".t--widget-textwidget")
+              .first()
+              .wait(1000)
               .invoke("css", "height")
               .then((newheight) => {
+                cy.log("newheight", newheight);
                 expect(height).to.not.equal(newheight);
               });
           });
