@@ -55,7 +55,10 @@ const initialState: EditorContextState = {
   selectedPropertyTabIndex: 0,
   selectedDebuggerTab: "",
   propertyPanelState: {},
-  entityCollapsibleFields: {},
+  entityCollapsibleFields: {
+    Widgets: false,
+    "Queries/JS": true,
+  },
   subEntityCollapsibleFields: {},
   explorerSwitchIndex: 0,
 };
