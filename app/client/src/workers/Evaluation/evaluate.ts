@@ -55,8 +55,8 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   `,
   [EvaluationScriptType.TRIGGERS]: `
   async function $$closedFn () {
-    const $$return = ${ScriptTemplate};
-    return await $$return
+    const $$result = ${ScriptTemplate};
+    return await $$result
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
