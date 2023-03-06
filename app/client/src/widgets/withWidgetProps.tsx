@@ -1,35 +1,42 @@
 import equal from "fast-deep-equal/es6";
 import React from "react";
 
-import BaseWidget, { WidgetProps } from "./BaseWidget";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { AppState } from "@appsmith/reducers";
+import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
+import { useDispatch, useSelector } from "react-redux";
+import { getWidget } from "sagas/selectors";
 import {
-  getWidgetEvalValues,
   getIsWidgetLoading,
+  getWidgetEvalValues,
 } from "selectors/dataTreeSelectors";
 import {
-  getMainCanvasProps,
   computeMainContainerWidget,
   getChildWidgets,
+  getCurrentAppPositioningType,
+  getMainCanvasProps,
   getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
   getFlattenedChildCanvasWidgets,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { AppState } from "@appsmith/reducers";
-import { useDispatch, useSelector } from "react-redux";
-import { getWidget } from "sagas/selectors";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
+import BaseWidget, { WidgetProps } from "./BaseWidget";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import {
+  defaultAutoLayoutWidgets,
+  Positioning,
+} from "utils/autoLayout/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
@@ -74,6 +81,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getMetaWidgetChildrenStructure(widgetId, type, hasMetaWidgets),
       equal,
     );
+    const isMobile = useSelector(getIsMobile);
+    const appPositioningType = useSelector(getCurrentAppPositioningType);
 
     const dispatch = useDispatch();
 
@@ -92,6 +101,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }, equal);
 
     let widgetProps: WidgetProps = {} as WidgetProps;
+
     const widget = metaWidget || canvasWidget;
 
     if (!skipWidgetPropsHydration) {
@@ -131,6 +141,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
       widgetProps = { ...canvasWidgetProps };
 
+      widgetProps.isMobile = !!isMobile;
+      widgetProps.appPositioningType = appPositioningType;
+
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
        * If the isVisible property is undefined and the widget is MODAL_WIDGET then isVisible
@@ -167,13 +180,19 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
 
+      if (defaultAutoLayoutWidgets.includes(props.type)) {
+        widgetProps.positioning =
+          appPositioningType && appPositioningType === AppPositioningTypes.AUTO
+            ? Positioning.Vertical
+            : Positioning.Fixed;
+      }
+
       widgetProps.children = children;
       widgetProps.metaWidgetChildrenStructure = metaWidgetChildrenStructure;
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
       widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
     }
-
     //merging with original props
     widgetProps = { ...props, ...widgetProps, renderMode };
 
