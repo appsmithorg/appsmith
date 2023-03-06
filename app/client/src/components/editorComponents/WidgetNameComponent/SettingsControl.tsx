@@ -153,4 +153,4 @@ export function SettingsControl(props: SettingsControlProps) {
   );
 }
 
-export default SettingsControl;
+export default React.memo(SettingsControl);
