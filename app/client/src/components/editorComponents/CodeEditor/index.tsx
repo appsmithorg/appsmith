@@ -57,11 +57,11 @@ import {
   bindingMarker,
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
+  PEEK_STYLE_PERSIST_CLASS,
   PEEKABLE_ATTRIBUTE,
   PEEKABLE_CH_END,
   PEEKABLE_CH_START,
   PEEKABLE_LINE,
-  PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
@@ -131,9 +131,9 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
+  PEEK_OVERLAY_DELAY,
   PeekOverlayPopUp,
   PeekOverlayStateProps,
-  PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
@@ -763,15 +763,13 @@ class CodeEditor extends Component<Props, State> {
                 }
               }
 
-              if (navigationData.url) {
+              if (navigationData.type === ENTITY_TYPE.WIDGET) {
+                this.props.selectWidget(navigationData.id);
+                this.hidePeekOverlay();
+              } else if (navigationData.url) {
                 history.push(navigationData.url, {
                   invokedBy: NavigationMethod.CommandClick,
                 });
-
-                // TODO fix the widget navigation issue to remove this
-                if (navigationData.type === ENTITY_TYPE.WIDGET) {
-                  this.props.selectWidget(navigationData.id);
-                }
                 this.hidePeekOverlay();
               }
             }
