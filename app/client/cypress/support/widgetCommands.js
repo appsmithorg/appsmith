@@ -1837,3 +1837,27 @@ Cypress.Commands.add("findAndExpandEvaluatedTypeTitle", () => {
     .find("span")
     .click();
 });
+
+/**
+ * sourceColumn - Column name that needs to be dragged/picked.
+ * targetColumn - Name of the column where the sourceColumn needs to be dropped
+ */
+Cypress.Commands.add("dragAndDropColumn", (sourceColumn, targetColumn) => {
+  const dataTransfer = new DataTransfer();
+  cy.get(
+    `[data-header="${sourceColumn}"] [draggable='true']`,
+  ).trigger("dragstart", { force: true, dataTransfer });
+
+  cy.get(`[data-header="${targetColumn}"] [draggable='true']`).trigger("drop", {
+    force: true,
+    dataTransfer,
+  });
+  cy.wait(500);
+});
+
+Cypress.Commands.add("resizeColumn", (columnName, resizeAmount) => {
+  cy.get(`[data-header="${columnName}"] .resizer`)
+    .trigger("mousedown")
+    .trigger("mousemove", { x: resizeAmount, y: 0, force: true })
+    .trigger("mouseup");
+});

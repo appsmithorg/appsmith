@@ -4,7 +4,6 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { Toaster, Variant } from "design-system-old";
 import { uniq } from "lodash";
@@ -21,6 +20,7 @@ import {
 import { getWidgetChildrenIds } from "sagas/WidgetOperationUtils";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import WidgetFactory from "utils/WidgetFactory";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 /**
  * Selection types that are possible for widget select

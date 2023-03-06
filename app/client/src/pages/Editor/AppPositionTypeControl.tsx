@@ -151,7 +151,7 @@ export function AppPositionTypeControl() {
                         updateAppPositioningLayout(layoutOption);
                         setFocusedIndex(index);
                       }}
-                      onKeyDown={(event) => handleKeyDown(event, index)}
+                      onKeyDown={(event) => handleKeyDown(event, index)} //TODO: Ashok - This event listener isn't being removed.
                       ref={(input) => buttonRefs.push(input)}
                       tabIndex={index === focusedIndex ? 0 : -1}
                     >

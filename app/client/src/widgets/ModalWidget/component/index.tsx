@@ -77,9 +77,6 @@ const Container = styled.div<{
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
-        .bp3-popover2-target.bp3-popover2-open {
-          height: 100%;
-        }
       }
     }
   }
@@ -141,6 +138,7 @@ export type ModalComponentProps = {
   isDynamicHeightEnabled: boolean;
   background?: string;
   borderRadius?: string;
+  settingsComponent?: ReactNode;
 };
 
 /* eslint-disable react/display-name */
@@ -151,7 +149,6 @@ export default function ModalComponent(props: ModalComponentProps) {
   const { enableResize = false } = props;
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");
-
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -161,7 +158,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
   );
-
+  const disabledResizeHandles = get(props, "disabledResizeHandles", []);
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -170,8 +167,8 @@ export default function ModalComponent(props: ModalComponentProps) {
       right: RightHandleStyles,
     };
 
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+    return omit(allHandles, disabledResizeHandles);
+  }, [disabledResizeHandles]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -232,29 +229,9 @@ export default function ModalComponent(props: ModalComponentProps) {
     return !props.isDynamicHeightEnabled && enableResize;
   }, [props.isDynamicHeightEnabled, enableResize]);
 
-  const getModalContent = () => {
-    return (
-      <Wrapper
-        $background={props.background}
-        $borderRadius={props.borderRadius}
-        data-cy="modal-wrapper"
-      >
-        <Content
-          $scroll={!!props.scrollContents}
-          className={`${getCanvasClassName()} ${props.className} scroll-parent`}
-          id={props.widgetId}
-          ref={modalContentRef}
-          tabIndex={0}
-        >
-          {props.children}
-        </Content>
-      </Wrapper>
-    );
-  };
-
   const getResizableContent = () => {
     //id for Content is required for Copy Paste inside the modal
-    return enableResize ? (
+    return (
       <Resizable
         allowResize
         componentHeight={props.height || 0}
@@ -270,10 +247,25 @@ export default function ModalComponent(props: ModalComponentProps) {
         snapGrid={{ x: 1, y: 1 }}
         widgetId={props.widgetId}
       >
-        {getModalContent()}
+        {props.settingsComponent}
+        <Wrapper
+          $background={props.background}
+          $borderRadius={props.borderRadius}
+          data-cy="modal-wrapper"
+        >
+          <Content
+            $scroll={!!props.scrollContents}
+            className={`${getCanvasClassName()} ${
+              props.className
+            } scroll-parent`}
+            id={props.widgetId}
+            ref={modalContentRef}
+            tabIndex={0}
+          >
+            {props.children}
+          </Content>
+        </Wrapper>
       </Resizable>
-    ) : (
-      getModalContent()
     );
   };
 

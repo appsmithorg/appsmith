@@ -318,9 +318,7 @@ describe("Table widget date column inline editing functionality", () => {
     ).realHover();
     cy.get(`.t--editable-cell-icon`)
       .first()
-      .click({
-        force: true,
-      });
+      .click({});
     cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
     cy.get(
       ".bp3-transition-container .bp3-popover .bp3-popover-content",

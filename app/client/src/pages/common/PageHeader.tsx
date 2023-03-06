@@ -26,6 +26,7 @@ import { Indices } from "constants/Layers";
 import { Icon, IconSize } from "design-system-old";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -177,7 +178,10 @@ export function PageHeader(props: PageHeaderProps) {
                 matchTemplatesPath(location.pathname) ||
                 matchTemplatesIdPath(location.pathname)
               }
-              onClick={() => history.push(TEMPLATES_PATH)}
+              onClick={() => {
+                AnalyticsUtil.logEvent("TEMPLATES_TAB_CLICK");
+                history.push(TEMPLATES_PATH);
+              }}
             >
               <div>Templates</div>
             </TabName>

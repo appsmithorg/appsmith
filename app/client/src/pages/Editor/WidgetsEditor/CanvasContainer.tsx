@@ -24,6 +24,7 @@ import {
   getAppThemeIsChanging,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import {
@@ -33,7 +34,6 @@ import {
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { CanvasResizer } from "widgets/CanvasResizer";
 import Canvas from "../Canvas";
-import { getIsAutoLayout } from "selectors/canvasSelectors";
 
 const Container = styled.section<{
   $isAutoLayout: boolean;
@@ -153,8 +153,5 @@ function CanvasContainer() {
     </>
   );
 }
-CanvasContainer.whyDidYouRender = {
-  logOnDifferentValues: true,
-};
 
 export default CanvasContainer;

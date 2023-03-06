@@ -10,7 +10,7 @@ import { all, put, select, takeLatest } from "redux-saga/effects";
 import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
-} from "../utils/autoLayout/AutoLayoutUtils";
+} from "utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
 
 export function* updateLayoutForMobileCheckpoint(
@@ -29,7 +29,7 @@ export function* updateLayoutForMobileCheckpoint(
       : alterLayoutForDesktop(allWidgets, parentId);
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug(
-      "updating layout for mobile viewport took",
+      "Auto Layout : updating layout for mobile viewport took",
       performance.now() - start,
       "ms",
     );

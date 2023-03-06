@@ -3,13 +3,15 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { WidgetProps } from "widgets/BaseWidget";
 import {
   getBottomRow,
   getTopRow,
@@ -19,14 +21,10 @@ import {
   setDimensions,
 } from "./flexWidgetUtils";
 
-export type Widget = WidgetProps & {
-  children?: string[] | undefined;
-};
-
 export interface AlignmentInfo {
   alignment: FlexLayerAlignment;
   columns: number;
-  children: Widget[];
+  children: FlattenedWidgetProps[];
 }
 
 export interface Row extends AlignmentInfo {
@@ -539,7 +537,7 @@ export function getWrappedRows(
     height: 0,
   };
   const space = GridDefaults.DEFAULT_GRID_COLUMNS;
-  const temp: Widget[] = [];
+  const temp: FlattenedWidgetProps[] = [];
   let columns = 0,
     index = 0,
     maxHeight = 0;
@@ -575,7 +573,7 @@ export function getWrappedRows(
 
 function getHeightOfFixedCanvas(
   widgets: CanvasWidgetsReduxState,
-  parent: Widget,
+  parent: FlattenedWidgetProps,
   isMobile: boolean,
 ): number {
   if (!parent.children || !parent.children.length)

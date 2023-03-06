@@ -177,7 +177,6 @@ export default (props: PopperProps) => {
               elementRef.style.top = initPositon.top + "px";
               elementRef.style.left = initPositon.left + "px";
             }
-            _popper.scheduleUpdate();
           },
           modifiers: {
             flip: {
@@ -201,18 +200,6 @@ export default (props: PopperProps) => {
           },
         },
       );
-      if (props.targetNode) {
-        const config = { attributes: true };
-        const callback = (mutationList: any) => {
-          for (const mutation of mutationList) {
-            if (["attributes", "childList"].includes(mutation.type)) {
-              _popper.scheduleUpdate();
-            }
-          }
-        };
-        const observer = new MutationObserver(callback);
-        observer.observe(props.targetNode, config);
-      }
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
         draggableElement(

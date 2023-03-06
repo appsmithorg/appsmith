@@ -1,11 +1,17 @@
-import equal from "fast-deep-equal/es6";
-import _, { get, isFunction } from "lodash";
-import * as log from "loglevel";
 import React, { memo, useCallback, useEffect, useRef } from "react";
+import _, { get, isFunction } from "lodash";
+import equal from "fast-deep-equal/es6";
+import * as log from "loglevel";
 
-import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
-import { AppState } from "@appsmith/reducers";
-import { IPanelProps } from "@blueprintjs/core";
+import {
+  ControlPropertyLabelContainer,
+  ControlWrapper,
+} from "components/propertyControls/StyledControls";
+import { JSToggleButton } from "design-system-old";
+import PropertyControlFactory from "utils/PropertyControlFactory";
+import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
+import { useDispatch, useSelector } from "react-redux";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   batchUpdateMultipleWidgetProperties,
   batchUpdateWidgetProperty,
@@ -13,33 +19,12 @@ import {
   setWidgetDynamicProperty,
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
-import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ControlData } from "components/propertyControls/BaseControl";
-import {
-  ControlPropertyLabelContainer,
-  ControlWrapper,
-} from "components/propertyControls/StyledControls";
 import {
   PropertyHookUpdates,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
-import { JSToggleButton, TooltipComponent } from "design-system-old";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getShouldFocusPropertyPath,
-  getWidgetPropsForPropertyName,
-  WidgetProperties,
-} from "selectors/propertyPaneSelectors";
-import { EnhancementFns } from "selectors/widgetEnhancementSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { IPanelProps } from "@blueprintjs/core";
+import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   DynamicPath,
   getEvalValuePath,
@@ -47,14 +32,29 @@ import {
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
+  getShouldFocusPropertyPath,
+  getWidgetPropsForPropertyName,
+  WidgetProperties,
+} from "selectors/propertyPaneSelectors";
+import { EnhancementFns } from "selectors/widgetEnhancementSelectors";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { getExpectedValue } from "utils/validation/common";
+import { ControlData } from "components/propertyControls/BaseControl";
+import { AppState } from "@appsmith/reducers";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { TooltipComponent } from "design-system-old";
+import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
+import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
-import PropertyControlFactory from "utils/PropertyControlFactory";
-import { getExpectedValue } from "utils/validation/common";
-import WidgetFactory from "utils/WidgetFactory";
-import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
+import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import WidgetFactory from "utils/WidgetFactory";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 type Props = PropertyPaneControlConfig & {
@@ -234,20 +234,6 @@ const PropertyControl = memo((props: Props) => {
     },
     [],
   );
-
-  const getAdditionalActionsToDispatch = (
-    propertyName: string,
-    propertyValue: any,
-  ): ReduxAction<any> | null => {
-    if (props.additionalAction) {
-      return props.additionalAction(
-        widgetProperties,
-        propertyName,
-        propertyValue,
-      );
-    }
-    return null;
-  };
 
   const getWidgetsOwnUpdatesOnPropertyChange = (
     propertyName: string,
@@ -449,22 +435,11 @@ const PropertyControl = memo((props: Props) => {
           );
         }
       }
-      const additionalAction = getAdditionalActionsToDispatch(
-        propertyName,
-        propertyValue,
-      );
 
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
         onBatchUpdatePropertiesOfMultipleWidgets(allPropertiesToUpdates);
-        // TODO: This is a temporary implementation.
-        // Replace it with Abhinav's implementation of the same functionality on dynamic height, when available.
-        if (additionalAction) {
-          setTimeout(() => {
-            dispatch(additionalAction);
-          }, 0);
-        }
       }
     },
     [widgetProperties],

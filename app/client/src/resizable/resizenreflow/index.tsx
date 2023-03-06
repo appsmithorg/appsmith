@@ -4,8 +4,8 @@ import {
 } from "components/editorComponents/ResizableUtils";
 import {
   GridDefaults,
-  WidgetHeightLimits,
   WIDGET_PADDING,
+  WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -19,8 +19,8 @@ import {
   DimensionUpdateProps,
   ResizableHandle,
   ResizableProps,
-  ResizeWrapper,
   RESIZE_BORDER_BUFFER,
+  ResizeWrapper,
 } from "resizable/common";
 import { getWidgetByID } from "sagas/selectors";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
@@ -34,7 +34,6 @@ import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 export function ReflowResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
-
   const occupiedSpacesBySiblingWidgets = useSelector(
     getContainerOccupiedSpacesSelectorWhileResizing(props.parentId),
   );

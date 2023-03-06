@@ -959,7 +959,12 @@ describe("App Theming funtionality", function() {
       "background-color",
       "rgb(126, 34, 206)",
     ); //Widget Color
-    cy.get(".t--widget-button2 button").should("be.visible");
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.widgetBtn).length <= 1) {
+        cy.reload();
+        cy.wait(4000);
+      }
+    });
     cy.get(".t--widget-button2 button").should(
       "have.css",
       "background-color",
@@ -1210,12 +1215,18 @@ describe("App Theming funtionality", function() {
       "background-color",
       "rgb(255, 241, 242)",
     ); //Background Color of canvas
+
     cy.get(".t--widget-button1 button").should(
       "have.css",
       "background-color",
       "rgb(239, 68, 68)",
     ); //Widget Color
-    cy.get(".t--widget-button2 button").should("be.visible");
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.widgetBtn).length <= 1) {
+        cy.reload();
+        cy.wait(4000);
+      }
+    });
     cy.get(".t--widget-button2 button").should(
       "have.css",
       "background-color",

@@ -4,9 +4,10 @@ import {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { memoize } from "lodash";
 import log from "loglevel";
 import { generateReactKey } from "./generators";
-import { WidgetType } from "./WidgetFactory";
+import WidgetFactory, { WidgetType } from "./WidgetFactory";
 import {
   PropertyPaneConfigTemplates,
   RegisteredWidgetFeatures,
@@ -272,3 +273,9 @@ export function convertFunctionsToString(config: PropertyPaneConfig[]) {
     return sectionOrControlConfig;
   });
 }
+
+export const checkIsDropTarget = memoize(function isDropTarget(
+  type: WidgetType,
+) {
+  return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
+});

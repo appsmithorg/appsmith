@@ -137,7 +137,7 @@ export const useDynamicAppLayout = () => {
 
     const ele: any = document.getElementById("canvas-viewport");
     if (
-      appMode === "EDIT" &&
+      appMode === APP_MODE.EDIT &&
       appLayout?.type === "FLUID" &&
       ele &&
       calculatedWidth > ele.clientWidth
@@ -260,21 +260,19 @@ export const useDynamicAppLayout = () => {
     isExplorerPinned,
     propertyPaneWidth,
     isAppSettingsPaneOpen,
+    currentPageId, //TODO: preet - remove this after first merge.
   ]);
 
   useEffect(() => {
-    function relayoutAtBreakpoint() {
-      dispatch(
-        updateLayoutForMobileBreakpointAction(
-          MAIN_CONTAINER_WIDGET_ID,
-          appPositioningType === AppPositioningTypes.AUTO
-            ? mainCanvasProps?.isMobile
-            : false,
-          calculateCanvasWidth(),
-        ),
-      );
-    }
-    relayoutAtBreakpoint();
+    dispatch(
+      updateLayoutForMobileBreakpointAction(
+        MAIN_CONTAINER_WIDGET_ID,
+        appPositioningType === AppPositioningTypes.AUTO
+          ? mainCanvasProps?.isMobile
+          : false,
+        calculateCanvasWidth(),
+      ),
+    );
   }, [mainCanvasProps?.isMobile, appPositioningType]);
 
   return isCanvasInitialized;

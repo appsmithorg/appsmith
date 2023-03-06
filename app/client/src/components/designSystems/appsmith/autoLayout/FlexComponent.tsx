@@ -1,11 +1,7 @@
 import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import {
-  WidgetType,
-  widgetTypeClassname,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
@@ -16,7 +12,8 @@ import {
 } from "utils/autoLayout/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
-import { checkIsDropTarget } from "../PositionedContainer";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -105,6 +102,8 @@ export function FlexComponent(props: AutoLayoutProps) {
   return (
     <FlexWidget
       className={className}
+      data-testid="test-widget"
+      data-widgetname-cy={props.widgetName}
       id={"auto_" + props.widgetId}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}

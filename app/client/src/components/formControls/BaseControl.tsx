@@ -18,7 +18,8 @@ export type ComparisonOperations =
   | "LESSER"
   | "GREATER"
   | "IN"
-  | "NOT_IN";
+  | "NOT_IN"
+  | "FEATURE_FLAG";
 
 export type HiddenType = boolean | Condition | ConditionObject;
 

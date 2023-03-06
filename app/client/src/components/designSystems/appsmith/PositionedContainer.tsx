@@ -5,7 +5,6 @@ import {
   CSSUnits,
   PositionTypes,
   WidgetType,
-  widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
@@ -14,14 +13,14 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import WidgetFactory from "utils/WidgetFactory";
-import { memoize } from "lodash";
 import {
   getIsReflowEffectedSelector,
   getReflowSelector,
 } from "selectors/widgetReflowSelectors";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 const PositionedWidget = styled.div<{
   zIndexOnHover: number;
@@ -50,12 +49,6 @@ export type PositionedContainerProps = {
   isVisible?: boolean;
   widgetName: string;
 };
-
-export const checkIsDropTarget = memoize(function isDropTarget(
-  type: WidgetType,
-) {
-  return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
-});
 
 export function PositionedContainer(
   props: PositionedContainerProps,

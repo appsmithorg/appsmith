@@ -15,22 +15,22 @@ import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggi
 import { useContext, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  WidgetOperationParams,
+  getDropZoneOffsets,
+  widgetOperationParams,
+} from "utils/WidgetPropsUtils";
 import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
 import { snapToGrid } from "utils/helpers";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import {
-  getDropZoneOffsets,
-  WidgetOperationParams,
-  widgetOperationParams,
-} from "utils/WidgetPropsUtils";
 import { XYCord } from "./useRenderBlocksOnCanvas";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {

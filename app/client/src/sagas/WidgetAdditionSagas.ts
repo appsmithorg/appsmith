@@ -1,38 +1,22 @@
+import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
+import { Toaster } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { RenderModes } from "constants/WidgetConstants";
-import { Toaster } from "design-system-old";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import produce from "immer";
-import { klona as clone } from "klona/full";
-import omit from "lodash/omit";
-import log from "loglevel";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import { getDataTree } from "selectors/dataTreeSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import { generateReactKey } from "utils/generators";
-import WidgetFactory from "utils/WidgetFactory";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  GRID_DENSITY_MIGRATION_V1,
-} from "widgets/constants";
-import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidget, getWidgets } from "./selectors";
 import {
   buildWidgetBlueprint,
@@ -40,7 +24,23 @@ import {
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
+import log from "loglevel";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { generateReactKey } from "utils/generators";
+import { WidgetProps } from "widgets/BaseWidget";
+import WidgetFactory from "utils/WidgetFactory";
+import omit from "lodash/omit";
+import produce from "immer";
+import {
+  GRID_DENSITY_MIGRATION_V1,
+  BlueprintOperationTypes,
+} from "widgets/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
+import { klona as clone } from "klona/full";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

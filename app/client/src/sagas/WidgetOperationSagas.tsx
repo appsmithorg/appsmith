@@ -15,6 +15,7 @@ import {
 } from "actions/controlActions";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -57,15 +58,18 @@ import {
 } from "utils/DynamicBindingUtils";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
+import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
+
 import {
   createMessage,
-  ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
+  ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
+  ERROR_WIDGET_CUT_NOT_ALLOWED,
   WIDGET_COPY,
   WIDGET_CUT,
-  ERROR_WIDGET_CUT_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { Toaster, Variant } from "design-system-old";
@@ -79,7 +83,6 @@ import { validateProperty } from "./EvaluationsSaga";
 
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -98,6 +101,7 @@ import { builderURL } from "RouteBuilder";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
+import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { flashElementsById } from "utils/helpers";
 import history from "utils/history";
@@ -105,7 +109,7 @@ import {
   collisionCheckPostReflow,
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import { BlueprintOperationTypes } from "widgets/constants";
 import {
   addChildToPastedFlexLayers,
   getFlexLayersForSelectedWidgets,
@@ -114,8 +118,11 @@ import {
   pasteWidgetInFlexLayers,
 } from "../utils/autoLayout/AutoLayoutUtils";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
-import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
+import {
+  executeWidgetBlueprintBeforeOperations,
+  traverseTreeAndExecuteBlueprintChildOperations,
+} from "./WidgetBlueprintSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import {
   changeIdsOfPastePositions,
@@ -154,12 +161,6 @@ import {
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { SelectionRequestType } from "./WidgetSelectUtils";
-import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
-import {
-  executeWidgetBlueprintBeforeOperations,
-  traverseTreeAndExecuteBlueprintChildOperations,
-} from "./WidgetBlueprintSagas";
-import { BlueprintOperationTypes } from "widgets/constants";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {

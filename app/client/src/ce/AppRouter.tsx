@@ -57,7 +57,6 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";
-import WDSPage from "components/wds/Showcase";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
@@ -90,7 +89,6 @@ export function Routes() {
       <SentryRoute component={WorkspaceLoader} path={WORKSPACE_URL} />
       <SentryRoute component={Users} exact path={USERS_URL} />
       <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
-      <SentryRoute component={WDSPage} path="/wds" />
       <SentryRoute
         component={ApplicationListLoader}
         exact

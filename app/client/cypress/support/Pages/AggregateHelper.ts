@@ -114,9 +114,9 @@ export class AggregateHelper {
     //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
   }
 
-  public RenameWithInPane(renameVal: string, query = true) {
-    const name = query ? this.locator._queryName : this.locator._dsName;
-    const text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
+  public RenameWithInPane(renameVal: string, IsQuery = true) {
+    const name = IsQuery ? this.locator._queryName : this.locator._dsName;
+    const text = IsQuery ? this.locator._queryNameTxt : this.locator._dsNameTxt;
     this.GetNClick(name, 0, true);
     cy.get(text)
       .clear({ force: true })
@@ -138,7 +138,7 @@ export class AggregateHelper {
 
   public CheckForPageSaveError() {
     // Wait for "saving" status to disappear
-    this.GetElement(this.locator._statusSaving,60000).should("not.exist");
+    this.GetElement(this.locator._statusSaving, 30000).should("not.exist");
     // Check for page save error
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._saveStatusError).length) {
@@ -197,11 +197,11 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true) {
+  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true, force = true) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
       .eq(index)
       .scrollIntoView()
-      .click({ force: true });
+      .click({ force: force });
     shouldSleep && this.Sleep();
   }
 
@@ -553,6 +553,13 @@ export class AggregateHelper {
       : cy.get(selector);
     locator.type(this.selectLine);
     return locator.type(this.removeLine);
+  }
+
+  public SelectAllRemoveCodeText(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.type(this.selectAll+"{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -1062,7 +1069,7 @@ export class AggregateHelper {
 
   public AssertContains(
     text: string | RegExp,
-    exists: "exist" | "not.exist" = "exist",
+    exists: "exist" | "not.exist" | "be.visible" = "exist",
     selector?: string,
   ) {
     if (selector) {
