@@ -10,6 +10,7 @@ import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/ac
 import { WhereClauseSubComponent } from "./utils";
 import { TooltipComponent as Tooltip } from "design-system-old";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
+import { Colors } from "constants/Colors";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
@@ -87,14 +88,15 @@ const CenteredIcon = styled(Icon)<{
   }
 `;
 
-const handleBackgroudColor = (
+// We are setting a background color for the last two nested levels
+const handleSecondaryBoxBackgroudColor = (
   currentNestingLevel: number,
   nestedLevels: number,
 ) => {
   if (currentNestingLevel === nestedLevels) {
-    return "background-color: #f1f1f1;";
+    return `background-color: ${Colors.GRAY_100};`;
   } else if (currentNestingLevel === nestedLevels - 1) {
-    return "background-color: #f8f8f8;";
+    return `background-color: ${Colors.GRAY_50};`;
   } else {
     return "";
   }
@@ -115,12 +117,16 @@ const SecondaryBox = styled.div<{
   padding: ${(props) =>
     props?.showBorder ? "0px 12px 28px 8px" : "4px 12px 24px 0px"};
   width: 100%;
+  // Setting a max width to not have it really elongate on very large screens
   max-width: 2000px;
 
   ${(props) =>
     props.size === "small" &&
     `
-    ${handleBackgroudColor(props.currentNestingLevel, props.nestedLevels)}
+    ${handleSecondaryBoxBackgroudColor(
+      props.currentNestingLevel,
+      props.nestedLevels,
+    )}
     padding-bottom: 20px;
   `}
 `;
@@ -147,6 +153,8 @@ const ConditionWrapper = styled.div<{ size: string }>`
 // Wrapper to contain a single condition statement
 const ConditionBox = styled.div<{ size?: string }>`
   display: grid;
+  // The 4 elements(3 input fields and a close button) are horizontally aligned
+  // by default
   grid-template-columns: auto 100px auto max-content;
   grid-column-gap: 12px;
   grid-row-gap: 8px;
@@ -155,15 +163,21 @@ const ConditionBox = styled.div<{ size?: string }>`
   ${(props) =>
     props.size === "small" &&
     `
+    // Smallest width of the component such that the text CTA's "ADD GROUP CONDITION"
+    // fits in the available space without overflow
     min-width: 325px;
     margin: 8px 0px;
+    // In small space we shift to a two column layout where the three inputs
+    // are verticall aligned one below the other.
     grid-template-columns: repeat(2, max-content);
     grid-template-rows: repeat(3, max-content);
     grid-column-gap: 8px;
+    // The three input fields will be in the first column
     & :not(:nth-child(4)) {
       grid-column-start: 1;
     }
-  
+    // The fourth element i.e the close button will be placed in the second row
+    // to have it center aligned 
     & :nth-child(4) {
       grid-column-start: 2;
       grid-row-start: 2;
@@ -179,9 +193,9 @@ const ActionBox = styled.div<{ marginLeft: string; size: string }>`
   gap: 20px;
   width: max-content;
   justify-content: space-between;
+  position: absolute;
   height: 24px;
   text-transform: uppercase;
-  position: absolute;
   background-color: inherit;
   bottom: 0px;
   margin-left: ${(props) => props.marginLeft};
@@ -205,6 +219,7 @@ const AddMoreAction = styled.div<{ isDisabled?: boolean; size?: string }>`
   color: ${(props) =>
     props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
 
+  // Hide the "ADD GROUP CONDITION" text when in small space and is disabled
   ${(props) =>
     props.size === "small" &&
     props.isDisabled &&
@@ -259,10 +274,6 @@ function ConditionComponent(props: any, index: number) {
     WhereClauseSubComponent.Condition,
   );
 
-  //flexWidth is the width of one Key or Value field
-  //It is a function of DropdownWidth and Margin
-  //fexWidth = maxWidth(set By WhereClauseControl) - Offset Values based on DropdownWidth and Margin
-
   return (
     <ConditionBox key={index} size={props.size}>
       {/* Component to input the LHS for single condition */}
@@ -271,6 +282,7 @@ function ConditionComponent(props: any, index: number) {
           ...keyFieldConfig,
           configProperty: keyPath,
           customStyles: {
+            // Smallest width where the full placeholder fits
             minWidth: "100px",
           },
         }}
@@ -280,6 +292,7 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...conditionFieldConfig,
+          // Set default width when in small space
           customStyles:
             props.size === "small"
               ? {}
@@ -321,6 +334,8 @@ function ConditionComponent(props: any, index: number) {
 // This is the block which contains an operator and multiple conditions/ condition blocks
 function ConditionBlock(props: any) {
   const targetRef = useRef<HTMLDivElement>(null);
+  // Smallest width of the component below which the individual input fields don't
+  // decrease in width anymore so we decide to shift to small space layout at this point
   const size = useResponsiveBreakpoints(targetRef, [{ small: 505 }]);
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
