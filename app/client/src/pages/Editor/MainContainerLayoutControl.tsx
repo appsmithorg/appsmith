@@ -1,19 +1,30 @@
+import { ReactComponent as DesktopIcon } from "assets/icons/ads/app-icons/monitor-alt.svg";
+import { ReactComponent as MultiDeviceIcon } from "assets/icons/ads/app-icons/monitor-smartphone-alt.svg";
+import { ReactComponent as MobileIcon } from "assets/icons/ads/app-icons/smartphone-alt.svg";
+import { ReactComponent as TabletIcon } from "assets/icons/ads/app-icons/tablet-alt.svg";
+import { ReactComponent as TabletLandscapeIcon } from "assets/icons/ads/app-icons/tabletr-alt.svg";
 import classNames from "classnames";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useMemo, useCallback } from "react";
 
-import {
-  getCurrentApplicationId,
-  getCurrentApplicationLayout,
-} from "selectors/editorSelectors";
-import { Colors } from "constants/Colors";
+import { updateApplicationLayout } from "actions/applicationActions";
+import { IconName, TooltipComponent } from "design-system-old";
 import {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
-import { TooltipComponent, Icon, IconName, IconSize } from "design-system-old";
-import { updateApplicationLayout } from "actions/applicationActions";
+import {
+  getCurrentApplicationId,
+  getCurrentApplicationLayout,
+} from "selectors/editorSelectors";
 
+const IconObj: any = {
+  FLUID: <MultiDeviceIcon />,
+  DESKTOP: <DesktopIcon />,
+  TABLET: <TabletIcon />,
+  TABLET_LARGE: <TabletLandscapeIcon />,
+  MOBILE: <MobileIcon />,
+};
 interface AppsmithLayoutConfigOption {
   name: string;
   type: SupportedLayouts;
@@ -140,11 +151,9 @@ export function MainContainerLayoutControl() {
                 ref={(input) => buttonRefs.push(input)}
                 tabIndex={index === focusedIndex ? 0 : -1}
               >
-                <Icon
-                  fillColor={Colors.BLACK}
-                  name={layoutOption.icon}
-                  size={layoutOption.iconSize || IconSize.MEDIUM}
-                />
+                <div style={{ width: "16px", height: "16px" }}>
+                  {IconObj[layoutOption.type]}
+                </div>
               </button>
             </TooltipComponent>
           );
