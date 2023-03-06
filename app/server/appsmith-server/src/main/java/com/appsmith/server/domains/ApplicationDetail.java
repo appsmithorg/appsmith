@@ -16,8 +16,8 @@ public class ApplicationDetail {
     Application.NavigationSetting navigationSetting;
 
     public ApplicationDetail() {
-        this.appPositioning = new Application.AppPositioning();
-        this.navigationSetting = new Application.NavigationSetting();
+        this.appPositioning = null;
+        this.navigationSetting = null;
     }
 
 }

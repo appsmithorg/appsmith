@@ -11,6 +11,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -299,14 +300,22 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                      * Retaining the logoAssetId field value while updating NavigationSetting
                      */
                     if (application.getUnpublishedApplicationDetail() != null) {
+                        ApplicationDetail presetApplicationDetail = ObjectUtils.defaultIfNull(branchedApplication.getApplicationDetail(), new ApplicationDetail());
                         Application.NavigationSetting requestNavSetting = application.getUnpublishedApplicationDetail().getNavigationSetting();
                         if (requestNavSetting != null) {
                             Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(), new Application.NavigationSetting());
                             String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
                             String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
                             requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
-                            application.getUnpublishedApplicationDetail().setNavigationSetting(requestNavSetting);
+                            presetApplicationDetail.setNavigationSetting(requestNavSetting);
                         }
+
+                        Application.AppPositioning requestAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning();
+                        if (requestAppPositioning != null){
+                            presetApplicationDetail.setAppPositioning(requestAppPositioning);
+                        }
+
+                        application.setUnpublishedApplicationDetail(presetApplicationDetail);
                     }
                     return this.update(branchedApplication.getId(), application);
                 });

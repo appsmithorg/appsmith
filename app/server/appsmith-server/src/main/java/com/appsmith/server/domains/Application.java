@@ -69,7 +69,10 @@ public class Application extends BaseDomain {
     @JsonIgnore
     String clonedFromApplicationId;
 
+    @JsonIgnore
     ApplicationDetail unpublishedApplicationDetail;
+
+    @JsonIgnore
     ApplicationDetail publishedApplicationDetail;
 
     String color;
@@ -113,18 +116,6 @@ public class Application extends BaseDomain {
     Instant lastEditedAt;
 
     EmbedSetting embedSetting;
-
-    @JsonIgnore
-//    NavigationSetting unpublishedNavigationSetting;
-//
-//    @JsonIgnore
-//    NavigationSetting publishedNavigationSetting;
-//
-//    @JsonIgnore
-//    AppPositioning publishedAppPositioning;
-//
-//    @JsonIgnore
-//    AppPositioning unpublishedAppPositioning;
 
     Boolean collapseInvisibleWidgets;
 
@@ -246,6 +237,18 @@ public class Application extends BaseDomain {
             publishedAppLayout = appLayout;
         } else {
             unpublishedAppLayout = appLayout;
+        }
+    }
+
+    public ApplicationDetail getApplicationDetail() {
+        return Boolean.TRUE.equals(viewMode) ? publishedApplicationDetail : unpublishedApplicationDetail;
+    }
+
+    public void setApplicationDetail(ApplicationDetail applicationDetail) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedApplicationDetail = applicationDetail;
+        } else {
+            unpublishedApplicationDetail = applicationDetail;
         }
     }
 
