@@ -114,9 +114,9 @@ export class AggregateHelper {
     //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
   }
 
-  public RenameWithInPane(renameVal: string, query = true) {
-    const name = query ? this.locator._queryName : this.locator._dsName;
-    const text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
+  public RenameWithInPane(renameVal: string, IsQuery = true) {
+    const name = IsQuery ? this.locator._queryName : this.locator._dsName;
+    const text = IsQuery ? this.locator._queryNameTxt : this.locator._dsNameTxt;
     this.GetNClick(name, 0, true);
     cy.get(text)
       .clear({ force: true })
@@ -202,6 +202,14 @@ export class AggregateHelper {
       .eq(index)
       .scrollIntoView()
       .click({ force: force });
+    shouldSleep && this.Sleep();
+  }
+
+  public clickMultipleButtons(btnVisibleText: string, shouldSleep = true) {
+    cy.xpath(this.locator._spanButton(btnVisibleText)).each(($el) => {
+      $el.trigger("click", { force: true });
+      cy.wait(200);
+    });
     shouldSleep && this.Sleep();
   }
 

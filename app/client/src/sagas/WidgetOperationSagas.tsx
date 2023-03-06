@@ -57,6 +57,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import {
   getCurrentPageId,
+  getCurrentAppPositioningType,
   getContainerWidgetSpacesSelector,
 } from "selectors/editorSelectors";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -150,6 +151,15 @@ import { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "widgets/constants";
 
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import {
+  addChildToPastedFlexLayers,
+  isStack,
+  pasteWidgetInFlexLayers,
+} from "utils/autoLayout/AutoLayoutUtils";
+
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
     Toaster.clear();
@@ -169,7 +179,9 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     let widget = { ...stateWidget };
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgets = { ...stateWidgets };
-
+    const appPositioningType: AppPositioningTypes = yield select(
+      getCurrentAppPositioningType,
+    );
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
@@ -194,10 +206,24 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
         bottomRow: updatedCanvasBottomRow,
       };
     }
+    const isMobile: boolean = yield select(getIsMobile);
+    let updatedWidgetsAfterResizing = movedWidgets;
+    if (appPositioningType === AppPositioningTypes.AUTO) {
+      updatedWidgetsAfterResizing = updateWidgetPositions(
+        movedWidgets,
+        parentId,
+        isMobile,
+      );
+    }
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
-    yield put(updateAndSaveLayout(movedWidgets));
-    yield put(generateAutoHeightLayoutTreeAction(true, true));
+    yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
+    yield put(
+      generateAutoHeightLayoutTreeAction(
+        appPositioningType !== AppPositioningTypes.AUTO,
+        true,
+      ),
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -1300,6 +1326,8 @@ function* pasteWidgetSaga(
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
+  const isMobile: boolean = yield select(getIsMobile);
+
   try {
     let reflowedMovementMap,
       gridProps: GridProps | undefined,
@@ -1452,6 +1480,7 @@ function* pasteWidgetSaga(
           // Get a flat list of all the widgets to be updated
           const widgetList = copiedWidgets.list;
           const widgetIdMap: Record<string, string> = {};
+          const reverseWidgetIdMap: Record<string, string> = {};
           const widgetNameMap: Record<string, string> = {};
           const newWidgetList: FlattenedWidgetProps[] = [];
           // Generate new widgetIds for the flat list of all the widgets to be updated
@@ -1462,7 +1491,7 @@ function* pasteWidgetSaga(
             newWidget.widgetId = generateReactKey();
             // Add the new widget id so that it maps the previous widget id
             widgetIdMap[widget.widgetId] = newWidget.widgetId;
-
+            reverseWidgetIdMap[newWidget.widgetId] = widget.widgetId;
             // Add the new widget to the list
             newWidgetList.push(newWidget);
           });
@@ -1567,7 +1596,6 @@ function* pasteWidgetSaga(
                 log.debug("Error updating widget properties", error);
               }
             }
-
             // If it is the copied widget, update position properties
             if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
               //when the widget is a modal widget, it has to paste on the main container
@@ -1590,9 +1618,19 @@ function* pasteWidgetSaga(
               // to include this new copied widget's id in the parent's children
               let parentChildren = [widget.widgetId];
               const widgetChildren = widgets[pastingParentId].children;
+
               if (widgetChildren && Array.isArray(widgetChildren)) {
-                // Add the new child to existing children
-                parentChildren = parentChildren.concat(widgetChildren);
+                // Add the new child to existing children after it's original siblings position.
+
+                const originalWidgetId: string = widgetList[i].widgetId;
+                const originalWidgetIndex: number = widgetChildren.indexOf(
+                  originalWidgetId,
+                );
+                parentChildren = [
+                  ...widgetChildren.slice(0, originalWidgetIndex + 1),
+                  ...parentChildren,
+                  ...widgetChildren.slice(originalWidgetIndex + 1),
+                ];
               }
 
               widgets = {
@@ -1642,6 +1680,30 @@ function* pasteWidgetSaga(
             widgetNameMap[oldWidgetName] = widget.widgetName;
             // Add the new widget to the canvas widgets
             widgets[widget.widgetId] = widget;
+
+            /**
+             * If new parent is a vertical stack, then update flex layers.
+             */
+            if (widget.parentId) {
+              const pastingIntoWidget = widgets[widget.parentId];
+              if (pastingIntoWidget && isStack(widgets, pastingIntoWidget)) {
+                if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
+                  widgets = pasteWidgetInFlexLayers(
+                    widgets,
+                    widget.parentId,
+                    widget,
+                    reverseWidgetIdMap[widget.widgetId],
+                    isMobile,
+                  );
+                else if (widget.type !== "CANVAS_WIDGET")
+                  widgets = addChildToPastedFlexLayers(
+                    widgets,
+                    widget,
+                    widgetIdMap,
+                    isMobile,
+                  );
+              }
+            }
           }
           newlyCreatedWidgetIds.push(widgetIdMap[copiedWidgetId]);
           // 1. updating template in the copied widget and deleting old template associations
@@ -1659,7 +1721,6 @@ function* pasteWidgetSaga(
         }),
       ),
     );
-
     //calculate the new positions of the reflowed widgets
     const reflowedWidgets = getReflowedPositions(
       widgets,

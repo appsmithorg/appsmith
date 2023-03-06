@@ -1,13 +1,12 @@
-import React from "react";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
 import * as Sentry from "@sentry/react";
-import { PopoverPosition } from "@blueprintjs/core";
-import { TooltipComponent, Button, Size, Category } from "design-system-old";
 
-import { Colors } from "constants/Colors";
-import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { PopoverPosition } from "@blueprintjs/core";
+import { Button, Category, Size, TooltipComponent } from "design-system-old";
+
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { AppPositionTypeControl } from "../AppPositionTypeControl";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Title = styled.p`
@@ -29,9 +28,7 @@ export function CanvasPropertyPane() {
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
-          <Title className="text-sm">Canvas Size</Title>
-          <MainContainerLayoutControl />
-
+          <AppPositionTypeControl />
           {!isMultiPane && (
             <TooltipComponent
               content={

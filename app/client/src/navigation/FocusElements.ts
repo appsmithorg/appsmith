@@ -1,17 +1,26 @@
-import {
-  getApiPaneConfigSelectedTabIndex,
-  getApiPaneResponsePaneHeight,
-  getApiPaneResponseSelectedTab,
-  getApiRightPaneSelectedTab,
-} from "selectors/apiPaneSelectors";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { AppState } from "@appsmith/reducers";
 import {
   setApiPaneConfigSelectedTabIndex,
   setApiPaneResponsePaneHeight,
   setApiPaneResponseSelectedTab,
   setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
-import { AppState } from "@appsmith/reducers";
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import {
+  setAllEntityCollapsibleStates,
+  setAllSubEntityCollapsibleStates,
+  setCodeEditorHistory,
+  setExplorerSwitchIndex,
+  setFocusableInputField,
+  setPanelPropertiesState,
+  setWidgetSelectedPropertyTabIndex,
+} from "actions/editorContextActions";
+import {
+  getApiPaneConfigSelectedTabIndex,
+  getApiPaneResponsePaneHeight,
+  getApiPaneResponseSelectedTab,
+  getApiRightPaneSelectedTab,
+} from "selectors/apiPaneSelectors";
 import {
   getAllEntityCollapsibleStates,
   getAllPropertySectionState,
@@ -24,67 +33,58 @@ import {
   getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
 import {
-  setAllEntityCollapsibleStates,
-  setAllSubEntityCollapsibleStates,
-  setCodeEditorHistory,
-  setExplorerSwitchIndex,
-  setFocusableInputField,
-  setPanelPropertiesState,
-  setWidgetSelectedPropertyTabIndex,
-} from "actions/editorContextActions";
-import {
   getAllDatasourceCollapsibleState,
   getSelectedWidgets,
   isDatasourceInViewMode,
 } from "selectors/ui";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
-import { FocusEntity } from "navigation/FocusEntity";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import {
-  getQueryPaneConfigSelectedTabIndex,
-  getQueryPaneResponsePaneHeight,
-  getQueryPaneResponseSelectedTab,
-} from "selectors/queryPaneSelectors";
-import {
-  setQueryPaneConfigSelectedTabIndex,
-  setQueryPaneResponsePaneHeight,
-  setQueryPaneResponseSelectedTab,
-} from "actions/queryPaneActions";
-import {
-  getJSPaneConfigSelectedTabIndex,
-  getJSPaneResponsePaneHeight,
-  getJSPaneResponseSelectedTab,
-} from "selectors/jsPaneSelectors";
+  setAllDatasourceCollapsible,
+  setDatasourceViewMode,
+} from "actions/datasourceActions";
+import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
+import { updateExplorerWidthAction } from "actions/explorerActions";
 import {
   setJsPaneConfigSelectedTabIndex,
   setJsPaneResponsePaneHeight,
   setJsPaneResponseSelectedTab,
 } from "actions/jsPaneActions";
-import { getExplorerWidth } from "selectors/explorerSelector";
-import { updateExplorerWidthAction } from "actions/explorerActions";
-import {
-  DEFAULT_ENTITY_EXPLORER_WIDTH,
-  DEFAULT_PROPERTY_PANE_WIDTH,
-} from "constants/AppConstants";
-import {
-  getFocusablePropertyPaneField,
-  getPropertyPaneWidth,
-  getSelectedPropertyPanel,
-} from "selectors/propertyPaneSelectors";
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
   setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
-import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import {
-  setAllDatasourceCollapsible,
-  setDatasourceViewMode,
-} from "actions/datasourceActions";
+  setQueryPaneConfigSelectedTabIndex,
+  setQueryPaneResponsePaneHeight,
+  setQueryPaneResponseSelectedTab,
+} from "actions/queryPaneActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import {
+  DEFAULT_ENTITY_EXPLORER_WIDTH,
+  DEFAULT_PROPERTY_PANE_WIDTH,
+} from "constants/AppConstants";
 import { PluginPackageName } from "entities/Action";
+import { FocusEntity } from "navigation/FocusEntity";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getExplorerWidth } from "selectors/explorerSelector";
+import {
+  getJSPaneConfigSelectedTabIndex,
+  getJSPaneResponsePaneHeight,
+  getJSPaneResponseSelectedTab,
+} from "selectors/jsPaneSelectors";
+import {
+  getFocusablePropertyPaneField,
+  getPropertyPaneWidth,
+  getSelectedPropertyPanel,
+} from "selectors/propertyPaneSelectors";
+import {
+  getQueryPaneConfigSelectedTabIndex,
+  getQueryPaneResponsePaneHeight,
+  getQueryPaneResponseSelectedTab,
+} from "selectors/queryPaneSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
