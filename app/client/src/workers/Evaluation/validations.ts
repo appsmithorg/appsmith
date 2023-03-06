@@ -315,14 +315,14 @@ export const validate = (
   props: Record<string, unknown>,
   propertyPath = "",
 ): ValidationResponse => {
-  const _result = VALIDATORS[config.type as ValidationTypes](
-    config,
-    value,
-    props,
-    propertyPath,
-  );
+  const validateFn = VALIDATORS[config.type];
+  const staticValue = {
+    isValid: true,
+    parsed: value,
+  };
+  if (!validateFn) return staticValue;
 
-  return _result;
+  return validateFn(config, value, props, propertyPath) || staticValue;
 };
 
 export const WIDGET_TYPE_VALIDATION_ERROR =
