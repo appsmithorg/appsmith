@@ -138,7 +138,7 @@ export class AggregateHelper {
 
   public CheckForPageSaveError() {
     // Wait for "saving" status to disappear
-    this.GetElement(this.locator._statusSaving,60000).should("not.exist");
+    this.GetElement(this.locator._statusSaving, 30000).should("not.exist");
     // Check for page save error
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._saveStatusError).length) {
@@ -545,6 +545,13 @@ export class AggregateHelper {
       : cy.get(selector);
     locator.type(this.selectLine);
     return locator.type(this.removeLine);
+  }
+
+  public SelectAllRemoveCodeText(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.type(this.selectAll+"{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -1054,7 +1061,7 @@ export class AggregateHelper {
 
   public AssertContains(
     text: string | RegExp,
-    exists: "exist" | "not.exist" = "exist",
+    exists: "exist" | "not.exist" | "be.visible" = "exist",
     selector?: string,
   ) {
     if (selector) {

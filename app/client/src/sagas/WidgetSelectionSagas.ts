@@ -50,7 +50,6 @@ import {
   shiftSelectWidgets,
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
@@ -196,11 +195,10 @@ function* appendSelectedWidgetToUrlSaga(
   pageId?: string,
   invokedBy?: NavigationMethod,
 ) {
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const isSnipingMode: boolean = yield select(snipingModeSelector);
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
-  if (guidedTourEnabled || isSnipingMode || viewMode) return;
+  if (isSnipingMode || viewMode) return;
   const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
   const currentURL = pathname;
