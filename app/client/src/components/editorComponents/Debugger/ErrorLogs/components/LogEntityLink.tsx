@@ -45,24 +45,24 @@ export default function LogEntityLink(props: LogItemProps) {
       // If the source is a widget.
       if (props.source.type === ENTITY_TYPE.WIDGET && props.source.pluginType) {
         return (
-          <WidgetIcon height={12} type={props.source.pluginType} width={12} />
+          <WidgetIcon height={16} type={props.source.pluginType} width={16} />
         );
       }
       // If the source is a JS action.
       else if (props.source.type === ENTITY_TYPE.JSACTION) {
-        return JsFileIconV2(12, 12);
+        return JsFileIconV2(16, 16);
       } else if (props.source.type === ENTITY_TYPE.ACTION) {
         // If the source is an API action.
         if (
           props.source.pluginType === PluginType.API &&
           props.source.httpMethod
         ) {
-          return ApiMethodIcon(props.source.httpMethod, "9px", "17px", 28);
+          return ApiMethodIcon(props.source.httpMethod, "16px", "32px", 50);
         }
         // If the source is a Datasource action.
         else if (props.iconId && pluginGroups[props.iconId]) {
           return (
-            <EntityIcon height={"12px"} width={"12px"}>
+            <EntityIcon height={"16px"} width={"16px"}>
               <img
                 alt="entityIcon"
                 src={pluginGroups[props.iconId].iconLocation}
