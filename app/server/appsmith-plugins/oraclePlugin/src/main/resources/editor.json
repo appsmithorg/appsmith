@@ -7,11 +7,11 @@
         {
           "label": "",
           "internalLabel": "Query",
-          "configProperty": "actionConfiguration.body",
+          "configProperty": "actionConfiguration.formData.body.data",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "PARAMETER",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "path": "actionConfiguration.formData.preparedStatement.data",
             "comparison": "EQUALS",
             "value": false
           }
@@ -19,11 +19,11 @@
         {
           "label": "",
           "internalLabel": "Query",
-          "configProperty": "actionConfiguration.body",
+          "configProperty": "actionConfiguration.formData.body.data",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "path": "actionConfiguration.formData.preparedStatement.data",
             "comparison": "EQUALS",
             "value": true
           }
@@ -31,7 +31,7 @@
         {
           "label": "Use Prepared Statement",
           "info": "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          "configProperty": "actionConfiguration.formData.preparedStatement.data",
           "controlType": "SWITCH",
           "initialValue": true
         }

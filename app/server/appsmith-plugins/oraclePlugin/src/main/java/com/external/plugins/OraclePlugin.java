@@ -7,6 +7,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.DBAuth;
@@ -71,9 +72,15 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.CommonFieldName.BODY;
+import static com.appsmith.external.constants.CommonFieldName.PREPARED_STATEMENT;
+import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.Sizeof.sizeof;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.utils.OracleDataTypeUtils.DataType.FLOAT;
@@ -86,6 +93,7 @@ import static com.external.plugins.utils.OracleDataTypeUtils.DataType.BOOL;
 import static com.external.plugins.utils.OracleDataTypeUtils.extractExplicitCasting;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 
 public class OraclePlugin extends BasePlugin {
@@ -266,34 +274,27 @@ public class OraclePlugin extends BasePlugin {
 
         @Override
         public Mono<ActionExecutionResult> executeParameterized(HikariDataSource connection, ExecuteActionDTO executeActionDTO, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
-
-            String query = actionConfiguration.getBody();
+            final Map<String, Object> formData = actionConfiguration.getFormData();
+            String query = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, null);
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
-                        "parameter: Query."));
+            if (isEmpty(query)) {
+                // TBD: update error
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Missing required parameter: Query."));
             }
 
-            Boolean isPreparedStatement;
-
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                //In case the prepared statement configuration is missing, default to true.
-                isPreparedStatement = true;
-            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
-                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
-                if (psValue instanceof  Boolean) {
-                    isPreparedStatement = (Boolean) psValue;
-                } else if (psValue instanceof String) {
-                    isPreparedStatement = Boolean.parseBoolean((String) psValue);
-                } else {
-                    isPreparedStatement = true;
-                }
-            } else {
-                isPreparedStatement = true;
+            Boolean isPreparedStatement = TRUE;;
+            Object preparedStatementObject = getDataValueSafelyFromFormData(formData, PREPARED_STATEMENT,
+                    OBJECT_TYPE, TRUE);
+            if (preparedStatementObject instanceof Boolean) {
+                isPreparedStatement = (Boolean) preparedStatementObject;
+            } else if (preparedStatementObject instanceof String) { 
+                // Older UI configuration used to set this value as a string which may/may not be castable to a boolean
+                // directly. This is to ensure we are backward compatible
+                isPreparedStatement = Boolean.parseBoolean((String) preparedStatementObject);
             }
 
-            // In case of non prepared statement, simply do binding replacement and execute
+            // In case of non-prepared statement, simply do binding-replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null, null);
@@ -304,7 +305,7 @@ public class OraclePlugin extends BasePlugin {
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             List<DataType> explicitCastDataTypes = extractExplicitCasting(updatedQuery);
-            actionConfiguration.setBody(updatedQuery);
+            setDataValueSafelyInFormData(formData, BODY, updatedQuery);
             return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE,
                     mustacheKeysInOrder, executeActionDTO, explicitCastDataTypes);
         }
@@ -320,14 +321,21 @@ public class OraclePlugin extends BasePlugin {
             final Map<String, Object> requestData = new HashMap<>();
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
-            String query = actionConfiguration.getBody();
+            final Map<String, Object> formData = actionConfiguration.getFormData();
+            String query = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, null);
+            // TBD: Stop repetition
+            if (isEmpty(query)) {
+                // TBD: update error
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Missing required parameter: Query."));
+            }
+
             Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
             String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                     transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
-
                         java.sql.Connection connectionFromPool;
 
                         try {
@@ -913,7 +921,6 @@ public class OraclePlugin extends BasePlugin {
 
         // TODO: check if this works
         private Set<String> populateHintMessages(List<String> columnNames) {
-
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
