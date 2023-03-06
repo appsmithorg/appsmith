@@ -38,11 +38,10 @@ describe("Widget Grouping", function() {
       .eq(1)
       .then((element) => {
         const elementTop = parseFloat(element.css("top"));
-        const elementHeight = parseFloat(element.css("height"));
-        const containerBottom = (elementTop + elementHeight).toString() + "px";
-        cy.get(`.t--widget-camerawidget`)
-          .invoke("attr", "style")
-          .should("contain", `top: ${containerBottom}`);
+        cy.get(`.t--widget-camerawidget`).then((element2) => {
+          const containerTop = parseFloat(element2.css("top"));
+          expect(containerTop).to.be.greaterThan(elementTop);
+        });
       });
   });
 });

@@ -152,7 +152,7 @@ const searchAction: Record<
       if (intercomAppID && window.Intercom) {
         window.Intercom(
           "showNewMessage",
-          createMessage(DEBUGGER_INTERCOM_TEXT, error.message),
+          createMessage(DEBUGGER_INTERCOM_TEXT, error.message.message),
         );
       }
     },
@@ -195,8 +195,8 @@ const MenuItem = styled.a`
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
-  padding: 0px ${(props) => props.theme.spaces[6]}px;
-  height: 40px;
+  padding: 8px ${(props) => props.theme.spaces[7]}px;
+  height: 36px;
 
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.menuItem.hoverText};
@@ -234,7 +234,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
     <Popover2
       className="t--debugger-contextual-error-menu"
       content={
-        <MenuWrapper width={"264px"}>
+        <MenuWrapper width={"200px"}>
           {options.map((e) => {
             const menuProps = searchAction[e];
             const onSelect = () => {
@@ -258,9 +258,9 @@ export default function ContextualMenu(props: ContextualMenuProps) {
                   <Icon
                     fillColor="#858282"
                     name={menuProps.icon}
-                    size={IconSize.SMALL}
+                    size={IconSize.XL}
                   />
-                  <Text type={TextType.P1} weight={FontWeight.NORMAL}>
+                  <Text type={TextType.P3} weight={FontWeight.NORMAL}>
                     {menuProps.text}
                   </Text>
                 </IconContainer>

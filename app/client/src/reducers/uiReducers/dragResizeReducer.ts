@@ -1,14 +1,15 @@
-import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDragging: false,
   dragDetails: {},
+  autoLayoutDragDetails: {},
   isResizing: false,
   lastSelectedWidget: undefined,
   selectedWidgets: [],
@@ -38,6 +39,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       dragGroupActualParent: string;
       draggingGroupCenter: DraggingGroupCenter;
       startPoints: any;
+      draggedOn?: string;
     }>,
   ) => {
     state.isDragging = action.payload.isDragging;
@@ -46,6 +48,9 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       draggingGroupCenter: action.payload.draggingGroupCenter,
       dragOffset: action.payload.startPoints,
     };
+    if (action.payload.draggedOn) {
+      state.dragDetails.draggedOn = action.payload.draggedOn;
+    }
   },
   [ReduxActionTypes.SET_NEW_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,
@@ -109,6 +114,7 @@ export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
   dragDetails: DragDetails;
+  autoLayoutDragDetails: any;
   isResizing: boolean;
   lastSelectedWidget?: string;
   focusedWidget?: string;

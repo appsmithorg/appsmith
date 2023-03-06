@@ -1,17 +1,13 @@
-import React from "react";
-import styled from "styled-components";
-import { useDispatch } from "react-redux";
 import * as Sentry from "@sentry/react";
+
+import React from "react";
+import { useDispatch } from "react-redux";
+
 import { PopoverPosition } from "@blueprintjs/core";
-import { TooltipComponent, Button, Size, Category } from "design-system-old";
+import { Button, Category, Size, TooltipComponent } from "design-system-old";
 
-import { Colors } from "constants/Colors";
-import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-
-const Title = styled.p`
-  color: ${Colors.GRAY_800};
-`;
+import { AppPositionTypeControl } from "../AppPositionTypeControl";
 
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
@@ -19,16 +15,13 @@ export function CanvasPropertyPane() {
   const openAppSettingsPane = () => {
     dispatch(openAppSettingsPaneAction());
   };
-
   return (
     <div className="relative ">
       <h3 className="px-4 py-3 text-sm font-medium uppercase">Properties</h3>
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
-          <Title className="text-sm">Canvas Size</Title>
-          <MainContainerLayoutControl />
-
+          <AppPositionTypeControl />
           <TooltipComponent
             content={
               <>

@@ -325,7 +325,7 @@ describe("Git sync apps", function() {
       .click({ force: true });
     // move jsObject and postgres query to new page
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "get_users",
       "Move to page",
       "Child_Page",
@@ -335,7 +335,7 @@ describe("Git sync apps", function() {
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "JSObject1",
       "Move to page",
       "Child_Page",
@@ -474,13 +474,13 @@ describe("Git sync apps", function() {
     cy.wait(2000);
 
     //  clone the Child_Page
-    _.ee.SelectEntityByName("Child_Page", "Pages");
-    _.ee.ClonePage("Child_Page");
+    _.entityExplorer.SelectEntityByName("Child_Page", "Pages");
+    _.entityExplorer.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
-    _.ee.SelectEntityByName("Child_Page Copy", "Pages");
-    _.ee.ActionContextMenuByEntityName("Child_Page", "Hide");
+    _.entityExplorer.SelectEntityByName("Child_Page Copy", "Pages");
+    _.entityExplorer.ActionContextMenuByEntityName("Child_Page", "Hide");
 
-    _.ee.SelectEntityByName("Child_Page", "Pages");
+    _.entityExplorer.SelectEntityByName("Child_Page", "Pages");
     cy.wait("@getPage");
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");

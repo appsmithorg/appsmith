@@ -37,21 +37,21 @@ describe("Git Bugs", function() {
   });
 
   it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
-    _.ee.AddNewPage();
-    _.ee.DragDropWidgetNVerify(WIDGET.TEXT);
-    _.ee.SelectEntityByName("Page1", "Pages");
-    _.ee.DragDropWidgetNVerify(WIDGET.BUTTON);
+    _.entityExplorer.AddNewPage();
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT);
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON);
     _.propPane.SelectPropertiesDropDown("onClick", "Navigate to");
     _.agHelper.Sleep(500);
     _.propPane.SelectPropertiesDropDown("onClick", "Page2", "Page");
     _.agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
-    _.ee.SelectEntityByName("Page2", "Pages");
-    _.ee.SelectEntityByName("Text1", "Widgets");
+    _.entityExplorer.SelectEntityByName("Page2", "Pages");
+    _.entityExplorer.SelectEntityByName("Text1", "Widgets");
     _.propPane.UpdatePropertyFieldValue(
       "Text",
       "{{appsmith.URL.queryParams.testQP}}",
     );
-    _.ee.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.agHelper.ClickButton("Submit");
     _.agHelper.Sleep(500);
     _.agHelper
