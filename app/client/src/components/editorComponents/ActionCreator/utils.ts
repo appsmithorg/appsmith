@@ -6,7 +6,6 @@ import {
   getEnumArgumentAtPosition,
   getModalName,
   setModalName,
-  setTextArgumentAtPosition,
   setEnumArgumentAtPosition,
   setCallbackFunctionField,
   getFuncExpressionAtPosition,
@@ -112,39 +111,14 @@ export const textSetter = (
   const changeValueWithoutBraces = getCodeFromMoustache(
     stringToJS(changeValue),
   );
-  let requiredChangeValue;
-  if (changeValue.indexOf("{{") === -1) {
-    // raw string values
-    requiredChangeValue = changeValue;
-  } else {
-    try {
-      // raw js values that are not strings
-      requiredChangeValue = JSON.parse(changeValueWithoutBraces);
-    } catch (e) {
-      // code
-      try {
-        return `{{${setCallbackFunctionField(
-          requiredValue,
-          changeValueWithoutBraces,
-          argNum,
-          self.evaluationVersion,
-        ) || currentValue}}}`;
-      } catch (e) {
-        // showError();
-        return currentValue;
-      }
-    }
-  }
-
   try {
-    return setTextArgumentAtPosition(
+    return `{{${setCallbackFunctionField(
       requiredValue,
-      requiredChangeValue,
+      changeValueWithoutBraces,
       argNum,
       self.evaluationVersion,
-    );
+    )}}}`;
   } catch (e) {
-    // showError();
     return currentValue;
   }
 };

@@ -4,7 +4,6 @@ jest.mock("sagas/ActionExecution/NavigateActionSaga", () => ({
   NavigationTargetType: { SAME_WINDOW: "" },
 }));
 
-import { TreeDropdownOption } from "design-system-old";
 import {
   argsStringToArray,
   enumTypeSetter,
@@ -311,14 +310,14 @@ describe("Test textSetter", () => {
     {
       index: 0,
       input: '{{navigateTo("", {}, NEW_WINDOW)}}',
-      expected: '{{navigateTo("google.com", {}, NEW_WINDOW);}}',
+      expected: "{{navigateTo('google.com', {}, NEW_WINDOW);}}",
       argNum: 0,
       value: "google.com",
     },
     {
       index: 1,
       input: '{{download("image", "", "")}}',
-      expected: '{{download("image", "img.png", "");}}',
+      expected: '{{download("image", \'img.png\', "");}}',
       argNum: 1,
       value: "img.png",
     },
@@ -332,14 +331,14 @@ describe("Test textSetter", () => {
     {
       index: 3,
       input: '{{showAlert("hi", "info")}}',
-      expected: '{{showAlert("bye", "info");}}',
+      expected: "{{showAlert('bye', \"info\");}}",
       argNum: 0,
       value: "bye",
     },
     {
       index: 4,
       input: '{{showAlert("hi", "")}}',
-      expected: '{{showAlert("", "");}}',
+      expected: "{{showAlert('', \"\");}}",
       argNum: 0,
       value: "",
     },
@@ -360,7 +359,7 @@ describe("Test textSetter", () => {
     {
       index: 7,
       input: "{{showAlert(appsmith.mode, '')}}",
-      expected: "{{showAlert(\"\", '');}}",
+      expected: "{{showAlert('', '');}}",
       argNum: 0,
       value: "",
     },
@@ -395,9 +394,18 @@ describe("Test textSetter", () => {
     {
       index: 12,
       input: "{{JSObject1.myFun1();}}",
-      expected: '{{JSObject1.myFun1("Hello");}}',
+      expected: "{{JSObject1.myFun1('Hello');}}",
       argNum: 0,
       value: "Hello",
+    },
+    {
+      index: 13,
+      input:
+        '{{setInterval(() => {\n  // add code here\n  console.log("hello");\n}, 5000, "");}}',
+      expected:
+        "{{setInterval(() => {\n  // add code here\n  console.log(\"hello\");\n}, 5000, 'hello-id');}}",
+      argNum: 2,
+      value: "hello-id",
     },
   ];
   test.each(

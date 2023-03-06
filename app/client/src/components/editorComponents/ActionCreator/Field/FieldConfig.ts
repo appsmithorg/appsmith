@@ -232,9 +232,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ID_FIELD]: {
     label: () => "Id",
     defaultText: "",
-    exampleText: `setInterval(() => {
-      const a = 0;
-     }, 5000, '1')`,
+    exampleText: "interval-id",
     options: () => null,
     getter: (value: string) => {
       return textGetter(value, 2);

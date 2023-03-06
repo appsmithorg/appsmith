@@ -8,6 +8,7 @@ import {
   getThenCatchBlocksFromQuery,
   setThenBlockInQuery,
   setCatchBlockInQuery,
+  setTextArgumentAtPosition,
 } from "./index";
 
 describe("getFuncExpressionAtPosition", () => {
@@ -61,6 +62,18 @@ describe("getFuncExpressionAtPosition", () => {
     expect(result).toEqual("() => {\n  console.log('hello');\n}");
   });
 });
+
+// describe("setTextArgumentAtPosition", () => {
+//   it("should set text argument at position 3", () => {
+//     const value = 'setInterval(() => {\n  // add code here\n  console.log("hello");\n}, 5000, "");';
+
+//     const text = "hello-id";
+
+//     const result = setTextArgumentAtPosition(value, text, 2, 2);
+
+//     expect(result).toEqual('{{setInterval(() => {\n  // add code here\n  console.log("hello");\n}, 5000, "hello-id");}}');
+//   });
+// });
 
 describe("setCallbackFunctionField", () => {
   it("should set the expression at the position when no arguments exist", () => {
@@ -124,6 +137,16 @@ describe("setCallbackFunctionField", () => {
     const result = setCallbackFunctionField(value, message, 0, 2);
 
     expect(result).toEqual("showAlert('', '');");
+  });
+
+  it("should set text argument at position 3", () => {
+    const value = 'setInterval(() => {\n  // add code here\n  console.log("hello");\n}, 5000, "");';
+
+    const text = '"hello-id"';
+
+    const result = setCallbackFunctionField(value, text, 2, 2);
+
+    expect(result).toEqual('setInterval(() => {\n  // add code here\n  console.log("hello");\n}, 5000, "hello-id");');
   });
 });
 
