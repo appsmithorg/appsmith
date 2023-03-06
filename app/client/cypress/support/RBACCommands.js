@@ -594,6 +594,58 @@ Cypress.Commands.add(
   },
 );
 Cypress.Commands.add(
+  "ViewPermissionQueryLevel",
+  (Role, WorkspaceName, AppName, PageName, QueryName) => {
+    cy.get(RBAC.rolesTab).click();
+    cy.wait(2000);
+    cy.get(RBAC.addButton).click();
+    cy.wait("@createRole").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.contains("td", `${WorkspaceName}`).click();
+    cy.contains("td", `${WorkspaceName}`)
+      .next()
+      .next()
+      .click();
+    cy.xpath(`//span[text()="${AppName}"]`)
+      .last()
+      .click();
+    cy.xpath(`//span[text()="${PageName}"]`)
+      .last()
+      .click();
+    cy.contains("td", `${QueryName}`)
+      .next()
+      .next()
+      .click();
+    cy.contains("td", `${QueryName}`)
+      .next()
+      .next()
+      .next()
+      .next()
+      .click();
+    cy.RenameRole(Role);
+    cy.get(RBAC.saveButton).click();
+    // save api call
+    cy.wait(2000);
+    cy.wait("@saveRole").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(RBAC.backButton).click();
+    cy.wait(1000);
+    cy.get(RBAC.searchBar)
+      .clear()
+      .type(Role);
+    cy.wait(2000);
+    cy.get(RBAC.roleRow)
+      .first()
+      .should("have.text", Role);
+  },
+);
+Cypress.Commands.add(
   "createGroupAndAddUser",
   (PermissionGroupName, userEmail1, userEmail2) => {
     cy.get(RBAC.groupsTab).click();

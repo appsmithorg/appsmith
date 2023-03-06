@@ -64,6 +64,7 @@ import {
   getGroupPermissions,
 } from "@appsmith/selectors/aclSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 const ListUsers = styled.div`
   margin-top: 4px;
@@ -323,12 +324,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         originAddUsers === "top-bar"
           ? createMessage(EVENT_GROUP_INVITE_USER_TOP_BAR)
           : createMessage(EVENT_GROUP_INVITE_USER_EMPTY_STATE),
-      groups: [
-        {
-          id: groupId,
-          name: values?.options?.label || selected.name,
-        },
-      ],
+      groups: [groupId],
       roles: [],
       numberOfUsersInvited: usernames.length,
     });
@@ -347,7 +343,11 @@ export function GroupAddEdit(props: GroupEditProps) {
             <ProfileImage
               className="user-icons"
               size={20}
-              source={`/api/v1/users/photo/${user.username}`}
+              source={
+                user.photoId
+                  ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+                  : undefined
+              }
               userName={user.username}
             />
             <HighlightText highlight={searchValue} text={user.username} />

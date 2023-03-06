@@ -61,6 +61,7 @@ describe("Entity explorer API pane related testcases", function() {
       .should("be.visible");
     cy.Createpage(pageid);
     ee.SelectEntityByName("Page1");
+    agHelper.Sleep(); //for the selected entity to settle loading!
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
     cy.EditApiNameFromExplorer("SecondAPI");

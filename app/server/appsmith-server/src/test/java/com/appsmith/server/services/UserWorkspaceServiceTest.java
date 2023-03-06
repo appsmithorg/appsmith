@@ -189,7 +189,8 @@ public class UserWorkspaceServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace1).block();
         String workspaceId = createdWorkspace.getId();
 
-        PermissionGroup workspaceAdminPermissionGroup = permissionGroupRepository.findByDefaultWorkspaceId(workspaceId)
+        PermissionGroup workspaceAdminPermissionGroup = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(workspaceId, Workspace.class.getSimpleName())
                 .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
                 .blockFirst();
 

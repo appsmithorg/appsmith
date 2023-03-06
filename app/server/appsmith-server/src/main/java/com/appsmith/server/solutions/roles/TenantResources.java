@@ -334,7 +334,8 @@ public class TenantResources {
                 List.of(
                         fieldName(QPermissionGroup.permissionGroup.policies),
                         fieldName(QPermissionGroup.permissionGroup.name),
-                        fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainType)
                 )
         );
         return permissionGroupRepository.findAllByTenantIdWithoutPermission(tenantId, includeFields);

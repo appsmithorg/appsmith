@@ -45,6 +45,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -410,13 +411,13 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     // send only ONE
     private List<PermissionGroup> prunePermissionGroups(List<PermissionGroup> permissionGroups) {
         List<PermissionGroup> nonAutoCreatedPermissionGroups = permissionGroups.stream()
-                .filter(pg -> ! StringUtils.hasLength(pg.getDefaultWorkspaceId()))
+                .filter(pg -> Objects.isNull(pg.getDefaultDomainType()))
                 .collect(Collectors.toList());
         List<PermissionGroup> highestOrderAutoCreatedPgs = permissionGroups.stream()
-                .filter(pg -> StringUtils.hasLength(pg.getDefaultWorkspaceId()))
-                .collect(Collectors.toList())
+                .filter(pg -> Objects.nonNull(pg.getDefaultDomainType()))
+                .toList()
                 .stream()
-                .collect(Collectors.groupingBy(PermissionGroup::getDefaultWorkspaceId))
+                .collect(Collectors.groupingBy(PermissionGroup::getDefaultDomainId))
                 .values().stream()
                 .map(pgList -> {
                     pgList.sort(permissionGroupComparator());

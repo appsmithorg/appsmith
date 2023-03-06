@@ -71,7 +71,7 @@ public class UserAndAccessManagementServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -124,7 +124,7 @@ public class UserAndAccessManagementServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -177,7 +177,7 @@ public class UserAndAccessManagementServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -230,7 +230,7 @@ public class UserAndAccessManagementServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -290,7 +290,7 @@ public class UserAndAccessManagementServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
