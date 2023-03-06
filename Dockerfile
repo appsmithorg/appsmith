@@ -69,7 +69,7 @@ COPY ./app/rts/package.json ./app/rts/dist rts/
 # Nginx, MongoDB and PostgreSQL data config template - Configuration layer
 COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/docker.env.sh \
-  ./deploy/docker/templates/mockdb_postgres.sql \
+  ./deploy/docker/templates/postgres_sql.tar.gz \
   templates/
 
 # Add bootstrapfile
