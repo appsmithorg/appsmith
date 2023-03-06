@@ -241,7 +241,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return repository.save(createdWorkspace);
     }
 
-    protected Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
+    @Override
+    public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
         return Mono.just(TRUE);
     }
 

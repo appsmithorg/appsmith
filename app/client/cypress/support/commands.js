@@ -785,6 +785,25 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add(
+  "dragAndDropToWidgetBySelector",
+  (widgetType, destinationSelector, { x, y }) => {
+    const selector = `.t--widget-card-draggable-${widgetType}`;
+    cy.wait(800);
+    cy.get(selector)
+      .scrollIntoView()
+      .trigger("dragstart", { force: true })
+      .trigger("mousemove", x, y, { force: true });
+    cy.get(destinationSelector)
+      .first()
+      .scrollIntoView()
+      .scrollTo("top", { ensureScrollable: false })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  },
+);
+
 Cypress.Commands.add("changeButtonColor", (buttonColor) => {
   cy.get(widgetsPage.buttonColor)
     .click({ force: true })
