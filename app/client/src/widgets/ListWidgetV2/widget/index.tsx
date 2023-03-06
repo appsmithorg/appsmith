@@ -231,7 +231,10 @@ class ListWidget extends BaseWidget<
 
     this.pageSize = this.getPageSize();
 
-    if (this.shouldUpdatePageSize()) {
+    if (
+      this.shouldUpdatePageSize() &&
+      this.props.pageSize !== prevProps.pageSize
+    ) {
       this.updatePageSize();
       if (this.props.serverSidePagination && this.pageSize) {
         this.executeOnPageChange();
