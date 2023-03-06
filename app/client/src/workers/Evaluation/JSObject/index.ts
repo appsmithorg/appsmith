@@ -256,10 +256,7 @@ export function parseJSActions(
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
-        isAsync: functionDeterminer.isFunctionAsync(
-          action.parsedFunction,
-          dataTreeEvalRef.logs,
-        ),
+        isAsync: true,
         // parsedFunction - used only to determine if function is async
         parsedFunction: undefined,
       } as ParsedJSSubAction;

@@ -19,7 +19,6 @@ function getPropertyFromMainThread(
   _ctxReferenceId?: string,
   args?: any[],
 ): any {
-  if (self.$isDataField) return;
   const req = new _internalXHR();
   req.open("POST", `/windowProxy/instruct`, false);
   req.send(
