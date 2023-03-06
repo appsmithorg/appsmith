@@ -19,6 +19,7 @@ import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.helpers.GeneratedNameUtils;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -1590,11 +1591,11 @@ public class WorkspaceServiceTest {
                     for (PermissionGroup permissionGroup : permissionGroups) {
                         String name = permissionGroup.getName();
                         if (name.startsWith(ADMINISTRATOR)) {
-                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(ADMINISTRATOR, newName));
+                            assertThat(name).isEqualTo(GeneratedNameUtils.generateDefaultRoleNameForResource(ADMINISTRATOR, newName));
                         } else if (name.startsWith(DEVELOPER)) {
-                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(DEVELOPER, newName));
+                            assertThat(name).isEqualTo(GeneratedNameUtils.generateDefaultRoleNameForResource(DEVELOPER, newName));
                         } else if (name.startsWith(VIEWER)) {
-                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(VIEWER, newName));
+                            assertThat(name).isEqualTo(GeneratedNameUtils.generateDefaultRoleNameForResource(VIEWER, newName));
                         }
                     }
 
