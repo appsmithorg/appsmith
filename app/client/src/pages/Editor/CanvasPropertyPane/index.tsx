@@ -7,7 +7,6 @@ import { PopoverPosition } from "@blueprintjs/core";
 import { Button, Category, Size, TooltipComponent } from "design-system-old";
 
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-import { AppPositionTypeControl } from "../AppPositionTypeControl";
 
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
@@ -21,7 +20,7 @@ export function CanvasPropertyPane() {
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
-          <AppPositionTypeControl />
+          {/* <AppPositionTypeControl /> */}
           <TooltipComponent
             content={
               <>
