@@ -285,6 +285,8 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
+    // Api1.run(() => { showAlert("", () => { showAlert("") }) })
+
     simple(astWithComments, {
         CallExpression(node) {
             if (isCallExpressionNode(node) && node.arguments[argNum]) {
@@ -449,45 +451,45 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: commentArray,
         });
+
+        // attach comments to ast
+        const astWithComments = attachCommentsToAst(ast, commentArray);
+
+        /**
+         * We need to traverse the ast to find the first callee
+         * For Eg. Api1.run(() => {}, () => {}).then(() => {}).catch(() => {})
+         * We have multiple callee above, the first one is run
+         * Similarly, for eg. appsmith.geolocation.getCurrentPosition(() => {}, () => {});
+         * For this one, the first callee is getCurrentPosition
+         */
+        let nodeToTraverse: Node = astWithComments.body[0].expression;
+        let firstCallExpressionNode: Node;
+
+        // @ts-ignore
+        if (nodeToTraverse.callee.type === NodeTypes.Identifier) {
+            firstCallExpressionNode = nodeToTraverse;
+        }
+
+        // @ts-ignore
+        while (nodeToTraverse?.callee?.object) {
+            firstCallExpressionNode = klona(nodeToTraverse);
+            // @ts-ignore
+            nodeToTraverse = nodeToTraverse?.callee?.object;
+        }
+
+        // @ts-ignore
+        const argumentNode = firstCallExpressionNode?.arguments[argNum];
+        if (argumentNode) {
+            requiredArgument = `${generate(argumentNode, {comments: true})}`;
+        } else {
+            requiredArgument = "";
+        }
+
+        return requiredArgument;
     } catch (error) {
         // if ast is invalid return the blank function
         return requiredArgument;
     }
-
-    // attach comments to ast
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
-    /**
-     * We need to traverse the ast to find the first callee
-     * For Eg. Api1.run(() => {}, () => {}).then(() => {}).catch(() => {})
-     * We have multiple callee above, the first one is run
-     * Similarly, for eg. appsmith.geolocation.getCurrentPosition(() => {}, () => {});
-     * For this one, the first callee is getCurrentPosition
-     */
-    let nodeToTraverse: Node = astWithComments.body[0].expression;
-    let firstCallExpressionNode: Node;
-
-    // @ts-ignore
-    if (nodeToTraverse.callee.type === NodeTypes.Identifier) {
-        firstCallExpressionNode = nodeToTraverse;
-    }
-
-    // @ts-ignore
-    while (nodeToTraverse?.callee?.object) {
-        firstCallExpressionNode = klona(nodeToTraverse);
-        // @ts-ignore
-        nodeToTraverse = nodeToTraverse?.callee?.object;
-    }
-
-    // @ts-ignore
-    const argumentNode = firstCallExpressionNode?.arguments[argNum];
-    if (argumentNode) {
-        requiredArgument = `${generate(argumentNode, {comments: true})}`;
-    } else {
-        requiredArgument = "";
-    }
-
-    return requiredArgument;
 }
 
 export const getFunction = (value: string, evaluationVersion: number): string => {
