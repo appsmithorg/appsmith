@@ -44,7 +44,7 @@ describe("Bind a button and Api usecase", function() {
     cy.widgetText(
       testdata.buttonName,
       widgetsPage.buttonWidget,
-      widgetsPage.buttonWidget + " " + commonlocators.widgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
   });
 

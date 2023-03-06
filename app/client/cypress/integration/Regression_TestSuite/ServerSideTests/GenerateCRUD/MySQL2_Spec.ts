@@ -229,9 +229,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal at index 1
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
     agHelper.ClickButton("Submit");
-    agHelper.AssertContains(
-      "Your MySQL query failed to execute. Please check more information in the error details.",
-    );
+    agHelper.AssertContains("Column 'store_id' cannot be null");
 
     agHelper.WaitUntilAllToastsDisappear();
     deployMode.EnterJSONInputValue("Store Id", "2106");
@@ -250,9 +248,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       .should("eq", "password");
 
     agHelper.ClickButton("Submit");
-    agHelper.AssertContains(
-      "Your MySQL query failed to execute. Please check more information in the error details.",
-    );
+    agHelper.AssertContains("Duplicate entry '2106' for key 'PRIMARY'");
 
     cy.xpath(deployMode._jsonFormFieldByName("Store Id", true))
       .clear()
