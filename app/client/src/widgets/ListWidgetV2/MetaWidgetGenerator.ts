@@ -1601,7 +1601,7 @@ class MetaWidgetGenerator {
        *  templateWidgetNames -> ["Text1", "Input1", "Image1"]
        *  dependantTemplateWidgets -> ["Input1"]
        */
-      templateWidgetNames.filter((templateWidgetName) => {
+      templateWidgetNames.forEach((templateWidgetName) => {
         if (value.includes(templateWidgetName)) {
           const dependantMetaWidget = metaWidgetsMap[templateWidgetName];
 
