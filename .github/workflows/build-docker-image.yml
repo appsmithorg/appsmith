@@ -1,4 +1,4 @@
-name: Appsmith CI Docker Build Workflow
+name: Appsmith Build Docker Image Workflow
 
 on:
   # This line enables manual triggering of this workflow.
@@ -72,7 +72,7 @@ jobs:
           tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
           echo "Cleaning up the tar files"
           rm app/rts/dist/rts-dist.tar
-          
+
       # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
       # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
       - name: Build docker image
