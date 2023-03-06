@@ -85,6 +85,7 @@ export default [
         helpText: "Choose the save experience to save the edited cell",
         label: "Update Mode",
         controlType: "ICON_TABS",
+        defaultValue: InlineEditingSaveOptions.ROW_LEVEL,
         fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,

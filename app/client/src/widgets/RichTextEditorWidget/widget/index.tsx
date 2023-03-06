@@ -41,6 +41,7 @@ class RichTextEditorWidget extends BaseWidget<
               "Sets the input type of the default text property in widget.",
             label: "Input Type",
             controlType: "ICON_TABS",
+            defaultValue: "html",
             fullWidth: true,
             options: [
               {

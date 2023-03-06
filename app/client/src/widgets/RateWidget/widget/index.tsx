@@ -227,6 +227,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             label: "Star Size",
             helpText: "Controls the size of the stars in the widget",
             controlType: "ICON_TABS",
+            defaultValue: "LARGE",
             fullWidth: true,
             options: [
               {

@@ -540,6 +540,7 @@ const PROPERTIES = {
         label: "Position",
         helpText: "Sets the icon position of input field",
         controlType: "ICON_TABS",
+        defaultValue: "left",
         fullWidth: true,
         options: [
           {

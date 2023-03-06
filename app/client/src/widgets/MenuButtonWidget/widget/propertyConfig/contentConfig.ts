@@ -27,6 +27,7 @@ export default [
         helpText: "Sets the source for the menu items",
         label: "Menu Items Source",
         controlType: "ICON_TABS",
+        defaultValue: MenuItemsSource.STATIC,
         fullWidth: true,
         options: [
           {

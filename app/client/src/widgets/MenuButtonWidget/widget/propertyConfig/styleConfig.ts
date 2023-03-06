@@ -78,6 +78,8 @@ export default [
         label: "Position",
         helpText: "Sets the icon alignment of the menu button",
         controlType: "ICON_TABS",
+        fullWidth: true,
+        defaultValue: "left",
         options: [
           {
             icon: "VERTICAL_LEFT",

@@ -834,6 +834,7 @@ export default [
                   label: "Icon Alignment",
                   helpText: "Sets the icon alignment of the menu button",
                   controlType: "ICON_TABS",
+                  defaultValue: "left",
                   options: [
                     {
                       icon: "VERTICAL_LEFT",
@@ -1312,6 +1313,7 @@ export default [
                             label: "Icon alignment",
                             helpText: "Sets the icon alignment of a menu item",
                             controlType: "ICON_TABS",
+                            defaultValue: "left",
                             options: [
                               {
                                 icon: "VERTICAL_LEFT",

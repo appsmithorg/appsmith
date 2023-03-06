@@ -13,6 +13,7 @@ export default [
         propertyName: "scannerLayout",
         label: "Scanner Layout",
         controlType: "ICON_TABS",
+        defaultValue: ScannerLayout.ALWAYS_ON,
         fullWidth: true,
         helpText:
           'Sets how the code scanner will look and behave. If set to "Always on", the scanner will be visible and scanning all the time. If set to "Click to Scan", the scanner will pop up inside a modal and start scanning when the user clicks on the button.',

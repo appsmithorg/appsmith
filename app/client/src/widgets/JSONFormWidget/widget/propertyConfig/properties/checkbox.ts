@@ -45,6 +45,7 @@ const PROPERTIES = {
         helpText: "Sets the Position of the field",
         label: "Position",
         controlType: "ICON_TABS",
+        defaultValue: "LEFT",
         fullWidth: true,
         options: [
           {
