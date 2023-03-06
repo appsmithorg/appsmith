@@ -80,11 +80,11 @@ describe("evaluateSync", () => {
           },
           errorType: "PARSE",
           raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
+  function $$closedFn () {
+    const $$result = wrongJS
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "wrongJS",
@@ -102,11 +102,11 @@ describe("evaluateSync", () => {
           },
           errorType: "PARSE",
           raw: `
-  function closedFunction () {
-    const result = {}.map()
-    return result;
+  function $$closedFn () {
+    const $$result = {}.map()
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "{}.map()",
@@ -132,11 +132,11 @@ describe("evaluateSync", () => {
           },
           errorType: "PARSE",
           raw: `
-  function closedFunction () {
-    const result = setImmediate(() => {}, 100)
-    return result;
+  function $$closedFn () {
+    const $$result = setImmediate(() => {}, 100)
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "setImmediate(() => {}, 100)",
