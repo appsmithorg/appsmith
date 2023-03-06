@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -47,8 +46,5 @@ public interface UserDataServiceCE {
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
-    Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState);
-
     Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId);
-
 }

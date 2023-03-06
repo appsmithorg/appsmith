@@ -20,12 +20,13 @@ import {
 } from "../../helpers";
 import { cloneDeep } from "lodash";
 import { ActionBlockTree } from "../ActionBlockTree";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 type Props = {
   action: string;
   value: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  additionalAutoComplete?: AdditionalDynamicDataTree;
 };
 
 type CallbackBlocks = Record<SelectedActionBlock["type"], React.ReactElement[]>;

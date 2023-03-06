@@ -3,6 +3,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Entity explorer Drag and Drop widgets testcases", function() {
   it("Drag and drop form widget and validate", function() {
@@ -23,7 +24,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.widgetText(
       "FormTest",
       formWidgetsPage.formWidget,
-      formWidgetsPage.formInner,
+      widgetsPage.widgetNameSpan,
     );
     /**
      * @param{Text} Random Colour
@@ -38,7 +39,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
      */
     cy.moveToContentTab();
     cy.get(formWidgetsPage.formD)
-      .scrollTo("bottom")
+      .scrollTo("bottom", { ensureScrollable: false })
       .should("be.visible");
     cy.get(explorer.explorerSwitchId).click();
     cy.PublishtheApp();

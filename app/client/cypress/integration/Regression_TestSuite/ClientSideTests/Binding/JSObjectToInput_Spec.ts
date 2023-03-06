@@ -78,7 +78,6 @@ describe("Validate JSObjects binding to Input widget", () => {
     }`;
     ee.SelectEntityByName(jsOjbNameReceived as string, "Queries/JS");
     jsEditor.EditJSObj(jsBody);
-    agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");

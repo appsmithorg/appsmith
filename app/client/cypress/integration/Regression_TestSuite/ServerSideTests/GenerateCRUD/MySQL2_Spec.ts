@@ -230,7 +230,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
     agHelper.ClickButton("Submit");
     agHelper.AssertContains("Column 'store_id' cannot be null");
-    agHelper.AssertContains("error response");
 
     agHelper.WaitUntilAllToastsDisappear();
     deployMode.EnterJSONInputValue("Store Id", "2106");

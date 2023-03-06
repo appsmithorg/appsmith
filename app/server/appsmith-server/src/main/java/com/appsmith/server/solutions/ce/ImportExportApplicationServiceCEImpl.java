@@ -78,6 +78,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -133,6 +134,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final Gson gson;
+    private final TransactionalOperator transactionalOperator;
 
     /**
      * This function will give the application resource to rebuild the application in import application flow
@@ -572,6 +574,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            log.error("Invalid content type, {}", contentType);
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
         }
 
@@ -840,6 +843,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     // The isPublic flag has a default value as false and this would be confusing to user
                                                     // when it is reset to false during importing where the application already is present in DB
                                                     importedApplication.setIsPublic(null);
+                                                    importedApplication.setPolicies(null);
                                                     copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // We are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
@@ -847,7 +851,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     // the changes from remote
                                                     // We are using the save instead of update as we are using @Encrypted
                                                     // for GitAuth
-                                                    return applicationService.findById(existingApplication.getGitApplicationMetadata().getDefaultApplicationId())
+                                                    Mono<Application> parentApplicationMono;
+                                                    if (existingApplication.getGitApplicationMetadata() != null) {
+                                                        parentApplicationMono = applicationService.findById(
+                                                                existingApplication.getGitApplicationMetadata().getDefaultApplicationId()
+                                                        );
+                                                    } else {
+                                                        parentApplicationMono = Mono.just(existingApplication);
+                                                    }
+
+                                                    return parentApplicationMono
                                                             .flatMap(application1 -> {
                                                                 // Set the policies from the defaultApplication
                                                                 existingApplication.setPolicies(application1.getPolicies());
@@ -1202,12 +1215,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application ", throwable.getMessage());
-                    if (importedApplication.getId() != null && applicationId == null) {
-                        return applicationPageService.deleteApplication(importedApplication.getId())
-                                .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
-                    }
-                    return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE));
-                });
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
+                })
+                .as(transactionalOperator::transactional);
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow

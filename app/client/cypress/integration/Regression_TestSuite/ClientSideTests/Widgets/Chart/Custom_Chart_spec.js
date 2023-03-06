@@ -23,7 +23,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.widgetText(
       "Test",
       viewWidgetsPage.chartWidget,
-      commonlocators.containerInnerText,
+      widgetsPage.widgetNameSpan,
     );
     //changing the Chart Title
     /**
@@ -114,7 +114,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     });
 
     //Close edit prop
-    cy.PublishtheApp();
+    cy.PublishtheApp(false);
   });
 
   it("4. Chart-Copy Verification", function() {

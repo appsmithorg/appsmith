@@ -225,7 +225,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return Mono.when(
                             userDataService.updateForUser(user, userData),
                             configService.getInstanceId()
-                                    .map(instanceId -> {
+                                    .flatMap(instanceId -> {
                                         log.debug("Installation setup complete.");
                                         analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
                                         return analyticsService.sendEvent(
@@ -239,7 +239,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                                                         "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
                                                 ),
                                                 false
-                                        ).thenReturn(instanceId);
+                                        );
                                     }),
                             envManager.applyChanges(Map.of(
                                     APPSMITH_DISABLE_TELEMETRY.name(),

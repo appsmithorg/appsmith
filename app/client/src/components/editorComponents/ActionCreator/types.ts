@@ -1,6 +1,7 @@
 import { SwitcherProps, TreeDropdownOption, IconName } from "design-system-old";
 import { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
 import React from "react";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 
 export type GenericFunction = (...args: any[]) => any;
@@ -39,7 +40,7 @@ export type KeyValueViewProps = ViewProps;
 export type TextViewProps = ViewProps & {
   exampleText: string;
   index?: number;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  additionalAutoComplete?: AdditionalDynamicDataTree;
   toolTip?: string;
 };
 
@@ -61,7 +62,7 @@ export type ActionCreatorProps = {
   value: string;
   action: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  additionalAutoComplete?: AdditionalDynamicDataTree;
 };
 
 export type Field = {
@@ -87,7 +88,9 @@ export type FieldProps = {
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
   integrationOptions: TreeDropdownOption[];
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  depth: number;
+  maxDepth: number;
+  additionalAutoComplete?: AdditionalDynamicDataTree;
   activeNavigateToTab: SwitchType;
   navigateToSwitches: Array<SwitchType>;
   activeTabApiAndQueryCallback: SwitchType;

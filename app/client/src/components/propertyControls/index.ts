@@ -76,6 +76,9 @@ import TableInlineEditValidPropertyControl from "./TableInlineEditValidPropertyC
 import MenuButtonDynamicItemsControl, {
   MenuButtonDynamicItemsControlProps,
 } from "components/propertyControls/MenuButtonDynamicItemsControl";
+import ListComputeControl, {
+  ListComputeControlProps,
+} from "./ListComputeControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -117,6 +120,7 @@ export const PropertyControls = {
   SelectDefaultValueControl,
   TableInlineEditValidationControl,
   TableInlineEditValidPropertyControl,
+  ListComputeControl,
 };
 
 export type PropertyControlPropsType =
@@ -139,7 +143,8 @@ export type PropertyControlPropsType =
   | PrimaryColumnDropdownControlProps
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps
-  | TableInlineEditValidationControlProps;
+  | TableInlineEditValidationControlProps
+  | ListComputeControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

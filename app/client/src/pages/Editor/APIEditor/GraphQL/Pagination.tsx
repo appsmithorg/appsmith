@@ -270,6 +270,7 @@ function PaginationTypeBasedWrapper({
           className={`${className}Value`}
           dataTreePath={dataTreePath}
           disabled={separateKeyFlag && !separateValueFlag}
+          evaluatedPopUpLabel={valueLabel}
           name={valuePath}
           onChange={onInputChange}
           placeholder={valuePlaceholder || ""}

@@ -300,16 +300,26 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.ClearJSONFieldValue("Current Port");
 
     agHelper.ClickButton("Update");
-    agHelper.AssertContains(
-      `null value in column "vessel_type" violates not-null constraint`,
-    );
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(
+        'ERROR: null value in column "vessel_type" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , null, null, , null, , null, null, 0, ).',
+      );
+    });
     deployMode.SelectJsonFormDropDown("Passenger");
 
     deployMode.ClearJSONFieldValue("Distance To Go");
     agHelper.ClickButton("Update");
-    agHelper.AssertContains(
-      `null value in column "distance_to_go" violates not-null constraint`,
-    );
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(
+        'ERROR: null value in column "distance_to_go" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , Passenger, null, , null, , null, null, null, ).',
+      );
+    });
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
     agHelper.WaitUntilAllToastsDisappear(); //for previous case toasts for next Update to be Success!!
 
@@ -438,12 +448,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
 
     //Checking Required field validations
-    deployMode.ClearJSONFieldValue("Shipname", 1);
+    deployMode.ClearJSONFieldValue("Shipname", 0);
     cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
-    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 0);
     cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "not.have.attr",
       "disabled",
@@ -459,59 +469,59 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("14. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
-    deployMode.ClearJSONFieldValue("Callsign", 1);
-    deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 1);
+    deployMode.ClearJSONFieldValue("Callsign", 0);
+    deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 0);
 
-    deployMode.ClearJSONFieldValue("Country", 1);
-    deployMode.EnterJSONInputValue("Country", "Malta", 1);
+    deployMode.ClearJSONFieldValue("Country", 0);
+    deployMode.EnterJSONInputValue("Country", "Malta", 0);
 
-    deployMode.ClearJSONFieldValue("Next Port Name", 1);
-    deployMode.EnterJSONInputValue("Next Port Name", "CORFU", 1);
+    deployMode.ClearJSONFieldValue("Next Port Name", 0);
+    deployMode.EnterJSONInputValue("Next Port Name", "CORFU", 0);
 
-    deployMode.ClearJSONFieldValue("Destination", 1);
-    deployMode.EnterJSONInputValue("Destination", "CORFU", 1);
+    deployMode.ClearJSONFieldValue("Destination", 0);
+    deployMode.EnterJSONInputValue("Destination", "CORFU", 0);
 
-    deployMode.SelectJsonFormDropDown("Special Craft", 1);
+    deployMode.SelectJsonFormDropDown("Special Craft", 0);
 
-    deployMode.ClearJSONFieldValue("Timezone", 1);
-    deployMode.EnterJSONInputValue("Timezone", "-12", 1);
+    deployMode.ClearJSONFieldValue("Timezone", 0);
+    deployMode.EnterJSONInputValue("Timezone", "-12", 0);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("Not a valid timezone!"),
     );
-    deployMode.ClearJSONFieldValue("Timezone", 1);
-    deployMode.EnterJSONInputValue("Timezone", "-2", 1);
+    deployMode.ClearJSONFieldValue("Timezone", 0);
+    deployMode.EnterJSONInputValue("Timezone", "-2", 0);
 
-    deployMode.ClearJSONFieldValue("Status Name", 1);
-    deployMode.EnterJSONInputValue("Status Name", "Moored", 1);
+    deployMode.ClearJSONFieldValue("Status Name", 0);
+    deployMode.EnterJSONInputValue("Status Name", "Moored", 0);
 
-    deployMode.ClearJSONFieldValue("Year Built", 1);
-    deployMode.EnterJSONInputValue("Year Built", "1967", 1);
+    deployMode.ClearJSONFieldValue("Year Built", 0);
+    deployMode.EnterJSONInputValue("Year Built", "1967", 0);
 
-    deployMode.ClearJSONFieldValue("Area Code", 1);
-    deployMode.EnterJSONInputValue("Area Code", "USG - Gulf of Mexico", 1);
+    deployMode.ClearJSONFieldValue("Area Code", 0);
+    deployMode.EnterJSONInputValue("Area Code", "USG - Gulf of Mexico", 0);
 
-    deployMode.ClearJSONFieldValue("Speed", 1);
-    deployMode.EnterJSONInputValue("Speed", "0.6", 1);
+    deployMode.ClearJSONFieldValue("Speed", 0);
+    deployMode.EnterJSONInputValue("Speed", "0.6", 0);
 
     agHelper.GetNClick(
       deployMode._jsonFormDatepickerFieldByName("Eta Updated"),
-      1,
+      0,
     );
     agHelper.GetNClick(locator._datePicker(2));
-    agHelper.GetNClick(deployMode._jsonFieldName("Distance To Go"), 1);
+    agHelper.GetNClick(deployMode._jsonFieldName("Distance To Go"), 0);
 
-    deployMode.ClearJSONFieldValue("Distance To Go", 1);
-    deployMode.EnterJSONInputValue("Distance To Go", "18.1", 1);
+    deployMode.ClearJSONFieldValue("Distance To Go", 0);
+    deployMode.EnterJSONInputValue("Distance To Go", "18.1", 0);
 
-    deployMode.ClearJSONFieldValue("Current Port", 1);
-    deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 1);
+    deployMode.ClearJSONFieldValue("Current Port", 0);
+    deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 0);
 
     cy.xpath(deployMode._jsonFormFieldByName("Callsign", true))
       .eq(1)
       .invoke("attr", "type")
       .should("eq", "password");
 
-    deployMode.ClearJSONFieldValue("Shipname", 1);
+    deployMode.ClearJSONFieldValue("Shipname", 0);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("This field is required"),
     );
@@ -519,12 +529,17 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "have.attr",
       "disabled",
     );
-    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 0);
 
     agHelper.ClickButton("Submit");
-    agHelper.AssertContains(
-      `duplicate key value violates unique constraint "vessels_pkey"`,
-    );
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(
+        'ERROR: duplicate key value violates unique constraint "vessels_pkey"\n  Detail: Key (ship_id)=(159196) already exists.',
+      );
+    });
 
     deployMode.ClearJSONFieldValue("Ship Id");
     deployMode.EnterJSONInputValue("Ship Id", "159180");
@@ -541,7 +556,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("15. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
     table.SelectTableRow(0);
-    agHelper.Sleep(2000);//since table taking time to display JSON form
+    agHelper.Sleep(2000); //since table taking time to display JSON form
 
     //validating update happened fine!
     dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180"); //Validaing new record got inserted in 1st position due to id used
@@ -609,12 +624,13 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("18. Verify application does not break when user runs the query with wrong table name", function() {
     ee.SelectEntityByName("DropVessels", "Queries/JS");
-    dataSources.RunQuery(false);
-    agHelper
-      .GetText(dataSources._queryError)
-      .then(($errorText) =>
-        expect($errorText).to.contain(`table "vessels" does not exist`),
-      );
+    dataSources.RunQuery(false, false);
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(`table "vessels" does not exist`);
+    });
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
@@ -691,7 +707,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
-    agHelper.AssertElementAbsence(locator._spinner, 10000);//10 secs for update to reflect!
+    agHelper.AssertElementAbsence(locator._spinner, 10000); //10 secs for update to reflect!
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex); //Validate Primary key column selection

@@ -7,7 +7,6 @@ import {
 export const calculateDropTargetRows = (
   widgetIdsToExclude: string[],
   widgetBottomRow: number,
-  defaultRows: number,
   occupiedSpacesByChildren?: OccupiedSpace[],
   canvasWidgetId?: string,
 ) => {
@@ -27,5 +26,5 @@ export const calculateDropTargetRows = (
       ? GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET
       : GridDefaults.CANVAS_EXTENSION_OFFSET;
 
-  return Math.ceil(Math.max(minBottomRow + canvasOffset, defaultRows));
+  return Math.ceil(minBottomRow + canvasOffset);
 };

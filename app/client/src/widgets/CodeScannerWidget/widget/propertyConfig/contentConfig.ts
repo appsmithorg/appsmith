@@ -1,10 +1,10 @@
-import { ValidationTypes } from "constants/WidgetValidation";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import {
   CodeScannerWidgetProps,
   ScannerLayout,
 } from "widgets/CodeScannerWidget/constants";
-
 export default [
   {
     sectionName: "Basic",
@@ -95,6 +95,8 @@ export default [
       },
     ],
   },
+  ...getResponsiveLayoutConfig("CODE_SCANNER_WIDGET"),
+
   {
     sectionName: "Events",
     children: [

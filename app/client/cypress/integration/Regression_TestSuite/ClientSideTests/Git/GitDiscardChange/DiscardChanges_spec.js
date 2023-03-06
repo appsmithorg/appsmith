@@ -96,6 +96,9 @@ describe("Git discard changes:", function() {
       _.gitSync.CreateNConnectToGit(repoName);
       _.gitSync.CreateGitBranch(repoName);
     });
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
+    });
   });
 
   it("2. Add new datasource query, discard changes, verify query is deleted", () => {
@@ -174,13 +177,10 @@ describe("Git discard changes:", function() {
 
   it("5. Delete Query1 and trigger discard flow, Query1 will be recovered", () => {
     // navigate to Page1
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-item:contains("Page1")`)
-      .first()
-      .click();
-    cy.wait("@getPage");
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
     // delete query1
-    cy.deleteQueryOrJS(query1);
+    _.entityExplorer.SelectEntityByName(query1, "Queries/JS");
+    _.entityExplorer.ActionContextMenuByEntityName(query1, "Delete");
     // verify Query1 is deleted
     cy.get(`.t--entity-name:contains(${query1})`).should("not.exist");
     // discard changes
@@ -243,5 +243,10 @@ describe("Git discard changes:", function() {
     cy.gitDiscardChanges();
     cy.wait(5000);
     cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
+  });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });

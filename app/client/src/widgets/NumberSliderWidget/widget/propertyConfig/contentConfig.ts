@@ -2,6 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { NumberSliderWidgetProps } from "..";
 import {
   defaultValueValidation,
@@ -274,6 +275,7 @@ export default [
       },
     ],
   },
+  ...getResponsiveLayoutConfig("NUMBER_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [

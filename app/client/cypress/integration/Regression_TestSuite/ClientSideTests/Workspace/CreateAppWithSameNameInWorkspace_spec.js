@@ -5,7 +5,7 @@ describe("Create workspace and a new app / delete and recreate app", function() 
   let appid;
   let newWorkspaceName;
 
-  it("create app within an workspace and delete and re-create another app with same name", function() {
+  it("1. Create app within an workspace and delete and re-create another app with same name", function() {
     cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
       workspaceId = uid;

@@ -24,7 +24,7 @@ describe("Table Widget V2 Functionality", function() {
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidgetV2,
-      commonlocators.tableV2Inner,
+      widgetsPage.widgetNameSpan,
     );
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
@@ -68,7 +68,7 @@ describe("Table Widget V2 Functionality", function() {
       expect(tabValue).to.be.equal("Michael Lawson");
     });
     // Sort Username Column
-    cy.contains('[role="columnheader"]', "userName")
+    cy.contains('[role="columnheader"] .draggable-header', "userName")
       .first()
       .click({
         force: true,

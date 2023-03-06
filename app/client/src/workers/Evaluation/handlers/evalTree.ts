@@ -1,4 +1,3 @@
-import { UserLogObject } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
@@ -26,6 +25,7 @@ import {
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
 } from "../types";
+import { clearAllIntervals } from "../fns/overrides/interval";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -41,14 +41,15 @@ export default function(request: EvalWorkerSyncRequest) {
   let dataTree: DataTree = {};
   let errors: EvalError[] = [];
   let logs: any[] = [];
-  let userLogs: UserLogObject[] = [];
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
+  let pathsToClearErrorsFor: any[] = [];
 
   const {
     allActionValidationConfig,
     forceEvaluation,
+    metaWidgets,
     requiresLinting,
     shouldReplay,
     theme,
@@ -145,6 +146,7 @@ export default function(request: EvalWorkerSyncRequest) {
       lintOrder = setupUpdateTreeResponse.lintOrder;
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
+      pathsToClearErrorsFor = setupUpdateTreeResponse.pathsToClearErrorsFor;
 
       initiateLinting(
         lintOrder,
@@ -160,6 +162,7 @@ export default function(request: EvalWorkerSyncRequest) {
         evalOrder,
         nonDynamicFieldValidationOrder,
         unEvalUpdates,
+        Object.keys(metaWidgets),
       );
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
@@ -174,7 +177,6 @@ export default function(request: EvalWorkerSyncRequest) {
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
-    userLogs = dataTreeEvaluator.userLogs;
     if (shouldReplay) {
       if (replayMap[CANVAS]?.logs) logs = logs.concat(replayMap[CANVAS]?.logs);
       replayMap[CANVAS]?.clearLogs();
@@ -185,7 +187,6 @@ export default function(request: EvalWorkerSyncRequest) {
     if (dataTreeEvaluator !== undefined) {
       errors = dataTreeEvaluator.errors;
       logs = dataTreeEvaluator.logs;
-      userLogs = dataTreeEvaluator.userLogs;
     }
     if (!(error instanceof CrashingError)) {
       errors.push({
@@ -213,10 +214,10 @@ export default function(request: EvalWorkerSyncRequest) {
     evaluationOrder: evalOrder,
     jsUpdates,
     logs,
-    userLogs,
     unEvalUpdates,
     isCreateFirstTree,
     staleMetaIds,
+    pathsToClearErrorsFor,
   };
 
   return evalTreeResponse;
@@ -224,5 +225,6 @@ export default function(request: EvalWorkerSyncRequest) {
 
 export function clearCache() {
   dataTreeEvaluator = undefined;
+  clearAllIntervals();
   return true;
 }

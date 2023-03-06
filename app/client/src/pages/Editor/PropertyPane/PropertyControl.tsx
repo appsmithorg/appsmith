@@ -64,6 +64,7 @@ import {
 } from "components/editorComponents/ActionCreator/utils";
 import clsx from "clsx";
 import { useApisQueriesAndJsActionOptions } from "components/editorComponents/ActionCreator/helpers";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -482,7 +483,7 @@ const PropertyControl = memo((props: Props) => {
       (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
       props.invisible ||
       (childWidgetShouldHidePropertyFn &&
-        childWidgetShouldHidePropertyFn(props.propertyName))
+        childWidgetShouldHidePropertyFn(widgetProperties, props.propertyName))
     ) {
       return null;
     }
@@ -542,14 +543,12 @@ const PropertyControl = memo((props: Props) => {
       .join("")
       .toLowerCase();
 
-    let additionAutocomplete:
-      | Record<string, Record<string, unknown>>
-      | undefined = undefined;
+    let additionAutocomplete: AdditionalDynamicDataTree | undefined;
     if (additionalAutoComplete) {
       additionAutocomplete = additionalAutoComplete(widgetProperties);
     } else if (childWidgetAutoCompleteEnhancementFn) {
       additionAutocomplete = childWidgetAutoCompleteEnhancementFn() as
-        | Record<string, Record<string, unknown>>
+        | AdditionalDynamicDataTree
         | undefined;
     }
 

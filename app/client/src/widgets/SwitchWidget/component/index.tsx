@@ -68,6 +68,7 @@ export const StyledSwitch = styled(Switch)<{
       background: ${({ $accentColor }) => `${$accentColor}`} !important;
       border: 1px solid ${({ $accentColor }) => `${$accentColor}`} !important;
     }
+    margin: 0px;
 
     &:hover input:checked:not(:disabled) ~ .bp3-control-indicator,
     input:checked:not(:disabled):focus ~ .bp3-control-indicator {

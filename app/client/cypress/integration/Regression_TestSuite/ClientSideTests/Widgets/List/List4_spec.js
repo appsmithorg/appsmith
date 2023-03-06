@@ -113,7 +113,9 @@ describe("Container Widget Functionality", function() {
     //cy.SearchEntityandOpen("Button1");
     cy.testJsontext("label", `{{currentItem.last_name}}`);
     cy.addAction("{{currentItem.last_name}}", "onclick");
+    cy.wait(3000);
     cy.PublishtheApp();
+    cy.wait(2000);
     // Verify Widget Button by clicking on it
     cy.get(widgetsPage.widgetBtn)
       .closest("div")
@@ -155,6 +157,13 @@ describe("Container Widget Functionality", function() {
     cy.get(
       "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
     ).click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(commonlocators.toastmsg).length <= 0) {
+        cy.get(
+          "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
+        ).click();
+      }
+    });
     // Verify the click on first item
     cy.get(commonlocators.toastmsg).contains(items[0].first_name);
   });
@@ -269,7 +278,7 @@ describe("Container Widget Functionality", function() {
     cy.widgetText(
       "List2",
       widgetsPage.listWidgetName,
-      widgetsPage.listWidgetName + " " + commonlocators.listWidgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
     // Change the list widget name from Entity Explorer
     cy.renameEntity("List2", "List1");

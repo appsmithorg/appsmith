@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.util.WebClientUtils;
+import com.external.constants.ErrorMessages;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -53,8 +55,8 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
 
                 if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
                     throw Exceptions.propagate(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Could not map request back to existing data"));
+                        GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                        ErrorMessages.RESPONSE_DATA_MAPPING_FAILED_ERROR_MSG));
                 }
                 String jsonBody = new String(responseBody);
                 JsonNode sheets = null;
@@ -84,7 +86,7 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
         }
 
         return true;
@@ -106,8 +108,8 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing a valid response object.");
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         Map<String, Object> responseObj = new HashMap<>();
@@ -141,8 +143,8 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
     public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing a valid response object.");
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         final JsonNode sheets = response.get("sheets");

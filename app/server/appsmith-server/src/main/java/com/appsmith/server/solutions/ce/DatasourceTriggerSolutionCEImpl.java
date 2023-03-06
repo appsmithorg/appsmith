@@ -21,6 +21,7 @@ import com.appsmith.server.solutions.DatasourceStructureSolution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple5;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
 
-    public Mono<TriggerResultDTO> trigger(String datasourceId, TriggerRequestDTO triggerRequestDTO) {
+    public Mono<TriggerResultDTO> trigger(String datasourceId, TriggerRequestDTO triggerRequestDTO, String environmentName) {
 
         Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "datasourceId")))
@@ -69,49 +70,58 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
         final ClientDataDisplayType displayType = triggerRequestDTO.getDisplayType();
 
-        Mono<Datasource> validatedDatasourceMono = datasourceMono
-                .flatMap(authenticationValidator::validateAuthentication)
-                .cache();
+        Mono<Tuple5> datasourceAndPluginEssentialsMono =
+                datasourceMono.flatMap(datasource -> {
+                    return datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
+                            .flatMap(tuple3-> {
+                                Datasource datasource1 = tuple3.getT1();
+                                DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
+                                Map<String, BaseDomain> environmentMap = tuple3.getT3();
+
+                                Mono<Datasource> validatedDatasourceMono =
+                                        authenticationValidator
+                                                .validateAuthentication(datasource1, datasourceContextIdentifier.getEnvironmentId())
+                                                .cache();
+
+                                return Mono.zip(validatedDatasourceMono, pluginMono, pluginExecutorMono,
+                                         Mono.just(datasourceContextIdentifier), Mono.just(environmentMap));
+                            });
+                });
 
         // If the plugin has overridden and implemented the same, use the plugin result
-        Mono<TriggerResultDTO> resultFromPluginMono = Mono.zip(validatedDatasourceMono, pluginMono, pluginExecutorMono)
+        Mono<TriggerResultDTO> resultFromPluginMono = datasourceAndPluginEssentialsMono
                 .flatMap(tuple -> {
-                    final Datasource datasource = tuple.getT1();
-                    final Plugin plugin = tuple.getT2();
-                    final PluginExecutor pluginExecutor = tuple.getT3();
+                    final Datasource datasource = (Datasource) tuple.getT1();
+                    final Plugin plugin = (Plugin) tuple.getT2();
+                    final PluginExecutor pluginExecutor = (PluginExecutor) tuple.getT3();
+                    DatasourceContextIdentifier datasourceContextIdentifier = (DatasourceContextIdentifier) tuple.getT4();
+                    Map<String, BaseDomain> environmentMap = (Map<String, BaseDomain>) tuple.getT5();
 
-                    final Mono<Datasource> validDatasourceMono = authenticationValidator.validateAuthentication(datasource);
+                    final Mono<Datasource> validDatasourceMono = authenticationValidator
+                            .validateAuthentication(datasource, datasourceContextIdentifier.getEnvironmentId());
 
                     return validDatasourceMono
                             .flatMap(datasource1 -> {
                                 if (plugin.isRemotePlugin()) {
                                     return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
                                 } else {
-                                    return datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource1, null)
-                                            .flatMap(tuple3 -> {
-                                                Datasource datasource2 = tuple3.getT1();
-                                                DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
-                                                Map<String, BaseDomain> environmentMap = tuple3.getT3();
-                                                return datasourceContextService.getDatasourceContext(datasource2, datasourceContextIdentifier,
+                                    return datasourceContextService.getDatasourceContext(datasource, datasourceContextIdentifier,
                                                                                                      environmentMap);
-                                            });
                                 }
                             })
                             // Now that we have the context (connection details), execute the action.
-                            .flatMap(resourceContext -> validatedDatasourceMono
-                                    .flatMap(datasource1 -> {
-                                        return (Mono<TriggerResultDTO>) pluginExecutor.trigger(
-                                                resourceContext.getConnection(),
-                                                datasource1.getDatasourceConfiguration(),
-                                                triggerRequestDTO
-                                        );
-                                    })
-                            );
+                            // datasource remains unevaluated for datasource of DBAuth Type Authentication,
+                            // However the context comes from evaluated datasource.
+                            .flatMap(resourceContext -> {
+                                return (Mono<TriggerResultDTO>) pluginExecutor.trigger(resourceContext.getConnection(),
+                                                                                       datasource.getDatasourceConfiguration(),
+                                                                                       triggerRequestDTO);
+                            });
                 });
 
         // If the plugin hasn't, go for the default implementation
         Mono<TriggerResultDTO> defaultResultMono = datasourceMono
-                .flatMap(datasource -> entitySelectorTriggerSolution(datasource, triggerRequestDTO))
+                .flatMap(datasource -> entitySelectorTriggerSolution(datasource, triggerRequestDTO, environmentName))
                 .map(entityNames -> {
                     List<Object> result = new ArrayList<>();
 
@@ -132,13 +142,15 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                 .switchIfEmpty(defaultResultMono);
     }
 
-    private Mono<Set<String>> entitySelectorTriggerSolution(Datasource datasource, TriggerRequestDTO request) {
+    private Mono<Set<String>> entitySelectorTriggerSolution(Datasource datasource, TriggerRequestDTO request,
+                                                            String environmentName) {
         if (request.getDisplayType() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
         }
 
         final Map<String, Object> parameters = request.getParameters();
-        Mono<DatasourceStructure> structureMono = datasourceStructureSolution.getStructure(datasource, false);
+        Mono<DatasourceStructure> structureMono = datasourceStructureSolution.getStructure(datasource, false,
+                                                                                           environmentName);
 
         return structureMono
                 .map(structure -> {

@@ -19,7 +19,14 @@ import java.util.Set;
 
 public interface DatasourceServiceCE extends CrudService<Datasource, String> {
 
-    Mono<DatasourceTestResult> testDatasource(Datasource datasource);
+    /**
+     *
+     * @param datasource - The datasource which is about to be tested
+     * @param environmentName - environmentName, name of the environment on which the datasource is getting tested,
+     *                         this variable is unused in the CE version of the code.
+     * @return Mono<DatasourceTestResult> - result whether the datasource secures a valid connection with the remote DB
+     */
+    Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentName);
 
     Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission);
 

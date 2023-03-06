@@ -103,7 +103,6 @@ export function saveResolvedFunctionsAndJSUpdates(
                 false,
                 undefined,
                 undefined,
-                true,
               );
               if (!!result) {
                 let params: Array<{ name: string; value: unknown }> = [];

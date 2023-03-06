@@ -1,7 +1,6 @@
 annotations:
   category: Application
 apiVersion: v2
-appVersion: "1.16.0"
 name: appsmith
 type: application
 description: Appsmith is an open source framework to build admin panels, CRUD apps and workflows. Build everything you need, 10x faster.
@@ -16,11 +15,11 @@ version: 2.0.0
 dependencies:
 - condition: redis.enabled
   name: redis
-  version: 17.0.10
-  appVersion: 6.0.2
+  version: 16.11.2
+  appVersion: 6.2.7
   repository: https://charts.bitnami.com/bitnami
 - condition: mongodb.enabled
   name: mongodb
-  version: 13.6.0
-  appVersion: 5.0.12
+  version: 12.1.16
+  appVersion: 5.0.9
   repository: https://charts.bitnami.com/bitnami

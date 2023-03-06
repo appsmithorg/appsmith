@@ -77,6 +77,7 @@ import {
   getCurrentPageId,
   getCurrentPageName,
   getPageById,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -571,6 +572,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
     const currentPageId: string = yield select(getCurrentPageId);
     const currentPage: Page = yield select(getPageById(currentPageId));
+    const isPreviewMode: boolean = yield select(previewModeSelector);
 
     const appMode: APP_MODE | undefined = yield select(getAppMode);
 
@@ -585,7 +587,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       });
     }
 
-    if (appMode === APP_MODE.EDIT) {
+    if (appMode === APP_MODE.EDIT && !isPreviewMode) {
       yield put(saveLayout(action.payload.isRetry));
     }
   } catch (error) {
@@ -744,9 +746,29 @@ export function* clonePageSaga(
         },
       });
 
-      yield put(fetchActionsForPage(response.data.id));
-      yield put(fetchJSCollectionsForPage(response.data.id));
+      const triggersAfterPageFetch = [
+        fetchActionsForPage(response.data.id),
+        fetchJSCollectionsForPage(response.data.id),
+      ];
+
+      const afterActionsFetch: unknown = yield failFastApiCalls(
+        triggersAfterPageFetch,
+        [
+          fetchActionsForPageSuccess([]).type,
+          fetchJSCollectionsForPageSuccess([]).type,
+        ],
+        [
+          fetchActionsForPageError().type,
+          fetchJSCollectionsForPageError().type,
+        ],
+      );
+
+      if (!afterActionsFetch) {
+        throw new Error("Failed cloning page");
+      }
+
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 
       // TODO: Update URL params here.
 
