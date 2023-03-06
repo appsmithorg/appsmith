@@ -9,10 +9,6 @@ import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { AppPositionTypeControl } from "../AppPositionTypeControl";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
-const Title = styled.p`
-  color: ${Colors.GRAY_800};
-`;
-
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
 
