@@ -31,10 +31,10 @@ public enum FeatureFlagEnum {
     TEMPLATES_PHASE_2,
     CONTEXT_SWITCHING,
     DATASOURCE_ENVIRONMENTS,
-    CUSTOM_JS_LIBRARY,
     AUTO_LAYOUT,
+    LIMITING_GOOGLE_SHEET_ACCESS,
+    LAZY_CANVAS_RENDERING,
 
     // Put EE flags below this line, to avoid conflicts.
     RBAC,
-    USAGE_AND_BILLING,
 }

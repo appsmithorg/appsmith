@@ -18,7 +18,7 @@ describe("Switch Widget Functionality", function() {
     cy.widgetText(
       "Toggler",
       formWidgetsPage.switchWidget,
-      widgetsPage.switchInput,
+      widgetsPage.widgetNameSpan,
     );
     /**
      * @param{Text} Random Value

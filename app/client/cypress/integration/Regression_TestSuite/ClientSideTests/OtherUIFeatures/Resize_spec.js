@@ -6,7 +6,7 @@ describe("Canvas Resize", function() {
     cy.addDsl(dsl);
   });
   it("Deleting bottom widget should resize canvas", function() {
-    const InitHeight = "2960px";
+    const InitHeight = "2950px";
     cy.get(commonlocators.dropTarget).should("have.css", "height", InitHeight);
     cy.openPropertyPane("textwidget");
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("deleteUpdate");
@@ -16,7 +16,7 @@ describe("Canvas Resize", function() {
       cy.get(commonlocators.dropTarget).should(
         "have.css",
         "height",
-        `${dsl.minHeight}px`,
+        `${dsl.minHeight - 12}px`, // Reducing 12 px for container padding.
       );
     });
   });

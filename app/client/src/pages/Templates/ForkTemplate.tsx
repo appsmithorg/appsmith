@@ -43,7 +43,7 @@ const StyledDialog = styled(Dialog)`
 `;
 
 interface ForkTemplateProps {
-  children: ReactNode;
+  children?: ReactNode;
   showForkModal: boolean;
   onClose: (e?: React.MouseEvent<HTMLElement>) => void;
   templateId: string;

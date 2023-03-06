@@ -64,7 +64,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
-    private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
+    private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding());
 
     private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
 
@@ -200,7 +200,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
         return redirectHelper.getRedirectUrl(request)
                 .map(redirectUrl -> {
                     String stateKey = this.stateGenerator.generateKey();
-                    stateKey = stateKey + "," + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
+                    stateKey = stateKey + "@" + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
                     return stateKey;
                 });
     }

@@ -48,3 +48,5 @@ build-storybook.log
 TODO
 
 /nginx
+
+/public/static/wds/

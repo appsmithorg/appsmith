@@ -7,24 +7,31 @@ import BaseWidget from "widgets/BaseWidget";
 import WidgetFactory, { NonSerialisableWidgetConfigs } from "./WidgetFactory";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import withMeta from "widgets/MetaHOC";
-import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
+import { WidgetConfiguration } from "widgets/constants";
+import withMeta from "widgets/MetaHOC";
+import withWidgetProps from "widgets/withWidgetProps";
+import { generateReactKey } from "./generators";
 import {
   RegisteredWidgetFeatures,
   WidgetFeaturePropertyEnhancements,
   WidgetFeatureProps,
 } from "./WidgetFeatures";
-import { WidgetConfiguration } from "widgets/constants";
-import withWidgetProps from "widgets/withWidgetProps";
+import { withLazyRender } from "widgets/withLazyRender";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
   needsMeta: boolean,
+  eagerRender: boolean,
 ) {
   let widget = needsMeta ? withMeta(Widget) : Widget;
+
   //@ts-expect-error: type mismatch
   widget = withWidgetProps(widget);
+
+  //@ts-expect-error: type mismatch
+  widget = eagerRender ? widget : withLazyRender(widget);
+
   return Sentry.withProfiler(
     // @ts-expect-error: Types are not available
     widget,
@@ -32,7 +39,11 @@ const generateWidget = memoize(function getWidgetComponent(
 });
 
 export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
-  const ProfiledWidget = generateWidget(Widget, !!config.needsMeta);
+  const ProfiledWidget = generateWidget(
+    Widget,
+    !!config.needsMeta,
+    !!config.eagerRender,
+  );
 
   WidgetFactory.registerWidgetBuilder(
     config.type,
@@ -81,6 +92,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     iconSVG: config.iconSVG,
     isCanvas: config.isCanvas,
     canvasHeightOffset: config.canvasHeightOffset,
+    needsHeightForContent: config.needsHeightForContent,
   };
 
   const nonSerialisableWidgetConfigs: Record<string, unknown> = {};

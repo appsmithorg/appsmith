@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.external.plugins.exceptions.RedshiftErrorMessages;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
@@ -86,6 +87,7 @@ public class RedshiftDatasourceUtils {
         } catch (HikariPool.PoolInitializationException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    RedshiftErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
                     e.getMessage()
             );
         }

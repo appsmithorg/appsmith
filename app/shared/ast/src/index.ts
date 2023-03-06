@@ -124,7 +124,7 @@ export interface PropertyNode extends Node {
   type: NodeTypes.Property;
   key: LiteralNode | IdentifierNode;
   value: Node;
-  kind: 'init' | 'get' | 'set';
+  kind: "init" | "get" | "set";
 }
 
 // Node with location details
@@ -132,7 +132,7 @@ type NodeWithLocation<NodeType> = NodeType & {
   loc: SourceLocation;
 };
 
-type AstOptions = Omit<Options, 'ecmaVersion'>;
+type AstOptions = Omit<Options, "ecmaVersion">;
 
 type EntityRefactorResponse = {
   isSuccess: boolean;
@@ -153,7 +153,7 @@ export const isBinaryExpressionNode = (node: Node): node is BinaryExpressionNode
 }
 
 export const isVariableDeclarator = (
-  node: Node
+  node: Node,
 ): node is VariableDeclaratorNode => {
   return node.type === NodeTypes.VariableDeclarator;
 };
@@ -196,7 +196,7 @@ export const isBlockStatementNode = (node: Node): node is BlockStatementNode => 
 }
 
 export const isPropertyAFunctionNode = (
-  node: Node
+  node: Node,
 ): node is ArrowFunctionExpressionNode | FunctionExpressionNode => {
   return (
     node.type === NodeTypes.ArrowFunctionExpression ||
@@ -221,24 +221,29 @@ export const wrapCode = (code: string) => {
   `;
 };
 
+//Tech-debt: should upgrade this to better logic
+//Used slice for a quick resolve of critical bug
+const unwrapCode = (code: string) => {
+  let unwrapedCode = code.slice(32);
+  return unwrapedCode.slice(0, -10);
+};
+
 const getFunctionalParamNamesFromNode = (
   node:
     | FunctionDeclarationNode
     | FunctionExpressionNode
-    | ArrowFunctionExpressionNode
+    | ArrowFunctionExpressionNode,
 ) => {
   return Array.from(getFunctionalParamsFromNode(node)).map(
-    (functionalParam) => functionalParam.paramName
+    (functionalParam) => functionalParam.paramName,
   );
 };
 
 // Memoize the ast generation code to improve performance.
 // Since this will be used by both the server and the client, we want to prevent regeneration of ast
 // for the the same code snippet
-export const getAST = memoize(
-    (code: string, options?: AstOptions) => {
-      return parse(code, { ...options, ecmaVersion: ECMA_VERSION });
-    }
+export const getAST = memoize((code: string, options?: AstOptions) =>
+  parse(code, { ...options, ecmaVersion: ECMA_VERSION }),
 );
 
 export const attachCommentsToAst = (ast: Node, commentArray: Array<Comment>) => {
@@ -260,9 +265,9 @@ export interface IdentifierInfo {
 export const extractIdentifierInfoFromCode = (
   code: string,
   evaluationVersion: number,
-  invalidIdentifiers?: Record<string, unknown>
+  invalidIdentifiers?: Record<string, unknown>,
 ): IdentifierInfo => {
-  let ast: Node = { end: 0, start: 0, type: '' };
+  let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
@@ -312,13 +317,14 @@ export const entityRefactorFromCode = (
   newName: string,
   isJSObject: boolean,
   evaluationVersion: number,
-  invalidIdentifiers?: Record<string, unknown>
+  invalidIdentifiers?: Record<string, unknown>,
 ): EntityRefactorResponse => {
   //Sanitizing leads to removal of special charater.
   //Hence we are not sanatizing the script. Fix(#18492)
   //If script is a JSObject then replace export default to decalartion.
   if (isJSObject) script = jsObjectToCode(script);
-  let ast: Node = { end: 0, start: 0, type: '' };
+  else script = wrapCode(script);
+  let ast: Node = { end: 0, start: 0, type: "" };
   //Copy of script to refactor
   let refactorScript = script;
   //Difference in length of oldName and newName
@@ -336,10 +342,10 @@ export const entityRefactorFromCode = (
       identifierList,
     }: NodeList = ancestorWalk(ast);
     const identifierArray = Array.from(
-      identifierList
+      identifierList,
     ) as Array<RefactorIdentifierNode>;
     //To handle if oldName has property ("JSObject.myfunc")
-    const oldNameArr = oldName.split('.');
+    const oldNameArr = oldName.split(".");
     const referencesArr = Array.from(references).filter((reference) => {
       // To remove references derived from declared variables and function params,
       // We extract the topLevelIdentifier Eg. Api1.name => Api1
@@ -355,7 +361,7 @@ export const entityRefactorFromCode = (
       if (identifier.name === oldNameArr[0]) {
         let index = 0;
         while (index < referencesArr.length) {
-          if (identifier.name === referencesArr[index].split('.')[0]) {
+          if (identifier.name === referencesArr[index].split(".")[0]) {
             //Replace the oldName by newName
             //Get start index from node and get subarray from index 0 till start
             //Append above with new name
@@ -393,6 +399,7 @@ export const entityRefactorFromCode = (
     });
     //If script is a JSObject then revert decalartion to export default.
     if (isJSObject) refactorScript = jsCodeToObject(refactorScript);
+    else refactorScript = unwrapCode(refactorScript);
     return {
       isSuccess: true,
       body: { script: refactorScript, refactorCount },
@@ -400,7 +407,7 @@ export const entityRefactorFromCode = (
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list
-      return { isSuccess: false, body: { error: 'Syntax Error' } };
+      return { isSuccess: false, body: { error: "Syntax Error" } };
     }
     throw e;
   }
@@ -413,7 +420,7 @@ export const getFunctionalParamsFromNode = (
     | FunctionDeclarationNode
     | FunctionExpressionNode
     | ArrowFunctionExpressionNode,
-  needValue = false
+  needValue = false,
 ): Set<functionParam> => {
   const functionalParams = new Set<functionParam>();
   node.params.forEach((paramNode) => {
@@ -442,7 +449,7 @@ export const getFunctionalParamsFromNode = (
 
 const constructFinalMemberExpIdentifier = (
   node: MemberExpressionNode,
-  child = ''
+  child = "",
 ): string => {
   const propertyAccessor = getPropertyAccessor(node.property);
   if (isIdentifierNode(node.object)) {
@@ -498,12 +505,12 @@ export interface MemberExpressionData {
 export const extractInvalidTopLevelMemberExpressionsFromCode = (
   code: string,
   data: Record<string, any>,
-  evaluationVersion: number
+  evaluationVersion: number,
 ): MemberExpressionData[] => {
   const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
   const variableDeclarations = new Set<string>();
   let functionalParams = new Set<string>();
-  let ast: Node = { end: 0, start: 0, type: '' };
+  let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     const wrappedCode = wrapCode(sanitizedScript);
@@ -576,7 +583,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
   });
 
   const invalidTopLevelMemberExpressionsArray = Array.from(
-    invalidTopLevelMemberExpressions
+    invalidTopLevelMemberExpressions,
   ).filter((MemberExpression) => {
     return !(
       variableDeclarations.has(MemberExpression.object.name) ||
@@ -651,7 +658,7 @@ const ancestorWalk = (ast: Node): NodeList => {
         // For MemberExpression Nodes, we will construct a final reference string and then add
         // it to the references list
         const memberExpIdentifier = constructFinalMemberExpIdentifier(
-          candidateTopLevelNode
+          candidateTopLevelNode,
         );
         references.add(memberExpIdentifier);
       }
@@ -708,5 +715,5 @@ const jsObjectToCode = (script: string) => {
 //Revert the string replacement from 'jsObjectToCode'.
 //variable declaration is replaced back by export default.
 const jsCodeToObject = (script: string) => {
-  return script.replace(jsObjectDeclaration, 'export default');
+  return script.replace(jsObjectDeclaration, "export default");
 };

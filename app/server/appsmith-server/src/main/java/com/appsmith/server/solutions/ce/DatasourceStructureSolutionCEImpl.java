@@ -46,9 +46,9 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private final DatasourcePermission datasourcePermission;
 
 
-    public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache) {
+    public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentName) {
         return datasourceService.getById(datasourceId)
-                .flatMap(datasource -> getStructure(datasource, ignoreCache))
+                .flatMap(datasource -> getStructure(datasource, ignoreCache, environmentName))
                 .defaultIfEmpty(new DatasourceStructure())
                 .onErrorMap(
                         IllegalArgumentException.class,
@@ -72,9 +72,9 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 });
     }
 
-    public Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache) {
-        if (!CollectionUtils.isEmpty(datasource.getInvalids())) {
-            // Don't attempt to get structure for invalid datasources.
+    public Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache, String environmentName) {
+
+        if (Boolean.TRUE.equals(datasourceHasInvalids(datasource))) {
             return Mono.empty();
         }
 
@@ -88,7 +88,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
                 .flatMap(pluginExecutor -> datasourceService
-                        .getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, null)
+                        .getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
                         .flatMap(tuple3 -> {
                             Datasource datasource2 = tuple3.getT1();
                             DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
@@ -97,7 +97,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                                     .retryOnce(datasource2, datasourceContextIdentifier, environmentMap,
                                                resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
                                                        .getStructure(resourceContext.getConnection(),
-                                                                     datasource.getDatasourceConfiguration()));
+                                                                     datasource2.getDatasourceConfiguration())); // this datasourceConfiguration is unevaluated for DBAuth type.
                         }))
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
                 .onErrorMap(
@@ -184,5 +184,19 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
         });
     }
 
+    /**
+     * Checks if the datasource has any invalids.
+     * This will have EE overrides.
+     * @param datasource
+     * @return true if datasource has invalids, otherwise a false
+     */
+    protected Boolean datasourceHasInvalids(Datasource datasource) {
+        if (!CollectionUtils.isEmpty(datasource.getInvalids())) {
+            // Don't attempt to get structure for invalid datasources.
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
 
 }

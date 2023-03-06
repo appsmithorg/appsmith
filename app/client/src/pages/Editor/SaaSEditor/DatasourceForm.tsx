@@ -64,6 +64,7 @@ import {
   createMessage,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -462,6 +463,7 @@ const mapStateToProps = (state: AppState, props: any) => {
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     canCreateDatasourceActions,
+    featureFlags: selectFeatureFlags(state),
   };
 };
 

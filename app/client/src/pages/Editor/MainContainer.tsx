@@ -1,23 +1,25 @@
-import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback } from "react";
-import { Route, Switch } from "react-router";
+import { Route, Switch, useRouteMatch } from "react-router";
 
-import EditorsRouter from "./routes";
-import BottomBar from "./BottomBar";
-import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
+import classNames from "classnames";
+import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  WIDGETS_EDITOR_BASE_PATH,
+  WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import EntityExplorerSidebar from "components/editorComponents/Sidebar";
-import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { getExplorerWidth } from "selectors/explorerSelector";
+import BottomBar from "./BottomBar";
+import WidgetsEditor from "./WidgetsEditor";
+import EditorsRouter from "./routes";
+import styled from "styled-components";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -33,6 +35,7 @@ const Container = styled.div`
 function MainContainer() {
   const dispatch = useDispatch();
   const sidebarWidth = useSelector(getExplorerWidth);
+  const { path } = useRouteMatch();
 
   /**
    * on entity explorer sidebar width change
@@ -77,6 +80,16 @@ function MainContainer() {
               component={WidgetsEditor}
               exact
               path={BUILDER_CUSTOM_PATH}
+            />
+            <SentryRoute
+              component={WidgetsEditor}
+              exact
+              path={`${path}${WIDGETS_EDITOR_BASE_PATH}`}
+            />
+            <SentryRoute
+              component={WidgetsEditor}
+              exact
+              path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
             />
             <SentryRoute component={EditorsRouter} />
           </Switch>

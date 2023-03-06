@@ -1,17 +1,23 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, debounce, takeEvery, takeLatest } from "redux-saga/effects";
-import { batchCallsToUpdateWidgetAutoHeightSaga } from "./batcher";
+import {
+  batchCallsToUpdateWidgetAutoHeightSaga,
+  callEvalWithoutReplay,
+} from "./batcher";
 import { dynamicallyUpdateContainersSaga } from "./containers";
 import { generateTreeForAutoHeightComputations } from "./layoutTree";
 import { updateWidgetAutoHeightSaga } from "./widgets";
 
 export default function* autoHeightSagas() {
+  // ToDO(Ashok): Need to bring back Dynamic Height features based on mode of the editor (Fixed vs Mobile responsiveness)
+
   yield all([
     takeLatest(
       [
         ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
         ReduxActionTypes.SET_PREVIEW_MODE,
       ],
+      // canPerformDynamicHeightCheck,
       dynamicallyUpdateContainersSaga,
     ),
     takeEvery(
@@ -23,11 +29,17 @@ export default function* autoHeightSagas() {
       ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
       updateWidgetAutoHeightSaga,
     ),
+    takeEvery(
+      ReduxActionTypes.DIRECT_DOM_UPDATE_AUTO_HEIGHT,
+      updateWidgetAutoHeightSaga,
+    ),
     takeLatest(
-      [
-        ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
-      ],
+      ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
       generateTreeForAutoHeightComputations,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
+      callEvalWithoutReplay,
     ),
   ]);
 }

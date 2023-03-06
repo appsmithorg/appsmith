@@ -7,11 +7,13 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -22,11 +24,13 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,11 +59,17 @@ public class DatasourceTriggerSolutionTest {
     @Autowired
     PluginService pluginService;
 
-    @Autowired
+    @SpyBean
     DatasourceService datasourceService;
 
     @Autowired
     WorkspaceService workspaceService;
+
+    @Autowired
+    DatasourcePermission datasourcePermission;
+
+    @MockBean
+    FeatureFlagService featureFlagService;
 
     String workspaceId;
 
@@ -124,22 +134,30 @@ public class DatasourceTriggerSolutionTest {
                 .when(datasourceStructureSolution
                         .getStructure(
                                 (Datasource) Mockito.any(),
-                                Mockito.anyBoolean()))
+                                Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Mono.just(testStructure));
+
+        Datasource datasource = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission()).block();
+        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
+        Mockito
+                .doReturn(Mono.zip(Mono.justOrEmpty(datasource),
+                                   Mono.just(new DatasourceContextIdentifier(datasourceId, null)),
+                                   Mono.just(new HashMap<>())))
+                .when(datasourceService).getEvaluatedDSAndDsContextKeyWithEnvMap(Mockito.any(Datasource.class), Mockito.any());
 
         Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
                 datasourceId,
                 new TriggerRequestDTO(
                         "ENTITY_SELECTOR",
                         Map.of(),
-                        ClientDataDisplayType.DROP_DOWN));
+                        ClientDataDisplayType.DROP_DOWN), null);
 
         Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
                 datasourceId,
                 new TriggerRequestDTO(
                         "ENTITY_SELECTOR",
                         Map.of("tableName", "Table1"),
-                        ClientDataDisplayType.DROP_DOWN));
+                        ClientDataDisplayType.DROP_DOWN), null);
 
         StepVerifier.create(tableNameMono)
                 .assertNext(tablesResult -> {

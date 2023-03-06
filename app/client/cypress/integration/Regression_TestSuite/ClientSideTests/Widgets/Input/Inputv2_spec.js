@@ -342,14 +342,14 @@ describe("Input widget V2 - ", () => {
   it("7. Validating other properties - Input validity with #valid", () => {
     cy.openPropertyPane(widgetName);
     [
-      ["{{1 === 2}}", "false"],
-      ["", "true"],
-      ["{{1 === 1}}", "true"],
-      ["", "true"],
-    ].forEach(([input, expected]) => {
+      ["{{1 === 2}}", "false", true],
+      ["", "true", false],
+      ["{{1 === 1}}", "true", true],
+      ["", "true", false],
+    ].forEach(([input, expected, isValueDynamic]) => {
       cy.updateCodeInput(".t--property-control-valid", input);
       cy.wait(500);
-      cy.validateEvaluatedValue(expected);
+      isValueDynamic && cy.validateEvaluatedValue(expected);
     });
   });
 

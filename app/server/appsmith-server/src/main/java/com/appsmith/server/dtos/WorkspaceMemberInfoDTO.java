@@ -10,7 +10,7 @@ import lombok.Setter;
 public class WorkspaceMemberInfoDTO extends WorkspaceMemberInfoCE_DTO {
 
     @Builder
-    public WorkspaceMemberInfoDTO(String userId, String username, String name, String permissionGroupName, String permissionGroupId) {
-        super(userId, username, name, permissionGroupName, permissionGroupId);
+    public WorkspaceMemberInfoDTO(String userId, String username, String name, String permissionGroupName, String permissionGroupId, String photoId) {
+        super(userId, username, name, permissionGroupName, permissionGroupId, photoId);
     }
 }

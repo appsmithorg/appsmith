@@ -6,8 +6,9 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { functionDeterminer } from "../functionDeterminer";
+import { resetJSLibraries } from "workers/common/JSLibrary";
+import { EVAL_WORKER_ACTIONS } from "ce/workers/Evaluation/evalWorkerActions";
 
 describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
@@ -39,7 +40,13 @@ describe("evaluateSync", () => {
     Input1: widget,
   };
   beforeAll(() => {
-    setupEvalEnv();
+    setupEvalEnv({
+      method: EVAL_WORKER_ACTIONS.SETUP,
+      data: {
+        cloudHosting: false,
+      },
+    });
+    resetJSLibraries();
   });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
@@ -65,17 +72,19 @@ describe("evaluateSync", () => {
     const response1 = evaluate("wrongJS", {}, {}, false);
     expect(response1).toStrictEqual({
       result: undefined,
-      logs: [],
       errors: [
         {
-          errorMessage: "ReferenceError: wrongJS is not defined",
+          errorMessage: {
+            name: "ReferenceError",
+            message: "wrongJS is not defined",
+          },
           errorType: "PARSE",
           raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
+  function $$closedFn () {
+    const $$result = wrongJS
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "wrongJS",
@@ -85,17 +94,19 @@ describe("evaluateSync", () => {
     const response2 = evaluate("{}.map()", {}, {}, false);
     expect(response2).toStrictEqual({
       result: undefined,
-      logs: [],
       errors: [
         {
-          errorMessage: "TypeError: {}.map is not a function",
+          errorMessage: {
+            name: "TypeError",
+            message: "{}.map is not a function",
+          },
           errorType: "PARSE",
           raw: `
-  function closedFunction () {
-    const result = {}.map()
-    return result;
+  function $$closedFn () {
+    const $$result = {}.map()
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "{}.map()",
@@ -113,17 +124,19 @@ describe("evaluateSync", () => {
     const response = evaluate(js, dataTree, {}, false);
     expect(response).toStrictEqual({
       result: undefined,
-      logs: [],
       errors: [
         {
-          errorMessage: "ReferenceError: setImmediate is not defined",
+          errorMessage: {
+            name: "ReferenceError",
+            message: "setImmediate is not defined",
+          },
           errorType: "PARSE",
           raw: `
-  function closedFunction () {
-    const result = setImmediate(() => {}, 100)
-    return result;
+  function $$closedFn () {
+    const $$result = setImmediate(() => {}, 100)
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "setImmediate(() => {}, 100)",
@@ -194,9 +207,7 @@ describe("evaluateAsync", () => {
     const response = await evaluateAsync(js, {}, {}, {});
     expect(response).toStrictEqual({
       errors: [],
-      logs: [],
       result: 123,
-      triggers: [],
     });
   });
   it("runs and returns errors", async () => {
@@ -207,16 +218,17 @@ describe("evaluateAsync", () => {
     expect(result).toStrictEqual({
       errors: [
         {
-          errorMessage: expect.stringContaining("randomKeyword is not defined"),
+          errorMessage: {
+            name: "ReferenceError",
+            message: "randomKeyword is not defined",
+          },
           errorType: "PARSE",
           originalBinding: expect.stringContaining("Promise"),
           raw: expect.stringContaining("Promise"),
           severity: "error",
         },
       ],
-      triggers: [],
       result: undefined,
-      logs: [],
     });
   });
 });

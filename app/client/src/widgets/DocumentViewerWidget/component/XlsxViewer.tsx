@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "styled-components";
-import Excel from "exceljs-lightweight";
+import Excel from "exceljs";
 import { useTable, Column } from "react-table";
 import _ from "lodash";
 

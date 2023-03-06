@@ -144,15 +144,14 @@ public class ApplicationTemplateServiceTest {
 
         // make sure we've received the response returned by the mockCloudServices
         StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates())
-                .assertNext(applicationTemplates -> assertThat(applicationTemplates.size()).isEqualTo(1))
+                .assertNext(applicationTemplates -> assertThat(applicationTemplates).hasSize(1))
                 .verifyComplete();
 
         // verify that mockCloudServices was called with the query param id i.e. id=id-one&id=id-two
         RecordedRequest recordedRequest = mockCloudServices.takeRequest();
+        assert recordedRequest.getRequestUrl() != null;
         List<String> queryParameterValues = recordedRequest.getRequestUrl().queryParameterValues("id");
-        assertThat(queryParameterValues).contains("id-one");
-        assertThat(queryParameterValues).contains("id-two");
-        assertThat(queryParameterValues.size()).isEqualTo(2);
+        assertThat(queryParameterValues).containsExactly("id-one", "id-two");
     }
 
     @Test
@@ -160,6 +159,7 @@ public class ApplicationTemplateServiceTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", "1234567890");
         jsonObject.put("name", "My Page");
+        jsonObject.put("icon", "flight");
         jsonObject.put("isDefault", true);
         JSONArray pages = new JSONArray();
         pages.put(jsonObject);
@@ -191,6 +191,7 @@ public class ApplicationTemplateServiceTest {
                     PageNameIdDTO pageNameIdDTO = applicationTemplate.getPages().get(0);
                     assertThat(pageNameIdDTO.getId()).isEqualTo("1234567890");
                     assertThat(pageNameIdDTO.getName()).isEqualTo("My Page");
+                    assertThat(pageNameIdDTO.getIcon()).isEqualTo("flight");
                     assertThat(pageNameIdDTO.getIsDefault()).isTrue();
                 })
                 .verifyComplete();
