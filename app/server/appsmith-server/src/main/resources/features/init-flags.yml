@@ -86,8 +86,8 @@ ff4j:
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
+          - name: emails
+            value: preet.sidhu@appsmith.com,rohit.agarwal@appsmith.com,anubhav@appsmith.com,shadab@appsmith.com,momcilo@appsmith.com,ganesha@appsmith.com,taras@appsmith.com,abhinav@appsmith.com,arsalan.shaikh@appsmith.com,ashok@appsmith.com,aswath@appsmith.com,kamakshi@appsmith.com,rahul@appsmith.com,sripriya.radhakrishnan@moolya.com,nandan@thinkify.io,arpit@appsmith.com,nikhil.nandagopal@gmail.com,demo11@appsmith.com,demo12@appsmith.com,demo13@appsmith.com,demo14@appsmith.com,demo15@appsmith.com
 
     - uid: LIMITING_GOOGLE_SHEET_ACCESS
       enable: true
