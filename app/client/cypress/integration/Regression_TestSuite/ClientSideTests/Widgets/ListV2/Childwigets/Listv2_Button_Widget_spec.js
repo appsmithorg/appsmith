@@ -1,8 +1,5 @@
 const dsl = require("../../../../../../fixtures/Listv2/simpleListWithInputAndButton.json");
-const commonlocators = require("../../../../../../locators/commonlocators.json");
-
-const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 describe("List v2- Tabs Widget", () => {
   before(() => {
@@ -10,32 +7,22 @@ describe("List v2- Tabs Widget", () => {
   });
 
   it("1. should not throw error when on click event is changed No Action", () => {
-    cy.openPropertyPaneByWidgetName("Button1", "buttonwidget");
-
-    // Enable JS mode for onClick
-    cy.get(toggleJSButton("onclick")).click({ force: true });
-
-    cy.testJsontext("onclick", "{{showAlert('Hello')}}");
-
-    cy.get(widgetSelector("Button1"))
-      .find("button")
-      .click({ force: true });
-
-    cy.get(commonlocators.toastmsg).contains("Hello");
+    _.entityExplorer.ExpandCollapseEntity("List1");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
+    _.entityExplorer.SelectEntityByName("Button1");
+    _.propPane.EnterJSContext("onClick", "{{showAlert('Hello')}}");
+    _.agHelper.Sleep();
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateToastMessage("Hello");
 
     // Wait for toastmsg to close
-    cy.wait(1000);
-    cy.get(commonlocators.toastmsg).should("not.exist");
+    _.agHelper.WaitUntilAllToastsDisappear();
 
     // Clear the event
-    cy.testJsontext("onclick", "");
+    _.propPane.UpdatePropertyFieldValue("onClick", "");
+    _.agHelper.Sleep();
+    _.agHelper.ClickButton("Submit");
 
-    cy.get(widgetSelector("Button1"))
-      .find("button")
-      .click({ force: true });
-
-    cy.wait(1000);
-
-    cy.get(commonlocators.toastmsg, { timeout: 500 }).should("not.exist");
+    _.agHelper.AssertElementAbsence(_.locators._toastMsg);
   });
 });
