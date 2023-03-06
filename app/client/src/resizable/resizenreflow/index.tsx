@@ -7,7 +7,7 @@ import {
   WIDGET_PADDING,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
-import React, { default as React, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Spring } from "react-spring";
 import {
