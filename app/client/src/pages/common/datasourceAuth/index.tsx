@@ -48,7 +48,6 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getAppsmithConfigs } from "ce/configs";
-import { AppsmithUIConfigs } from "ce/configs/types";
 
 interface Props {
   datasource: Datasource;
@@ -135,10 +134,6 @@ function DatasourceAuth({
   const pluginName = useSelector((state: AppState) =>
     getPluginNameFromId(state, pluginId),
   );
-
-  // AppsmithConfigs is used for getting google cloud console client ID,
-  // required to pass to file picker object
-  const appsmithConfig: AppsmithUIConfigs = useSelector(getAppsmithConfigs);
 
   const datasourcePermissions = datasource.userPermissions || [];
 
@@ -322,7 +317,8 @@ function DatasourceAuth({
   }, [gsheetToken, scriptLoadedFlag, pickerInitiated]);
 
   const createPicker = async (accessToken: string) => {
-    const googleOAuthClientId: string = appsmithConfig.enableGoogleOAuth + "";
+    const { enableGoogleOAuth } = getAppsmithConfigs();
+    const googleOAuthClientId: string = enableGoogleOAuth + "";
     const APP_ID = googleOAuthClientId.split("-")[0];
     const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS);
     view.setMimeTypes("application/vnd.google-apps.spreadsheet");
