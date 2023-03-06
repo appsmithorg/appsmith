@@ -2282,7 +2282,7 @@ public class GitServiceTest {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
                     assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getOrientation()).isEqualTo("top");
-                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting().getOrientation()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2342,7 +2342,7 @@ public class GitServiceTest {
                     Application srcApp = tuple.getT2();
                     assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
                     assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNotNull();
-                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNull();
                 })
                 .verifyComplete();
     }

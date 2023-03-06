@@ -192,12 +192,14 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
-        AppPositioning unpublishedAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(getUnpublishedApplicationDetail().getAppPositioning().type);
+        this.setUnpublishedApplicationDetail(new ApplicationDetail());
+        this.setPublishedApplicationDetail(new ApplicationDetail());
+        AppPositioning unpublishedAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning().type);
         this.getUnpublishedApplicationDetail().setAppPositioning(unpublishedAppPositioning);
-        AppPositioning publishedAppPositioning = application.getPublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(getPublishedApplicationDetail().getAppPositioning().type);
+        AppPositioning publishedAppPositioning = application.getPublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(application.getPublishedApplicationDetail().getAppPositioning().type);
         this.getPublishedApplicationDetail().setAppPositioning(publishedAppPositioning);
-        this.unpublishedApplicationDetail.setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
-        this.publishedApplicationDetail.setNavigationSetting(application.getPublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
+        this.getUnpublishedApplicationDetail().setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
+        this.getPublishedApplicationDetail().setNavigationSetting(application.getPublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }

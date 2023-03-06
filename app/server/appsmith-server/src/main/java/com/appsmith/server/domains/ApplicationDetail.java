@@ -10,10 +10,14 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @EqualsAndHashCode
 public class ApplicationDetail {
     Application.AppPositioning appPositioning;
     Application.NavigationSetting navigationSetting;
+
+    public ApplicationDetail() {
+        this.appPositioning = new Application.AppPositioning();
+        this.navigationSetting = new Application.NavigationSetting();
+    }
 
 }

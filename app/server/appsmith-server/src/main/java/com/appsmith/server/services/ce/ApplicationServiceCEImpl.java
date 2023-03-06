@@ -298,13 +298,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     /**
                      * Retaining the logoAssetId field value while updating NavigationSetting
                      */
-                    Application.NavigationSetting requestNavSetting = application.getUnpublishedApplicationDetail().getNavigationSetting();
-                    if (requestNavSetting != null) {
-                        Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(), new Application.NavigationSetting());
-                        String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
-                        String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
-                        requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
-                        application.getUnpublishedApplicationDetail().setNavigationSetting(requestNavSetting);
+                    if (application.getUnpublishedApplicationDetail() != null) {
+                        Application.NavigationSetting requestNavSetting = application.getUnpublishedApplicationDetail().getNavigationSetting();
+                        if (requestNavSetting != null) {
+                            Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(), new Application.NavigationSetting());
+                            String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
+                            String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
+                            requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
+                            application.getUnpublishedApplicationDetail().setNavigationSetting(requestNavSetting);
+                        }
                     }
                     return this.update(branchedApplication.getId(), application);
                 });

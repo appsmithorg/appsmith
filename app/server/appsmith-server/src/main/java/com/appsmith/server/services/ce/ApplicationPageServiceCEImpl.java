@@ -1006,8 +1006,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
 
-                    application.setUnpublishedApplicationDetail(new ApplicationDetail());
-                    application.setPublishedApplicationDetail(new ApplicationDetail());
+                    if (application.getUnpublishedApplicationDetail() == null){
+                        application.setUnpublishedApplicationDetail(new ApplicationDetail());
+                    }
+
+                    if (application.getPublishedApplicationDetail() == null){
+                        application.setPublishedApplicationDetail(new ApplicationDetail());
+                    }
 
                     application.getPublishedApplicationDetail().setAppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning());
                     application.getPublishedApplicationDetail().setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting());
