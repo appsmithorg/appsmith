@@ -284,7 +284,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
  * @param action
  */
 export function* flushErrorsAndRedirectSaga(
-  action: ReduxAction<{ url?: string }>,
+  action: ReduxAction<{ url?: string; inNewTab: boolean }>,
 ) {
   const safeCrash: boolean = yield select(getSafeCrash);
 
@@ -293,7 +293,12 @@ export function* flushErrorsAndRedirectSaga(
   }
   if (!action.payload.url) return;
 
-  history.push(action.payload.url);
+  if (action.payload.inNewTab) {
+    window.close();
+    window.open(action.payload.url, "_blank")?.focus();
+  } else {
+    history.push(action.payload.url);
+  }
 }
 
 export default function* errorSagas() {
