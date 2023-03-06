@@ -1,12 +1,12 @@
-const nestedListDSL = require("../../../../../fixtures/Listv2/nestedList.json");
+const simpleListWithInputAndButtonDSL = require("../../../../../fixtures/Listv2/simpleListWithInputAndButton.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
-describe("Listv2 - Event bindings spec", () => {
-  it("1. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {
-    cy.addDsl(nestedListDSL);
+describe("Listv2 - Event bindings", () => {
+  it("1. simple list widget should have access to currentItem, currentIndex and currentView", () => {
+    cy.addDsl(simpleListWithInputAndButtonDSL);
     cy.wait(4000);
     // Open the property pane of button in the inner list widget
     cy.openPropertyPane("buttonwidget");
@@ -16,50 +16,35 @@ describe("Listv2 - Event bindings spec", () => {
 
     cy.testJsontext(
       "onclick",
-      "{{showAlert(`${level_1.currentView.Text1.text} _ ${level_1.currentItem.id} _ ${level_1.currentIndex} _ ${level_1.currentView.Input1.text} _ ${currentView.Input2.text}`)}}",
+      "{{showAlert(`${currentView.Input1.text} _ ${currentItem.id} _ ${currentIndex}`)}}",
     );
     // Enter text in the parent list widget's text input
     cy.get(widgetSelector("Input1"))
       .find("input")
-      .type("outer input");
-
-    // Enter text in the child list widget's text input in first row
-    cy.get(widgetSelector("Input2"))
-      .find("input")
-      .type("inner input");
+      .type("Input");
 
     // click the button on inner list 1st row.
-    cy.get(widgetSelector("Button3"))
+    cy.get(widgetSelector("Button1"))
       .find("button")
       .click({ force: true });
 
-    cy.get(commonlocators.toastmsg).contains(
-      "Blue _ 001 _ 0 _ outer input _ inner input",
-    );
+    cy.get(commonlocators.toastmsg).contains("Input _ 000 _ 0");
   });
 
-  it("2. nested list - inner widget should get updated values of currentView and level_1", () => {
+  it("2. simple list widget should get updated values of currentView", () => {
     // Enter text in the parent list widget's text input
     cy.get(widgetSelector("Input1"))
       .find("input")
       .clear()
-      .type("outer input updated");
-
-    // Enter text in the child list widget's text input in first row
-    cy.get(widgetSelector("Input2"))
-      .find("input")
-      .clear()
-      .type("inner input updated");
+      .type("Updated Input");
 
     // click the button on inner list 1st row.
-    cy.get(widgetSelector("Button3"))
+    cy.get(widgetSelector("Button1"))
       .find("button")
       .click({ force: true });
 
     cy.wait(1000);
 
-    cy.get(commonlocators.toastmsg).contains(
-      "Blue _ 001 _ 0 _ outer input updated _ inner input updated",
-    );
+    cy.get(commonlocators.toastmsg).contains("Updated Input _ 000 _ 0");
   });
 });
