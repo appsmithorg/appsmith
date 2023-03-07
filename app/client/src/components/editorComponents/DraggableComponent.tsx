@@ -1,24 +1,24 @@
+import { AppState } from "@appsmith/reducers";
+import { getColorWithOpacity } from "constants/DefaultTheme";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import React, { CSSProperties, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import {
-  useShowTableFilterPane,
-  useWidgetDragResize,
-} from "utils/hooks/dragResizeHooks";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import {
   isCurrentWidgetFocused,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
-import { getColorWithOpacity } from "constants/DefaultTheme";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import {
+  useShowTableFilterPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -78,7 +78,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isPreviewMode = useSelector(previewModeSelector);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
-  const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
+  const { setDraggingState } = useWidgetDragResize();
   const showTableFilterPane = useShowTableFilterPane();
 
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
@@ -112,7 +112,8 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isResizingOrDragging = !!isResizing || !!isDragging;
   const isCurrentWidgetDragging = isDragging && isSelected;
   const isCurrentWidgetResizing = isResizing && isSelected;
-  const showBoundary = isCurrentWidgetDragging || isDraggingSibling;
+  const showBoundary =
+    !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
 
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
@@ -123,10 +124,11 @@ function DraggableComponent(props: DraggableComponentProps) {
       focusWidget(props.widgetId);
     e.stopPropagation();
   };
-  const shouldRenderComponent = !(isSelected && isDragging);
+  const shouldRenderComponent =
+    props.isFlexChild || !(isSelected && isDragging);
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
-    display: isCurrentWidgetDragging ? "none" : "block",
+    display: !props.isFlexChild && isCurrentWidgetDragging ? "none" : "block",
   };
   const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
     return {
@@ -148,7 +150,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   );
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
-
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
@@ -174,13 +175,12 @@ function DraggableComponent(props: DraggableComponentProps) {
         ),
       };
       showTableFilterPane();
-      setDraggingCanvas(props.parentId);
-
       setDraggingState({
         isDragging: true,
         dragGroupActualParent: props.parentId || "",
         draggingGroupCenter: { widgetId: props.widgetId },
         startPoints,
+        draggedOn: props.parentId,
       });
     }
   };

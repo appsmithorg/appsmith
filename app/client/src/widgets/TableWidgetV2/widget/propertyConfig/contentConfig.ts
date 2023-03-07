@@ -1,3 +1,8 @@
+import {
+  createMessage,
+  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
+} from "@appsmith/constants/messages";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
@@ -5,21 +10,16 @@ import {
   InlineEditingSaveOptions,
   TableWidgetProps,
 } from "widgets/TableWidgetV2/constants";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
   updateColumnOrderHook,
-  updateInlineEditingSaveOptionHook,
-  updateInlineEditingOptionDropdownVisibilityHook,
   updateCustomColumnAliasOnLabelChange,
+  updateInlineEditingOptionDropdownVisibilityHook,
+  updateInlineEditingSaveOptionHook,
 } from "../propertyUtils";
-import {
-  createMessage,
-  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
-} from "@appsmith/constants/messages";
 import panelConfig from "./PanelConfig";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 export default [
   {

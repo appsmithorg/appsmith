@@ -2,7 +2,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 export const agHelper = ObjectsRegistry.AggregateHelper;
 export const locators = ObjectsRegistry.CommonLocators;
-export const ee = ObjectsRegistry.EntityExplorer;
+export const entityExplorer = ObjectsRegistry.EntityExplorer;
 export const jsEditor = ObjectsRegistry.JSEditor;
 export const propPane = ObjectsRegistry.PropertyPane;
 export const deployMode = ObjectsRegistry.DeployMode;
@@ -21,3 +21,4 @@ export const table = ObjectsRegistry.Table;
 export const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 export const templates = ObjectsRegistry.Templates;
 export const peekOverlay = ObjectsRegistry.PeekOverlay;
+export const installer = ObjectsRegistry.LibraryInstaller;

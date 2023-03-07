@@ -1,23 +1,24 @@
-import React, { ReactNode } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray } from "lodash";
+import { Layers } from "constants/Layers";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { DefaultValueType } from "rc-tree-select/lib/interface";
-import { Layers } from "constants/Layers";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import SingleSelectTreeComponent from "../component";
-import { LabelPosition } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import derivedProperties from "./parseDerivedProperties";
 import { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { isArray } from "lodash";
+import { DefaultValueType } from "rc-tree-select/lib/interface";
+import React, { ReactNode } from "react";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import SingleSelectTreeComponent from "../component";
+import derivedProperties from "./parseDerivedProperties";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -300,6 +301,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

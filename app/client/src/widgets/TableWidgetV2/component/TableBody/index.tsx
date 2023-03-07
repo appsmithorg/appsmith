@@ -13,8 +13,10 @@ import {
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EmptyRows, EmptyRow, Row } from "./Row";
 import { ReactTableColumnProps, TableSizes } from "../Constants";
+import { HeaderComponentProps } from "../Table";
+import SimpleBar from "simplebar-react";
 
-type BodyContextType = {
+export type BodyContextType = {
   accentColor: string;
   borderRadius: string;
   multiRowSelection: boolean;
@@ -31,7 +33,11 @@ type BodyContextType = {
   primaryColumnId?: string;
   isAddRowInProgress: boolean;
   loadingTable?: boolean;
-};
+  getTableBodyProps?(
+    propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
+  ): TableBodyProps;
+  totalColumnsWidth?: number;
+} & Partial<HeaderComponentProps>;
 
 export const BodyContext = React.createContext<BodyContextType>({
   accentColor: "",
@@ -45,6 +51,7 @@ export const BodyContext = React.createContext<BodyContextType>({
   primaryColumnId: "",
   isAddRowInProgress: false,
   loadingTable: false,
+  totalColumnsWidth: 0,
 });
 
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
@@ -80,7 +87,7 @@ type BodyPropsType = {
 };
 
 const TableVirtualBodyComponent = React.forwardRef(
-  (props: BodyPropsType & { outerRef?: any }) => {
+  (props: BodyPropsType, ref: Ref<SimpleBar>) => {
     return (
       <div className="simplebar-content-wrapper">
         <FixedSizeList
@@ -96,7 +103,7 @@ const TableVirtualBodyComponent = React.forwardRef(
           itemSize={
             props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
           }
-          outerRef={props.outerRef}
+          outerRef={ref}
           width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
         >
           {rowRenderer}
@@ -106,40 +113,51 @@ const TableVirtualBodyComponent = React.forwardRef(
   },
 );
 
-const TableBodyComponent = React.forwardRef(
-  (props: BodyPropsType, ref: Ref<HTMLDivElement>) => {
-    return (
-      <div {...props.getTableBodyProps()} className="tbody body" ref={ref}>
-        {props.rows.map((row, index) => {
-          return <Row index={index} key={index} row={row} />;
-        })}
-        {props.pageSize > props.rows.length && (
-          <EmptyRows rowCount={props.pageSize - props.rows.length} />
-        )}
-      </div>
-    );
-  },
-);
+const TableBodyComponent = (props: BodyPropsType) => {
+  return (
+    <div {...props.getTableBodyProps()} className="tbody body">
+      {props.rows.map((row, index) => {
+        return <Row index={index} key={index} row={row} />;
+      })}
+      {props.pageSize > props.rows.length && (
+        <EmptyRows rowCount={props.pageSize - props.rows.length} />
+      )}
+    </div>
+  );
+};
 
 export const TableBody = React.forwardRef(
   (
-    props: BodyPropsType &
-      BodyContextType & { useVirtual: boolean; innerRef?: any; outerRef?: any },
-    ref: Ref<HTMLDivElement>,
+    props: BodyPropsType & BodyContextType & { useVirtual: boolean },
+    ref: Ref<SimpleBar>,
   ) => {
     const {
       accentColor,
       borderRadius,
+      canFreezeColumn,
       columns,
+      disableDrag,
+      editMode,
+      enableDrag,
+      handleAllRowSelectClick,
+      handleColumnFreeze,
+      handleReorderColumn,
+      headerGroups,
       isAddRowInProgress,
+      isResizingColumn,
+      isSortable,
       multiRowSelection,
       prepareRow,
       primaryColumnId,
       rows,
+      rowSelectionState,
       selectedRowIndex,
       selectedRowIndices,
       selectTableRow,
+      sortTableColumn,
+      subPage,
       useVirtual,
+      widgetId,
       width,
       loadingTable,
       ...restOfProps
@@ -149,18 +167,34 @@ export const TableBody = React.forwardRef(
       <BodyContext.Provider
         value={{
           accentColor,
+          canFreezeColumn,
+          disableDrag,
+          editMode,
+          enableDrag,
+          handleAllRowSelectClick,
+          handleColumnFreeze,
+          handleReorderColumn,
+          headerGroups,
+          isResizingColumn,
+          isSortable,
+          rowSelectionState,
+          sortTableColumn,
+          subPage,
+          widgetId,
           isAddRowInProgress,
           borderRadius,
           multiRowSelection,
           prepareRow,
           primaryColumnId,
-          selectTableRow,
           selectedRowIndex,
           selectedRowIndices,
+          selectTableRow,
           columns,
           width,
           rows,
           loadingTable,
+          getTableBodyProps: props.getTableBodyProps,
+          totalColumnsWidth: props.totalColumnsWidth,
         }}
       >
         {useVirtual ? (
@@ -171,7 +205,7 @@ export const TableBody = React.forwardRef(
             {...restOfProps}
           />
         ) : (
-          <TableBodyComponent ref={ref} rows={rows} {...restOfProps} />
+          <TableBodyComponent rows={rows} {...restOfProps} />
         )}
       </BodyContext.Provider>
     );

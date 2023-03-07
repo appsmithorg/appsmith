@@ -1,5 +1,6 @@
 // This JSON file configures the eslint plugin. It supports comments as well as per the JSON5 spec
 {
+  "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": ["react", "@typescript-eslint", "prettier", "react-hooks","sort-destructure-keys", "cypress"],
   "extends": [
