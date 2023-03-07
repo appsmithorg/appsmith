@@ -973,19 +973,27 @@ export default class DataTreeEvaluator {
           } else if (isJSAction(entity)) {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
+              const currentEvaluatedValue = get(
+                this.evalProps,
+                getEvalValuePath(fullPropertyPath, {
+                  isPopulated: true,
+                  fullPath: true,
+                }),
+              );
+              const evalValue = currentEvaluatedValue
+                ? currentEvaluatedValue
+                : evalPropertyValue;
+
               set(
                 this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
                 }),
-                evalPropertyValue,
+                evalValue,
               );
-              set(currentTree, fullPropertyPath, evalPropertyValue);
-              JSObjectCollection.setVariableValue(
-                evalPropertyValue,
-                fullPropertyPath,
-              );
+              set(currentTree, fullPropertyPath, evalValue);
+              JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
             }
             return currentTree;
           } else {
