@@ -56,6 +56,7 @@ export class CommonLocators {
   _createNew = ".t--entity-add-btn.group.files";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
+  _jsonTab = "[data-cy='t--tab-JSON']";
   _errorTab = "[data-cy=t--tab-ERROR]";
   _responseTab = "[data-cy=t--tab-response]";
   _modal = ".t--modal-widget";
@@ -131,7 +132,7 @@ export class CommonLocators {
     "//span[text()='" +
     item +
     "']/ancestor::div[@class ='rc-select-selection-overflow-item']//span[contains(@class, 'remove-icon')]";
-  _listWidget = "div[type='LIST_WIDGET']";
+  _listWidget = ".t--widget-listwidgetv2";
   _dropdownText = ".t--dropdown-option";
   _jsonFormInputField = (fieldName: string) =>
     `.t--jsonformfield-${fieldName} input`;
@@ -175,5 +176,7 @@ export class CommonLocators {
   _consoleString = ".cm-string";
   _commentString = ".cm-comment";
   _modalWrapper = "[data-cy='modal-wrapper']";
+  _containerWidget = "div[type='CONTAINER_WIDGET']";
+  _propertyPaneTitle = ".t--property-pane-title";
   _editorBackButton = ".t--close-editor";
 }
