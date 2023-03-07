@@ -907,13 +907,13 @@ class ListWidget extends BaseWidget<
         shouldReplay,
       );
     }
-    // // All meta widget property updates goes to the MetaWidget Reducers
-    // else {
-    //   this.updateMetaWidgetProperty?.({
-    //     updates,
-    //     widgetId: metaWidgetId,
-    //   });
-    // }
+    // All meta widget property updates goes to the MetaWidget Reducers
+    else {
+      this.updateMetaWidgetProperty?.({
+        updates,
+        widgetId: metaWidgetId,
+      });
+    }
   };
 
   overrideUpdateWidget = (
