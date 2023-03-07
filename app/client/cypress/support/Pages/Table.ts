@@ -103,8 +103,6 @@ export class Table {
   _filterOperatorDropdown = ".t--table-filter-operators-dropdown";
   private _downloadBtn = ".t--table-download-btn";
   private _downloadOption = ".t--table-download-data-option";
-  private _tableWidgetV2 = ".t--widget-tablewidgetv2";
-  private _propertyPaneBackBtn = ".t--property-pane-back-btn";
   _columnSettings = (columnName: string) =>
     "//input[@placeholder='Column Title'][@value='" +
     columnName +
@@ -119,33 +117,30 @@ export class Table {
     colIndex = 0,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    if (tableVersion == "v1") {
-      this.agHelper
-        .GetElement(
-          this._tableRowColumnData(rowIndex, colIndex, tableVersion),
-          30000,
-        )
-        .waitUntil(($ele) =>
-          cy
-            .wrap($ele)
-            .children("button")
-            .should("have.length", 0),
-        ); //or below will work:
-      //this.agHelper.AssertElementAbsence(this._tableLoadStateDelete(tableVersion), 30000);
-      // this.agHelper.Sleep(500);
-    } else if (tableVersion == "v2") {
-      cy.waitUntil(
-        () => this.ReadTableRowColumnData(0, 0, tableVersion, 2000),
-        {
-          errorMsg: "Table is not populated",
-          timeout: 10000,
-          interval: 2000,
-        },
-      ).then((cellData) => {
-        expect(cellData).not.empty;
-        this.agHelper.Sleep(500);
-      });
-    }
+    // this.agHelper
+    // .GetElement(this._tableRowColumnData(rowIndex, colIndex, tableVersion), 30000)
+    // .waitUntil(($ele) =>
+    //   cy
+    //     .wrap($ele)
+    //     .children("button")
+    //     .should("have.length", 0),
+    // );
+    //or above will also work:
+    this.agHelper.AssertElementAbsence(
+      this._tableLoadStateDelete(tableVersion),
+      30000,
+    ); //For CURD generated pages Delete button appears first when table is loading & not fully loaded, hence validating that here!
+    cy.waitUntil(
+      () => this.ReadTableRowColumnData(rowIndex, colIndex, tableVersion),
+      {
+        errorMsg: "Table is not populated",
+        timeout: 10000,
+        interval: 2000,
+      },
+    ).then((cellData) => {
+      expect(cellData).not.empty;
+    });
+    this.agHelper.Sleep(500); //for table to settle loading!
   }
 
   public AssertTableLoaded(
@@ -485,12 +480,12 @@ export class Table {
       this.agHelper.SelectDropdownList("Column Type", newDataType);
       this.agHelper.ValidateNetworkStatus("@updateLayout");
     } else if (tableVersion == "v2") {
-      cy.get(this._tableWidgetV2)
+      cy.get(this._tableWidgetVersion(tableVersion))
         .click()
         .then(() => {
           cy.get(this._columnSettingsV2(columnName)).click();
           this.agHelper.SelectDropdownList("Column Type", newDataType);
-          cy.get(this._propertyPaneBackBtn).click();
+          this.propPane.NavigateBackToPropertyPane();
         });
     }
   }
