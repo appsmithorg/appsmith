@@ -1118,11 +1118,8 @@ export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
-  `The ${widgetName}widget you are currently using is now deprecated.`;
-export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
-  replacingWidgetName: string,
-) =>
-  ` You can drag a new ${replacingWidgetName} widget and configure it in place of the deprecated widget.`;
+  `Drag the latest ${widgetName} to unlock new features and prevent end-of-life headaches for this widget.`;
+
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";

@@ -2,24 +2,24 @@ import React, { ReactNode } from "react";
 
 import { connect } from "react-redux";
 
-import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { AppState } from "@appsmith/reducers";
+import { UIElementSize } from "components/editorComponents/ResizableUtils";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import WidgetFactory from "utils/WidgetFactory";
-import ModalComponent from "../component";
 import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import { get } from "lodash";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
-import { AppState } from "@appsmith/reducers";
-import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
-import { ValidationTypes } from "constants/WidgetValidation";
+import WidgetFactory from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { Stylesheet } from "entities/AppTheming";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
-import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
-import { get } from "lodash";
+import ModalComponent from "../component";
 
 const minSize = 100;
 

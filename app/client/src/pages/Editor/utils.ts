@@ -8,7 +8,6 @@ import ResizeObserver from "resize-observer-polyfill";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   createMessage,
-  DEPRECATION_WIDGET_REPLACEMENT_MESSAGE,
   WIDGET_DEPRECATION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { URLBuilderParams } from "RouteBuilder";
@@ -270,20 +269,13 @@ export function isWidgetDeprecated(WidgetType: WidgetType) {
   };
 }
 
-export function buildDeprecationWidgetMessage(
-  currentWidgetName: string,
-  replacingWidgetName: string,
-) {
-  const widgetName = currentWidgetName ? `${currentWidgetName} ` : "";
+export function buildDeprecationWidgetMessage(replacingWidgetName: string) {
   const deprecationMessage = createMessage(
     WIDGET_DEPRECATION_MESSAGE,
-    widgetName,
+    replacingWidgetName,
   );
-  const deprecatedReplacementMessage = replacingWidgetName
-    ? createMessage(DEPRECATION_WIDGET_REPLACEMENT_MESSAGE, replacingWidgetName)
-    : "";
 
-  return `${deprecationMessage}${deprecatedReplacementMessage}`;
+  return `${deprecationMessage}`;
 }
 
 /**
