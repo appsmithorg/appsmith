@@ -248,7 +248,6 @@ export function parseJSActions(
   functionDeterminer.setupEval(
     unEvalDataTree,
     dataTreeEvalRef.resolvedFunctions,
-    dataTreeEvalRef.JSCollectionsForCurrentPage,
   );
 
   Object.keys(jsUpdates).forEach((entityName) => {

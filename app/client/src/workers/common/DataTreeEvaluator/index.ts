@@ -134,7 +134,7 @@ export default class DataTreeEvaluator {
   allActionValidationConfig?: {
     [actionId: string]: ActionValidationConfigMap;
   };
-  JSCollectionsForCurrentPage?: JSCollectionData[];
+
   triggerFieldDependencyMap: DependencyMap = {};
   /**  Keeps track of all invalid references in bindings throughout the Application
    * Eg. For binding {{unknownEntity.name + Api1.name}} in Button1.text, where Api1 is present in dataTree but unknownEntity is not,
@@ -1074,7 +1074,6 @@ export default class DataTreeEvaluator {
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
-    JSCollectionsForCurrentPage?: JSCollectionData[],
   ) {
     const { jsSnippets } = getDynamicBindings(userScript);
 
@@ -1084,7 +1083,6 @@ export default class DataTreeEvaluator {
       resolvedFunctions,
       context,
       callbackData,
-      JSCollectionsForCurrentPage,
     );
   }
 

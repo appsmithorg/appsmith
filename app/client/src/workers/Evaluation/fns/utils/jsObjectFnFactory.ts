@@ -38,9 +38,8 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
 
       // @ts-expect-error: Types are not available
       const jsObject = self[entityName];
-      const jsObjectConfig = jsObject?.config?.actions?.find(
-        (action: any) => action.name === propertyPath,
-      );
+      const jsObjectConfig = { ...jsObject.config[propertyPath] };
+      jsObjectConfig.actionId = jsObject.actionId;
 
       if (jsObjectConfig.confirmBeforeExecute) {
         const response = await WorkerMessenger.request({

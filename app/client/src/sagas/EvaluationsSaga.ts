@@ -10,8 +10,7 @@ import {
   spawn,
   take,
 } from "redux-saga/effects";
-import { getJSCollectionsForCurrentPage } from "selectors/entitiesSelector";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+
 import {
   EvaluationReduxAction,
   AnyReduxAction,
@@ -276,10 +275,6 @@ export function* evaluateAndExecuteDynamicTrigger(
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
 
-  const JSCollectionsForCurrentPage: JSCollectionData[] = yield select(
-    getJSCollectionsForCurrentPage,
-  );
-
   const response: unknown = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
@@ -290,7 +285,6 @@ export function* evaluateAndExecuteDynamicTrigger(
       globalContext,
       eventType,
       triggerMeta,
-      JSCollectionsForCurrentPage,
     },
   );
 

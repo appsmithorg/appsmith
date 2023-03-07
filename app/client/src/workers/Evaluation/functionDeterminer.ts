@@ -2,18 +2,13 @@ import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import userLogs from "./fns/overrides/console";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import _ from "lodash";
 
 class FunctionDeterminer {
   private evalContext: EvalContext = {};
 
-  setupEval(
-    dataTree: DataTree,
-    resolvedFunctions: Record<string, any>,
-    JSCollectionsForCurrentPage?: JSCollectionData[],
-  ) {
+  setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
       $isDataField: true,
@@ -36,7 +31,7 @@ class FunctionDeterminer {
       evalContext,
       resolvedFunctions,
       false,
-      JSCollectionsForCurrentPage,
+      newDataTree,
     );
 
     // Set it to self so that the eval function can have access to it

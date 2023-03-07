@@ -125,7 +125,6 @@ export interface createEvaluationContextArgs {
   evalArguments?: Array<unknown>;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
-  JSCollectionsForCurrentPage?: JSCollectionData[];
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -139,7 +138,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
-    JSCollectionsForCurrentPage,
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
@@ -165,7 +163,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     EVAL_CONTEXT,
     resolvedFunctions,
     isTriggerBased,
-    JSCollectionsForCurrentPage,
+    dataTree,
   );
 
   return EVAL_CONTEXT;
@@ -175,7 +173,7 @@ export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
   isTriggerBased: boolean,
-  JSCollectionsForCurrentPage: JSCollectionData[] = [],
+  dataTree: DataTree,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
@@ -199,13 +197,16 @@ export const assignJSFunctionsToContext = (
       }
     }
 
-    const JSCollectionForCurrentObject = JSCollectionsForCurrentPage.find(
-      (jSCollection) => jSCollection.config?.name === jsObjectName,
-    );
+    // eslint-disable-next-line
+    // @ts-ignore
+    const JSCollectionForCurrentObject = dataTree[jsObjectName].meta;
 
     EVAL_CONTEXT[jsObjectName] = Object.assign({}, jsObject, jsObjectFunction);
+    // eslint-disable-next-line
+    // @ts-ignore
+    EVAL_CONTEXT[jsObjectName].actionId = dataTree[jsObjectName].actionId;
     EVAL_CONTEXT[jsObjectName].config = {
-      ...JSCollectionForCurrentObject?.config,
+      ...JSCollectionForCurrentObject,
     };
   }
 };
@@ -329,7 +330,6 @@ export async function evaluateAsync(
   resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
-  JSCollectionsForCurrentPage?: JSCollectionData[],
 ) {
   return (async function() {
     resetWorkerGlobalScope();
@@ -343,7 +343,6 @@ export async function evaluateAsync(
       context,
       evalArguments,
       isTriggerBased: true,
-      JSCollectionsForCurrentPage,
     });
 
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
