@@ -22,7 +22,7 @@ describe("Authentiacted Api with OAuth 2.O authorization code test cases", funct
     );
     });
 
-    //Run API & Validate Auth
+    //Run API & Validate Response
     _.apiPage.RunAPI();
     _.apiPage.ResponseStatusCheck("200");
   });
