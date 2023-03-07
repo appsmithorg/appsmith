@@ -201,7 +201,13 @@ class ListWidget extends BaseWidget<
       this.updatePageSize();
     }
 
-    this.handlePageNumberAndSelectedItem();
+    /**
+     * It's possible that when the List Widget is mounted, there's no data yet
+     * especially when the list widget data is a query
+     */
+    if (this.props.primaryKeys) {
+      this.handlePageNumberAndSelectedItem();
+    }
 
     if (this.props.selectedItemKey || this.props.triggeredItemKey) {
       /**
@@ -269,7 +275,10 @@ class ListWidget extends BaseWidget<
       this.pageChangeEventTriggerFromSelectedKey = false;
     }
 
-    if (this.props.defaultSelectedItem !== prevProps.defaultSelectedItem) {
+    if (
+      this.props.defaultSelectedItem !== prevProps.defaultSelectedItem ||
+      (this.props.primaryKeys && prevProps.primaryKeys === undefined)
+    ) {
       this.handlePageNumberAndSelectedItem();
     }
   }
