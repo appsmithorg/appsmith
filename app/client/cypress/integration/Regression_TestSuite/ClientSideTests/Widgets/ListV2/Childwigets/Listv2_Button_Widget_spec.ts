@@ -1,9 +1,10 @@
-const dsl = require("../../../../../../fixtures/Listv2/simpleListWithInputAndButton.json");
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 describe("List v2- Tabs Widget", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("/Listv2/simpleListWithInputAndButton").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. should not throw error when on click event is changed No Action", () => {
@@ -23,6 +24,6 @@ describe("List v2- Tabs Widget", () => {
     _.agHelper.Sleep();
     _.agHelper.ClickButton("Submit");
 
-    _.agHelper.AssertElementAbsence(_.locators._toastMsg);
+    _.agHelper.AssertElementAbsence(_.locators._specificToast("Hello"));
   });
 });
