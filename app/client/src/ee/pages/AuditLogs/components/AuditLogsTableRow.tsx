@@ -125,7 +125,7 @@ export default function AuditLogsTableRow({
               />
             ) : null}
             <Description>
-              <MainDescription>
+              <MainDescription data-testid="t--audit-logs-table-row-description-content">
                 {description.mainDescription.resourceType}{" "}
                 <span>{description.mainDescription.actionType}</span>
               </MainDescription>

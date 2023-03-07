@@ -273,6 +273,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
       .concat(workspaceName)
       .concat(homePage.createAppFrWorkspace),
   )
+    .first()
     .scrollIntoView()
     .should("be.visible")
     .click({ force: true });

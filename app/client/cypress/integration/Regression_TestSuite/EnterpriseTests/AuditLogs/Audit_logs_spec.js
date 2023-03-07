@@ -4,6 +4,14 @@ import {
   workspaceEvents,
 } from "../../../../fixtures/AuditLogsdata/misc";
 import homePage from "../../../../locators/HomePage";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import widgets from "../../../../locators/Widgets.json";
+import explorer from "../../../../locators/explorerlocators.json";
+
+const propPane = ObjectsRegistry.PropertyPane;
+const jsEditor = ObjectsRegistry.JSEditor;
+
+let funcName = "";
 
 describe("Audit logs", () => {
   before(() => {
@@ -17,6 +25,44 @@ describe("Audit logs", () => {
           for (let j = 0; j < 1; j++) {
             const page = `${uid}_Page${j}`;
             cy.Createpage(page);
+
+            if (j === 0) {
+              funcName = `myFunc_${uid}`;
+              const JS_OBJECT_BODY = `export default {
+                ${funcName}: () => {
+                  showAlert("Function executed");
+                    }
+                }`;
+              jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+                paste: true,
+                completeReplace: true,
+                toRun: false,
+                prettify: false,
+                shouldCreateNewJSObj: true,
+              });
+
+              cy.wait(1000);
+              cy.get(explorer.addWidget).click();
+
+              cy.dragAndDropToCanvas("buttonwidget", { x: 400, y: 550 });
+
+              cy.wait(1000);
+
+              cy.openPropertyPane("buttonwidget");
+
+              cy.get(widgets.toggleOnClick).click();
+              cy.updateCodeInput(
+                ".t--property-control-onclick",
+                `{{JSObject1.${funcName}()}}`,
+              );
+
+              propPane.TypeTextIntoField("Label", "Run Func");
+
+              cy.get(widgets.widgetBtn)
+                .contains("Run Func")
+                .click({ force: true });
+            }
+
             cy.Deletepage(page);
           }
           cy.DeleteApp(uid);
@@ -26,7 +72,7 @@ describe("Audit logs", () => {
     });
   });
 
-  it("superuser should be able to see audit logs", () => {
+  it("1. superuser should be able to see audit logs", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
@@ -191,7 +237,7 @@ describe("Audit logs", () => {
       .should("include", "sort=DESC");
   });
 
-  it("url to filters are populated properly", () => {
+  it("2. url to filters are populated properly", () => {
     /* Check url to filters tests */
     cy.visit("/settings/audit-logs?sort=DESC&days=0").then(() => {
       cy.wait(2000);
@@ -234,7 +280,7 @@ describe("Audit logs", () => {
   //   // });
   // });
 
-  it("test case: event dropdown and workspace deletion log", () => {
+  it("3. test case: event dropdown and workspace deletion log", () => {
     let defaultWorkspaceName;
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -318,7 +364,7 @@ describe("Audit logs", () => {
     });
   });
 
-  it("workspace and application creation and deployment logs", () => {
+  it("4. workspace and application creation and deployment logs", () => {
     let applicationName = "";
     let applicationId = "";
     let defaultWorkspaceName = "";
@@ -431,6 +477,16 @@ describe("Audit logs", () => {
               });
             });
         });
+    });
+  });
+
+  it("5. Function invocation events", () => {
+    cy.visit("settings/audit-logs?events=query.executed&sort=DESC").then(() => {
+      cy.wait(2000);
+      cy.get("[data-testid='t--audit-logs-table-row-description-content']")
+        .first()
+        .scrollIntoView()
+        .contains(funcName);
     });
   });
 });
