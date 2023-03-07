@@ -9967,7 +9967,6 @@ des.js@^1.0.0:
   dependencies:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
-
 "design-system-old@npm:@appsmithorg/design-system-old@1.0.52":
   version "1.0.52"
   resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.0.52.tgz#031b179a9b3689a081e29c3994b7296935fa3edb"
