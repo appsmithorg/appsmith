@@ -194,33 +194,6 @@ export function getLayoutConfig(alignment: Alignment, spacing: Spacing): any[] {
   return [generateAlignmentConfig(alignment), generateSpacingConfig(spacing)];
 }
 
-// export const NonResizableWidgets = [
-//   "AUDIO_WIDGET",
-//   "BUTTON_WIDGET",
-//   "BUTTON_GROUP_WIDGET",
-//   "CHECKBOX_WIDGET",
-//   "CURRENCY_INPUT_WIDGET",
-//   "DATE_PICKER_WIDGET2",
-//   "DIVIDER_WIDGET",
-//   "FILE_PICKER_WIDGET_V2",
-//   "ICON_WIDGET",
-//   "ICON_BUTTON_WIDGET",
-//   "INPUT_WIDGET_V2",
-//   "MENU_BUTTON_WIDGET",
-//   "MULTI_SELECT_TREE_WIDGET",
-//   "MULTI_SELECT_WIDGET_V2",
-//   "PHONE_INPUT_WIDGET",
-//   "PROGRESS_WIDGET",
-//   "RATE_WIDGET",
-//   "SELECT_WIDGET",
-//   "SWITCH_WIDGET",
-//   "TEXT_WIDGET",
-//   "SINGLE_SELECT_TREE_WIDGET",
-//   "CATEGORY_SLIDER_WIDGET",
-//   "RANGE_SLIDER_WIDGET",
-//   "NUMBER_SLIDER_WIDGET",
-// ];
-
 export const DefaultFillWidgets = [
   "CANVAS_WIDGET",
   "AUDIO_WIDGET",
