@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { isEmpty, floor, isString } from "lodash";
+import { isEmpty, floor, isString, throttle } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -520,9 +520,20 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  updatePageSize = () => {
-    super.updateWidgetProperty("pageSize", this.pageSize);
-  };
+  /**
+   * To prevent an infinite loop, this function is throttled to avoid recursively updating pageSize.
+   * The reason is that updateWidgetProperty doesn't immediately update the widget property, and when componentDidUpdate is called,
+   * it triggers another update, leading to an infinite loop.
+   */
+  updatePageSize = throttle(
+    () => {
+      super.updateWidgetProperty("pageSize", this.pageSize);
+    },
+    2000,
+    {
+      trailing: true,
+    },
+  );
 
   shouldUpdatePageSize = () => {
     return this.props.listData?.length && this.props.pageSize !== this.pageSize;
@@ -896,13 +907,13 @@ class ListWidget extends BaseWidget<
         shouldReplay,
       );
     }
-    // All meta widget property updates goes to the MetaWidget Reducers
-    else {
-      this.updateMetaWidgetProperty?.({
-        updates,
-        widgetId: metaWidgetId,
-      });
-    }
+    // // All meta widget property updates goes to the MetaWidget Reducers
+    // else {
+    //   this.updateMetaWidgetProperty?.({
+    //     updates,
+    //     widgetId: metaWidgetId,
+    //   });
+    // }
   };
 
   overrideUpdateWidget = (
