@@ -35,22 +35,9 @@ export const ResizeWrapper = styled(animated.div)<{
   padding: ${resizeBorderPadding}px;
   outline: ${resizeOutline}px solid !important;
   outline-offset: 1px;
-  ${(props) => {
-    if (props.showBoundaries) {
-      return `
-      box-shadow: 0px 0px 0px ${resizeBoxShadow}px ${
-        props.isHovered ? Colors.WATUSI : "#f86a2b"
-      };
-      outline-color: ${Colors.GREY_1} !important;
-      border-color: ${Colors.GREY_1};
-      `;
-    } else {
-      return `
-      outline-color: transparent !important;
-      border-color: transparent;
-      `;
-    }
-  }}}
+  box-shadow: 0px 0px 0px ${resizeBoxShadow}px ${"#f86a2b"};
+  outline-color: ${Colors.GREY_1} !important;
+  border-color: ${Colors.GREY_1};
 `;
 
 const getSnappedValues = (
