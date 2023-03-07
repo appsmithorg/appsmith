@@ -68,6 +68,7 @@ import {
 import { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import FeatureFlags from "entities/FeatureFlags";
 import UsagePulse, { FALLBACK_KEY } from "usagePulse";
+import nanoid from "nanoid";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -152,7 +153,7 @@ export function* initiateUsageTracking(payload: {
         let fallback = localStorage.getItem(FALLBACK_KEY);
 
         if (!fallback) {
-          fallback = (crypto as any).randomUUID() as string;
+          fallback = nanoid() as string;
           localStorage.setItem(FALLBACK_KEY, fallback);
         }
 
