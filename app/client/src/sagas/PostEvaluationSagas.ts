@@ -48,7 +48,6 @@ import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import { updateSuccessfulBindingsMap } from "actions/evaluationActions";
-import { getEntityLintErrors } from "selectors/lintingSelectors";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
