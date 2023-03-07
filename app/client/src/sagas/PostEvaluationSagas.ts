@@ -6,8 +6,7 @@ import {
 } from "entities/AppsmithConsole";
 
 import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
-import { getDependenciesFromInverseDependencies2 } from "components/editorComponents/Debugger/helpers";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
