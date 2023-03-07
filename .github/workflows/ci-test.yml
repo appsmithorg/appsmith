@@ -130,7 +130,9 @@ jobs:
           name: cicontainer
 
       - name: Load Docker image from tar file
-        run: docker load -i cicontainer.tar
+        run: |
+          gunzip cicontainer.tar.gz
+          docker load -i cicontainer.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -150,7 +152,7 @@ jobs:
           submodules: 'recursive'
           path: cicontainerlocal/oldstack
 
-      - name: Load docker image
+      - name: Run docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
