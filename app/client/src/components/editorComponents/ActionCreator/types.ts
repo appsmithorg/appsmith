@@ -88,8 +88,6 @@ export type FieldProps = {
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
   integrationOptions: TreeDropdownOption[];
-  depth: number;
-  maxDepth: number;
   additionalAutoComplete?: AdditionalDynamicDataTree;
   activeNavigateToTab: SwitchType;
   navigateToSwitches: Array<SwitchType>;
