@@ -124,40 +124,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Download the client build artifact
-        if: steps.run_result.outputs.run_result != 'success'
+      - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
-          name: client-build
-          path: app/client/build
+          name: cicontainer
 
-      - name: Download the server build artifact
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v3
-        with:
-          name: server-build
-          path: app/server/dist/
-
-      - name: Download the rts build artifact
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v3
-        with:
-          name: rts-dist
-          path: app/rts/dist
-
-      - name: Un-tar the rts folder
-        run: |
-          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
-          echo "Cleaning up the tar files"
-          rm app/rts/dist/rts-dist.tar
-
-      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
-      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
-      - name: Build docker image
-        if: steps.run_result.outputs.run_result != 'success'
-        working-directory: "."
-        run: |
-          docker build -t cicontainer .
+      - name: Load Docker image from tar file
+        run: docker load -i cicontainer.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
