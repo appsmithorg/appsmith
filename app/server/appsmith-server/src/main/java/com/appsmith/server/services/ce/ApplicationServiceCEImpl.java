@@ -384,7 +384,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     /**
      * The method is used to generate and update the Policies to make an Application
-     * Completely Viewable not by a Permission Group.
+     * Completely Viewable or not by a Permission Group.
      * Making the Application Completely Viewable or not comprises following things:
      * <ol>
      *     <li>Update Application and it's children's policies with READ_APPLICATION permission for a particular permission group.</li>
