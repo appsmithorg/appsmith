@@ -66,6 +66,9 @@ export const getUnevaluatedDataTree = createSelector(
 export const getEvaluationInverseDependencyMap = (state: AppState) =>
   state.evaluations.dependencies.inverseDependencyMap;
 
+export const getEvaluationSuccessfulBindindsMap = (state: AppState) =>
+  state.evaluations.bindings.successfulBindings;
+
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
 

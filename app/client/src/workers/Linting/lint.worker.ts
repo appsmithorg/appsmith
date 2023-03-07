@@ -75,6 +75,7 @@ function eventRequestHandler({
           unevalTree,
           cloudHosting,
         );
+
         lintTreeResponse.errors = lintErrors;
       } catch (e) {}
       return lintTreeResponse;

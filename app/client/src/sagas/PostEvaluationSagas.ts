@@ -4,7 +4,10 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
+
 import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import { getDependenciesFromInverseDependencies2 } from "components/editorComponents/Debugger/helpers";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -45,6 +48,8 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
+import { updateSuccessfulBindingsMap } from "actions/evaluationActions";
+import { getEntityLintErrors } from "selectors/lintingSelectors";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -308,16 +313,14 @@ export function* logSuccessfulBindings(
   dataTree: DataTree,
   evaluationOrder: string[],
   isCreateFirstTree: boolean,
+  successfulBindings: Record<string, unknown>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
 
-  if (isCreateFirstTree) {
-    // we only aim to log binding success which were added by user
-    // for first evaluation, bindings are not added by user hence skipping it.
-    return;
-  }
+  const successfulBindingPaths: any = { ...successfulBindings };
+
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       evaluatedPath,
@@ -331,6 +334,15 @@ export function* logSuccessfulBindings(
       });
 
       const logBlackList = entity.logBlackList;
+
+      if (!isABinding || propertyPath in logBlackList) {
+        /**Remove the binding from the map so that in case it is added again, we log it*/
+        if (successfulBindingPaths[evaluatedPath]) {
+          delete successfulBindingPaths[evaluatedPath];
+        }
+        return;
+      }
+
       const errors: EvaluationError[] = get(
         dataTree,
         getEvalErrorPath(evaluatedPath),
@@ -338,16 +350,40 @@ export function* logSuccessfulBindings(
       ) as EvaluationError[];
 
       const hasErrors = errors.length > 0;
+      if (!hasErrors) {
+        if (!isCreateFirstTree) {
+          // we only aim to log binding success which were added by user
+          // for first evaluation, bindings are not added by user hence skipping it.
+          AnalyticsUtil.logEvent("BINDING_SUCCESS", {
+            unevalValue,
+            entityType,
+            propertyPath,
+          });
 
-      if (isABinding && !hasErrors && !(propertyPath in logBlackList)) {
-        AnalyticsUtil.logEvent("BINDING_SUCCESS", {
-          unevalValue,
-          entityType,
-          propertyPath,
-        });
+          /**Log the binding only if it doesn't already exist */
+          if (
+            !successfulBindings[evaluatedPath] ||
+            (successfulBindings[evaluatedPath] &&
+              successfulBindings[evaluatedPath] !== unevalValue)
+          ) {
+            AnalyticsUtil.logEvent("WIDGET_BINDING_SUCCESS", {
+              unevalValue,
+              entityType,
+              propertyPath,
+            });
+          }
+        }
+        successfulBindingPaths[evaluatedPath] = unevalValue;
+      } else {
+        /**Remove the binding from the map so that in case it is added again, we log it*/
+        if (successfulBindingPaths[evaluatedPath]) {
+          delete successfulBindingPaths[evaluatedPath];
+        }
       }
     }
   });
+
+  yield put(updateSuccessfulBindingsMap(successfulBindingPaths));
 }
 
 export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
