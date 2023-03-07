@@ -22,7 +22,6 @@ import {
   getReflowedPositions,
   getWidgetsFromIds,
   getValueFromTree,
-  resizePublishedMainCanvasToLowestWidget,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
@@ -1793,27 +1792,6 @@ describe("getValueFromTree - ", () => {
       expect(
         getValueFromTree(testObj.inputObj, testObj.path, testObj.defaultValue),
       ).toEqual(testObj.defaultValue);
-    });
-  });
-
-  describe("test resizeCanvasToLowestWidget and resizePublishedMainCanvasToLowestWidget", () => {
-    const widgets = ({
-      0: { bottomRow: 100, children: ["1", "2"], type: "CANVAS_WIDGET" },
-      1: {
-        bottomRow: 10,
-        children: ["3", "4"],
-        type: "CANVAS_WIDGET",
-        minHeight: 260,
-      },
-      2: { bottomRow: 35, children: [] },
-      3: { bottomRow: 15, children: [] },
-      4: { bottomRow: 20, children: [] },
-    } as unknown) as CanvasWidgetsReduxState;
-
-    it("should trim canvas close to the lowest bottomRow of it's children widget", () => {
-      const currentWidgets = klona(widgets);
-      resizePublishedMainCanvasToLowestWidget(currentWidgets);
-      expect(currentWidgets["0"].bottomRow).toEqual(400);
     });
   });
 });

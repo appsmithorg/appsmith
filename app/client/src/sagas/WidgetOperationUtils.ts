@@ -53,7 +53,6 @@ import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { MetaState } from "reducers/entityReducers/metaReducer";
 
 export interface CopiedWidgetGroup {
@@ -1720,37 +1719,6 @@ export function mergeDynamicPropertyPaths(
   b?: DynamicPath[],
 ) {
   return _.unionWith(a, b, (a, b) => a.key === b.key);
-}
-
-/**
- * Note: Mutates widgets[0].bottomRow for CANVAS_WIDGET
- * @param widgets
- * @param parentId
- */
-export function resizePublishedMainCanvasToLowestWidget(
-  widgets: CanvasWidgetsReduxState,
-) {
-  if (!widgets[MAIN_CONTAINER_WIDGET_ID]) {
-    return;
-  }
-
-  const childIds = widgets[MAIN_CONTAINER_WIDGET_ID].children || [];
-
-  let lowestBottomRow = 0;
-  // find the lowest row
-  childIds.forEach((cId) => {
-    const child = widgets[cId];
-
-    if (!child.detachFromLayout && child.bottomRow > lowestBottomRow) {
-      lowestBottomRow = child.bottomRow;
-    }
-  });
-
-  widgets[MAIN_CONTAINER_WIDGET_ID].bottomRow = Math.max(
-    CANVAS_DEFAULT_MIN_HEIGHT_PX,
-    (lowestBottomRow + GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET) *
-      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
 }
 
 export const handleListWidgetV2Pasting = (

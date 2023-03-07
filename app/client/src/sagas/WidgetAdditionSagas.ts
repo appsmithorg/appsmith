@@ -73,7 +73,7 @@ function* getChildWidgetProps(
     rows,
     widgetName,
   } = params;
-  let minHeight = undefined;
+
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
@@ -95,8 +95,6 @@ function* getChildWidgetProps(
     parentColumnSpace = 1;
     rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
     parentRowSpace = 1;
-    minHeight = rows;
-    // if (props) props.children = [];
 
     if (props) {
       props = produce(props, (draft: WidgetProps) => {
@@ -119,7 +117,6 @@ function* getChildWidgetProps(
     ...props,
     columns,
     rows,
-    minHeight,
     widgetId: newWidgetId,
     renderMode: RenderModes.CANVAS,
     ...themeDefaultConfig,

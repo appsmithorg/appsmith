@@ -360,7 +360,6 @@ export const computeMainContainerWidget = (
 ) => ({
   ...widget,
   rightColumn: mainCanvasProps.width,
-  minHeight: mainCanvasProps.height,
 });
 
 export const getMainContainer = (

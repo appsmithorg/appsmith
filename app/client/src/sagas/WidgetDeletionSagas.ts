@@ -313,25 +313,6 @@ function* deleteAllSelectedWidgetsSaga(
         );
       }
     }
-    //Main canvas's minheight keeps varying, hence retrieving updated value
-    // let mainCanvasMinHeight;
-    // if (parentId === MAIN_CONTAINER_WIDGET_ID) {
-    //   const mainCanvasProps: MainCanvasReduxState = yield select(
-    //     getMainCanvasProps,
-    //   );
-    //   mainCanvasMinHeight = mainCanvasProps?.height;
-    // }
-
-    // if (parentId && widgetsAfterUpdatingFlexLayers[parentId]) {
-    //   widgetsAfterUpdatingFlexLayers[
-    //     parentId
-    //   ].bottomRow = resizePublishedMainCanvasToLowestWidget(
-    //     widgetsAfterUpdatingFlexLayers,
-    //     parentId,
-    //     finalWidgets[parentId].bottomRow,
-    //     mainCanvasMinHeight,
-    //   );
-    // }
 
     yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
     yield put(generateAutoHeightLayoutTreeAction(true, true));

@@ -115,7 +115,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
             return {
               ...computed,
               bottomRow: Math.max(
-                computed.minHeight,
+                CANVAS_DEFAULT_MIN_HEIGHT_PX,
                 computed.bottomRow +
                   GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET *
                     GridDefaults.DEFAULT_GRID_ROW_HEIGHT,

@@ -1,4 +1,3 @@
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -111,9 +110,7 @@ export function getCanvasBottomRow(
   }
 
   const children = canvasWidget.children;
-  let parentHeightInRows = Math.ceil(
-    canvasWidget.bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
+  let parentHeightInRows = 0;
 
   // Hypothetical thoughts:
   // If this is the MainContainer
@@ -156,9 +153,6 @@ export function getCanvasBottomRow(
     }
     // Subtract the canvas offset due to some parent elements
     parentHeightInRows = parentHeightInRows - parentHeightOffset;
-  } else {
-    parentHeightInRows =
-      CANVAS_DEFAULT_MIN_HEIGHT_PX / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   }
 
   if (Array.isArray(children) && children.length > 0) {

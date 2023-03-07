@@ -1,7 +1,6 @@
 import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
@@ -27,7 +26,7 @@ class CanvasWidget extends ContainerWidget {
     return "CANVAS_WIDGET";
   }
 
-  getCanvasProps(): DSLWidget & { minHeight: number } {
+  getCanvasProps(): DSLWidget {
     return {
       ...this.props,
       parentRowSpace: 1,
@@ -36,7 +35,6 @@ class CanvasWidget extends ContainerWidget {
       leftColumn: 0,
       containerStyle: "none",
       detachFromLayout: true,
-      minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
       shouldScrollContents: false,
     };
   }
@@ -48,7 +46,6 @@ class CanvasWidget extends ContainerWidget {
       <DropTargetComponent
         bottomRow={this.props.bottomRow}
         isMobile={this.props.isMobile}
-        minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
         mobileBottomRow={this.props.mobileBottomRow}
         noPad={this.props.noPad}
         parentId={this.props.parentId}

@@ -41,7 +41,6 @@ type DropTargetComponentProps = PropsWithChildren<{
   parentId?: string;
   noPad?: boolean;
   bottomRow: number;
-  minHeight: number;
   useAutoLayout?: boolean;
   isMobile?: boolean;
   mobileBottomRow?: number;
