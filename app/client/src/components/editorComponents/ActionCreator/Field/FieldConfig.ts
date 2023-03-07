@@ -47,7 +47,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       const defaultParams = FIELD_GROUP_CONFIG[type].defaultParams;
       switch (type) {
         case AppsmithFunction.integration:
-          value = `${value}.run().then().catch()`;
+          value = `${value}.run()`;
           break;
         default:
           break;
