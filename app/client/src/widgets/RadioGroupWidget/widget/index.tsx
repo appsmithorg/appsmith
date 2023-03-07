@@ -1,21 +1,23 @@
-import React from "react";
 import { Alignment } from "@blueprintjs/core";
-import { isArray, compact, isNumber } from "lodash";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { RadioOption } from "../constants";
+import { compact, isArray, isNumber } from "lodash";
+import React from "react";
+
 import { LabelPosition } from "components/constants";
-import RadioGroupComponent from "../component";
-import { Stylesheet } from "entities/AppTheming";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import RadioGroupComponent from "../component";
+import { RadioOption } from "../constants";
 
 /**
  * Validation rules:
@@ -376,6 +378,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

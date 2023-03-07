@@ -43,6 +43,8 @@ export const PROPERTY_SELECTOR = {
   propertyName: ".t--property-control-propertyname",
   onClickFieldName: "onClick",
   TextFieldName: "Text",
+  tableData: ".t--property-control-tabledata",
+  tableColumnNames: '[data-rbd-draggable-id] input[type="text"]',
 };
 type ValueOf<T> = T[keyof T];
 

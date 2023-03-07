@@ -100,6 +100,9 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -278,19 +281,33 @@ export function* fetchAppAndPagesSaga(
   }
 }
 
-function* handleFetchApplicationError(error: unknown) {
-  yield put({
-    type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-    payload: {
-      error,
-    },
-  });
-  yield put({
-    type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-    payload: {
-      error,
-    },
-  });
+function* handleFetchApplicationError(error: any) {
+  const currentUser: User = yield select(getCurrentUser);
+  if (
+    currentUser &&
+    currentUser.email === ANONYMOUS_USERNAME &&
+    error?.code === ERROR_CODES.PAGE_NOT_FOUND
+  ) {
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+      payload: {
+        code: ERROR_CODES.PAGE_NOT_FOUND,
+      },
+    });
+  } else {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }
 
 export function* setDefaultApplicationPageSaga(

@@ -13,6 +13,7 @@
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
+    "@design-system/wds": "*",
     "@draft-js-plugins/editor": "^4.1.0",
     "@draft-js-plugins/mention": "^4.5.1",
     "@fusioncharts/powercharts": "^3.16.0",
@@ -47,10 +48,11 @@
     "core-js": "^3.9.1",
     "country-flag-emoji-polyfill": "^0.1.4",
     "craco-alias": "^2.1.1",
+    "craco-babel-loader": "^1.0.4",
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system-old": "npm:@appsmithorg/design-system-old@1.0.50",
+    "design-system-old": "npm:@appsmithorg/design-system-old@1.0.52",
     "downloadjs": "^1.4.7",
     "draft-js": "^0.11.7",
     "exceljs": "^4.3.0",
@@ -184,7 +186,8 @@
     "test:unit": "jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
-    "postinstall": "node cypress/apply-patches.js"
+    "postinstall": "node cypress/apply-patches.js",
+    "storybook": "yarn workspace @design-system/storybook storybook"
   },
   "browserslist": [
     ">0.2%",
@@ -281,6 +284,7 @@
     "msw": "^0.28.0",
     "plop": "^3.1.1",
     "postinstall-postinstall": "^2.1.0",
+    "prop-types": "^15.8.1",
     "raw-loader": "^4.0.2",
     "react-is": "^16.12.0",
     "react-test-renderer": "^16.11.0",

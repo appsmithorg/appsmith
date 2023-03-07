@@ -117,13 +117,18 @@ class SelectComponent extends React.Component<
     if (this.state.isOpen) this.togglePopoverVisibility();
   };
 
-  isOptionSelected = (selectedOption: DropdownOption) => {
-    if (this.props.value) return selectedOption.value === this.props.value;
+  isOptionSelected = (currentOption: DropdownOption) => {
+    // if currentOption is null, then return false
+    if (isNil(currentOption)) return false;
+
+    if (this.props.value) return currentOption.value === this.props.value;
+
     const optionIndex = findIndex(this.props.options, (option) => {
-      return option.value === selectedOption.value;
+      return option.value === currentOption.value;
     });
     return optionIndex === this.props.selectedIndex;
   };
+
   onQueryChange = debounce((filterValue: string) => {
     if (equal(filterValue, this.props.filterText)) return;
     this.props.onFilterChange(filterValue);
