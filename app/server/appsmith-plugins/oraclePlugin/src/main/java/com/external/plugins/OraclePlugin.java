@@ -105,68 +105,12 @@ public class OraclePlugin extends BasePlugin {
     private static final String INTERVAL_TYPE_NAME = "interval";
     private static final String JSON_TYPE_NAME = "json";
     private static final String JSONB_TYPE_NAME = "jsonb";
-    private static int MAX_SIZE_SUPPORTED;
     private static final int MINIMUM_POOL_SIZE = 1;
     private static final int MAXIMUM_POOL_SIZE = 5;
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
-    private static final int HEAVY_OP_FREQUENCY = 100;
     static final String JDBC_DRIVER = "oracle.jdbc.driver.OracleDriver";
 
-    /**
-     * Example output for COLUMNS_QUERY:
-     * +------------+-----------+-------------+-------------+-------------+------------+----------------+
-     * | table_name | column_id | column_name | column_type | is_nullable | COLUMN_KEY | EXTRA          |
-     * +------------+-----------+-------------+-------------+-------------+------------+----------------+
-     * | test       |         1 | id          | int         |           0 | PRI        | auto_increment |
-     * | test       |         2 | firstname   | varchar     |           1 |            |                |
-     * | test       |         3 | middlename  | varchar     |           1 |            |                |
-     * | test       |         4 | lastname    | varchar     |           1 |            |                |
-     * +------------+-----------+-------------+-------------+-------------+------------+----------------+
-     */
-    // TODO: check if this is correct
-    private static final String COLUMNS_QUERY = "select tab.table_name as table_name,\n" +
-            "col.column_id as column_id,\n" +
-            "col.column_name as column_name,\n" +
-            "col.data_type as column_type,\n" +
-            "col.nullable as is_nullable,\n" +
-            "col.column_id,\n" +
-            "'' as extra\n" +
-            "-- col.extra\n" +
-            "from all_tables tab\n" +
-            "inner join all_tab_columns col\n" +
-            "-- on col.table_schema = tab.table_schema\n" +
-            "on col.table_name = tab.table_name\n" +
-            "where tab.tablespace_name = 'USERS'\n" +
-            "-- and tab.table_schema = database()\\n\" +\n" +
-            "order by tab.table_name,\n" +
-            "col.column_id;";
 
-    /**
-     * Example output for KEYS_QUERY:
-     * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
-     * | CONSTRAINT_NAME | self_schema | self_table | constraint_type | self_column | foreign_schema | foreign_table | foreign_column |
-     * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
-     * | PRIMARY         | mytestdb    | test       | p               | id          | NULL           | NULL          | NULL           |
-     * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
-     */
-    // TODO: check if this is correct
-    private static final String KEYS_QUERY = "select \n" +
-            "a.constraint_name\n" +
-            ", (select name from v$database) as self_schema\n" +
-            ", tc.table_name as self_table\n" +
-            //"-- , if(c.constraint_type = 'R', 'f', c.constraint_type) as constraint_type\n" +
-            ", c.constraint_type\n" +
-            ", tc.column_name as self_column\n" +
-            ", (select name from v$database) as foreign_schema\n" +
-            ", c_pk.table_name as foreign_table\n" +
-            ", cc_pk.column_name as foreign_column\n" +
-            "from all_tab_cols tc \n" +
-            "inner join all_tables t on t.table_name=tc.table_name and t.tablespace_name='USERS'\n" +
-            "left join all_cons_columns a on a.table_name=tc.table_name and a.column_name=tc.column_name\n" +
-            "left JOIN all_constraints  c       ON (a.owner                 = c.owner                   AND a.constraint_name   = c.constraint_name     and c.constraint_type in ('R', 'P'))\n" +
-            "left JOIN all_constraints  c_pk    ON (c.r_owner               = c_pk.owner                AND c.r_constraint_name = c_pk.constraint_name  and c.constraint_type in ('R', 'P'))\n" +
-            "left JOIN all_cons_columns cc_pk   on (cc_pk.constraint_name   = c_pk.constraint_name      AND cc_pk.owner         = c_pk.owner            )\n" +
-            "order by self_table , tc.column_id;";
     public OraclePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -174,12 +118,6 @@ public class OraclePlugin extends BasePlugin {
     public static class OraclePluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
         private final Scheduler scheduler = Schedulers.boundedElastic();
         private static final int PREPARED_STATEMENT_INDEX = 0;
-
-        private final SharedConfig sharedConfig;
-        public OraclePluginExecutor(SharedConfig sharedConfig){
-            this.sharedConfig = sharedConfig;
-            MAX_SIZE_SUPPORTED = sharedConfig.getMaxResponseSize();
-        }
 
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
@@ -221,24 +159,18 @@ public class OraclePlugin extends BasePlugin {
                 }
             }
 
-            if (datasourceConfiguration.getConnection() != null
-                    && datasourceConfiguration.getConnection().getMode() == null) {
-                invalids.add("Missing Connection Mode.");
-            }
-
             if (datasourceConfiguration.getAuthentication() == null) {
                 invalids.add("Missing authentication details.");
 
             } else {
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (StringUtils.isEmpty(authentication.getUsername())) {
+                if (isEmpty(authentication.getUsername())) {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(authentication.getDatabaseName())) {
+                if (isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing database name.");
                 }
-
             }
 
             /*
@@ -252,19 +184,6 @@ public class OraclePlugin extends BasePlugin {
             }
 
             return invalids;
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .map(connection -> {
-                        if (connection != null) {
-                            connection.close();
-                        }
-
-                        return new DatasourceTestResult();
-                    })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
         @Override
@@ -283,12 +202,12 @@ public class OraclePlugin extends BasePlugin {
                         "Missing required parameter: Query."));
             }
 
-            Boolean isPreparedStatement = TRUE;;
+            Boolean isPreparedStatement = TRUE;
             Object preparedStatementObject = getDataValueSafelyFromFormData(formData, PREPARED_STATEMENT,
                     OBJECT_TYPE, TRUE);
             if (preparedStatementObject instanceof Boolean) {
                 isPreparedStatement = (Boolean) preparedStatementObject;
-            } else if (preparedStatementObject instanceof String) { 
+            } else if (preparedStatementObject instanceof String) {
                 // Older UI configuration used to set this value as a string which may/may not be castable to a boolean
                 // directly. This is to ensure we are backward compatible
                 isPreparedStatement = Boolean.parseBoolean((String) preparedStatementObject);
@@ -323,7 +242,6 @@ public class OraclePlugin extends BasePlugin {
 
             final Map<String, Object> formData = actionConfiguration.getFormData();
             String query = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, null);
-            // TBD: Stop repetition
             if (isEmpty(query)) {
                 // TBD: update error
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -339,7 +257,7 @@ public class OraclePlugin extends BasePlugin {
                         java.sql.Connection connectionFromPool;
 
                         try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                            connectionFromPool = getConnectionFromConnectionPool(connection);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing
@@ -398,34 +316,17 @@ public class OraclePlugin extends BasePlugin {
                             }
 
                             if (!isResultSet) {
-
                                 Object updateCount = FALSE.equals(preparedStatement) ?
                                         ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0) :
                                         ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
 
                                 rowsList.add(Map.of("affectedRows", updateCount));
-
                             } else {
-
                                 ResultSetMetaData metaData = resultSet.getMetaData();
                                 int colCount = metaData.getColumnCount();
                                 columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
-                                int iterator = 0;
                                 while (resultSet.next()) {
-
-                                    // Only check the data size at low frequency to ensure the performance is not impacted heavily
-                                    if (iterator% HEAVY_OP_FREQUENCY == 0) {
-                                        int objectSize = sizeof(rowsList);
-
-                                        if (objectSize > MAX_SIZE_SUPPORTED) {
-                                            System.out.println(Thread.currentThread().getName() +
-                                                    "[OraclePlugin] Result size greater than maximum supported size of "
-                                                    + MAX_SIZE_SUPPORTED + "bytes. Current size : " + objectSize);
-                                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED, (float) (MAX_SIZE_SUPPORTED / (1024 * 1024))));
-                                        }
-                                    }
-
                                     // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
                                     Map<String, Object> row = new LinkedHashMap<>(colCount);
 
@@ -484,8 +385,6 @@ public class OraclePlugin extends BasePlugin {
                                     }
 
                                     rowsList.add(row);
-
-                                    iterator++;
                                 }
                             }
 
@@ -582,213 +481,8 @@ public class OraclePlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
-
-            // TODO: fix it.
+            // TODO: fill it
             return Mono.just(new DatasourceStructure());
-            /*final DatasourceStructure structure = new DatasourceStructure();
-            final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
-
-            return Mono.fromSupplier(() -> {
-
-                        Connection connectionFromPool;
-                        try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
-                        } catch (SQLException | StaleConnectionException e) {
-                            // The function can throw either StaleConnectionException or SQLException. The underlying hikari
-                            // library throws SQLException in case the pool is closed or there is an issue initializing
-                            // the connection pool which can also be translated in our world to StaleConnectionException
-                            // and should then trigger the destruction and recreation of the pool.
-                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
-                        }
-
-                        HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
-
-                        int idleConnections = poolProxy.getIdleConnections();
-                        int activeConnections = poolProxy.getActiveConnections();
-                        int totalConnections = poolProxy.getTotalConnections();
-                        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        System.out.println(Thread.currentThread().getName() + ": Before getting postgres db structure" +
-                                " Hikari Pool stats : active - " + activeConnections +
-                                ", idle - " + idleConnections +
-                                ", awaiting - " + threadsAwaitingConnection +
-                                ", total - " + totalConnections);
-
-                        // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
-                        try (Statement statement = connectionFromPool.createStatement()) {
-
-                            // Get tables and fill up their columns.
-                            try (ResultSet columnsResultSet = statement.executeQuery(COLUMNS_QUERY)) {
-                                while (columnsResultSet.next()) {
-                                    final char kind = columnsResultSet.getString("kind").charAt(0);
-                                    final String schemaName = columnsResultSet.getString("schema_name");
-                                    final String tableName = columnsResultSet.getString("table_name");
-                                    final String fullTableName = schemaName + "." + tableName;
-                                    if (!tablesByName.containsKey(fullTableName)) {
-                                        tablesByName.put(fullTableName, new DatasourceStructure.Table(
-                                                kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
-                                                schemaName,
-                                                fullTableName,
-                                                new ArrayList<>(),
-                                                new ArrayList<>(),
-                                                new ArrayList<>()
-                                        ));
-                                    }
-                                    final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-                                    final String defaultExpr = columnsResultSet.getString("default_expr");
-                                    boolean isAutogenerated = !StringUtils.isEmpty(defaultExpr) && defaultExpr.toLowerCase().contains("nextval");
-
-                                    table.getColumns().add(new DatasourceStructure.Column(
-                                                    columnsResultSet.getString("name"),
-                                                    columnsResultSet.getString("column_type"),
-                                                    defaultExpr,
-                                                    isAutogenerated
-                                            )
-                                    );
-                                }
-                            }
-
-                            // Get tables' constraints and fill those up.
-                            try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY)) {
-                                while (constraintsResultSet.next()) {
-                                    final String constraintName = constraintsResultSet.getString("constraint_name");
-                                    final char constraintType = constraintsResultSet.getString("constraint_type").charAt(0);
-                                    final String selfSchema = constraintsResultSet.getString("self_schema");
-                                    final String tableName = constraintsResultSet.getString("self_table");
-                                    final String fullTableName = selfSchema + "." + tableName;
-                                    if (!tablesByName.containsKey(fullTableName)) {
-                                        continue;
-                                    }
-
-                                    final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-
-                                    if (constraintType == 'p') {
-                                        final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
-                                                constraintName,
-                                                List.of((String[]) constraintsResultSet.getArray("self_columns").getArray())
-                                        );
-                                        table.getKeys().add(key);
-
-                                    } else if (constraintType == 'f') {
-                                        final String foreignSchema = constraintsResultSet.getString("foreign_schema");
-                                        final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
-                                                + constraintsResultSet.getString("foreign_table")
-                                                + ".";
-
-                                        final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
-                                                constraintName,
-                                                List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
-                                                Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
-                                                        .map(name -> prefix + name)
-                                                        .collect(Collectors.toList())
-                                        );
-
-                                        table.getKeys().add(key);
-
-                                    }
-                                }
-                            }
-
-                            // Get/compute templates for each table and put those in.
-                            for (DatasourceStructure.Table table : tablesByName.values()) {
-                                final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
-                                        .stream()
-                                        .filter(column -> column.getDefaultValue() == null)
-                                        .collect(Collectors.toList());
-
-                                final List<String> columnNames = new ArrayList<>();
-                                final List<String> columnValues = new ArrayList<>();
-                                final StringBuilder setFragments = new StringBuilder();
-
-                                for (DatasourceStructure.Column column : columnsWithoutDefault) {
-                                    final String name = column.getName();
-                                    final String type = column.getType();
-                                    String value;
-
-                                    if (type == null) {
-                                        value = "null";
-                                    } else if ("text".equals(type) || "varchar".equals(type)) {
-                                        value = "''";
-                                    } else if (type.startsWith("int")) {
-                                        value = "1";
-                                    } else if (type.startsWith("float") || type.startsWith("double")) {
-                                        value = "1.0";
-                                    } else if ("date".equals(type)) {
-                                        value = "'2019-07-01'";
-                                    } else if ("time".equals(type)) {
-                                        value = "'18:32:45'";
-                                    } else if ("timetz".equals(type)) {
-                                        value = "'04:05:06 PST'";
-                                    } else if ("timestamp".equals(type)) {
-                                        value = "TIMESTAMP '2019-07-01 10:00:00'";
-                                    } else if ("timestamptz".equals(type)) {
-                                        value = "TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'";
-                                    } else if (type.startsWith("_int")) {
-                                        value = "'{1, 2, 3}'";
-                                    } else if ("_varchar".equals(type)) {
-                                        value = "'{\"first\", \"second\"}'";
-                                    } else {
-                                        value = "''";
-                                    }
-
-                                    columnNames.add("\"" + name + "\"");
-                                    columnValues.add(value);
-                                    setFragments.append("\n    \"").append(name).append("\" = ").append(value).append(",");
-                                }
-
-                                // Delete the last comma
-                                if (setFragments.length() > 0) {
-                                    setFragments.deleteCharAt(setFragments.length() - 1);
-                                }
-
-                                final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
-                                table.getTemplates().addAll(List.of(
-                                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
-                                        new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
-                                                + " (" + String.join(", ", columnNames) + ")\n"
-                                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
-                                        new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
-                                                + setFragments.toString() + "\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                        new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
-                                ));
-                            }
-
-                        } catch (SQLException throwable) {
-                            return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    throwable.getMessage()
-                            ));
-                        } finally {
-                            idleConnections = poolProxy.getIdleConnections();
-                            activeConnections = poolProxy.getActiveConnections();
-                            totalConnections = poolProxy.getTotalConnections();
-                            threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            System.out.println(Thread.currentThread().getName() + ": After postgres db structure, Hikari Pool stats active - " + activeConnections +
-                                    ", idle - " + idleConnections +
-                                    ", awaiting - " + threadsAwaitingConnection +
-                                    ", total - " + totalConnections);
-
-                            if (connectionFromPool != null) {
-                                try {
-                                    // Return the connection back to the pool
-                                    connectionFromPool.close();
-                                } catch (SQLException e) {
-                                    System.out.println(Thread.currentThread().getName() +
-                                            ": Error returning Postgres connection to pool during get structure" + e.getMessage());
-                                }
-                            }
-                        }
-
-                        structure.setTables(new ArrayList<>(tablesByName.values()));
-                        for (DatasourceStructure.Table table : structure.getTables()) {
-                            table.getKeys().sort(Comparator.naturalOrder());
-                        }
-                        System.out.println(Thread.currentThread().getName() + ": Got the structure of postgres db");
-                        return structure;
-                    })
-                    .map(resultStructure -> (DatasourceStructure) resultStructure)
-                    .subscribeOn(scheduler);*/
         }
 
         // TODO: fix it
@@ -944,22 +638,20 @@ public class OraclePlugin extends BasePlugin {
 
             config.setDriverClassName(JDBC_DRIVER);
 
-            // Set SSL property
-            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
             config.setMinimumIdle(MINIMUM_POOL_SIZE);
             config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
 
             // Set authentication properties
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication.getUsername() != null) {
+            if (!isEmpty(authentication.getUsername())) {
                 config.setUsername(authentication.getUsername());
             }
-            if (authentication.getPassword() != null) {
+            if (!isEmpty(authentication.getPassword())) {
                 config.setPassword(authentication.getPassword());
             }
 
             // Set up the connection URL
-            StringBuilder urlBuilder = new StringBuilder("jdbc:oracle:thin:@//");
+            StringBuilder urlBuilder = new StringBuilder("jdbc:oracle:thin:@tcps://");
 
             List<String> hosts = datasourceConfiguration
                     .getEndpoints()
@@ -969,18 +661,9 @@ public class OraclePlugin extends BasePlugin {
 
             urlBuilder.append(String.join(",", hosts)).append("/");
 
-            if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+            if (!isEmpty(authentication.getDatabaseName())) {
                 urlBuilder.append(authentication.getDatabaseName());
             }
-
-            /**
-             * JDBC connection parameter to auto resolve argument type when using prepared statements. Please note that this auto deduction of type happens only when
-             * the argument is bound using `setString()` method. In our case, it means that we have identified the argument data type as String.
-             * Quoting from doc:
-             * If stringtype is set to unspecified, parameters will be sent to the server as untyped values, and the server will attempt to infer an appropriate type.
-             * Ref: https://jdbc.postgresql.org/documentation/83/connect.html
-             */
-            //urlBuilder.append("?stringtype=unspecified");
 
             /*
              * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
@@ -995,29 +678,14 @@ public class OraclePlugin extends BasePlugin {
                 );
             }
 
-            /*
-             * - By default, the driver configures SSL in the preferred mode.
-             */
-            // TODO: fix it
-           /* SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+            SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
             switch (sslAuthType) {
-                case BASIC:
-                    config.addDataSourceProperty("ssl", "true");
-                    config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
-
-                    break;
-                case PEER_AUTHENTICATION:
-                    config.addDataSourceProperty("ssl", "true");
-                    config.addDataSourceProperty("sslmode", "peerAuthentication");
-
-                    break;
                 case DISABLE:
-                    config.addDataSourceProperty("ssl", "false");
-                    config.addDataSourceProperty("sslmode", "off");
+                    urlBuilder.deleteCharAt(21);
 
                     break;
-                case DEFAULT:
-                    *//* do nothing - accept default driver setting *//*
+                case NO_VERIFY:
+                    /* do nothing */
 
                     break;
                 default:
@@ -1026,7 +694,7 @@ public class OraclePlugin extends BasePlugin {
                             "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
                                     " Appsmith customer support to resolve this."
                     );
-            }*/
+            }
 
             String url = urlBuilder.toString();
             config.setJdbcUrl(url);
@@ -1034,20 +702,6 @@ public class OraclePlugin extends BasePlugin {
             // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
             // should get tracked (may be falsely for long running queries) as leaked connection
             config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
-
-            // TODO: check if this works
-            // Set read only mode if applicable
-            switch (configurationConnection.getMode()) {
-                case READ_WRITE: {
-                    config.setReadOnly(false);
-                    break;
-                }
-                case READ_ONLY: {
-                    config.setReadOnly(true);
-                    config.addDataSourceProperty("readOnlyMode", "always");
-                    break;
-                }
-            }
 
             // Now create the connection pool from the configuration
             HikariDataSource datasource = null;
@@ -1070,8 +724,7 @@ public class OraclePlugin extends BasePlugin {
          * @param connectionPool
          * @return SQL Connection
          */
-        private static java.sql.Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
-                                                                           DatasourceConfiguration datasourceConfiguration) throws SQLException {
+        private static java.sql.Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
 
             if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
                 System.out.println(Thread.currentThread().getName() +

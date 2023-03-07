@@ -34,7 +34,7 @@ public class SSLDetails implements AppsmithDomain {
         CA_CERTIFICATE, SELF_SIGNED_CERTIFICATE,
 
         // For Oracle DB Connections
-        BASIC, PEER_AUTHENTICATION
+        NO_VERIFY
     }
 
     public enum CACertificateType {

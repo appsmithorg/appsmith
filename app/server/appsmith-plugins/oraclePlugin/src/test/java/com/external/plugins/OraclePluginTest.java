@@ -71,7 +71,7 @@ public class OraclePluginTest {
         }
     }
 
-    OraclePlugin.OraclePluginExecutor pluginExecutor = new OraclePlugin.OraclePluginExecutor(new MockSharedConfig());
+    OraclePlugin.OraclePluginExecutor pluginExecutor = new OraclePlugin.OraclePluginExecutor();
     public static final DockerImageName ORACLE_DOCKER_IMAGE_NAME = DockerImageName.parse(
             "gvenzl/oracle-xe:18.4.0-slim"
     );

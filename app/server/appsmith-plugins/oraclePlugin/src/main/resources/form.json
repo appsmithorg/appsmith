@@ -5,23 +5,6 @@
       "id": 1,
       "children": [
         {
-          "label": "Connection Mode",
-          "configProperty": "datasourceConfiguration.connection.mode",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "initialValue": "READ_WRITE",
-          "options": [
-            {
-              "label": "Read Only",
-              "value": "READ_ONLY"
-            },
-            {
-              "label": "Read / Write",
-              "value": "READ_WRITE"
-            }
-          ]
-        },
-        {
           "sectionName": null,
           "children": [
             {
@@ -81,102 +64,17 @@
           "label": "SSL Mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
-          "initialValue": "DEFAULT",
+          "initialValue": "NO_VERIFY",
           "options": [
             {
-              "label": "Default",
-              "value": "DEFAULT"
+              "label": "Disable",
+              "value": "DISABLE"
             },
             {
-              "label": "Basic",
-              "value": "BASIC"
-            },
-            {
-              "label": "Peer Authentication",
-              "value": "PEER_AUTHENTICATION"
+              "label": "No verify",
+              "value": "NO_VERIFY"
             }
           ]
-        },
-        {
-          "sectionName": "Trust Store",
-          "children": [
-            {
-              "label": "Trust Store File",
-              "configProperty": "datasourceConfiguration.connection.ssl.trustStore.file",
-              "controlType": "FILE_PICKER"
-            },
-            {
-              "label": "Trust Store File Type",
-              "configProperty": "datasourceConfiguration.connection.ssl.trustStore.fileType",
-              "controlType": "DROP_DOWN",
-              "isRequired": false,
-              "initialValue": "PKCS12",
-              "options": [
-                {
-                  "label": "PKCS12",
-                  "value": "PKCS12"
-                },
-                {
-                  "label": "JKS",
-                  "value": "JKS"
-                }
-              ]
-            },
-            {
-              "label": "Trust Store File Password",
-              "configProperty": "datasourceConfiguration.connection.ssl.trustStore.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Trust Store File Password"
-            }
-          ]
-        },
-        {
-          "sectionName": "Key Store",
-          "children": [
-            {
-              "label": "Key Store File",
-              "configProperty": "datasourceConfiguration.connection.ssl.keyStore.file",
-              "controlType": "FILE_PICKER"
-            },
-            {
-              "label": "Key Store File Type",
-              "configProperty": "datasourceConfiguration.connection.ssl.keyStore.fileType",
-              "controlType": "DROP_DOWN",
-              "isRequired": false,
-              "initialValue": "PKCS12",
-              "options": [
-                {
-                  "label": "PKCS12",
-                  "value": "PKCS12"
-                },
-                {
-                  "label": "JKS",
-                  "value": "JKS"
-                }
-              ]
-            },
-            {
-              "label": "Key Store File Password",
-              "configProperty": "datasourceConfiguration.connection.ssl.keyStore.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Key Store File Password"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "sectionName": "Oracle Specific Parameters",
-      "children": [
-        {
-          "label": "Server Timezone Override",
-          "configProperty": "datasourceConfiguration.properties[0]",
-          "fixedKey": "serverTimezone",
-          "controlType": "FIXED_KEY_INPUT",
-          "placeholderText": "UTC or any valid timezone"
         }
       ]
     }
