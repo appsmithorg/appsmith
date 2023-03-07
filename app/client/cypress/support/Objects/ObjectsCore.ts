@@ -2,7 +2,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 export const agHelper = ObjectsRegistry.AggregateHelper;
 export const locators = ObjectsRegistry.CommonLocators;
-export const ee = ObjectsRegistry.EntityExplorer;
+export const entityExplorer = ObjectsRegistry.EntityExplorer;
 export const jsEditor = ObjectsRegistry.JSEditor;
 export const propPane = ObjectsRegistry.PropertyPane;
 export const deployMode = ObjectsRegistry.DeployMode;

@@ -70,7 +70,7 @@ describe("Modal focus", function() {
     cy.focused().should("have.value", someInputText);
   });
   it("2. Should not focus on the input field if autofocus is disabled", () => {
-    cy.openPropertyPane("inputwidgetv2");
+    cy.openPropertyPaneFromModal("inputwidgetv2");
 
     // autofocus for input field is disabled
     cy.get(".t--property-control-autofocus")

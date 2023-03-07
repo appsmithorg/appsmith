@@ -68,8 +68,8 @@ describe("Widget error state", function() {
   });
 
   it("8. Bug-2760: Error log on a widget property not clearing out when the widget property is deleted", function() {
-    _.ee.DragDropWidgetNVerify(WIDGET.TABLE, 150, 300);
-    _.ee.SelectEntityByName("Table1", "Widgets");
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 150, 300);
+    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
 
     _.tableV2.AddColumn("customColumn1");
     _.propPane.OpenTableColumnSettings("customColumn1");

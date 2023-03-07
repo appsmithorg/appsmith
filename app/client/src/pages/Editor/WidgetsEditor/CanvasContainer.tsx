@@ -76,6 +76,7 @@ const AutoLayoutCanvasResizer = styled.div`
     }
   }
 `;
+
 const Container = styled.section<{
   background: string;
 }>`
@@ -140,6 +141,7 @@ function CanvasContainer() {
       />
     );
   }
+
   const appPositioningType = useSelector(getCurrentAppPositioningType);
   const appLayout = useSelector(getCurrentApplicationLayout);
   useEffect(() => {

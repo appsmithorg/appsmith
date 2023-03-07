@@ -10,16 +10,13 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
   getCurrentPageId,
   getCurrentPageName,
-  getIsFetchingPage,
 } from "selectors/editorSelectors";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import {
   getIsOnboardingTasksView,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { quickScrollToWidget } from "utils/helpers";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -34,18 +31,15 @@ import CanvasTopSection from "./EmptyCanvasSection";
 import PageTabs from "./PageTabs";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 
-/* eslint-disable react/display-name */
 function WidgetsEditor() {
-  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
-  const canvasWidgets = useSelector(getCanvasWidgets);
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -62,18 +56,6 @@ function WidgetsEditor() {
       });
     }
   }, [currentPageName, currentPageId]);
-
-  // navigate to widget
-  useEffect(() => {
-    if (
-      !isFetchingPage &&
-      window.location.hash.length > 0 &&
-      !guidedTourEnabled
-    ) {
-      const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash, canvasWidgets);
-    }
-  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();

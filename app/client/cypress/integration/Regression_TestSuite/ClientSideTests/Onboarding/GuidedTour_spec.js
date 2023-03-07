@@ -5,7 +5,7 @@ const explorerLocators = require("../../../../locators/explorerlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Guided Tour", function() {
-  it("Guided tour should work when started from the editor", function() {
+  it("1. Guided tour should work when started from the editor", function() {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmith.com`, uid);
     });
@@ -14,8 +14,7 @@ describe("Guided Tour", function() {
     cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
   });
 
-  //Failing in fat migration - hence skipping
-  it("1. Guided Tour", function() {
+  it("2. Guided Tour", function() {
     // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
@@ -30,7 +29,7 @@ describe("Guided Tour", function() {
     });
     _.dataSources.SetQueryTimeout();
     // Step 1: Run query
-    cy.runQuery();
+    _.dataSources.RunQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");
@@ -42,17 +41,32 @@ describe("Guided Tour", function() {
     //cy.wait("@updateWidgetName");
     // Step 4: Add binding to the defaultText property of NameInput
     cy.wait(3000);
-    cy.get(guidedTourLocators.hintButton).click();
-    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
+    cy.get("body").then(($body) => {
+      if ($body.find(guidedTourLocators.hintButton).length > 0) {
+        cy.get(guidedTourLocators.hintButton).click();
+        cy.wait(1000); //for NameInput to open
+        cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
+      } else {
+        cy.wait(1000);
+        cy.get(guidedTourLocators.inputfields)
+          .first()
+          .click({ force: true }); //Name input
+        cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
+      }
+    });
     cy.get(guidedTourLocators.successButton).click();
     // Step 5: Add binding to the rest of the widgets in the container
-    cy.get(commonlocators.editWidgetName).contains("EmailInput");
+    cy.get(guidedTourLocators.inputfields)
+      .eq(1)
+      .click({ force: true }); //Email input
     cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.email}}");
     cy.get(".t--entity-name")
       .contains("CountryInput")
       .click({ force: true });
     cy.wait(1000);
-    cy.get(commonlocators.editWidgetName).contains("CountryInput");
+    cy.get(guidedTourLocators.inputfields)
+      .eq(2)
+      .click({ force: true }); //Country input
     cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.country}}");
     cy.get(".t--entity-name")
       .contains("DisplayImage")
@@ -71,6 +85,7 @@ describe("Guided Tour", function() {
     cy.get(
       `.t--property-control-onclick [data-guided-tour-iid='onSuccess'] ${commonlocators.dropdownSelectButton}`,
     )
+      .eq(0)
       .click({ force: true })
       .get("ul.bp3-menu")
       .children()

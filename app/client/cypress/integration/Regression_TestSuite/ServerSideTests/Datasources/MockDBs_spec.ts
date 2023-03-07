@@ -1,91 +1,87 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources;
+import * as _ from "../../../../support/Objects/ObjectsCore";
+let dsName: any;
 
 describe("Validate Mock Query Active Ds querying & count", () => {
   it("1. Create Query from Mock Mongo DB & verify active queries count", () => {
-    dataSources.CreateMockDB("Movies").then((mockDBName) => {
-      dataSources.CreateQuery(mockDBName);
-      dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
-      agHelper.EnterValue("movies", {
+    _.dataSources.CreateMockDB("Movies").then((mockDBName) => {
+      dsName = mockDBName;
+      _.dataSources.CreateQueryFromActiveTab(mockDBName, false);
+      _.dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
+      _.agHelper.EnterValue("movies", {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Collection",
       });
-      dataSources.RunQueryNVerifyResponseViews(10, false);
-      dataSources.NavigateToActiveTab();
-      agHelper
-        .GetText(dataSources._queriesOnPageText(mockDBName))
+      _.dataSources.RunQueryNVerifyResponseViews(10, false);
+      _.dataSources.NavigateToActiveTab();
+      _.agHelper
+        .GetText(_.dataSources._queriesOnPageText(mockDBName))
         .then(($queryCount) =>
           expect($queryCount).to.eq("1 query on this page"),
         );
 
-      ee.CreateNewDsQuery(mockDBName);
-      dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
-      agHelper.EnterValue("movies", {
+      _.entityExplorer.CreateNewDsQuery(mockDBName);
+      _.dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
+      _.agHelper.EnterValue("movies", {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Collection",
       });
-      dataSources.RunQueryNVerifyResponseViews(10, false);
-      dataSources.NavigateToActiveTab();
-      agHelper
-        .GetText(dataSources._queriesOnPageText(mockDBName))
+      _.dataSources.RunQueryNVerifyResponseViews(10, false);
+      _.dataSources.NavigateToActiveTab();
+      _.agHelper
+        .GetText(_.dataSources._queriesOnPageText(mockDBName))
         .then(($queryCount) =>
           expect($queryCount).to.eq("2 queries on this page"),
         );
-
-      ee.ExpandCollapseEntity("Queries/JS");
-      ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
-      ee.ActionContextMenuByEntityName("Query2", "Delete", "Are you sure?");
-      dataSources.NavigateToActiveTab();
-      agHelper
-        .GetText(dataSources._queriesOnPageText(mockDBName))
-        .then(($queryCount) =>
-          expect($queryCount).to.eq(
-            "No query in this application is using this datasource",
-          ),
-        );
-      dataSources.DeleteDatasouceFromActiveTab(mockDBName);
     });
   });
 
   it("2. Create Query from Mock Postgres DB & verify active queries count", () => {
-    dataSources.CreateMockDB("Users").then((mockDBName) => {
-      dataSources.CreateQuery(mockDBName);
-      agHelper.GetNClick(dataSources._templateMenuOption("Select"));
-      dataSources.RunQueryNVerifyResponseViews(10);
-      dataSources.NavigateToActiveTab();
-      agHelper
-        .GetText(dataSources._queriesOnPageText(mockDBName))
+    _.dataSources.CreateMockDB("Users").then((mockDBName) => {
+      dsName = mockDBName;
+      _.dataSources.CreateQueryFromActiveTab(mockDBName, false);
+      _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
+      _.dataSources.RunQueryNVerifyResponseViews(10);
+      _.dataSources.NavigateToActiveTab();
+      _.agHelper
+        .GetText(_.dataSources._queriesOnPageText(mockDBName))
         .then(($queryCount) =>
           expect($queryCount).to.eq("1 query on this page"),
         );
 
-      ee.CreateNewDsQuery(mockDBName);
-      agHelper.GetNClick(dataSources._templateMenuOption("Select"));
-      dataSources.RunQueryNVerifyResponseViews(10, false);
-      dataSources.NavigateToActiveTab();
-      agHelper
-        .GetText(dataSources._queriesOnPageText(mockDBName))
+      _.entityExplorer.CreateNewDsQuery(mockDBName);
+      _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
+      _.dataSources.RunQueryNVerifyResponseViews(10, false);
+      _.dataSources.NavigateToActiveTab();
+      _.agHelper
+        .GetText(_.dataSources._queriesOnPageText(mockDBName))
         .then(($queryCount) =>
           expect($queryCount).to.eq("2 queries on this page"),
         );
-
-      ee.ExpandCollapseEntity("Queries/JS");
-      ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
-      ee.ActionContextMenuByEntityName("Query2", "Delete", "Are you sure?");
-      dataSources.NavigateToActiveTab();
-      agHelper
-        .GetText(dataSources._queriesOnPageText(mockDBName))
-        .then(($queryCount) =>
-          expect($queryCount).to.eq(
-            "No query in this application is using this datasource",
-          ),
-        );
-      dataSources.DeleteDatasouceFromActiveTab(mockDBName);
     });
+  });
+
+  afterEach(() => {
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Query1",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Query2",
+      "Delete",
+      "Are you sure?",
+    );
+    _.dataSources.NavigateToActiveTab();
+    _.agHelper
+      .GetText(_.dataSources._queriesOnPageText(dsName))
+      .then(($queryCount) =>
+        expect($queryCount).to.eq(
+          "No query in this application is using this datasource",
+        ),
+      );
+    _.dataSources.DeleteDatasouceFromActiveTab(dsName);
   });
 });

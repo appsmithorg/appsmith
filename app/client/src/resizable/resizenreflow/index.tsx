@@ -1,9 +1,10 @@
-import { stopReflowAction } from "actions/reflowActions";
+import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import {
   isHandleResizeAllowed,
   isResizingDisabled,
 } from "components/editorComponents/ResizableUtils";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { Colors } from "constants/Colors";
 import {
   GridDefaults,
   WidgetHeightLimits,
@@ -18,12 +19,17 @@ import {
   MovementLimitMap,
   ReflowDirection,
   ReflowedSpace,
+  ReflowedSpaceMap,
 } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { getCanvasWidth } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import styled, { StyledComponent } from "styled-components";
+import {
+  getFillWidgetLengthForLayer,
+  getLayerIndexOfWidget,
+} from "utils/autoLayout/AutoLayoutUtils";
 import {
   LayoutDirection,
   ResponsiveBehavior,
@@ -37,54 +43,42 @@ import PerformanceTracker, {
 import WidgetFactory from "utils/WidgetFactory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 
-// TODO: Preet / Ashok: The following section has been commented out to facilitate the first merge to release.
-// The commented out code will be used in the next iteration for the public release.
+const resizeBorderPadding = 1;
+const resizeBorder = 1;
+const resizeBoxShadow = 1;
+const resizeOutline = 1;
 
-// const resizeBorderPadding = 1;
-// const resizeBorder = 1;
-// const resizeBoxShadow = 1;
-// const resizeOutline = 1;
+export const RESIZE_BORDER_BUFFER =
+  resizeBorderPadding + resizeBorder + resizeBoxShadow + resizeOutline;
 
-// export const RESIZE_BORDER_BUFFER =
-//   resizeBorderPadding + resizeBorder + resizeBoxShadow + resizeOutline;
-
-// export const ResizeWrapper = styled(animated.div)<{
-//   $prevents: boolean;
-//   isHovered: boolean;
-//   showBoundaries: boolean;
-// }>`
-//   display: block;
-//   & {
-//     * {
-//       pointer-events: ${(props) => !props.$prevents && "none"};
-//     }
-//   }
-//   ${(props) => {
-//     if (props.showBoundaries) {
-//       return `
-//       box-shadow: 0px 0px 0px ${resizeBoxShadow}px ${
-//         props.isHovered ? Colors.WATUSI : "#f86a2b"
-//       };
-//       border-radius: 0px 4px 4px 4px;
-//       border: ${resizeBorder}px solid ${Colors.GREY_1};
-//       padding: ${resizeBorderPadding}px;
-//       outline: ${resizeOutline}px solid ${Colors.GREY_1} !important;
-//       outline-offset: 1px;`;
-//     } else {
-//       return `
-//         border: 0px solid transparent;
-//       `;
-//     }
-//   }}}
-// `;
-
-export const ResizeWrapper = styled(animated.div)<{ $prevents: boolean }>`
+export const ResizeWrapper = styled(animated.div)<{
+  $prevents: boolean;
+  isHovered: boolean;
+  showBoundaries: boolean;
+}>`
   display: block;
   & {
     * {
       pointer-events: ${(props) => !props.$prevents && "none"};
     }
   }
+  ${(props) => {
+    if (props.showBoundaries) {
+      return `
+      box-shadow: 0px 0px 0px ${resizeBoxShadow}px ${
+        props.isHovered ? Colors.WATUSI : "#f86a2b"
+      };
+      border-radius: 0px 4px 4px 4px;
+      border: ${resizeBorder}px solid ${Colors.GREY_1};
+      padding: ${resizeBorderPadding}px;
+      outline: ${resizeOutline}px solid ${Colors.GREY_1} !important;
+      outline-offset: 1px;`;
+    } else {
+      return `
+        border: 0px solid transparent;
+      `;
+    }
+  }}}
 `;
 
 const getSnappedValues = (
@@ -308,46 +302,46 @@ export function ReflowResizable(props: ResizableProps) {
   const mainCanvasWidth = useSelector(getCanvasWidth);
 
   const dispatch = useDispatch();
-  // const triggerAutoLayoutBasedReflow = (resizedPositions: OccupiedSpace) => {
-  //   const { widgetId } = props;
-  //   const widget = allWidgets[widgetId];
-  //   if (!widget || !widget.parentId) return;
-  //   const parent = allWidgets[widget.parentId];
-  //   if (!parent) return;
-  //   const flexLayers = parent.flexLayers;
-  //   const layerIndex = getLayerIndexOfWidget(flexLayers, widgetId);
-  //   if (layerIndex === -1) return;
-  //   const layer = flexLayers[layerIndex];
-  //   const widgets = {
-  //     ...allWidgets,
-  //     [props.widgetId]: {
-  //       ...allWidgets[props.widgetId],
-  //       leftColumn: resizedPositions.left,
-  //       rightColumn: resizedPositions.right,
-  //       topRow: resizedPositions.top,
-  //       bottomRow: resizedPositions.bottom,
-  //     },
-  //   };
-  //   const fillWidgetsLength = getFillWidgetLengthForLayer(layer, widgets);
-  //   if (fillWidgetsLength) {
-  //     let correctedMovementMap: ReflowedSpaceMap = {};
-  //     for (const child of layer.children) {
-  //       const childWidget = allWidgets[child.id];
-  //       if (
-  //         childWidget &&
-  //         childWidget.responsiveBehavior === ResponsiveBehavior.Fill
-  //       ) {
-  //         correctedMovementMap = {
-  //           ...correctedMovementMap,
-  //           [child.id]: {
-  //             width: fillWidgetsLength * widget.parentColumnSpace,
-  //           },
-  //         };
-  //       }
-  //     }
-  //     dispatch(reflowMoveAction(correctedMovementMap));
-  //   }
-  // };
+  const triggerAutoLayoutBasedReflow = (resizedPositions: OccupiedSpace) => {
+    const { widgetId } = props;
+    const widget = allWidgets[widgetId];
+    if (!widget || !widget.parentId) return;
+    const parent = allWidgets[widget.parentId];
+    if (!parent) return;
+    const flexLayers = parent.flexLayers;
+    const layerIndex = getLayerIndexOfWidget(flexLayers, widgetId);
+    if (layerIndex === -1) return;
+    const layer = flexLayers[layerIndex];
+    const widgets = {
+      ...allWidgets,
+      [props.widgetId]: {
+        ...allWidgets[props.widgetId],
+        leftColumn: resizedPositions.left,
+        rightColumn: resizedPositions.right,
+        topRow: resizedPositions.top,
+        bottomRow: resizedPositions.bottom,
+      },
+    };
+    const fillWidgetsLength = getFillWidgetLengthForLayer(layer, widgets);
+    if (fillWidgetsLength) {
+      let correctedMovementMap: ReflowedSpaceMap = {};
+      for (const child of layer.children) {
+        const childWidget = allWidgets[child.id];
+        if (
+          childWidget &&
+          childWidget.responsiveBehavior === ResponsiveBehavior.Fill
+        ) {
+          correctedMovementMap = {
+            ...correctedMovementMap,
+            [child.id]: {
+              width: fillWidgetsLength * widget.parentColumnSpace,
+            },
+          };
+        }
+      }
+      dispatch(reflowMoveAction(correctedMovementMap));
+    }
+  };
 
   const setNewDimensions = (rect: DimensionProps) => {
     const { direction, height, width, x, y } = rect;
@@ -411,9 +405,9 @@ export function ReflowResizable(props: ResizableProps) {
         if (bottomMostRow) {
           props.updateBottomRow(bottomMostRow);
         }
-        // if (isAutoLayout && resizedPositions) {
-        //   triggerAutoLayoutBasedReflow(resizedPositions);
-        // }
+        if (isAutoLayout && resizedPositions) {
+          triggerAutoLayoutBasedReflow(resizedPositions);
+        }
 
         return newRect;
       });
@@ -653,6 +647,7 @@ export function ReflowResizable(props: ResizableProps) {
         allowResize={
           props.allowResize &&
           !(
+            isAutoLayout &&
             props.responsiveBehavior === ResponsiveBehavior.Fill &&
             handle?.affectsWidth
           )
@@ -673,9 +668,8 @@ export function ReflowResizable(props: ResizableProps) {
       />
     );
   });
-  // TODO: Uncomment this code after first release.
-  // const bufferForBoundary = props.showResizeBoundary ? RESIZE_BORDER_BUFFER : 0;
-  const bufferForBoundary = 0;
+
+  const bufferForBoundary = props.showResizeBoundary ? RESIZE_BORDER_BUFFER : 0;
   const widgetWidth =
     (reflowedPosition?.width === undefined
       ? newDimensions.width
@@ -730,9 +724,9 @@ export function ReflowResizable(props: ResizableProps) {
           $prevents={pointerEvents}
           className={props.className}
           id={`resize-${props.widgetId}`}
-          // isHovered={props.isHovered}
+          isHovered={props.isHovered}
           ref={resizableRef}
-          // showBoundaries={props.showResizeBoundary}
+          showBoundaries={props.showResizeBoundary}
           style={_props}
         >
           {props.children}
