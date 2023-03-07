@@ -26,7 +26,7 @@ export const CONFIG = {
     isVisible: true,
     isDisabled: false,
     tooltipAlwaysOn: false,
-    rows: 8,
+    rows: 7,
     columns: 40,
     widgetName: "NumberSlider",
     shouldScroll: false,

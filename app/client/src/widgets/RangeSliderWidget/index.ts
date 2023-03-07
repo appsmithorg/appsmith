@@ -32,7 +32,7 @@ export const CONFIG = {
     labelAlignment: Alignment.LEFT,
     labelWidth: 8,
     labelTextSize: "0.875rem",
-    rows: 8,
+    rows: 7,
     columns: 40,
     widgetName: "RangeSlider",
     shouldScroll: false,

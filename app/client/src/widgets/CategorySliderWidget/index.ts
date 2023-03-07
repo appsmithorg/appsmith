@@ -24,7 +24,7 @@ export const CONFIG = {
     isVisible: true,
     isDisabled: false,
     showMarksLabel: true,
-    rows: 8,
+    rows: 7,
     columns: 40,
     widgetName: "CategorySlider",
     shouldScroll: false,
