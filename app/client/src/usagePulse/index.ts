@@ -8,6 +8,7 @@ import history from "utils/history";
 const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
 const PULSE_INTERVAL = 300; /* 5 minutes in seconds */
 const USER_ACTIVITY_LISTENER_EVENTS = ["pointerdown", "keydown"];
+export const FALLBACK_KEY = "APPSMITH_ANONYMOUS_USER_ID";
 class UsagePulse {
   static userAnonymousId: string | undefined;
   static Timer: ReturnType<typeof setTimeout>;

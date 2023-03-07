@@ -67,7 +67,7 @@ import {
 } from "actions/analyticsActions";
 import { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import FeatureFlags from "entities/FeatureFlags";
-import UsagePulse from "usagePulse";
+import UsagePulse, { FALLBACK_KEY } from "usagePulse";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -147,6 +147,18 @@ export function* initiateUsageTracking(payload: {
     } else {
       yield initializeSegmentWithoutTracking();
       UsagePulse.userAnonymousId = AnalyticsUtil.getAnonymousId();
+
+      if (!UsagePulse.userAnonymousId) {
+        let fallback = localStorage.getItem(FALLBACK_KEY);
+
+        if (!fallback) {
+          fallback = (crypto as any).randomUUID() as string;
+          localStorage.setItem(FALLBACK_KEY, fallback);
+        }
+
+        UsagePulse.userAnonymousId = fallback;
+      }
+
       AnalyticsUtil.removeAnalytics();
     }
   }
