@@ -34,7 +34,9 @@ const VerticalResizeIndicators = css<{
     background: ${Colors.GREY_1};
     top: calc(50% - 8px);
     left: calc(50% - 2.5px);
-    border: #f86a2b;
+    border: ${(props) => {
+      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
+    }};
     outline: 1px solid ${Colors.GREY_1};
   }
   &:hover::after {
@@ -52,7 +54,9 @@ const HorizontalResizeIndicators = css<{
     width: 16px;
     height: 7px;
     border-radius: 16%/50%;
-    border: 1px solid #f86a2b;
+    border: ${(props) => {
+      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
+    }};
     background: ${Colors.GREY_1};
     top: calc(50% - 2.5px);
     left: calc(50% - 8px);
