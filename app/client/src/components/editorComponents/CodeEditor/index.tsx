@@ -395,13 +395,15 @@ class CodeEditor extends Component<Props, State> {
 
         CodeEditor.updateMarkings(
           editor,
-          this.props.marking,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
 
         this.hinters = CodeEditor.startAutocomplete(
           editor,
-          this.props.hinting,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.hinting!, // ! since defaultProps are set
           this.props.dynamicData,
         );
 
@@ -512,7 +514,8 @@ class CodeEditor extends Component<Props, State> {
 
       CodeEditor.updateMarkings(
         this.editor,
-        this.props.marking,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.props.marking!, // ! since defaultProps are set
         this.props.entitiesForNavigation,
       );
     });
@@ -967,7 +970,8 @@ class CodeEditor extends Component<Props, State> {
     if (this.editor) {
       CodeEditor.updateMarkings(
         this.editor,
-        this.props.marking,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.props.marking!, // ! since defaultProps are set
         this.props.entitiesForNavigation,
       );
     }

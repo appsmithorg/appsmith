@@ -36,8 +36,8 @@ export type EditorConfig = {
   mode: EditorModes;
   tabBehaviour: TabBehaviour;
   size: EditorSize;
-  hinting: Array<HintHelper>;
-  marking: Array<MarkHelper>;
+  hinting?: Array<HintHelper>;
+  marking?: Array<MarkHelper>;
   folding?: boolean;
 };
 

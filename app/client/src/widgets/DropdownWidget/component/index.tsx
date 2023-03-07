@@ -11,7 +11,7 @@ import {
 import { DropdownOption } from "../constants";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
-import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
+import "@blueprintjs/select/lib/css/blueprint-select.css";
 import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
