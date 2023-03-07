@@ -21,6 +21,7 @@ import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
 import { klona } from "klona/full";
 import JSVariableUpdates from "./JSVariableUpdates";
+import { getOriginalValueFromProxy, removeProxyObject } from "./removeProxy";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -306,23 +307,6 @@ export function updateJSCollectionStateFromContext() {
   }
   JSObjectCollection.setVariableState(newVarState);
   JSVariableUpdates.enableTracking();
-}
-
-export function removeProxyObject(objOrArr: any) {
-  const newObjOrArr: any = getOriginalValueFromProxy(objOrArr);
-  if (typeof objOrArr === "object") {
-    for (const key in objOrArr) {
-      newObjOrArr[key] = removeProxyObject(objOrArr[key]);
-    }
-  }
-  return newObjOrArr;
-}
-
-export function getOriginalValueFromProxy(obj: Record<string, unknown>) {
-  if (obj && obj.$isProxy) {
-    return obj.$targetValue;
-  }
-  return obj;
 }
 
 export function updateEvalTreeWithJSCollectionState(

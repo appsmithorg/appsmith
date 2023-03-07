@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
-import { removeProxyObject } from "workers/Evaluation/JSObject";
+import { removeProxyObject } from "workers/Evaluation/JSObject/removeProxy";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;

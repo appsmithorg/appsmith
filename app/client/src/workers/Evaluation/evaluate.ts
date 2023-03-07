@@ -14,7 +14,7 @@ import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import JSVariableUpdates from "./JSObject/JSVariableUpdates";
-import { removeProxyObject } from "./JSObject";
+import { removeProxyObject } from "./JSObject/removeProxy";
 
 export type EvalResult = {
   result: any;
