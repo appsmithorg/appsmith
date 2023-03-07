@@ -7,7 +7,7 @@ export class ApiPage {
   public locator = ObjectsRegistry.CommonLocators;
 
   private _createapi = ".t--createBlankApiCard";
-  private _resourceUrl = ".t--dataSourceField";
+  _resourceUrl = ".t--dataSourceField";
   private _headerKey = (index: number) =>
     ".t--actionConfiguration\\.headers\\[0\\]\\.key\\." + index + "";
   private _headerValue = (index: number) =>
@@ -26,7 +26,7 @@ export class ApiPage {
     ".t--actionConfiguration\\.bodyFormData\\[0\\]\\.value\\." + index + "";
   _bodyTypeDropdown =
     "//span[text()='Type'][@class='bp3-button-text']/parent::button";
-  private _apiRunBtn = ".t--apiFormRunBtn";
+  _apiRunBtn = ".t--apiFormRunBtn";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _responseBody = ".CodeMirror-code  span.cm-string.cm-property";
@@ -370,7 +370,7 @@ export class ApiPage {
 
   ResponseStatusCheck(statusCode: string) {
     this.agHelper.AssertElementVisible(this._responseStatus);
-    this.agHelper.GetNAssertContains(this._responseStatus, statusCode)
+    this.agHelper.GetNAssertContains(this._responseStatus, statusCode);
   }
   public SelectPaginationTypeViaIndex(index: number) {
     cy.get(this._paginationTypeLabels)

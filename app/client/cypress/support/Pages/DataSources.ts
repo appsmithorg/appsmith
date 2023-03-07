@@ -12,6 +12,7 @@ export class DataSources {
   private table = ObjectsRegistry.Table;
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
+  private apiPage = ObjectsRegistry.ApiPage;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources";
@@ -123,17 +124,22 @@ export class DataSources {
   public _urlInputControl = "input[name='url']";
 
   // Authenticated API locators
+  private _authApiDatasource = ".t--createAuthApiDatasource";
   private _authType = "[data-cy=authType]";
   private _oauth2 = ".t--dropdown-option:contains('OAuth 2.0')";
   private _accessTokenUrl = "[data-cy='authentication.accessTokenUrl'] input";
+  private _scope = "[data-cy='authentication.scopeString'] input";
   private _clientID = "[data-cy='authentication.clientId'] input";
   private _clientSecret = "[data-cy='authentication.clientSecret'] input";
+  private _clientCredentails =
+    ".t--dropdown-option:contains('Client Credentials')";
   private _authorizationCode =
     ".t--dropdown-option:contains('Authorization Code')";
   private _grantType = "[data-cy='authentication.grantType']";
   private _authorizationURL =
     "[data-cy='authentication.authorizationUrl'] input";
-
+  private _consent = '[name="confirm"]';
+  private _consentSubmit = "//button[text()='Submit']";
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _deleteDatasourceButton = ".t--delete-datasource";
@@ -481,7 +487,7 @@ export class DataSources {
   }
 
   public NavigateToActiveTab() {
-   this.agHelper.GetElement(this.locator._body).then(($body) => {
+    this.agHelper.GetElement(this.locator._body).then(($body) => {
       if ($body.find(this._selectedActiveTab).length == 0) {
         this.NavigateToDSCreateNew();
         this.agHelper.GetNClick(this._activeTab, 0, true);
@@ -899,5 +905,89 @@ export class DataSources {
       this.locator._inputFieldByName("Connection String URI") + "//input",
       uri,
     );
+  }
+
+  public CreateOAuthDatasource(
+    datasourceName: string,
+    grantType: "ClientCredentials" | "AuthCode",
+  ) {
+    this.NavigateToDSCreateNew();
+    //Click on Authenticated API
+    cy.get(this._authApiDatasource).click({ force: true });
+    this.FillAPIOAuthForm(datasourceName, grantType);
+
+    // save datasource
+    cy.wait(500);
+    this.agHelper.GetNClick(this._saveAndAuthorizeDS);
+
+    //Accept consent
+    this.agHelper.GetNClick(this._consent);
+    this.agHelper.GetNClick(this._consentSubmit);
+
+    //Validate save
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+  }
+
+  public FillAPIOAuthForm(
+    dsName: string,
+    grantType: "ClientCredentials" | "AuthCode",
+  ) {
+    if (dsName) {
+      // Change the Datasource name
+      cy.get(".t--edit-datasource-name").click();
+      cy.get(".t--edit-datasource-name input")
+        .clear()
+        .type(dsName, { force: true })
+        .should("have.value", dsName)
+        .blur();
+    }
+    // Fill Auth Form
+    this.agHelper.TypeText(
+      this._urlInputControl,
+      datasourceFormData["OAuth_ApiUrl"],
+    );
+    this.agHelper.GetNClick(this._authType);
+    this.agHelper.GetNClick(this._oauth2);
+    this.agHelper.GetNClick(this._grantType);
+    if (grantType == "ClientCredentials")
+      this.agHelper.GetNClick(this._clientCredentails);
+    else if (grantType == "AuthCode")
+      this.agHelper.GetNClick(this._authorizationCode);
+    this.agHelper.TypeText(
+      this._accessTokenUrl,
+      datasourceFormData["OAUth_AccessTokenUrl"],
+    );
+    this.agHelper.TypeText(this._scope, "profile");
+    this.agHelper.TypeText(
+      this._authorizationURL,
+      datasourceFormData["OAuth_AuthUrl"],
+    );
+    this.agHelper.TypeText(
+      this._clientID,
+      datasourceFormData["OAuth-ClientId"],
+    );
+    this.agHelper.TypeText(
+      this._clientSecret,
+      datasourceFormData["OAuth-ClientSecret"],
+    );
+  }
+
+  public CreateAndFillApiAfterDSSaved(
+    url: string,
+    apiName = "",
+    apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
+    queryTimeout = 10000,
+  ) {
+    // Create API
+    this.agHelper.GetNClick(this._createQuery);
+    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+    if (apiName) this.agHelper.RenameWithInPane(apiName);
+
+    // Fill API details
+    cy.get(this.apiPage._resourceUrl).should("be.visible");
+    if (apiVerb != "GET") this.apiPage.SelectAPIVerb(apiVerb);
+    this.agHelper.GetNClick(this.apiPage._resourceUrl);
+    cy.get(this.apiPage._resourceUrl).type(url);
+    this.agHelper.AssertAutoSave();
   }
 }
