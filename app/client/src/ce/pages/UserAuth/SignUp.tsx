@@ -48,7 +48,6 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
-import useHistoryBlock from "utils/hooks/useHistoryBlock";
 
 declare global {
   interface Window {
@@ -79,7 +78,6 @@ type SignUpFormProps = InjectedFormProps<
   RouteComponentProps<{ email: string }> & { emailValue: string };
 
 export function SignUp(props: SignUpFormProps) {
-  useHistoryBlock((newLocation) => newLocation.pathname === AUTH_LOGIN_URL);
   const history = useHistory();
   useEffect(() => {
     if (disableLoginForm) {
