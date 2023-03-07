@@ -116,7 +116,7 @@ const ActionCreator = React.forwardRef(
           return newActions;
         });
       },
-      [actions],
+      [],
     );
 
     // We need a unique id for each action when it's mapped
