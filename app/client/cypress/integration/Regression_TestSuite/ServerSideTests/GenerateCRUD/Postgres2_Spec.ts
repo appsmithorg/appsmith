@@ -658,7 +658,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 1, 4000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1,"v1", 4000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
     table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {

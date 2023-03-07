@@ -86,7 +86,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       .GetText(_.locators._textWidgetInDeployed)
       .then(($date) => expect($date).to.eq("Date: Invalid date"));
 
-    _.table.NavigateToNextPage("v1", false);
+    _.table.NavigateToNextPage(false, "v1");
     _.table.WaitUntilTableLoad();
     _.table.SelectTableRow(1); //Asserting here _.table is available for selection
     _.table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {

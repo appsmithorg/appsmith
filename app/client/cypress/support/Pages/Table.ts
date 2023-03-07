@@ -210,10 +210,7 @@ export class Table {
       .should("not.be.empty");
   }
 
-  public AssertHiddenColumns(
-    columnNames: string[],
-    tableVersion: "v1" | "v2" = "v1",
-  ) {
+  public AssertHiddenColumns(columnNames: string[]) {
     columnNames.forEach(($header) => {
       cy.xpath(this._columnHeader($header))
         .invoke("attr", "class")
@@ -224,8 +221,8 @@ export class Table {
   }
 
   public NavigateToNextPage(
-    tableVersion: "v1" | "v2" = "v1",
     isServerPagination = true,
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     let curPageNo: number;
     if (tableVersion == "v1") {
@@ -258,8 +255,8 @@ export class Table {
   }
 
   public NavigateToPreviousPage(
-    tableVersion: "v1" | "v2" = "v1",
     isServerPagination = true,
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     let curPageNo: number;
     if (tableVersion == "v1") {
@@ -295,47 +292,25 @@ export class Table {
     pageNo: number,
     serverSide: "Off" | "On" | "" = "On",
     tableVersion: "v1" | "v2" = "v1",
-    checkNoNextPage?: number,
   ) {
-    if (tableVersion == "v1") {
-      if (serverSide == "On")
-        cy.get(this._pageNumberServerSidePagination).should(
-          "have.text",
-          Number(pageNo),
-        );
-      else {
-        cy.get(this._pageNumberClientSidePagination).should(
-          "have.value",
-          Number(pageNo),
-        );
-        cy.get(this._previousPage(tableVersion)).should(
-          "have.attr",
-          "disabled",
-        );
-        cy.get(this._nextPage(tableVersion)).should("have.attr", "disabled");
-      }
-      if (pageNo == 1)
-        cy.get(this._previousPage(tableVersion)).should(
-          "have.attr",
-          "disabled",
-        );
-    } else if (tableVersion == "v2") {
-      cy.xpath(this._liCurrentSelectedPage)
-        .invoke("text")
-        .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
+    const serverSideOn =
+      tableVersion == "v1"
+        ? this._pageNumberServerSidePagination
+        : this._pageNumber;
+    const serverSideOff =
+      tableVersion == "v1"
+        ? this._pageNumberClientSidePagination
+        : this._pageNumberServerSideOff;
 
-      if (pageNo == 1)
-        cy.get(this._liPreviousPage).should(
-          "have.attr",
-          "aria-disabled",
-          "true",
-        );
-
-      if (checkNoNextPage)
-        cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
-      else
-        cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+    if (serverSide == "On")
+      cy.get(serverSideOn).should("have.text", Number(pageNo));
+    else {
+      cy.get(serverSideOff).should("have.value", Number(pageNo));
+      cy.get(this._previousPage(tableVersion)).should("have.attr", "disabled");
+      cy.get(this._nextPage(tableVersion)).should("have.attr", "disabled");
     }
+    if (pageNo == 1)
+      cy.get(this._previousPage(tableVersion)).should("have.attr", "disabled");
   }
 
   public AssertSelectedRow(rowNum: number = 0) {
@@ -475,19 +450,15 @@ export class Table {
     newDataType: columnTypeValues,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    if (tableVersion == "v1") {
-      this.agHelper.GetNClick(this._columnSettings(columnName));
-      this.agHelper.SelectDropdownList("Column Type", newDataType);
-      this.agHelper.ValidateNetworkStatus("@updateLayout");
-    } else if (tableVersion == "v2") {
-      cy.get(this._tableWidgetVersion(tableVersion))
-        .click()
-        .then(() => {
-          cy.get(this._columnSettingsV2(columnName)).click();
-          this.agHelper.SelectDropdownList("Column Type", newDataType);
-          this.propPane.NavigateBackToPropertyPane();
-        });
-    }
+    const colSettings =
+      tableVersion == "v1"
+        ? this._columnSettings(columnName)
+        : this._columnSettingsV2(columnName);
+
+    this.agHelper.GetNClick(colSettings);
+    this.agHelper.SelectDropdownList("Column Type", newDataType);
+    this.agHelper.ValidateNetworkStatus("@updateLayout");
+    if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
   }
 
   public AssertURLColumnNavigation(
@@ -506,6 +477,43 @@ export class Table {
         cy.go(-1);
         this.WaitUntilTableLoad(0, 0, tableVersion);
       });
+  }
+
+  public AddColumn(colId: string) {
+    cy.get(this._addColumn).scrollIntoView();
+    cy.get(this._addColumn)
+      .should("be.visible")
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(3000);
+    cy.get(this._defaultColName).clear({
+      force: true,
+    });
+    cy.get(this._defaultColName).type(colId, { force: true });
+  }
+
+  public EditColumn(colId: string, shouldReturnToMainPane = true) {
+    if (shouldReturnToMainPane) {
+      this.propPane.NavigateBackToPropertyPane();
+    }
+    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click(
+      {
+        force: true,
+      },
+    );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1500);
+  }
+
+  public DeleteColumn(colId: string) {
+    this.propPane.NavigateBackToPropertyPane();
+    cy.get(
+      "[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn",
+    ).click({
+      force: true,
+    });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   }
 
   //List methods - keeping it for now!
@@ -544,42 +552,5 @@ export class Table {
     if (checkNoNextPage)
       cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
     else cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
-  }
-
-  public AddColumn(colId: string) {
-    cy.get(this._addColumn).scrollIntoView();
-    cy.get(this._addColumn)
-      .should("be.visible")
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
-    cy.get(this._defaultColName).clear({
-      force: true,
-    });
-    cy.get(this._defaultColName).type(colId, { force: true });
-  }
-
-  public EditColumn(colId: string, shouldReturnToMainPane = true) {
-    if (shouldReturnToMainPane) {
-      this.propPane.NavigateBackToPropertyPane();
-    }
-    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click(
-      {
-        force: true,
-      },
-    );
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1500);
-  }
-
-  public DeleteColumn(colId: string) {
-    this.propPane.NavigateBackToPropertyPane();
-    cy.get(
-      "[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn",
-    ).click({
-      force: true,
-    });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
   }
 }
