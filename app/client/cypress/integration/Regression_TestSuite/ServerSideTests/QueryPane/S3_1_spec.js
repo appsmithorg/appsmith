@@ -98,7 +98,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.eq(
+      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.eq(
         "Unable to parse content. Expected to receive an object with `data` and `type`.",
       );
     });
@@ -107,7 +107,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.eq(
+      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.eq(
         "Unable to parse content. Expected to receive an object with `data` and `type`.",
       );
     });
@@ -120,7 +120,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.contains(
+      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.contains(
         "File content is not base64 encoded.",
       );
     });
@@ -253,7 +253,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.contain(
+      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.contain(
         "Your S3 query failed to execute. To know more please check the error details.",
       );
     });
@@ -263,7 +263,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.contain(
+      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.contain(
         "Your S3 query failed to execute. To know more please check the error details.",
       );
     });
