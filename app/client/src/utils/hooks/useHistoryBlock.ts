@@ -8,10 +8,13 @@ const useHistoryBlock = (
   useEffect(() => {
     const unblock = history.block((tx) => {
       if (exception && exception(tx)) {
+        // proceeds with navigation
         return;
       }
+      // prevents navigation
       return false;
     });
+    // unblocks history on component unmount
     return unblock;
   }, []);
 };
