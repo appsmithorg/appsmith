@@ -50,7 +50,7 @@ describe("Guided Tour", function() {
         cy.wait(1000);
         cy.get(guidedTourLocators.inputfields)
           .first()
-          .clear()
+          .clear({ force: true })
           .click({ force: true }); //Name input
         cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
       }
@@ -59,7 +59,7 @@ describe("Guided Tour", function() {
     // Step 5: Add binding to the rest of the widgets in the container
     cy.get(guidedTourLocators.inputfields)
       .eq(1)
-      .clear()
+      .clear({ force: true })
       .click({ force: true }); //Email input
     cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.email}}");
     cy.get(".t--entity-name")
@@ -68,7 +68,7 @@ describe("Guided Tour", function() {
     cy.wait(1000);
     cy.get(guidedTourLocators.inputfields)
       .eq(2)
-      .clear()
+      .clear({ force: true })
       .click({ force: true }); //Country input
     cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.country}}");
     cy.get(".t--entity-name")
