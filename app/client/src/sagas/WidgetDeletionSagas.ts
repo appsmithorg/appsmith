@@ -38,6 +38,8 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
+import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -90,7 +92,16 @@ function* deleteTabChildSaga(
           tabsObj: updatedObj,
         },
       };
-      yield put(updateAndSaveLayout(parentUpdatedWidgets));
+      // Update flex layers of a canvas upon deletion of a widget.
+      const isMobile: boolean = yield select(getIsMobile);
+      const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = yield call(
+        updateFlexLayersOnDelete,
+        parentUpdatedWidgets,
+        widgetId,
+        tabWidget.parentId,
+        isMobile,
+      );
+      yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
     }
   }
@@ -184,6 +195,7 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
 function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { parentId, widgetId } = deleteAction.payload;
+
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
     if (!widgetId) {
@@ -202,14 +214,24 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (widgetId && parentId) {
       const stateWidget: WidgetProps = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
+
       const updatedObj: UpdatedDSLPostDelete = yield call(
         getUpdatedDslAfterDeletingWidget,
         widgetId,
         parentId,
       );
+
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
-        yield put(updateAndSaveLayout(finalWidgets));
+        const isMobile: boolean = yield select(getIsMobile);
+        // Update flex layers of a canvas upon deletion of a widget.
+        const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = updateFlexLayersOnDelete(
+          finalWidgets,
+          widgetId,
+          parentId,
+          isMobile,
+        );
+        yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
@@ -276,8 +298,42 @@ function* deleteAllSelectedWidgetsSaga(
       parentUpdatedWidgets,
       flattenedWidgets.map((widgets: any) => widgets.widgetId),
     );
+    // assuming only widgets with same parent can be selected
+    const parentId = widgets[selectedWidgets[0]].parentId;
+    let widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = finalWidgets;
+    if (parentId) {
+      const isMobile: boolean = yield select(getIsMobile);
+      for (const widgetId of selectedWidgets) {
+        widgetsAfterUpdatingFlexLayers = yield call(
+          updateFlexLayersOnDelete,
+          widgetsAfterUpdatingFlexLayers,
+          widgetId,
+          parentId,
+          isMobile,
+        );
+      }
+    }
+    //Main canvas's minheight keeps varying, hence retrieving updated value
+    // let mainCanvasMinHeight;
+    // if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+    //   const mainCanvasProps: MainCanvasReduxState = yield select(
+    //     getMainCanvasProps,
+    //   );
+    //   mainCanvasMinHeight = mainCanvasProps?.height;
+    // }
 
-    yield put(updateAndSaveLayout(finalWidgets));
+    // if (parentId && widgetsAfterUpdatingFlexLayers[parentId]) {
+    //   widgetsAfterUpdatingFlexLayers[
+    //     parentId
+    //   ].bottomRow = resizePublishedMainCanvasToLowestWidget(
+    //     widgetsAfterUpdatingFlexLayers,
+    //     parentId,
+    //     finalWidgets[parentId].bottomRow,
+    //     mainCanvasMinHeight,
+    //   );
+    // }
+
+    yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));

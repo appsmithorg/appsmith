@@ -835,7 +835,9 @@ class ListWidget extends BaseWidget<
           child.parentColumnSpace = parentColumnSpace;
           child.rightColumn = componentWidth;
           child.canExtend = true;
+          child.positioning = this.props.positioning;
           child.children = child.children?.map((container, viewIndex) => {
+            container.positioning = this.props.positioning;
             const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;

@@ -1,18 +1,18 @@
 import classNames from "classnames";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useMemo, useCallback } from "react";
 
-import {
-  getCurrentApplicationId,
-  getCurrentApplicationLayout,
-} from "selectors/editorSelectors";
+import { updateApplicationLayout } from "actions/applicationActions";
 import { Colors } from "constants/Colors";
+import { Icon, IconName, IconSize, TooltipComponent } from "design-system-old";
 import {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
-import { TooltipComponent, Icon, IconName, IconSize } from "design-system-old";
-import { updateApplicationLayout } from "actions/applicationActions";
+import {
+  getCurrentApplicationId,
+  getCurrentApplicationLayout,
+} from "selectors/editorSelectors";
 
 interface AppsmithLayoutConfigOption {
   name: string;
