@@ -38,7 +38,6 @@ import {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
-import { convertArrayToString } from "./helper";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -266,7 +265,7 @@ class ListWidget extends BaseWidget<
 
     // Should come after setting up MetaWidgets for that page.
     if (this.pageChangeEventTriggerFromSelectedKey) {
-      this.updateSelectedItemFromDefaultSelectedKey();
+      this.updateSelectedItemFromDefaultSelectedItem();
       this.pageChangeEventTriggerFromSelectedKey = false;
     }
 
@@ -305,7 +304,6 @@ class ListWidget extends BaseWidget<
       mainCanvasId = "",
       mainContainerId = "",
       pageNo,
-      primaryKeys,
       serverSidePagination = false,
     } = this.props;
     const pageSize = this.pageSize;
@@ -321,7 +319,7 @@ class ListWidget extends BaseWidget<
       levelData: this.props.levelData,
       nestedViewIndex: this.props.nestedViewIndex,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
-      primaryKeys: convertArrayToString(primaryKeys),
+      primaryKeys: this.getPrimaryKeys(),
       scrollElement: this.componentRef.current,
       templateBottomRow: this.getTemplateBottomRow(),
       widgetName: this.props.widgetName,
@@ -332,6 +330,14 @@ class ListWidget extends BaseWidget<
         afterMetaWidgetGenerate: this.afterMetaWidgetGenerate,
       },
     };
+  };
+
+  getPrimaryKeys = () => {
+    const { primaryKeys } = this.props;
+
+    if (!primaryKeys) return [];
+
+    return primaryKeys.map((key) => String(key));
   };
 
   generateMetaWidgets = () => {
@@ -547,17 +553,17 @@ class ListWidget extends BaseWidget<
 
     if (rowIndex === -1) return;
 
-    const pageNo = this.calculatePageNumber(rowIndex);
+    const pageNo = this.calculatePageNumberFromRowIndex(rowIndex);
 
     if (this.props.pageNo === pageNo) {
-      this.updateSelectedItemFromDefaultSelectedKey();
+      this.updateSelectedItemFromDefaultSelectedItem();
     } else {
       this.pageChangeEventTriggerFromSelectedKey = true;
       this.onPageChange(pageNo);
     }
   };
 
-  updateSelectedItemFromDefaultSelectedKey = () => {
+  updateSelectedItemFromDefaultSelectedItem = () => {
     if (this.props.serverSidePagination) return;
 
     const rowIndex = this.getRowIndexOfSelectedItem();
@@ -576,12 +582,10 @@ class ListWidget extends BaseWidget<
 
     if (!primaryKeys || isNil(defaultSelectedItem)) return -1;
 
-    return convertArrayToString(primaryKeys).indexOf(
-      defaultSelectedItem.toString(),
-    );
+    return this.getPrimaryKeys().indexOf(defaultSelectedItem.toString());
   };
 
-  calculatePageNumber = (index: number) => {
+  calculatePageNumberFromRowIndex = (index: number) => {
     return Math.ceil((index + 1) / this.props.pageSize);
   };
 

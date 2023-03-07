@@ -77,9 +77,3 @@ export const getNumberOfChildListWidget = (
 
   return numOfChildListWidget;
 };
-
-export const convertArrayToString = (arr?: (string | number | null)[]) => {
-  if (!arr) return [];
-
-  return arr.map((key) => String(key));
-};
