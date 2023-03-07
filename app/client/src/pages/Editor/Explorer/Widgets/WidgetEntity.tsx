@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
@@ -16,6 +16,8 @@ import { useLocation } from "react-router";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { NavigationMethod } from "utils/history";
+import { setExplorerActiveAction } from "../../../../actions/explorerActions";
+import { ReduxActionTypes } from "../../../../ce/constants/ReduxActionConstants";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -90,6 +92,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     multipleWidgetsSelected,
     navigateToWidget,
   } = useWidget(props.widgetId, props.widgetType, props.pageId);
+  const dispatch = useDispatch();
 
   const { parentModalId, widgetId, widgetType } = props;
   /**
@@ -113,6 +116,11 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
         name: props.widgetName,
       });
       navigateToWidget(e);
+      dispatch(setExplorerActiveAction(false));
+      dispatch({
+        type: ReduxActionTypes.SIDE_NAV_MODE,
+        payload: undefined,
+      });
     },
     [location.pathname, props.pageId, widgetId, props.widgetName],
   );
