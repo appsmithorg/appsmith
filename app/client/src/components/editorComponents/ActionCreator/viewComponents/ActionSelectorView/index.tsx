@@ -17,12 +17,14 @@ function filterChildren(
   searchText: string,
 ): TreeDropdownOption[] {
   return options.filter((option) => {
+    const doesMatch = [option.label, option.value].some((val) =>
+      val.toLowerCase().includes(searchText.toLowerCase()),
+    );
+    if (doesMatch) return true;
     if (option.children) {
       return filterChildren(option.children, searchText).length > 0;
     }
-    return [option.label, option.value].some((val) =>
-      val.toLowerCase().includes(searchText.toLowerCase()),
-    );
+    return false;
   });
 }
 
