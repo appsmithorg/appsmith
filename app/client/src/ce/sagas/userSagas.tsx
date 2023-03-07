@@ -471,7 +471,7 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
       const currentUser: User | undefined = yield select(getCurrentUser);
       yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
       localStorage.clear();
-      yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL, true));
+      yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
     }
   } catch (error) {
     log.error(error);

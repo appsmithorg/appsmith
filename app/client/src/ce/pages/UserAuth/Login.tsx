@@ -52,6 +52,7 @@ import PerformanceTracker, {
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Container from "pages/UserAuth/Container";
+import useHistoryBlock from "utils/hooks/useHistoryBlock";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
@@ -87,6 +88,11 @@ type ValidateProps = {
 >;
 
 export function Login(props: LoginFormProps) {
+  useHistoryBlock(
+    (newLocation) =>
+      newLocation.pathname === SIGN_UP_URL ||
+      newLocation.pathname === FORGOT_PASSWORD_URL,
+  );
   const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();

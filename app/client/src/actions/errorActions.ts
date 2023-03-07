@@ -6,12 +6,11 @@ export const flushErrors = () => {
   };
 };
 
-export const flushErrorsAndRedirect = (url: string, inNewTab = false) => {
+export const flushErrorsAndRedirect = (url: string) => {
   return {
     type: ReduxActionTypes.FLUSH_AND_REDIRECT,
     payload: {
       url,
-      inNewTab,
     },
   };
 };
