@@ -87,8 +87,11 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       if (selectedWidgetIds.length > 0) {
         setRightPaneTabIndex(1);
       }
+      if (isAppSettingsPaneOpen) {
+        setRightPaneTabIndex(1);
+      }
     }
-  });
+  }, [selectedWidgetIds, isMultiPane, isAppSettingsPaneOpen]);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget id,
@@ -192,7 +195,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
               : "100%",
           }}
         >
-          {isMultiPane ? (
+          {isMultiPane && !isAppSettingsPaneOpen ? (
             <Wrapper>
               <TabHeader className="tab-header">
                 <div

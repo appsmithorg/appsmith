@@ -22,6 +22,8 @@ import {
 import useWindowDimensions from "../../utils/hooks/useWindowDimensions";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { Installer } from "./Explorer/Libraries/Installer";
+import { getExplorerActive } from "../../selectors/explorerSelector";
+import { getPropertyPaneWidth } from "../../selectors/propertyPaneSelectors";
 
 const Container = styled.div`
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
@@ -50,6 +52,8 @@ const MultiPaneContainer = () => {
   const dispatch = useDispatch();
   const isPreviewMode = useSelector(previewModeSelector);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
+  const isExplorerActive = useSelector(getExplorerActive);
+  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   const [windowWidth] = useWindowDimensions();
 
   useEffect(() => {
@@ -86,12 +90,12 @@ const MultiPaneContainer = () => {
         <EntityExplorerSidebar
           setSideNavMode={setSideNavMode}
           sideNavMode={sideNavMode}
-          width={250}
+          width={propertyPaneWidth}
         />
         <SideNav onSelect={setSideNavMode} sideNavMode={sideNavMode} />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
         <CanvasPane />
-        {showPropertyPane && (
+        {showPropertyPane && !isExplorerActive && (
           <PropertyPanePane>
             <PropertyPaneContainer />
           </PropertyPanePane>
@@ -104,7 +108,7 @@ const MultiPaneContainer = () => {
           "transition-all transform duration-400": true,
         })}
       />
-      <Installer left={250 + SIDE_NAV_WIDTH} />
+      <Installer left={propertyPaneWidth + SIDE_NAV_WIDTH} />
     </>
   );
 };

@@ -27,7 +27,6 @@ import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import Guide from "../GuidedTour/Guide";
 import CanvasContainer from "./CanvasContainer";
-import CanvasTopSection from "./EmptyCanvasSection";
 import PageTabs from "./PageTabs";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 
@@ -104,21 +103,18 @@ function WidgetsEditor() {
         <>
           {guidedTourEnabled && <Guide />}
           <div className="relative flex flex-row w-full overflow-hidden">
-            <div className="relative flex flex-col w-full overflow-hidden">
-              <CanvasTopSection />
-              <div
-                className="relative flex flex-row w-full overflow-hidden justify-center"
-                data-testid="widgets-editor"
-                draggable
-                id="widgets-editor"
-                onClick={handleWrapperClick}
-                onDragStart={onDragStart}
-              >
-                <PageTabs />
-                <CanvasContainer />
-                <CrudInfoModal />
-                <Debugger />
-              </div>
+            <div
+              className="relative flex flex-row w-full overflow-hidden justify-center"
+              data-testid="widgets-editor"
+              draggable
+              id="widgets-editor"
+              onClick={handleWrapperClick}
+              onDragStart={onDragStart}
+            >
+              <PageTabs />
+              <CanvasContainer />
+              <CrudInfoModal />
+              <Debugger />
             </div>
             {!isMultiPane && <PropertyPaneContainer />}
           </div>

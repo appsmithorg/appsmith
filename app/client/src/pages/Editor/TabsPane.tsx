@@ -9,6 +9,8 @@ import EditorsRouter from "pages/Editor/routes";
 import * as Sentry from "@sentry/react";
 import { Route } from "react-router";
 import { TABS_PANE_MIN_WIDTH } from "reducers/uiReducers/multiPaneReducer";
+import { getExplorerActive } from "../../selectors/explorerSelector";
+import { getPropertyPaneWidth } from "../../selectors/propertyPaneSelectors";
 
 const TabsContainer = styled.div`
   height: calc(
@@ -28,18 +30,21 @@ const TabsPane = (props: Props) => {
   const { onWidthChange, width } = props;
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isExplorerActive = useSelector(getExplorerActive);
+  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
 
   const resizer = useHorizontalResize(sidebarRef, onWidthChange);
 
   return (
     <TabsContainer
       className={classNames({
-        "transition-all transform duration-400 border-r border-gray-200 z-[3] bg-white": true,
+        "transition-all transform duration-200 border-r border-gray-200 z-[3] bg-white": true,
         "translate-x-0 opacity-0": isPreviewMode,
         "opacity-100": !isPreviewMode,
         [`w-[${width}px] min-w-[${TABS_PANE_MIN_WIDTH}px] translate-x-${width}`]: !isPreviewMode,
       })}
       ref={sidebarRef}
+      style={{ marginLeft: isExplorerActive ? `${propertyPaneWidth}px` : 0 }}
     >
       <div style={{ width: width }}>
         <SentryRoute component={EditorsRouter} />
