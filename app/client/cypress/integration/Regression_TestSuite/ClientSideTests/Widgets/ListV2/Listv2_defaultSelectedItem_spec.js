@@ -99,13 +99,6 @@ describe("List widget v2 defaultSelectedItem", () => {
         )
         .should("have.length", 3),
     );
-    // cy.get(commonlocators.listPaginateActivePage).should("have.text", "2");
-    // cy.get(`${widgetSelector("Text3")} ${commonlocators.bodyTextStyle}`).then(
-    //   (val) => {
-    //     const data = JSON.parse(val.text());
-    //     cy.wrap(data).should("deep.equal", items[4]);
-    //   },
-    // );
 
     //Change Default Selected Item
     cy.openPropertyPane("listwidgetv2");
