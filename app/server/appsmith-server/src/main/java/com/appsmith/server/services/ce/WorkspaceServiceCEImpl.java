@@ -19,7 +19,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.helpers.GeneratedNameUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -69,6 +68,7 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTI
 import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
 import static com.appsmith.server.helpers.PermissionUtils.collateAllPermissions;
+import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -248,11 +248,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     private String generateNewDefaultName(String oldName, String workspaceName) {
         if (oldName.startsWith(ADMINISTRATOR)) {
-            return GeneratedNameUtils.generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName);
+            return generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName);
         } else if (oldName.startsWith(DEVELOPER)) {
-            return GeneratedNameUtils.generateDefaultRoleNameForResource(DEVELOPER, workspaceName);
+            return generateDefaultRoleNameForResource(DEVELOPER, workspaceName);
         } else if (oldName.startsWith(VIEWER)) {
-            return GeneratedNameUtils.generateDefaultRoleNameForResource(VIEWER, workspaceName);
+            return generateDefaultRoleNameForResource(VIEWER, workspaceName);
         }
 
         // If this is not a default group aka does not start with the expected prefix, don't update it.
@@ -265,7 +265,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         String workspaceId = workspace.getId();
         // Administrator permission group
         PermissionGroup adminPermissionGroup = new PermissionGroup();
-        adminPermissionGroup.setName(GeneratedNameUtils.generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName));
+        adminPermissionGroup.setName(generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName));
         adminPermissionGroup.setDefaultDomainId(workspaceId);
         adminPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         adminPermissionGroup.setTenantId(workspace.getTenantId());
@@ -274,7 +274,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
         // Developer permission group
         PermissionGroup developerPermissionGroup = new PermissionGroup();
-        developerPermissionGroup.setName(GeneratedNameUtils.generateDefaultRoleNameForResource(DEVELOPER, workspaceName));
+        developerPermissionGroup.setName(generateDefaultRoleNameForResource(DEVELOPER, workspaceName));
         developerPermissionGroup.setDefaultDomainId(workspaceId);
         developerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         developerPermissionGroup.setTenantId(workspace.getTenantId());
@@ -283,7 +283,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
         // App viewer permission group
         PermissionGroup viewerPermissionGroup = new PermissionGroup();
-        viewerPermissionGroup.setName(GeneratedNameUtils.generateDefaultRoleNameForResource(VIEWER, workspaceName));
+        viewerPermissionGroup.setName(generateDefaultRoleNameForResource(VIEWER, workspaceName));
         viewerPermissionGroup.setDefaultDomainId(workspaceId);
         viewerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         viewerPermissionGroup.setTenantId(workspace.getTenantId());

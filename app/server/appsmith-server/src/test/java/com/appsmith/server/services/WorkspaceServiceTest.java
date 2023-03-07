@@ -19,7 +19,6 @@ import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.helpers.GeneratedNameUtils;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -73,6 +72,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATION
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -1591,11 +1591,11 @@ public class WorkspaceServiceTest {
                     for (PermissionGroup permissionGroup : permissionGroups) {
                         String name = permissionGroup.getName();
                         if (name.startsWith(ADMINISTRATOR)) {
-                            assertThat(name).isEqualTo(GeneratedNameUtils.generateDefaultRoleNameForResource(ADMINISTRATOR, newName));
+                            assertThat(name).isEqualTo(generateDefaultRoleNameForResource(ADMINISTRATOR, newName));
                         } else if (name.startsWith(DEVELOPER)) {
-                            assertThat(name).isEqualTo(GeneratedNameUtils.generateDefaultRoleNameForResource(DEVELOPER, newName));
+                            assertThat(name).isEqualTo(generateDefaultRoleNameForResource(DEVELOPER, newName));
                         } else if (name.startsWith(VIEWER)) {
-                            assertThat(name).isEqualTo(GeneratedNameUtils.generateDefaultRoleNameForResource(VIEWER, newName));
+                            assertThat(name).isEqualTo(generateDefaultRoleNameForResource(VIEWER, newName));
                         }
                     }
 
