@@ -314,7 +314,7 @@ describe("Verify various Table_Filter combinations", function() {
     table.DownloadFromTable("Download as Excel");
     table.ValidateDownloadNVerify("Table1.xlsx", "Ryan Holmes");
 
-    table.RemoveSearchTextNVerify("2381224",true,true,0,'v2');
+    table.RemoveSearchTextNVerify("2381224",'v2');
 
     table.DownloadFromTable("Download as CSV");
     table.ValidateDownloadNVerify("Table1.csv", "2736212");
