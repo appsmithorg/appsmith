@@ -79,7 +79,6 @@ const InputComponentWrapper = styled((props) => (
   isMultiline?: boolean;
 }>`
   ${labelLayoutStyles}
-
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
   .${Classes.INPUT_GROUP} {
     display: flex;
@@ -143,6 +142,7 @@ const InputComponentWrapper = styled((props) => (
           fill: ${(props) => props.theme.colors.icon?.hover};
         }
       }
+
       .${Classes.INPUT} {
         padding-left: 0.5rem;
         min-height: 36px;
@@ -366,7 +366,7 @@ const TextInputWrapper = styled.div<{
   }};
   border-radius: ${({ borderRadius }) => borderRadius} !important;
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-  min-height: 32px;
+  min-height: 36px;
 
   &:hover {
     border-color: ${({ disabled, hasError }) => {

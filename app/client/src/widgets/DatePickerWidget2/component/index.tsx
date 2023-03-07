@@ -71,7 +71,7 @@ const StyledControlGroup = styled(ControlGroup)<{
           : `var(--wds-color-border);`};
       width: 100%;
       height: 100%;
-      min-height: 32px;
+      min-height: 36px;
       align-items: center;
       transition: none;
 
