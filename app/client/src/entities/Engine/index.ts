@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { fetchApplication } from "actions/applicationActions";
 import { setAppMode, updateAppStore } from "actions/pageActions";
 import {
@@ -35,6 +36,7 @@ import {
   initNewConfigWithOrganization,
 } from "ce/variants/config";
 import { StoreValueActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { handleStoreOperations } from "sagas/ActionExecution/StoreActionSaga";
 
 export type AppEnginePayload = {
   applicationId?: string;
@@ -191,24 +193,18 @@ function* storeConfig(channel: Channel<ConfigChannelPayload>) {
     while (true) {
       const payload: ConfigChannelPayload = yield take(channel);
       const { config, eventType, triggerMeta } = payload;
-      yield all(
-        Object.keys(config).map((x) =>
-          call(
-            executeActionTriggers,
-            {
-              type: "STORE_VALUE",
-              payload: {
-                key: x,
-                persist: true,
-                uniqueActionRequestId: uniqueId("store_value_id_"),
-                value: config[x as keyof EndpointGroups],
-              },
-            } as StoreValueActionDescription,
-            eventType,
-            triggerMeta,
-          ),
-        ),
-      );
+      const items = Object.keys(config).map((x) => {
+        return {
+          type: "STORE_VALUE",
+          payload: {
+            key: x,
+            persist: true,
+            uniqueActionRequestId: uniqueId("store_value_id_"),
+            value: config[x as keyof EndpointGroups],
+          },
+        } as StoreValueActionDescription;
+      });
+      yield call(handleStoreOperations, items);
     }
   } finally {
     channel.close();
@@ -231,8 +227,7 @@ function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
             "*",
           );
         } else {
-          yield call(
-            executeActionTriggers,
+          yield call(handleStoreOperations, [
             {
               type: "STORE_VALUE",
               payload: {
@@ -242,9 +237,7 @@ function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
                 value: data[key],
               },
             } as StoreValueActionDescription,
-            eventType,
-            triggerMeta,
-          );
+          ]);
         }
       }
     }
