@@ -281,7 +281,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
   handleDatasourceHighlight = () => {
     const { datasource } = this.props;
-    const authType = get(
+    const authType: string = get(
       datasource,
       "datasourceConfiguration.authentication.authenticationType",
       "",

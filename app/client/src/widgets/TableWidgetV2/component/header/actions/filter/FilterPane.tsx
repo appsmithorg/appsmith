@@ -91,7 +91,9 @@ class TableFilterPane extends Component<Props> {
         <Popper
           borderRadius={this.props.borderRadius}
           boundaryParent={boundaryParent || "viewport"}
-          disablePopperEvents={get(this.props, "metaProps.isMoved", false)}
+          disablePopperEvents={
+            get(this.props, "metaProps.isMoved", false) as boolean
+          }
           isDraggable
           isOpen
           onPositionChange={this.handlePositionUpdate}

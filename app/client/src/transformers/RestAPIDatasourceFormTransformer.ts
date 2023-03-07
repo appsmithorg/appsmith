@@ -12,6 +12,7 @@ import {
   ApiKey,
   BearerToken,
   SSLType,
+  SSL,
 } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
@@ -22,18 +23,18 @@ export const datasourceToFormValues = (
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
     AuthType.NONE,
-  );
+  ) as AuthType;
   const connection = _.get(datasource, "datasourceConfiguration.connection", {
     ssl: {
       authType: SSLType.DEFAULT,
-    },
+    } as SSL,
   });
   const authentication = datasourceToFormAuthentication(authType, datasource);
   const isSendSessionEnabled =
     _.get(datasource, "datasourceConfiguration.properties[0].value", "N") ===
     "Y";
   const sessionSignatureKey = isSendSessionEnabled
-    ? _.get(datasource, "datasourceConfiguration.properties[1].value")
+    ? _.get(datasource, "datasourceConfiguration.properties[1].value")!
     : "";
   return {
     datasourceId: datasource.id,
