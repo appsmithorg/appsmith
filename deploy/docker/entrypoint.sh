@@ -340,9 +340,6 @@ init_postgres() {
 }
 
 seed_embedded_postgres(){
-    # Extract sql dumps from the tar archive
-    tar -xf /opt/appsmith/templates/postgres_sql.tar.gz -C /opt/appsmith/templates
-
     # Create mockdb database 
     psql -U postgres -c "CREATE DATABASE mockdb;"
     # Create mockdb superuser
@@ -352,15 +349,10 @@ seed_embedded_postgres(){
 
     # Create users database
     psql -U postgres -c "CREATE DATABASE users;"
-    # Create mockdb superuser
+    # Create users superuser
     su postgres -c "/usr/lib/postgresql/13/bin/createuser users -s"
     # Dump the sql file containing mockdb data
     psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
-
-    # Delete the extracted sql dumps
-    rm /opt/appsmith/templates/mockdb_postgres.sql /opt/appsmith/templates/users_postgres.sql
-
-
 }
 
 safe_init_postgres(){
