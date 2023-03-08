@@ -23,3 +23,35 @@ export const isTrueObject = (
 
 export const getNameFromPropertyNode = (node: PropertyNode): string =>
   isLiteralNode(node.key) ? String(node.key.value) : node.key.name;
+
+type Position = {
+  line: number;
+  ch: number;
+};
+
+export const extractContentByPosition = (
+  content: string,
+  position: { from: Position; to: Position },
+) => {
+  const eachLine = content.split("\n");
+
+  let returnedString = "";
+
+  for (let i = position.from.line; i <= position.to.line; i++) {
+    if (i === position.from.line) {
+      returnedString = eachLine[position.from.line].slice(position.from.ch);
+    } else if (i === position.to.line) {
+      returnedString += eachLine[position.to.line].slice(
+        0,
+        position.from.ch + 1,
+      );
+    } else {
+      returnedString += eachLine[i];
+    }
+    if (i !== position.to.line) {
+      returnedString += "\n";
+    }
+  }
+
+  return returnedString;
+};

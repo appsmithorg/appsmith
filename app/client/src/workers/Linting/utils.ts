@@ -1,4 +1,8 @@
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeEntity,
+  UnEvalTreeJSAction,
+} from "entities/DataTree/dataTreeFactory";
 
 import { Position } from "codemirror";
 import {
@@ -103,21 +107,21 @@ export function getlintErrorsFromTree(
       fullPropertyPath,
     ) as unknown) as string;
     // remove all lint errors from path
-    set(lintTreeErrors, `["${fullPropertyPath}"]`, {});
+    set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
 
     // We are only interested in paths that require linting
     if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
     if (isATriggerPath(entity, propertyPath))
       return triggerPaths.add(fullPropertyPath);
-    if (isJSAction(entity) && fullPropertyPath !== `${entityName}.body`)
-      return bindingPathsRequiringFunctions.add(fullPropertyPath);
+    if (isJSAction(entity))
+      return bindingPathsRequiringFunctions.add(`${entityName}.body`);
     const lintErrors = lintBindingPath(
       unEvalPropertyValue,
       entity,
       fullPropertyPath,
       evalContextWithOutFunctions,
     );
-    set(lintTreeErrors, `["${fullPropertyPath}"]`, { default: lintErrors });
+    set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
   });
 
   if (triggerPaths.size || bindingPathsRequiringFunctions.size) {
@@ -127,19 +131,16 @@ export function getlintErrorsFromTree(
     // lint binding paths that need GLOBAL_DATA_WITH_FUNCTIONS
     if (bindingPathsRequiringFunctions.size) {
       bindingPathsRequiringFunctions.forEach((fullPropertyPath) => {
-        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-          fullPropertyPath,
-        );
+        const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
         // remove all lint errors from path
-        set(lintTreeErrors, `["${entityName}.body"]`, {});
-        const jspropertyState = get(
-          jsPropertiesState[entityName],
-          propertyPath,
+        set(lintTreeErrors, `["${entityName}.body"]`, []);
+        const jspropertyState = get(jsPropertiesState, entityName);
+        const lintErrors = lintJSObject(
+          entityName,
+          jspropertyState,
+          evalContext,
         );
-        const lintErrors = lintJSProperty(jspropertyState, evalContext);
-        set(lintTreeErrors, `["${entityName}.body"]`, {
-          [propertyPath]: lintErrors,
-        });
+        set(lintTreeErrors, `["${entityName}.body"]`, lintErrors);
       });
     }
 
@@ -153,7 +154,7 @@ export function getlintErrorsFromTree(
           triggerPath,
         ) as unknown) as string;
         // remove all lint errors from path
-        set(lintTreeErrors, `["${triggerPath}"]`, {});
+        set(lintTreeErrors, `["${triggerPath}"]`, []);
         const lintErrors = lintTriggerPath(
           unEvalPropertyValue,
           entity,
@@ -165,6 +166,36 @@ export function getlintErrorsFromTree(
   }
 
   return lintTreeErrors;
+}
+
+function lintJSObject(
+  jsObjectName: string,
+  jsObjectState: Record<string, TJSpropertyState>,
+  globalData: DataTree,
+) {
+  let lintErrors: LintError[] = [];
+
+  // An empty state shows that there is a parse error in the jsObject, so we lint the entire body
+  // instead of each property
+  if (isEmpty(jsObjectState)) {
+    const jsObject = globalData[jsObjectName];
+    const jsBodyToLint = getJSToLint(
+      jsObject,
+      ((jsObject as unknown) as UnEvalTreeJSAction).body,
+      "body",
+    );
+    const jsObjectBodyLintErrors = lintJSObjectBody(jsBodyToLint, globalData);
+    return jsObjectBodyLintErrors;
+  }
+
+  for (const jsProperty of Object.keys(jsObjectState)) {
+    const jsPropertyLintErrors = lintJSProperty(
+      jsObjectState[jsProperty],
+      globalData,
+    );
+    lintErrors = lintErrors.concat(jsPropertyLintErrors);
+  }
+  return lintErrors;
 }
 
 function lintJSProperty(
@@ -185,12 +216,20 @@ function lintJSProperty(
   const refinedErrors = propLintError.map((lintError) => {
     return {
       ...lintError,
-      line: jsPropertyState.position.startLine + lintError.line,
-      ch: jsPropertyState.position.startColumn + lintError.ch + 1,
+      line: lintError.line + jsPropertyState.position.startLine - 1,
+      ch:
+        lintError.line === 0
+          ? lintError.ch + jsPropertyState.position.startColumn
+          : lintError.ch,
     };
   });
 
   return refinedErrors;
+}
+function lintJSObjectBody(jsbody: string, globalData: DataTree): LintError[] {
+  const scriptType = getScriptType(false, false);
+  const scriptToLint = getScriptToEval(jsbody, scriptType);
+  return getLintingErrors(scriptToLint, globalData, jsbody, scriptType);
 }
 
 function lintBindingPath(
@@ -289,12 +328,9 @@ export function pathRequiresLinting(
   const isADynamicBindingPath =
     (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
     isPathADynamicBinding(entity, propertyPath);
-  const isADynamicValue =
-    isADynamicBindingPath && isDynamicValue(unEvalPropertyValue);
-
-  const isAValidJSObjectPathToLint =
-    isJSAction(entity) && !!propertyPath && propertyPath !== "body";
-  const requiresLinting = isADynamicValue || isAValidJSObjectPathToLint;
+  const requiresLinting =
+    (isADynamicBindingPath && isDynamicValue(unEvalPropertyValue)) ||
+    isJSAction(entity);
   return requiresLinting;
 }
 

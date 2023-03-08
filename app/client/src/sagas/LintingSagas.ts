@@ -15,20 +15,7 @@ import {
   LINT_WORKER_ACTIONS,
 } from "workers/Linting/types";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
-import {
-  LintErrors,
-  LintErrorsStore,
-} from "reducers/lintingReducers/lintErrorsReducers";
-import { flatten } from "lodash";
 import { getAppsmithConfigs } from "@appsmith/configs";
-
-export function aggregateLintErrors(errors: LintErrorsStore): LintErrors {
-  const aggregatedErrors: LintErrors = {};
-  for (const fullPath of Object.keys(errors)) {
-    aggregatedErrors[fullPath] = flatten(Object.values(errors[fullPath]));
-  }
-  return aggregatedErrors;
-}
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -71,7 +58,7 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
 
   yield put(setLintingErrors(errors));
   yield call(logLatestLintPropertyErrors, {
-    errors: aggregateLintErrors(errors),
+    errors,
     dataTree: unevalTree,
   });
 }

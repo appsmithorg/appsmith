@@ -11,6 +11,8 @@ import {
   functionParam,
 } from "../index";
 import { SourceType, NodeTypes } from "../..";
+import { attachComments } from "astravel";
+import { extractContentByPosition } from "utils";
 
 type JsObjectProperty = {
   key: string;
@@ -88,7 +90,7 @@ interface baseJSProperty {
   key: string;
   value: string;
   type: string;
-  position: JSPropertyPosition;
+  position: Partial<JSPropertyPosition>;
 }
 
 type JSFunctionProperty = baseJSProperty & {
@@ -108,7 +110,9 @@ export const parseJSObject = (code: string) => {
   let ast: Node = { end: 0, start: 0, type: "" };
   const result: TParsedJSProperty[] = [];
   try {
-    ast = getAST(code, { sourceType: SourceType.module });
+    const comments: any = [];
+    ast = getAST(code, { sourceType: SourceType.module, onComment: comments });
+    attachComments(ast, comments);
   } catch (e) {
     return result;
   }
@@ -119,19 +123,28 @@ export const parseJSObject = (code: string) => {
       const depth = ancestors.length - 3;
       if (
         isPropertyNode(node) &&
-        node.loc &&
+        node.value.loc &&
         ancestors[depth] &&
         ancestors[depth].type === NodeTypes.ExportDefaultDeclaration
       ) {
         let property: TParsedJSProperty = {
-          key: generate(node.key),
-          value: generate(node.value),
+          key: generate(node.key, { comments: true }),
+          value: extractContentByPosition(code, {
+            from: {
+              line: node.value.loc.start.line - 1,
+              ch: node.value.loc.start.column,
+            },
+            to: {
+              line: node.value.loc.end.line - 1,
+              ch: node.value.loc.end.column,
+            },
+          }),
           type: node.value.type,
           position: {
-            startLine: node.loc.start.line,
-            startColumn: node.loc.start.column,
-            endLine: node.loc.end.line,
-            endColumn: node.loc.end.column,
+            startLine: node.value.loc.start.line,
+            startColumn: node.value.loc.start.column,
+            endLine: node.value.loc.end.line,
+            endColumn: node.value.loc.end.column,
           },
         };
         if (isPropertyAFunctionNode(node.value)) {

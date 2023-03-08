@@ -1,4 +1,4 @@
-import { last, isNumber, isEmpty, flatten } from "lodash";
+import { last, isNumber, isEmpty } from "lodash";
 import { Annotation, Position } from "codemirror";
 import { isDynamicValue, LintError } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
@@ -14,7 +14,6 @@ import {
   WARNING_LINT_ERRORS,
 } from "./constants";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 export const getIndexOfRegex = (
   str: string,
   regex: RegExp,
@@ -249,7 +248,3 @@ export const getLintErrorMessage = (reason: string): string => {
     ? REFINED_LINT_ERROR_MESSAGES[reason]
     : reason;
 };
-
-export function aggregatedPathLintErrors(errors: LintErrors) {
-  return flatten(Object.values(errors));
-}
