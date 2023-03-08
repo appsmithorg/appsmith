@@ -1,7 +1,5 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import { isPermitted } from "@appsmith/utils/permissionHelpers";
-import { useDispatch } from "react-redux";
-import { setShowAppInviteUsersDialog } from "actions/applicationActions";
 import {
   DialogComponent as Dialog,
   TabComponent,
@@ -41,6 +39,8 @@ const TabCloseBtnContainer = styled.div`
 type FormDialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
+  canEscapeKeyClose?: boolean;
+  isCloseButtonShown?: boolean;
   noModalBodyMarginTop?: boolean;
   workspaceId?: string;
   title?: string;
@@ -48,6 +48,7 @@ type FormDialogComponentProps = {
   Form: any;
   trigger: ReactNode;
   onClose?: () => void;
+  onOpenOrClose?: (isOpen: boolean) => void;
   customProps?: any;
   permissionRequired?: string;
   permissions?: string[];
@@ -107,7 +108,6 @@ const getTabs = (
 export function FormDialogComponent(props: FormDialogComponentProps) {
   const [isOpen, setIsOpenState] = useState(!!props.isOpen);
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     setIsOpen(!!props.isOpen);
@@ -115,7 +115,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
 
   const setIsOpen = (isOpen: boolean) => {
     setIsOpenState(isOpen);
-    dispatch(setShowAppInviteUsersDialog(isOpen));
+    props.onOpenOrClose && props.onOpenOrClose(isOpen);
   };
 
   const onCloseHandler = () => {
@@ -139,8 +139,10 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
 
   return (
     <Dialog
+      canEscapeKeyClose={!!props.canEscapeKeyClose}
       canOutsideClickClose={!!props.canOutsideClickClose}
       headerIcon={props.headerIcon}
+      isCloseButtonShown={props.isCloseButtonShown}
       isOpen={isOpen}
       noModalBodyMarginTop={props.noModalBodyMarginTop}
       onClose={onCloseHandler}

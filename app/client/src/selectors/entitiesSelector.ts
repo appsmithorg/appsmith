@@ -492,12 +492,12 @@ export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
 export const getCanvasWidgetsStructure = (state: AppState) =>
   state.entities.canvasWidgetsStructure;
 
-const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
+export const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
   getCurrentPageId,
   (widgetsByPage, currentPageId) =>
-    currentPageId ? widgetsByPage[currentPageId] : {},
+    currentPageId ? widgetsByPage[currentPageId].dsl : {},
 );
 
 export const getParentModalId = (
@@ -540,7 +540,7 @@ export const getAllWidgetsMap = createSelector(
   (widgetsByPage) => {
     return Object.entries(widgetsByPage).reduce(
       (res: any, [pageId, pageWidgets]: any) => {
-        const widgetsMap = Object.entries(pageWidgets).reduce(
+        const widgetsMap = Object.entries(pageWidgets.dsl).reduce(
           (res, [widgetId, widget]: any) => {
             const parentModalId = getParentModalId(widget, pageWidgets);
 

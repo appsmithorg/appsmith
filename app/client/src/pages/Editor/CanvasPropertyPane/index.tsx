@@ -8,6 +8,7 @@ import { Button, Category, Size, TooltipComponent } from "design-system-old";
 
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { AppPositionTypeControl } from "../AppPositionTypeControl";
+import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
 
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
@@ -15,6 +16,7 @@ export function CanvasPropertyPane() {
   const openAppSettingsPane = () => {
     dispatch(openAppSettingsPaneAction());
   };
+
   return (
     <div className="relative ">
       <h3 className="px-4 py-3 text-sm font-medium uppercase">Properties</h3>
@@ -22,6 +24,7 @@ export function CanvasPropertyPane() {
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
           <AppPositionTypeControl />
+          <ConversionButton />
           <TooltipComponent
             content={
               <>

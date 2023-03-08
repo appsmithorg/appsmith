@@ -32,7 +32,10 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { updateApplication } from "actions/applicationActions";
+import {
+  setShowAppInviteUsersDialog,
+  updateApplication,
+} from "actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
@@ -487,6 +490,9 @@ export function EditorHeader(props: EditorHeaderProps) {
               canOutsideClickClose
               isOpen={showAppInviteUsersDialog}
               noModalBodyMarginTop
+              onOpenOrClose={(isOpen) =>
+                dispatch(setShowAppInviteUsersDialog(isOpen))
+              }
               placeholder={createMessage(
                 INVITE_USERS_PLACEHOLDER,
                 cloudHosting,

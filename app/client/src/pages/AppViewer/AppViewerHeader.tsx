@@ -5,7 +5,7 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { connect, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import {
   getCurrentPageId,
@@ -40,6 +40,7 @@ import {
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { setShowAppInviteUsersDialog } from "actions/applicationActions";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -92,6 +93,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const editorURL = useHref(builderURL, { pageId });
   const description = useSelector(getCurrentPageDescription);
 
+  const dispatch = useDispatch();
+
   if (hideHeader) return <HtmlTitle />;
 
   return (
@@ -142,6 +145,9 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                     }}
                     isOpen={showAppInviteUsersDialog}
                     message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
+                    onOpenOrClose={(isOpen) =>
+                      dispatch(setShowAppInviteUsersDialog(isOpen))
+                    }
                     placeholder={createMessage(
                       INVITE_USERS_PLACEHOLDER,
                       cloudHosting,

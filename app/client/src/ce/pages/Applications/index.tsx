@@ -64,6 +64,7 @@ import {
 } from "design-system-old";
 import {
   duplicateApplication,
+  setShowAppInviteUsersDialog,
   updateApplication,
 } from "actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -755,6 +756,9 @@ export function ApplicationsSection(props: any) {
                         INVITE_USERS_MESSAGE,
                         cloudHosting,
                       )}
+                      onOpenOrClose={(isOpen) =>
+                        dispatch(setShowAppInviteUsersDialog(isOpen))
+                      }
                       placeholder={createMessage(
                         INVITE_USERS_PLACEHOLDER,
                         cloudHosting,

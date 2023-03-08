@@ -34,12 +34,15 @@ const defaultDSL = defaultTemplate;
 
 export const extractCurrentDSL = (
   fetchPageResponse?: FetchPageResponse,
-): DSLWidget => {
+): { dsl: DSLWidget; layoutId: string | undefined } => {
   const newPage = !fetchPageResponse;
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
-  return transformDSL(currentDSL as ContainerWidgetProps<WidgetProps>, newPage);
+  return {
+    dsl: transformDSL(currentDSL as ContainerWidgetProps<WidgetProps>, newPage),
+    layoutId: fetchPageResponse?.data.layouts[0].id,
+  };
 };
 
 /**

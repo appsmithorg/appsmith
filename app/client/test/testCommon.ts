@@ -54,7 +54,7 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
     payload: [
       {
         pageId: mockResp.data.id,
-        dsl: extractCurrentDSL(mockResp),
+        dsl: extractCurrentDSL(mockResp).dsl,
       },
     ],
   });

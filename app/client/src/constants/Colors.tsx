@@ -164,6 +164,7 @@ export const Colors = {
   GREY_900: "#191919",
 
   PRIMARY_ORANGE: "#F86A2B",
+  PRIMARY_ORANGE_OPAQUE: "#F86A2B1A",
 
   GREEN_SOLID: "#50AF6C",
   MIRAGE: "#182026",
@@ -193,6 +194,8 @@ export const Colors = {
   GRAY_800: "#393939",
   GRAY_900: "#101828",
   SCORPION: "#575757",
+
+  GRAY_600_OPAQUE: "#6B6B6B1A",
 
   COD_GRAY: "#191919",
 

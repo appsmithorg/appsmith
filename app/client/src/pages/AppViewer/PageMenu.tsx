@@ -8,7 +8,7 @@ import {
   getAppMode,
   showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import classNames from "classnames";
 import PrimaryCTA from "./PrimaryCTA";
 import Button from "./AppViewerButton";
@@ -29,6 +29,7 @@ import {
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { setShowAppInviteUsersDialog } from "actions/applicationActions";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -52,6 +53,8 @@ export function PageMenu(props: AppViewerHeaderProps) {
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
   const { hideWatermark } = getAppsmithConfigs();
+
+  const dispatch = useDispatch();
 
   // hide menu on click outside
   useOnClickOutside(
@@ -120,6 +123,9 @@ export function PageMenu(props: AppViewerHeaderProps) {
               }}
               isOpen={showAppInviteUsersDialog}
               message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
+              onOpenOrClose={(isOpen) =>
+                dispatch(setShowAppInviteUsersDialog(isOpen))
+              }
               placeholder={createMessage(
                 INVITE_USERS_PLACEHOLDER,
                 cloudHosting,

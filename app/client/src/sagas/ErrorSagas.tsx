@@ -94,12 +94,15 @@ export function* validateResponse(
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }
+
   if (!response.responseMeta && response.status) {
     throw Error(getErrorMessage(response.status, response.resourceType));
   }
+
   if (response.responseMeta.success) {
     return true;
   }
+
   if (
     response.responseMeta.error.code ===
     SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET

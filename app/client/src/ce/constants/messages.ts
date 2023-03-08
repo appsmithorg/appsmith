@@ -422,6 +422,7 @@ export const NAVIGATE_TO = () => `Navigate to`;
 export const SHOW_MESSAGE = () => `Show message`;
 export const OPEN_MODAL = () => `Open modal`;
 export const CLOSE_MODAL = () => `Close modal`;
+export const CLOSE = () => `CLOSE`;
 export const STORE_VALUE = () => `Store value`;
 export const REMOVE_VALUE = () => `Remove value`;
 export const CLEAR_STORE = () => `Clear store`;
@@ -1455,6 +1456,49 @@ export const SAVE_BUTTON_TEXT = () => "SAVE";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
 
+//Layout Conversion flow
+export const CONVERT = () => "CONVERT";
+export const BUILD_RESPONSIVE = () => "Build Responsive Apps";
+export const BUILD_RESPONSIVE_TEXT = () =>
+  "Appsmith will convert your application's UI to auto layout, a new mode designed for building mobile-friendly apps in no time";
+export const BUILD_FIXED_LAYOUT = () => "Use Fixed Layout";
+export const BUILD_FIXED_LAYOUT_TEXT = () =>
+  "Appsmith will convert your application’s UI to fixed layout, the default mode.";
+export const USE_SNAPSHOT = () => "USE SNAPSHOT";
+export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
+export const SAVE_SNAPSHOT = () => "We Save a Snapshot of Your App";
+export const SAVE_SNAPSHOT_TEXT = () =>
+  "We will create a snapshot of your whole app before the conversion, so that you can go back if auto layout is just not right for you";
+export const CREATE_SNAPSHOT = () => "Creating a snapshot";
+export const CONVERTING_APP = () => "Converting your app";
+export const REFRESH_THE_APP = () => "REFRESH THE APP";
+export const CONVERT_ANYWAYS = () => "CONVERT ANYWAYS";
+export const CONVERSION_SUCCESS_HEADER = () => "All done";
+export const CONVERSION_SUCCESS_TEXT = () =>
+  "Check all your pages and start using your new layout";
+export const CONVERSION_WARNING_HEADER = () =>
+  "All done, some adjustments needed";
+export const CONVERSION_WARNING_TEXT = () =>
+  "You might need to manually position some of the widgets your layout contains";
+export const CONVERSION_ERROR_HEADER = () => "Conversion Failed";
+export const CONVERSION_ERROR = () =>
+  "Appsmith ran into a critical error while trying to convert to auto layout";
+export const SEND_REPORT = () => "SEND US A REPORT";
+export const CONVERSION_ERROR_TEXT = () => "No changes were made to your app";
+export const DROPDOWN_LABEL_TEXT = () => "Target canvas size";
+export const CONVERSION_WARNING = () => "Conversion will change your layout";
+export const SNAPSHOT_LABEL = () =>
+  "To revert back to the original state use this snapshot";
+export const USE_SNAPSHOT_TEXT = () =>
+  "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
+export const SNAPSHOT_BANNER_MESSAGE = () =>
+  "Confirm all the pages are converted correctly before editing. Use the snapshot to go back. Discard only after reviewing all the pages.";
+export const USE_SNAPSHOT_CTA = () => "USE THE SNAPSHOT";
+export const DISCARD_SNAPSHOT_CTA = () => "DISCARD THE SNAPSHOT";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },

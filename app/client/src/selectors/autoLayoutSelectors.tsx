@@ -4,9 +4,16 @@ import {
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
+import moment from "moment";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
 import { getIsMobile } from "./mainCanvasSelectors";
+
+export type ReadableSnapShotDetails = {
+  timeSince: string;
+  timeTillExpiration: string;
+  readableDate: string;
+};
 
 export const getFlexLayers = (parentId: string) => {
   return createSelector(getWidgets, (widgets): FlexLayer[] => {
@@ -63,3 +70,59 @@ export const getParentOffsetTop = (widgetId: string) =>
         : parent.topRow;
     return top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
   });
+
+export const getReadableSnapShotDetails = createSelector(
+  (state: AppState) =>
+    state.ui.layoutConversion.snapshotDetails?.lastUpdatedTime,
+  (
+    lastUpdatedDateString: string | undefined,
+  ): ReadableSnapShotDetails | undefined => {
+    if (!lastUpdatedDateString) return;
+
+    const lastUpdatedDate = new Date(lastUpdatedDateString);
+
+    if (Date.now() - lastUpdatedDate.getTime() <= 0) return;
+
+    const millisecondsPerHour = 60 * 60 * 1000;
+    const ExpirationHours = 5 * 24;
+    const hoursPassedSince =
+      (Date.now() - lastUpdatedDate.getTime()) / millisecondsPerHour;
+
+    const timeSince: string = getStringFromHours(hoursPassedSince);
+    const timeTillExpiration: string = getStringFromHours(
+      ExpirationHours - hoursPassedSince,
+    );
+
+    const readableDate = moment(lastUpdatedDate).format("Do MMMM, YYYY h:mm a");
+
+    return {
+      timeSince,
+      timeTillExpiration,
+      readableDate,
+    };
+  },
+);
+
+function getStringFromHours(hours: number) {
+  if (hours > 48) return `${Math.round(hours / 24)} days`;
+  else if (hours < 48 && hours > 24) return `1 day`;
+  else if (hours > 1) return `${Math.round(hours)} hours`;
+  else if (hours > 0) return `less than an hour`;
+  else return "";
+}
+
+export function buildSnapshotTimeString(
+  readableSnapShotDetails: ReadableSnapShotDetails | undefined,
+) {
+  if (!readableSnapShotDetails) return "";
+  const { readableDate, timeSince } = readableSnapShotDetails;
+  return `Snapshot from ${timeSince} ago (${readableDate})`;
+}
+
+export function buildSnapshotExpirationTimeString(
+  readableSnapShotDetails: ReadableSnapShotDetails | undefined,
+) {
+  if (!readableSnapShotDetails) return "";
+  const { timeTillExpiration } = readableSnapShotDetails;
+  return `Snapshot expires in ${timeTillExpiration}`;
+}

@@ -433,7 +433,7 @@ export function getAlignmentScore(
     ).toFixed(2),
   );
 
-  return score === undefined || score === NaN ? -1 : score;
+  return score === undefined || Number.isNaN(score) ? -1 : score;
 }
 
 /**
