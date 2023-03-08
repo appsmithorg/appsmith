@@ -13,13 +13,14 @@ import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import WidgetFactory from "utils/WidgetFactory";
+import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import SettingsControl, { Activities } from "./SettingsControl";
+import { Layers } from "constants/Layers";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -28,10 +29,10 @@ const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   top: ${(props) =>
     props.topRow > 2 ? `${-1 * props.theme.spaces[10]}px` : "calc(100%)"};
   height: ${(props) => props.theme.spaces[10]}px;
-  ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0")};
+  right: 0px;
   display: flex;
-  padding: 0 4px;
   cursor: pointer;
+  z-index: ${Layers.widgetName};
 `;
 
 const ControlGroup = styled.div`
@@ -54,6 +55,7 @@ type WidgetNameComponentProps = {
   showControls?: boolean;
   topRow: number;
   errorCount: number;
+  widgetWidth: number;
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
@@ -161,6 +163,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   )
     currentActivity = Activities.ACTIVE;
 
+  // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
+  // const popperOffset: any = [-RESIZE_BORDER_BUFFER, RESIZE_BORDER_BUFFER - 1];
   return showWidgetName ? (
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
@@ -174,6 +178,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
           errorCount={shouldHideErrors ? 0 : props.errorCount}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
+          widgetWidth={props.widgetWidth}
         />
       </ControlGroup>
     </PositionStyle>
