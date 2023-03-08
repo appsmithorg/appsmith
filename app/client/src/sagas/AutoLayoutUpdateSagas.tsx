@@ -21,6 +21,7 @@ import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
+import { GridDefaults } from "constants/WidgetConstants";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -81,6 +82,11 @@ function* updateWidgetDimensionsSaga(
     widget,
     mainCanvasWidth,
   );
+
+  // Makes the height update in multiples of 10
+  height =
+    Math.ceil(height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT) *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
   if (
     widgetMinMaxDimensions.minHeight &&

@@ -124,9 +124,6 @@ export const StyledText = styled(Text)<StyledTextProps>`
   }
   display: flex;
   width: 100%;
-  .auto-layout & {
-    width: max-content;
-  }
   justify-content: flex-start;
   flex-direction: ${(props) => (props.isTruncated ? "column" : "unset")};
   align-items: ${(props) =>
