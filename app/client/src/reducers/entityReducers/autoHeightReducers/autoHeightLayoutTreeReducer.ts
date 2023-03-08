@@ -22,8 +22,8 @@ const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {
     action: ReduxAction<AutoHeightLayoutTreePayload>,
   ) => {
     const { tree } = action.payload;
-    const diff = xor(Object.keys(state), [...Object.keys(tree)]);
-    for (const widgetId in diff) {
+    const diff: string[] = xor(Object.keys(state), [...Object.keys(tree)]);
+    for (const widgetId of diff) {
       delete state[widgetId];
     }
     for (const widgetId in tree) {

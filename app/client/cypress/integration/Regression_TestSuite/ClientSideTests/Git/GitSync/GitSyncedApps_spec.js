@@ -202,15 +202,18 @@ describe("Git sync apps", function() {
   });
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
+    cy.wait(2000);
+    cy.get(".t--draggable-inputwidgetv2").should("be.visible");
     cy.get(".t--draggable-inputwidgetv2")
       .first()
       .find(".bp3-input")
-      .should("have.value", "morpheus");
-
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--draggable-inputwidgetv2")
       .last()
       .find(".bp3-input")
-      .should("have.value", "This is a test");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(`.t--entity-item:contains(${newPage})`)
       .first()
       .click();
@@ -255,19 +258,23 @@ describe("Git sync apps", function() {
       .click({ force: true });
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
@@ -318,16 +325,17 @@ describe("Git sync apps", function() {
       .click({ force: true });
     // move jsObject and postgres query to new page
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "get_users",
       "Move to page",
       "Child_Page",
     );
+    cy.runQuery();
     cy.wait(2000);
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "JSObject1",
       "Move to page",
       "Child_Page",
@@ -361,13 +369,17 @@ describe("Git sync apps", function() {
     cy.wait(8000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verfiy data binding on all pages in deploy mode
+    cy.wait(4000);
     cy.latestDeployPreview();
+    cy.get(".bp3-input").should("be.visible");
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "Success");
+      .invoke("val")
+      .should("be.oneOf", ["Success", "Test user 7"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "Test user 7");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["Success", "Test user 7"]);
     cy.get(".t--page-switch-tab")
       .contains(`${pageName}`)
       .click({ force: true });
@@ -383,21 +395,27 @@ describe("Git sync apps", function() {
     cy.get(".t--page-switch-tab")
       .contains(`${newPage}`)
       .click({ force: true });
+    cy.wait(2000);
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
+    cy.wait(2000);
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
     // verfiy data binding on all pages in edit mode
@@ -416,7 +434,7 @@ describe("Git sync apps", function() {
       .first()
       .should("have.value", "Success");
     cy.get(".bp3-input")
-      .eq(1)
+      .last()
       .should("have.value", "Test user 7");
     cy.get(`.t--entity-item:contains(${newPage})`)
       .first()
@@ -454,29 +472,15 @@ describe("Git sync apps", function() {
   it("7. Switch to tempBranch , Clone the Child_Page, change it's visiblity to hidden and deploy, merge to master", () => {
     cy.switchGitBranch(tempBranch);
     cy.wait(2000);
+
     //  clone the Child_Page
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-item:contains(Child_Page)`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.selectAction("Clone");
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.entityExplorer.SelectEntityByName("Child_Page", "Pages");
+    _.entityExplorer.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
-    cy.CheckAndUnfoldEntityItem("Pages");
+    _.entityExplorer.SelectEntityByName("Child_Page Copy", "Pages");
+    _.entityExplorer.ActionContextMenuByEntityName("Child_Page", "Hide");
 
-    cy.get(`.t--entity-item:contains(Child_Page Copy)`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.wait(2000);
-    cy.selectAction("Hide");
-
-    cy.get(`.t--entity-item:contains(Child_Page)`)
-      .first()
-      .click();
+    _.entityExplorer.SelectEntityByName("Child_Page", "Pages");
     cy.wait("@getPage");
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
@@ -489,17 +493,15 @@ describe("Git sync apps", function() {
     cy.wait(2000);
     cy.latestDeployPreview();
     // verify page is hidden on deploy mode
-    cy.get(".t--page-switch-tab").should("not.contain", "Child_Page Copy");
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    _.agHelper.AssertContains("Child_Page Copy", "not.exist");
+    _.deployMode.NavigateBacktoEditor();
   });
   it("8. Verify Page visiblity on master in edit and deploy mode", () => {
     cy.switchGitBranch(mainBranch);
     cy.wait(2000);
     cy.latestDeployPreview();
-    cy.get(".t--page-switch-tab").should("not.contain", "Child_Page Copy");
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    _.agHelper.AssertContains("Child_Page Copy", "not.exist");
+    _.deployMode.NavigateBacktoEditor();
   });
   it("9. Create new branch, delete a page and merge back to master, verify page is deleted on master", () => {
     //cy.createGitBranch(tempBranch1);

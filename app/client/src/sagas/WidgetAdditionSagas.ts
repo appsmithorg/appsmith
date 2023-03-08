@@ -20,6 +20,7 @@ import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { getWidget, getWidgets } from "./selectors";
 import {
   buildWidgetBlueprint,
+  executeWidgetBlueprintBeforeOperations,
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
@@ -30,11 +31,16 @@ import { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import {
+  GRID_DENSITY_MIGRATION_V1,
+  BlueprintOperationTypes,
+} from "widgets/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -101,6 +107,13 @@ function* getChildWidgetProps(
     }
   }
 
+  const isAutoLayout = isStack(widgets, parent);
+  if (
+    isAutoLayout &&
+    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill
+  )
+    columns = 64;
+
   const widgetProps = {
     ...restDefaultConfig,
     ...props,
@@ -138,11 +151,21 @@ function* getChildWidgetProps(
     widget,
     themeConfigWithoutChildStylesheet,
   );
-  widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+
+  if (params.dynamicBindingPathList) {
+    const mergedDynamicBindingPathLists = [
+      ...dynamicBindingPathList,
+      ...params.dynamicBindingPathList,
+    ];
+    widget.dynamicBindingPathList = mergedDynamicBindingPathLists;
+  } else {
+    widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+  }
+
   return widget;
 }
 
-function* generateChildWidgets(
+export function* generateChildWidgets(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
@@ -298,6 +321,20 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     Toaster.clear();
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const { newWidgetId, type, widgetId } = addChildAction.payload;
+
+    yield call(
+      executeWidgetBlueprintBeforeOperations,
+      BlueprintOperationTypes.BEFORE_ADD,
+      {
+        parentId: widgetId,
+        widgetId: newWidgetId,
+        widgets: stateWidgets,
+        widgetType: type,
+      },
+    );
+
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);

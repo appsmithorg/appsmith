@@ -1,8 +1,11 @@
+import { Positioning } from "utils/autoLayout/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
@@ -17,6 +20,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  isDeprecated: true,
+  hideCard: true,
+  replacement: "LIST_WIDGET_V2",
+  needsHeightForContent: true,
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
@@ -25,6 +32,9 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     template: {},
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
+    positioning: Positioning.Fixed,
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {
@@ -129,6 +139,7 @@ export const CONFIG = {
                     disablePropertyPane: true,
                     openParentPropertyPane: true,
                     children: [],
+                    positioning: Positioning.Fixed,
                     blueprint: {
                       view: [
                         {

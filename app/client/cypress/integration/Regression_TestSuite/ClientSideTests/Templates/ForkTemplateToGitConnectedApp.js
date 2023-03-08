@@ -64,8 +64,8 @@ describe("Fork a template to the current app", () => {
     _.gitSync.CreateGitBranch(branchName, true);
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
-      _.ee.AddNewPage();
-      _.ee.AddNewPage("add-page-from-template");
+      _.entityExplorer.AddNewPage();
+      _.entityExplorer.AddNewPage("add-page-from-template");
       cy.get(template.templateDialogBox).should("be.visible");
       cy.xpath("//div[text()='Marketing Dashboard']").click();
       cy.wait(10000); // for templates page to load fully
@@ -104,7 +104,7 @@ describe("Fork a template to the current app", () => {
       _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
       cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
       cy.get(gitSyncLocators.commitButton).click();
-      cy.wait(10000);
+      _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
   });

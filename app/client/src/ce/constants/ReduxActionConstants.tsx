@@ -1,17 +1,17 @@
-import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
-import {
-  LayoutOnLoadActionErrors,
-  PageAction,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
+import { ApplicationVersion } from "actions/applicationActions";
 import {
   AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
 } from "api/ApplicationApi";
-import { ApplicationVersion } from "actions/applicationActions";
+import {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -357,6 +357,9 @@ export const ReduxActionTypes = {
   SET_NEW_WIDGET_DRAGGING: "SET_NEW_WIDGET_DRAGGING",
   SET_WIDGET_RESIZING: "SET_WIDGET_RESIZING",
   ADD_SUGGESTED_WIDGET: "ADD_SUGGESTED_WIDGET",
+  MODIFY_META_WIDGETS: "MODIFY_META_WIDGETS",
+  DELETE_META_WIDGETS: "DELETE_META_WIDGETS",
+  UPDATE_META_WIDGET_PROPERTY: "UPDATE_META_WIDGET_PROPERTY",
   SEARCH_APPLICATIONS: "SEARCH_APPLICATIONS",
   UPDATE_PAGE_INIT: "UPDATE_PAGE_INIT",
   UPDATE_PAGE_SUCCESS: "UPDATE_PAGE_SUCCESS",
@@ -694,7 +697,6 @@ export const ReduxActionTypes = {
   SET_FOCUS_HISTORY: "SET_FOCUS_HISTORY",
   SET_FOCUSABLE_PROPERTY_FIELD: "SET_FOCUSABLE_PROPERTY_FIELD",
   ROUTE_CHANGED: "ROUTE_CHANGED",
-  PAGE_CHANGED: "PAGE_CHANGED",
   SET_API_PANE_CONFIG_SELECTED_TAB: "SET_API_PANE_CONFIG_SELECTED_TAB",
   SET_API_PANE_RESPONSE_SELECTED_TAB: "SET_API_PANE_RESPONSE_SELECTED_TAB",
   SET_API_PANE_RESPONSE_PANE_HEIGHT: "SET_API_PANE_RESPONSE_PANE_HEIGHT",
@@ -755,6 +757,11 @@ export const ReduxActionTypes = {
   SEGMENT_INIT_UNCERTAIN: "SEGMENT_INIT_UNCERTAIN",
   SET_TABS_PANE_WIDTH: "SET_TABS_PANE_WIDTH",
   SET_PANE_COUNT: "SET_PANE_COUNT",
+  AUTOLAYOUT_REORDER_WIDGETS: "AUTOLAYOUT_REORDER_WIDGETS",
+  AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",
+  RECALCULATE_COLUMNS: "RECALCULATE_COLUMNS",
+  SET_GSHEET_TOKEN: "SET_GSHEET_TOKEN",
+  FILE_PICKER_CALLBACK_ACTION: "FILE_PICKER_CALLBACK_ACTION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -1062,6 +1069,7 @@ export interface ApplicationPayload {
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
+  collapseInvisibleWidgets?: boolean;
 }
 
 export type WorkspaceDetails = {

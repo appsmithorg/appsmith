@@ -12,7 +12,9 @@ describe("Checkbox Widget Functionality", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.togglebar(commonlocators.requiredjs + " " + "input");
     cy.PublishtheApp();
+    cy.wait(1500);
     cy.get(publish.checkboxWidget).click();
+    cy.get(publish.checkboxWidget).should("not.be.checked");
     cy.get(widgetsPage.formButtonWidget)
       .contains("Submit")
       .should("have.class", "bp3-disabled");

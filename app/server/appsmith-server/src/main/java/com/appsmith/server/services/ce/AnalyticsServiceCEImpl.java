@@ -68,6 +68,14 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         return value == null ? "" : DigestUtils.sha256Hex(value);
     }
 
+    private String getEmailDomainHash(String email) {
+        if (email == null) {
+            return "";
+        }
+
+        return hash(email.contains("@") ? email.split("@", 2)[1] : "");
+    }
+
     @Override
     public Mono<User> identifyUser(User user, UserData userData) {
         return identifyUser(user, userData, null);
@@ -100,6 +108,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     String username = savedUser.getUsername();
                     String name = savedUser.getName();
                     String email = savedUser.getEmail();
+                    final String emailDomainHash = getEmailDomainHash(email);
+
                     if (!commonConfig.isCloudHosting()) {
                         username = hash(username);
                         name = hash(name);
@@ -111,6 +121,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                             .traits(Map.of(
                                     "name", ObjectUtils.defaultIfNull(name, ""),
                                     "email", ObjectUtils.defaultIfNull(email, ""),
+                                    "emailDomainHash", emailDomainHash,
                                     "isSuperUser", isSuperUser,
                                     "instanceId", instanceId,
                                     "mostRecentlyUsedWorkspaceId", tuple.getT4(),
@@ -156,6 +167,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
         Map<String, Object> analyticsProperties = properties == null ? new HashMap<>() : new HashMap<>(properties);
 
+        final String emailDomainHash = getEmailDomainHash(userId);
+
         // Hash usernames at all places for self-hosted instance
         if (userId != null
                 && hashUserId
@@ -196,6 +209,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     analyticsProperties.put("originService", "appsmith-server");
                     analyticsProperties.put("instanceId", instanceId);
                     analyticsProperties.put("version", projectProperties.getVersion());
+                    analyticsProperties.put("emailDomainHash", emailDomainHash);
                     messageBuilder = messageBuilder.properties(analyticsProperties);
                     analytics.enqueue(messageBuilder);
                     return instanceId;
@@ -273,16 +287,24 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
      */
     private <T extends BaseDomain> String getEventTag(AnalyticsEvents event, T object) {
         // In case of action execution or instance setting update, event.getEventName() only is used to support backward compatibility of event name
-        List<AnalyticsEvents> nonResourceEvents = List.of(
+        List<AnalyticsEvents> nonResourceEvents = getNonResourceEvents();
+        boolean isNonResourceEvent = nonResourceEvents.contains(event);
+        final String eventTag = isNonResourceEvent ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
+
+        return eventTag;
+    }
+
+    /**
+     * To get non resource events list
+     * @return List of AnanlyticsEvents
+     */
+    public List<AnalyticsEvents> getNonResourceEvents() {
+        return List.of(
                 AnalyticsEvents.EXECUTE_ACTION,
                 AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION,
                 AnalyticsEvents.EXECUTE_INVITE_USERS,
                 AnalyticsEvents.UPDATE_LAYOUT
         );
-        boolean isNonResourceEvent = nonResourceEvents.contains(event);
-        final String eventTag = isNonResourceEvent ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
-
-        return eventTag;
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {

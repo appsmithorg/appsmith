@@ -300,6 +300,24 @@ export const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL)`
   }
 `;
 
+export const StyledPinIcon = styled(ControlIcons.PIN)`
+  padding: 0;
+  position: absolute;
+  margin-right: 15px;
+  cursor: default;
+  z-index: 1;
+  left: 4px;
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    top: 2px;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
 export const FlexWrapper = styled.div`
   display: flex;
 `;

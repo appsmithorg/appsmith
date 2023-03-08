@@ -4,16 +4,16 @@ import { isDynamicValue, LintError } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
 import {
   CODE_EDITOR_START_POSITION,
+  LintTooltipDirection,
+  VALID_JS_OBJECT_BINDING_POSITION,
+} from "./constants";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import {
   CUSTOM_LINT_ERRORS,
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
   INVALID_JSOBJECT_START_STATEMENT,
   JS_OBJECT_START_STATEMENT,
-  LintTooltipDirection,
-  REFINED_LINT_ERROR_MESSAGES,
-  VALID_JS_OBJECT_BINDING_POSITION,
-  WARNING_LINT_ERRORS,
-} from "./constants";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+} from "workers/Linting/constants";
 export const getIndexOfRegex = (
   str: string,
   regex: RegExp,
@@ -207,7 +207,7 @@ export const getLintAnnotations = (
         annotations.push({
           from,
           to,
-          message: errorMessage,
+          message: errorMessage.message,
           severity,
         });
       }
@@ -217,14 +217,6 @@ export const getLintAnnotations = (
     }
   });
   return annotations;
-};
-
-export const getLintSeverity = (
-  code: string,
-): Severity.WARNING | Severity.ERROR => {
-  const severity =
-    code in WARNING_LINT_ERRORS ? Severity.WARNING : Severity.ERROR;
-  return severity;
 };
 
 /* By default, lint tooltips are rendered to the right of the cursor
@@ -241,10 +233,4 @@ export const getLintTooltipDirection = (
   } else {
     return LintTooltipDirection.right;
   }
-};
-
-export const getLintErrorMessage = (reason: string): string => {
-  return reason in REFINED_LINT_ERROR_MESSAGES
-    ? REFINED_LINT_ERROR_MESSAGES[reason]
-    : reason;
 };

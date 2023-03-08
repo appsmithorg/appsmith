@@ -56,10 +56,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body.split("(")[0].trim()).to.be.oneOf([
-        "The specified bucket does not exist",
-        "The specified bucket is not valid.",
-      ]);
+      expect(
+        response.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains("NoSuchBucket: The specified bucket does not exist");
     });
     cy.typeValueNValidate(
       "assets-test.appsmith.com",
@@ -99,8 +98,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.eq(
-        "Unable to parse content. Expected to receive an object with `data` and `type`",
+      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.eq(
+        "Unable to parse content. Expected to receive an object with `data` and `type`.",
       );
     });
 
@@ -108,8 +107,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.eq(
-        "Unable to parse content. Expected to receive an object with `data` and `type`",
+      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.eq(
+        "Unable to parse content. Expected to receive an object with `data` and `type`.",
       );
     });
 
@@ -121,9 +120,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.contains(
-        "File content is not base64 encoded.",
-      );
+      expect(
+        response.body.data.pluginErrorDetails.appsmithErrorMessage,
+      ).to.contains("File content is not base64 encoded.");
     });
     cy.ValidateAndSelectDropdownOption(
       formControls.s3CreateFileDataType,
@@ -135,10 +134,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       //expect(['The specified bucket does not exist', 'The specified bucket is not valid.']).to.include(response.body.data.body)
-      expect(response.body.data.body.split("(")[0].trim()).to.be.oneOf([
-        "The specified bucket does not exist",
-        "The specified bucket is not valid.",
-      ]);
+      expect(
+        response.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains("NoSuchBucket: The specified bucket does not exist");
     });
 
     cy.typeValueNValidate(
@@ -255,8 +253,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.contain(
-        "The specified key does not exist.",
+      expect(
+        response.body.data.pluginErrorDetails.appsmithErrorMessage,
+      ).to.contain(
+        "Your S3 query failed to execute. To know more please check the error details.",
       );
     });
 
@@ -265,8 +265,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.contain(
-        "The specified key does not exist.",
+      expect(
+        response.body.data.pluginErrorDetails.appsmithErrorMessage,
+      ).to.contain(
+        "Your S3 query failed to execute. To know more please check the error details.",
       );
     });
 
@@ -328,10 +330,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body.split("(")[0].trim()).to.be.oneOf([
-        "The specified bucket does not exist",
-        "The specified bucket is not valid.",
-      ]);
+      expect(
+        response.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains("NoSuchBucket: The specified bucket does not exist");
     });
     cy.typeValueNValidate(
       "assets-test.appsmith.com",

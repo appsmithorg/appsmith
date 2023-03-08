@@ -16,6 +16,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -128,6 +129,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                         .create(baseUrl + "/api/v1/installations")
                         .post()
                         .body(BodyInserters.fromValue(Map.of("key", instanceId)))
+                        .headers(httpHeaders -> httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/json"))
                         .exchange())
                 .flatMap(clientResponse -> clientResponse.toEntity(new ParameterizedTypeReference<ResponseDTO<String>>() {
                 }))
@@ -149,7 +151,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         log.debug("Performing RTS health check of this instance...");
 
         return WebClientUtils
-                .create(commonConfig.getRtsBaseDomain() + "/rts-api/v1/health-check")
+                .create(commonConfig.getRtsBaseUrl() + "/rts-api/v1/health-check")
                 .get()
                 .retrieve()
                 .toBodilessEntity()

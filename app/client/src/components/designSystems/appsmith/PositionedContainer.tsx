@@ -13,14 +13,14 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import WidgetFactory from "utils/WidgetFactory";
-import { memoize } from "lodash";
 import {
   getIsReflowEffectedSelector,
   getReflowSelector,
 } from "selectors/widgetReflowSelectors";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 const PositionedWidget = styled.div<{
   zIndexOnHover: number;
@@ -47,13 +47,8 @@ export type PositionedContainerProps = {
   parentColumnSpace: number;
   isDisabled?: boolean;
   isVisible?: boolean;
+  widgetName: string;
 };
-
-export const checkIsDropTarget = memoize(function isDropTarget(
-  type: WidgetType,
-) {
-  return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
-});
 
 export function PositionedContainer(
   props: PositionedContainerProps,
@@ -96,17 +91,18 @@ export function PositionedContainer(
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
-      ` ${POSITIONED_WIDGET} t--widget-${props.widgetType
-        .split("_")
-        .join("")
-        .toLowerCase()}`
+      ` ${POSITIONED_WIDGET} ${widgetTypeClassname(
+        props.widgetType,
+      )} t--widget-${props.widgetName.toLowerCase()}`
     );
-  }, [props.widgetType, props.widgetId]);
+  }, [props.widgetType, props.widgetId, props.widgetName]);
   const isDropTarget = checkIsDropTarget(props.widgetType);
 
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
-    props,
     isDropTarget,
+    props.widgetId,
+    props.focused,
+    props.selected,
   );
 
   const reflowedPosition = useSelector(
@@ -172,6 +168,7 @@ export function PositionedContainer(
       className={containerClassName}
       data-hidden={!props.isVisible || undefined}
       data-testid="test-widget"
+      data-widgetname-cy={props.widgetName}
       disabled={props.isDisabled}
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}

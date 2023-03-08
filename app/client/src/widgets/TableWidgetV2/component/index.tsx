@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 import Table from "./Table";
 import {
   AddNewRowActions,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
+  StickyType,
 } from "./Constants";
 import { Row } from "react-table";
 
@@ -98,6 +99,8 @@ interface ReactTableComponentProps {
   allowRowSelection: boolean;
   allowSorting: boolean;
   disabledAddNewRowSave: boolean;
+  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
+  canFreezeColumn?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -108,6 +111,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     applyFilter,
     borderColor,
     borderWidth,
+    canFreezeColumn,
     columns,
     columnWidthMap,
     compactMode,
@@ -117,6 +121,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     editableCell,
     editMode,
     filters,
+    handleColumnFreeze,
     handleReorderColumn,
     handleResizeColumn,
     height,
@@ -155,98 +160,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     widgetName,
     width,
   } = props;
-
-  const { columnOrder, hiddenColumns } = useMemo(() => {
-    const order: string[] = [];
-    const hidden: string[] = [];
-    columns.forEach((item) => {
-      if (item.isHidden) {
-        hidden.push(item.alias);
-      } else {
-        order.push(item.alias);
-      }
-    });
-    return {
-      columnOrder: order,
-      hiddenColumns: hidden,
-    };
-  }, [columns]);
-
-  useEffect(() => {
-    let dragged = -1;
-    const headers = Array.prototype.slice.call(
-      document.querySelectorAll(`#table${widgetId} .draggable-header`),
-    );
-    headers.forEach((header, i) => {
-      header.setAttribute("draggable", true);
-
-      header.ondragstart = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style =
-          "background: #efefef; border-radius: 4px; z-index: 100; width: 100%; text-overflow: none; overflow: none;";
-        e.stopPropagation();
-        dragged = i;
-      };
-
-      header.ondrag = (e: React.DragEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-      };
-
-      header.ondragend = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        e.stopPropagation();
-        setTimeout(() => (dragged = -1), 1000);
-      };
-
-      // the dropped header
-      header.ondragover = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== dragged && dragged !== -1) {
-          if (dragged > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (dragged < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragenter = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== dragged && dragged !== -1) {
-          if (dragged > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (dragged < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragleave = (e: React.DragEvent<HTMLDivElement>) => {
-        header.parentElement.className = "th header-reorder";
-        e.preventDefault();
-      };
-
-      header.ondrop = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        header.parentElement.className = "th header-reorder";
-        if (i !== dragged && dragged !== -1) {
-          e.preventDefault();
-          const newColumnOrder = [...columnOrder];
-          // The dragged column
-          const movedColumnName = newColumnOrder.splice(dragged, 1);
-
-          // If the dragged column exists
-          if (movedColumnName && movedColumnName.length === 1) {
-            newColumnOrder.splice(i, 0, movedColumnName[0]);
-          }
-          handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
-        } else {
-          dragged = -1;
-        }
-      };
-    });
-  }, [props.columns.map((column) => column.alias).toString()]);
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
     if (allowSorting) {
@@ -303,6 +216,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={borderWidth}
       boxShadow={props.boxShadow}
+      canFreezeColumn={canFreezeColumn}
       columnWidthMap={columnWidthMap}
       columns={columns}
       compactMode={compactMode}
@@ -314,6 +228,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
       filters={filters}
+      handleColumnFreeze={handleColumnFreeze}
+      handleReorderColumn={handleReorderColumn}
       handleResizeColumn={handleResizeColumn}
       height={height}
       isAddRowInProgress={isAddRowInProgress}
@@ -404,6 +320,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.allowAddNewRow === next.allowAddNewRow &&
     prev.allowRowSelection === next.allowRowSelection &&
     prev.allowSorting === next.allowSorting &&
-    prev.disabledAddNewRowSave === next.disabledAddNewRowSave
+    prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
+    prev.canFreezeColumn === next.canFreezeColumn
   );
 });
