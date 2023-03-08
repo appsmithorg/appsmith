@@ -19,7 +19,6 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
@@ -68,7 +67,6 @@ export class ContainerWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

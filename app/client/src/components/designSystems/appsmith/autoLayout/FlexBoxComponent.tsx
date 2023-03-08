@@ -18,13 +18,13 @@ import {
 import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
 
 export interface FlexBoxProps {
-  direction?: LayoutDirection;
+  direction: LayoutDirection;
   stretchHeight: boolean;
   useAutoLayout: boolean;
   children?: ReactNode;
   widgetId: string;
   flexLayers: FlexLayer[];
-  isMobile?: boolean;
+  isMobile: boolean;
 }
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;

@@ -1,6 +1,5 @@
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import {
   CodeScannerWidgetProps,
   ScannerLayout,
@@ -95,7 +94,6 @@ export default [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("CODE_SCANNER_WIDGET"),
 
   {
     sectionName: "Events",
