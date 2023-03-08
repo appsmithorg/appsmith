@@ -257,20 +257,6 @@ export function placeWidgetsWithoutWrap(
     }
   }
 
-  // Trigger a position update for the widgets inside container widgets
-  // for (const each of arr) {
-  //   for (const widget of each.children) {
-  //     if (widget.type === "CONTAINER_WIDGET" && widget.children?.length) {
-  //       widgets = updateWidgetPositions(
-  //         widgets,
-  //         widget.children[0],
-  //         isMobile,
-  //         mainCanvasWidth,
-  //       );
-  //     }
-  //   }
-  // }
-
   return { height: maxHeight, widgets };
 }
 

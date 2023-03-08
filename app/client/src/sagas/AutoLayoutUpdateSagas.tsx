@@ -11,15 +11,16 @@ import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
   getCanvasDimensions,
-} from "../utils/autoLayout/AutoLayoutUtils";
+} from "utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
-// import { diff } from "deep-diff";
-// import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import { isEmpty } from "lodash";
+import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -38,7 +39,7 @@ export function* updateLayoutForMobileCheckpoint(
       : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug(
-      "updating layout for mobile viewport took",
+      "Auto Layout : updating layout for mobile viewport took",
       performance.now() - start,
       "ms",
     );
@@ -113,20 +114,20 @@ function* updateWidgetDimensionsSaga(
   });
 }
 
+/**
+ * This saga is responsible for updating the bounding box of the widget
+ * when the widget component get resized internally.
+ * It also updates the position of other affected widgets as well.
+ */
 function* processAutoLayoutDimensionUpdatesSaga() {
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsMobile);
 
   let widgets = allWidgets;
-  // const widgetsOld = { ...widgets };
+  const widgetsOld = { ...widgets };
   const parentIds = new Set<string>();
-  // Initialise a list of changes so far.
-  // This contains a map of widgetIds with their new topRow and bottomRow
-  const changesSoFar: Record<
-    string,
-    { bottomRow?: number; rightColumn?: number }
-  > = {};
+  // Iterate through the batch and update the new dimensions
   for (const widgetId in autoLayoutWidgetDimensionUpdateBatch) {
     const { height, width } = autoLayoutWidgetDimensionUpdateBatch[widgetId];
     const widget = allWidgets[widgetId];
@@ -142,30 +143,6 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       isMobile,
     );
 
-    const newBottomRow = widget.topRow + height / widget.parentRowSpace;
-    const newRightColumn = widget.leftColumn + width / columnSpace;
-
-    if (
-      widget.bottomRow !== newBottomRow ||
-      widget.rightColumn !== newRightColumn
-    ) {
-      // console.log(
-      //   "#### change",
-      //   widget.widgetName,
-      //   { width, columnSpace, leftColumn: widget.leftColumn },
-      //   "rightColumn",
-      //   widget.rightColumn,
-      //   newRightColumn,
-      //   "bottomRow",
-      //   widget.bottomRow,
-      //   newBottomRow,
-      // );
-      changesSoFar[widgetId] = {
-        bottomRow: newBottomRow,
-        rightColumn: newRightColumn,
-      };
-    }
-
     widgets = {
       ...widgets,
       [widgetId]: {
@@ -176,6 +153,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     };
   }
 
+  // Update the position of all the widgets
   for (const parentId of parentIds) {
     widgets = updateWidgetPositions(
       widgets,
@@ -185,54 +163,46 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     );
   }
 
-  const widgetsToUpdate: any = [];
-  for (const changedWidgetId in changesSoFar) {
-    widgetsToUpdate[changedWidgetId] = [
-      {
-        propertyPath: "topRow",
-        propertyValue: widgets[changedWidgetId].topRow,
-      },
-      {
-        propertyPath: "bottomRow",
-        propertyValue: changesSoFar[changedWidgetId].bottomRow,
-      },
-      {
-        propertyPath: "leftColumn",
-        propertyValue: widgets[changedWidgetId].leftColumn,
-      },
-      {
-        propertyPath: "rightColumn",
-        propertyValue: changesSoFar[changedWidgetId].rightColumn,
-      },
-    ];
-  }
-
-  // const d = diff(widgetsOld, widgets);
-
-  // console.log(
-  //   "#### process",
-  //   { widgetsToUpdate, widgets, widgetsOld },
-  //   d?.map((x: any) => ({
-  //     path: `${widgets[x.path[0]]?.widgetName}.${x.path[1]}`,
-  //     lhs: x?.lhs,
-  //     rhs: x?.rhs,
-  //   })),
-  // );
+  let widgetsToUpdate: any = {};
 
   /**
-   * TODO(aswathkk): Use updateMultipleWidgetPropertiesAction instead of updateAndSaveLayout
-   * But, using updateMultipleWidgetPropertiesAction is causing following issues
-   * 1. Highlights are getting broken
-   * 2. widget's posision are not properly getting updated
+   * Iterate over all widgets and check if any of their dimensions have changed
+   * If they have, add them to the list of widgets to update
+   * Note: We need to iterate through all widgets since changing dimension of one widget might affect the dimensions of other widgets
    */
+  for (const widgetId of Object.keys(widgets)) {
+    const widget = widgets[widgetId];
+    const oldWidget = widgetsOld[widgetId];
+    const propertiesToUpdate: Record<string, any> = {};
+
+    if (widget.topRow !== oldWidget.topRow) {
+      propertiesToUpdate["topRow"] = widget.topRow;
+    }
+    if (widget.bottomRow !== oldWidget.bottomRow) {
+      propertiesToUpdate["bottomRow"] = widget.bottomRow;
+    }
+    if (widget.leftColumn !== oldWidget.leftColumn) {
+      propertiesToUpdate["leftColumn"] = widget.leftColumn;
+    }
+    if (widget.rightColumn !== oldWidget.rightColumn) {
+      propertiesToUpdate["rightColumn"] = widget.rightColumn;
+    }
+
+    if (isEmpty(propertiesToUpdate)) continue;
+
+    widgetsToUpdate = mutation_setPropertiesToUpdate(
+      widgetsToUpdate,
+      widgetId,
+      propertiesToUpdate,
+    );
+  }
 
   // Push all updates to the CanvasWidgetsReducer.
   // Note that we're not calling `UPDATE_LAYOUT`
   // as we don't need to trigger an eval
-  // yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
-
-  // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  if (!isEmpty(widgetsToUpdate)) {
+    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+  }
 
   // clear the batch after processing
   autoLayoutWidgetDimensionUpdateBatch = {};

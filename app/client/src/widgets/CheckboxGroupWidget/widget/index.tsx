@@ -20,9 +20,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { isAutoLayout } from "selectors/mainCanvasSelectors";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -290,7 +288,6 @@ class CheckboxGroupWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

@@ -1,13 +1,14 @@
 import { get } from "lodash";
 
-import IconSVG from "./icon.svg";
-import Widget from "./widget";
+import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
+import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
   FlattenedWidgetProps,
 } from "widgets/constants";
-import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
-import { WidgetProps } from "widgets/BaseWidget";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,
@@ -49,6 +50,8 @@ export const CONFIG = {
     columns: 24,
     animateLoading: true,
     gridType: "vertical",
+    positioning: Positioning.Fixed,
+    responsiveBehavior: ResponsiveBehavior.Fill,
     dynamicBindingPathList: [
       {
         key: "currentItemsView",
@@ -121,7 +124,7 @@ export const CONFIG = {
                     isDeletable: false,
                     disallowCopy: true,
                     noContainerOffset: true,
-
+                    positioning: Positioning.Fixed,
                     disabledWidgetFeatures: [
                       RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
                     ],
@@ -139,6 +142,7 @@ export const CONFIG = {
                             detachFromLayout: true,
                             children: [],
                             version: 1,
+                            useAutoLayout: false,
                             blueprint: {
                               view: [
                                 {

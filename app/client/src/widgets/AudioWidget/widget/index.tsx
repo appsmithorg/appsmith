@@ -6,7 +6,6 @@ import React, { lazy, Suspense } from "react";
 import ReactPlayer from "react-player";
 import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
@@ -84,7 +83,6 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

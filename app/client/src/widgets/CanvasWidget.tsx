@@ -26,9 +26,6 @@ class CanvasWidget extends ContainerWidget {
   static getWidgetType() {
     return "CANVAS_WIDGET";
   }
-  componentDidMount(): void {
-    super.componentDidMount();
-  }
 
   getCanvasProps(): DSLWidget & { minHeight: number } {
     return {
@@ -128,7 +125,7 @@ class CanvasWidget extends ContainerWidget {
       <FlexBoxComponent
         direction={direction}
         flexLayers={this.props.flexLayers || []}
-        isMobile={this.props.isMobile}
+        isMobile={this.props.isMobile || false}
         stretchHeight={stretchFlexBox}
         useAutoLayout={this.props.useAutoLayout || false}
         widgetId={this.props.widgetId}

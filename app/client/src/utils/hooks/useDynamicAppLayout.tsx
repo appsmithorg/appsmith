@@ -104,6 +104,9 @@ export const useDynamicAppLayout = () => {
     const { maxWidth, minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
 
+    const gutterWidth =
+      appPositioningType === AppPositioningTypes.AUTO ? 0 : GUTTER_WIDTH;
+
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (
       isPreviewMode === false &&
@@ -134,7 +137,7 @@ export const useDynamicAppLayout = () => {
 
     const ele: any = document.getElementById("canvas-viewport");
     if (
-      appMode === "EDIT" &&
+      appMode === APP_MODE.EDIT &&
       appLayout?.type === "FLUID" &&
       ele &&
       calculatedWidth > ele.clientWidth
@@ -142,15 +145,11 @@ export const useDynamicAppLayout = () => {
       calculatedWidth = ele.clientWidth;
     }
 
-    if (appPositioningType === AppPositioningTypes.AUTO && isPreviewMode) {
-      calculatedWidth -= AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
-    }
-
     switch (true) {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
-        const totalWidthToSubtract = BORDERS_WIDTH + GUTTER_WIDTH;
+        const totalWidthToSubtract = BORDERS_WIDTH + gutterWidth;
         // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
@@ -261,6 +260,7 @@ export const useDynamicAppLayout = () => {
     isExplorerPinned,
     propertyPaneWidth,
     isAppSettingsPaneOpen,
+    currentPageId, //TODO: preet - remove this after first merge.
   ]);
 
   useEffect(() => {

@@ -50,8 +50,7 @@ import {
   shiftSelectWidgets,
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { flashElementsById, quickScrollToWidget } from "utils/helpers";
+import { quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
 
@@ -199,11 +198,10 @@ function* appendSelectedWidgetToUrlSaga(
   pageId?: string,
   invokedBy?: NavigationMethod,
 ) {
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const isSnipingMode: boolean = yield select(snipingModeSelector);
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
-  if (guidedTourEnabled || isSnipingMode || viewMode) return;
+  if (isSnipingMode || viewMode) return;
   const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
   const currentURL = pathname;
@@ -277,13 +275,7 @@ function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   }
   const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
   if (widgetId) {
-    setTimeout(() => {
-      // Scrolling will hide some part of the content at the top during guided tour. To avoid that
-      // we skip scrolling altogether during guided tour as we don't have
-      // too many widgets during the same
-      flashElementsById(widgetId);
-      quickScrollToWidget(widgetId, allWidgets);
-    }, 0);
+    quickScrollToWidget(widgetId, allWidgets);
   }
 }
 

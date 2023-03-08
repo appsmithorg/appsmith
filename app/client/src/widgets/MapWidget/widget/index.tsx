@@ -8,7 +8,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import styled from "styled-components";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { MarkerProps } from "../constants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
@@ -242,7 +241,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

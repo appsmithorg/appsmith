@@ -5,6 +5,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
+  CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
 import {
   CanvasWidgetsReduxState,
@@ -23,66 +24,6 @@ import {
 } from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import { AlignmentColumnInfo } from "./autoLayoutTypes";
-
-function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
-  const container = widgets[containerId];
-  if (!container) return;
-  let canvas;
-  // True for MainContainer
-  if (container.type === "CANVAS_WIDGET") canvas = container;
-  else {
-    const canvasId = container.children ? container.children[0] : "";
-    canvas = widgets[canvasId];
-  }
-  if (!canvas) return;
-  return canvas;
-}
-
-export function removeChildLayers(
-  allWidgets: CanvasWidgetsReduxState,
-  containerId: string,
-): CanvasWidgetsReduxState {
-  const widgets = { ...allWidgets };
-  let canvas = getCanvas(widgets, containerId);
-  if (!canvas) return widgets;
-  canvas = { ...canvas, flexLayers: [] };
-  widgets[canvas.widgetId] = canvas;
-  return widgets;
-}
-
-export function* wrapChildren(
-  allWidgets: CanvasWidgetsReduxState,
-  containerId: string,
-  isMobile: boolean,
-  mainCanvasWidth: number,
-) {
-  const widgets = { ...allWidgets };
-  let canvas = getCanvas(widgets, containerId);
-  if (!canvas) return widgets;
-
-  const children = canvas.children || [];
-  if (!children.length) return widgets;
-
-  const flexLayers: FlexLayer[] = [];
-
-  for (const each of children) {
-    const child = widgets[each];
-    if (!child) continue;
-    flexLayers.push({
-      children: [{ id: child.widgetId, align: FlexLayerAlignment.Start }],
-    });
-  }
-  canvas = { ...canvas, flexLayers };
-  widgets[canvas.widgetId] = canvas;
-  // update size
-  const updatedWidgets = updateWidgetPositions(
-    widgets,
-    canvas.widgetId,
-    isMobile,
-    mainCanvasWidth,
-  );
-  return updatedWidgets;
-}
 
 export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
@@ -150,39 +91,6 @@ export function updateFlexLayersOnDelete(
   );
 }
 
-export function updateFillChildStatus(
-  allWidgets: CanvasWidgetsReduxState,
-  widgetId: string,
-  fill: boolean,
-  isMobile: boolean,
-  mainCanvasWidth: number,
-) {
-  let widgets = { ...allWidgets };
-  const widget = widgets[widgetId];
-  if (!widget || !widget.parentId) return widgets;
-  const canvas = getCanvas(widgets, widget.parentId);
-  if (!canvas) return widgets;
-
-  const flexLayers: FlexLayer[] = canvas.flexLayers || [];
-  if (!flexLayers.length) return widgets;
-  widgets = {
-    ...widgets,
-    [widgetId]: {
-      ...widget,
-      ResponsiveBehavior: fill
-        ? ResponsiveBehavior.Fill
-        : ResponsiveBehavior.Hug,
-    },
-  };
-
-  return updateWidgetPositions(
-    widgets,
-    canvas.widgetId,
-    isMobile,
-    mainCanvasWidth,
-  );
-}
-
 export function alterLayoutForMobile(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
@@ -201,17 +109,21 @@ export function alterLayoutForMobile(
   for (const child of children) {
     const widget = { ...widgets[child] };
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
-      widget.mobileRightColumn = 64;
+      widget.mobileRightColumn = GridDefaults.DEFAULT_GRID_COLUMNS;
       widget.mobileLeftColumn = 0;
     } else if (
       widget.responsiveBehavior === ResponsiveBehavior.Hug &&
       widget.minWidth
     ) {
       const { minWidth, rightColumn } = widget;
-      const columnSpace = (canvasWidth - FLEXBOX_PADDING * 2) / 64;
+      const columnSpace =
+        (canvasWidth - FLEXBOX_PADDING * 2) / GridDefaults.DEFAULT_GRID_COLUMNS;
       if (columnSpace * rightColumn < minWidth) {
         widget.mobileLeftColumn = 0;
-        widget.mobileRightColumn = Math.min(minWidth / columnSpace, 64);
+        widget.mobileRightColumn = Math.min(
+          minWidth / columnSpace,
+          GridDefaults.DEFAULT_GRID_COLUMNS,
+        );
       }
     }
     widget.mobileTopRow = widget.topRow;
@@ -219,7 +131,8 @@ export function alterLayoutForMobile(
     widgets = alterLayoutForMobile(
       widgets,
       child,
-      (canvasWidth * (widget.mobileRightColumn || 1)) / 64,
+      (canvasWidth * (widget.mobileRightColumn || 1)) /
+        GridDefaults.DEFAULT_GRID_COLUMNS,
       mainCanvasWidth,
     );
     widgets[child] = widget;
@@ -505,36 +418,110 @@ function getCanvasWidth(
   if (!mainCanvasWidth) return 0;
   if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID)
     return mainCanvasWidth - getPadding(canvas);
+
+  const stack = [];
   let widget = canvas;
-  let columns = 0;
-  let width = 1;
-  let padding = 0;
   while (widget.parentId) {
-    columns = getWidgetWidth(widget, isMobile);
-    padding += getPadding(widget);
-    width *= columns > 64 ? 1 : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+    stack.push(widget);
     widget = widgets[widget.parentId];
   }
-  const totalWidth = width * mainCanvasWidth;
-  if (widget.widgetId === MAIN_CONTAINER_WIDGET_ID)
-    padding += getPadding(widget);
-  return totalWidth - padding;
+  stack.push(widget);
+
+  let width = mainCanvasWidth;
+  while (stack.length) {
+    const widget = stack.pop();
+    if (!widget) continue;
+    const columns = getWidgetWidth(widget, isMobile);
+    const padding = getPadding(widget);
+    const factor =
+      columns > GridDefaults.DEFAULT_GRID_COLUMNS
+        ? 1
+        : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+    width = width * factor - padding;
+  }
+
+  return width;
 }
 
 function getPadding(canvas: FlattenedWidgetProps): number {
   let padding = 0;
-  if (
-    canvas.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-    canvas.type === "CONTAINER_WIDGET"
-  ) {
-    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) {
     padding = FLEXBOX_PADDING * 2;
+  } else if (canvas.type === "CONTAINER_WIDGET") {
+    padding = (CONTAINER_GRID_PADDING + FLEXBOX_PADDING) * 2;
   }
   if (canvas.noPad) {
     // Widgets like ListWidget choose to have no container padding so will only have widget padding
     padding = WIDGET_PADDING * 2;
   }
-  // Account for container border.
-  padding += canvas.type === "CONTAINER_WIDGET" ? 2 : 0;
   return padding;
+}
+
+/**
+ * This method preserves the flexLayers of the parent canvas,
+ * but only for the selected widgets
+ * @param selectedWidgets
+ * @param parentCanvas
+ * @returns
+ */
+export function getFlexLayersForSelectedWidgets(
+  selectedWidgets: string[],
+  parentCanvas: FlattenedWidgetProps | undefined,
+): FlexLayer[] {
+  if (
+    !parentCanvas ||
+    !parentCanvas.flexLayers ||
+    parentCanvas.flexLayers.length <= 0
+  )
+    return [];
+
+  const currFlexLayers: FlexLayer[] = parentCanvas.flexLayers;
+
+  const selectedFlexLayers: FlexLayer[] = [];
+
+  for (const flexLayer of currFlexLayers) {
+    const layerChildren = [];
+
+    for (const layerChild of flexLayer.children) {
+      if (selectedWidgets.indexOf(layerChild.id) > -1) {
+        layerChildren.push(layerChild);
+      }
+    }
+
+    if (layerChildren.length > 0) {
+      selectedFlexLayers.push({ children: layerChildren });
+    }
+  }
+
+  return selectedFlexLayers;
+}
+
+/**
+ * This method helps in Converting the widgetId inside flexLayers
+ * to the new corresponding widgetIds in widgetIdMap
+ * @param flexLayers
+ * @param widgetIdMap
+ * @returns
+ */
+export function getNewFlexLayers(
+  flexLayers: FlexLayer[],
+  widgetIdMap: Record<string, string>,
+) {
+  const newFlexLayers: FlexLayer[] = [];
+
+  for (const flexLayer of flexLayers) {
+    const newChildren = [];
+
+    for (const layerChild of flexLayer.children) {
+      if (widgetIdMap[layerChild.id]) {
+        newChildren.push({
+          id: widgetIdMap[layerChild.id],
+          align: layerChild.align,
+        });
+      }
+    }
+    newFlexLayers.push({ children: newChildren });
+  }
+
+  return newFlexLayers;
 }

@@ -6,7 +6,6 @@ import ImageComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
@@ -154,7 +153,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

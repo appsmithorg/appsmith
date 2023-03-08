@@ -6,7 +6,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { Colors } from "constants/Colors";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
 
@@ -126,7 +125,6 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

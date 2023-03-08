@@ -1,3 +1,5 @@
+import { getIsAutoLayout } from "selectors/editorSelectors";
+import store from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetSizeConfig } from "widgets/constants";
 
@@ -128,7 +130,7 @@ export function getWidgetRows(widget: any, isMobile: boolean): number {
  * @param canvasWidth | number : main canvas width.
  * @returns MinSize | undefined
  */
-export function getMinMaxSize(
+function getMinMaxSize(
   widget: any,
   canvasWidth: number,
 ): MinMaxSize | undefined {
@@ -208,4 +210,9 @@ export function getWidgetMinMaxDimensionsInPixel(
   );
 
   return returnValue;
+}
+
+export function isAutoLayout() {
+  const appState = store.getState();
+  return !!getIsAutoLayout(appState);
 }

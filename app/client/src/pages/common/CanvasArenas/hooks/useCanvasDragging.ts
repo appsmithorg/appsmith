@@ -111,8 +111,7 @@ export const useCanvasDragging = (
   const {
     calculateHighlights,
     cleanUpTempStyles,
-    getDropInfo,
-    highlightDropPosition,
+    getDropPosition,
   } = useAutoLayoutHighlights({
     blocksToDraw,
     canvasId: widgetId,
@@ -220,12 +219,14 @@ export const useCanvasDragging = (
         const onMouseUp = () => {
           if (isDragging && canvasIsDragging) {
             if (useAutoLayout) {
-              const dropInfo: HighlightInfo | undefined = getDropInfo(
+              const dropInfo: HighlightInfo | undefined = getDropPosition(
+                snapColumnSpace,
+                null,
                 {
                   x: currentRectanglesToDraw[0].top,
                   y: currentRectanglesToDraw[0].left,
                 },
-                snapColumnSpace,
+                true,
               );
               if (dropInfo !== undefined)
                 updateChildrenPositions(dropInfo, currentRectanglesToDraw);
@@ -436,7 +437,7 @@ export const useCanvasDragging = (
 
               if (useAutoLayout && isCurrentDraggedCanvas) {
                 setTimeout(() => {
-                  selectedHighlight = highlightDropPosition(e, snapColumnSpace);
+                  selectedHighlight = getDropPosition(snapColumnSpace, e);
                 }, 50);
               }
             }
@@ -660,7 +661,6 @@ export const useCanvasDragging = (
     blocksToDraw,
     snapRows,
     canExtend,
-    scale,
     useAutoLayout,
   ]);
   return {

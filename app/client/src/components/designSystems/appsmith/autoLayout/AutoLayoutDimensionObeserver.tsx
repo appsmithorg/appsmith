@@ -34,7 +34,6 @@ export default function AutoLayoutDimensionObserver(
       const height = entries[0].contentRect.height;
       if (width === 0 || height === 0) return;
       setCurrentDimension({ width, height });
-      onDimensionUpdate(width, height);
     }),
   );
 

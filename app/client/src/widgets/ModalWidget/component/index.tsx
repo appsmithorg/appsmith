@@ -23,11 +23,11 @@ import {
 } from "components/editorComponents/ResizeStyledComponents";
 import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
-import Resizable from "resizable/resize";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCanvasClassName } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { scrollCSS } from "widgets/WidgetUtils";
+import Resizable from "resizable/modalresize";
 
 const Container = styled.div<{
   width?: number;
@@ -149,7 +149,6 @@ export default function ModalComponent(props: ModalComponentProps) {
   const { enableResize = false } = props;
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");
-
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -159,7 +158,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
   );
-
+  const disabledResizeHandles = get(props, "disabledResizeHandles", []);
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -168,8 +167,8 @@ export default function ModalComponent(props: ModalComponentProps) {
       right: RightHandleStyles,
     };
 
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+    return omit(allHandles, disabledResizeHandles);
+  }, [disabledResizeHandles]);
 
   useEffect(() => {
     setTimeout(() => {

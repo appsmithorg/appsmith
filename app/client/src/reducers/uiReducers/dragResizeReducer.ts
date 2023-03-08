@@ -15,6 +15,7 @@ const initialState: WidgetDragResizeState = {
   selectedWidgets: [],
   focusedWidget: undefined,
   selectedWidgetAncestry: [],
+  isAutoCanvasResizing: false,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -71,6 +72,12 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.isResizing = action.payload.isResizing;
   },
+  [ReduxActionTypes.SET_AUTO_CANVAS_RESIZING]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<boolean>,
+  ) => {
+    state.isAutoCanvasResizing = action.payload;
+  },
   [ReduxActionTypes.SET_SELECTED_WIDGETS]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetIds: string[] }>,
@@ -120,6 +127,7 @@ export type WidgetDragResizeState = {
   focusedWidget?: string;
   selectedWidgetAncestry: string[];
   selectedWidgets: string[];
+  isAutoCanvasResizing: boolean;
 };
 
 export default widgetDraggingReducer;
