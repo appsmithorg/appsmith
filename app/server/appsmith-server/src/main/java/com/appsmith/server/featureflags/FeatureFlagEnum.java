@@ -34,6 +34,7 @@ public enum FeatureFlagEnum {
     AUTO_LAYOUT,
     LIMITING_GOOGLE_SHEET_ACCESS,
     LAZY_CANVAS_RENDERING,
+    ORACLE_PLUGIN,
 
     // Put EE flags below this line, to avoid conflicts.
     RBAC,

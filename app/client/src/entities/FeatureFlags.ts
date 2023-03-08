@@ -11,6 +11,7 @@ type FeatureFlags = {
   MULTIPLE_PANES?: boolean;
   LIMITING_GOOGLE_SHEET_ACCESS?: boolean;
   LAZY_CANVAS_RENDERING?: boolean;
+  ORACLE_PLUGIN?: boolean;
 };
 
 export default FeatureFlags;

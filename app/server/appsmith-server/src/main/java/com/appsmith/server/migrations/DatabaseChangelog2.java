@@ -2788,10 +2788,9 @@ public class DatabaseChangelog2 {
         plugin.setPackageName("oracle-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        // TODO: check
-        plugin.setIconLocation("https://assets.appsmith.com/oracle-db-icon.svg");
-        // TODO: check
-        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle-plugin");
+        // Next TBD: update image
+        plugin.setIconLocation("https://banner2.cleanpng.com/20180711/czj/kisspng-oracle-database-oracle-corporation-postgresql-rela-oracle-logo-5b463b4f847031.6000959415313293595425.jpg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);

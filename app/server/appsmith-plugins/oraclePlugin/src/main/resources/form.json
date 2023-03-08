@@ -64,7 +64,7 @@
           "label": "SSL Mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
-          "initialValue": "NO_VERIFY",
+          "initialValue": "DISABLE",
           "options": [
             {
               "label": "Disable",

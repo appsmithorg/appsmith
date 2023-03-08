@@ -26,6 +26,7 @@ export enum PluginPackageName {
   REST_API = "restapi-plugin",
   GRAPHQL = "graphql-plugin",
   JS = "js-plugin",
+  ORACLE = "oracle-plugin",
 }
 
 export enum PaginationType {
