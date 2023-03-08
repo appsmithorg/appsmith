@@ -1,17 +1,17 @@
 import { Alignment } from "@blueprintjs/core";
 
-import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
+import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { ButtonVariantTypes, ButtonPlacementTypes } from "components/constants";
-import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
-import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
-import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-
+import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 const MAX_NESTING_LEVEL = 5;
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
@@ -280,6 +280,7 @@ export const contentConfig = [
       },
     ],
   },
+  ...getResponsiveLayoutConfig("JSON_FORM_WIDGET"),
   {
     sectionName: "Events",
     children: [
