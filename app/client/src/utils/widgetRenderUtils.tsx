@@ -8,7 +8,10 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
-import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import {
+  WIDGET_DSL_STRUCTURE_PROPS,
+  WIDGET_STATIC_PROPS,
+} from "constants/WidgetConstants";
 import WidgetFactory from "./WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
@@ -20,9 +23,8 @@ export const createCanvasWidget = (
   specificChildProps?: string[],
 ) => {
   const widgetStaticProps = pick(canvasWidget, [
-    ...Object.keys(WIDGET_STATIC_PROPS),
+    ...Object.keys({ ...WIDGET_STATIC_PROPS, ...WIDGET_DSL_STRUCTURE_PROPS }),
     ...(canvasWidget.additionalStaticProps || []),
-    ...["hasMetaWidgets", "requiresFlatWidgetChildren"],
   ]);
 
   //Pick required only contents for specific widgets
