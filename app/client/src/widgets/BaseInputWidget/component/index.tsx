@@ -36,7 +36,6 @@ import { checkInputTypeText } from "../utils";
 import { AppState } from "ce/reducers";
 import { connect } from "react-redux";
 import { LanguageEnums } from "entities/App";
-import { translate } from "utils/translate";
 
 /**
  * All design system component specific logic goes here.
@@ -626,6 +625,7 @@ class BaseInputComponent extends React.Component<
         onValueChange={this.onNumberChange}
         stepSize={this.props.stepSize}
         value={this.props.value}
+        placeholder={this.props.placeholder}
         {...conditionalProps}
       />
     );
@@ -692,6 +692,7 @@ class BaseInputComponent extends React.Component<
         spellCheck={this.props.spellCheck}
         type={this.getType(this.props.inputHTMLType)}
         value={this.props.value}
+        placeholder={this.props.placeholder}
       />
     );
   private renderInputComponent = (
@@ -719,7 +720,6 @@ class BaseInputComponent extends React.Component<
       compactMode,
       disabled,
       errorMessage,
-      errorMessageJp,
       inputHTMLType,
       inputType,
       isDynamicHeightEnabled,
@@ -734,14 +734,8 @@ class BaseInputComponent extends React.Component<
       labelWidth,
       multiline,
       tooltip,
-      tooltipJp,
-      lang,
-      translationJp,
       value,
     } = this.props;
-    const translateLabel = translate(lang, label, translationJp);
-    const translateErrorMsg = translate(lang, errorMessage, errorMessageJp);
-    const translateTooltip = translate(lang, tooltip, tooltipJp);
 
     return (
       <InputComponentWrapper
@@ -771,11 +765,11 @@ class BaseInputComponent extends React.Component<
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
-            helpText={translateTooltip}
+            helpText={tooltip}
             isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
-            text={translateLabel}
+            text={label}
             width={labelWidth}
           />
         )}
@@ -791,6 +785,7 @@ class BaseInputComponent extends React.Component<
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           isMultiLine={!!multiline}
           labelPosition={labelPosition}
+          placeholder={this.props.placeholder}
         >
           <label className="label" id="label-fname">
             <div className="text">{this.props.label}</div>
@@ -799,7 +794,7 @@ class BaseInputComponent extends React.Component<
         </TextInputWrapper>
         {isInvalid && (
           <p className="error-msg">
-            {translateErrorMsg ||
+            {errorMessage ||
               createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)}
           </p>
         )}
@@ -821,7 +816,6 @@ export interface BaseInputComponentProps extends ComponentProps {
   isDynamicHeightEnabled?: boolean;
   defaultValue?: string | number;
   label: string;
-  translationJp?: string;
   labelAlignment?: Alignment;
   labelPosition?: LabelPosition;
   labelWidth?: number;
@@ -829,16 +823,13 @@ export interface BaseInputComponentProps extends ComponentProps {
   labelTextSize?: string;
   labelStyle?: string;
   tooltip?: string;
-  tooltipJp?: string;
   leftIcon?: IconName | JSX.Element;
   allowNumericCharactersOnly?: boolean;
   fill?: boolean;
   errorMessage?: string;
-  errorMessageJp?: string;
   onValueChange: (valueAsString: string) => void;
   stepSize?: number;
   placeholder?: string;
-  placeholderJp?: string;
   isLoading: boolean;
   multiline?: boolean;
   compactMode: boolean;

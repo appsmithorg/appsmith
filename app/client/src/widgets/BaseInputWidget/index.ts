@@ -1,9 +1,7 @@
-import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import IconSVG from "./icon.svg";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -14,9 +12,6 @@ export const CONFIG = {
   defaults: {
     rows: 4,
     label: "Label",
-    translationJp: "",
-    tooltipJp: "",
-    errorMessageJp: "",
     labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelTextSize: "0.875rem",
@@ -32,8 +27,6 @@ export const CONFIG = {
     isRequired: false,
     isDisabled: false,
     animateLoading: true,
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
-    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

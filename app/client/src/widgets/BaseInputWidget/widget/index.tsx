@@ -39,15 +39,6 @@ class BaseInputWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "translationJp",
-            label: "Translation JP",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Translation for label",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Sets the label position of the widget",
             propertyName: "labelPosition",
             label: "Position",
@@ -148,15 +139,6 @@ class BaseInputWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "errorMessageJp",
-            label: "Translation JP",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Translation for message",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             propertyName: "isSpellCheck",
             label: "Spellcheck",
             helpText:
@@ -182,15 +164,6 @@ class BaseInputWidget<
             label: "Tooltip",
             controlType: "INPUT_TEXT",
             placeholderText: "Value must be atleast 6 chars",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "tooltipJp",
-            label: "Translation JP",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Translation for tooltip",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -579,7 +552,7 @@ class BaseInputWidget<
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
         maxChars={this.props.maxChars}
-        multiline={this.props.multiline}
+        multiline={this.props.inputType === InputTypes.MULTI_LINE_TEXT}
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.props.onValueChange}

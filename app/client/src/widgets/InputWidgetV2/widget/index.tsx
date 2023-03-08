@@ -294,10 +294,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                   label: "Color",
                   value: "COLOR",
                 },
-                {
-                  label: "Textarea",
-                  value: "TEXTAREA",
-                },
               ],
               isBindProperty: false,
               isTriggerProperty: false,
