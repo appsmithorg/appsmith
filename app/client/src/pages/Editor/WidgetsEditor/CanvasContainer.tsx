@@ -149,9 +149,12 @@ function CanvasContainer() {
         }
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
-          "mt-0": !shouldHaveTopMargin,
-          "mt-4": showCanvasTopSection,
-          "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
+          "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
+          "mt-4": !shouldShowSnapShotBanner && showCanvasTopSection,
+          "mt-8":
+            !shouldShowSnapShotBanner &&
+            shouldHaveTopMargin &&
+            !showCanvasTopSection,
         })}
         id={"canvas-viewport"}
         key={currentPageId}
