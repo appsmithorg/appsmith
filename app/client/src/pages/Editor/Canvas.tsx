@@ -16,16 +16,18 @@ interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
   pageId: string;
   canvasWidth: number;
+  isAutoLayout?: boolean;
 }
 
 const Container = styled.section<{
   background: string;
   width: number;
+  $isAutoLayout: boolean;
 }>`
   background: ${({ background }) => background};
-  width: ${(props) => props.width}px;
+  width: ${({ $isAutoLayout, width }) =>
+    $isAutoLayout ? `100%` : `${width}px`};
 `;
-
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
@@ -44,11 +46,14 @@ const Canvas = (props: CanvasProps) => {
 
   const focusRef = useWidgetFocus();
 
+  const marginHorizontalClass = props.isAutoLayout ? `mx-0` : `mx-auto`;
+
   try {
     return (
       <Container
+        $isAutoLayout={!!props.isAutoLayout}
         background={backgroundForCanvas}
-        className={`relative mx-auto t--canvas-artboard pb-52 ${getViewportClassName(
+        className={`relative t--canvas-artboard pb-52 ${marginHorizontalClass} ${getViewportClassName(
           canvasWidth,
         )}`}
         data-testid="t--canvas-artboard"

@@ -3,7 +3,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import { Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import { ReflowDirection } from "reflow/reflowTypes";
-import { ResizeWrapper } from "resizable/resizenreflow";
+import { ResizeWrapper } from "resizable/common";
 import { StyledComponent } from "styled-components";
 import PerformanceTracker, {
   PerformanceTransactionName,

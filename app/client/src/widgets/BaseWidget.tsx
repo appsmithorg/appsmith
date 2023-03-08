@@ -563,12 +563,12 @@ abstract class BaseWidget<
       <FlexComponent
         componentHeight={componentHeight}
         componentWidth={componentWidth}
-        direction={this.props.direction}
+        direction={this.props.direction || LayoutDirection.Horizontal}
         flexVerticalAlignment={
           this.props.flexVerticalAlignment || FlexVerticalAlignment.Top
         }
         focused={this.props.focused}
-        isMobile={this.props.isMobile}
+        isMobile={this.props.isMobile || false}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}

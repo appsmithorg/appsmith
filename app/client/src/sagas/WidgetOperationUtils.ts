@@ -661,7 +661,9 @@ export function getBoundariesFromSelectedWidgets(
  */
 export const getSelectedWidgetWhenPasting = function*() {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
+  const {
+    widgets: copiedWidgetGroups,
+  }: { widgets: CopiedWidgetGroup[] } = yield getCopiedWidgets();
 
   let selectedWidget: FlattenedWidgetProps | undefined = yield select(
     getSelectedWidget,
