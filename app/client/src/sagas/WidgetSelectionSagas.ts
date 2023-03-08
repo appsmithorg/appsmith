@@ -267,16 +267,18 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
 }
 
 function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
-  if (action.payload.widgetIds.length > 1) return;
-  const widgetId = action.payload.widgetIds[0];
-  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
-  if (!isEditorInitialized) {
-    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
-  }
-  const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
-  if (widgetId) {
-    quickScrollToWidget(widgetId, allWidgets);
-  }
+  // TODO
+  console.log({ action });
+  // if (action.payload.widgetIds.length > 1) return;
+  // // const widgetId = action.payload.widgetIds[0];
+  // const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+  // if (!isEditorInitialized) {
+  //   yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+  // }
+  // const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
+  // if (widgetId) {
+  //   quickScrollToWidget(widgetId, allWidgets);
+  // }
 }
 
 export function* widgetSelectionSagas() {
