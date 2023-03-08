@@ -353,18 +353,9 @@ public class OraclePlugin extends BasePlugin {
                                                     resultSet.getObject(i, OffsetDateTime.class)
                                             );
 
-                                        } else if (TIME_TYPE_NAME.equalsIgnoreCase(typeName) || TIMETZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                            value = resultSet.getString(i);
-
                                         } else if (INTERVAL_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                             value = resultSet.getObject(i).toString();
 
-                                        } else if (typeName.startsWith("_")) {
-                                            value = resultSet.getArray(i).getArray();
-
-                                        } else if (JSON_TYPE_NAME.equalsIgnoreCase(typeName)
-                                                || JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                            value = objectMapper.readTree(resultSet.getString(i));
                                         } else {
                                             value = resultSet.getObject(i);
 
@@ -392,12 +383,6 @@ public class OraclePlugin extends BasePlugin {
                             System.out.println(Thread.currentThread().getName() + ": In the OraclePlugin, got action execution error");
                             System.out.println(e.getMessage());
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
-                        } catch (IOException e) {
-                            // Since oracle json type field can only hold valid json data, this exception is not expected
-                            // to occur.
-                            System.out.println(Thread.currentThread().getName() + ": In the OraclePlugin, got action execution error");
-                            System.out.println(e.getMessage());
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                         } finally {
                             idleConnections = poolProxy.getIdleConnections();
                             activeConnections = poolProxy.getActiveConnections();
