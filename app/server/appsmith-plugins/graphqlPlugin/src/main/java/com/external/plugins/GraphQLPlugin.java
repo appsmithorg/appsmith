@@ -283,7 +283,10 @@ public class GraphQLPlugin extends BasePlugin {
                     )
                     .map(actionExecutionResult -> {
                         if (! actionExecutionResult.getIsExecutionSuccess()) {
-                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(GraphQLPluginError.QUERY_EXECUTION_FAILED, GraphQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, actionExecutionResult.getBody(), actionExecutionResult.getStatusCode() ));
+                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(GraphQLPluginError.QUERY_EXECUTION_FAILED,
+                                                                                           GraphQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
+                                                                                           actionExecutionResult.getBody(),
+                                                                                           actionExecutionResult.getStatusCode() ));
                         }
                         return actionExecutionResult;
                     })

@@ -1,50 +1,45 @@
 import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
+import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
+import Debugger from "components/editorComponents/Debugger";
+import EditorContextProvider from "components/editorComponents/EditorContextProvider";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+
 import {
   getCurrentPageId,
   getCurrentPageName,
-  getIsFetchingPage,
 } from "selectors/editorSelectors";
-import PageTabs from "./PageTabs";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import CanvasContainer from "./CanvasContainer";
-import { quickScrollToWidget } from "utils/helpers";
-import Debugger from "components/editorComponents/Debugger";
-import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
-import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
-import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
-import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import {
   getIsOnboardingTasksView,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
-import EditorContextProvider from "components/editorComponents/EditorContextProvider";
-import Guide from "../GuidedTour/Guide";
-import PropertyPaneContainer from "./PropertyPaneContainer";
-import CanvasTopSection from "./EmptyCanvasSection";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
+import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
+import Guide from "../GuidedTour/Guide";
+import CanvasContainer from "./CanvasContainer";
+import CanvasTopSection from "./EmptyCanvasSection";
+import PageTabs from "./PageTabs";
+import PropertyPaneContainer from "./PropertyPaneContainer";
 
-/* eslint-disable react/display-name */
 function WidgetsEditor() {
-  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
-  const canvasWidgets = useSelector(getCanvasWidgets);
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -61,18 +56,6 @@ function WidgetsEditor() {
       });
     }
   }, [currentPageName, currentPageId]);
-
-  // navigate to widget
-  useEffect(() => {
-    if (
-      !isFetchingPage &&
-      window.location.hash.length > 0 &&
-      !guidedTourEnabled
-    ) {
-      const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash, canvasWidgets);
-    }
-  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
@@ -113,7 +96,6 @@ function WidgetsEditor() {
   );
 
   PerformanceTracker.stopTracking();
-
   return (
     <EditorContextProvider renderMode="CANVAS">
       {showOnboardingTasks ? (
@@ -125,9 +107,10 @@ function WidgetsEditor() {
             <div className="relative flex flex-col w-full overflow-hidden">
               <CanvasTopSection />
               <div
-                className="relative flex flex-row w-full overflow-hidden"
+                className="relative flex flex-row w-full overflow-hidden justify-center"
                 data-testid="widgets-editor"
                 draggable
+                id="widgets-editor"
                 onClick={handleWrapperClick}
                 onDragStart={onDragStart}
               >
