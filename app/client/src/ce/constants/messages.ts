@@ -1476,6 +1476,7 @@ export const SAVE_SNAPSHOT_TEXT = () =>
   "We will create a snapshot of your whole app before the conversion, so that you can go back if auto layout is just not right for you";
 export const CREATE_SNAPSHOT = () => "Creating a snapshot";
 export const CONVERTING_APP = () => "Converting your app";
+export const RESTORING_SNAPSHOT = () => "Removing changes made";
 export const REFRESH_THE_APP = () => "REFRESH THE APP";
 export const CONVERT_ANYWAYS = () => "CONVERT ANYWAYS";
 export const CONVERSION_SUCCESS_HEADER = () => "All done";

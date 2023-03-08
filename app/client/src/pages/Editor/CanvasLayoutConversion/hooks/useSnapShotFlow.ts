@@ -3,6 +3,7 @@ import {
   CANCEL_DIALOG,
   createMessage,
   CREATE_SNAPSHOT,
+  RESTORING_SNAPSHOT,
   SNAPSHOT_LABEL,
   USE_SNAPSHOT,
   USE_SNAPSHOT_TEXT,
@@ -67,7 +68,7 @@ export const useSnapShotFlow = (
     },
     [CONVERSION_STATES.RESTORING_SNAPSHOT_SPINNER]: {
       cancelButtonText: createMessage(CANCEL_DIALOG),
-      spinner: createMessage(CREATE_SNAPSHOT),
+      spinner: createMessage(RESTORING_SNAPSHOT),
     },
     ...useCommonConversionFlows(dispatch, onCancel),
   };
