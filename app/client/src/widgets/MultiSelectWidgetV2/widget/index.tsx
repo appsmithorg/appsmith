@@ -14,7 +14,6 @@ import { isArray, isFinite, isString, LoDashStatic, xorWith } from "lodash";
 import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -462,7 +461,6 @@ class MultiSelectWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

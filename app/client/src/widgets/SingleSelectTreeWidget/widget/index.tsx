@@ -13,7 +13,6 @@ import { isArray } from "lodash";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import React, { ReactNode } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -301,7 +300,6 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

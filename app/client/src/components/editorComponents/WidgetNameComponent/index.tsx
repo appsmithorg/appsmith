@@ -21,16 +21,17 @@ import WidgetFactory from "utils/WidgetFactory";
 import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import SettingsControl, { Activities } from "./SettingsControl";
+import { theme } from "constants/DefaultTheme";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
+export const WidgetNameComponentHeight = theme.spaces[10];
 
-const PositionStyle = styled.div<{
-  isSnipingMode: boolean;
-}>`
-  height: ${(props) => props.theme.spaces[10]}px;
+const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
+  top: ${(props) =>
+    props.topRow > 2 ? `${-1 * WidgetNameComponentHeight}px` : "calc(100%)"};
+  height: ${WidgetNameComponentHeight}px;
   ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0")};
-  top: -${(props) => props.theme.spaces[10]}px;
   display: flex;
   cursor: pointer;
   z-index: ${Layers.widgetName};
@@ -176,6 +177,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       data-testid="t--settings-controls-positioned-wrapper"
       id={"widget_name_" + props.widgetId}
       isSnipingMode={isSnipingMode}
+      topRow={props.topRow}
     >
       <ControlGroup>
         <SettingsControl

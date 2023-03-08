@@ -11,7 +11,6 @@ import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetState } from "../../BaseWidget";
 import TabsComponent from "../component";
@@ -186,7 +185,6 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
