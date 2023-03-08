@@ -201,14 +201,6 @@ class ListWidget extends BaseWidget<
       this.updatePageSize();
     }
 
-    /**
-     * It's possible that when the List Widget is mounted, there's no data yet
-     * especially when the list widget data is a query
-     */
-    if (this.props.primaryKeys) {
-      this.handlePageNumberAndSelectedItem();
-    }
-
     if (this.props.selectedItemKey || this.props.triggeredItemKey) {
       /**
        * Resetting selected Items and triggered items when the list widget is mounted
@@ -233,6 +225,15 @@ class ListWidget extends BaseWidget<
     }
 
     this.setupMetaWidgets();
+
+    /**
+     * It's possible that when the List Widget is mounted, there's no data yet
+     * especially when the list widget data is a query.
+     * Also this is specifically placed after the meta widgets have been setup.
+     */
+    if (this.props.primaryKeys) {
+      this.handlePageNumberAndSelectedItem();
+    }
   }
 
   componentDidUpdate(prevProps: ListWidgetProps) {
@@ -861,10 +862,12 @@ class ListWidget extends BaseWidget<
     const defaultValue = 0;
     const { serverSidePagination, totalRecordsCount } = this.props;
 
+    const totalRecords = Number(totalRecordsCount);
+
     if (!serverSidePagination) return (this.props.listData || []).length;
 
-    if (typeof totalRecordsCount === "number" && totalRecordsCount > 0)
-      return totalRecordsCount;
+    if (typeof totalRecords === "number" && totalRecords > 0)
+      return totalRecords;
 
     return defaultValue;
   };
