@@ -20,6 +20,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -64,7 +65,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 @Slf4j
@@ -334,13 +334,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     }
 
                     // Now update the policies to change the access to the application
-                    return generateAndSetPoliciesForPublicViewOrDefaultApplicationRole(
-                            application,
-                            publicPermissionGroupId,
-                            Set.of(applicationPermission.getReadPermission()),
-                            Set.of(datasourcePermission.getExecutePermission()),
-                            applicationAccessDTO.getPublicAccess()
-                    );
+                    return generateAndSetPoliciesForApplicationView(application,
+                            publicPermissionGroupId, applicationAccessDTO.getPublicAccess());
                 })
                 .flatMap(this::setTransientFields);
 
@@ -386,11 +381,58 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    protected Mono<? extends Application> generateAndSetPoliciesForPublicViewOrDefaultApplicationRole(Application application,
-                                                                                                      String permissionGroupId,
-                                                                                                      Set<AclPermission> applicationPermissions,
-                                                                                                      Set<AclPermission> datasourcePermissions,
-                                                                                                      Boolean addViewAccess) {
+    /**
+     * The method is used to generate and update the Policies to make an application
+     * completely viewable or remove the view permission when given to a permissionGroup
+     * Making the application completely viewable or not comprises following things:
+     * <ol>
+     *     <li>Update the application and it's children's policies with READ_APPLICATION permission for a particular permission group.</li>
+     *     <li>Update used datasource with EXECUTE_PERMISSION, so that any actions which are dependent on any datasources can be executed properly.</li>
+     * </ol>
+     * @param application The application for which we need to update public access view.
+     * @param permissionGroupId The permission Group ID for which we have to update policies.
+     * @param addReadAccess A flag used to decide whether we add or remove policies.
+     */
+    private Mono<? extends Application> generateAndSetPoliciesForApplicationView(Application application,
+                                                                                 String permissionGroupId,
+                                                                                 Boolean addReadAccess) {
+        Set<AclPermission> applicationPermissions = Set.of(applicationPermission.getReadPermission());
+        Set<AclPermission> datasourcePermissions = Set.of(datasourcePermission.getExecutePermission());
+        return generateAndSetPoliciesForApplicationAndDependents(application, permissionGroupId, applicationPermissions,
+                datasourcePermissions, addReadAccess);
+    }
+
+    /**
+     * <p>The method is responsible for updating the policy for the application and it's dependents.
+     * We generate the policy map for the given permissionGroupId and set of permissions provided.
+     * Then based on boolean flag: <b>addPolicies</b> we either add the generated policies to resources, or remove them.
+     * <p>
+     * Dependents:
+     * <ul>
+     *      <li>Application Pages ({@link NewPage})</li>
+     *      <li>Actions ({@link NewAction}) & Action Collections({@link ActionCollection})</li>
+     *      <li>Themes ({@link Theme})</li>
+     *      <li>Datasources ({@link Datasource})</li>
+     * </ul>
+     *
+     * Note: We have mentioned {@link Datasource} to be a dependent of {@link Application} even though they both have
+     * same level in the hierarchy when viewed from {@link Workspace} because, {@link NewAction} are at times linked
+     * with the datasource, and related policies need to be added to them
+     *
+     * @param application Application (and it's dependents) for which the Policies need to be set.
+     * @param permissionGroupId Permission Group ID for which the policies need to be set.
+     * @param applicationPermissions A set of Application Related Permissions which will be used to generate policies
+     *                               for Application and it's children.
+     * @param datasourcePermissions A set of Datasource related Permissions which will be used to generate policies
+     *                              for related Datasources.
+     * @param addPolicies A flag used to decide whether the generated policies need to be added or removed.
+     * @return
+     */
+    protected Mono<? extends Application> generateAndSetPoliciesForApplicationAndDependents(Application application,
+                                                                                            String permissionGroupId,
+                                                                                            Set<AclPermission> applicationPermissions,
+                                                                                            Set<AclPermission> datasourcePermissions,
+                                                                                            Boolean addPolicies) {
 
         Map<String, Policy> applicationPolicyMap = policyUtils
                 .generatePolicyFromPermissionsWithPermissionGroup(applicationPermissions, permissionGroupId);
@@ -405,11 +447,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         );
 
         final Flux<NewPage> updatedPagesFlux = policyUtils
-                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, addViewAccess);
+                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, addPolicies);
         // Use the same policy map as actions for action collections since action collections have the same kind of permissions
         final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
-                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, addViewAccess);
-        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, addViewAccess);
+                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, addPolicies);
+        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, addPolicies);
         final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
                 .thenMany(updatedActionCollectionsFlux)
@@ -417,7 +459,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .then(Mono.justOrEmpty(application.getId()))
                 .thenMany(updatedThemesFlux)
                 .collectList()
-                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addViewAccess));
+                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addPolicies));
 
         return updatedActionsFlux
                 .collectList()
@@ -444,7 +486,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     // not have explicit permissions on the datasource.
                     Mono<List<Datasource>> updatedDatasourcesMono =
                             policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(datasourceIds,
-                                            datasourcePolicyMap, addViewAccess)
+                                            datasourcePolicyMap, addPolicies)
                                     .collectList();
 
                     return updatedDatasourcesMono;
@@ -452,7 +494,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .thenReturn(application)
                 .flatMap(app -> {
                     Application updatedApplication;
-                    if (addViewAccess) {
+                    if (addPolicies) {
                         updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
                     } else {
                         updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);

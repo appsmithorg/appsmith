@@ -72,6 +72,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATION
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -1590,11 +1591,11 @@ public class WorkspaceServiceTest {
                     for (PermissionGroup permissionGroup : permissionGroups) {
                         String name = permissionGroup.getName();
                         if (name.startsWith(ADMINISTRATOR)) {
-                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(ADMINISTRATOR, newName));
+                            assertThat(name).isEqualTo(generateDefaultRoleNameForResource(ADMINISTRATOR, newName));
                         } else if (name.startsWith(DEVELOPER)) {
-                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(DEVELOPER, newName));
+                            assertThat(name).isEqualTo(generateDefaultRoleNameForResource(DEVELOPER, newName));
                         } else if (name.startsWith(VIEWER)) {
-                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(VIEWER, newName));
+                            assertThat(name).isEqualTo(generateDefaultRoleNameForResource(VIEWER, newName));
                         }
                     }
 

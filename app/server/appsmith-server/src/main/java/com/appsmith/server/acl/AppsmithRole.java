@@ -1,24 +1,16 @@
 package com.appsmith.server.acl;
 
-import com.appsmith.server.constants.FieldName;
 import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
-import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
@@ -51,26 +43,6 @@ public enum AppsmithRole {
             VIEWER,
             WORKSPACE_VIEWER_DESCRIPTION,
             Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS, WORKSPACE_EXECUTE_DATASOURCES)
-    ),
-    /**
-     * Default Application Developer Role
-     * The role's name will be of format <b>Developer - application_name</b>
-     * The User with this role will be able to Edit, Delete and Read respective Application.
-     */
-    APPLICATION_DEVELOPER(
-            FieldName.APPLICATION_DEVELOPER,
-            FieldName.APPLICATION_DEVELOPER_DESCRIPTION,
-            Set.of(MANAGE_APPLICATIONS, DELETE_APPLICATIONS, READ_APPLICATIONS, APPLICATION_CREATE_PAGES, MANAGE_DATASOURCES, READ_DATASOURCES, EXECUTE_DATASOURCES, DELETE_DATASOURCES, CREATE_DATASOURCE_ACTIONS)
-    ),
-    /**
-     * Default Application Viewer Role
-     * The role's name will be of format <b>App Viewer - application_name</b>
-     * The User with this role will be able to Read respective Application.
-     */
-    APPLICATION_VIEWER(
-            FieldName.APPLICATION_VIEWER,
-            FieldName.APPLICATION_VIEWER_DESCRIPTION,
-            Set.of(READ_APPLICATIONS)
     ),
     TENANT_ADMIN("", "", Set.of(MANAGE_TENANT)),
     ;
