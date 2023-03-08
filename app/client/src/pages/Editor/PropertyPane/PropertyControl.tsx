@@ -624,27 +624,27 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
-    if (config.controlType === "ACTION_SELECTOR") {
-      const codeFromProperty = getCodeFromMoustache(propertyValue);
-      const actionTree = codeToAction(codeFromProperty, integrationOptions);
+    // if (config.controlType === "ACTION_SELECTOR") {
+    //   const codeFromProperty = getCodeFromMoustache(propertyValue);
+    //   const actionTree = codeToAction(codeFromProperty, integrationOptions);
 
-      const codeFromTree = actionToCode(actionTree);
+    //   const codeFromTree = actionToCode(actionTree);
 
-      /**
-       * There can be an extra semi-colon at the end of the code while adding
-       * a new action block. Hence passing the code through `getActionBlocks`
-       * to get the only valid action blocks for comparison.
-       */
-      if (
-        getActionBlocks(codeFromTree, self.evaluationVersion).join(";") !==
-        getActionBlocks(codeFromProperty, self.evaluationVersion).join(";")
-      ) {
-        isToggleDisabled = true;
-        if (!isDynamic) {
-          toggleDynamicProperty(propertyName, isDynamic);
-        }
-      }
-    }
+    //   /**
+    //    * There can be an extra semi-colon at the end of the code while adding
+    //    * a new action block. Hence passing the code through `getActionBlocks`
+    //    * to get the only valid action blocks for comparison.
+    //    */
+    //   if (
+    //     getActionBlocks(codeFromTree, self.evaluationVersion).join(";") !==
+    //     getActionBlocks(codeFromProperty, self.evaluationVersion).join(";")
+    //   ) {
+    //     isToggleDisabled = true;
+    //     if (!isDynamic) {
+    //       toggleDynamicProperty(propertyName, isDynamic);
+    //     }
+    //   }
+    // }
 
     const helpText =
       config.controlType === "ACTION_SELECTOR"

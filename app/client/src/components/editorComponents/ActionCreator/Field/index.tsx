@@ -207,7 +207,7 @@ export function Field(props: FieldProps) {
         get: getterFunction,
         set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
-          props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
+          props.onValueChange(finalValueToSet, isUpdatedViaKeyboard, true);
         },
         value: value,
         additionalAutoComplete: props.additionalAutoComplete,

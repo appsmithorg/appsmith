@@ -80,7 +80,11 @@ export type SelectorField = {
 };
 
 export type FieldProps = {
-  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
+  onValueChange: (
+    newValue: string,
+    isUpdatedViaKeyboard: boolean,
+    argsUpdate?: boolean,
+  ) => void;
   value: string;
   field: Field;
   label?: string;

@@ -73,8 +73,8 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
                             requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
                         } else {
                             // this is for cases with a .then in the value
-                            const requiredArg = ((node.callee as MemberExpressionNode).object as CallExpressionNode).arguments[argNum];
-                            requiredArgument = (requiredArg as LiteralNode).value;
+                            const requiredArg = ((node.callee as MemberExpressionNode)?.object as CallExpressionNode)?.arguments[argNum];
+                            requiredArgument = (requiredArg as LiteralNode)?.value;
                         }
                         break;
                 }
@@ -217,6 +217,9 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
 export const setObjectAtPosition = (currentValue: string, changeValue: any, argNum: number, evaluationVersion: number): string => {
     // Takes a function string and an object to be changed at a particular position
     // it returns the replaced function string with the object at argNum position
+    if(typeof changeValue !== "string" || changeValue === '' || changeValue.trim() === '') {
+        changeValue = '{}'
+    }
     let ast: Node = { end: 0, start: 0, type: "" };
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];
@@ -463,19 +466,21 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
          * For this one, the first callee is getCurrentPosition
          */
         let nodeToTraverse: Node = astWithComments.body[0].expression;
-        let firstCallExpressionNode: Node;
+        // let firstCallExpressionNode: Node;
 
         // @ts-ignore
-        if (nodeToTraverse.callee.type === NodeTypes.Identifier) {
-            firstCallExpressionNode = nodeToTraverse;
-        }
+        // if (nodeToTraverse.callee.type === NodeTypes.Identifier) {
+        //     firstCallExpressionNode = nodeToTraverse;
+        // }
 
         // @ts-ignore
         while (nodeToTraverse?.callee?.object) {
-            firstCallExpressionNode = klona(nodeToTraverse);
+            // firstCallExpressionNode = klona(nodeToTraverse);
             // @ts-ignore
             nodeToTraverse = nodeToTraverse?.callee?.object;
         }
+
+        const firstCallExpressionNode = klona(nodeToTraverse);        
 
         // @ts-ignore
         const argumentNode = firstCallExpressionNode?.arguments[argNum];
@@ -781,6 +786,7 @@ export function setThenBlockInQuery(
     let requiredQuery: string = "";
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        
         ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
@@ -793,15 +799,27 @@ export function setThenBlockInQuery(
         const thenNodeInGivenQuery = findNodeAt(astWithComments, null, null, (type, node) => type === NodeTypes.MemberExpression && node.property.name === "then");
 
         if (!thenNodeInGivenQuery) {
-            const astClone = klona(astWithComments);
+            const expression = klona(astWithComments.body[0].expression);
 
-            const expression = astClone.body[0].expression;
-
-            astWithComments.body[0].expression.callee.object = expression;
-            astWithComments.body[0].expression.callee.property = {
-                type: NodeTypes.Identifier,
-                name: "then",
-            };
+            const callExpression = {
+                type: NodeTypes.CallExpression,
+                start: expression.start,
+                end: expression.end + 7,
+                callee: {
+                    type: NodeTypes.MemberExpression,
+                    object: expression,
+                    start: expression.start,
+                    end: expression.end + 5,
+                    property: {
+                        type: NodeTypes.Identifier,
+                        name: "then",
+                        start: expression.end + 1,
+                        end: expression.end + 5,
+                    }
+                }
+            }
+            astWithComments.body[0].expression = callExpression;
+            astWithComments.body[0].end = callExpression.end;
         }
 
         const thenBlockNode = getAST(thenBlock, {
@@ -816,7 +834,7 @@ export function setThenBlockInQuery(
 
         if (thenCallExpressionNode) {
             // @ts-ignore
-            thenCallExpressionNode.node.arguments[0] = thenBlockNodeWithComments.body[0].expression;
+            thenCallExpressionNode.node.arguments = [thenBlockNodeWithComments.body[0].expression];
         }
 
         requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
@@ -849,15 +867,27 @@ export function setCatchBlockInQuery(
         const catchNodeInGivenQuery = findNodeAt(astWithComments, null, null, (type, node) => type === NodeTypes.MemberExpression && node.property.name === "catch");
 
         if (!catchNodeInGivenQuery) {
-            const astClone = klona(astWithComments);
+            const expression = klona(astWithComments.body[0].expression);
 
-            const expression = astClone.body[0].expression;
-
-            astWithComments.body[0].expression.callee.object = expression;
-            astWithComments.body[0].expression.callee.property = {
-                type: NodeTypes.Identifier,
-                name: "catch",
-            };
+            const callExpression = {
+                type: NodeTypes.CallExpression,
+                start: expression.start,
+                end: expression.end + 7,
+                callee: {
+                    type: NodeTypes.MemberExpression,
+                    object: expression,
+                    start: expression.start,
+                    end: expression.end + 5,
+                    property: {
+                        type: NodeTypes.Identifier,
+                        name: "catch",
+                        start: expression.end + 1,
+                        end: expression.end + 5,
+                    }
+                }
+            }
+            astWithComments.body[0].expression = callExpression;
+            astWithComments.body[0].end = callExpression.end;
         }
 
         const catchBlockNode = getAST(catchBlock, {
@@ -872,7 +902,7 @@ export function setCatchBlockInQuery(
 
         if (catchCallExpressionNode) {
             // @ts-ignore
-            catchCallExpressionNode.node.arguments[0] = catchBlockNodeWithComments.body[0].expression;
+            catchCallExpressionNode.node.arguments = [catchBlockNodeWithComments.body[0].expression];
         }
 
         requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
@@ -934,4 +964,34 @@ export function getFunctionNameFromJsObjectExpression(value: string, evaluationV
     });
 
     return functionName;
+}
+
+// function to get all call expressions in a given query
+export function getCallExpressions(value: string, evaluationVersion: number): Array<any> {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    let callExpressions: Array<any> = [];
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+    } catch (error) {
+        return callExpressions;
+    }
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    simple(astWithComments, {
+        CallExpression(node) {
+            callExpressions.push({ 
+                code: generate(node).trim(),
+                callee: generate((node as CallExpressionNode).callee).trim(),
+                arguments: (node as CallExpressionNode).arguments.map((argument) => generate(argument).trim()),
+            });
+        }
+    });
+
+    return callExpressions;
 }

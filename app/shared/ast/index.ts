@@ -46,6 +46,7 @@ import {
   setCatchBlockInQuery,
   getFunctionArguments,
   getFunctionNameFromJsObjectExpression,
+  getCallExpressions,
 } from "./src/actionCreator";
 
 // types or interfaces should be exported with type keyword, while enums can be exported like normal functions
@@ -94,4 +95,5 @@ export {
   setCatchBlockInQuery,
   getFunctionArguments,
   getFunctionNameFromJsObjectExpression,
+  getCallExpressions,
 };

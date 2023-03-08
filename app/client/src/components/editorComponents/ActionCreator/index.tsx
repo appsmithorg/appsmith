@@ -125,7 +125,7 @@ const ActionCreator = React.forwardRef(
 
     return (
       <div className="flex flex-col gap-[2px] mb-2" ref={ref}>
-        {Object.entries(actions).map(([id, value]) => (
+        {Object.entries(actions || {}).map(([id, value]) => (
           <Action
             action={props.action}
             additionalAutoComplete={props.additionalAutoComplete}

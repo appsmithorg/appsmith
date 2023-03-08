@@ -7,6 +7,7 @@ import { ActionBlock } from "../ActionBlock";
 import { Icon, TooltipComponent } from "design-system-old";
 import TreeStructure from "components/utils/TreeStructure";
 import { AppsmithFunction } from "../../constants";
+import { chainableFns } from "../../utils";
 
 type Props = {
   actionTree: ActionTree;
@@ -55,10 +56,7 @@ export const ActionBlockTree: React.FC<Props> = ({
     errorBlocks.filter(({ actionType }) => actionType !== AppsmithFunction.none)
       .length;
 
-  const areCallbacksApplicable = [AppsmithFunction.integration].includes(
-    actionType as any,
-  );
-
+  const areCallbacksApplicable = chainableFns.includes(actionType as any);
   const showCallbacks = selected || actionExpanded;
 
   const callbackBlocks: CallbackBlock[] = [

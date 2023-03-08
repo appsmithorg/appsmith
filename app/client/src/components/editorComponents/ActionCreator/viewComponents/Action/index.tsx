@@ -309,7 +309,7 @@ export const Action: React.FC<Props> = ({
                   integrationOptions={integrationOptions}
                   modalDropdownList={modalDropdownList}
                   onValueChange={(newValue) => {
-                    setActionTree(() => {
+                    setActionTree((actionTree) => {
                       const selectedField = getSelectedFieldFromValue(
                         newValue,
                         integrationOptions,
@@ -320,8 +320,8 @@ export const Action: React.FC<Props> = ({
                       return {
                         code: getCodeFromMoustache(newValue),
                         actionType,
-                        successBlocks: [],
-                        errorBlocks: [],
+                        successBlocks: actionTree.successBlocks,
+                        errorBlocks: actionTree.errorBlocks,
                       };
                     });
                   }}

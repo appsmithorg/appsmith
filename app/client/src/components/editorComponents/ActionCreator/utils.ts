@@ -273,10 +273,7 @@ export function codeToAction(
     selectedOption.value ||
     AppsmithFunction.none) as any;
 
-  if (
-    [AppsmithFunction.integration].includes(mainActionType) &&
-    multipleActions
-  ) {
+  if (chainableFns.includes(mainActionType) && multipleActions) {
     const successCallback = getFuncExpressionAtPosition(
       jsCode,
       0,
@@ -359,6 +356,20 @@ export function codeToAction(
   };
 }
 
+export const chainableFns = [
+  AppsmithFunction.integration,
+  AppsmithFunction.navigateTo,
+  AppsmithFunction.showAlert,
+  AppsmithFunction.showModal,
+  AppsmithFunction.closeModal,
+  AppsmithFunction.storeValue,
+  AppsmithFunction.clearStore,
+  AppsmithFunction.removeValue,
+  AppsmithFunction.copyToClipboard,
+  AppsmithFunction.resetWidget,
+  AppsmithFunction.showModal,
+];
+
 export function actionToCode(
   action: ActionTree,
   multipleActions = true,
@@ -371,9 +382,12 @@ export function actionToCode(
     return code;
   }
 
+  const shouldChain = errorBlocks.length || successBlocks.length;
+
   if (
-    [AppsmithFunction.integration].includes(actionType as any) &&
-    multipleActions
+    chainableFns.includes(actionType as any) &&
+    multipleActions &&
+    shouldChain
   ) {
     const successCallbackCodes = successBlocks
       .filter(

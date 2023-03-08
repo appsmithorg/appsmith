@@ -101,9 +101,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textGetter(value, 1);
     },
     setter: (value: any, currentValue: string) => {
-      if (value === "") {
-        value = undefined;
-      }
       return objectSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
