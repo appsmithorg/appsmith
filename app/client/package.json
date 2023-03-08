@@ -18,6 +18,7 @@
     "@github/g-emoji-element": "^1.1.5",
     "@googlemaps/markerclusterer": "^2.0.14",
     "@googlemaps/react-wrapper": "^1.1.35",
+    "@loadable/component": "^5.15.3",
     "@manaflair/redux-batch": "^1.0.0",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
