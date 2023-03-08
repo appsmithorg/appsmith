@@ -16,6 +16,7 @@ import {
   FlexLayer,
 } from "utils/autoLayout/autoLayoutTypes";
 import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
+import { WidgetNameComponentHeight } from "components/editorComponents/WidgetNameComponent";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -133,7 +134,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       height: props.stretchHeight ? "100%" : "auto",
       overflow: "hidden",
       padding: leaveSpaceForWidgetName
-        ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px 22px ${FLEXBOX_PADDING}px`
+        ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px ${WidgetNameComponentHeight}px ${FLEXBOX_PADDING}px`
         : "0px",
     };
   }, [
