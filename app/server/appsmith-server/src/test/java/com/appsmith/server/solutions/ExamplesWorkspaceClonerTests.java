@@ -14,7 +14,6 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
-import com.appsmith.external.models.KeyStore;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -825,10 +824,7 @@ public class ExamplesWorkspaceClonerTests {
                                                     "pem cert file content"
                                             ),
                                             "pem cert file password"
-                                    ),
-                                    new KeyStore(new UploadedFile("trustStoreFile", "trustStore file content"), "Trust Store Type", "Trust Store File Password"),
-                                    new KeyStore(new UploadedFile("keyStoreFile", "keyStore file content"), "Key Store Type", "Key Store File Password")
-
+                                    )
                             ),
                             "default db"
                     ));

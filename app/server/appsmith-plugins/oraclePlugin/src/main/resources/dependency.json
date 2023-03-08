@@ -1,5 +1,5 @@
 {
   "dependencies" : {
-    "actionConfiguration.body" : ["actionConfiguration.pluginSpecifiedTemplates[0].value"]
+    "actionConfiguration.body" : ["actionConfiguration.formData.preparedStatement.data"]
   }
 }
