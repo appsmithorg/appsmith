@@ -22,6 +22,16 @@ describe("Creating new app after discontinuing guided tour should not start the 
       }
     });
     datasources.CloseReconnectDataSourceModal(); // Check if reconnect data source modal is visible and close it
+
+    cy.get("body").then(($ele) => {
+      if ($ele.find(guidedTourLocators.startBuilding).length == 0) {
+        cy.get(commonlocators.homeIcon).click({ force: true });
+        cy.get(guidedTourLocators.welcomeTour)
+          .click()
+          .wait(4000);
+      }
+    });
+
     cy.get(guidedTourLocators.startBuilding).should("be.visible");
     // Go back to applications page
     cy.get(commonlocators.homeIcon).click({ force: true });
