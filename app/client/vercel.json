@@ -2,15 +2,15 @@
     "rewrites": [
       {
         "source": "/api/:slug*",
-        "destination": "https://release.app.appsmith.com/api/:slug*"
+        "destination": "https://app.appsmith.com/api/:slug*"
       },
       {
         "source": "/oauth2/:slug*",
-        "destination": "https://release.app.appsmith.com/oauth2/:slug*"
+        "destination": "https://app.appsmith.com/oauth2/:slug*"
       },
       {
         "source": "/login/:slug*",
-        "destination": "https://release.app.appsmith.com/login/:slug*"
+        "destination": "https://app.appsmith.com/login/:slug*"
       }
     ]
   }
