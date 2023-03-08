@@ -240,6 +240,15 @@ function ErrorLogItem(props: LogItemProps) {
     setIsOpen(!isOpen);
   };
 
+  const addHelpTelemetry = () => {
+    AnalyticsUtil.logEvent("DEBUGGER_HELP_CLICK", {
+      errorType: props.logType,
+      errorSubType: props.messages && props.messages[0].message.name,
+      appsmithErrorCode: props.pluginErrorDetails?.appsmithErrorCode,
+      downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
+    });
+  };
+
   const { collapsable } = props;
   const theme = useTheme();
 
@@ -321,7 +330,12 @@ function ErrorLogItem(props: LogItemProps) {
         {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
           props.severity === Severity.ERROR &&
           props.logType !== LOG_TYPE.LINT_ERROR && (
-            <ContextWrapper onClick={(e) => e.stopPropagation()}>
+            <ContextWrapper
+              onClick={(e) => {
+                addHelpTelemetry();
+                e.stopPropagation();
+              }}
+            >
               <ContextualMenu
                 entity={props.source}
                 error={{ message: { name: "", message: "" } }}
