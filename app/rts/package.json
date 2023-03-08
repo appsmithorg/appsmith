@@ -19,7 +19,7 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.0.3",
     "tsc-alias": "^1.8.2",
-    "typescript": "^4.5.5"
+    "typescript": "4.9.5"
   },
   "scripts": {
     "test:unit": "APPSMITH_API_BASE_URL=http jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'",
