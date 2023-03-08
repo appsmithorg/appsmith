@@ -43,11 +43,11 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationService {
 
     private static final String AUTHORIZATION = "Authorization";
-    private static final String REALM_URI = "/auth/admin/realms/";
+    private static final String REALM_URI = "http://127.0.0.1/auth/admin/realms/";
     private static String REALM_NAME = "appsmith";
     private static final String CLIENT_URI = REALM_URI + REALM_NAME + "/clients";
     private static String CLIENT = "appsmith-broker";
-    private static String ACCESS_TOKEN_URI = "/auth/realms/master/protocol/openid-connect/token";
+    private static String ACCESS_TOKEN_URI = "http://127.0.0.1/auth/realms/master/protocol/openid-connect/token";
     private static String IDENTITY_PROVIDER_URI = REALM_URI + REALM_NAME + "/identity-provider";
     private static String IDP_NAME = "saml";
 
