@@ -1,4 +1,7 @@
+import { Positioning } from "utils/autoLayout/constants";
 import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
@@ -37,6 +40,8 @@ export const CONFIG = {
     },
   },
   defaults: {
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
     columns: 24,
     shouldScrollContents: false,
@@ -53,6 +58,7 @@ export const CONFIG = {
         widgetId: "",
         isVisible: true,
         index: 0,
+        positioning: Positioning.Vertical,
       },
       tab2: {
         label: "Tab 2",
@@ -60,6 +66,7 @@ export const CONFIG = {
         widgetId: "",
         isVisible: true,
         index: 1,
+        positioning: Positioning.Vertical,
       },
     },
     shouldShowTabs: true,

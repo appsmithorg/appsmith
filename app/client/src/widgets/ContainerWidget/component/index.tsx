@@ -24,7 +24,7 @@ const StyledContainerComponent = styled.div<
   width: 100%;
   overflow: hidden;
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
-  
+
   ${(props) =>
     props.shouldScrollContents && !props.$noScroll ? scrollCSS : ``}
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
@@ -201,6 +201,11 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   backgroundColor?: string;
   type: WidgetType;
   noScroll?: boolean;
+  minHeight?: number;
+  useAutoLayout?: boolean;
+  direction?: string;
+  justifyContent?: string;
+  alignItems?: string;
   dropDisabled?: boolean;
 }
 

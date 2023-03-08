@@ -33,6 +33,7 @@ import LogEntityLink from "./components/LogEntityLink";
 import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import moment from "moment";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -43,7 +44,7 @@ const InnerWrapper = styled.div`
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
   flex-direction: column;
-  padding: 6px 12px 6px 12px;
+  padding: 8px 16px 8px 16px;
   cursor: default;
 
   &.${Severity.INFO} {
@@ -144,11 +145,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 `;
 
 const StyledSearchIcon = styled(AppIcon)`
-  height: 14px;
-  width: 14px;
+  height: 16px;
+  width: 16px;
   svg {
-    height: 14px;
-    width: 14px;
+    height: 16px;
+    width: 16px;
   }
 `;
 
@@ -168,6 +169,19 @@ const showToggleIcon = (e: Log) => {
   return !!e.state;
 };
 
+//format the requestedAt timestamp to a readable format.
+const getUpdateTimestamp = (state?: Record<string, any>) => {
+  if (state) {
+    //clone state to avoid mutating the original state.
+    const copyState = JSON.parse(JSON.stringify(state));
+    copyState.requestedAt = moment(copyState.requestedAt).format(
+      "YYYY-MM-DD HH:mm:ss",
+    );
+    return copyState;
+  }
+  return state;
+};
+
 // returns required parameters for log item
 export const getLogItemProps = (e: Log) => {
   return {
@@ -182,7 +196,7 @@ export const getLogItemProps = (e: Log) => {
     timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
     severity: e.severity,
     text: e.text,
-    state: e.state,
+    state: getUpdateTimestamp(e.state),
     id: e.source ? e.source.id : undefined,
     messages: e.messages,
     collapsable: showToggleIcon(e),
@@ -247,7 +261,7 @@ function ErrorLogItem(props: LogItemProps) {
                 : ""
             }
             name={props.icon}
-            size={IconSize.SMALL}
+            size={IconSize.XL}
           />
 
           {props.logType &&
@@ -268,7 +282,7 @@ function ErrorLogItem(props: LogItemProps) {
               fillColor={get(theme, "colors.debugger.collapseIcon")}
               name={"expand-more"}
               onClick={() => expandToggle()}
-              size={IconSize.MEDIUM}
+              size={IconSize.XL}
             />
           )}
           <div className={`debugger-error-type`}>
