@@ -58,7 +58,6 @@ import {
   union,
   unset,
 } from "lodash";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 import { applyChange, Diff, diff } from "deep-diff";
 import toposort from "toposort";
