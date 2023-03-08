@@ -148,6 +148,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     getIsTableFilterPaneVisible,
     (state: AppState) => state.ui.widgetDragResize.isResizing,
     (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: AppState) => state.ui.canvasSelection.isDraggingForSelection,
     getAppMode,
     getIsAutoHeightWithLimitsChanging,
     (
@@ -155,12 +156,14 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
       isTableFilterPaneVisible,
       isResizing,
       isDragging,
+      isDraggingForSelection,
       appMode,
       isAutoHeightWithLimitsChanging,
     ) => {
       const isFocused = focusedWidgetId === widgetId;
 
       return (
+        isDraggingForSelection ||
         isResizing ||
         isDragging ||
         appMode !== APP_MODE.EDIT ||

@@ -5,7 +5,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane,
-  table = ObjectsRegistry.TableV2,
+  table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators;
 
 import { WIDGET } from "../../../../locators/WidgetLocators";
@@ -187,7 +187,7 @@ function selectTabAndReset() {
 }
 
 function selectTableAndReset() {
-  table.SelectTableRow(1);
+  table.SelectTableRow(1,0, true, "v2");
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
     "#2",

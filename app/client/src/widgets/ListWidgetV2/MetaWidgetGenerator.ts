@@ -83,6 +83,7 @@ export type GeneratorOptions = {
   hooks?: Hooks;
   itemSpacing: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
+  level?: number;
   levelData?: LevelData;
   nestedViewIndex?: number;
   pageNo?: number;
@@ -180,7 +181,7 @@ enum MODIFICATION_TYPE {
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
-  LIST_WIDGET_V2: ["currentItemsView"],
+  LIST_WIDGET_V2: ["currentItemsView", "selectedItemView", "triggeredItemView"],
 };
 /**
  * LEVEL_PATH_REGEX gives out following matches:
@@ -316,6 +317,7 @@ class MetaWidgetGenerator {
       options.containerParentId,
     );
 
+    this.level = options.level ?? 1;
     this.prevPrimaryKeys = this.primaryKeys;
     this.primaryKeys = this.generatePrimaryKeys(options);
 
@@ -1021,18 +1023,12 @@ class MetaWidgetGenerator {
      * Calling this here as all references in all the dynamicBindingPathList has to
      * be collected first in the above loop and then added at last.
      */
-    // if (pathTypes.has(DynamicPathType.CURRENT_VIEW)) {
-    //   this.addCurrentViewProperty(
-    //     metaWidget,
-    //     Object.values(referencesEntityDef),
-    //   );
-    // }
-    /**
-     * The above commented out code should be used instead of this
-     * only after the following issue is resolved
-     * https://github.com/appsmithorg/appsmith/issues/20401
-     */
-    this.addCurrentViewProperty(metaWidget, Object.values(referencesEntityDef));
+    if (pathTypes.has(DynamicPathType.CURRENT_VIEW)) {
+      this.addCurrentViewProperty(
+        metaWidget,
+        Object.values(referencesEntityDef),
+      );
+    }
   };
 
   /**
@@ -1393,6 +1389,7 @@ class MetaWidgetGenerator {
       prevOptions?.containerParentId !== this.containerParentId ||
       prevOptions?.containerWidgetId !== this.containerWidgetId ||
       prevOptions?.widgetName !== this.widgetName ||
+      prevOptions?.level !== this.level ||
       prevOptions?.levelData !== this.levelData ||
       prevOptions?.infiniteScroll !== this.infiniteScroll ||
       prevOptions?.itemSpacing !== this.itemSpacing ||

@@ -22,7 +22,7 @@ import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
 export function AccessControlUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
-    logEventName: "ADMIN_SETTINGS_UPGRADE_HOOK",
+    logEventName: "GAC_UPGRADE_CLICK_ADMIN_SETTINGS",
     logEventData: { source: "Granular Access Control" },
     intercomMessage: createMessage(
       UPGRADE_TO_EE_FEATURE,

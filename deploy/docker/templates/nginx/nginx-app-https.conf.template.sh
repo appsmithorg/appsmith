@@ -30,6 +30,7 @@ access_log /dev/stdout;
 
 server {
   listen 80;
+  listen [::]:80;
   server_name $CUSTOM_DOMAIN;
 
   return 301 https://\$host\$request_uri;
@@ -37,6 +38,7 @@ server {
 
 server {
   listen 443 ssl http2;
+  listen [::]:443 ssl http2;
   server_name _;
 
   ssl_certificate $SSL_CERT_PATH;
@@ -71,7 +73,7 @@ server {
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
   proxy_set_header X-Forwarded-Host \$origin_host;
 
-  client_max_body_size 100m;
+  client_max_body_size 150m;
 
   gzip on;
   gzip_types *;

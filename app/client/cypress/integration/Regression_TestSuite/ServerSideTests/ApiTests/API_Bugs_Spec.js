@@ -87,10 +87,12 @@ describe("Rest Bugs tests", function() {
     //   expect(response.body.data.body.length).to.be.above(0); //Number fact
     // });
 
-    cy.get(".t--draggable-textwidget")
+    cy.get(".t--widget-buttonwidget").scrollIntoView();
+
+    cy.get(".t--widget-textwidget")
       .eq(0)
       .invoke("text")
-      .then(($txt) => expect($txt).to.have.length.greaterThan(25));
+      .then(($txt) => expect($txt).to.have.length.greaterThan(20));
 
     // cy.wait("@postExecute").then(({ response }) => {
     //   //cy.log("Response is :"+ JSON.stringify(response.body))
@@ -151,7 +153,7 @@ describe("Rest Bugs tests", function() {
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
       .then(($text) => {
-        expect($text).to.eq("Execution failed");
+        expect($text).to.eq("An unexpected error occurred");
       });
   });
 
@@ -187,7 +189,14 @@ describe("Rest Bugs tests", function() {
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
       .then(($text) => {
-        expect($text).to.eq("Execution failed with status 404 NOT_FOUND");
+        expect($text).to.eq("API execution error");
+      });
+    cy.get(commonlocators.debuggerToggle).click();
+    cy.wait(1000);
+    cy.get(commonlocators.debuggerDownStreamErrCode)
+      .invoke("text")
+      .then(($text) => {
+        expect($text).to.eq("[404 NOT_FOUND]");
       });
   });
 

@@ -7,6 +7,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
+import com.external.plugins.exceptions.ElasticSearchPluginError;
 import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
@@ -29,11 +30,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
@@ -457,7 +455,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host 169.254.169.254 is not allowed", result.getBody());
+                    assertEquals("Host 169.254.169.254 is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }
@@ -482,7 +480,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host 169.254.169.254.nip.io is not allowed", result.getBody());
+                    assertEquals("Host 169.254.169.254.nip.io is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }
@@ -514,7 +512,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host 169.254.169.254.nip.io is not allowed", result.getBody());
+                    assertEquals("Host 169.254.169.254.nip.io is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }
@@ -539,7 +537,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host metadata.google.internal is not allowed", result.getBody());
+                    assertEquals("Host metadata.google.internal is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }
@@ -571,9 +569,19 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host metadata.google.internal is not allowed", result.getBody());
+                    assertEquals("Host metadata.google.internal is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfElasticSearchPluginErrorCode() {
+        assert (Arrays.stream(ElasticSearchPluginError.values()).map(ElasticSearchPluginError::getAppErrorCode).distinct().count() == ElasticSearchPluginError.values().length);
+
+        assert (Arrays.stream(ElasticSearchPluginError.values()).map(ElasticSearchPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-ELS"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 
 }

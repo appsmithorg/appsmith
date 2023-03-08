@@ -18,8 +18,11 @@ export function defaultOptionValueValidation(
   props: JSONFormWidgetProps,
   _: any,
 ): ValidationResponse {
-  const DEFAULT_ERROR_MESSAGE =
-    'value should match: string | { "label": "label1", "value": "value1" }';
+  const DEFAULT_ERROR_MESSAGE = {
+    name: "TypeError",
+    message:
+      'value should match: string | { "label": "label1", "value": "value1" }',
+  };
   let value = inputValue;
 
   const hasLabelValueProperties = (
@@ -40,7 +43,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: inputValue,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -55,7 +58,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -64,7 +67,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 

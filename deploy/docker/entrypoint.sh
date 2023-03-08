@@ -173,6 +173,15 @@ init_replica_set() {
   fi
 
   if [[ $isUriLocal -gt 0 ]]; then
+    if [[ -f /proc/cpuinfo ]] && ! grep --quiet avx /proc/cpuinfo; then
+      echo "====================================================================================================" >&2
+      echo "==" >&2
+      echo "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
+      echo "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
+      echo "==" >&2
+      echo "====================================================================================================" >&2
+    fi
+
     echo "Checking Replica Set of external MongoDB"
 
     if appsmithctl check-replica-set; then
@@ -266,6 +275,12 @@ configure_supervisord() {
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
       cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
     fi
+    if [[ $runEmbeddedPostgres -eq 1 ]]; then
+      cp "$SUPERVISORD_CONF_PATH/postgres.conf" /etc/supervisor/conf.d/
+      # Update hosts lookup to resolve to embedded postgres
+      echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
+    fi
+
   fi
 }
 
@@ -287,6 +302,63 @@ check_redis_compatible_page_size() {
   else
     echo "Redis is compatible with page size of $page_size"
   fi
+}
+
+init_postgres() {
+  # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
+  if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 ]]; then
+    echo ""
+    echo "Checking initialized local postgres"
+    POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
+
+    if [ -e "$POSTGRES_DB_PATH/PG_VERSION" ]; then
+        echo "Found existing Postgres, Skipping initialization"
+    else
+      echo "Initializing local postgresql database"
+      
+      mkdir -p $POSTGRES_DB_PATH
+
+      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
+      chown postgres:postgres $POSTGRES_DB_PATH
+
+      # Initialize the postgres db file system
+      su -m postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+
+      # Start the postgres server in daemon mode
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
+
+      # Create mockdb db and user and populate it with the data
+      seed_embedded_postgres
+      
+      # Stop the postgres daemon
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
+    fi
+  else
+    runEmbeddedPostgres=0 
+  fi
+  
+}
+
+seed_embedded_postgres(){
+    # Create mockdb database 
+    psql -U postgres -c "CREATE DATABASE mockdb;"
+    # Create mockdb superuser
+    su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
+    # Dump the sql file containing mockdb data
+    psql -U postgres -d mockdb --file='/opt/appsmith/templates/mockdb_postgres.sql'
+
+    # Create users database
+    psql -U postgres -c "CREATE DATABASE users;"
+    # Create users superuser
+    su postgres -c "/usr/lib/postgresql/13/bin/createuser users -s"
+    # Dump the sql file containing mockdb data
+    psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
+}
+
+safe_init_postgres(){
+runEmbeddedPostgres=1
+# fail safe to prevent entrypoint from exiting, and prevent postgres from starting
+init_postgres || runEmbeddedPostgres=0 
 }
 
 # Main Section
@@ -312,6 +384,8 @@ mount_letsencrypt_directory
 
 check_redis_compatible_page_size
 
+safe_init_postgres
+
 configure_supervisord
 
 CREDENTIAL_PATH="/etc/nginx/passwords"
@@ -323,7 +397,7 @@ fi
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres}
 
 # Handle CMD command
 exec "$@"

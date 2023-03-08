@@ -34,6 +34,7 @@ import Connected from "../DataSourceEditor/Connected";
 
 import {
   getCurrentApplicationId,
+  getGsheetToken,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import DatasourceAuth from "pages/common/datasourceAuth";
@@ -65,7 +66,6 @@ import {
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import FeatureFlags from "entities/FeatureFlags";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -89,7 +89,7 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
-  FeatureFlags?: FeatureFlags;
+  gsheetToken?: string;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -261,8 +261,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      featureFlags,
       formData,
+      gsheetToken,
       hiddenHeader,
       pageId,
       plugin,
@@ -354,8 +354,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 ? _.map(sections, this.renderMainSection)
                 : null}
               {""}
-              {featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS &&
-                "Load UI for Limiting GSheet Access"}
             </>
           )}
           {viewMode && (
@@ -381,6 +379,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
+              gsheetToken={gsheetToken}
               isInvalid={this.validate()}
               pageId={pageId}
               shouldDisplayAuthMessage={!isGoogleSheetPlugin}
@@ -441,7 +440,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ...pagePermissions,
   ]);
 
-  const featureFlags: FeatureFlags = selectFeatureFlags(state);
+  const gsheetToken = getGsheetToken(state);
 
   return {
     datasource,
@@ -470,7 +469,8 @@ const mapStateToProps = (state: AppState, props: any) => {
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     canCreateDatasourceActions,
-    featureFlags,
+    featureFlags: selectFeatureFlags(state),
+    gsheetToken,
   };
 };
 

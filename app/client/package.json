@@ -6,6 +6,9 @@
     "node": "^16.14.0",
     "npm": "^8.5.5"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",
@@ -35,6 +38,7 @@
     "@uppy/react": "^1.11.2",
     "@uppy/url": "^1.5.16",
     "@uppy/webcam": "^1.8.4",
+    "@design-system/wds": "*",
     "@welldone-software/why-did-you-render": "^4.2.5",
     "acorn-walk": "^8.2.0",
     "algoliasearch": "^4.2.0",
@@ -47,10 +51,11 @@
     "core-js": "^3.9.1",
     "country-flag-emoji-polyfill": "^0.1.4",
     "craco-alias": "^2.1.1",
+    "craco-babel-loader": "^1.0.4",
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system-old": "npm:@appsmithorg/design-system-old@1.0.50",
+    "design-system-old": "npm:@appsmithorg/design-system-old@1.0.52",
     "downloadjs": "^1.4.7",
     "draft-js": "^0.11.7",
     "exceljs": "^4.3.0",
@@ -69,6 +74,7 @@
     "instantsearch.css": "^7.4.2",
     "interweave": "^12.7.2",
     "interweave-autolink": "^4.4.2",
+    "jest-preview": "^0.3.1",
     "js-beautify": "^1.14.0",
     "js-sha256": "^0.9.0",
     "jshint": "^2.13.4",
@@ -103,6 +109,7 @@
     "rc-tree-select": "^5.4.0",
     "re-reselect": "^3.4.0",
     "react": "^17.0.2",
+    "react-append-to-body": "^2.0.26",
     "react-beautiful-dnd": "^12.2.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-device-detect": "^2.2.2",
@@ -184,7 +191,8 @@
     "generate:widget": "plop --plopfile generators/index.js",
     "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
     "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
-    "install": "node cypress/apply-patches.js"
+    "install": "node cypress/apply-patches.js",
+    "storybook": "yarn workspace @design-system/storybook storybook"
   },
   "browserslist": [
     ">0.2%",
@@ -281,6 +289,7 @@
     "patch-package": "^6.4.7",
     "plop": "^3.1.1",
     "postinstall-postinstall": "^2.1.0",
+    "prop-types": "^15.8.1",
     "raw-loader": "^4.0.2",
     "react-is": "^16.12.0",
     "react-test-renderer": "^16.11.0",

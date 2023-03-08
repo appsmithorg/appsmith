@@ -8,9 +8,15 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import {
+  LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const MIN_ITEM_SPACING = 0;
 const MAX_ITEM_SPACING = 16;
+const MIN_TOTAL_RECORD_COUNT = 0;
+const MAX_TOTAL_RECORD_COUNT = Number.MAX_SAFE_INTEGER;
 
 const isValidListData = (
   value: unknown,
@@ -35,7 +41,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: [],
         messages: [
-          "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+          {
+            name: "ValidationError",
+            message:
+              "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+          },
         ],
       };
     }
@@ -46,7 +56,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: inputValue, // undefined the chosen key doesn't exist.
         messages: [
-          "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+          {
+            name: "ValidationError",
+            message:
+              "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+          },
         ],
       };
     }
@@ -57,7 +71,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: inputValue,
         messages: [
-          "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+          {
+            name: "ValidationError",
+            message:
+              "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+          },
         ],
       };
     }
@@ -69,7 +87,11 @@ export const primaryColumnValidation = (
         isValid: false,
         parsed: [], // Empty array as the inputValue is an array type
         messages: [
-          "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+          {
+            name: "ValidationError",
+            message:
+              "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+          },
         ],
       };
     }
@@ -81,14 +103,14 @@ export const primaryColumnValidation = (
     return {
       isValid: false,
       parsed: undefined, // undefined as we do not know what the data type of inputValue is so "[]" is not an appropriate value to return
-      messages: [message],
+      messages: [{ name: "ValidationError", message }],
     };
   }
 
   return {
     isValid: true,
     parsed: inputValue,
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 };
 
@@ -223,6 +245,23 @@ export const PropertyPaneContentConfig = [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
+      },
+      {
+        propertyName: "totalRecordsCount",
+        helpText: createMessage(LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP),
+        label: "Total Records",
+        controlType: "INPUT_TEXT",
+        inputType: "INTEGER",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        placeholderText: "Enter total record count",
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: { min: MIN_TOTAL_RECORD_COUNT, max: MAX_TOTAL_RECORD_COUNT },
+        },
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          !props.serverSidePagination,
+        dependencies: ["serverSidePagination"],
       },
       {
         propertyName: "onPageChange",
