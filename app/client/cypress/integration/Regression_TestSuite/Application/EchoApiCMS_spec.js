@@ -1,76 +1,67 @@
-const dsl = require("../../../fixtures/CMSdsl.json");
-const apiwidget = require("../../../locators/apiWidgetslocator.json");
-import apiEditor from "../../../locators/ApiEditor";
 import appPage from "../../../locators/CMSApplocators";
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe("Content Management System App", function() {
   before(() => {
-    cy.addDsl(dsl);
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("EchoApiCMS" + uid);
+      _.homePage.CreateAppInWorkspace("EchoApiCMS" + uid, "EchoApiCMSApp");
+      cy.fixture("CMSdsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
+    });
   });
 
+  let repoName;
   it("1.Create Get echo Api call", function() {
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("get_data");
-    // creating get request using echo
-    cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/get");
-    cy.get(apiwidget.headerKey).type("info");
-    cy.xpath("//span[text()='Key']").click();
-    // entering the data in header
-    cy.get(
-      apiwidget.headerValue,
-    ).type(
-      '[{"due":"2021-11-23","assignee":"Dan.Wyman@hotmail.com","title":"Recusan","description":"Ut quisquam eum beatae facere eos aliquam laborum ea.","id":"1"},{"due":"2021-11-23","assignee":"Dashawn_Maggio30@gmail.com","title":"Dignissimos eaque","description":"Consequatur corrupti et possimus en.","id":"2"},{"due":"2021-11-24","assignee":"Curt50@gmail.com","title":"Voluptas explicabo","description":"Quia ratione optio et maiores.","id":"3"},{"due":"2021-11-23","assignee":"Shanna63@hotmail.com","title":"Aut omnis.","description":"Neque rerum numquam veniam voluptatum id. Aut daut.","id":"4"}]',
-      { parseSpecialCharSequences: false },
+    _.apiPage.CreateAndFillApi(
+      "http://host.docker.internal:5001/v1/mock-api/echo",
+      "get_data",
     );
-    cy.SaveAndRunAPI();
-    cy.ResponseStatusCheck("200");
+    // creating get request using echo
+    _.apiPage.EnterHeader(
+      "info",
+      '[{"due":"2021-11-23","assignee":"Dan.Wyman@hotmail.com","title":"Recusan","description":"Ut quisquam eum beatae facere eos aliquam laborum ea.","id":"1"},{"due":"2021-11-23","assignee":"Dashawn_Maggio30@gmail.com","title":"Dignissimos eaque","description":"Consequatur corrupti et possimus en.","id":"2"},{"due":"2021-11-24","assignee":"Curt50@gmail.com","title":"Voluptas explicabo","description":"Quia ratione optio et maiores.","id":"3"},{"due":"2021-11-23","assignee":"Shanna63@hotmail.com","title":"Aut omnis.","description":"Neque rerum numquam veniam voluptatum id. Aut daut.","id":"4"}]',
+    );
+    // entering the data in header
+    _.apiPage.RunAPI();
+    _.apiPage.ResponseStatusCheck("200");
   });
 
   it("2. Create Post echo Api call", function() {
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("send_mail");
-    cy.get(apiEditor.ApiVerb).click();
-    cy.xpath(appPage.selectPost).click();
+    _.apiPage.CreateAndFillApi(
+      "http://host.docker.internal:5001/v1/mock-api/echo",
+      "send_mail",
+      10000,
+      "POST",
+    );
+    _.apiPage.SelectPaneTab("Body");
+    _.apiPage.SelectSubTab("JSON");
     // creating post request using echo
-    cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/post");
-    cy.contains(apiEditor.bodyTab).click({ force: true });
-    cy.get(apiEditor.jsonBodyTab).click({ force: true });
-    cy.xpath(apiwidget.postbody)
-      .click({ force: true })
-      .clear();
-    // binding the data with widgets in body tab
-    cy.xpath(apiwidget.postbody)
-      .click({ force: true })
-      .focus()
-      .type(
-        '{"to":"{{to_input.text}}","subject":"{{subject.text}}","content":"{{content.text}}"}',
-        { parseSpecialCharSequences: false },
-      )
-      .type("{del}{del}{del}");
-    cy.SaveAndRunAPI();
-    cy.ResponseStatusCheck("201");
+    _.dataSources.EnterQuery(
+      '{"to":"{{to_input.text}}","subject":"{{subject.text}}","content":"{{content.text}}"}',
+    );
+    _.apiPage.RunAPI();
+    _.apiPage.ResponseStatusCheck("200");
   });
 
   it("3. Create Delete echo Api call", function() {
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("delete_proposal");
-    cy.get(apiEditor.ApiVerb).click();
-    cy.xpath(appPage.selectDelete).click();
-    // creating delete request using echo
-    cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/delete");
-    cy.contains(apiEditor.bodyTab).click({ force: true });
-    cy.get(apiEditor.jsonBodyTab).click({ force: true });
-    // binding the data with widgets in body tab
-    cy.xpath(apiwidget.postbody)
-      .click({ force: true })
-      .focus()
-      .type(
-        '{"title":"{{title.text}}","due":"{{due.text}}","assignee":"{{assignee.text}}"}',
-        { parseSpecialCharSequences: false },
-      )
-      .type("{del}{del}{del}");
-    cy.SaveAndRunAPI();
-    //cy.ResponseStatusCheck("200");
+    _.apiPage.CreateAndFillApi(
+      "http://host.docker.internal:5001/v1/mock-api/echo",
+      "delete_proposal",
+      10000,
+      "DELETE",
+    );
+    _.apiPage.SelectPaneTab("Body");
+    _.apiPage.SelectSubTab("JSON");
+    // creating post request using echo
+    _.dataSources.EnterQuery(
+      '{"title":"{{title.text}}","due":"{{due.text}}","assignee":"{{assignee.text}}"}',
+    );
+    _.apiPage.RunAPI();
+    _.apiPage.ResponseStatusCheck("200");
   });
 
   it("4. Send mail and verify post request body", function() {
@@ -124,22 +115,27 @@ describe("Content Management System App", function() {
     cy.ResponseCheck("Recusan");
   });
 
-  /*it("6. Connect app to git, verify data binding in edit and deploy mode", ()=>{
+  it("6. Connect app to git, verify data binding in edit and deploy mode", () => {
     cy.get(`.t--entity-name:contains("Page1")`)
-    .should("be.visible")
-    .click({ force: true });
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName);
+      .should("be.visible")
+      .click({ force: true });
+    _.gitSync.CreateNConnectToGit(repoName);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
-    cy.latestDeployPreview()
-    cy.wait(2000)
-    cy.xpath("//span[text()='Curt50@gmail.com']").should("be.visible").click({ force: true });
+    cy.latestDeployPreview();
+    cy.wait(2000);
+    cy.xpath("//span[text()='Curt50@gmail.com']")
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(appPage.mailButton)
+      .closest("div")
+      .click();
+    cy.xpath(appPage.sendMailText).should("be.visible");
     cy.xpath(appPage.subjectField).type("Test");
-    cy.xpath(appPage.contentField)
+    cy.get(appPage.contentField)
       .last()
+      .find("textarea")
       .type("Task completed", { force: true });
     cy.get(appPage.confirmButton)
       .closest("div")
@@ -147,7 +143,11 @@ describe("Content Management System App", function() {
     cy.get(appPage.closeButton)
       .closest("div")
       .click({ force: true });
-      cy.get(commonlocators.backToEditor).click();
-      cy.wait(1000);
-  }) */
+    _.deployMode.NavigateBacktoEditor();
+  });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });

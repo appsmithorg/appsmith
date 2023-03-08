@@ -30,6 +30,8 @@ import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -46,9 +48,12 @@ export type WidgetDraggingBlock = {
   isNotColliding: boolean;
   detachFromLayout?: boolean;
   fixedHeight?: number;
+  type: string;
 };
 
 export const useBlocksToBeDraggedOnCanvas = ({
+  alignItems,
+  direction,
   noPad,
   snapColumnSpace,
   snapRows,
@@ -169,6 +174,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
             fixedHeight: newWidget.isDynamicHeight
               ? newWidget.rows * snapRowSpace
               : undefined,
+            type: newWidget.type,
           },
         ],
         draggingSpaces: [
@@ -197,19 +203,84 @@ export const useBlocksToBeDraggedOnCanvas = ({
           widgetId: each.id,
           isNotColliding: true,
           fixedHeight: each.fixedHeight,
+          type: allWidgets[each.id].type,
         })),
       };
     }
   };
   const { blocksToDraw, draggingSpaces } = getBlocksToDraw();
-  const dragCenterSpace: any = getDragCenterSpace();
 
+  const dragCenterSpace: any = getDragCenterSpace();
+  // get spaces occupied by unselected children
   const filteredChildOccupiedSpaces = childrenOccupiedSpaces.filter(
     (each) => !selectedWidgets.includes(each.id),
   );
   const { updateDropTargetRows } = useContext(DropTargetContext);
   const stopReflowing = () => {
     if (isReflowing) dispatch(stopReflowAction());
+  };
+  const updateChildrenPositions = (
+    dropPayload: HighlightInfo,
+    drawingBlocks: WidgetDraggingBlock[],
+  ): void => {
+    if (isNewWidget) addNewWidgetToAutoLayout(dropPayload, drawingBlocks);
+    else
+      dispatch({
+        type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
+        payload: {
+          dropPayload,
+          movedWidgets: selectedWidgets,
+          parentId: widgetId,
+          direction,
+        },
+      });
+  };
+  const addNewWidgetToAutoLayout = (
+    dropPayload: HighlightInfo,
+    drawingBlocks: WidgetDraggingBlock[],
+  ) => {
+    const blocksToUpdate = drawingBlocks.map((each) => {
+      const updateWidgetParams = widgetOperationParams(
+        newWidget,
+        { x: 0, y: each.top },
+        { x: 0, y: 0 },
+        snapColumnSpace,
+        snapRowSpace,
+        newWidget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
+        {
+          width: each.width,
+          height: each.height,
+        },
+        direction === LayoutDirection.Vertical &&
+          alignItems === AlignItems.Stretch,
+      );
+      return {
+        ...each,
+        updateWidgetParams,
+      };
+    });
+    // Add alignment to props of the new widget
+    const widgetPayload = {
+      ...blocksToUpdate[0]?.updateWidgetParams?.payload,
+      props: {
+        ...blocksToUpdate[0]?.updateWidgetParams?.payload?.props,
+        alignment: dropPayload.alignment,
+      },
+    };
+    setTimeout(() => {
+      selectWidget(widgetPayload.newWidgetId);
+    }, 100);
+    dispatch({
+      type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+      payload: {
+        dropPayload,
+        newWidget: widgetPayload,
+        parentId: newWidget.detachFromLayout
+          ? MAIN_CONTAINER_WIDGET_ID
+          : widgetId,
+        direction,
+      },
+    });
   };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],
@@ -228,6 +299,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           widgetId: widget.widgetId,
           isNotColliding: true,
           detachFromLayout: widget.detachFromLayout,
+          type: widget.type,
         };
       },
     );
@@ -438,6 +510,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     rowRef,
     stopReflowing,
     updateBottomRow,
+    updateChildrenPositions,
     updateRelativeRows,
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,
