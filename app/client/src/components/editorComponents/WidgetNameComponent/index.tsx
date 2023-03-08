@@ -14,12 +14,12 @@ import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import WidgetFactory from "utils/WidgetFactory";
+import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import SettingsControl, { Activities } from "./SettingsControl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;

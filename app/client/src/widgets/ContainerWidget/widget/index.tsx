@@ -9,17 +9,13 @@ import {
 } from "constants/WidgetConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import ContainerComponent, { ContainerStyle } from "../component";
-
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-
 import { ValidationTypes } from "constants/WidgetValidation";
-
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export class ContainerWidget extends BaseWidget<

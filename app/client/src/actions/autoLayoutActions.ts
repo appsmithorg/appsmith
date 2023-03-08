@@ -17,3 +17,10 @@ export const updateLayoutForMobileBreakpointAction = (
     canvasWidth,
   },
 });
+
+export const setAutoCanvasResizing = (isAutoCanvasResizing: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_AUTO_CANVAS_RESIZING,
+    payload: isAutoCanvasResizing,
+  };
+};
