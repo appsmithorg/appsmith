@@ -35,7 +35,11 @@ describe("Entity explorer tests related to widgets and validation", function() {
     cy.Createpage(pageid);
     cy.addDsl(tdsl);
     cy.openPropertyPane("tablewidget");
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
+    cy.widgetText(
+      "Table1",
+      widgetsPage.tableWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.GlobalSearchEntity("Table1");
     cy.OpenBindings("Table1");
     cy.get(explorer.property)

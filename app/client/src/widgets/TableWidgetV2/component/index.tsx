@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 import Table from "./Table";
 import {
   AddNewRowActions,
@@ -161,120 +161,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
-  const { hiddenColumns } = useMemo(() => {
-    const hidden: string[] = [];
-    columns.forEach((item) => {
-      if (item.isHidden) {
-        hidden.push(item.alias);
-      }
-    });
-    return {
-      hiddenColumns: hidden,
-    };
-  }, [columns]);
-
-  useEffect(() => {
-    let dragged = -1;
-    const leftOrder: string[] = [];
-    const rightOrder: string[] = [];
-    const middleOrder: string[] = [];
-    columns.forEach((item) => {
-      if (item.sticky === StickyType.LEFT) {
-        leftOrder.push(item.alias);
-      } else if (item.sticky === StickyType.RIGHT) {
-        rightOrder.push(item.alias);
-      } else {
-        middleOrder.push(item.alias);
-      }
-    });
-    const headers = Array.prototype.slice
-      .call(document.querySelectorAll(`#table${widgetId} .draggable-header`))
-      .filter((header) => {
-        // Filter out columns that are not sticky.
-        const parentDataAtrributes = header.parentElement.dataset;
-        return !("stickyTd" in parentDataAtrributes);
-      });
-    headers.forEach((header, i) => {
-      header.setAttribute("draggable", true);
-
-      header.ondragstart = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style =
-          "background: #efefef; border-radius: 4px; z-index: 100; width: 100%; text-overflow: none; overflow: none;";
-        e.stopPropagation();
-        dragged = i;
-      };
-
-      header.ondrag = (e: React.DragEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-      };
-
-      header.ondragend = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        e.stopPropagation();
-        setTimeout(() => (dragged = -1), 1000);
-      };
-
-      // the dropped header
-      header.ondragover = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== dragged && dragged !== -1) {
-          if (dragged > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (dragged < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragenter = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== dragged && dragged !== -1) {
-          if (dragged > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (dragged < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragleave = (e: React.DragEvent<HTMLDivElement>) => {
-        header.parentElement.className = "th header-reorder";
-        e.preventDefault();
-      };
-
-      header.ondrop = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        header.parentElement.className = "th header-reorder";
-        if (i !== dragged && dragged !== -1) {
-          e.preventDefault();
-          const newColumnOrder = [...middleOrder];
-          // The dragged column
-          const movedColumnName = newColumnOrder.splice(dragged, 1);
-
-          // If the dragged column exists
-          if (movedColumnName && movedColumnName.length === 1) {
-            newColumnOrder.splice(i, 0, movedColumnName[0]);
-          }
-          handleReorderColumn([
-            ...leftOrder,
-            ...newColumnOrder,
-            ...hiddenColumns,
-            ...rightOrder,
-          ]);
-        } else {
-          dragged = -1;
-        }
-      };
-    });
-  }, [
-    props.columns.map((column) => column.alias).toString(),
-    props.serverSidePaginationEnabled,
-    props.searchKey,
-    props.multiRowSelection,
-  ]);
-
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
     if (allowSorting) {
       if (columnIndex === -1) {
@@ -343,6 +229,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       enableDrag={memoziedEnableDrag}
       filters={filters}
       handleColumnFreeze={handleColumnFreeze}
+      handleReorderColumn={handleReorderColumn}
       handleResizeColumn={handleResizeColumn}
       height={height}
       isAddRowInProgress={isAddRowInProgress}

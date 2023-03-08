@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const dsl = require("../../../../../fixtures/checkboxgroupDsl.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Checkbox Group Widget Functionality", function() {
   before(() => {
@@ -19,7 +20,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.widgetText(
       "checkboxgrouptest",
       formWidgetsPage.checkboxGroupWidget,
-      formWidgetsPage.checkboxGroupInput,
+      widgetsPage.widgetNameSpan,
     );
     /**
      * @param{IndexValue} Provide Input Index Value
