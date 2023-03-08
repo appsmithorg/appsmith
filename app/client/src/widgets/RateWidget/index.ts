@@ -31,6 +31,10 @@ export const CONFIG = {
     widgetName: "Rating",
   },
   autoLayout: {
+    defaults: {
+      columns: 7.272727,
+      rows: 4,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,
