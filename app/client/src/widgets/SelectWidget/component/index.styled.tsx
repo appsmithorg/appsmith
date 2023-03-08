@@ -93,6 +93,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<
       height: 100%;
     }
   }
+
   &&&& .${Classes.BUTTON} {
     display: flex;
     width: 100%;
@@ -100,7 +101,10 @@ export const StyledSingleDropDown = styled(SingleDropDown)<
     align-items: center;
     justify-content: space-between;
     background: white;
-    min-height: 36px;
+    .auto-layout & {
+      min-height: 36px;
+    }
+    min-height: 32px;
     padding-left: 12px;
     padding: 0px 10px;
     border-radius: ${(props) => props.borderRadius} !important;

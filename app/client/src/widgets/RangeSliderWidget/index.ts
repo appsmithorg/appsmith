@@ -32,7 +32,7 @@ export const CONFIG = {
     labelAlignment: Alignment.LEFT,
     labelWidth: 8,
     labelTextSize: "0.875rem",
-    rows: 7,
+    rows: 8,
     columns: 40,
     widgetName: "RangeSlider",
     shouldScroll: false,
@@ -51,6 +51,10 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    defaults: {
+      rows: 7,
+      columns: 40,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,

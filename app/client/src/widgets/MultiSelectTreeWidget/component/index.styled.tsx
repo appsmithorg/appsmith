@@ -1009,6 +1009,8 @@ export const InputContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   ${multiSelectInputContainerStyles}
-  height: 36px !important;
+  .auto-layout & {
+    height: 36px !important;
+  }
   ${({ labelPosition }) => labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
 `;
