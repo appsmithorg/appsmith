@@ -7,8 +7,8 @@ import {
   LINT_WORKER_ACTIONS,
   LintTreeRequest,
 } from "./types";
-import { getlintErrorsFromTree } from "./utils";
 import { TMessage, MessageType, sendMessage } from "utils/MessageUtil";
+import { getlintErrorsFromTree } from ".";
 
 function messageEventListener(fn: typeof eventRequestHandler) {
   return (event: MessageEvent<TMessage<LintWorkerRequest>>) => {

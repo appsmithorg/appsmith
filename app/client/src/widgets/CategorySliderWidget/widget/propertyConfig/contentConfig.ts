@@ -1,13 +1,14 @@
-import { LabelPosition } from "components/constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { CategorySliderWidgetProps } from "..";
 import {
   defaultOptionValidation,
   optionsCustomValidation,
 } from "../../validations";
-import { CategorySliderWidgetProps } from "..";
 
 export default [
   {
@@ -188,6 +189,7 @@ export default [
       },
     ],
   },
+  ...getResponsiveLayoutConfig("CATEGORY_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [
