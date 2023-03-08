@@ -776,7 +776,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         Mono<Application> importedApplicationMono = installedJSLibMono
                 .flatMapMany(ignored -> pluginRepository.findAll())
                 .map(plugin -> {
-                    final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
+                    final String pluginReference = StringUtils.isEmpty(plugin.getPluginName()) ? plugin.getPackageName() : plugin.getPluginName();
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
@@ -806,7 +806,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     // Check if the destination org have all the required plugins installed
                     for (Datasource datasource : importedDatasourceList) {
                         if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
-                            log.error("Unable to find the plugin ", datasource.getPluginId());
+                            log.error("Unable to find the plugin: {}, available plugins are: {}", datasource.getPluginId(), pluginMap.keySet());
                             return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
                         }
                     }
@@ -1245,7 +1245,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                             });
                 })
                 .onErrorResume(throwable -> {
-                    log.error("Error while importing the application ", throwable.getMessage());
+                    log.error("Error while importing the application, reason: {}", throwable.getMessage());
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
                 })
                 .as(transactionalOperator::transactional);
