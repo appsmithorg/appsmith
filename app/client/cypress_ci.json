@@ -14,6 +14,7 @@
 		"json": false
 	},
 	"chromeWebSecurity": false,
+	"experimentalModifyObstructiveThirdPartyCode": false,
 	"viewportHeight": 1100,
 	"viewportWidth": 1400,
 	"retries": {
