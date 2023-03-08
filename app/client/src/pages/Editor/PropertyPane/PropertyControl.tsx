@@ -63,7 +63,7 @@ import {
   isEmptyBlock,
 } from "components/editorComponents/ActionCreator/utils";
 import clsx from "clsx";
-import { useApisQueriesAndJsActionOptions } from "components/editorComponents/ActionCreator/helpers";
+// import { useApisQueriesAndJsActionOptions } from "components/editorComponents/ActionCreator/helpers";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 type Props = PropertyPaneControlConfig & {
