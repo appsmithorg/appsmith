@@ -689,7 +689,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
-        translationJp={this.props.translationJp}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
@@ -701,12 +700,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
-        placeholderJp={this.props.placeholderJp}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
-        tooltipJp={this.props.tooltipJp}
         value={value}
         widgetId={this.props.widgetId}
         {...conditionalProps}

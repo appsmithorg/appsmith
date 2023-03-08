@@ -534,7 +534,6 @@ class BaseInputWidget<
         disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
         disabled={this.props.isDisabled}
         errorMessage={this.props.errorMessage}
-        errorMessageJp={this.props.errorMessageJp}
         fill={this.props.fill}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
@@ -544,7 +543,6 @@ class BaseInputWidget<
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
-        translationJp={this.props.translationJp}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
@@ -559,7 +557,6 @@ class BaseInputWidget<
         showError={this.props.showError}
         stepSize={1}
         tooltip={this.props.tooltip}
-        tooltipJp={this.props.tooltipJp}
         value={this.props.value}
         widgetId={this.props.widgetId}
       />
