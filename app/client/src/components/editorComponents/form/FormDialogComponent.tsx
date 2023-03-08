@@ -64,6 +64,7 @@ type FormDialogComponentProps = {
   tabs?: any[];
   options?: any[];
   placeholder?: string;
+  getHeader?: () => ReactNode;
 };
 
 const getTabs = (
@@ -141,6 +142,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
     <Dialog
       canEscapeKeyClose={!!props.canEscapeKeyClose}
       canOutsideClickClose={!!props.canOutsideClickClose}
+      getHeader={props.getHeader}
       headerIcon={props.headerIcon}
       isCloseButtonShown={props.isCloseButtonShown}
       isOpen={isOpen}

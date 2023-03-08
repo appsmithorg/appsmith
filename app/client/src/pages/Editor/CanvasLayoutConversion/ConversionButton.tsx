@@ -15,6 +15,7 @@ import {
   CONVERT_TO_FIXED_TITLE,
   createMessage,
 } from "@appsmith/constants/messages";
+import BetaCard from "components/editorComponents/BetaCard";
 
 export function ConversionButton() {
   const isAutoLayout = useSelector(getIsAutoLayout);
@@ -26,6 +27,15 @@ export function ConversionButton() {
     ? CONVERT_TO_FIXED_BUTTON
     : CONVERT_TO_AUTO_BUTTON;
 
+  const header = () => {
+    return (
+      <div className="flex items-center">
+        <h4 className="text-xl font-medium mr-4">{createMessage(titleText)}</h4>
+        <BetaCard />
+      </div>
+    );
+  };
+
   return (
     <FormDialogComponent
       Form={ConversionForm<{ isAutoLayout: boolean }>(useConversionForm, {
@@ -33,8 +43,8 @@ export function ConversionButton() {
       })}
       canEscapeKeyClose={false}
       canOutsideClickClose={false}
+      getHeader={header}
       isCloseButtonShown={false}
-      title={createMessage(titleText)}
       trigger={
         <Button
           category={Category.secondary}
