@@ -31,7 +31,10 @@ public class SSLDetails implements AppsmithDomain {
         PREFERRED, REQUIRED, DISABLED,
 
         // Following for MongoDB Connections.
-        CA_CERTIFICATE, SELF_SIGNED_CERTIFICATE
+        CA_CERTIFICATE, SELF_SIGNED_CERTIFICATE,
+
+        // For MsSQL connections
+        NO_VERIFY
     }
 
     public enum CACertificateType {

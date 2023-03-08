@@ -1,4 +1,3 @@
-import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   GridDefaults,
   layoutConfigurations,
@@ -9,6 +8,7 @@ import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
+import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import {
   alterLayoutForDesktop,
   alterLayoutForMobile,

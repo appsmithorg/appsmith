@@ -6,7 +6,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 export const PropertyPaneContentConfig = [
   {
     sectionName: "Data",
@@ -91,7 +90,6 @@ export const PropertyPaneContentConfig = [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("LIST_WIDGET"),
   {
     sectionName: "Events",
     children: [

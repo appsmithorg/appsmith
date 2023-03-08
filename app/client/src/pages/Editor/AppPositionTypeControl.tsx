@@ -3,8 +3,10 @@ import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
+import { ReactComponent as DesktopIcon } from "assets/icons/ads/app-icons/monitor-alt.svg";
+import { ReactComponent as MultiDeviceIcon } from "assets/icons/ads/app-icons/monitor-smartphone-alt.svg";
 import { Colors } from "constants/Colors";
-import { Icon, IconName, IconSize, TooltipComponent } from "design-system-old";
+import { IconName, TooltipComponent } from "design-system-old";
 import {
   AppPositioningTypeConfig,
   AppPositioningTypes,
@@ -21,7 +23,10 @@ interface ApplicationPositionTypeConfigOption {
   type: AppPositioningTypes;
   icon?: IconName;
 }
-
+const IconObj: any = {
+  fluid: <MultiDeviceIcon />,
+  desktop: <DesktopIcon />,
+};
 export const AppsmithDefaultPositionType: AppPositioningTypeConfig = {
   type: AppPositioningTypes.FIXED,
 };
@@ -128,15 +133,13 @@ export function AppPositionTypeControl() {
                         updateAppPositioningLayout(layoutOption);
                         setFocusedIndex(index);
                       }}
-                      onKeyDown={(event) => handleKeyDown(event, index)}
+                      onKeyDown={(event) => handleKeyDown(event, index)} //TODO: Ashok - This event listener isn't being removed.
                       ref={(input) => buttonRefs.push(input)}
                       tabIndex={index === focusedIndex ? 0 : -1}
                     >
-                      <Icon
-                        fillColor={Colors.BLACK}
-                        name={layoutOption.icon}
-                        size={layoutOption.iconSize || IconSize.MEDIUM}
-                      />
+                      <div style={{ width: "16px", height: "16px" }}>
+                        {IconObj[layoutOption.icon]}
+                      </div>
                     </button>
                   </TooltipComponent>
                 );

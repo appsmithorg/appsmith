@@ -7,15 +7,13 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
-import {
-  FlexVerticalAlignment,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
 import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import {
+  EditorContext,
+  EditorContextType,
+} from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
@@ -35,12 +33,22 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Stylesheet } from "entities/AppTheming";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { get, memoize } from "lodash";
-import React, { Component, ReactNode } from "react";
+import React, { Component, Context, ReactNode, RefObject } from "react";
+import {
+  ModifyMetaWidgetPayload,
+  UpdateMetaWidgetPropertyPayload,
+} from "reducers/entityReducers/metaWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
 import { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
+import {
+  FlexVerticalAlignment,
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import {
   DataTreeEvaluationProps,
   EvaluationError,
@@ -48,7 +56,7 @@ import {
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { CanvasWidgetStructure } from "./constants";
+import { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
 import Skeleton from "./Skeleton";
 import {
   getWidgetMaxAutoHeight,
@@ -70,12 +78,15 @@ import {
  *
  */
 
+const REFERENCE_KEY = "$$refs$$";
+
 abstract class BaseWidget<
   T extends WidgetProps,
-  K extends WidgetState
+  K extends WidgetState,
+  TCache = unknown
 > extends Component<T, K> {
   static contextType = EditorContext;
-  context!: React.ContextType<typeof EditorContext>;
+  context!: React.ContextType<Context<EditorContextType<TCache>>>;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -96,6 +107,7 @@ abstract class BaseWidget<
   static getDefaultPropertiesMap(): Record<string, any> {
     return {};
   }
+
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
@@ -228,12 +240,96 @@ abstract class BaseWidget<
     }
   };
 
+  selectWidgetRequest = (
+    selectionRequestType: SelectionRequestType,
+    payload?: string[],
+  ) => {
+    const { selectWidgetRequest } = this.context;
+    if (selectWidgetRequest) {
+      selectWidgetRequest(selectionRequestType, payload);
+    }
+  };
+
   /* eslint-disable @typescript-eslint/no-empty-function */
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {}
+  componentDidUpdate(prevProps: T, prevState?: K) {
+    if (
+      !this.props.deferRender &&
+      this.props.deferRender !== prevProps.deferRender
+    ) {
+      this.deferredComponentDidRender();
+    }
+  }
 
   componentDidMount(): void {}
+
+  /*
+   * With lazy rendering, skeleton loaders are rendered for below fold widgets.
+   * This Appsmith widget life cycle method that gets called when the actual widget
+   * component renders instead of the skeleton loader.
+   */
+  deferredComponentDidRender(): void {}
+
   /* eslint-enable @typescript-eslint/no-empty-function */
+
+  modifyMetaWidgets = (modifications: ModifyMetaWidgetPayload) => {
+    this.context.modifyMetaWidgets?.({
+      ...modifications,
+      creatorId: this.props.widgetId,
+    });
+  };
+
+  deleteMetaWidgets = () => {
+    this.context?.deleteMetaWidgets?.({
+      creatorIds: [this.props.widgetId],
+    });
+  };
+
+  setWidgetCache = (data: TCache) => {
+    const key = this.getWidgetCacheKey();
+
+    if (key) {
+      this.context?.setWidgetCache?.(key, data);
+    }
+  };
+
+  updateMetaWidgetProperty = (payload: UpdateMetaWidgetPropertyPayload) => {
+    const { widgetId } = this.props;
+
+    this.context.updateMetaWidgetProperty?.({
+      ...payload,
+      creatorId: widgetId,
+    });
+  };
+
+  getWidgetCache = () => {
+    const key = this.getWidgetCacheKey();
+
+    if (key) {
+      return this.context?.getWidgetCache?.(key);
+    }
+  };
+
+  getWidgetCacheKey = () => {
+    return this.props.metaWidgetId || this.props.widgetId;
+  };
+
+  setWidgetReferenceCache = <TRefCache,>(data: TRefCache) => {
+    const key = this.getWidgetCacheReferenceKey();
+
+    this.context?.setWidgetCache?.(`${key}.${REFERENCE_KEY}`, data);
+  };
+
+  getWidgetReferenceCache = <TRefCache,>() => {
+    const key = this.getWidgetCacheReferenceKey();
+
+    return this.context?.getWidgetCache?.<TRefCache>(`${key}.${REFERENCE_KEY}`);
+  };
+
+  getWidgetCacheReferenceKey = () => {
+    return this.props.referencedWidgetId || this.props.widgetId;
+  };
 
   getComponentDimensions = () => {
     return this.calculateWidgetBounds(
@@ -317,10 +413,7 @@ abstract class BaseWidget<
    */
   makeResizable(content: ReactNode) {
     return (
-      <ResizableComponent
-        {...this.props}
-        paddingOffset={PositionedContainer.padding}
-      >
+      <ResizableComponent {...this.props} paddingOffset={WIDGET_PADDING}>
         {content}
       </ResizableComponent>
     );
@@ -341,14 +434,12 @@ abstract class BaseWidget<
             errorCount={this.getErrorCount(
               get(this.props, EVAL_ERROR_PATH, {}),
             )}
-            isFlexChild={!!this.props.isFlexChild}
             parentId={this.props.parentId}
             showControls={showControls}
             topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
             type={this.props.type}
             widgetId={this.props.widgetId}
             widgetName={this.props.widgetName}
-            widgetProps={this.props}
           />
         )}
         {content}
@@ -365,6 +456,7 @@ abstract class BaseWidget<
   makeDraggable(content: ReactNode) {
     return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
   }
+
   /**
    * wraps the widget in a draggable component.
    * Note: widget drag can be disabled by setting `dragDisabled` prop to true
@@ -390,10 +482,12 @@ abstract class BaseWidget<
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         parentRowSpace={this.props.parentRowSpace}
+        ref={this.props.wrapperRef}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
         topRow={this.props.topRow}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         widgetType={this.props.type}
       >
         {content}
@@ -463,17 +557,18 @@ abstract class BaseWidget<
       <FlexComponent
         componentHeight={componentHeight}
         componentWidth={componentWidth}
-        direction={this.props.direction}
+        direction={this.props.direction || LayoutDirection.Horizontal}
         flexVerticalAlignment={
           this.props.flexVerticalAlignment || FlexVerticalAlignment.Top
         }
         focused={this.props.focused}
-        isMobile={this.props.isMobile}
+        isMobile={this.props.isMobile || false}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
         selected={this.props.selected}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         widgetType={this.props.type}
       >
         {content}
@@ -492,7 +587,7 @@ abstract class BaseWidget<
      * Note:- This is done to retain the old rendering flow without any breaking changes.
      * This could be refactored into not changing the widget type but to have a boolean flag.
      */
-    if (type === "SKELETON_WIDGET") {
+    if (type === "SKELETON_WIDGET" || this.props.deferRender) {
       return <Skeleton />;
     }
 
@@ -619,12 +714,28 @@ export interface WidgetBuilder<
 
 export interface WidgetBaseProps {
   widgetId: string;
+  metaWidgetId?: string;
   type: WidgetType;
   widgetName: string;
   parentId?: string;
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
+  flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
+  metaWidgetChildrenStructure?: CanvasWidgetStructure[];
+  referencedWidgetId?: string;
+  requiresFlatWidgetChildren?: boolean;
+  hasMetaWidgets?: boolean;
+  creatorId?: string;
+  isMetaWidget?: boolean;
+  suppressAutoComplete?: boolean;
+  suppressDebuggerError?: boolean;
+  disallowCopy?: boolean;
+  /**
+   * The keys of the props mentioned here would always be picked from the canvas widget
+   * rather than the evaluated values in withWidgetProps HOC.
+   *  */
+  additionalStaticProps?: string[];
 }
 
 export type WidgetRowCols = {
@@ -673,6 +784,8 @@ export interface WidgetDisplayProps {
   isDisabled?: boolean;
   backgroundColor?: string;
   animateLoading?: boolean;
+  deferRender?: boolean;
+  wrapperRef?: RefObject<HTMLDivElement>;
 }
 
 export interface WidgetDataProps
@@ -686,6 +799,7 @@ export interface WidgetProps
     DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
+
   [key: string]: any;
 }
 

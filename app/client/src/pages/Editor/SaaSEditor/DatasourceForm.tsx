@@ -34,6 +34,7 @@ import Connected from "../DataSourceEditor/Connected";
 
 import {
   getCurrentApplicationId,
+  getGsheetToken,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import DatasourceAuth from "pages/common/datasourceAuth";
@@ -64,6 +65,7 @@ import {
   createMessage,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -87,6 +89,7 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
+  gsheetToken?: string;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -259,6 +262,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasourceButtonConfiguration,
       datasourceId,
       formData,
+      gsheetToken,
       hiddenHeader,
       pageId,
       plugin,
@@ -375,6 +379,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
+              gsheetToken={gsheetToken}
               isInvalid={this.validate()}
               pageId={pageId}
               shouldDisplayAuthMessage={!isGoogleSheetPlugin}
@@ -435,6 +440,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     ...pagePermissions,
   ]);
 
+  const gsheetToken = getGsheetToken(state);
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -462,6 +469,8 @@ const mapStateToProps = (state: AppState, props: any) => {
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     canCreateDatasourceActions,
+    featureFlags: selectFeatureFlags(state),
+    gsheetToken,
   };
 };
 

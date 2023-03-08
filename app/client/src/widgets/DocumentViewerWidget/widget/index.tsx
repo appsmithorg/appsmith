@@ -4,7 +4,6 @@ import {
 } from "constants/WidgetValidation";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import DocumentViewerComponent from "../component";
 
@@ -35,7 +34,12 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
         return {
           isValid: false,
           parsed: "",
-          messages: ["Provided URL / Base64 is invalid."],
+          messages: [
+            {
+              name: "ValidationError",
+              message: "Provided URL / Base64 is invalid.",
+            },
+          ],
         };
       }
     } else if (base64Regex.test(value as string)) {
@@ -49,7 +53,12 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
       return {
         isValid: false,
         parsed: "",
-        messages: ["Provided URL / Base64 is invalid."],
+        messages: [
+          {
+            name: "ValidationError",
+            message: "Provided URL / Base64 is invalid.",
+          },
+        ],
       };
     }
   }
@@ -57,7 +66,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
   return {
     isValid: true,
     parsed: "",
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 }
 
@@ -72,7 +81,7 @@ class DocumentViewerWidget extends BaseWidget<
         children: [
           {
             helpText:
-              "Document url for preview. for URL, supported extensions are txt, pdf, docx, ppt, pptx, xlsx. ppt is currently not supported by base64.",
+              "Preview document URL supports txt, pdf, docx, ppt, pptx, xlsx file formats, but base64 ppt/pptx are not supported.",
             propertyName: "docUrl",
             label: "Document Link",
             controlType: "INPUT_TEXT",
@@ -119,7 +128,6 @@ class DocumentViewerWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.util.WebClientUtils;
+import com.external.constants.ErrorMessages;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -32,10 +34,10 @@ public class SheetDeleteMethod implements ExecutionMethod {
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Url");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
         }
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Name");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
         }
 
         return true;
@@ -63,8 +65,8 @@ public class SheetDeleteMethod implements ExecutionMethod {
 
                     if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                                ErrorMessages.RESPONSE_DATA_MAPPING_FAILED_ERROR_MSG));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody;
@@ -89,7 +91,7 @@ public class SheetDeleteMethod implements ExecutionMethod {
                     }
 
                     if (sheetId == null) {
-                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown Sheet Name"));
+                        throw Exceptions.propagate(new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.UNKNOWN_SHEET_NAME_ERROR_MSG));
                     } else {
                         methodConfig.setSheetId(sheetId);
                     }
@@ -121,8 +123,8 @@ public class SheetDeleteMethod implements ExecutionMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing a valid response object.");
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         String errorMessage = "Deleted sheet " + methodConfig.getSheetName() + " successfully!";

@@ -21,8 +21,6 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-
 export function defaultSelectedValuesValidation(
   value: unknown,
 ): ValidationResponse {
@@ -288,7 +286,6 @@ class CheckboxGroupWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

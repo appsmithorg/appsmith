@@ -247,7 +247,7 @@ export const widgetOperationParams = (
           topRow + widgetSizeUpdates.height / parentRowSpace,
         ),
         rightColumn: fullWidth
-          ? 64
+          ? GridDefaults.DEFAULT_GRID_COLUMNS
           : Math.round(
               leftColumn + widgetSizeUpdates.width / parentColumnSpace,
             ),
@@ -259,7 +259,7 @@ export const widgetOperationParams = (
     // Therefore, this is an operation to add child to this container
   }
   const widgetDimensions = {
-    columns: fullWidth ? 64 : widget.columns,
+    columns: fullWidth ? GridDefaults.DEFAULT_GRID_COLUMNS : widget.columns,
     rows: widget.rows,
   };
 
@@ -280,7 +280,6 @@ export const widgetOperationParams = (
 
 export const getCanvasSnapRows = (
   bottomRow: number,
-  canExtend: boolean,
   mobileBottomRow?: number,
   isMobile?: boolean,
   isAutoLayoutActive?: boolean,
@@ -291,12 +290,6 @@ export const getCanvasSnapRows = (
       : bottomRow;
   const totalRows = Math.floor(bottom / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
 
-  // Canvas Widgets do not need to accommodate for widget and container padding.
-  // Only when they're extensible
-  if (canExtend) {
-    return totalRows;
-  }
-  // When Canvas widgets are not extensible
   return totalRows - 1;
 };
 

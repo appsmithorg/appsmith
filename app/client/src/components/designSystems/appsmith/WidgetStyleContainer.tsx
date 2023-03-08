@@ -24,6 +24,7 @@ export interface WidgetStyleContainerProps {
   borderRadius?: number;
   boxShadow?: BoxShadow;
   className?: string;
+  selected?: boolean;
   direction?: string;
 }
 
@@ -34,15 +35,19 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   box-shadow: ${(props) => props.boxShadow} !important;
   border-width: ${(props) => props.borderWidth || 0}px;
   border-color: ${(props) => props.borderColor || "transparent"};
+  outline: ${(props) =>
+    props.selected
+      ? `${props.borderWidth || 1}px solid #3b82f6 !important`
+      : ""};
   border-style: solid;
   background-color: ${(props) => props.backgroundColor || "transparent"};
 
   display: block;
+  overflow: hidden;
 
   & > div {
     height: 100%;
     width: 100%;
-    overflow: hidden;
   }
 `;
 
@@ -50,7 +55,7 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
 function WidgetStyleContainer(props: WidgetStyleContainerProps) {
   return (
     <WidgetStyle {...props} data-testid={`container-wrapper-${props.widgetId}`}>
-      <div>{props.children}</div>
+      {props.children}
     </WidgetStyle>
   );
 }

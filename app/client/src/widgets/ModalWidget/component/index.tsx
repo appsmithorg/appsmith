@@ -1,32 +1,33 @@
 import React, {
   ReactNode,
   RefObject,
-  useRef,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
-import { Overlay, Classes } from "@blueprintjs/core";
+import { Classes, Overlay } from "@blueprintjs/core";
 import { get, omit } from "lodash";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 
+import { AppState } from "@appsmith/reducers";
+import { closeTableFilterPane } from "actions/widgetActions";
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import {
+  BottomHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
-  BottomHandleStyles,
 } from "components/editorComponents/ResizeStyledComponents";
-import { Layers } from "constants/Layers";
-import Resizable from "resizable/resize";
-import { getCanvasClassName } from "utils/generators";
-import { AppState } from "@appsmith/reducers";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
-import { closeTableFilterPane } from "actions/widgetActions";
+import { Layers } from "constants/Layers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCanvasClassName } from "utils/generators";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { scrollCSS } from "widgets/WidgetUtils";
+import Resizable from "resizable/modalresize";
 
 const Container = styled.div<{
   width?: number;
@@ -39,8 +40,6 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
-  backgroundColor: string;
-  borderRadius: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -78,22 +77,27 @@ const Container = styled.div<{
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
-        background: ${({ backgroundColor }) =>
-          `${backgroundColor || Colors.WHITE}`};
-        border-radius: ${({ borderRadius }) => borderRadius};
       }
     }
   }
 `;
-const Content = styled.div<{
-  height?: number;
-  scroll: boolean;
-  ref: RefObject<HTMLDivElement>;
-}>`
-  overflow-y: ${(props) => (props.scroll ? "visible" : "hidden")};
+const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;
   width: 100%;
   height: 100%;
+  ${scrollCSS}
+  ${(props) => (!props.$scroll ? `overflow: hidden;` : ``)}
+`;
+
+const Wrapper = styled.div<{
+  $background?: string;
+  $borderRadius?: string;
+}>`
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: ${({ $background }) => `${$background || Colors.WHITE}`};
+  border-radius: ${({ $borderRadius }) => $borderRadius};
 `;
 
 const ComponentContainer = styled.div<{
@@ -131,9 +135,10 @@ export type ModalComponentProps = {
   minSize?: number;
   widgetId: string;
   widgetName: string;
-  backgroundColor: string;
-  borderRadius: string;
   isDynamicHeightEnabled: boolean;
+  background?: string;
+  borderRadius?: string;
+  settingsComponent?: ReactNode;
 };
 
 /* eslint-disable react/display-name */
@@ -142,10 +147,8 @@ export default function ModalComponent(props: ModalComponentProps) {
     null,
   );
   const { enableResize = false } = props;
-  const resizeRef = React.useRef<HTMLDivElement>(null);
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");
-
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -155,7 +158,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
   );
-
+  const disabledResizeHandles = get(props, "disabledResizeHandles", []);
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -164,15 +167,13 @@ export default function ModalComponent(props: ModalComponentProps) {
       right: RightHandleStyles,
     };
 
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+    return omit(allHandles, disabledResizeHandles);
+  }, [disabledResizeHandles]);
 
   useEffect(() => {
     setTimeout(() => {
       setModalPosition("unset");
     }, 100);
-
-    modalContentRef.current?.focus();
 
     return () => {
       // handle modal close events when this component unmounts
@@ -241,20 +242,29 @@ export default function ModalComponent(props: ModalComponentProps) {
         isColliding={() => false}
         onStart={onResizeStart}
         onStop={onResizeStop}
-        ref={resizeRef}
         resizeDualSides
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}
+        widgetId={props.widgetId}
       >
-        <Content
-          className={`${getCanvasClassName()} ${props.className}`}
-          id={props.widgetId}
-          ref={modalContentRef}
-          scroll={props.scrollContents}
-          tabIndex={0}
+        {props.settingsComponent}
+        <Wrapper
+          $background={props.background}
+          $borderRadius={props.borderRadius}
+          data-cy="modal-wrapper"
         >
-          {props.children}
-        </Content>
+          <Content
+            $scroll={!!props.scrollContents}
+            className={`${getCanvasClassName()} ${
+              props.className
+            } scroll-parent`}
+            id={props.widgetId}
+            ref={modalContentRef}
+            tabIndex={0}
+          >
+            {props.children}
+          </Content>
+        </Wrapper>
       </Resizable>
     );
   };
@@ -272,8 +282,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         usePortal={false}
       >
         <Container
-          backgroundColor={props.backgroundColor}
-          borderRadius={props.borderRadius}
           bottom={props.bottom}
           height={props.height}
           isEditMode={props.isEditMode}

@@ -9,17 +9,14 @@ import {
 } from "constants/WidgetConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import ContainerComponent, { ContainerStyle } from "../component";
-
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-
 import { ValidationTypes } from "constants/WidgetValidation";
-
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -66,7 +63,6 @@ export class ContainerWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -110,6 +106,7 @@ export class ContainerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
             propertyName: "borderRadius",
@@ -146,10 +143,6 @@ export class ContainerWidget extends BaseWidget<
   }
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
-  }
-
-  componentDidMount(): void {
-    super.componentDidMount();
   }
 
   static getStylesheetConfig(): Stylesheet {
@@ -205,7 +198,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.useAutoLayout = this.props.positioning
-      ? this.props.positioning !== Positioning.Fixed
+      ? this.props.positioning === Positioning.Vertical
       : false;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
@@ -224,13 +217,12 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    //ToDo: Ashok Need a better way of doing this.
-    const useAutoLayout = this.props.positioning
-      ? this.props.positioning !== Positioning.Fixed
-      : false;
-    const shouldScroll = props.shouldScrollContents && !useAutoLayout;
+    const isAutoHeightEnabled: boolean =
+      isAutoHeightEnabledForWidget(this.props) &&
+      !isAutoHeightEnabledForWidget(this.props, true) &&
+      this.props.positioning !== Positioning.Vertical;
     return (
-      <ContainerComponent {...props} shouldScrollContents={shouldScroll}>
+      <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}

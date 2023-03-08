@@ -23,6 +23,8 @@ import { UpdatedEditor } from "test/testMockedWidgets";
 import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
+import * as widgetSelectionsActions from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 describe("Canvas selection test cases", () => {
   jest
@@ -35,6 +37,20 @@ describe("Canvas selection test cases", () => {
     .spyOn(widgetRenderUtils, "createCanvasWidget")
     .mockImplementation(mockCreateCanvasWidget);
 
+  const spyWidgetSelection = jest.spyOn(
+    widgetSelectionsActions,
+    "selectWidgetInitAction",
+  );
+
+  beforeEach(() => {
+    spyWidgetSelection.mockClear();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it("Should select using canvas draw", () => {
     const children: any = buildChildren([
       {
@@ -43,6 +59,7 @@ describe("Canvas selection test cases", () => {
         bottomRow: 30,
         leftColumn: 5,
         rightColumn: 30,
+        widgetId: "tabsWidgetId",
       },
       {
         type: "SWITCH_WIDGET",
@@ -50,6 +67,7 @@ describe("Canvas selection test cases", () => {
         bottomRow: 10,
         leftColumn: 40,
         rightColumn: 48,
+        widgetId: "switchWidgetId",
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
@@ -101,6 +119,8 @@ describe("Canvas selection test cases", () => {
         bottomRow: 3,
         leftColumn: 1,
         rightColumn: 3,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
+        widgetId: "tabsWidgetId",
       },
       {
         type: "SWITCH_WIDGET",
@@ -108,6 +128,8 @@ describe("Canvas selection test cases", () => {
         bottomRow: 2,
         leftColumn: 5,
         rightColumn: 13,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
+        widgetId: "switchWidgetId",
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
@@ -172,8 +194,16 @@ describe("Canvas selection test cases", () => {
         },
       ),
     );
-    const selectedWidgets = component.queryAllByTestId("t--selected");
-    expect(selectedWidgets.length).toBe(2);
+    expect(
+      spyWidgetSelection,
+    ).toHaveBeenCalledWith(SelectionRequestType.Multiple, ["tabsWidgetId"]);
+
+    expect(
+      spyWidgetSelection,
+    ).toHaveBeenCalledWith(SelectionRequestType.Multiple, [
+      "tabsWidgetId",
+      "switchWidgetId",
+    ]);
   });
 
   it("Should allow draw to select using cmd + draw in Container component", () => {
@@ -289,8 +319,8 @@ describe("Canvas selection test cases", () => {
   });
 
   it("Should select all elements inside a CONTAINER using draw on canvas from top to bottom", () => {
-    const containerId = generateReactKey();
-    const canvasId = generateReactKey();
+    const containerId = "containerWidget";
+    const canvasId = "canvasWidget";
     const children: any = buildChildren([
       {
         type: "CHECKBOX_WIDGET",
@@ -301,6 +331,7 @@ describe("Canvas selection test cases", () => {
         rightColumn: 1,
         leftColumn: 0,
         parentId: canvasId,
+        widgetId: "checkboxWidget",
       },
       {
         type: "BUTTON_WIDGET",
@@ -311,6 +342,7 @@ describe("Canvas selection test cases", () => {
         rightColumn: 2,
         leftColumn: 1,
         parentId: canvasId,
+        widgetId: "buttonWidget",
       },
     ]);
     const canvasWidget = buildChildren([
@@ -334,7 +366,7 @@ describe("Canvas selection test cases", () => {
         rightColumn: 20,
         parentId: "0",
       },
-      { type: "CHART_WIDGET", parentId: "0" },
+      { type: "CHART_WIDGET", parentId: "0", widgetId: "chartWidget" },
     ]);
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,
@@ -403,8 +435,12 @@ describe("Canvas selection test cases", () => {
         },
       ),
     );
-    const selectedWidgets = component.queryAllByTestId("t--selected");
-    expect(selectedWidgets.length).toBe(children.length);
+    expect(
+      spyWidgetSelection,
+    ).toHaveBeenCalledWith(SelectionRequestType.Multiple, [
+      "checkboxWidget",
+      "buttonWidget",
+    ]);
   });
 
   it("Draw to select from outside of canvas(editor) ", () => {
@@ -417,6 +453,8 @@ describe("Canvas selection test cases", () => {
         bottomRow: 3,
         leftColumn: 1,
         rightColumn: 3,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
+        widgetId: "tabsWidgetId",
       },
       {
         type: "SWITCH_WIDGET",
@@ -424,6 +462,8 @@ describe("Canvas selection test cases", () => {
         bottomRow: 2,
         leftColumn: 5,
         rightColumn: 13,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
+        widgetId: "switchWidgetId",
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
@@ -467,6 +507,8 @@ describe("Canvas selection test cases", () => {
       `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
 
+    jest.runOnlyPendingTimers();
+
     expect(selectionCanvas.style.zIndex).toBe("");
     act(() => {
       fireEvent.dragStart(widgetEditor);
@@ -500,7 +542,12 @@ describe("Canvas selection test cases", () => {
         },
       ),
     );
-    const selectedWidgets = component.queryAllByTestId("t--selected");
-    expect(selectedWidgets.length).toBe(2);
+
+    expect(
+      spyWidgetSelection,
+    ).toHaveBeenLastCalledWith(SelectionRequestType.Multiple, [
+      "tabsWidgetId",
+      "switchWidgetId",
+    ]);
   });
 });

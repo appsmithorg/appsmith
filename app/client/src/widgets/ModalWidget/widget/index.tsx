@@ -4,22 +4,22 @@ import { connect } from "react-redux";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
-import { deselectModalWidgetAction } from "actions/widgetSelectionActions";
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import { Stylesheet } from "entities/AppTheming";
+import { get } from "lodash";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
-import { Alignment, Positioning, Spacing } from "utils/autoLayout/constants";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
-// import { generatePositioningConfig } from "utils/layoutPropertiesUtils";
-import { Stylesheet } from "entities/AppTheming";
 
 const minSize = 100;
 
@@ -56,7 +56,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
-          // { ...generatePositioningConfig(Positioning.Fixed) },
         ],
       },
       {
@@ -136,19 +135,14 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     const childData = { ...childWidgetData };
     childData.parentId = this.props.widgetId;
-    childData.shouldScrollContents = false;
+
     childData.canExtend = this.props.shouldScrollContents;
-    childData.bottomRow = this.props.shouldScrollContents
-      ? Math.max(childData.bottomRow, this.props.height)
-      : this.props.height;
+
     childData.containerStyle = "none";
     childData.minHeight = this.props.height;
     childData.rightColumn =
       this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
 
-    childData.positioning = this.props.positioning;
-    childData.alignment = this.props.alignment;
-    childData.spacing = this.props.spacing;
     return WidgetFactory.createWidget(childData, this.props.renderMode);
   };
 
@@ -162,9 +156,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
-    setTimeout(() => {
-      this.props.deselectModalWidget(this.props.widgetId, this.props.children);
-    }, 0);
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -190,10 +181,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   closeModal = (e: any) => {
-    this.props.showPropertyPane(undefined);
+    this.props.updateWidgetMetaProperty("isVisible", false);
+    this.selectWidgetRequest(SelectionRequestType.Empty);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
-    this.props.updateWidgetMetaProperty("isVisible", false);
     e.stopPropagation();
     e.preventDefault();
   };
@@ -239,9 +230,21 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const isResizeEnabled =
       !isDragging && isWidgetFocused && isEditMode && !isSnipingMode;
 
+    const settingsComponent = isEditMode ? (
+      <WidgetNameComponent
+        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+        parentId={this.props.parentId}
+        showControls
+        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+        type={this.props.type}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
+      />
+    ) : null;
+
     return (
       <ModalComponent
-        backgroundColor={this.props.backgroundColor}
+        background={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
@@ -258,6 +261,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
+        settingsComponent={settingsComponent}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         width={this.getModalWidth(this.props.width)}
@@ -270,15 +274,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   getCanvasView() {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
-    children = this.showWidgetName(children, true);
-    if (isAutoHeightEnabledForWidget(this.props, true)) {
-      children = this.addAutoHeightOverlay(children, {
-        width: "100%",
-        height: "100%",
-        left: 0,
-        top: 0,
-      });
-    }
     return this.makeModalComponent(children, true);
   }
 
@@ -309,9 +304,6 @@ export interface ModalWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   mainCanvasWidth: number;
-  positioning?: Positioning;
-  alignment: Alignment;
-  spacing: Spacing;
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -329,12 +321,6 @@ const mapDispatchToProps = (dispatch: any) => ({
           : ReduxActionTypes.HIDE_PROPERTY_PANE,
       payload: { widgetId, callForDragOrResize, force },
     });
-  },
-  deselectModalWidget: (
-    modalId: string,
-    modalWidgetChildren?: CanvasWidgetsStructureReduxState[],
-  ) => {
-    dispatch(deselectModalWidgetAction(modalId, modalWidgetChildren));
   },
 });
 

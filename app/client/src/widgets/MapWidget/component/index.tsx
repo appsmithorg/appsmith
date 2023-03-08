@@ -40,6 +40,7 @@ export interface MapComponentProps {
   unselectMarker: () => void;
   borderRadius: string;
   boxShadow?: string;
+  allowClustering?: boolean;
 }
 
 const MapStatusText = styled.span`

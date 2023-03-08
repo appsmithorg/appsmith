@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -o xtrace
 
 stacks_path=/appsmith-stacks
 
@@ -153,8 +154,15 @@ init_replica_set() {
     echo "Waiting 10s for MongoDB to start"
     sleep 10
     echo "Creating MongoDB user"
-    bash "/opt/appsmith/templates/mongo-init.js.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" > "/appsmith-stacks/configuration/mongo-init.js"
-    mongosh "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
+    mongosh "127.0.0.1/appsmith" --eval "db.createUser({
+        user: '$APPSMITH_MONGODB_USER',
+        pwd: '$APPSMITH_MONGODB_PASSWORD',
+        roles: [{
+            role: 'root',
+            db: 'admin'
+        }, 'readWrite']
+      }
+    )"
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile /mongodb-key --bind_ip localhost
@@ -165,27 +173,34 @@ init_replica_set() {
   fi
 
   if [[ $isUriLocal -gt 0 ]]; then
-    # Check mongodb cloud Replica Set
+    if [[ -f /proc/cpuinfo ]] && ! grep --quiet avx /proc/cpuinfo; then
+      echo "====================================================================================================" >&2
+      echo "==" >&2
+      echo "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
+      echo "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
+      echo "==" >&2
+      echo "====================================================================================================" >&2
+    fi
+
     echo "Checking Replica Set of external MongoDB"
 
-    mongo_state="$(mongosh "$APPSMITH_MONGODB_URI" --quiet --eval "rs.status().ok")"
-    if [[ ${mongo_state: -1} -eq 1 ]]; then
-      echo "Mongodb cloud Replica Set is enabled"
+    if appsmithctl check-replica-set; then
+      echo "MongoDB ReplicaSet is enabled"
     else
-      echo -e "\033[0;31m*************************************************************************************************************\033[0m"
-      echo -e "\033[0;31m*      MongoDB Replica Set is not enabled                                                                   *\033[0m"
-      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has `readWrite` and `clusterMonitor` roles.      *\033[0m"
-      echo -e "\033[0;31m*************************************************************************************************************\033[0m"
+      echo -e "\033[0;31m***************************************************************************************\033[0m"
+      echo -e "\033[0;31m*      MongoDB Replica Set is not enabled                                             *\033[0m"
+      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has `readWrite` role.      *\033[0m"
+      echo -e "\033[0;31m***************************************************************************************\033[0m"
       exit 1
     fi
   fi
 }
 
 use-mongodb-key() {
-	# This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
-	# What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
-	# So the key file should be somewhere inside the container, and not in a volume.
-	cp -v "$1" /mongodb-key
+  # This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
+  # What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
+  # So the key file should be somewhere inside the container, and not in a volume.
+  cp -v "$1" /mongodb-key
   chmod 600 /mongodb-key
 }
 
@@ -260,6 +275,12 @@ configure_supervisord() {
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
       cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
     fi
+    if [[ $runEmbeddedPostgres -eq 1 ]]; then
+      cp "$SUPERVISORD_CONF_PATH/postgres.conf" /etc/supervisor/conf.d/
+      # Update hosts lookup to resolve to embedded postgres
+      echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
+    fi
+
   fi
 }
 
@@ -281,6 +302,63 @@ check_redis_compatible_page_size() {
   else
     echo "Redis is compatible with page size of $page_size"
   fi
+}
+
+init_postgres() {
+  # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
+  if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 ]]; then
+    echo ""
+    echo "Checking initialized local postgres"
+    POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
+
+    if [ -e "$POSTGRES_DB_PATH/PG_VERSION" ]; then
+        echo "Found existing Postgres, Skipping initialization"
+    else
+      echo "Initializing local postgresql database"
+      
+      mkdir -p $POSTGRES_DB_PATH
+
+      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
+      chown postgres:postgres $POSTGRES_DB_PATH
+
+      # Initialize the postgres db file system
+      su -m postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+
+      # Start the postgres server in daemon mode
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
+
+      # Create mockdb db and user and populate it with the data
+      seed_embedded_postgres
+      
+      # Stop the postgres daemon
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
+    fi
+  else
+    runEmbeddedPostgres=0 
+  fi
+  
+}
+
+seed_embedded_postgres(){
+    # Create mockdb database 
+    psql -U postgres -c "CREATE DATABASE mockdb;"
+    # Create mockdb superuser
+    su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
+    # Dump the sql file containing mockdb data
+    psql -U postgres -d mockdb --file='/opt/appsmith/templates/mockdb_postgres.sql'
+
+    # Create users database
+    psql -U postgres -c "CREATE DATABASE users;"
+    # Create users superuser
+    su postgres -c "/usr/lib/postgresql/13/bin/createuser users -s"
+    # Dump the sql file containing mockdb data
+    psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
+}
+
+safe_init_postgres(){
+runEmbeddedPostgres=1
+# fail safe to prevent entrypoint from exiting, and prevent postgres from starting
+init_postgres || runEmbeddedPostgres=0 
 }
 
 # Main Section
@@ -306,6 +384,8 @@ mount_letsencrypt_directory
 
 check_redis_compatible_page_size
 
+safe_init_postgres
+
 configure_supervisord
 
 CREDENTIAL_PATH="/etc/nginx/passwords"
@@ -317,7 +397,7 @@ fi
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres}
 
 # Handle CMD command
 exec "$@"

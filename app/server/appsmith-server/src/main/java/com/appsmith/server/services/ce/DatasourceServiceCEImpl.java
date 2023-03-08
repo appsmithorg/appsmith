@@ -358,7 +358,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
      * the password from the db if its a saved datasource before testing.
      */
     @Override
-    public Mono<DatasourceTestResult> testDatasource(Datasource datasource) {
+    public Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentName) {
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
         // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
@@ -373,6 +373,10 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     .switchIfEmpty(Mono.just(datasource));
         }
 
+        return verifyDatasourceAndTest(datasourceMono);
+    }
+
+    protected Mono<DatasourceTestResult> verifyDatasourceAndTest(Mono<Datasource> datasourceMono) {
         return datasourceMono
                 .flatMap(this::validateDatasource)
                 .flatMap(this::populateHintMessages)
@@ -392,7 +396,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 });
     }
 
-    private Mono<DatasourceTestResult> testDatasourceViaPlugin(Datasource datasource) {
+    protected Mono<DatasourceTestResult> testDatasourceViaPlugin(Datasource datasource) {
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
 

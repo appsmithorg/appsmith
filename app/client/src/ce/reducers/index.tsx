@@ -76,6 +76,7 @@ import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 import { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
 import { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -142,6 +143,7 @@ export interface AppState {
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
     canvasWidgets: CanvasWidgetsReduxState;
+    metaWidgets: MetaWidgetsReduxState;
     actions: ActionDataState;
     widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;

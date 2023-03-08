@@ -1,18 +1,16 @@
+import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
+import { HighlightInfo } from "./autoLayoutTypes";
 import { getWidgetHeight } from "./flexWidgetUtils";
 import {
   deriveHighlightsFromLayers,
   generateHighlightsForAlignment,
   generateVerticalHighlights,
-  getCanvasWidth,
-  HighlightInfo,
   VerticalHighlightsPayload,
 } from "./highlightUtils";
-import { data } from "./testData";
 
 describe("test HighlightUtils methods", () => {
   describe("test deriveHighlightsFromLayers method", () => {
@@ -45,14 +43,16 @@ describe("test HighlightUtils methods", () => {
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
         widgets,
         "1",
-        99,
+        9.875,
       );
       expect(highlights.length).toEqual(3);
       expect(highlights[0].isVertical).toBeFalsy;
-      expect(highlights[0].width).toEqual(33);
+      // width of each horizontal highlight = container width / 3 - padding.
+      expect(Math.round(highlights[0].width)).toEqual(211);
       expect(highlights[0].height).toEqual(4);
-      expect(highlights[1].posX).toEqual(33);
-      expect(highlights[2].posX).toEqual(66);
+      // x position of each horizontal highlight = (container width / 3) * index + padding.
+      expect(Math.round(highlights[1].posX)).toEqual(215);
+      expect(Math.round(highlights[2].posX)).toEqual(425);
     });
     it("should add horizontal heights before every layer and below the last layer", () => {
       const widgets = {
@@ -106,7 +106,7 @@ describe("test HighlightUtils methods", () => {
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
         widgets,
         "1",
-        99,
+        10,
       );
       expect(highlights.length).toEqual(10);
       expect(
@@ -167,7 +167,6 @@ describe("test HighlightUtils methods", () => {
         maxHeight: 40,
         offsetTop: 4,
         parentColumnSpace: 10,
-        canvasWidth: 640,
         avoidInitialHighlight: false,
         isMobile: false,
         startPosition: 0,
@@ -243,7 +242,7 @@ describe("test HighlightUtils methods", () => {
           getWidgetHeight(children[1], false) * children[1].parentRowSpace,
         offsetTop: 4,
         parentColumnSpace: 10,
-        canvasWidth: 640,
+
         avoidInitialHighlight: false,
         isMobile: false,
         startPosition: 0,
@@ -263,7 +262,7 @@ describe("test HighlightUtils methods", () => {
         maxHeight: 40,
         offsetTop: 4,
         parentColumnSpace: 10,
-        canvasWidth: 640,
+
         avoidInitialHighlight: true,
         isMobile: false,
         startPosition: 0,
@@ -355,7 +354,7 @@ describe("test HighlightUtils methods", () => {
         childCount: 0,
         layerIndex: 0,
         offsetTop: 4,
-        canvasWidth: 640,
+
         canvasId: "1",
         columnSpace: 10,
         draggedWidgets: [],
@@ -445,9 +444,8 @@ describe("test HighlightUtils methods", () => {
         childCount: 0,
         layerIndex: 0,
         offsetTop: 4,
-        canvasWidth: 640,
         canvasId: "1",
-        columnSpace: 10,
+        columnSpace: 9.875,
         draggedWidgets: [],
         isMobile: true,
       });
@@ -457,20 +455,12 @@ describe("test HighlightUtils methods", () => {
           FLEXBOX_PADDING,
       );
       expect(result.highlights[1].height).toEqual(60);
-      expect(result.highlights[2].posX).toEqual(636);
+      expect(result.highlights[2].posX).toEqual(634);
       expect(result.highlights[2].posY).toEqual(
         widgets["3"].mobileTopRow * widgets["3"].parentRowSpace +
           FLEXBOX_PADDING,
       );
       expect(result.childCount).toEqual(2);
-    });
-  });
-
-  describe("test getCanvasWidth method", () => {
-    it("should measure the width of canvas and account for paddings", () => {
-      expect(getCanvasWidth(data["0"], data, 1174, false)).toEqual(1166);
-      expect(getCanvasWidth(data["mglfryj65c"], data, 1174, true)).toEqual(569);
-      expect(getCanvasWidth(data["a3lldg1wg9"], data, 1174, true)).toEqual(569);
     });
   });
 });

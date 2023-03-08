@@ -222,7 +222,10 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
 export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
   overflow: auto;
   width: ${(props) => props.theme.homePage.sidebar}px;
-  height: 100%;
+  height: ${(props) =>
+    props.isBannerVisible
+      ? `calc(100% - ${props.theme.homePage.header * 2}px)`
+      : "100%"};
   display: flex;
   padding-left: 16px;
   padding-top: 16px;
@@ -292,14 +295,14 @@ export function Item(props: {
   label: string;
   textType: TextType;
   icon?: IconName;
-  isFetchingApplications: boolean;
+  isFetchingApplications?: boolean;
 }) {
   return (
     <ItemWrapper>
       {props.icon && <StyledIcon />}
       <Text
         className={
-          props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
+          !!props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
         }
         type={props.textType}
       >
@@ -329,12 +332,7 @@ export function LeftPaneSection(props: {
 }) {
   return (
     <LeftPaneDataSection isBannerVisible={props.isBannerVisible}>
-      {/* <MenuItem text={props.heading}/> */}
-      <Item
-        isFetchingApplications={props.isFetchingApplications}
-        label={props.heading}
-        textType={TextType.SIDE_HEAD}
-      />
+      <Item label={props.heading} textType={TextType.SIDE_HEAD} />
       {props.children}
     </LeftPaneDataSection>
   );
@@ -440,28 +438,24 @@ export function LeftPane(props: LeftPaneProps) {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {!isFetchingApplications &&
-            fetchedUserWorkspaces &&
-            canCreateWorkspace && (
-              <MenuItem
-                cypressSelector="t--workspace-new-workspace-auto-create"
-                icon="plus"
-                onSelect={() =>
-                  submitCreateWorkspaceForm(
-                    {
-                      name: getNextEntityName(
-                        "Untitled workspace ",
-                        fetchedUserWorkspaces.map(
-                          (el: any) => el.workspace.name,
-                        ),
-                      ),
-                    },
-                    dispatch,
-                  )
-                }
-                text={CREATE_WORKSPACE_FORM_NAME}
-              />
-            )}
+          {canCreateWorkspace && (
+            <MenuItem
+              cypressSelector="t--workspace-new-workspace-auto-create"
+              icon="plus"
+              onSelect={() =>
+                submitCreateWorkspaceForm(
+                  {
+                    name: getNextEntityName(
+                      "Untitled workspace ",
+                      fetchedUserWorkspaces.map((el: any) => el.workspace.name),
+                    ),
+                  },
+                  dispatch,
+                )
+              }
+              text={CREATE_WORKSPACE_FORM_NAME}
+            />
+          )}
           {userWorkspaces &&
             userWorkspaces.map((workspace: any) => (
               <WorkspaceMenuItem
@@ -989,7 +983,7 @@ export function ApplicationsSection(props: any) {
   );
 }
 
-export type ApplicationProps = {
+export interface ApplicationProps {
   applicationList: ApplicationPayload[];
   searchApplications: (keyword: string) => void;
   isCreatingApplication: creatingApplicationMap;
@@ -1007,19 +1001,24 @@ export type ApplicationProps = {
     showHeaderSeparator: boolean,
   ) => void;
   resetEditor: () => void;
-};
+}
 
-class Applications extends Component<
-  ApplicationProps,
-  { selectedWorkspaceId: string; showOnboardingForm: boolean }
-> {
-  constructor(props: ApplicationProps) {
+export interface ApplicationState {
+  selectedWorkspaceId: string;
+  showOnboardingForm: boolean;
+}
+
+export class Applications<
+  Props extends ApplicationProps,
+  State extends ApplicationState
+> extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       selectedWorkspaceId: "",
       showOnboardingForm: false,
-    };
+    } as State;
   }
 
   componentDidMount() {

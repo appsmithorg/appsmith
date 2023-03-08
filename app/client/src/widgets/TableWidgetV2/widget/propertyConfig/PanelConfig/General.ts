@@ -5,11 +5,13 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   updateColumnLevelEditability,
+  updateColumnOrderWhenFrozen,
   updateInlineEditingOptionDropdownVisibilityHook,
 } from "../../propertyUtils";
 import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
+import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 
 export default {
   sectionName: "General",
@@ -135,6 +137,33 @@ export default {
         const isDerived = get(props, `${baseProperty}.isDerived`, false);
         return !isColumnTypeEditable(columnType) || isDerived;
       },
+    },
+    {
+      propertyName: "sticky",
+      helpText:
+        "Choose column that needs to be frozen left or right of the table",
+      controlType: "ICON_TABS",
+      defaultValue: StickyType.NONE,
+      label: "Column Freeze",
+      fullWidth: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      dependencies: ["primaryColumns", "columnOrder"],
+      options: [
+        {
+          icon: "VERTICAL_LEFT",
+          value: StickyType.LEFT,
+        },
+        {
+          icon: "COLUMN_UNFREEZE",
+          value: StickyType.NONE,
+        },
+        {
+          icon: "VERTICAL_RIGHT",
+          value: StickyType.RIGHT,
+        },
+      ],
+      updateHook: updateColumnOrderWhenFrozen,
     },
   ],
 };

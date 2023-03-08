@@ -1,8 +1,4 @@
-import {
-  LayoutDirection,
-  Overflow,
-  Positioning,
-} from "utils/autoLayout/constants";
+import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
@@ -30,9 +26,6 @@ class CanvasWidget extends ContainerWidget {
   static getWidgetType() {
     return "CANVAS_WIDGET";
   }
-  componentDidMount(): void {
-    super.componentDidMount();
-  }
 
   getCanvasProps(): DSLWidget & { minHeight: number } {
     return {
@@ -44,18 +37,24 @@ class CanvasWidget extends ContainerWidget {
       containerStyle: "none",
       detachFromLayout: true,
       minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
+      shouldScrollContents: false,
     };
   }
 
   renderAsDropTarget() {
     const canvasProps = this.getCanvasProps();
+    const { snapColumnSpace } = this.getSnapSpaces();
     return (
       <DropTargetComponent
-        {...canvasProps}
-        {...this.getSnapSpaces()}
+        bottomRow={this.props.bottomRow}
         isMobile={this.props.isMobile}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
+        mobileBottomRow={this.props.mobileBottomRow}
+        noPad={this.props.noPad}
+        parentId={this.props.parentId}
+        snapColumnSpace={snapColumnSpace}
         useAutoLayout={this.props.useAutoLayout}
+        widgetId={this.props.widgetId}
       >
         {this.renderAsContainerComponent(canvasProps)}
       </DropTargetComponent>
@@ -126,12 +125,7 @@ class CanvasWidget extends ContainerWidget {
       <FlexBoxComponent
         direction={direction}
         flexLayers={this.props.flexLayers || []}
-        isMobile={this.props.isMobile}
-        overflow={
-          direction === LayoutDirection.Horizontal
-            ? Overflow.Wrap
-            : Overflow.NoWrap
-        }
+        isMobile={this.props.isMobile || false}
         stretchHeight={stretchFlexBox}
         useAutoLayout={this.props.useAutoLayout || false}
         widgetId={this.props.widgetId}
@@ -163,7 +157,7 @@ class CanvasWidget extends ContainerWidget {
 
   getPageView() {
     let height = 0;
-    const snapRows = getCanvasSnapRows(this.props.bottomRow, false);
+    const snapRows = getCanvasSnapRows(this.props.bottomRow);
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {
       width: "100%",
@@ -204,6 +198,7 @@ export const CONFIG = {
   type: CanvasWidget.getWidgetType(),
   name: "Canvas",
   hideCard: true,
+  eagerRender: true,
   defaults: {
     rows: 0,
     columns: 0,

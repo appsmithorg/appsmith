@@ -5,18 +5,11 @@ import {
   SnapShotDetails,
 } from "reducers/uiReducers/layoutConversionReducer";
 
-export const removeWrappersAction = (parentId: string) => ({
-  type: ReduxActionTypes.REMOVE_CHILD_WRAPPERS,
-  payload: { parentId },
-});
-
-export const addWrappersAction = (parentId: string) => ({
-  type: ReduxActionTypes.ADD_CHILD_WRAPPERS,
-  payload: {
-    parentId,
-  },
-});
-
+/**
+ * Calculate size and position changes owing to minSizes and flex wrap.
+ * This function is triggered the first time mobile viewport (480px) is encountered.
+ * It is also called when increasing viewport size from mobile to desktop.
+ */
 export const updateLayoutForMobileBreakpointAction = (
   parentId: string,
   isMobile: boolean,
@@ -55,5 +48,12 @@ export const updateSnapshotDetails = (
   return {
     type: ReduxActionTypes.UPDATE_SNAPSHOT_DETAILS,
     payload: snapShotDetails,
+  };
+};
+
+export const setAutoCanvasResizing = (isAutoCanvasResizing: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_AUTO_CANVAS_RESIZING,
+    payload: isAutoCanvasResizing,
   };
 };

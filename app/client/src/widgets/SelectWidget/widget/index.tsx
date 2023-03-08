@@ -19,7 +19,6 @@ import {
 } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
@@ -34,7 +33,7 @@ export function defaultOptionValueValidation(
 ): ValidationResponse {
   let isValid;
   let parsed;
-  let message = "";
+  let message = { name: "", message: "" };
   const isServerSideFiltered = props.serverSideFiltering;
   // TODO: validation of defaultOption is dependent on serverSideFiltering and options, this property should reValidated once the dependencies change
   //this issue is been tracked here https://github.com/appsmithorg/appsmith/issues/15303
@@ -73,8 +72,11 @@ export function defaultOptionValueValidation(
   } else {
     isValid = false;
     parsed = undefined;
-    message =
-      'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }';
+    message = {
+      name: "TypeError",
+      message:
+        'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }',
+    };
   }
 
   if (isValid && !_.isNil(parsed) && parsed !== "") {
@@ -101,11 +103,17 @@ export function defaultOptionValueValidation(
     if (valueIndex === -1) {
       if (!isServerSideFiltered) {
         isValid = false;
-        message = `Default value is missing in options. Please update the value.`;
+        message = {
+          name: "ValidationError",
+          message: `Default value is missing in options. Please update the value.`,
+        };
       } else {
         if (!hasLabelValue(parsed)) {
           isValid = false;
-          message = `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.`;
+          message = {
+            name: "ValidationError",
+            message: `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.`,
+          };
         }
       }
     }
@@ -372,7 +380,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

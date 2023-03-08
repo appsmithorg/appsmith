@@ -33,7 +33,6 @@ import {
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import { TJSLibrary } from "workers/common/JSLibrary";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -415,21 +414,6 @@ export const getJSCollection = (
     (a) => a.config.id === actionId,
   );
   return jsaction ? jsaction.config : undefined;
-};
-
-export const getJSFunctionFromName = (state: AppState, name: string) => {
-  const {
-    entityName: collectionName,
-    propertyPath: functionName,
-  } = getEntityNameAndPropertyPath(name);
-  const jsCollection = find(
-    state.entities.jsActions,
-    (a) => a.config.name === collectionName,
-  );
-  if (jsCollection) {
-    return find(jsCollection.config.actions, (a) => a.name === functionName);
-  }
-  return undefined;
 };
 
 export function getCurrentPageNameByActionId(

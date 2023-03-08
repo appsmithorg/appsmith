@@ -6,17 +6,17 @@ import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import Debugger from "components/editorComponents/Debugger";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+
 import {
   getCurrentPageId,
   getCurrentPageName,
-  getIsFetchingPage,
 } from "selectors/editorSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import {
   getIsOnboardingTasksView,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { quickScrollToWidget } from "utils/helpers";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -30,16 +30,13 @@ import CanvasContainer from "./CanvasContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import PageTabs from "./PageTabs";
 import PropertyPaneContainer from "./PropertyPaneContainer";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
-/* eslint-disable react/display-name */
 function WidgetsEditor() {
-  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
@@ -59,20 +56,6 @@ function WidgetsEditor() {
       });
     }
   }, [currentPageName, currentPageId]);
-
-  // navigate to widget
-  useEffect(() => {
-    if (
-      !isFetchingPage &&
-      window.location.hash.length > 0 &&
-      !guidedTourEnabled
-    ) {
-      const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash);
-      if (document.getElementById(widgetIdFromURLHash))
-        selectWidget(widgetIdFromURLHash);
-    }
-  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
@@ -113,9 +96,8 @@ function WidgetsEditor() {
   );
 
   PerformanceTracker.stopTracking();
-
   return (
-    <EditorContextProvider>
+    <EditorContextProvider renderMode="CANVAS">
       {showOnboardingTasks ? (
         <OnboardingTasks />
       ) : (
@@ -128,6 +110,7 @@ function WidgetsEditor() {
                 className="relative flex flex-row w-full overflow-hidden justify-center"
                 data-testid="widgets-editor"
                 draggable
+                id="widgets-editor"
                 onClick={handleWrapperClick}
                 onDragStart={onDragStart}
               >

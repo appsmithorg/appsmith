@@ -6,7 +6,7 @@ import { noop } from "lodash";
 import history from "utils/history";
 
 const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
-const PULSE_INTERVAL = 3600; /* 1 hour in seconds */
+const PULSE_INTERVAL = 300; /* 5 minutes in seconds */
 const USER_ACTIVITY_LISTENER_EVENTS = ["pointerdown", "keydown"];
 class UsagePulse {
   static userAnonymousId: string | undefined;

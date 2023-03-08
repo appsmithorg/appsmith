@@ -44,10 +44,18 @@ export function defaultValueValidation(
   props: CurrencyInputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const NUMBER_ERROR_MESSAGE = "This value must be number";
-  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
-    "Please use . as the decimal separator for default values.";
-  const EMPTY_ERROR_MESSAGE = "";
+  const NUMBER_ERROR_MESSAGE = {
+    name: "TypeError",
+    message: "This value must be number",
+  };
+  const DECIMAL_SEPARATOR_ERROR_MESSAGE = {
+    name: "ValidationError",
+    message: "Please use . as the decimal separator for default values.",
+  };
+  const EMPTY_ERROR_MESSAGE = {
+    name: "",
+    message: "",
+  };
   const localeLang = navigator.languages?.[0] || "en-US";
 
   function getLocaleDecimalSeperator() {
@@ -103,7 +111,11 @@ export function defaultValueValidation(
     if (parsed !== Number(parsed.toFixed(props.decimals))) {
       isValid = false;
       messages = [
-        "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
+        {
+          name: "RangeError",
+          message:
+            "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
+        },
       ];
     } else {
       isValid = true;
@@ -296,7 +308,7 @@ class CurrencyInputWidget extends BaseInputWidget<
   }
 
   formatText() {
-    if (!!this.props.text) {
+    if (!!this.props.text && !this.isTextFormatted()) {
       try {
         /**
          * Since we are restricting default value to only have "." decimal separator,
@@ -344,6 +356,10 @@ class CurrencyInputWidget extends BaseInputWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+  };
+
+  isTextFormatted = () => {
+    return this.props.text.includes(getLocaleThousandSeparator());
   };
 
   handleFocusChange = (isFocused?: boolean) => {

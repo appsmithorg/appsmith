@@ -1,7 +1,7 @@
-import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { partition } from "lodash";
+import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,

@@ -1,19 +1,15 @@
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
-import { ReflowDirection } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
-import { getCanvasWidth } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
-import {
-  deriveHighlightsFromLayers,
-  HighlightInfo,
-} from "utils/autoLayout/highlightUtils";
+import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import {
   getHighlightPayload,
   Point,
 } from "utils/autoLayout/highlightSelectionUtils";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
@@ -37,7 +33,6 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
-  const canvasWidth: number = useSelector(getCanvasWidth);
   const isMobile = useSelector(getIsMobile);
   let highlights: HighlightInfo[] = [];
   let lastActiveHighlight: HighlightInfo | undefined;
@@ -76,7 +71,7 @@ export const useAutoLayoutHighlights = ({
     return flag;
   };
 
-  const calculateHighlights = (): HighlightInfo[] => {
+  const calculateHighlights = (snapColumnSpace: number): HighlightInfo[] => {
     cleanUpTempStyles();
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
@@ -84,7 +79,7 @@ export const useAutoLayoutHighlights = ({
       highlights = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
-        canvasWidth,
+        snapColumnSpace,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
@@ -101,18 +96,21 @@ export const useAutoLayoutHighlights = ({
   /**
    * Highlight a drop position based on mouse position and move direction.
    * @param e | MouseMoveEvent
-   * @param moveDirection | ReflowDirection
    * @returns HighlightInfo | undefined
    */
-  const highlightDropPosition = (
-    e: any,
-    moveDirection: ReflowDirection,
-  ): HighlightInfo | undefined => {
+  const getDropPosition = (
+    snapColumnSpace: number,
+    e?: any,
+    val?: Point,
+    mouseUp = false,
+  ) => {
+    if (mouseUp && lastActiveHighlight) return lastActiveHighlight;
+
     if (!highlights || !highlights.length)
       highlights = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
-        canvasWidth,
+        snapColumnSpace,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
@@ -120,43 +118,18 @@ export const useAutoLayoutHighlights = ({
 
     const highlight: HighlightInfo | undefined = getHighlightPayload(
       highlights,
-      e,
-      moveDirection,
-    );
-    if (!highlight) return;
-    // console.log("#### selection", highlight);
-    lastActiveHighlight = highlight;
-    return highlight;
-  };
-
-  const getDropInfo = (val: Point): HighlightInfo | undefined => {
-    if (lastActiveHighlight) return lastActiveHighlight;
-
-    if (!highlights || !highlights.length)
-      highlights = deriveHighlightsFromLayers(
-        allWidgets,
-        canvasId,
-        canvasWidth,
-        blocksToDraw.map((block) => block?.widgetId),
-        isFillWidget,
-        isMobile,
-      );
-
-    const payload: HighlightInfo | undefined = getHighlightPayload(
-      highlights,
-      null,
-      undefined,
+      e || null,
       val,
     );
-    if (!payload) return;
-    lastActiveHighlight = payload;
-    return payload;
+    if (!highlight) return;
+
+    lastActiveHighlight = highlight;
+    return highlight;
   };
 
   return {
     calculateHighlights,
     cleanUpTempStyles,
-    getDropInfo,
-    highlightDropPosition,
+    getDropPosition,
   };
 };

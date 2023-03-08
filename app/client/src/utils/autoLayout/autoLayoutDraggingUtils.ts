@@ -1,8 +1,5 @@
 import { FlexLayerAlignment } from "utils/autoLayout/constants";
-import {
-  FlexLayer,
-  LayerChild,
-} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import { isArray } from "lodash";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetPositions } from "./positionUtils";
@@ -88,7 +85,7 @@ export function updateRelationships(
       if (prevParentId !== undefined) {
         prevParents.push(prevParentId);
         const prevParent = Object.assign({}, widgets[prevParentId]);
-        if (prevParent && prevParent.children && isArray(prevParent.children)) {
+        if (isArray(prevParent.children)) {
           const updatedPrevParent = {
             ...prevParent,
             children: onlyUpdateFlexLayers

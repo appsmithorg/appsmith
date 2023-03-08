@@ -15,7 +15,6 @@ import {
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
-import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 import {
   getApiPaneConfigSelectedTabIndex,
   getApiPaneResponsePaneHeight,
@@ -61,6 +60,7 @@ import {
   setQueryPaneResponsePaneHeight,
   setQueryPaneResponseSelectedTab,
 } from "actions/queryPaneActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   DEFAULT_ENTITY_EXPLORER_WIDTH,
   DEFAULT_PROPERTY_PANE_WIDTH,
@@ -68,6 +68,7 @@ import {
 import { PluginPackageName } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getExplorerWidth } from "selectors/explorerSelector";
 import {
   getJSPaneConfigSelectedTabIndex,
@@ -178,7 +179,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     {
       name: FocusElement.SelectedWidgets,
       selector: getSelectedWidgets,
-      setter: selectMultipleWidgetsInitAction,
+      setter: (widgetIds: string[]) =>
+        selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds),
       defaultValue: [],
     },
     {

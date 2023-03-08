@@ -6,18 +6,18 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
 import { find } from "lodash";
 import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetState } from "../../BaseWidget";
 import TabsComponent from "../component";
 import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
+import { Stylesheet } from "entities/AppTheming";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function selectedTabValidation(
   value: unknown,
@@ -31,7 +31,12 @@ export function selectedTabValidation(
   return {
     isValid: value === "" ? true : tabNames.includes(value as string),
     parsed: value,
-    messages: [`Tab name ${value} does not exist`],
+    messages: [
+      {
+        name: "ValidationError",
+        message: `Tab name ${value} does not exist`,
+      },
+    ],
   };
 }
 class TabsWidget extends BaseWidget<
@@ -180,7 +185,6 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -243,6 +247,7 @@ class TabsWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
             propertyName: "borderRadius",
@@ -321,9 +326,13 @@ class TabsWidget extends BaseWidget<
       width:
         (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
+    const isAutoHeightEnabled: boolean =
+      isAutoHeightEnabledForWidget(this.props) &&
+      !isAutoHeightEnabledForWidget(this.props, true);
     return (
       <TabsComponent
         {...tabsComponentProps}
+        $noScroll={isAutoHeightEnabled}
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}

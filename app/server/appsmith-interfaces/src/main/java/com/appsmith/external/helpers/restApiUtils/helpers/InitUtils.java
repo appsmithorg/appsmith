@@ -17,7 +17,7 @@ public class InitUtils {
     }
 
     public void initializeResponseWithError(ActionExecutionResult result) {
-        result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+        result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode());
         result.setIsExecutionSuccess(false);
         result.setTitle(AppsmithPluginError.PLUGIN_ERROR.getTitle());
     }

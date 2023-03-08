@@ -2,7 +2,7 @@ import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { Icon, IconSize } from "design-system-old";
 import { ControlIcons } from "icons/ControlIcons";
-import { CSSProperties, default as React } from "react";
+import React, { CSSProperties } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -35,8 +35,7 @@ const SettingsWrapper = styled.div`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  border-radius: 2px;
 `;
 
 const WidgetName = styled.span`
@@ -64,6 +63,7 @@ type SettingsControlProps = {
 };
 
 const BindDataIcon = ControlIcons.BIND_DATA_CONTROL;
+const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
 const getStyles = (
   activity: Activities,
@@ -91,7 +91,7 @@ const getStyles = (
     case Activities.HOVERING:
       return {
         background: Colors.WATUSI,
-        color: Colors.WHITE,
+        color: Colors.BLACK_PEARL,
       };
     case Activities.SELECTED:
       return {
@@ -103,6 +103,19 @@ const getStyles = (
 
 export function SettingsControl(props: SettingsControlProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
+  const settingsIcon = (
+    <SettingsIcon
+      color={
+        !!props.errorCount
+          ? Colors.WHITE
+          : props.activity === Activities.HOVERING
+          ? Colors.BLACK_PEARL
+          : Colors.WHITE
+      }
+      height={14}
+      width={12}
+    />
+  );
   const errorIcon = (
     <StyledErrorIcon
       fillColor={Colors.WHITE}
@@ -139,6 +152,7 @@ export function SettingsControl(props: SettingsControlProps) {
         <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>
+        {!isSnipingMode && settingsIcon}
       </SettingsWrapper>
     </StyledTooltip>
   );

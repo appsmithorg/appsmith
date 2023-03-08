@@ -1,11 +1,7 @@
 import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import {
-  WidgetType,
-  widgetTypeClassname,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
@@ -16,23 +12,25 @@ import {
 } from "utils/autoLayout/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
-import { checkIsDropTarget } from "../PositionedContainer";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 export type AutoLayoutProps = {
   children: ReactNode;
   componentHeight: number;
   componentWidth: number;
-  direction?: LayoutDirection;
+  direction: LayoutDirection;
   focused?: boolean;
   minWidth?: number;
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
   selected?: boolean;
   widgetId: string;
+  widgetName: string;
   widgetType: WidgetType;
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
-  isMobile?: boolean;
+  isMobile: boolean;
 };
 
 const FlexWidget = styled.div`
@@ -62,9 +60,15 @@ export function FlexComponent(props: AutoLayoutProps) {
     !isSnipingMode && e.stopPropagation();
   };
 
-  const className = `auto-layout-parent-${props.parentId} auto-layout-child-${
-    props.widgetId
-  } ${widgetTypeClassname(props.widgetType)}`;
+  const className = useMemo(
+    () =>
+      `auto-layout-parent-${props.parentId} auto-layout-child-${
+        props.widgetId
+      } ${widgetTypeClassname(
+        props.widgetType,
+      )} t--widget-${props.widgetName.toLowerCase()}`,
+    [props.parentId, props.widgetId, props.widgetType, props.widgetName],
+  );
 
   const isResizing = useSelector(getIsResizing);
 
@@ -98,7 +102,9 @@ export function FlexComponent(props: AutoLayoutProps) {
   return (
     <FlexWidget
       className={className}
-      id={props.widgetId}
+      data-testid="test-widget"
+      data-widgetname-cy={props.widgetName}
+      id={"auto_" + props.widgetId}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
       style={flexComponentStyle}

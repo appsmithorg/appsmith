@@ -1,51 +1,46 @@
+import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
+import { Toaster } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
-import { Toaster } from "design-system-old";
+import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import produce from "immer";
-import { klona as clone } from "klona/full";
-import omit from "lodash/omit";
-import log from "loglevel";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { getMainCanvasProps } from "selectors/editorSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import { generateReactKey } from "utils/generators";
-import WidgetFactory from "utils/WidgetFactory";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidget, getWidgets } from "./selectors";
 import {
   buildWidgetBlueprint,
+  executeWidgetBlueprintBeforeOperations,
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
-import { getPropertiesToUpdate } from "./WidgetOperationSagas";
+import log from "loglevel";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { generateReactKey } from "utils/generators";
+import { WidgetProps } from "widgets/BaseWidget";
+import WidgetFactory from "utils/WidgetFactory";
+import omit from "lodash/omit";
+import produce from "immer";
 import {
-  getParentBottomRowAfterAddingWidget,
-  resizeCanvasToLowestWidget,
-} from "./WidgetOperationUtils";
+  GRID_DENSITY_MIGRATION_V1,
+  BlueprintOperationTypes,
+} from "widgets/constants";
+import { getPropertiesToUpdate } from "./WidgetOperationSagas";
+import { klona as clone } from "klona/full";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -156,7 +151,17 @@ function* getChildWidgetProps(
     widget,
     themeConfigWithoutChildStylesheet,
   );
-  widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+
+  if (params.dynamicBindingPathList) {
+    const mergedDynamicBindingPathLists = [
+      ...dynamicBindingPathList,
+      ...params.dynamicBindingPathList,
+    ];
+    widget.dynamicBindingPathList = mergedDynamicBindingPathLists;
+  } else {
+    widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+  }
+
   return widget;
 }
 
@@ -271,18 +276,10 @@ export function* getUpdateDslAfterCreatingChild(
     addChildPayload.props?.blueprint,
   );
 
-  const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
-
-  const parentBottomRow = getParentBottomRowAfterAddingWidget(
-    stateParent,
-    newWidget,
-  );
-
   // Update widgets to put back in the canvasWidgetsReducer
   // TODO(abhinav): This won't work if dont already have an empty children: []
   const parent = {
     ...stateParent,
-    bottomRow: parentBottomRow,
     children: [...(stateParent.children || []), childWidgetPayload.widgetId],
   };
 
@@ -312,23 +309,6 @@ export function* getUpdateDslAfterCreatingChild(
     widgets,
   );
 
-  if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
-    const mainCanvasMinHeight = mainCanvasProps?.height;
-
-    //updates bottom Row of main Canvas
-    updatedWidgets[
-      MAIN_CONTAINER_WIDGET_ID
-    ].bottomRow = resizeCanvasToLowestWidget(
-      updatedWidgets,
-      widgetId,
-      updatedWidgets[MAIN_CONTAINER_WIDGET_ID].bottomRow,
-      mainCanvasMinHeight,
-    );
-  }
-
   return updatedWidgets;
 }
 
@@ -341,6 +321,20 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     Toaster.clear();
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const { newWidgetId, type, widgetId } = addChildAction.payload;
+
+    yield call(
+      executeWidgetBlueprintBeforeOperations,
+      BlueprintOperationTypes.BEFORE_ADD,
+      {
+        parentId: widgetId,
+        widgetId: newWidgetId,
+        widgets: stateWidgets,
+        widgetType: type,
+      },
+    );
+
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);

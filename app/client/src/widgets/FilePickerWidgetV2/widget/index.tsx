@@ -21,7 +21,6 @@ import React from "react";
 import shallowequal from "shallowequal";
 import { createGlobalStyle } from "styled-components";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
@@ -425,7 +424,6 @@ class FilePickerWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
 
       {
         sectionName: "Events",

@@ -8,7 +8,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
@@ -31,7 +30,12 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
         return {
           isValid: false,
           parsed: 0,
-          messages: [`Value must be a number`],
+          messages: [
+            {
+              name: "TypeError",
+              message: `Value must be a number`,
+            },
+          ],
         };
       }
     }
@@ -45,7 +49,12 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
       return {
         isValid: false,
         parsed,
-        messages: [`This value must be less than or equal to max count`],
+        messages: [
+          {
+            name: "RangeError",
+            message: `This value must be less than or equal to max count`,
+          },
+        ],
       };
     }
 
@@ -54,7 +63,12 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
       return {
         isValid: false,
         parsed,
-        messages: [`This value can be a decimal only if 'Allow half' is true`],
+        messages: [
+          {
+            name: "ValidationError",
+            message: `This value can be a decimal only if 'Allow half' is true`,
+          },
+        ],
       };
     }
 
@@ -63,7 +77,12 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
     return {
       isValid: false,
       parsed: value,
-      messages: [`Could not validate `],
+      messages: [
+        {
+          name: "ValidationError",
+          message: `Could not validate `,
+        },
+      ],
     };
   }
 }
@@ -179,7 +198,6 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

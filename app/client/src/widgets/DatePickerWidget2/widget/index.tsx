@@ -11,7 +11,6 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { DatePickerType, TimePrecision } from "../constants";
@@ -24,7 +23,19 @@ function allowedRange(value: any) {
   return {
     isValid: isValid,
     parsed: isValid ? Number(value) : 0,
-    messages: isValid ? [] : ["Number should be between 0-6."],
+    messages: isValid
+      ? [
+          {
+            name: "",
+            message: "",
+          },
+        ]
+      : [
+          {
+            name: "RangeError",
+            message: "Number should be between 0-6.",
+          },
+        ],
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
@@ -295,7 +306,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

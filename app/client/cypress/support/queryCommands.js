@@ -159,6 +159,7 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
 Cypress.Commands.add("executeDbQuery", (queryName) => {
   cy.get(widgetsPage.buttonOnClick)
     .get(commonlocators.dropdownSelectButton)
+    .eq(0)
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()

@@ -3,7 +3,7 @@ import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { SpaceMap } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
-import { HighlightInfo } from "utils/autoLayout/highlightUtils";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { getAbsolutePixels } from "utils/helpers";
 import { modifyDrawingRectangles } from "./canvasDraggingUtils";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
@@ -172,7 +172,10 @@ export const useRenderBlocksOnCanvas = (
             : parentOffsetTop && scrollParent.scrollTop > parentOffsetTop
             ? scrollParent.scrollTop - parentOffsetTop
             : 0;
-        canvasCtx.roundRect(posX, posY - val, width, height, 4);
+        // roundRect is not currently supported in firefox.
+        if (canvasCtx.roundRect)
+          canvasCtx.roundRect(posX, posY - val, width, height, 4);
+        else canvasCtx.rect(posX, posY - val, width, height);
         canvasCtx.fill();
         canvasCtx.stroke();
         canvasCtx.save();

@@ -52,6 +52,7 @@ const Clusterer: React.FC<ClustererProps> = (props) => {
       {markers.map((marker, index) => (
         <Marker
           clickable
+          color={marker.color}
           draggable={
             selectedMarker &&
             selectedMarker?.lat === marker.lat &&

@@ -11,6 +11,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
+import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import {
@@ -26,18 +27,18 @@ import {
   getExplorerWidth,
 } from "selectors/explorerSelector";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { scrollbarWidth } from "utils/helpers";
-import { useWindowSizeHooks } from "./dragResizeHooks";
 import {
   getPaneCount,
   getTabsPaneWidth,
   isMultiPaneActive,
 } from "selectors/multiPaneSelectors";
-import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { scrollbarWidth } from "utils/helpers";
+import { useWindowSizeHooks } from "./dragResizeHooks";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
+export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ export const useDynamicAppLayout = () => {
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   // /**
   //  * calculates min height
@@ -102,6 +104,9 @@ export const useDynamicAppLayout = () => {
     const { maxWidth, minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
 
+    const gutterWidth =
+      appPositioningType === AppPositioningTypes.AUTO ? 0 : GUTTER_WIDTH;
+
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (
       isPreviewMode === false &&
@@ -132,18 +137,19 @@ export const useDynamicAppLayout = () => {
 
     const ele: any = document.getElementById("canvas-viewport");
     if (
-      appMode === "EDIT" &&
+      appMode === APP_MODE.EDIT &&
       appLayout?.type === "FLUID" &&
       ele &&
       calculatedWidth > ele.clientWidth
     ) {
       calculatedWidth = ele.clientWidth;
     }
+
     switch (true) {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
-        const totalWidthToSubtract = BORDERS_WIDTH + GUTTER_WIDTH;
+        const totalWidthToSubtract = BORDERS_WIDTH + gutterWidth;
         // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
@@ -202,6 +208,7 @@ export const useDynamicAppLayout = () => {
     currentPageId,
     appMode,
     appLayout,
+    isPreviewMode,
   ]);
 
   const resizeObserver = new ResizeObserver(immediateDebouncedResize);
@@ -217,7 +224,7 @@ export const useDynamicAppLayout = () => {
     return () => {
       ele && resizeObserver.unobserve(ele);
     };
-  }, [appLayout, currentPageId]);
+  }, [appLayout, currentPageId, isPreviewMode]);
 
   /**
    * when screen height is changed, update canvas layout
@@ -253,22 +260,19 @@ export const useDynamicAppLayout = () => {
     isExplorerPinned,
     propertyPaneWidth,
     isAppSettingsPaneOpen,
+    currentPageId, //TODO: preet - remove this after first merge.
   ]);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   useEffect(() => {
-    function relayoutAtBreakpoint() {
-      dispatch(
-        updateLayoutForMobileBreakpointAction(
-          MAIN_CONTAINER_WIDGET_ID,
-          appPositioningType === AppPositioningTypes.AUTO
-            ? mainCanvasProps?.isMobile
-            : false,
-          calculateCanvasWidth(),
-        ),
-      );
-    }
-    relayoutAtBreakpoint();
+    dispatch(
+      updateLayoutForMobileBreakpointAction(
+        MAIN_CONTAINER_WIDGET_ID,
+        appPositioningType === AppPositioningTypes.AUTO
+          ? mainCanvasProps?.isMobile
+          : false,
+        calculateCanvasWidth(),
+      ),
+    );
   }, [mainCanvasProps?.isMobile, appPositioningType]);
 
   return isCanvasInitialized;

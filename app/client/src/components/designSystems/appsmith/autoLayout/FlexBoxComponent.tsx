@@ -1,76 +1,44 @@
 import { isArray } from "lodash";
-import React, { ReactNode } from "react";
-import styled from "styled-components";
+import React, { CSSProperties, ReactNode, useMemo } from "react";
 
 import {
   FlexLayerAlignment,
   LayoutDirection,
-  Overflow,
 } from "utils/autoLayout/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
-import { getWidgets } from "sagas/selectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
-import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
+import {
+  AlignmentColumnInfo,
+  FlexBoxAlignmentColumnInfo,
+  FlexLayer,
+} from "utils/autoLayout/autoLayoutTypes";
+import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
+import { WidgetNameComponentHeight } from "components/editorComponents/WidgetNameComponent";
 
 export interface FlexBoxProps {
-  direction?: LayoutDirection;
+  direction: LayoutDirection;
   stretchHeight: boolean;
   useAutoLayout: boolean;
   children?: ReactNode;
   widgetId: string;
-  overflow: Overflow;
   flexLayers: FlexLayer[];
-  isMobile?: boolean;
-}
-
-export interface LayerChild {
-  id: string;
-  align: FlexLayerAlignment;
-}
-
-export interface FlexLayer {
-  children: LayerChild[];
+  isMobile: boolean;
 }
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
 
-export const FlexContainer = styled.div<{
-  useAutoLayout?: boolean;
-  direction?: LayoutDirection;
-  stretchHeight: boolean;
-  overflow: Overflow;
-  leaveSpaceForWidgetName: boolean;
-  isMobile?: boolean;
-}>`
-  display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
-  flex-direction: ${({ direction }) =>
-    direction === LayoutDirection.Vertical ? "column" : "row"};
-  justify-content: flex-start;
-  align-items: flex-start;
-  flex-wrap: ${({ overflow }) =>
-    overflow?.indexOf("wrap") > -1 ? overflow : "nowrap"};
-
-  width: 100%;
-  height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
-
-  overflow: hidden;
-
-  padding: ${({ leaveSpaceForWidgetName }) =>
-    leaveSpaceForWidgetName
-      ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px 22px ${FLEXBOX_PADDING}px;`
-      : "0px;"};
-`;
-
 function FlexBoxComponent(props: FlexBoxProps) {
-  const allWidgets = useSelector(getWidgets);
   const direction: LayoutDirection =
     props.direction || LayoutDirection.Horizontal;
-  const appMode = useSelector(getAppMode);
+  const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const leaveSpaceForWidgetName = appMode === APP_MODE.EDIT;
   const isMobile: boolean = props.isMobile || false;
+  const alignmentColumnInfo: FlexBoxAlignmentColumnInfo = useSelector(
+    getColumnsForAllLayers(props.widgetId),
+  );
 
   const renderChildren = () => {
     if (!props.children) return null;
@@ -96,18 +64,10 @@ function FlexBoxComponent(props: FlexBoxProps) {
 
   function processLayers(map: { [key: string]: any }) {
     const layers = [];
-    let index = 0;
-    for (const layer of props.flexLayers) {
+    for (const [index, layer] of props.flexLayers.entries()) {
       layers.push(processIndividualLayer(layer, map, index));
-      index += 1;
     }
     return layers;
-  }
-
-  function getColumns(id: string, isMobile: boolean): number {
-    const widget = allWidgets[id];
-    if (!widget) return 0;
-    return getWidgetWidth(widget, isMobile);
   }
 
   function processIndividualLayer(
@@ -123,19 +83,21 @@ function FlexBoxComponent(props: FlexBoxProps) {
     let startColumns = 0,
       centerColumns = 0,
       endColumns = 0;
+    const columnInfo: AlignmentColumnInfo = alignmentColumnInfo[index];
+    if (columnInfo) {
+      startColumns = columnInfo[FlexLayerAlignment.Start];
+      centerColumns = columnInfo[FlexLayerAlignment.Center];
+      endColumns = columnInfo[FlexLayerAlignment.End];
+    }
 
     for (const child of children) {
       const widget = map[child.id];
-
-      if (child.align === "end") {
+      if (child.align === FlexLayerAlignment.End) {
         end.push(widget);
-        endColumns += getColumns(child.id, isMobile);
-      } else if (child.align === "center") {
+      } else if (child.align === FlexLayerAlignment.Center) {
         center.push(widget);
-        centerColumns += getColumns(child.id, isMobile);
       } else {
         start.push(widget);
-        startColumns += getColumns(child.id, isMobile);
       }
     }
 
@@ -160,18 +122,32 @@ function FlexBoxComponent(props: FlexBoxProps) {
     );
   }
 
+  const flexBoxStyle: CSSProperties = useMemo(() => {
+    return {
+      display: !!props.useAutoLayout ? "flex" : "block",
+      flexDirection:
+        props.direction === LayoutDirection.Vertical ? "column" : "row",
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+      flexWrap: "nowrap",
+      width: "100%",
+      height: props.stretchHeight ? "100%" : "auto",
+      overflow: "hidden",
+      padding: leaveSpaceForWidgetName
+        ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px ${WidgetNameComponentHeight}px ${FLEXBOX_PADDING}px`
+        : "0px",
+    };
+  }, [
+    props.useAutoLayout,
+    props.direction,
+    props.stretchHeight,
+    leaveSpaceForWidgetName,
+  ]);
+
   return (
-    <FlexContainer
-      className={`flex-container-${props.widgetId}`}
-      direction={direction}
-      isMobile={isMobile}
-      leaveSpaceForWidgetName={leaveSpaceForWidgetName}
-      overflow={props.overflow}
-      stretchHeight={props.stretchHeight}
-      useAutoLayout={props.useAutoLayout}
-    >
-      <>{renderChildren()}</>
-    </FlexContainer>
+    <div className={`flex-container-${props.widgetId}`} style={flexBoxStyle}>
+      {renderChildren()}
+    </div>
   );
 }
 

@@ -357,6 +357,28 @@ export const resetDefaultKeyValPairFlag = () => {
   };
 };
 
+export const initializeDatasourceFormDefaults = (pluginType: string) => {
+  return {
+    type: ReduxActionTypes.INITIALIZE_DATASOURCE_FORM_WITH_DEFAULTS,
+    payload: {
+      pluginType: pluginType,
+    },
+  };
+};
+
+// In case of access to specific sheets in google sheet datasource, this action
+// is used for handling file picker callback, when user selects files/cancels the selection
+// this callback action will be triggered
+export const filePickerCallbackAction = (data: {
+  action: string;
+  datasourceId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
+    payload: data,
+  };
+};
+
 export default {
   fetchDatasources,
   initDatasourcePane,

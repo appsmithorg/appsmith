@@ -4,7 +4,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -35,7 +34,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

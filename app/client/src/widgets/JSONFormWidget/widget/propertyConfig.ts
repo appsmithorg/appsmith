@@ -6,7 +6,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
@@ -25,7 +24,12 @@ export const sourceDataValidationFn = (
     return {
       isValid: false,
       parsed: {},
-      messages: ["Source data cannot be empty."],
+      messages: [
+        {
+          name: "ValidationError",
+          message: "Source data cannot be empty.",
+        },
+      ],
     };
   }
 
@@ -52,7 +56,7 @@ export const sourceDataValidationFn = (
     return {
       isValid: false,
       parsed: {},
-      messages: [(e as Error).message],
+      messages: [e as Error],
     };
   }
 };
@@ -275,7 +279,6 @@ export const contentConfig = [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("JSON_FORM_WIDGET"),
   {
     sectionName: "Events",
     children: [

@@ -2,8 +2,6 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.events.UserChangedEvent;
-import com.appsmith.server.events.UserPhotoChangedEvent;
-import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import reactor.core.scheduler.Schedulers;
 public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
 
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final CommentRepository commentRepository;
     private final NotificationRepository notificationRepository;
     private final WorkspaceRepository workspaceRepository;
 
@@ -28,66 +25,16 @@ public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
         return user;
     }
 
-    public void publish(String userId, String photoAssetId) {
-        applicationEventPublisher.publishEvent(new UserPhotoChangedEvent(userId, photoAssetId));
-    }
-
     @Async
     @EventListener
     public void handle(UserChangedEvent event) {
         // The `user` object is expected to contain the NEW name.
         final User user = event.getUser();
         log.debug("Handling user document changes {}", user);
-        updateNameInComments(user)
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
 
         updateNameInUserRoles(user)
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
-
-        updateNameInNotifications(user)
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
-    }
-
-    @Async
-    @EventListener
-    public void handle(UserPhotoChangedEvent event) {
-        log.debug("Handling user photo changes {}", event.getUserId());
-        updatePhotoIdInComments(event.getUserId(), event.getPhotoAssetId())
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
-    }
-
-    private Mono<Void> updateNameInComments(User user) {
-        if (user.getId() == null) {
-            log.warn("Attempt to update name in comments for user with null ID.");
-            return Mono.empty();
-        }
-
-        log.debug("Updating name in comments for user {}", user.getId());
-        return commentRepository.updateAuthorNames(user.getId(), user.getName());
-    }
-
-    private Mono<Void> updateNameInNotifications(User user) {
-        if (user.getId() == null) {
-            log.warn("Attempt to update name in notifications for user with null ID.");
-            return Mono.empty();
-        }
-
-        log.debug("Updating name in notifications for user {}", user.getId());
-        return notificationRepository.updateCommentAuthorNames(user.getId(), user.getName());
-    }
-
-    private Mono<Void> updatePhotoIdInComments(String userId, String photoId) {
-        if (userId == null) {
-            log.warn("Attempt to photo id in comments for user with null ID.");
-            return Mono.empty();
-        }
-
-        log.debug("Updating photo id in comments for user {}", userId);
-        return commentRepository.updatePhotoId(userId, photoId);
     }
 
     private Mono<Void> updateNameInUserRoles(User user) {

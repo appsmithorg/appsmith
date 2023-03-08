@@ -1,0 +1,22 @@
+# If someone with write access comments "/build-deploy-preview" on a pull request, emit a repository_dispatch event
+name: Build Deploy Preview
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  build-deploy-preview:
+    runs-on: ubuntu-latest
+    # Only run for PRs, not issue comments
+    if: |
+      github.event.issue.pull_request
+    steps:
+
+      - name: Slash Command Dispatch
+        uses: peter-evans/slash-command-dispatch@v3
+        with:
+          issue-type: pull-request
+          token: ${{ secrets.APPSMITH_DEPLOY_PREVIEW_PAT }}
+          commands: |
+            build-deploy-preview
