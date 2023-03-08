@@ -1,10 +1,11 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import datasourceFormData from "../../../../fixtures/datasources.json";
 
 describe("Authentiacted Api with OAuth 2.O authorization code test cases", function() {
   it("1. Create & Save an Authenticated API with OAuth 2.O authorization code", function() {
     // Login to TED OAuth
     var formdata = new FormData();
-    formdata.append("username", "testuser@appsmith.com");
+    formdata.append("username", datasourceFormData["OAuth_username"]);
     cy.request("POST", "http://localhost:6001", formdata).then((response) => {
       expect(response.status).to.equal(200);
     });
