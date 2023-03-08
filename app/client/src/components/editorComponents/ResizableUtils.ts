@@ -2,7 +2,7 @@ import { GridDefaults } from "constants/WidgetConstants";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
+import { WidgetRowCols } from "widgets/BaseWidget";
 
 export type UIElementSize = { height: number; width: number };
 
@@ -54,7 +54,7 @@ export const computeBoundedRowCols = (rowCols: WidgetRowCols) => {
 
 export const hasRowColsChanged = (
   newRowCols: WidgetRowCols,
-  props: WidgetProps,
+  props: WidgetPosition,
 ) => {
   return (
     props.leftColumn !== newRowCols.leftColumn ||
@@ -67,13 +67,15 @@ export const hasRowColsChanged = (
 export const computeFinalRowCols = (
   delta: UIElementSize,
   position: XYCord,
-  props: WidgetProps,
+  widgetPositionProps: WidgetPosition,
 ): WidgetRowCols | false => {
   const newRowCols = computeBoundedRowCols(
-    computeRowCols(delta, position, props),
+    computeRowCols(delta, position, widgetPositionProps),
   );
 
-  return hasRowColsChanged(newRowCols, props) ? newRowCols : false;
+  return hasRowColsChanged(newRowCols, widgetPositionProps)
+    ? newRowCols
+    : false;
 };
 
 /**

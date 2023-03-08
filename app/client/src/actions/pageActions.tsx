@@ -279,10 +279,14 @@ export type MultipleWidgetDeletePayload = {
 export type WidgetResize = {
   widgetId: string;
   parentId: string;
-  leftColumn: number;
-  rightColumn: number;
-  topRow: number;
-  bottomRow: number;
+  leftColumn?: number;
+  rightColumn?: number;
+  topRow?: number;
+  bottomRow?: number;
+  mobileLeftColumn?: number;
+  mobileRightColumn?: number;
+  mobileTopRow?: number;
+  mobileBottomRow?: number;
   snapColumnSpace: number;
   snapRowSpace: number;
 };

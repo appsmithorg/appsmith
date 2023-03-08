@@ -97,6 +97,8 @@ export function alterLayoutForMobile(
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
       widget.mobileRightColumn = GridDefaults.DEFAULT_GRID_COLUMNS;
       widget.mobileLeftColumn = 0;
+      widget.mobileTopRow = widget.topRow;
+      widget.mobileBottomRow = widget.bottomRow;
     } else if (
       widget.responsiveBehavior === ResponsiveBehavior.Hug &&
       widget.minWidth
@@ -111,9 +113,15 @@ export function alterLayoutForMobile(
           GridDefaults.DEFAULT_GRID_COLUMNS,
         );
       }
+      if (
+        widget.mobileTopRow === undefined ||
+        widget.mobileBottomRow === undefined
+      ) {
+        widget.mobileTopRow = widget.topRow;
+        widget.mobileBottomRow = widget.bottomRow;
+      }
     }
-    widget.mobileTopRow = widget.topRow;
-    widget.mobileBottomRow = widget.bottomRow;
+
     widgets = alterLayoutForMobile(
       widgets,
       child,
