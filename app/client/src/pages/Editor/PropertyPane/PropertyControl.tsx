@@ -80,7 +80,7 @@ const PropertyControl = memo((props: Props) => {
 
   const controlRef = useRef<HTMLDivElement | null>(null);
 
-  const integrationOptions = useApisQueriesAndJsActionOptions(() => null);
+  // const integrationOptions = useApisQueriesAndJsActionOptions(() => null);
 
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
