@@ -190,7 +190,9 @@ export const useDynamicAppLayout = () => {
         // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
-          (appMode === APP_MODE.EDIT && !isPreviewMode
+          (appMode === APP_MODE.EDIT &&
+          !isPreviewMode &&
+          !isAppSettingsPaneWithNavigationTabOpen
             ? totalWidthToSubtract
             : 0)
         );
