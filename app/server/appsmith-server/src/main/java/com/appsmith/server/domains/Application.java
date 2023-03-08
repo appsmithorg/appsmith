@@ -354,9 +354,6 @@ public class Application extends BaseDomain {
 
         @JsonView(Views.Public.class)
         private Boolean showSignIn;
-
-        @JsonView(Views.Public.class)
-        private Boolean showShareApp;
     }
 
     public AppPositioning getAppPositioning() {

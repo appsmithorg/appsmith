@@ -165,5 +165,5 @@
   "fileBindingValue": "{{FilePicker1.isDirty}}",
   "UPGRADEUSERNAME": "arslan+upgrade160@appsmith.com",
   "UPGRADEPASSWORD": "Test@123",
-  "APPURL": "/applications/62e2e63c11fae56b4ef05150/pages/62e2e63c11fae56b4ef05152"
+  "APPURL": "http://localhost:8081/app/app1/page1-63d38854252ca15b7ec9fabb"
 }

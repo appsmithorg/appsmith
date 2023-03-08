@@ -77,7 +77,6 @@ module.exports = {
         CONFIG_LOG_LEVEL_INDEX > -1
           ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]
           : LOG_LEVELS[1],
-      google: parseConfig("__APPSMITH_GOOGLE_MAPS_API_KEY__"),
       cloudHosting: "CLOUD_HOSTING",
       enableTNCPP: parseConfig("__APPSMITH_TNC_PP__"),
       appVersion: {
@@ -87,7 +86,6 @@ module.exports = {
       intercomAppID: "APP_ID",
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
 
-      disableTelemetry: "DISABLE_TELEMETRY" === "" || "DISABLE_TELEMETRY",
       hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
       disableIframeWidgetSandbox: parseConfig(
         "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",

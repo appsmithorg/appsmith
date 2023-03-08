@@ -32,6 +32,9 @@ public class PageDTO {
     String name;
 
     @JsonView(Views.Public.class)
+    String icon;
+
+    @JsonView(Views.Public.class)
     String description;
 
     @JsonView(Views.Public.class)

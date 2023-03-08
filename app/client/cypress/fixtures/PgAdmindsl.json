@@ -1862,7 +1862,7 @@
                       {
                         "resetFormOnClick": true,
                         "widgetName": "FormButton2",
-                        "onClick": "{{closeModal()}}",
+                        "onClick": "{{closeModal('nt_modal')}}",
                         "rightColumn": 17,
                         "isDefaultClickDisabled": true,
                         "buttonColor": "#03B365",

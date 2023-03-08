@@ -20,7 +20,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -32,7 +31,6 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
@@ -44,6 +42,7 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +56,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -74,7 +72,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     private final PolicyUtils policyUtils;
     private final ConfigService configService;
-    private final CommentThreadRepository commentThreadRepository;
     private final SessionUserService sessionUserService;
     private final ResponseUtils responseUtils;
 
@@ -97,7 +94,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     AnalyticsService analyticsService,
                                     PolicyUtils policyUtils,
                                     ConfigService configService,
-                                    CommentThreadRepository commentThreadRepository,
                                     SessionUserService sessionUserService,
                                     ResponseUtils responseUtils,
                                     PermissionGroupService permissionGroupService,
@@ -110,7 +106,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
-        this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
         this.responseUtils = responseUtils;
         this.permissionGroupService = permissionGroupService;
@@ -139,13 +134,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
         return repository.findById(id, applicationPermission.getReadPermission())
                 .flatMap(this::setTransientFields)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                .zipWith(sessionUserService.getCurrentUser())
-                .flatMap(objects -> {
-                    Application application = objects.getT1();
-                    User user = objects.getT2();
-                    return setUnreadCommentCount(application, user);
-                });
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
     }
 
     @Override
@@ -158,18 +147,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return this.findByBranchNameAndDefaultApplicationId(branchName, id, projectionFieldNames,
                         applicationPermission.getReadPermission())
                 .map(responseUtils::updateApplicationWithDefaultResources);
-    }
-
-    private Mono<Application> setUnreadCommentCount(Application application, User user) {
-        if (!user.isAnonymous()) {
-            return commentThreadRepository.countUnreadThreads(application.getId(), user.getUsername())
-                    .map(aLong -> {
-                        application.setUnreadCommentThreads(aLong);
-                        return application;
-                    });
-        } else {
-            return Mono.just(application);
-        }
     }
 
     @Override
@@ -404,12 +381,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .map(application -> {
                     application.setViewMode(true);
                     return application;
-                })
-                .zipWith(sessionUserService.getCurrentUser())
-                .flatMap(objects -> {
-                    Application application = objects.getT1();
-                    User user = objects.getT2();
-                    return setUnreadCommentCount(application, user);
                 });
     }
 
@@ -813,7 +784,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                                 final Mono<Application> updateMono = this.update(applicationId, branchedApplication, branchName);
 
-                                if (!StringUtils.hasLength(oldAssetId)){
+                                if (!StringUtils.hasLength(oldAssetId)) {
                                     return updateMono;
                                 } else {
                                     return assetService.remove(oldAssetId).then(updateMono);
@@ -822,7 +793,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             });
 
                 });
+    }
 
+
+    @Override
+    public Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
+        return repository.findByNameAndWorkspaceId(applicationName, workspaceId, permission);
     }
 
     @Override

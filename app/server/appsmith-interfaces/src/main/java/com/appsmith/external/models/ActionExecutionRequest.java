@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.AllArgsConstructor;
@@ -50,4 +51,9 @@ public class ActionExecutionRequest {
 
     @JsonView(Views.Public.class)
     Object requestParams;
+
+    @JsonProperty(value = "requestedAt")
+    public long getRequestedAtInEpochMilliseconds() {
+        return this.requestedAt.toEpochMilli();
+    }
 }

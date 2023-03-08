@@ -87,17 +87,27 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
 
   public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
-    this.agHelper.GetElement(this._tableRowColumnData(rowIndex, colIndex), 30000).waitUntil(
-      ($ele) =>
+    this.agHelper
+      .GetElement(this._tableRowColumnData(rowIndex, colIndex), 30000)
+      .waitUntil(($ele) =>
         cy
           .wrap($ele)
           .children("button")
-          .should("have.length", 0)
-    );
-
-    //or below will work:
+          .should("have.length", 0),
+      ); //or below will work:
     //this.agHelper.AssertElementAbsence(this._tableLoadStateDelete, 30000);
     // this.agHelper.Sleep(500);
+  }
+
+  public AssertTableLoaded(rowIndex = 0, colIndex = 0) {
+    this.agHelper
+      .GetElement(this._tableRowColumnData(rowIndex, colIndex), 30000)
+      .waitUntil(($ele) =>
+        cy
+          .wrap($ele)
+          .children("span")
+          .should("not.be.empty"),
+      );
   }
 
   public WaitForTableEmpty() {

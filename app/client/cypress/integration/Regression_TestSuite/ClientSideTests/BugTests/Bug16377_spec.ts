@@ -10,7 +10,8 @@ const locator = ObjectsRegistry.CommonLocators,
 
 describe("Binding Expressions should not be truncated in Url and path extraction", function() {
   it("Bug 16377, When Api url has dynamic binding expressions, ensure the url and path derived is not corrupting Api execution", function() {
-    const apiUrl = `https://mock-api.appsmith.com/{{true ? 'users' : 'user'}}`;
+    //Since the specified expression always returns true - it will never run mock-apis - which actually doesn't exist
+    const apiUrl = `http://host.docker.internal:5001/v1/{{true ? 'mock-api' : 'mock-apis'}}?records=10`;
 
     apiPage.CreateAndFillApi(apiUrl, "BindingExpressions");
     apiPage.RunAPI();

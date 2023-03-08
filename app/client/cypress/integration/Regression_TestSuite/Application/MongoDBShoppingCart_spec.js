@@ -3,16 +3,22 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 const formControls = require("../../../locators/FormControl.json");
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 let repoName;
 describe("Shopping cart App", function() {
   let datasourceName;
 
   before(() => {
-    cy.addDsl(dsl);
-  });
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("MongoDBShop" + uid);
+      _.homePage.CreateAppInWorkspace("MongoDBShop" + uid, "MongoDBShopApp");
+      cy.fixture("mongoAppdsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
+    });
   });
 
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function() {
@@ -193,19 +199,27 @@ describe("Shopping cart App", function() {
       .should("have.text", "3");
   });
 
-  /*it("Connect the appplication to git and validate data in deploy mode and edit mode", function() {
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName);
+  it("3. Connect the appplication to git and validate data in deploy mode and edit mode", function() {
+    _.gitSync.CreateNConnectToGit(repoName);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
     cy.latestDeployPreview();
-    cy.wait(2000)
-    cy.get(".selected-row").children().eq(0)
-    .should("have.text", "A man called ove");
-    cy.get(commonlocators.backToEditor).click();
-    cy.get(".selected-row").children().eq(0)
-    .should("have.text", "A man called ove");
+    cy.wait(2000);
+    cy.get(".selected-row")
+      .children()
+      .eq(0)
+      .should("have.text", "A man called ove");
+    _.deployMode.NavigateBacktoEditor();
+    cy.get(".selected-row")
+      .children()
+      .eq(0)
+      .should("have.text", "A man called ove");
     cy.wait(1000);
-  }) */
+  });
+
+  after(() => {
+    //clean up
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });

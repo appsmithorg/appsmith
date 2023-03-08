@@ -228,6 +228,8 @@ export const Colors = {
   NOTIFICATION_BANNER_ERROR_TEXT: "#C91818",
 
   CTA_PURPLE: "#5E5DC1",
+
+  APPSMITH_BEIGE: "#faf5ed",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

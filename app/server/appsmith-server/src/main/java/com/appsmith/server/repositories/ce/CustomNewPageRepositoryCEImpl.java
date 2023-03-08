@@ -119,10 +119,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
                 "unpublishedPage.name",
+                "unpublishedPage.icon",
                 "unpublishedPage.isHidden",
                 "unpublishedPage.slug",
                 "unpublishedPage.customSlug",
                 "publishedPage.name",
+                "publishedPage.icon",
                 "publishedPage.isHidden",
                 "publishedPage.slug",
                 "publishedPage.customSlug"

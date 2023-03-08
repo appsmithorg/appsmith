@@ -22,6 +22,8 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.Protocol;
 import com.arangodb.entity.CollectionEntity;
 import com.arangodb.model.CollectionsReadOptions;
+import com.external.plugins.exceptions.ArangoDBErrorMessages;
+import com.external.plugins.exceptions.ArangoDBPluginError;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -84,7 +86,7 @@ public class ArangoDBPlugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Missing required parameter: Query."
+                                ArangoDBErrorMessages.MISSING_QUERY_ERROR_MSG
                         )
                 );
             }
@@ -112,10 +114,13 @@ public class ArangoDBPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
+                        if (! (error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(ArangoDBPluginError.QUERY_EXECUTION_FAILED, ArangoDBErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
+                        }
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .flatMap(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
@@ -251,16 +256,13 @@ public class ArangoDBPlugin extends BasePlugin {
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (isAuthenticationMissing(auth)) {
                 invalids.add(
-                        "Could not find required authentication info. At least one of 'Username', 'Password', " +
-                                "'Database Name' fields is missing. Please edit the 'Username', 'Password' and " +
-                                "'Database Name' fields to provide authentication info."
+                        ArangoDBErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG
                 );
             }
 
             if (!isEndpointAvailable(datasourceConfiguration.getEndpoints())) {
                 invalids.add(
-                        "Could not find host address. Please edit the 'Host Address' field to provide the desired " +
-                                "endpoint."
+                        ArangoDBErrorMessages.DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG
                 );
             }
 
@@ -268,7 +270,7 @@ public class ArangoDBPlugin extends BasePlugin {
                     .getCaCertificateType();
             if (!SSLDetails.CACertificateType.NONE.equals(caCertificateType)
                     && !isCaCertificateAvailable(datasourceConfiguration)) {
-                invalids.add("Could not find CA certificate. Please provide a CA certificate.");
+                invalids.add(ArangoDBErrorMessages.DS_CA_CERT_NOT_FOUND_ERROR_MSG);
             }
 
             return invalids;
@@ -322,9 +324,8 @@ public class ArangoDBPlugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                "Appsmith server has failed to fetch list of collections from database. Please check " +
-                                        "if the database credentials are valid and/or you have the required " +
-                                        "permissions."
+                                ArangoDBErrorMessages.GET_STRUCTURE_ERROR_MSG,
+                                e.getErrorMessage()
                         )
                 );
             }

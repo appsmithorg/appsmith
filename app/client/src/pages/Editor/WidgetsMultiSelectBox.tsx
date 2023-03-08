@@ -82,7 +82,7 @@ const StyledSelectBoxHandleTop = styled.div`
   border-top: 1px dashed
     ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 0px;
-  left: -1px;
+  left: 0px;
 `;
 
 const StyledSelectBoxHandleLeft = styled.div`
@@ -93,7 +93,7 @@ const StyledSelectBoxHandleLeft = styled.div`
   border-left: 1px dashed
     ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 0px;
-  left: -1px;
+  left: 0px;
 `;
 
 const StyledSelectBoxHandleRight = styled.div`
@@ -115,7 +115,7 @@ const StyledSelectBoxHandleBottom = styled.div`
   border-bottom: 1px dashed
     ${(props) => props.theme.colors.widgetGroupingContextMenu.border};
   top: 100%;
-  left: -1px;
+  left: 0px;
 `;
 
 export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {

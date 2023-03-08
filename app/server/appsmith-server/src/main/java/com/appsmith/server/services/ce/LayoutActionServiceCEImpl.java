@@ -670,8 +670,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             validOnPageLoadActions.set(FALSE);
                             layout.setLayoutOnLoadActionErrors(List.of(
                                     new ErrorDTO(error.getAppErrorCode(),
+                                            error.getErrorType(),
                                             layoutOnLoadActionErrorToastMessage,
-                                            error.getMessage())));
+                                            error.getMessage(),
+                                            error.getTitle())));
                             return Mono.just(new ArrayList<>());
                         }));
 
@@ -705,7 +707,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             // in the layout for re-use to avoid computing DAG unnecessarily.
                             layout.setLayoutOnLoadActions(onLoadActions);
                             layout.setAllOnPageLoadActionNames(actionNames);
-                            layout.setAllOnPageLoadActionEdges(edges);
                             layout.setActionsUsedInDynamicBindings(actionsUsedInDSL);
                             // The below field is to ensure that we record if the page load actions computation was valid
                             // when last stored in the database.

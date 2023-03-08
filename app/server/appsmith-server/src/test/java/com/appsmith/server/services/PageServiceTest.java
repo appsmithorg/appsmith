@@ -211,6 +211,7 @@ public class PageServiceTest {
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
+        testPage.setIcon("flight");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
@@ -225,6 +226,7 @@ public class PageServiceTest {
                     assertThat(page.getId()).isNotNull();
 
                     assertThat(page.getName()).isEqualTo("PageServiceTest TestApp");
+                    assertThat(page.getIcon()).isEqualTo("flight");
                     assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
 
                     assertThat(page.getPolicies()).isNotEmpty();
@@ -295,6 +297,7 @@ public class PageServiceTest {
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
+        testPage.setIcon("flight");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
@@ -312,6 +315,7 @@ public class PageServiceTest {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
                     assertThat("PageServiceTest TestApp").isEqualTo(page.getName());
+                    assertThat("flight").isEqualTo(page.getIcon());
 
                     assertThat(page.getPolicies()).isNotEmpty();
 
@@ -357,7 +361,7 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void validChangePageName() {
+    public void validChangePageNameAndPageIcon() {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
@@ -370,6 +374,7 @@ public class PageServiceTest {
 
         PageDTO testPage = new PageDTO();
         testPage.setName("Before Page Name Change");
+        testPage.setIcon("bus");
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
@@ -378,6 +383,7 @@ public class PageServiceTest {
                     PageDTO newPage = new PageDTO();
                     newPage.setId(page.getId());
                     newPage.setName("New Page Name");
+                    newPage.setIcon("flight");
                     return newPageService.updatePage(page.getId(), newPage);
                 });
 
@@ -388,6 +394,7 @@ public class PageServiceTest {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
                     assertThat(page.getName()).isEqualTo("New Page Name");
+                    assertThat(page.getIcon()).isEqualTo("flight");
                     assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
 
                     // Check for the policy object not getting overwritten during update

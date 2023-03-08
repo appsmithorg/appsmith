@@ -16,6 +16,7 @@ import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
+import { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
@@ -119,10 +120,14 @@ class TableFilterPane extends Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, ownProps: TableFilterPaneProps) => {
+  const widgetLikeProps = {
+    widgetId: ownProps.widgetId,
+  } as WidgetProps;
+
   return {
     tableFilterPane: getTableFilterState(state),
     themeMode: getCurrentThemeMode(state),
-    metaProps: getWidgetMetaProps(state, ownProps.widgetId),
+    metaProps: getWidgetMetaProps(state, widgetLikeProps),
   };
 };
 

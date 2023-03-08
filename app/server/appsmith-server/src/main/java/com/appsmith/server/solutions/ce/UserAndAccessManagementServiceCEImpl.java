@@ -102,12 +102,12 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
 
         // Check if the current user has assign permissions to the permission group and permission group is workspace's default permission group.
         Mono<PermissionGroup> permissionGroupMono = permissionGroupService.getById(inviteUsersDTO.getPermissionGroupId(), permissionGroupPermission.getAssignPermission())
-                .filter(permissionGroup -> StringUtils.hasText(permissionGroup.getDefaultWorkspaceId()))
+                .filter(permissionGroup -> permissionGroup.getDefaultDomainType().equals(Workspace.class.getSimpleName()) && StringUtils.hasText(permissionGroup.getDefaultDomainId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ROLE)))
                 .cache();
 
         // Get workspace from the default group.
-        Mono<Workspace> workspaceMono = permissionGroupMono.flatMap(permissionGroup -> workspaceService.getById(permissionGroup.getDefaultWorkspaceId())).cache();
+        Mono<Workspace> workspaceMono = permissionGroupMono.flatMap(permissionGroup -> workspaceService.getById(permissionGroup.getDefaultDomainId())).cache();
 
         // Get all the default permision groups of the workspace
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
@@ -145,7 +145,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                 // Email template parameters initialization below.
                                 Map<String, String> params = userService.getEmailParams(workspace, currentUser, originHeader, false);
 
-                                return userService.updateTenantLogoInParams(params)
+                                return userService.updateTenantLogoInParams(params, originHeader)
                                         .flatMap(updatedParams ->
                                                 emailSender.sendMail(
                                                         existingUser.getEmail(),
@@ -178,7 +178,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                     long numberOfUsers = users.size();
                     List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
                     analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
-                    analyticsProperties.put("userEmails", invitedUsers);
+                    eventData.put(FieldName.USER_EMAILS, invitedUsers);
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
                 });
