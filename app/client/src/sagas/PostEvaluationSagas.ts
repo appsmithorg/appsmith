@@ -47,7 +47,9 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
-import { updateSuccessfulBindingsMap } from "actions/evaluationActions";
+import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
+
+let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -311,13 +313,14 @@ export function* logSuccessfulBindings(
   dataTree: DataTree,
   evaluationOrder: string[],
   isCreateFirstTree: boolean,
-  successfulBindings: Record<string, unknown>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
 
-  const successfulBindingPaths: any = { ...successfulBindings };
+  const successfulBindingPaths: any = !successfulBindingsMap
+    ? {}
+    : { ...successfulBindingsMap.getSuccessfulBindings() };
 
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -360,9 +363,9 @@ export function* logSuccessfulBindings(
 
           /**Log the binding only if it doesn't already exist */
           if (
-            !successfulBindings[evaluatedPath] ||
-            (successfulBindings[evaluatedPath] &&
-              successfulBindings[evaluatedPath] !== unevalValue)
+            !successfulBindingPaths[evaluatedPath] ||
+            (successfulBindingPaths[evaluatedPath] &&
+              successfulBindingPaths[evaluatedPath] !== unevalValue)
           ) {
             AnalyticsUtil.logEvent("WIDGET_BINDING_SUCCESS", {
               unevalValue,
@@ -381,7 +384,11 @@ export function* logSuccessfulBindings(
     }
   });
 
-  yield put(updateSuccessfulBindingsMap(successfulBindingPaths));
+  if (!successfulBindingsMap) {
+    successfulBindingsMap = new SuccessfulBindingMap(successfulBindingPaths);
+  } else {
+    successfulBindingsMap.setSuccessfulBindings(successfulBindingPaths);
+  }
 }
 
 export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {

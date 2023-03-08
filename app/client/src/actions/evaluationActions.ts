@@ -138,15 +138,6 @@ export const setDependencyMap = (
   };
 };
 
-export const updateSuccessfulBindingsMap = (
-  successfulBindings: Record<string, unknown>,
-): ReduxAction<{ successfulBindings: Record<string, unknown> }> => {
-  return {
-    type: ReduxActionTypes.UPDATE_SUCCESSFULL_BINDINGS_MAP,
-    payload: { successfulBindings },
-  };
-};
-
 // Called when a form is being setup, for setting up the base condition evaluations for the form
 export const initFormEvaluations = (
   editorConfig: any,

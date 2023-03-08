@@ -21,7 +21,6 @@ import {
 import {
   getDataTree,
   getUnevaluatedDataTree,
-  getEvaluationSuccessfulBindindsMap,
 } from "selectors/dataTreeSelectors";
 import { getMetaWidgets, getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -192,9 +191,6 @@ export function* evaluateTreeSaga(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
   const oldDataTree: DataTree = yield select(getDataTree);
-  const successfulBindings: Record<string, unknown> = yield select(
-    getEvaluationSuccessfulBindindsMap,
-  );
 
   const updates = diff(oldDataTree, dataTree) || [];
 
@@ -234,7 +230,6 @@ export function* evaluateTreeSaga(
       updatedDataTree,
       evaluationOrder,
       isCreateFirstTree,
-      successfulBindings,
     );
 
     yield fork(
