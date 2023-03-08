@@ -19,9 +19,5 @@
 	"retries": {
 		"runMode": 1,
 		"openMode": 0
-	},
-	"env": {
-		"USERNAME": "rishabh.rathod@appsmith.com",
-		"PASSWORD": "@Appsmith7557#"
 	}
 }
