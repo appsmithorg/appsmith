@@ -1,11 +1,12 @@
 import { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
+  getCanvasDimensions,
   getLayerIndexOfWidget,
   pasteWidgetInFlexLayers,
   updateFlexLayersOnDelete,
 } from "./AutoLayoutUtils";
-import { data } from "./testData";
+import { data, dataForgetCanvasDimensions } from "./testData";
 
 describe("test AutoLayoutUtils methods", () => {
   const mainCanvasWidth = 960;
@@ -151,6 +152,83 @@ describe("test AutoLayoutUtils methods", () => {
         ),
       ).toEqual(
         getLayerIndexOfWidget(result[parentId]?.flexLayers, originalWidgetId),
+      );
+    });
+  });
+
+  describe("test getCanvasDimensions method", () => {
+    /**
+     * +---------------------------------------------------------------------------------------+
+     * | MainContainer                                                                         |
+     * | +------------------------------------------------------------------------------------+|
+     * | | Container1                                                                         ||
+     * | +------------------------------------------------------------------------------------+|
+     * | +------------+ +---------------+ +---------------+ +----------------+ +--------------+|
+     * | | Container2 | |               | |               | |                | |              ||
+     * | +------------+ +---------------+ +---------------+ +----------------+ ---------------+|
+     * | +------------------------------------------------------------------------------------+|
+     * | | +------------+ +---------------+ +---------------+ +----------------+ +-----------+||
+     * | | | Container3 | |               | |               | |                | |           |||
+     * | | +------------+ +---------------+ +---------------+ +----------------+ ------------+||
+     * | +------------------------------------------------------------------------------------+|
+     * +---------------------------------------------------------------------------------------+
+     */
+    const mainCanvasWidth = 1166;
+    const widgets = dataForgetCanvasDimensions;
+    const mainContainerPadding = 4 * 2;
+    const containerPadding = (4 + 6) * 2;
+    it("should return proper dimension for MainContainer", () => {
+      const button0parent = widgets["kv4o6eopdn"]
+        .parentId as keyof typeof widgets;
+      const { canvasWidth } = getCanvasDimensions(
+        widgets[button0parent] as any,
+        widgets as any,
+        mainCanvasWidth,
+        false,
+      );
+      expect(canvasWidth).toEqual(mainCanvasWidth - mainContainerPadding);
+    });
+
+    it("should return proper dimension for Container1", () => {
+      const button1parent = widgets["phf8e237zg"]
+        .parentId as keyof typeof widgets;
+      const { canvasWidth } = getCanvasDimensions(
+        widgets[button1parent] as any,
+        widgets as any,
+        mainCanvasWidth,
+        false,
+      );
+      expect(canvasWidth).toEqual(
+        mainCanvasWidth - mainContainerPadding - containerPadding,
+      );
+    });
+
+    it("should return proper dimension for Container2", () => {
+      const button2parent = widgets["alvcydt4he"]
+        .parentId as keyof typeof widgets;
+      const { canvasWidth } = getCanvasDimensions(
+        widgets[button2parent] as any,
+        widgets as any,
+        mainCanvasWidth,
+        false,
+      );
+      expect(canvasWidth).toEqual(
+        (mainCanvasWidth - mainContainerPadding) / 4 - containerPadding,
+      );
+    });
+
+    it("should return proper dimension for Container3", () => {
+      const button3parent = widgets["cq25w8hz6n"]
+        .parentId as keyof typeof widgets;
+      const { canvasWidth } = getCanvasDimensions(
+        widgets[button3parent] as any,
+        widgets as any,
+        mainCanvasWidth,
+        false,
+      );
+      expect(canvasWidth).toEqual(
+        (mainCanvasWidth - mainContainerPadding - containerPadding) / 4 -
+          containerPadding,
       );
     });
   });

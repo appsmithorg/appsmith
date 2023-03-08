@@ -5,6 +5,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
+  CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
 import {
   CanvasWidgetsReduxState,
@@ -417,36 +418,41 @@ function getCanvasWidth(
   if (!mainCanvasWidth) return 0;
   if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID)
     return mainCanvasWidth - getPadding(canvas);
+
+  const stack = [];
   let widget = canvas;
-  let columns = 0;
-  let width = 1;
-  let padding = 0;
   while (widget.parentId) {
-    columns = getWidgetWidth(widget, isMobile);
-    padding += getPadding(widget);
-    width *= columns > 64 ? 1 : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+    stack.push(widget);
     widget = widgets[widget.parentId];
   }
-  const totalWidth = width * mainCanvasWidth;
-  if (widget.widgetId === MAIN_CONTAINER_WIDGET_ID)
-    padding += getPadding(widget);
-  return totalWidth - padding;
+  stack.push(widget);
+
+  let width = mainCanvasWidth;
+  while (stack.length) {
+    const widget = stack.pop();
+    if (!widget) continue;
+    const columns = getWidgetWidth(widget, isMobile);
+    const padding = getPadding(widget);
+    const factor =
+      columns > GridDefaults.DEFAULT_GRID_COLUMNS
+        ? 1
+        : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+    width = width * factor - padding;
+  }
+
+  return width;
 }
 
 function getPadding(canvas: FlattenedWidgetProps): number {
   let padding = 0;
-  if (
-    canvas.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-    canvas.type === "CONTAINER_WIDGET"
-  ) {
-    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) {
     padding = FLEXBOX_PADDING * 2;
+  } else if (canvas.type === "CONTAINER_WIDGET") {
+    padding = (CONTAINER_GRID_PADDING + FLEXBOX_PADDING) * 2;
   }
   if (canvas.noPad) {
     // Widgets like ListWidget choose to have no container padding so will only have widget padding
     padding = WIDGET_PADDING * 2;
   }
-  // Account for container border.
-  padding += canvas.type === "CONTAINER_WIDGET" ? 2 : 0;
   return padding;
 }
