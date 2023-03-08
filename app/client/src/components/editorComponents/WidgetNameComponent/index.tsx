@@ -29,7 +29,7 @@ const PositionStyle = styled.div<{
 }>`
   height: ${(props) => props.theme.spaces[10]}px;
   position: absolute;
-  ${(props) => (props.isSnipingMode ? "left: -7px" : "left: 0px")};
+  ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0")};
   top: -${(props) => props.theme.spaces[10]}px;
   display: flex;
   cursor: pointer;
