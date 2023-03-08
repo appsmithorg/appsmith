@@ -1,7 +1,11 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import { WorkerRequest } from "@appsmith/workers/common/types";
 import { TJSPropertiesState } from "workers/common/DataTreeEvaluator";
+import {
+  createEvaluationContext,
+  EvaluationScriptType,
+} from "workers/Evaluation/evaluate";
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
@@ -29,3 +33,24 @@ export type LintTreeSagaRequestData = {
   unevalTree: DataTree;
   JSPropertiesState: TJSPropertiesState;
 };
+
+export interface lintTriggerPathProps {
+  userScript: string;
+  entity: DataTreeEntity;
+  globalData: ReturnType<typeof createEvaluationContext>;
+}
+
+export interface lintBindingPathProps {
+  dynamicBinding: string;
+  entity: DataTreeEntity;
+  fullPropertyPath: string;
+  globalData: ReturnType<typeof createEvaluationContext>;
+}
+
+export interface getLintingErrorsProps {
+  script: string;
+  data: Record<string, unknown>;
+  // {{user's code}}
+  originalBinding: string;
+  scriptType: EvaluationScriptType;
+}
