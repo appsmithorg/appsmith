@@ -1,7 +1,9 @@
+import { Colors } from "constants/Colors";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { SpaceMap } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { getAbsolutePixels } from "utils/helpers";
 import { modifyDrawingRectangles } from "./canvasDraggingUtils";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
@@ -49,6 +51,7 @@ export const useRenderBlocksOnCanvas = (
   const drawBlockOnCanvas = (
     blockDimensions: WidgetDraggingBlock,
     scrollParent: Element | null,
+    useAutoLayout?: boolean,
   ) => {
     if (
       stickyCanvasRef.current &&
@@ -85,23 +88,25 @@ export const useRenderBlocksOnCanvas = (
         blockDimensions.width,
         blockDimensions.height,
       );
-      const strokeWidth = 1;
-      canvasCtx.setLineDash([3]);
-      canvasCtx.strokeStyle = blockDimensions.isNotColliding
-        ? "rgb(104,	113,	239)"
-        : "red";
-      canvasCtx.strokeRect(
-        snappedXY.X -
-          leftOffset +
-          strokeWidth +
-          (noPad ? 0 : CONTAINER_GRID_PADDING),
-        snappedXY.Y -
-          topOffset +
-          strokeWidth +
-          (noPad ? 0 : CONTAINER_GRID_PADDING),
-        blockDimensions.width - strokeWidth,
-        blockDimensions.height - strokeWidth,
-      );
+      if (!useAutoLayout) {
+        const strokeWidth = 1;
+        canvasCtx.setLineDash([3]);
+        canvasCtx.strokeStyle = blockDimensions.isNotColliding
+          ? "rgb(104,	113,	239)"
+          : "red";
+        canvasCtx.strokeRect(
+          snappedXY.X -
+            leftOffset +
+            strokeWidth +
+            (noPad ? 0 : CONTAINER_GRID_PADDING),
+          snappedXY.Y -
+            topOffset +
+            strokeWidth +
+            (noPad ? 0 : CONTAINER_GRID_PADDING),
+          blockDimensions.width - strokeWidth,
+          blockDimensions.height - strokeWidth,
+        );
+      }
     }
   };
 
@@ -120,6 +125,10 @@ export const useRenderBlocksOnCanvas = (
     isUpdatingRows: boolean,
     canvasIsDragging: boolean,
     scrollParent: Element | null,
+    highlight?: HighlightInfo | undefined,
+    isMainContainer?: boolean,
+    parentOffsetTop?: number,
+    useAutoLayout?: boolean,
   ) => {
     let isCurrUpdatingRows = isUpdatingRows;
     const modifiedRectanglesToDraw = modifyDrawingRectangles(
@@ -142,12 +151,34 @@ export const useRenderBlocksOnCanvas = (
         stickyCanvasRef.current.width,
         stickyCanvasRef.current.height,
       );
+      canvasCtx.beginPath();
       isCurrUpdatingRows = false;
       canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
       if (canvasIsDragging) {
         modifiedRectanglesToDraw.forEach((each) => {
-          drawBlockOnCanvas(each, scrollParent);
+          drawBlockOnCanvas(each, scrollParent, useAutoLayout);
         });
+      }
+      if (highlight) {
+        canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL;
+        canvasCtx.lineWidth = 1;
+        canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
+        canvasCtx.setLineDash([]);
+        const { height, posX, posY, width } = highlight;
+        let val = 0;
+        if (scrollParent?.scrollTop)
+          val = isMainContainer
+            ? scrollParent.scrollTop
+            : parentOffsetTop && scrollParent.scrollTop > parentOffsetTop
+            ? scrollParent.scrollTop - parentOffsetTop
+            : 0;
+        // roundRect is not currently supported in firefox.
+        if (canvasCtx.roundRect)
+          canvasCtx.roundRect(posX, posY - val, width, height, 4);
+        else canvasCtx.rect(posX, posY - val, width, height);
+        canvasCtx.fill();
+        canvasCtx.stroke();
+        canvasCtx.save();
       }
       canvasCtx.restore();
     }

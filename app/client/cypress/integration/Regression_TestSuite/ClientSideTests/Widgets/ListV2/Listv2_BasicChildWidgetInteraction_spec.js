@@ -93,7 +93,15 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(3000);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.selectwidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
 
     // open the select widget
     cy.get(publishLocators.selectwidget)
@@ -122,7 +130,15 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(3000);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.checkboxGroupWidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
 
     // select green
     cy.get(publishLocators.checkboxGroupWidget)
@@ -157,12 +173,20 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(3000);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.switchwidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
 
     // Verify checked
     cy.get(publishLocators.switchwidget)
       .find("input")
-      .should("be.checked");   
+      .should("be.checked");
     // Uncheck
     cy.get(publishLocators.switchwidget)
       .find("label")
@@ -189,7 +213,15 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(3000);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.radioWidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
 
     // Check radio with value=1 is selected
     checkSelectedRadioValue(publishLocators.radioWidget, "Y");

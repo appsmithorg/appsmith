@@ -7,16 +7,16 @@ import BaseWidget from "widgets/BaseWidget";
 import WidgetFactory, { NonSerialisableWidgetConfigs } from "./WidgetFactory";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import withMeta from "widgets/MetaHOC";
-import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
+import { WidgetConfiguration } from "widgets/constants";
+import withMeta from "widgets/MetaHOC";
+import withWidgetProps from "widgets/withWidgetProps";
+import { generateReactKey } from "./generators";
 import {
   RegisteredWidgetFeatures,
   WidgetFeaturePropertyEnhancements,
   WidgetFeatureProps,
 } from "./WidgetFeatures";
-import { WidgetConfiguration } from "widgets/constants";
-import withWidgetProps from "widgets/withWidgetProps";
 import { withLazyRender } from "widgets/withLazyRender";
 
 const generateWidget = memoize(function getWidgetComponent(

@@ -7,7 +7,7 @@ describe("Table Widget Filtered Table Data in autocomplete", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  
+
   it("Table Widget Functionality To Filter and search data", function() {
     cy.openPropertyPane("tablewidget");
     cy.wait("@updateLayout");

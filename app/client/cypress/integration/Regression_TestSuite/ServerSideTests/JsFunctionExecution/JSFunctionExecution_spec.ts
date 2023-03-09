@@ -242,7 +242,7 @@ describe("JS Function Execution", function() {
     // Deploy App and test that table loads properly
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
-    table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       deployMode.NavigateBacktoEditor();
     });
@@ -414,11 +414,14 @@ describe("JS Function Execution", function() {
 
     // clone page and assert order of functions
     ee.ClonePage();
+    agHelper.Sleep();
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.Sleep();
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
       agHelper.ClickButton("Yes");
-      agHelper.Sleep();
+      agHelper.Sleep(); //for current pop up to close & next to appear!
     }
 
     ee.SelectEntityByName(jsObj, "Queries/JS");
