@@ -466,21 +466,21 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
          * For this one, the first callee is getCurrentPosition
          */
         let nodeToTraverse: Node = astWithComments.body[0].expression;
-        // let firstCallExpressionNode: Node;
+        let firstCallExpressionNode: Node;
 
         // @ts-ignore
-        // if (nodeToTraverse.callee.type === NodeTypes.Identifier) {
-        //     firstCallExpressionNode = nodeToTraverse;
-        // }
+        if (nodeToTraverse.callee.type === NodeTypes.Identifier) {
+            firstCallExpressionNode = nodeToTraverse;
+        }
 
         // @ts-ignore
         while (nodeToTraverse?.callee?.object) {
-            // firstCallExpressionNode = klona(nodeToTraverse);
+            firstCallExpressionNode = klona(nodeToTraverse);
             // @ts-ignore
             nodeToTraverse = nodeToTraverse?.callee?.object;
         }
 
-        const firstCallExpressionNode = klona(nodeToTraverse);        
+        // const firstCallExpressionNode = klona(nodeToTraverse);        
 
         // @ts-ignore
         const argumentNode = firstCallExpressionNode?.arguments[argNum];
