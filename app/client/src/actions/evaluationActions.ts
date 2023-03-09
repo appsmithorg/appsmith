@@ -30,6 +30,7 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: true,
   [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: true,
   [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: true,
+  [ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL]: true,
 };
 
 export const EVALUATE_REDUX_ACTIONS = [
