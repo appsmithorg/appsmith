@@ -163,15 +163,17 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   }, [resizerLeft, pinned, isPreviewMode]);
 
   const handleClickOutside = (event: any) => {
-    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+    const sidenav = document.getElementById("SideNav");
+    if (!sidenav) return;
+    if (
+      sidebarRef.current &&
+      !sidebarRef.current.contains(event.target) &&
+      !sidenav.contains(event.target)
+    ) {
       const menus = document.getElementsByClassName("t--entity-context-menu");
       const node = menus[0];
-      if (!document.body.contains(node)) {
-        dispatch(setExplorerActiveAction(false));
-        dispatch({
-          type: ReduxActionTypes.SIDE_NAV_MODE,
-          payload: undefined,
-        });
+      if (!document.body.contains(node) && props.setSideNavMode) {
+        props.setSideNavMode(undefined);
       }
     }
   };
@@ -192,7 +194,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         "transition-all duration-400": !isMultiPane,
         relative: pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
-        "shadow-xl": !pinned,
         fixed: !pinned || isPreviewMode,
       })}
       id={SIDEBAR_ID}

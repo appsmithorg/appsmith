@@ -69,7 +69,10 @@ const MultiPaneContainer = () => {
     const newWidth = Math.max(TABS_PANE_MIN_WIDTH, width);
     dispatch(setTabsPaneWidth(newWidth));
   };
-  const setSideNavMode = (mode: any) => {
+  const sideNavMode = useSelector(
+    (state) => state.ui.multiPaneConfig.sideNavMode,
+  );
+  const setSideNavMode = (mode: SideNavMode | undefined) => {
     dispatch({
       type: ReduxActionTypes.SIDE_NAV_MODE,
       payload: mode,
@@ -77,9 +80,6 @@ const MultiPaneContainer = () => {
   };
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
-  const sideNavMode = useSelector(
-    (state) => state.ui.multiPaneConfig.sideNavMode,
-  );
   const showPropertyPane = isMultiPane
     ? paneCount === PaneLayoutOptions.THREE_PANE
     : true;

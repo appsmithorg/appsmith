@@ -49,7 +49,7 @@ function SideNav(props: {
 }) {
   const dispatch = useDispatch();
   return (
-    <Container>
+    <Container id="SideNav">
       <Button
         className={classNames({
           "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.Explorer,
