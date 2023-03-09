@@ -38,6 +38,7 @@ export const primaryColumnValidation = (
     dynamicPropertyPathList.find((d) => d.key === "primaryKeys"),
   );
 
+  // For not valid entries an empty array is parsed as the inputValue is an array type
   if (isArray) {
     if (inputValue.length === 0) {
       return {
@@ -57,7 +58,7 @@ export const primaryColumnValidation = (
     if (inputValue.every((value) => _.isNil(value))) {
       return {
         isValid: false,
-        parsed: inputValue, // undefined the chosen key doesn't exist.
+        parsed: [],
         messages: [
           {
             name: "ValidationError",
@@ -72,7 +73,7 @@ export const primaryColumnValidation = (
     if (inputValue.some((value) => _.isNil(value))) {
       return {
         isValid: false,
-        parsed: inputValue,
+        parsed: [],
         messages: [
           {
             name: "ValidationError",
@@ -92,7 +93,7 @@ export const primaryColumnValidation = (
     if (!areKeysUnique || !isDataTypeUnique) {
       return {
         isValid: false,
-        parsed: [], // Empty array as the inputValue is an array type
+        parsed: [],
         messages: [
           {
             name: "ValidationError",

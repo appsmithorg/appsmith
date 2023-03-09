@@ -176,7 +176,7 @@ describe(".primaryColumnValidation", () => {
 
     expect(output).toEqual({
       isValid: false,
-      parsed: input,
+      parsed: [],
       messages: [
         {
           name: "ValidationError",
@@ -212,7 +212,7 @@ describe(".primaryColumnValidation", () => {
 
     expect(output).toEqual({
       isValid: false,
-      parsed: input,
+      parsed: [],
       messages: [
         {
           name: "ValidationError",
