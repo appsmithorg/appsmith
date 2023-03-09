@@ -48,6 +48,9 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.GROUP_ID;
+import static com.appsmith.server.constants.FieldName.EVENT_DATA;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_INVITED_USERS;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_REMOVED_USERS;
 import static com.appsmith.server.dtos.UsersForGroupDTO.validate;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
@@ -240,7 +243,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             })
                             .flatMap(userGroup -> {
                                 Map<String, Object> eventData = Map.of(FieldName.INVITED_USERS_TO_USER_GROUPS, usernames);
-                                return analyticsService.sendObjectEvent(AnalyticsEvents.INVITE_USERS_TO_USER_GROUPS, userGroup, eventData);
+                                Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_INVITED_USERS, usernames.size(), EVENT_DATA, eventData);
+                                return analyticsService.sendObjectEvent(AnalyticsEvents.INVITE_USERS_TO_USER_GROUPS, userGroup, analyticsProperties);
                             })
                             .cache();
 
@@ -317,7 +321,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             })
                             .flatMap(userGroup -> {
                                 Map<String, Object> eventData = Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, usernames);
-                                return analyticsService.sendObjectEvent(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, eventData);
+                                Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_REMOVED_USERS, usernames.size(), EVENT_DATA, eventData);
+                                return analyticsService.sendObjectEvent(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, analyticsProperties);
                             })
                             .cache();
 
@@ -467,7 +472,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                     updateObj.set(path, usersInGroup);
                     return repository.updateById(userGroup.getId(), updateObj).then(Mono.defer(() -> {
                         Map<String, Object> eventData = Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, Set.of(user.getUsername()));
-                        return analyticsService.sendObjectEvent(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, eventData);
+                        Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_REMOVED_USERS, 1, EVENT_DATA, eventData);
+                        return analyticsService.sendObjectEvent(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, analyticsProperties);
                     }));
                 })
                 .then(Mono.just(TRUE));

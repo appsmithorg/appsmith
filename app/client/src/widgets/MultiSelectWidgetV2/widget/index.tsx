@@ -1,24 +1,25 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import derivedProperties from "./parseDerivedProperties";
-import { isArray, isFinite, isString, LoDashStatic, xorWith } from "lodash";
-import equal from "fast-deep-equal/es6";
+import { Layers } from "constants/Layers";
+import { WidgetType } from "constants/WidgetConstants";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import MultiSelectComponent from "../component";
-import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
-import { Layers } from "constants/Layers";
-import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { LabelPosition } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
 import { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import equal from "fast-deep-equal/es6";
+import { isArray, isFinite, isString, LoDashStatic, xorWith } from "lodash";
+import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
+import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import MultiSelectComponent from "../component";
+import derivedProperties from "./parseDerivedProperties";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -461,6 +462,7 @@ class MultiSelectWidget extends BaseWidget<
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

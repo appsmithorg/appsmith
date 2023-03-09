@@ -58,10 +58,6 @@ const ListingWrapper = styled.div`
           border-bottom: 1px solid var(--appsmith-color-black-200);
           word-break: break-all;
 
-          &:first-child {
-            color: var(--appsmith-color-black-800);
-          }
-
           span.bp3-popover-target > * {
             justify-content: end;
           }

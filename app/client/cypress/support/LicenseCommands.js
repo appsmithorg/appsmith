@@ -1,37 +1,37 @@
-import LicenseCheckPage from "../locators/LicenseLocators.json";
+import LicenseLocators from "../locators/LicenseLocators.json";
 
 Cypress.Commands.add("validateLicense", () => {
-  cy.get(LicenseCheckPage.noSubscriptionText).should(
+  cy.get(LicenseLocators.noSubscriptionText).should(
     "have.text",
     "No active subscription",
   );
-  cy.get(LicenseCheckPage.licenseCheckPageSubHeaderText).should(
+  cy.get(LicenseLocators.licenseCheckPageSubHeaderText).should(
     "have.text",
     "Kindly choose one of the following option to get started",
   );
 
-  cy.get(LicenseCheckPage.licenseCheckForm).within(() => {
-    cy.get(LicenseCheckPage.licenseFormInput).should(
+  cy.get(LicenseLocators.licenseCheckForm).within(() => {
+    cy.get(LicenseLocators.licenseFormInput).should(
       "have.attr",
       "placeholder",
       "Add Key",
     );
-    cy.get(LicenseCheckPage.activeInstanceBtn).should("be.disabled");
+    cy.get(LicenseLocators.activeInstanceBtn).should("be.disabled");
   });
 
-  cy.get(LicenseCheckPage.getTrialLicenseCard).within(() => {
-    cy.get(LicenseCheckPage.getTrialLicenseLabel).should(
+  cy.get(LicenseLocators.getTrialLicenseCard).within(() => {
+    cy.get(LicenseLocators.getTrialLicenseLabel).should(
       "have.text",
       "If you do not have a license key, please visit our customer portal to start trial or buy a subscription",
     );
-    cy.get(LicenseCheckPage.getTrialLicenseBtn).should(
+    cy.get(LicenseLocators.getTrialLicenseBtn).should(
       "have.text",
       "VISIT CUSTOMER PORTAL",
     );
   });
 
-  cy.get(LicenseCheckPage.licenseFormInput).type("INVALID-LICENSE-KEY");
-  cy.get(LicenseCheckPage.activeInstanceBtn).click();
+  cy.get(LicenseLocators.licenseFormInput).type("INVALID-LICENSE-KEY");
+  cy.get(LicenseLocators.activeInstanceBtn).click();
   cy.wait(2000);
   cy.request({
     method: "PUT",
@@ -42,10 +42,10 @@ Cypress.Commands.add("validateLicense", () => {
     .its("status")
     .should("equal", 400);
   cy.wait(1000);
-  cy.get(LicenseCheckPage.licenseFormInput)
+  cy.get(LicenseLocators.licenseFormInput)
     .clear()
     .type("VALID LICENSE KEY");
-  cy.get(LicenseCheckPage.activeInstanceBtn).click();
+  cy.get(LicenseLocators.activeInstanceBtn).click();
   cy.wait(2000);
   cy.request({
     method: "PUT",
@@ -55,4 +55,83 @@ Cypress.Commands.add("validateLicense", () => {
   })
     .its("status")
     .should("equal", 200);
+});
+
+Cypress.Commands.add(
+  "interceptLicenseApi",
+  ({
+    expiry = (new Date().getTime() + 30 * 24 * 60 * 60 * 1000) / 1000, //30 days from now
+    licenseStatus,
+    licenseType,
+    licenseKey,
+    active = true,
+    licenseOrigin,
+    url = "/api/v1/tenants/current",
+    method = "GET",
+  }) => {
+    cy.intercept(method, url, (req) => {
+      req.continue((res) => {
+        const modifiedResponse = {
+          ...res,
+          body: {
+            ...res.body,
+            data: {
+              ...res.body.data,
+              tenantConfiguration: {
+                ...res.body.data.tenantConfiguration,
+                license: {
+                  ...res.body.data.tenantConfiguration.license,
+                  ...(licenseKey && { key: licenseKey }),
+                  ...(licenseStatus && { status: licenseStatus }),
+                  ...(licenseType && { type: licenseType }),
+                  ...(licenseOrigin && { origin: licenseOrigin }),
+                  expiry,
+                  active,
+                },
+              },
+            },
+          },
+        };
+        res.send(modifiedResponse);
+      });
+    }).as("licenseApiMock");
+  },
+);
+
+Cypress.Commands.add("getDateString", (timestamp) => {
+  function getDateSuffix(date) {
+    const parsedDate = Number(date);
+    if (date !== "" && date !== null && typeof parsedDate === "number") {
+      const j = parsedDate % 10,
+        k = parsedDate % 100;
+
+      if (j == 1 && k != 11) {
+        return "st";
+      }
+      if (j == 2 && k != 12) {
+        return "nd";
+      }
+      if (j == 3 && k != 13) {
+        return "rd";
+      }
+
+      return "th";
+    } else {
+      return "";
+    }
+  }
+
+  if (timestamp) {
+    const [, month, date, year] = new Date(timestamp).toDateString().split(" ");
+    return `${date}${getDateSuffix(date)} ${month} ${year}`;
+  } else {
+    return createMessage(NOT_AVAILABLE);
+  }
+});
+
+Cypress.Commands.add("closeWelcomeBanner", () => {
+  cy.get(LicenseLocators.welcomeBanner).should("be.visible");
+  cy.get(LicenseLocators.welcomeBanner).within(() => {
+    cy.get(".close-button").click();
+  });
 });

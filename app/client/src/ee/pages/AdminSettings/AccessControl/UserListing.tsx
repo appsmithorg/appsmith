@@ -5,7 +5,7 @@ import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
-import { HighlightText, MenuItemProps } from "design-system-old";
+import { HighlightText, MenuItemProps, Spinner } from "design-system-old";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { UserEdit } from "./UserEdit";
@@ -48,6 +48,7 @@ import { BaseAclProps, ListingType, UserProps } from "./types";
 import { getCurrentUser } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import { LoaderContainer } from "pages/Settings/components";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -455,14 +456,20 @@ export function UserListing() {
 
   return (
     <AclWrapper data-testid="user-listing-wrapper">
-      {selectedUserId && selectedUser ? (
-        <UserEdit
-          data-testid="acl-user-edit"
-          isLoading={isLoading}
-          onDelete={onDeleteHandler}
-          searchPlaceholder="Search"
-          selectedUser={selectedUser}
-        />
+      {selectedUserId ? (
+        selectedUser ? (
+          <UserEdit
+            data-testid="acl-user-edit"
+            isLoading={isLoading}
+            onDelete={onDeleteHandler}
+            searchPlaceholder="Search"
+            selectedUser={selectedUser}
+          />
+        ) : (
+          <LoaderContainer>
+            <Spinner />
+          </LoaderContainer>
+        )
       ) : (
         <>
           <PageHeader

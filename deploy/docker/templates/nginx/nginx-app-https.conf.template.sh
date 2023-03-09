@@ -30,7 +30,6 @@ access_log /dev/stdout;
 
 server {
   listen 80;
-  listen [::]:80;
   server_name $CUSTOM_DOMAIN;
 
   location /auth {
@@ -48,7 +47,6 @@ server {
 
 server {
   listen 443 ssl http2;
-  listen [::]:443 ssl http2;
   server_name _;
 
   ssl_certificate $SSL_CERT_PATH;

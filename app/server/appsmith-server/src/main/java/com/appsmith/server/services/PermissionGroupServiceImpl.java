@@ -54,6 +54,9 @@ import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.constants.FieldName.EVENT_DATA;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USER_GROUPS;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -377,7 +380,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                     return repository.updateById(pg.getId(), updateObj).then(Mono.defer(() -> {
                         Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, List.of(user.getUsername()));
                         AnalyticsEvents unassignedEvent = AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP;
-                        return analyticsService.sendObjectEvent(unassignedEvent, pg, eventData);
+                        Map<String, Object> analyticalProperties = Map.of(NUMBER_OF_UNASSIGNED_USERS, 1,
+                                NUMBER_OF_UNASSIGNED_USER_GROUPS, 0,
+                                EVENT_DATA, eventData);
+                        return analyticsService.sendObjectEvent(unassignedEvent, pg, analyticalProperties);
                     }));
                 })
                 .then(Mono.just(TRUE));

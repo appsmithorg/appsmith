@@ -56,6 +56,11 @@ import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USER_GROUPS;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USER_GROUPS;
+import static com.appsmith.server.constants.FieldName.EVENT_DATA;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USERS;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
 import static java.lang.Boolean.TRUE;
 
 @Component
@@ -317,6 +322,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(permissionGroup1 -> {
                     Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames,
                             FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, userGroupNames);
+                    Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_ASSIGNED_USERS, usernames.size(),
+                            NUMBER_OF_ASSIGNED_USER_GROUPS, userGroupNames.size(),
+                            EVENT_DATA, eventData);
                     AnalyticsEvents assignedEvent;
                     if (! usernames.isEmpty() && ! userGroupNames.isEmpty()) {
                         assignedEvent = AnalyticsEvents.ASSIGNED_TO_PERMISSION_GROUP;
@@ -325,7 +333,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     } else {
                         assignedEvent = AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP;
                     }
-                    return analyticsService.sendObjectEvent(assignedEvent, permissionGroup1, eventData);
+                    return analyticsService.sendObjectEvent(assignedEvent, permissionGroup1, analyticsProperties);
                 });
 
     }
@@ -345,6 +353,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(pg -> {
                     Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames,
                             FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, userGroupNames);
+                    Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_UNASSIGNED_USERS, usernames.size(),
+                            NUMBER_OF_UNASSIGNED_USER_GROUPS, userGroupNames.size(),
+                            EVENT_DATA, eventData);
                     AnalyticsEvents unassignedEvent;
                     if (! usernames.isEmpty() && ! userGroupNames.isEmpty())
                         unassignedEvent = AnalyticsEvents.UNASSIGNED_FROM_PERMISSION_GROUP;
@@ -353,7 +364,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     else
                         unassignedEvent = AnalyticsEvents.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP;
                     return analyticsService.sendObjectEvent(unassignedEvent,
-                            pg, eventData);
+                            pg, analyticsProperties);
                 });
     }
 

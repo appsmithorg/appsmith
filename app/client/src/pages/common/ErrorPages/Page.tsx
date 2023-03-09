@@ -49,7 +49,9 @@ function Page(props: PageProps) {
       {title && (
         <p className="text-3xl font-semibold t--error-page-title">{title}</p>
       )}
-      {description && <p className="text-center">{description}</p>}
+      {description && (
+        <p className="text-center t--error-page-description">{description}</p>
+      )}
       {cta}
     </div>
   );

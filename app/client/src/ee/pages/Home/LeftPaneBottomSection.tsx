@@ -72,6 +72,7 @@ function LeftPaneBottomSection() {
       {isTrial && isAdmin && (
         <MenuItem
           className="business-plan-menu-option"
+          data-testid="t--upgrade-to-business"
           icon="upload-cloud"
           onSelect={goToCustomerPortal}
           text={capitalize(createMessage(UPGRADE))}

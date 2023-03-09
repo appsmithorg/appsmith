@@ -69,7 +69,6 @@ const TagInputWrapper = styled.div`
 const SuggestionsWrapper = styled.div`
   margin-top: 4px;
   position: relative;
-  left: 4px;
   width: 100%;
 
   svg {

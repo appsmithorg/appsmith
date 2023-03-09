@@ -233,7 +233,6 @@ http {
 $(if [[ $use_https == 1 ]]; then echo "
     server {
         listen $http_listen_port default_server;
-        listen [::]:$http_listen_port default_server;
         server_name $domain;
 
         location / {
@@ -253,13 +252,11 @@ $(if [[ $use_https == 1 ]]; then echo "
     server {
 $(if [[ $use_https == 1 ]]; then echo "
         listen $https_listen_port ssl http2 default_server;
-        listen [::]:$https_listen_port ssl http2 default_server;
         server_name $domain;
         ssl_certificate '$cert_file';
         ssl_certificate_key '$key_file';
 "; else echo "
         listen $http_listen_port default_server;
-        listen [::]:$http_listen_port default_server;
         server_name _;
 "; fi)
 

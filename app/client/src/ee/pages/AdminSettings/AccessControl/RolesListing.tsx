@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { HighlightText, Icon, MenuItemProps } from "design-system-old";
+import { HighlightText, Icon, MenuItemProps, Spinner } from "design-system-old";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import {
@@ -44,6 +44,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { LoaderContainer } from "pages/Settings/components";
 
 const CellContainer = styled.div`
   display: flex;
@@ -239,12 +240,18 @@ export function RolesListing() {
       className="roles-listing-wrapper"
       data-testid="t--roles-listing-wrapper"
     >
-      {selectedRoleId && selectedRole ? (
-        <RoleAddEdit
-          isLoading={isLoading}
-          onDelete={onDeleteHandler}
-          selected={selectedRole}
-        />
+      {selectedRoleId ? (
+        selectedRole ? (
+          <RoleAddEdit
+            isLoading={isLoading}
+            onDelete={onDeleteHandler}
+            selected={selectedRole}
+          />
+        ) : (
+          <LoaderContainer>
+            <Spinner />
+          </LoaderContainer>
+        )
       ) : (
         <>
           <PageHeader

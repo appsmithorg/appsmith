@@ -7,7 +7,7 @@ export function BillingPageContent(props: BillingDashboardProps) {
   const { cards } = props;
 
   return (
-    <PageContent>
+    <PageContent data-testid="t--billing-page-content">
       {cards?.map((card, index: number) => {
         return <DashboardCard key={index} {...card} />;
       })}
