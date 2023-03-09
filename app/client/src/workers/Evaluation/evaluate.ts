@@ -46,7 +46,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   $$closedFn(${ScriptTemplate})
   `,
   [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
-  async function callback (script) {
+  async function $$closedFn (script) {
     const $$userFunction = script;
     const $$result = $$userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
     return await $$result;
