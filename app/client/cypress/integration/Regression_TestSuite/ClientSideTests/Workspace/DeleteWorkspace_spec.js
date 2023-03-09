@@ -11,13 +11,7 @@ describe("Delete workspace test spec", function() {
       newWorkspaceName = uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
       cy.wait(500);
-      cy.contains(".cs-text", "Delete Workspace")
-        .scrollIntoView()
-        .click();
-      cy.contains("Are you sure").click();
-      cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
-        expect(httpResponse.status).to.equal(200);
-      });
+      _.homePage.DeleteWorkspace(newWorkspaceName)
       cy.get(newWorkspaceName).should("not.exist");
     });
   });

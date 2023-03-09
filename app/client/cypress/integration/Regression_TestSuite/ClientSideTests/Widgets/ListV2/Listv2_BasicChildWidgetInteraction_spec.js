@@ -187,6 +187,16 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     cy.get(publishLocators.switchwidget)
       .find("input")
       .should("be.checked");
+    cy.wait(1000)
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.switchwidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
     // Uncheck
     cy.get(publishLocators.switchwidget)
       .find("label")
