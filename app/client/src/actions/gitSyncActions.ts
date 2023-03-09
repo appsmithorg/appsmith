@@ -175,9 +175,12 @@ export const discardChangesSuccess = (payload: any) => ({
   payload,
 });
 
-export const discardChangesFailure = (payload: any) => ({
+export const discardChangesFailure = (payload: {
+  error: unknown;
+  show: boolean;
+}) => ({
   type: ReduxActionErrorTypes.GIT_DISCARD_CHANGES_ERROR,
-  payload: { error: payload.error, show: false },
+  payload: { error: payload.error, show: payload.show },
 });
 
 export const updateBranchLocally = (payload: string) => ({
