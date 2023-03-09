@@ -10,10 +10,6 @@ import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationField, SuggestedWidget } from "api/ActionAPI";
 import { Action, isGraphqlPlugin, PaginationType } from "entities/Action";
-import {
-  setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
@@ -26,7 +22,6 @@ import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Button,
-  Callout,
   Case,
   Classes,
   Icon,
@@ -36,17 +31,13 @@ import {
   Text,
   TextType,
   TooltipComponent,
-  Variant,
 } from "design-system-old";
-import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
   API_PANE_AUTO_GENERATED_HEADER,
   API_PANE_DUPLICATE_HEADER,
   createMessage,
-  WIDGET_BIND_HELP,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 import DataSourceList from "./ApiRightPane";
@@ -218,20 +209,20 @@ const TabSection = styled.div`
   overflow: auto;
 `;
 
-const CalloutContent = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const Link = styled.a`
-  display: flex;
-  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
-
-  .${Classes.ICON} {
-    margin-left: ${(props) => props.theme.spaces[1] + 1}px;
-    margin-top: -2px;
-  }
-`;
+// const CalloutContent = styled.div`
+//   display: flex;
+//   align-items: center;
+// `;
+//
+// const Link = styled.a`
+//   display: flex;
+//   margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+//
+//   .${Classes.ICON} {
+//     margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+//     margin-top: -2px;
+//   }
+// `;
 
 const Wrapper = styled.div`
   display: flex;
@@ -561,35 +552,35 @@ function renderImportedDatasButton(
   );
 }
 
-function renderHelpSection(
-  handleClickLearnHow: any,
-  setApiBindHelpSectionVisible: any,
-) {
-  return (
-    <HelpSection>
-      <Callout
-        closeButton
-        fill
-        label={
-          <CalloutContent>
-            <Link
-              className="t--learn-how-apis-link"
-              onClick={handleClickLearnHow}
-            >
-              <Text case={Case.UPPERCASE} type={TextType.H6}>
-                Learn How
-              </Text>
-              <Icon name="right-arrow" size={IconSize.XL} />
-            </Link>
-          </CalloutContent>
-        }
-        onClose={() => setApiBindHelpSectionVisible(false)}
-        text={createMessage(WIDGET_BIND_HELP)}
-        variant={Variant.warning}
-      />
-    </HelpSection>
-  );
-}
+// function renderHelpSection(
+//   handleClickLearnHow: any,
+//   setApiBindHelpSectionVisible: any,
+// ) {
+//   return (
+//     <HelpSection>
+//       <Callout
+//         closeButton
+//         fill
+//         label={
+//           <CalloutContent>
+//             <Link
+//               className="t--learn-how-apis-link"
+//               onClick={handleClickLearnHow}
+//             >
+//               <Text case={Case.UPPERCASE} type={TextType.H6}>
+//                 Learn How
+//               </Text>
+//               <Icon name="right-arrow" size={IconSize.XL} />
+//             </Link>
+//           </CalloutContent>
+//         }
+//         onClose={() => setApiBindHelpSectionVisible(false)}
+//         text={createMessage(WIDGET_BIND_HELP)}
+//         variant={Variant.warning}
+//       />
+//     </HelpSection>
+//   );
+// }
 
 function ImportedDatas(props: {
   data: any;
@@ -669,10 +660,10 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     (index: number) => dispatch(setApiPaneConfigSelectedTabIndex(index)),
     [],
   );
-  const [
-    apiBindHelpSectionVisible,
-    setApiBindHelpSectionVisible,
-  ] = useLocalStorage("apiBindHelpSectionVisible", "true");
+  // const [
+  //   apiBindHelpSectionVisible,
+  //   setApiBindHelpSectionVisible,
+  // ] = useLocalStorage("apiBindHelpSectionVisible", "true");
 
   const {
     actionConfigurationHeaders,
@@ -722,12 +713,12 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   const isGraphql = isGraphqlPlugin(plugin);
 
   const theme = EditorTheme.LIGHT;
-  const handleClickLearnHow = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    dispatch(setGlobalSearchQuery("capturing data"));
-    dispatch(toggleShowGlobalSearchModal());
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
-  };
+  // const handleClickLearnHow = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   dispatch(setGlobalSearchQuery("capturing data"));
+  //   dispatch(toggleShowGlobalSearchModal());
+  //   AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
+  // };
 
   const isMultiPane = useSelector(isMultiPaneActive);
 

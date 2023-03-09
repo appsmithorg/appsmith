@@ -4,20 +4,14 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "@appsmith/reducers";
-import {
-  setCanvasDebuggerSelectedTab,
-  showDebugger as showDebuggerAction,
-} from "actions/debuggerActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
 import { Colors } from "constants/Colors";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getMessageCount,
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
-import { matchBuilderPath } from "constants/routes";
 import { getTypographyByKey, TooltipComponent } from "design-system-old";
-import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
 
 function Debugger() {
