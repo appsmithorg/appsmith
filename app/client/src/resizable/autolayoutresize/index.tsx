@@ -1,5 +1,8 @@
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
-import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
+import {
+  isHandleResizeAllowed,
+  isResizingDisabled,
+} from "components/editorComponents/ResizableUtils";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
@@ -43,6 +46,7 @@ import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import WidgetFactory from "utils/WidgetFactory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 
 export function ReflowResizable(props: ResizableProps) {
@@ -572,6 +576,16 @@ export function ReflowResizable(props: ResizableProps) {
       props.isFlexChild,
       props.responsiveBehavior,
     );
+
+    const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
+      widget.type,
+    );
+
+    const disableResizing = isResizingDisabled(
+      disableResizeHandles,
+      handle.handleDirection,
+    );
+
     return (
       <ResizableHandle
         {...handle}
@@ -584,7 +598,7 @@ export function ReflowResizable(props: ResizableProps) {
         }
         checkForCollision={checkForCollision}
         direction={handle.handleDirection}
-        disableDot={disableDot}
+        disableDot={disableDot || disableResizing}
         isHovered={props.isHovered}
         key={index}
         onStart={() => {
