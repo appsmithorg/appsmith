@@ -11,7 +11,6 @@ import { Color } from "constants/Colors";
 import { Stylesheet } from "entities/AppTheming";
 import { pick } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 import TextComponent, { TextAlign } from "../component";
@@ -94,7 +93,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

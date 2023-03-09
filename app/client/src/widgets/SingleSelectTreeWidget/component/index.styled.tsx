@@ -1024,6 +1024,10 @@ export const InputContainer = styled.div<{
 
   &,
   & .rc-tree-select {
+    .auto-layout & {
+      height: 36px !important;
+    }
+
     ${({ labelPosition }) =>
       labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
   }

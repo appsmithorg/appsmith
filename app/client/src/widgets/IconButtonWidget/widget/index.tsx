@@ -9,7 +9,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import IconButtonComponent from "../component";
 
 const ICON_NAMES = Object.keys(IconNames).map(
@@ -107,7 +106,6 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

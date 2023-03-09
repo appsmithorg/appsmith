@@ -42,13 +42,16 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    defaults: {
+      columns: 4,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,
         configuration: () => {
           return {
             minWidth: "120px",
-            minHeight: "70px",
+            minHeight: "40px",
           };
         },
       },

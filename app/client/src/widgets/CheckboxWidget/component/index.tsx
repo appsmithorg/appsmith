@@ -25,6 +25,10 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     justify-content: start;
     width: 100%;
 
+    .auto-layout & {
+      min-height: 32px;
+    }
+
     .${Classes.CHECKBOX} {
       width: 100%;
     }

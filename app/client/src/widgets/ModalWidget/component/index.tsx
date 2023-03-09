@@ -23,11 +23,11 @@ import {
 } from "components/editorComponents/ResizeStyledComponents";
 import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
-import Resizable from "resizable/resize";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCanvasClassName } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { scrollCSS } from "widgets/WidgetUtils";
+import Resizable from "resizable/modalresize";
 
 const Container = styled.div<{
   width?: number;

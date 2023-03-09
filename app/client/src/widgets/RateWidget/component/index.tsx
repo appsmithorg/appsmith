@@ -31,6 +31,7 @@ export const RateContainer = styled.div<RateContainerProps>`
   overflow: auto;
 
   .auto-layout && {
+    min-height: 32px;
     overflow: unset;
 
     > span {

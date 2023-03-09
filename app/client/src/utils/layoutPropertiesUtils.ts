@@ -243,6 +243,7 @@ export const WIDGET_WITH_DYNAMIC_WIDTH = [
 // TODO(aswathkk): See if this needs to be moved to widget config
 // This is used only for autoLayout
 export const WIDGET_WITH_DYNAMIC_HEIGHT = [
+  "BUTTON_GROUP_WIDGET",
   "CHECKBOX_GROUP_WIDGET",
   "SWITCH_GROUP_WIDGET",
   "RADIO_GROUP_WIDGET",
