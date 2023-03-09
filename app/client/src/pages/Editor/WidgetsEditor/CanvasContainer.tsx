@@ -15,7 +15,7 @@ import { getCanvasClassName } from "utils/generators";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import classNames from "classnames";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { IconSize, Spinner } from "design-system-old";
+import { BannerMessage, IconSize, Spinner } from "design-system-old";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { useDispatch } from "react-redux";
@@ -34,6 +34,18 @@ import {
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { CanvasResizer } from "widgets/CanvasResizer";
 import Canvas from "../Canvas";
+import { Colors } from "constants/Colors";
+import {
+  createMessage,
+  SNAPSHOT_BANNER_MESSAGE,
+  DISCARD_SNAPSHOT_CTA,
+} from "@appsmith/constants/messages";
+import {
+  buildSnapshotExpirationTimeString,
+  getReadableSnapShotDetails,
+} from "selectors/autoLayoutSelectors";
+import { SnapShotButton } from "../CanvasLayoutConversion/SnapShotButton";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 const Container = styled.section<{
   $isAutoLayout: boolean;
@@ -73,6 +85,9 @@ function CanvasContainer() {
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
+  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+
+  const shouldShowSnapShotBanner = readableSnapShotDetails && !isPreviewMode;
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -107,6 +122,18 @@ function CanvasContainer() {
     );
   }
 
+  const bannerMessageCTA = (
+    <>
+      <SnapShotButton />
+      <p
+        className="font-semibold text-xs m-0 py-1 px-2 hover:bg-orange-200 cursor-pointer"
+        onClick={() => dispatch({ type: ReduxActionTypes.DELETE_SNAPSHOT })}
+      >
+        {createMessage(DISCARD_SNAPSHOT_CTA)}
+      </p>
+    </>
+  );
+
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
   const heightWithTopMargin = `calc(100vh - 2rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
@@ -122,9 +149,12 @@ function CanvasContainer() {
         }
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
-          "mt-0": !shouldHaveTopMargin,
-          "mt-4": showCanvasTopSection,
-          "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
+          "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
+          "mt-4": !shouldShowSnapShotBanner && showCanvasTopSection,
+          "mt-8":
+            !shouldShowSnapShotBanner &&
+            shouldHaveTopMargin &&
+            !showCanvasTopSection,
         })}
         id={"canvas-viewport"}
         key={currentPageId}
@@ -133,6 +163,23 @@ function CanvasContainer() {
           fontFamily: fontFamily,
         }}
       >
+        {shouldShowSnapShotBanner && (
+          <BannerMessage
+            backgroundColor={Colors.WARNING_ORANGE}
+            ctaChildren={bannerMessageCTA}
+            fontWeight="400"
+            icon="warning-line"
+            iconColor={Colors.WARNING_SOLID}
+            iconFlexPosition="start"
+            iconSize={IconSize.XXXXL}
+            intentLine
+            message={createMessage(SNAPSHOT_BANNER_MESSAGE)}
+            messageHeader={buildSnapshotExpirationTimeString(
+              readableSnapShotDetails,
+            )}
+            textColor={Colors.GRAY_800}
+          />
+        )}
         <WidgetGlobaStyles
           fontFamily={selectedTheme.properties.fontFamily.appFont}
           primaryColor={selectedTheme.properties.colors.primaryColor}

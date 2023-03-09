@@ -6,7 +6,14 @@ import {
 } from "ce/constants/ReduxActionConstants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, debounce, put, select, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  debounce,
+  put,
+  select,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
@@ -21,6 +28,17 @@ import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  getCurrentAppPositioningType,
+  getMainCanvasProps,
+} from "selectors/editorSelectors";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
+import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -208,6 +226,69 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   autoLayoutWidgetDimensionUpdateBatch = {};
 }
 
+export function* updateLayoutPositioningSaga(
+  actionPayload: ReduxAction<AppPositioningTypes>,
+) {
+  try {
+    const currPositioningType: AppPositioningTypes = yield select(
+      getCurrentAppPositioningType,
+    );
+    const payloadPositioningType = actionPayload.payload;
+
+    if (currPositioningType === payloadPositioningType) return;
+
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+    if (payloadPositioningType === AppPositioningTypes.AUTO) {
+      const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
+        MAIN_CONTAINER_WIDGET_ID,
+        { canvasWidgets: allWidgets },
+      );
+
+      const autoDSL = convertDSLtoAuto(denormalizedDSL);
+      log.debug("autoDSL", autoDSL);
+
+      yield put(
+        updateAndSaveLayout(
+          CanvasWidgetsNormalizer.normalize(autoDSL).entities.canvasWidgets,
+        ),
+      );
+
+      yield call(recalculateOnPageLoad);
+    } else {
+      yield put(
+        updateAndSaveLayout(convertNormalizedDSLToFixed(allWidgets, "DESKTOP")),
+      );
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.RECALCULATE_COLUMNS,
+        error,
+      },
+    });
+  }
+}
+
+export function* recalculateOnPageLoad() {
+  const appPositioningType: AppPositioningTypes = yield select(
+    getCurrentAppPositioningType,
+  );
+  const mainCanvasProps: MainCanvasReduxState = yield select(
+    getMainCanvasProps,
+  );
+
+  yield put(
+    updateLayoutForMobileBreakpointAction(
+      MAIN_CONTAINER_WIDGET_ID,
+      appPositioningType === AppPositioningTypes.AUTO
+        ? mainCanvasProps?.isMobile
+        : false,
+      mainCanvasProps.width,
+    ),
+  );
+}
 export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(
@@ -222,6 +303,10 @@ export default function* layoutUpdateSagas() {
       50,
       ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
       processAutoLayoutDimensionUpdatesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
+      updateLayoutPositioningSaga,
     ),
   ]);
 }

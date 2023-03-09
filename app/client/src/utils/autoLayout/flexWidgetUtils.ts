@@ -11,9 +11,9 @@ export interface MinMaxSize {
 }
 
 export function getRightColumn(widget: any, isMobile: boolean): number {
-  return isMobile && widget.mobileRightColumn !== undefined
-    ? widget.mobileRightColumn
-    : widget.rightColumn;
+  return isMobile && widget?.mobileRightColumn !== undefined
+    ? widget?.mobileRightColumn
+    : widget?.rightColumn;
 }
 
 export function setRightColumn(
@@ -28,9 +28,9 @@ export function setRightColumn(
 }
 
 export function getLeftColumn(widget: any, isMobile: boolean): number {
-  return isMobile && widget.mobileLeftColumn !== undefined
-    ? widget.mobileLeftColumn
-    : widget.leftColumn;
+  return isMobile && widget?.mobileLeftColumn !== undefined
+    ? widget?.mobileLeftColumn
+    : widget?.leftColumn;
 }
 
 export function setLeftColumn(
@@ -45,9 +45,9 @@ export function setLeftColumn(
 }
 
 export function getTopRow(widget: any, isMobile: boolean): number {
-  return isMobile && widget.mobileTopRow !== undefined
-    ? widget.mobileTopRow
-    : widget.topRow;
+  return isMobile && widget?.mobileTopRow !== undefined
+    ? widget?.mobileTopRow
+    : widget?.topRow;
 }
 
 export function setTopRow(
@@ -62,9 +62,9 @@ export function setTopRow(
 }
 
 export function getBottomRow(widget: any, isMobile: boolean): number {
-  return isMobile && widget.mobileBottomRow !== undefined
-    ? widget.mobileBottomRow
-    : widget.bottomRow;
+  return isMobile && widget?.mobileBottomRow !== undefined
+    ? widget?.mobileBottomRow
+    : widget?.bottomRow;
 }
 
 export function setBottomRow(

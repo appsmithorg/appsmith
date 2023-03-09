@@ -75,6 +75,7 @@ import lintErrorReducer from "reducers/lintingReducers";
 import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 import { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
+import { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const reducerObject = {
@@ -137,6 +138,7 @@ export interface AppState {
     libraries: LibraryState;
     autoHeightUI: AutoHeightUIState;
     multiPaneConfig: MultiPaneReduxState;
+    layoutConversion: layoutConversionReduxState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

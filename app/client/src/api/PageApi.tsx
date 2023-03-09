@@ -38,6 +38,14 @@ export type PageLayout = {
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
 
+export interface PageLayoutsRequest {
+  layoutId: string;
+  pageId: string;
+  layout: {
+    dsl: DSLWidget;
+  };
+}
+
 export type FetchPageResponseData = {
   id: string;
   name: string;
@@ -180,6 +188,10 @@ class PageApi extends Api {
     return !!bustCache ? url + "?v=" + +new Date() : url;
   };
 
+  static getSaveAllPagesURL = (applicationId: string) => {
+    return `v1/layouts/application/${applicationId}`;
+  };
+
   static updatePageUrl = (pageId: string) => `${PageApi.url}/${pageId}`;
   static setPageOrderUrl = (
     applicationId: string,
@@ -211,6 +223,15 @@ class PageApi extends Api {
       undefined,
       { cancelToken: PageApi.pageUpdateCancelTokenSource.token },
     );
+  }
+
+  static saveAllPages(
+    applicationId: string,
+    pageLayouts: PageLayoutsRequest[],
+  ) {
+    return Api.put(PageApi.getSaveAllPagesURL(applicationId), {
+      pageLayouts,
+    });
   }
 
   static fetchPublishedPage(

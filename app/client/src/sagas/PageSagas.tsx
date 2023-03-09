@@ -40,6 +40,7 @@ import PageApi, {
   FetchPublishedPageRequest,
   GenerateTemplatePageRequest,
   PageLayout,
+  PageLayoutsRequest,
   SavePageRequest,
   SavePageResponse,
   SavePageResponseData,
@@ -208,7 +209,7 @@ export const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
 ): UpdateCanvasPayload => {
   const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-    extractCurrentDSL(pageResponse),
+    extractCurrentDSL(pageResponse).dsl,
   );
   return {
     pageWidgetId: normalizedResponse.result,
@@ -261,7 +262,7 @@ export function* handleFetchedPage({
 
     // Sets last updated time
     yield put(setLastUpdatedTime(lastUpdatedTime));
-    const extractedDSL = extractCurrentDSL(fetchPageResponse);
+    const extractedDSL = extractCurrentDSL(fetchPageResponse).dsl;
     yield put({
       type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
       payload: extractedDSL,
@@ -438,6 +439,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       payload: {
         pageId: savePageRequest.pageId,
         dsl: savePageRequest.dsl,
+        layoutId: savePageRequest.layoutId,
       },
     });
 
@@ -552,6 +554,22 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   }
 }
 
+export function* saveAllPagesSaga(pageLayouts: PageLayoutsRequest[]) {
+  let response: ApiResponse | undefined;
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    response = yield PageApi.saveAllPages(applicationId, pageLayouts);
+
+    const isValidResponse: boolean = yield validateResponse(response, false);
+
+    if (isValidResponse) {
+      return true;
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
 function getLayoutSavePayload(
   widgets: {
     [widgetId: string]: FlattenedWidgetProps;
@@ -630,7 +648,8 @@ export function* createPageSaga(
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
-          dsl: extractCurrentDSL(response),
+          dsl: extractCurrentDSL(response).dsl,
+          layoutId: response.data.layouts[0].id,
         },
       });
       // TODO: Update URL params here
@@ -738,11 +757,13 @@ export function* clonePageSaga(
         ),
       );
       // Add this to the page DSLs for entity explorer
+      const { dsl, layoutId } = extractCurrentDSL(response);
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
-          dsl: extractCurrentDSL(response),
+          dsl,
+          layoutId,
         },
       });
 
@@ -908,6 +929,7 @@ export function* updateWidgetNameSaga(
             payload: {
               pageId: pageId,
               dsl: response.data.dsl,
+              layoutId,
             },
           });
           checkAndLogErrorsIfCyclicDependency(
@@ -979,9 +1001,11 @@ export function* fetchPageDSLSaga(pageId: string) {
     });
     const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
+      const { dsl, layoutId } = extractCurrentDSL(fetchPageResponse);
       return {
-        pageId: pageId,
-        dsl: extractCurrentDSL(fetchPageResponse),
+        pageId,
+        dsl,
+        layoutId,
         userPermissions: fetchPageResponse.data?.userPermissions,
       };
     }

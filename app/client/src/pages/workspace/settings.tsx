@@ -14,7 +14,10 @@ import styled from "styled-components";
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
-import { getAllApplications } from "actions/applicationActions";
+import {
+  getAllApplications,
+  setShowAppInviteUsersDialog,
+} from "actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
@@ -219,6 +222,9 @@ export default function Settings() {
         canOutsideClickClose
         isOpen={showModal}
         onClose={() => setShowModal(false)}
+        onOpenOrClose={(isOpen) =>
+          dispatch(setShowAppInviteUsersDialog(isOpen))
+        }
         placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
         title={`Invite Users to ${currentWorkspace?.name}`}
         trigger

@@ -209,6 +209,11 @@ export interface PageDefaultMeta {
   default: boolean;
 }
 
+export interface snapShotApplicationRequest {
+  applicationId: string;
+  branchName?: string;
+}
+
 class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -336,6 +341,33 @@ class ApplicationApi extends Api {
         },
         onUploadProgress: request.progress,
       },
+    );
+  }
+
+  static createSnapShotOfApplication(request: snapShotApplicationRequest) {
+    return Api.post(
+      ApplicationApi.baseURL + "/snapshot/" + request.applicationId,
+    );
+  }
+
+  static getSnapShotDetails(request: snapShotApplicationRequest) {
+    return Api.get(
+      ApplicationApi.baseURL + "/snapshot/" + request.applicationId,
+    );
+  }
+
+  static restoreSnapShotOfApplication(request: snapShotApplicationRequest) {
+    return Api.post(
+      ApplicationApi.baseURL +
+        "/snapshot/" +
+        request.applicationId +
+        "/restore",
+    );
+  }
+
+  static deleteSnapShotOfApplication(request: snapShotApplicationRequest) {
+    return Api.delete(
+      ApplicationApi.baseURL + "/snapshot/" + request.applicationId,
     );
   }
 }

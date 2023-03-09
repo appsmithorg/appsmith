@@ -371,6 +371,7 @@ export function getAlignmentColumnInfo(
       [FlexLayerAlignment.Start]: 0,
       [FlexLayerAlignment.Center]: 0,
       [FlexLayerAlignment.End]: 0,
+      [FlexLayerAlignment.None]: 0,
     };
   let start = 0,
     end = 0,
@@ -388,6 +389,7 @@ export function getAlignmentColumnInfo(
     [FlexLayerAlignment.Start]: start,
     [FlexLayerAlignment.Center]: center,
     [FlexLayerAlignment.End]: end,
+    [FlexLayerAlignment.None]: 0,
   };
 }
 

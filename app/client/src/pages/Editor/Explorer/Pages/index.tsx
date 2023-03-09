@@ -143,7 +143,7 @@ function Pages() {
     );
     // Default layout is extracted by adding dynamically computed properties like min-height.
     const defaultPageLayouts = [
-      { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
+      { dsl: extractCurrentDSL().dsl, layoutOnLoadActions: [] },
     ];
     dispatch(createPage(applicationId, name, defaultPageLayouts));
   }, [dispatch, pages, applicationId]);
