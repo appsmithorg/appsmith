@@ -1,4 +1,5 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import datasourceFormData from "../../../../fixtures/datasources.json";
 
 describe("Authentiacted Api with OAuth 2.O authorization code test cases", function() {
   it("1. Create & Save an Authenticated API with OAuth 2.O authorization code", function() {
@@ -17,7 +18,7 @@ describe("Authentiacted Api with OAuth 2.O authorization code test cases", funct
           );
           //Create API from datasource
           _.apiPage.CreateAndFillApi(
-            "/api/echo/get?ASDSA=ASDSA",
+            datasourceFormData["OAuth_ApiUrl"]+"/api/echo/get?ASDSA=ASDSA",
             "EchoAPI_" + uid,
             10000,
             "GET",

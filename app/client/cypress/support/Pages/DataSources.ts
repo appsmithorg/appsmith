@@ -959,7 +959,7 @@ export class DataSources {
     this.FillAPIOAuthForm(datasourceName, grantType, clientId, clientSecret);
 
     // save datasource
-    cy.wait(500);
+    this.agHelper.Sleep(500);
     this.agHelper.GetNClick(this._saveAndAuthorizeDS);
 
     //Accept consent
@@ -976,15 +976,7 @@ export class DataSources {
     clientId: string,
     clientSecret: string,
   ) {
-    if (dsName) {
-      // Change the Datasource name
-      cy.get(".t--edit-datasource-name").click();
-      cy.get(".t--edit-datasource-name input")
-        .clear()
-        .type(dsName, { force: true })
-        .should("have.value", dsName)
-        .blur();
-    }
+    this.agHelper.RenameWithInPane(dsName, false);
     // Fill Auth Form
     this.agHelper.TypeText(
       this._urlInputControl,
