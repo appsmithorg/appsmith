@@ -102,6 +102,7 @@ import { useHref } from "./utils";
 import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import BackOfficeButton from "./BackOfficeButton";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -480,6 +481,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
           >
             <RealtimeAppEditors applicationId={applicationId} />
+            <BackOfficeButton />
             <ToggleModeButton />
             <FormDialogComponent
               Form={AppInviteUsersForm}

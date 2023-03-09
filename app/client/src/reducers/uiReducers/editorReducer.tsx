@@ -35,6 +35,7 @@ const initialState: EditorReduxState = {
   snipModeBindTo: undefined,
   isPreviewMode: false,
   zoomLevel: 1,
+  backOfficeConnected: false,
 };
 
 const editorReducer = createReducer(initialState, {
@@ -250,6 +251,7 @@ export interface EditorReduxState {
     updatingWidgetName: boolean;
     updateWidgetNameError: boolean;
   };
+  backOfficeConnected: boolean;
 }
 
 export default editorReducer;

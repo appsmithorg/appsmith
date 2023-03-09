@@ -186,6 +186,7 @@ export const EDITOR_HEADER = {
     text: () => "Preview",
     shortcut: () => "P",
   },
+  backOfficeConnect: () => "Connect BO",
 };
 
 // Homepage

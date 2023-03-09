@@ -100,6 +100,7 @@ public class FieldNameCE {
     public static final String IS_REQUIRED = "isRequired";
     public static final String UNUSED_DATASOURCE = "UNUSED_DATASOURCE";
     public static final String BRANCH_NAME = "branchName";
+    public static final String MANABIE_JWT = "manabieJWT";
     public static final String SOURCE_BRANCH = "sourceBranch";
     public static final String DESTINATION_BRANCH = "destinationBranch";
     public static final String DEFAULT = "default";

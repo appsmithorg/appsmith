@@ -1,4 +1,8 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+export const setBackOfficeConnectedAction = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_BACK_OFFICE_CONNECTED,
+  payload,
+});
 
 /**
  * init action that sets preview mode. navigates to canvas when payload is true

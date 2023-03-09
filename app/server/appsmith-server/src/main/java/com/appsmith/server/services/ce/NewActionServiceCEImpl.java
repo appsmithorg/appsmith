@@ -788,6 +788,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         DatasourceContextIdentifier dsContextIdentifier = new DatasourceContextIdentifier();
 
+        // TODO: check if user sends the JWT prop in headers:
+
         Mono<ActionExecutionResult> executionMono =
                 datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
                         .flatMap(tuple3 -> {
