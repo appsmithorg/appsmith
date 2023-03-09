@@ -5,11 +5,11 @@ import {
   createMessage,
   APP_NAVIGATION_SETTING,
 } from "@appsmith/constants/messages";
-import { ReactComponent as NavOrientationTopIcon } from "assets/icons/settings/nav-orientation-top.svg";
-import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/nav-orientation-side.svg";
-import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
-import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
-import { ReactComponent as NavStyleSidebarIcon } from "assets/icons/settings/nav-style-sidebar.svg";
+// import { ReactComponent as NavOrientationTopIcon } from "assets/icons/settings/nav-orientation-top.svg";
+// import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/nav-orientation-side.svg";
+// import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
+// import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
+// import { ReactComponent as NavStyleSidebarIcon } from "assets/icons/settings/nav-style-sidebar.svg";
 import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
 import _, { debounce, isEmpty, isPlainObject } from "lodash";
 import ButtonGroupSetting from "./ButtonGroupSetting";
@@ -337,6 +337,7 @@ function NavigationSettings() {
           <SwitchSetting
             keyName="showSignIn"
             label={createMessage(APP_NAVIGATION_SETTING.showSignInLabel)}
+            tooltip={createMessage(APP_NAVIGATION_SETTING.showSignInTooltip)}
             updateSetting={updateSetting}
             value={navigationSetting?.showSignIn}
           />

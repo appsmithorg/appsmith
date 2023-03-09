@@ -11,8 +11,9 @@ const SwitchSetting = (props: {
   keyName: keyof NavigationSetting;
   value: boolean;
   updateSetting: UpdateSetting;
+  tooltip?: string;
 }) => {
-  const { keyName, label, updateSetting, value } = props;
+  const { keyName, label, tooltip, updateSetting, value } = props;
 
   return (
     <div className="pt-4">
@@ -21,7 +22,9 @@ const SwitchSetting = (props: {
           label={label}
           lineHeight="1.17"
           maxWidth="270px"
+          tooltip={tooltip}
         />
+
         <SwitchWrapper>
           <Switch
             checked={value}
