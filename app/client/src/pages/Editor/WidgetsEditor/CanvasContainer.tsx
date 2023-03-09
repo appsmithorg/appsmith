@@ -33,7 +33,6 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import Canvas from "../Canvas";
-import { CanvasResizer } from "widgets/CanvasResizer";
 
 const Container = styled.section<{
   $isAutoLayout: boolean;
@@ -110,7 +109,7 @@ function CanvasContainer() {
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
   const heightWithTopMargin = `calc(100vh - 2rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
-  const resizerTop = `calc(2rem + ${theme.smallHeaderHeight})`;
+  // const resizerTop = `calc(2rem + ${theme.smallHeaderHeight})`;
   return (
     <>
       <Container
@@ -144,12 +143,12 @@ function CanvasContainer() {
         )}
         {node}
       </Container>
-      <CanvasResizer
+      {/* <CanvasResizer
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         resizerTop={resizerTop}
         shouldHaveTopMargin={shouldHaveTopMargin}
-      />
+      /> */}
     </>
   );
 }
