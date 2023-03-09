@@ -55,9 +55,7 @@ export function withLazyRender(Widget: typeof BaseWidget) {
 
       return () => {
         (window as any).cancelIdleCallback(idleCallbackId);
-        if (observer) {
-          observer.disconnect();
-        }
+        observer && observer.disconnect();
       };
     }, []);
 
