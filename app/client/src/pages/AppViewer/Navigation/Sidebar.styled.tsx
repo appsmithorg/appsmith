@@ -73,10 +73,7 @@ export const StyledMenuContainer = styled.div<{
         }
       
         &::-webkit-scrollbar-thumb {
-          background: ${getMenuItemBackgroundColorWhenActive(
-            primaryColor,
-            navColorStyle,
-          )};
+          background: ${primaryColor};
       
           &:hover {
             background: ${getMenuItemBackgroundColorOnHover(
@@ -84,6 +81,13 @@ export const StyledMenuContainer = styled.div<{
               navColorStyle,
             )};
           }
+        }
+
+        &:hover::-webkit-scrollbar-thumb {
+          background: ${getMenuItemBackgroundColorWhenActive(
+            primaryColor,
+            navColorStyle,
+          )};
         }
       `
     );
