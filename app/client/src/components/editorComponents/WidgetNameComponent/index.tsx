@@ -1,5 +1,6 @@
 import { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
+import { theme } from "constants/DefaultTheme";
 import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,8 +21,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import SettingsControl, { Activities } from "./SettingsControl";
-import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
-import { theme } from "constants/DefaultTheme";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
@@ -56,7 +55,6 @@ type WidgetNameComponentProps = {
   showControls?: boolean;
   topRow: number;
   errorCount: number;
-  widgetWidth: number;
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
@@ -73,7 +71,10 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
   );
-  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  const focusedWidget = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
+  );
+
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
@@ -135,9 +136,11 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       !isPreviewMode &&
       !isMultiSelectedWidget &&
       (isSnipingMode
-        ? isFocused
+        ? focusedWidget === props.widgetId
         : props.showControls ||
-          ((isFocused || showAsSelected) && !isDragging && !isResizing))
+          ((focusedWidget === props.widgetId || showAsSelected) &&
+            !isDragging &&
+            !isResizing))
     );
   };
 
@@ -150,7 +153,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     props.type === WidgetTypes.MODAL_WIDGET
       ? Activities.HOVERING
       : Activities.NONE;
-  if (isFocused) currentActivity = Activities.HOVERING;
+  if (focusedWidget === props.widgetId) currentActivity = Activities.HOVERING;
   if (showAsSelected) currentActivity = Activities.SELECTED;
   if (
     showAsSelected &&
@@ -172,7 +175,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
           errorCount={shouldHideErrors ? 0 : props.errorCount}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
-          widgetWidth={props.widgetWidth}
         />
       </ControlGroup>
     </PositionStyle>
