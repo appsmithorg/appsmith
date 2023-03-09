@@ -15,7 +15,10 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
-import { getIsDraggingForSelection } from "selectors/canvasSelectors";
+import {
+  getIsAutoLayout,
+  getIsDraggingForSelection,
+} from "selectors/canvasSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
@@ -486,9 +489,10 @@ export function CanvasSelectionArena({
   ]);
 
   // Resizing state still shows selection arena to aid with scroll behavior
-
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const shouldShow =
-    appMode === APP_MODE.EDIT && !(isDragging || isPreviewMode || dropDisabled);
+    appMode === APP_MODE.EDIT &&
+    !(isAutoLayout || isDragging || isPreviewMode || dropDisabled);
 
   const canvasRef = React.useRef({
     slidingArenaRef,
