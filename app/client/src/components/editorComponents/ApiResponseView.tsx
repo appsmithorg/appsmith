@@ -19,21 +19,15 @@ import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
-  DEBUGGER_ERRORS,
-  DEBUGGER_LOGS,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
-  INSPECT_ENTITY,
   ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
-import DebuggerLogs from "./Debugger/DebuggerLogs";
-import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
-import EntityDeps from "./Debugger/EntityDependecies";
 import {
   Button,
   Callout,
@@ -554,21 +548,6 @@ function ApiResponseView(props: Props) {
           </ResponseDataContainer>
         </ResponseTabWrapper>
       ),
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
     },
   ];
 

@@ -12,8 +12,6 @@ import { AppState } from "@appsmith/reducers";
 import { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,
-  DEBUGGER_ERRORS,
-  DEBUGGER_LOGS,
   EXECUTING_FUNCTION,
   PARSING_ERROR,
   EMPTY_RESPONSE_FIRST_HALF,
@@ -23,8 +21,6 @@ import {
   UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
-import DebuggerLogs from "./Debugger/DebuggerLogs";
-import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
@@ -312,16 +308,6 @@ function JSResponseView(props: Props) {
           </ResponseTabWrapper>
         </>
       ),
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
     },
   ];
 

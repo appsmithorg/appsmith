@@ -29,8 +29,6 @@ import {
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
-import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
-import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
@@ -39,7 +37,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
@@ -50,12 +47,9 @@ import {
 } from "components/formControls/utils";
 import {
   createMessage,
-  DEBUGGER_ERRORS,
-  DEBUGGER_LOGS,
   DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
-  INSPECT_ENTITY,
   ACTION_EXECUTION_MESSAGE,
   UNEXPECTED_ERROR,
   NO_DATASOURCE_FOR_QUERY,
@@ -799,21 +793,6 @@ export function EditorJSONtoForm(props: Props) {
           )}
         </ResponseContentWrapper>
       ),
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={actionName} />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
     },
   ];
 

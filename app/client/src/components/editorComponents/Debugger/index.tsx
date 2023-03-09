@@ -71,22 +71,7 @@ export function DebuggerTrigger() {
   const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
 
   const onClick = (e: any) => {
-    const isOnCanvas = matchBuilderPath(window.location.pathname);
-    if (isOnCanvas) {
-      dispatch(showDebuggerAction(!showDebugger));
-      if (!showDebugger)
-        AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-          source: "CANVAS",
-        });
-
-      return;
-    } else {
-      if (totalMessageCount > 0) {
-        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-      } else {
-        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
-      }
-    }
+    dispatch(showDebuggerAction(!showDebugger));
     stopEventPropagation(e);
   };
 
