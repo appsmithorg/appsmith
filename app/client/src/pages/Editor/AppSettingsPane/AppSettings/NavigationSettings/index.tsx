@@ -140,12 +140,12 @@ function NavigationSettings() {
               {
                 label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.TOP),
                 value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
-                icon: <NavOrientationTopIcon />,
+                // icon: <NavOrientationTopIcon />,
               },
               {
                 label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.SIDE),
                 value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
-                icon: <NavOrientationSideIcon />,
+                // icon: <NavOrientationSideIcon />,
               },
             ]}
             updateSetting={updateSetting}
@@ -166,7 +166,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.STACKED),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
-                  icon: <NavStyleStackedIcon />,
+                  // icon: <NavStyleStackedIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.SIDE,
@@ -174,7 +174,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.INLINE),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.INLINE,
-                  icon: <NavStyleInlineIcon />,
+                  // icon: <NavStyleInlineIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.SIDE,
@@ -182,7 +182,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
-                  icon: <NavStyleSidebarIcon />,
+                  // icon: <NavStyleSidebarIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.TOP,
