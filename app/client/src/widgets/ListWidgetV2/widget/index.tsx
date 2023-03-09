@@ -193,7 +193,10 @@ class ListWidget extends BaseWidget<
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
     /**
-     * Fix for
+     * To prevent an infinite loop, we use a flag to avoid recursively updating the pageSize property.
+     * This is necessary because the updateWidgetProperty function does not immediately update the property,
+     * and calling componentDidUpdate can trigger another update, causing an endless loop.
+     * By using this flag, we can prevent unnecessary and incessant invocations of the updatePageSize function.
      */
     this.pageSizeUpdated = false;
   }
@@ -536,12 +539,6 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  /**
-   * To prevent an infinite loop, this function is throttled to avoid recursively updating pageSize.
-   * The reason is that updateWidgetProperty doesn't immediately update the widget property, and when componentDidUpdate is called,
-   * it triggers another update, leading to an infinite loop.
-   * Using 500ms for throttling as I noticed it was enough time for the datatree to update with the right value of pageSize to prevent the infinite loop.
-   */
   updatePageSize = () => {
     super.updateWidgetProperty("pageSize", this.pageSize);
   };
