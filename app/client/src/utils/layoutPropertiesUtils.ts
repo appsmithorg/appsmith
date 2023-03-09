@@ -248,18 +248,3 @@ export const WIDGET_WITH_DYNAMIC_HEIGHT = [
   "SINGLE_SELECT_TREE_WIDGET",
   "MULTI_SELECT_WIDGET_V2",
 ];
-
-export function getResponsiveLayoutConfig(widgetType: string) {
-  // ToDO(Ashok): disabling for now, will be revisited at a later point
-  return [];
-  // const defaultBehavior = getDefaultResponsiveBehavior(widgetType);
-  // return [
-  //   {
-  //     sectionName: "Responsive Layout",
-  //     children: [
-  //       generateResponsiveBehaviorConfig(defaultBehavior),
-  //       generateVerticalAlignmentConfig(),
-  //     ],
-  //   },
-  // ];
-}
