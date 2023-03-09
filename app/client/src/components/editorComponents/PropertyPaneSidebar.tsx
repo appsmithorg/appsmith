@@ -30,6 +30,7 @@ import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import styled from "styled-components";
 import { selectWidgetInitAction } from "../../actions/widgetSelectionActions";
 import { SelectionRequestType } from "../../sagas/WidgetSelectUtils";
+import { widgetPaneOpen } from "../../selectors/editorContextSelectors";
 
 const TabHeader = styled.div`
   display: flex;
@@ -80,18 +81,24 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
+  const widgetCreateOpen = useSelector(widgetPaneOpen);
   const [rightPaneTabIndex, setRightPaneTabIndex] = useState(0);
 
   useEffect(() => {
     if (isMultiPane) {
       if (selectedWidgetIds.length > 0) {
         setRightPaneTabIndex(1);
+        return;
       }
       if (isAppSettingsPaneOpen) {
         setRightPaneTabIndex(1);
+        return;
+      }
+      if (widgetCreateOpen) {
+        setRightPaneTabIndex(0);
       }
     }
-  }, [selectedWidgetIds, isMultiPane, isAppSettingsPaneOpen]);
+  }, [selectedWidgetIds, isMultiPane, isAppSettingsPaneOpen, widgetCreateOpen]);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget id,

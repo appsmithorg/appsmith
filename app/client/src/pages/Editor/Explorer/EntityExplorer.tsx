@@ -33,6 +33,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { setExplorerActiveAction } from "../../../actions/explorerActions";
 
 const Wrapper = styled.div`
   height: 100%; // check height and scroll
@@ -94,6 +95,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
   const showWidgetsSidebar = useCallback(() => {
     history.push(builderURL({ pageId }));
     dispatch(forceOpenWidgetPanel(true));
+    dispatch(setExplorerActiveAction(false));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }

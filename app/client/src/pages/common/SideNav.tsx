@@ -53,6 +53,7 @@ function SideNav(props: {
       <Button
         className={classNames({
           "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.Explorer,
+          "hover:bg-[#f1f1f1]": true,
         })}
         onClick={() => {
           if (props.sideNavMode === SideNavMode.Explorer)
@@ -65,6 +66,7 @@ function SideNav(props: {
       <Button
         className={classNames({
           "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.DataSources,
+          "hover:bg-[#f1f1f1]": true,
         })}
         onClick={() => {
           if (props.sideNavMode === SideNavMode.DataSources)
@@ -77,6 +79,7 @@ function SideNav(props: {
       <Button
         className={classNames({
           "!bg-[#f1f1f1]": props.sideNavMode === SideNavMode.Libraries,
+          "hover:bg-[#f1f1f1]": true,
         })}
         onClick={() => {
           if (props.sideNavMode === SideNavMode.Libraries)
@@ -89,7 +92,7 @@ function SideNav(props: {
 
       {/* Bottom buttons */}
       <Button
-        className="mt-auto"
+        className="mt-auto hover:bg-[#f1f1f1]"
         onClick={() => {
           dispatch(
             setGlobalSearchCategory(
@@ -103,6 +106,7 @@ function SideNav(props: {
       </Button>
 
       <Button
+        className="hover:bg-[#f1f1f1]"
         onClick={() => {
           props.onSelect(undefined);
           dispatch(openAppSettingsPaneAction());

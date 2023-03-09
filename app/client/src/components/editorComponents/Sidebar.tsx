@@ -194,7 +194,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         "transition-all duration-400": !isMultiPane,
         relative: pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
-        fixed: !pinned || isPreviewMode,
+        ["fixed"]: !pinned || isPreviewMode,
       })}
       id={SIDEBAR_ID}
       style={{
