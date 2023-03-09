@@ -37,8 +37,8 @@ describe("Confirm before executing a js function should always show a confirmati
 
     _.jsEditor.EnableDisableAsyncFuncSettings("myFun2", false, true);
 
-    _.ee.DragDropWidgetNVerify(WIDGET.BUTTON);
-    _.ee.SelectEntityByName("Button1", "Widgets");
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON);
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", `{{JSObject1.myFun2()}}`, true, false);
 
@@ -65,7 +65,7 @@ describe("Confirm before executing a js function should always show a confirmati
 
     _.jsEditor.EnableDisableAsyncFuncSettings("myFun1", false, true);
 
-    _.ee.SelectEntityByName("Button1", "Widgets");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.EnterJSContext("onClick", `{{JSObject2.myFun2()}}`, true, false);
 
     _.agHelper.ClickButton("Submit");
@@ -85,7 +85,7 @@ describe("Confirm before executing a js function should always show a confirmati
   });
 
   it("3. Bug-13646: Function execution does not wait for user confirmation when in a nested function and is run on page load", function() {
-    _.ee.SelectEntityByName("JSObject2", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("JSObject2", "Queries/JS");
     _.jsEditor.EnableDisableAsyncFuncSettings("myFun2", true, false);
 
     _.agHelper.RefreshPage();
