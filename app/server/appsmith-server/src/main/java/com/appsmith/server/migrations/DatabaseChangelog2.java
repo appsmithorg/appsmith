@@ -2816,7 +2816,6 @@ public class DatabaseChangelog2 {
         plugin.setPackageName("oracle-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        // Next TBD: update image
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle-db.jpg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle");
         plugin.setDefaultInstall(true);
