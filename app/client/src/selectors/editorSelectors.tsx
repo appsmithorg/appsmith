@@ -816,10 +816,6 @@ export const previewModeSelector = (state: AppState) => {
   return state.ui.editor.isPreviewMode;
 };
 
-export const backOfficeConnected = (state: AppState) => {
-  return state.ui.editor.backOfficeConnected;
-};
-
 /**
  * returns the `state.ui.editor.zoomLevel`
  *

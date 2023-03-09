@@ -13,12 +13,15 @@ import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 
 import { getAppMode } from "selectors/applicationSelectors";
-import { setBackOfficeConnectedAction } from "actions/editorActions";
-import { backOfficeConnected } from "selectors/editorSelectors";
 
 import { isExploringSelector } from "selectors/onboardingSelectors";
 import { Colors } from "constants/Colors";
 import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
+import {
+  setIsBackOfficeConnected,
+  setIsBackOfficeModalOpen,
+} from "actions/backOfficeActions";
+import { getIsBackOfficeConnected } from "selectors/backOfficeSelectors";
 
 const StyledButton = styled(Button)<{ active: boolean }>`
   ${(props) =>
@@ -40,19 +43,25 @@ const StyledButton = styled(Button)<{ active: boolean }>`
 function BackOfficeButton() {
   const dispatch = useDispatch();
   const isExploring = useSelector(isExploringSelector);
-  const isBackOfficeConnected = useSelector(backOfficeConnected);
+  const isBackOfficeConnected = useSelector(getIsBackOfficeConnected);
   const appMode = useSelector(getAppMode);
 
   const mode = useSelector((state: AppState) => state.entities.app.mode);
   const isViewMode = mode === APP_MODE.PUBLISHED;
 
   const setConnectionStatus = useCallback(() => {
-    dispatch(setBackOfficeConnectedAction(!isBackOfficeConnected));
-  }, [dispatch, setBackOfficeConnectedAction, isBackOfficeConnected]);
+    dispatch(setIsBackOfficeConnected(!isBackOfficeConnected));
+  }, [dispatch, setIsBackOfficeConnected, isBackOfficeConnected]);
+
+  const setOpenStatus = useCallback(() => {
+    dispatch(setIsBackOfficeModalOpen(true));
+  }, [dispatch, setIsBackOfficeModalOpen]);
 
   const onClickBackOfficeButton = () => {
     // eslint-disable-next-line no-console
     console.log("BO CONNECTING...");
+
+    setOpenStatus();
     setConnectionStatus();
   };
 

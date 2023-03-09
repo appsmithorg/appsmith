@@ -11,6 +11,8 @@ import applicationSagas from "sagas/ApplicationSagas";
 import appThemingSaga from "sagas/AppThemingSaga";
 import AutoHeightSagas from "sagas/autoHeightSagas";
 import autoLayoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import backOfficeSagas from "sagas/BackOfficeSagas";
 import batchSagas from "sagas/BatchSagas";
 import autoLayoutDraggingSagas from "sagas/CanvasSagas/AutoLayoutDraggingSagas";
 import draggingCanvasSagas from "sagas/CanvasSagas/DraggingCanvasSagas";
@@ -96,4 +98,6 @@ export const sagas = [
   LintingSaga,
   autoLayoutUpdateSagas,
   autoLayoutDraggingSagas,
+
+  // backOfficeSagas,
 ];

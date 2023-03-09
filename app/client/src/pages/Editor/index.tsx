@@ -52,6 +52,7 @@ import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
 import MultiPaneContainer from "pages/Editor/MultiPaneContainer";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import BackOfficeModal from "./BackOffice/BackOfficeModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -228,6 +229,7 @@ class Editor extends Component<Props> {
                 <MainContainer />
               )}
               <GitSyncModal />
+              <BackOfficeModal />
               <DisconnectGitModal />
               <GuidedTourModal />
               <RepoLimitExceededErrorModal />
