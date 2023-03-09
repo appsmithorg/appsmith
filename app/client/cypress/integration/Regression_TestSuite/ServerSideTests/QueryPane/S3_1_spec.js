@@ -120,9 +120,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.contains(
-        "File content is not base64 encoded.",
-      );
+      expect(
+        response.body.data.pluginErrorDetails.appsmithErrorMessage,
+      ).to.contains("File content is not base64 encoded.");
     });
     cy.ValidateAndSelectDropdownOption(
       formControls.s3CreateFileDataType,
@@ -253,7 +253,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.contain(
+      expect(
+        response.body.data.pluginErrorDetails.appsmithErrorMessage,
+      ).to.contain(
         "Your S3 query failed to execute. To know more please check the error details.",
       );
     });
@@ -263,7 +265,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.contain(
+      expect(
+        response.body.data.pluginErrorDetails.appsmithErrorMessage,
+      ).to.contain(
         "Your S3 query failed to execute. To know more please check the error details.",
       );
     });

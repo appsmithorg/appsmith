@@ -44,6 +44,11 @@ describe("Canvas selection test cases", () => {
 
   beforeEach(() => {
     spyWidgetSelection.mockClear();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it("Should select using canvas draw", () => {
@@ -501,6 +506,8 @@ describe("Canvas selection test cases", () => {
     selectionCanvas = component.queryByTestId(
       `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
+
+    jest.runOnlyPendingTimers();
 
     expect(selectionCanvas.style.zIndex).toBe("");
     act(() => {
