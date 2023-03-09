@@ -907,6 +907,47 @@ export class DataSources {
     );
   }
 
+  public CreateOAuthClient(grantType: string) {
+    let clientId, clientSecret;
+
+    // Login to TED OAuth
+    let formData = new FormData();
+    formData.append("username", datasourceFormData["OAuth_username"]);
+    cy.request("POST", datasourceFormData["OAuth_host"], formData).then(
+      (response) => {
+        expect(response.status).to.equal(200);
+      },
+    );
+
+    // Create client
+    let clientData = new FormData();
+    clientData.append("client_name", "appsmith_cs_post");
+    clientData.append("client_uri", "http://localhost/");
+    clientData.append("scope", "profile");
+    clientData.append("redirect_uri", datasourceFormData["OAuth_RedirectUrl"]);
+    clientData.append("grant_type", grantType);
+    clientData.append("response_type", "code");
+    clientData.append("token_endpoint_auth_method", "client_secret_post");
+    cy.request(
+      "POST",
+      datasourceFormData["OAuth_host"] + "/create_client",
+      clientData,
+    ).then((response) => {
+      expect(response.status).to.equal(200);
+    });
+
+    // Get Client Credentials
+    cy.request("GET", datasourceFormData["OAuth_host"]).then((response) => {
+      clientId = response.body.split("client_id: </strong>");
+      clientId = clientId[1].split("<strong>client_secret: </strong>");
+      clientSecret = clientId[1].split("<strong>");
+      clientSecret = clientSecret[0].trim();
+      clientId = clientId[0].trim();
+      cy.wrap(clientId).as("OAuthClientID");
+      cy.wrap(clientSecret).as("OAuthClientSecret");
+    });
+  }
+
   public CreateOAuthDatasource(
     datasourceName: string,
     grantType: "ClientCredentials" | "AuthCode",
@@ -957,14 +998,8 @@ export class DataSources {
       this.agHelper.GetNClick(this._clientCredentails);
     else if (grantType == "AuthCode")
       this.agHelper.GetNClick(this._authorizationCode);
-      this.agHelper.TypeText(
-        this._clientID,
-        clientId,
-      );
-      this.agHelper.TypeText(
-        this._clientSecret,
-        clientSecret,
-      );
+    this.agHelper.TypeText(this._clientID, clientId);
+    this.agHelper.TypeText(this._clientSecret, clientSecret);
     this.agHelper.TypeText(
       this._accessTokenUrl,
       datasourceFormData["OAUth_AccessTokenUrl"],

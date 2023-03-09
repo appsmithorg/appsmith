@@ -45,6 +45,7 @@
   "OAuth_ApiUrl": "http://host.docker.internal:6001",
   "OAUth_AccessTokenUrl": "http://host.docker.internal:6001/oauth/token",
   "OAuth_AuthUrl": "http://localhost:6001/oauth/authorize",
+  "OAuth_RedirectUrl":"http://localhost/api/v1/datasources/authorize",
  
   "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts",
   "connection-type": "Replica set",
