@@ -11,10 +11,10 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Fork a template to the current app", () => {
   before(() => {
     cy.NavigateToHome();
-    cy.generateUUID().then((id) => {
-      appId = id;
-      cy.CreateAppInFirstListedWorkspace(id);
-      localStorage.setItem("AppName", appId);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
