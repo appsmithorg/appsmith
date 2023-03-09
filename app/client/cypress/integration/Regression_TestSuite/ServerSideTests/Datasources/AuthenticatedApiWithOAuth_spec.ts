@@ -1,5 +1,4 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import datasourceFormData from "../../../../fixtures/datasources.json";
 
 describe("Authentiacted Api with OAuth 2.O authorization code test cases", function() {
   it("1. Create & Save an Authenticated API with OAuth 2.O authorization code", function() {
@@ -8,8 +7,8 @@ describe("Authentiacted Api with OAuth 2.O authorization code test cases", funct
     // Create datasource
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      cy.get("@OAuthClientID").then((clientId) => {
-        cy.get("@OAuthClientSecret").then((clientSecret) => {
+      cy.get("@OAuthClientID").then((clientId : any) => {
+        cy.get("@OAuthClientSecret").then((clientSecret : any) => {
           _.dataSources.CreateOAuthDatasource(
             "TED_OAuth_Api_" + uid,
             "AuthCode",
@@ -17,10 +16,12 @@ describe("Authentiacted Api with OAuth 2.O authorization code test cases", funct
             clientSecret,
           );
           //Create API from datasource
-          _.dataSources.CreateAndFillApiAfterDSSaved(
+          _.apiPage.CreateAndFillApi(
             "/api/echo/get?ASDSA=ASDSA",
             "EchoAPI_" + uid,
+            10000,
             "GET",
+            true
           );
         });
       });

@@ -12,7 +12,6 @@ export class DataSources {
   private table = ObjectsRegistry.Table;
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
-  private apiPage = ObjectsRegistry.ApiPage;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources";
@@ -1009,24 +1008,5 @@ export class DataSources {
       this._authorizationURL,
       datasourceFormData["OAuth_AuthUrl"],
     );
-  }
-
-  public CreateAndFillApiAfterDSSaved(
-    url: string,
-    apiName = "",
-    apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
-    queryTimeout = 10000,
-  ) {
-    // Create API
-    this.agHelper.GetNClick(this._createQuery);
-    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
-    if (apiName) this.agHelper.RenameWithInPane(apiName);
-
-    // Fill API details
-    cy.get(this.apiPage._resourceUrl).should("be.visible");
-    if (apiVerb != "GET") this.apiPage.SelectAPIVerb(apiVerb);
-    this.agHelper.GetNClick(this.apiPage._resourceUrl);
-    cy.get(this.apiPage._resourceUrl).type(url);
-    this.agHelper.AssertAutoSave();
   }
 }
