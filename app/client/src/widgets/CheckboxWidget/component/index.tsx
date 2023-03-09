@@ -6,7 +6,7 @@ import { AlignWidgetTypes } from "widgets/constants";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import { Checkbox } from "components/wds/Checkbox";
+import { Checkbox } from "components/wds";
 
 type StyledCheckboxContainerProps = {
   isValid: boolean;
@@ -24,6 +24,10 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     height: 100%;
     justify-content: start;
     width: 100%;
+
+    .auto-layout & {
+      min-height: 32px;
+    }
 
     .${Classes.CHECKBOX} {
       width: 100%;

@@ -17,13 +17,13 @@ describe("Checkbox Group Widget Functionality", function() {
 
     // add Query 1 with limit 10
 
-    _.ee.CreateNewDsQuery(dsName);
+    _.entityExplorer.CreateNewDsQuery(dsName);
     _.agHelper.GetNClick(_.dataSources._templateMenu);
     _.dataSources.EnterQuery(query1); //Query1
     _.dataSources.RunQuery();
 
     // add Query 2 with limit 2
-    _.ee.CreateNewDsQuery(dsName);
+    _.entityExplorer.CreateNewDsQuery(dsName);
     _.agHelper.GetNClick(_.dataSources._templateMenu);
     _.dataSources.EnterQuery(query2);
     _.dataSources.RunQuery();

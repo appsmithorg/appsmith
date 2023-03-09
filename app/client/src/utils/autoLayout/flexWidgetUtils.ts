@@ -130,7 +130,7 @@ export function getWidgetRows(widget: any, isMobile: boolean): number {
  * @param canvasWidth | number : main canvas width.
  * @returns MinSize | undefined
  */
-export function getMinMaxSize(
+function getMinMaxSize(
   widget: any,
   canvasWidth: number,
 ): MinMaxSize | undefined {

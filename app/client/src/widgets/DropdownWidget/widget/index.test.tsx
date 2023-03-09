@@ -47,6 +47,9 @@ describe("<DropdownWidget />", () => {
       mainCanvas: {
         width: 1159,
       },
+      canvasSelection: {
+        isDraggingForSelection: false,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };

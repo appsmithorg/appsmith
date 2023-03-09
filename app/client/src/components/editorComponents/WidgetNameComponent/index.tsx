@@ -1,5 +1,6 @@
 import { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
+import { theme } from "constants/DefaultTheme";
 import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,21 +14,21 @@ import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import WidgetFactory from "utils/WidgetFactory";
+import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import SettingsControl, { Activities } from "./SettingsControl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
-
+export const WidgetNameComponentHeight = theme.spaces[10];
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
   top: ${(props) =>
-    props.topRow > 2 ? `${-1 * props.theme.spaces[10]}px` : "calc(100%)"};
-  height: ${(props) => props.theme.spaces[10]}px;
+    props.topRow > 2 ? `${-1 * WidgetNameComponentHeight}px` : "calc(100%)"};
+  height: ${WidgetNameComponentHeight}px;
   ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0")};
   display: flex;
   padding: 0 4px;

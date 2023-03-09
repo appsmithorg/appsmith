@@ -9,18 +9,13 @@ import {
 } from "constants/WidgetConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import ContainerComponent, { ContainerStyle } from "../component";
-
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-
 import { ValidationTypes } from "constants/WidgetValidation";
-
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export class ContainerWidget extends BaseWidget<
@@ -68,7 +63,6 @@ export class ContainerWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -204,7 +198,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.useAutoLayout = this.props.positioning
-      ? this.props.positioning !== Positioning.Fixed
+      ? this.props.positioning === Positioning.Vertical
       : false;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
@@ -223,13 +217,10 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    const useAutoLayout = this.props.positioning
-      ? this.props.positioning === Positioning.Vertical
-      : false;
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
       !isAutoHeightEnabledForWidget(this.props, true) &&
-      !useAutoLayout;
+      this.props.positioning !== Positioning.Vertical;
     return (
       <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
         <WidgetsMultiSelectBox

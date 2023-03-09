@@ -19,7 +19,7 @@ export type AutoLayoutProps = {
   children: ReactNode;
   componentHeight: number;
   componentWidth: number;
-  direction?: LayoutDirection;
+  direction: LayoutDirection;
   focused?: boolean;
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
@@ -29,7 +29,7 @@ export type AutoLayoutProps = {
   widgetType: WidgetType;
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
-  isMobile?: boolean;
+  isMobile: boolean;
 };
 
 const FlexWidget = styled.div`
@@ -101,6 +101,8 @@ export function FlexComponent(props: AutoLayoutProps) {
   return (
     <FlexWidget
       className={className}
+      data-testid="test-widget"
+      data-widgetname-cy={props.widgetName}
       id={"auto_" + props.widgetId}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}

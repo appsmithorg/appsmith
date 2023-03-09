@@ -21,6 +21,10 @@ export const useAllowEditorDragToSelect = () => {
     (state: AppState) => state.ui.canvasSelection.isDraggingForSelection,
   );
 
+  const isAutoCanvasResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
+
   // This state tells us to disable dragging,
   // This is usually true when widgets themselves implement drag/drop
   // This flag resolves conflicting drag/drop triggers.
@@ -34,6 +38,7 @@ export const useAllowEditorDragToSelect = () => {
   const isPreviewMode = useSelector(previewModeSelector);
 
   return (
+    !isAutoCanvasResizing &&
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !isSnipingMode &&

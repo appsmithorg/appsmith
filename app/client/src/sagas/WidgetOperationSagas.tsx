@@ -15,6 +15,7 @@ import {
 } from "actions/controlActions";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -58,15 +59,18 @@ import {
 } from "utils/DynamicBindingUtils";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
+import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
+
 import {
   createMessage,
-  ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
+  ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
+  ERROR_WIDGET_CUT_NOT_ALLOWED,
   WIDGET_COPY,
   WIDGET_CUT,
-  ERROR_WIDGET_CUT_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { Toaster, Variant } from "design-system-old";
@@ -80,7 +84,6 @@ import { validateProperty } from "./EvaluationsSaga";
 
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -99,6 +102,7 @@ import { builderURL } from "RouteBuilder";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
+import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import { flashElementsById } from "utils/helpers";
 import history from "utils/history";
@@ -106,16 +110,21 @@ import {
   collisionCheckPostReflow,
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import { BlueprintOperationTypes } from "widgets/constants";
 import {
   addChildToPastedFlexLayers,
+  getFlexLayersForSelectedWidgets,
   getLayerIndexOfWidget,
+  getNewFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
 } from "../utils/autoLayout/AutoLayoutUtils";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
-import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
+import {
+  executeWidgetBlueprintBeforeOperations,
+  traverseTreeAndExecuteBlueprintChildOperations,
+} from "./WidgetBlueprintSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import {
   changeIdsOfPastePositions,
@@ -154,11 +163,6 @@ import {
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { SelectionRequestType } from "./WidgetSelectUtils";
-import {
-  executeWidgetBlueprintBeforeOperations,
-  traverseTreeAndExecuteBlueprintChildOperations,
-} from "./WidgetBlueprintSagas";
-import { BlueprintOperationTypes } from "widgets/constants";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -844,7 +848,10 @@ function* updateCanvasSize(
   }
 }
 
-function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
+function* createSelectedWidgetsCopy(
+  selectedWidgets: FlattenedWidgetProps[],
+  flexLayers: FlexLayer[],
+) {
   if (!selectedWidgets || !selectedWidgets.length) return;
   const widgetListsToStore: {
     widgetId: string;
@@ -853,7 +860,10 @@ function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
   }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
 
   const saveResult: boolean = yield saveCopiedWidgets(
-    JSON.stringify(widgetListsToStore),
+    JSON.stringify({
+      widgets: widgetListsToStore,
+      flexLayers,
+    }),
   );
   return saveResult;
 }
@@ -892,8 +902,16 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
+  const canvasId = selectedWidgetProps?.[0]?.parentId || "";
+
+  const flexLayers: FlexLayer[] = getFlexLayersForSelectedWidgets(
+    selectedWidgets,
+    canvasId ? allWidgets[canvasId] : undefined,
+  );
+
   const saveResult: boolean = yield createSelectedWidgetsCopy(
     selectedWidgetProps,
+    flexLayers,
   );
 
   selectedWidgetProps.forEach((each) => {
@@ -1320,7 +1338,15 @@ function* pasteWidgetSaga(
     mouseLocation: { x: number; y: number };
   }>,
 ) {
-  let copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
+  const {
+    flexLayers,
+    widgets: copiedWidgets,
+  }: {
+    widgets: CopiedWidgetGroup[];
+    flexLayers: FlexLayer[];
+  } = yield getCopiedWidgets();
+
+  let copiedWidgetGroups = [...copiedWidgets];
   const shouldGroup: boolean = action.payload.groupWidgets;
 
   const newlyCreatedWidgetIds: string[] = [];
@@ -1436,6 +1462,7 @@ function* pasteWidgetSaga(
       );
     }
 
+    const widgetIdMap: Record<string, string> = {};
     yield all(
       copiedWidgetGroups.map((copiedWidgets) =>
         call(function*() {
@@ -1483,7 +1510,6 @@ function* pasteWidgetSaga(
 
           // Get a flat list of all the widgets to be updated
           const widgetList = copiedWidgets.list;
-          const widgetIdMap: Record<string, string> = {};
           const reverseWidgetIdMap: Record<string, string> = {};
           const widgetNameMap: Record<string, string> = {};
           const newWidgetList: FlattenedWidgetProps[] = [];
@@ -1690,7 +1716,13 @@ function* pasteWidgetSaga(
              */
             if (widget.parentId) {
               const pastingIntoWidget = widgets[widget.parentId];
-              if (pastingIntoWidget && isStack(widgets, pastingIntoWidget)) {
+              if (
+                pastingIntoWidget &&
+                isStack(widgets, pastingIntoWidget) &&
+                (pastingIntoWidgetId !== pastingIntoWidget.widgetId ||
+                  !flexLayers ||
+                  flexLayers.length <= 0)
+              ) {
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
                   widgets = pasteWidgetInFlexLayers(
                     widgets,
@@ -1733,6 +1765,22 @@ function* pasteWidgetSaga(
       gridProps,
       reflowedMovementMap,
     );
+
+    if (
+      pastingIntoWidgetId &&
+      reflowedWidgets[pastingIntoWidgetId] &&
+      flexLayers &&
+      flexLayers.length > 0
+    ) {
+      const newFlexLayers = getNewFlexLayers(flexLayers, widgetIdMap);
+      reflowedWidgets[pastingIntoWidgetId] = {
+        ...reflowedWidgets[pastingIntoWidgetId],
+        flexLayers: [
+          ...(reflowedWidgets[pastingIntoWidgetId]?.flexLayers || []),
+          ...newFlexLayers,
+        ],
+      };
+    }
 
     // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
     // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
@@ -1808,8 +1856,16 @@ function* cutWidgetSaga() {
 
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
+  const canvasId = selectedWidgetProps?.[0]?.parentId || "";
+
+  const flexLayers: FlexLayer[] = getFlexLayersForSelectedWidgets(
+    selectedWidgets,
+    canvasId ? allWidgets[canvasId] : undefined,
+  );
+
   const saveResult: boolean = yield createSelectedWidgetsCopy(
     selectedWidgetProps,
+    flexLayers,
   );
 
   selectedWidgetProps.forEach((each) => {

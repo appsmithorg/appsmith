@@ -88,11 +88,11 @@ export const getReflowOnBoardingFlag = async (email: any) => {
 
 export const getCopiedWidgets = async () => {
   try {
-    const widget: string | null = await store.getItem(
+    const copiedWidgetData: string | null = await store.getItem(
       STORAGE_KEYS.COPIED_WIDGET,
     );
-    if (widget && widget.length > 0) {
-      return JSON.parse(widget);
+    if (copiedWidgetData && copiedWidgetData.length > 0) {
+      return JSON.parse(copiedWidgetData);
     }
   } catch (error) {
     log.error("An error occurred when fetching copied widget: ", error);

@@ -244,7 +244,7 @@ export const widgetOperationParams = (
           topRow + widgetSizeUpdates.height / parentRowSpace,
         ),
         rightColumn: fullWidth
-          ? 64
+          ? GridDefaults.DEFAULT_GRID_COLUMNS
           : Math.round(
               leftColumn + widgetSizeUpdates.width / parentColumnSpace,
             ),
@@ -256,7 +256,7 @@ export const widgetOperationParams = (
     // Therefore, this is an operation to add child to this container
   }
   const widgetDimensions = {
-    columns: fullWidth ? 64 : widget.columns,
+    columns: fullWidth ? GridDefaults.DEFAULT_GRID_COLUMNS : widget.columns,
     rows: widget.rows,
   };
 

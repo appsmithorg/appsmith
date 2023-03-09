@@ -3,7 +3,6 @@ import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { RangeSliderWidgetProps } from "..";
 import {
   endValueValidation,
@@ -319,7 +318,6 @@ export default [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("RANGE_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [

@@ -23,11 +23,11 @@ import {
 } from "components/editorComponents/ResizeStyledComponents";
 import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
-import Resizable from "resizable/resize";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCanvasClassName } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { scrollCSS } from "widgets/WidgetUtils";
+import Resizable from "resizable/modalresize";
 
 const Container = styled.div<{
   width?: number;
@@ -149,7 +149,6 @@ export default function ModalComponent(props: ModalComponentProps) {
   const { enableResize = false } = props;
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");
-  const resizeRef = React.useRef<HTMLDivElement>(null);
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -243,7 +242,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         isColliding={() => false}
         onStart={onResizeStart}
         onStop={onResizeStop}
-        ref={resizeRef}
         resizeDualSides
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}

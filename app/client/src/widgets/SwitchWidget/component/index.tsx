@@ -31,6 +31,9 @@ const SwitchComponentContainer = styled.div<{
   flex-direction: row;
   align-items: center;
   justify-content: stretch;
+  .auto-layout & {
+    min-height: 32px;
+  }
   ${BlueprintControlTransform}
 `;
 
