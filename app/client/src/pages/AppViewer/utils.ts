@@ -18,6 +18,8 @@ export const getMenuItemBackgroundColorWhenActive = (
     case NAVIGATION_SETTINGS.COLOR_STYLE.THEME:
       if (isLightColor(color)) {
         colorHsl.l -= 0.2;
+      } else {
+        colorHsl.l += 0.2;
       }
       break;
   }
