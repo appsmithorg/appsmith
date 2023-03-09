@@ -15,11 +15,15 @@ import {
   POPOVER_ITEMS_TEXT_MAP,
   StickyType,
 } from "../Constants";
-import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
 import { Popover2 } from "@blueprintjs/popover2";
 import { MenuDivider } from "design-system-old";
+import { importSvg } from "design-system-old";
+
+const EditIcon = importSvg(
+  () => import("assets/icons/control/edit-variant1.svg"),
+);
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;

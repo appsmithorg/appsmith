@@ -1,6 +1,8 @@
-import { ReactComponent as SpinnerSvg } from "assets/svg/loader-2-fill.svg";
 import styled from "styled-components";
 import React from "react";
+import { importSvg } from "design-system-old";
+
+const SpinnerSvg = importSvg(() => import("assets/svg/loader-2-fill.svg"));
 
 const CheckmarkWrapper = styled.div<{ $height: string; $width: string }>`
   #loading-spinner {

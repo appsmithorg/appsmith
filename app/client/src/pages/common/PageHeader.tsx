@@ -21,13 +21,17 @@ import Button from "components/editorComponents/Button";
 import ProfileDropdown from "./ProfileDropdown";
 import { Colors } from "constants/Colors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-hamburger.svg";
 import MobileSideBar from "./MobileSidebar";
 import { Indices } from "constants/Layers";
 import { Icon, IconSize } from "design-system-old";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { importSvg } from "design-system-old";
+
+const TwoLineHamburger = importSvg(
+  () => import("assets/icons/ads/two-line-hamburger.svg"),
+);
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;

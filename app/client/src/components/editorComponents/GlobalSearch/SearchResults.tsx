@@ -7,7 +7,6 @@ import { getTypographyByKey } from "design-system-old";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import type { SearchItem, SearchCategory } from "./utils";
 import {
   getItemType,
@@ -31,6 +30,9 @@ import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
+import { importSvg } from "design-system-old";
+
+const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 

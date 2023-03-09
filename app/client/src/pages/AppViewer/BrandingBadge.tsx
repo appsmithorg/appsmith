@@ -1,6 +1,9 @@
 import React from "react";
+import { importSvg } from "design-system-old";
 
-import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith-logo-no-pad.svg";
+const AppsmithLogo = importSvg(
+  () => import("assets/svg/appsmith-logo-no-pad.svg"),
+);
 
 function BrandingBadge() {
   return (
