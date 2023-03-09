@@ -1,5 +1,5 @@
 import unescapeJS from "unescape-js";
-import { PropertyNode, isLiteralNode } from "..";
+import { isLiteralNode, PropertyNode } from "../index";
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
