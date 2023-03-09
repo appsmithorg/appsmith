@@ -1,4 +1,8 @@
-import { NavigationSetting, SIDEBAR_WIDTH } from "constants/AppConstants";
+import {
+  NavigationSetting,
+  NAVIGATION_SETTINGS,
+  SIDEBAR_WIDTH,
+} from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import {
@@ -50,24 +54,40 @@ export const StyledMenuContainer = styled.div<{
   padding: 0 8px;
   flex-grow: 1;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
+  ${({ navColorStyle, primaryColor }) => {
+    const isThemeColorStyle =
+      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
 
-  &::-webkit-scrollbar-track {
-    background: ${({ navColorStyle, primaryColor }) =>
-      getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-
-    &:hover {
-      background: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
-    }
-  }
+    return (
+      isThemeColorStyle &&
+      `
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+      
+        &::-webkit-scrollbar-track {
+          background: ${getMenuContainerBackgroundColor(
+            primaryColor,
+            navColorStyle,
+          )};
+        }
+      
+        &::-webkit-scrollbar-thumb {
+          background: ${getMenuItemBackgroundColorWhenActive(
+            primaryColor,
+            navColorStyle,
+          )};
+      
+          &:hover {
+            background: ${getMenuItemBackgroundColorOnHover(
+              primaryColor,
+              navColorStyle,
+            )};
+          }
+        }
+      `
+    );
+  }}
 
   ${StyledMenuItem} {
     align-self: flex-start;

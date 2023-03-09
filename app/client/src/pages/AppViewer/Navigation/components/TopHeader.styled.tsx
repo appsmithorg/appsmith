@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { NavigationSetting } from "constants/AppConstants";
+import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getMenuContainerBackgroundColor,
   getMenuItemBackgroundColorWhenActive,
@@ -12,9 +12,22 @@ export const HeaderRow = styled.div<{
   width: 100%;
   display: flex;
   flex-direction: row;
-  border-bottom: 1px solid
-    ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
+
+  ${({ navColorStyle, primaryColor, theme }) => {
+    const isThemeColorStyle =
+      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
+
+    return isThemeColorStyle
+      ? `
+        border-bottom: 1px solid ${getMenuItemBackgroundColorWhenActive(
+          primaryColor,
+          navColorStyle,
+        )};
+      `
+      : `
+        border-bottom: 1px solid ${theme.colors.header.tabsHorizontalSeparator};
+      `;
+  }}
 `;
 
 export const StyledNav = styled.div<{
