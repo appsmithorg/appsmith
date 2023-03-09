@@ -427,23 +427,24 @@ abstract class BaseWidget<
    * @param showControls
    */
   showWidgetName(content: ReactNode, showControls = false) {
-    return (
+    const { componentWidth } = this.getComponentDimensions();
+
+    return !this.props.disablePropertyPane ? (
       <>
-        {!this.props.disablePropertyPane && (
-          <WidgetNameComponent
-            errorCount={this.getErrorCount(
-              get(this.props, EVAL_ERROR_PATH, {}),
-            )}
-            parentId={this.props.parentId}
-            showControls={showControls}
-            topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
-            type={this.props.type}
-            widgetId={this.props.widgetId}
-            widgetName={this.props.widgetName}
-          />
-        )}
+        <WidgetNameComponent
+          errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+          parentId={this.props.parentId}
+          showControls={showControls}
+          topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+          type={this.props.type}
+          widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
+          widgetWidth={componentWidth}
+        />
         {content}
       </>
+    ) : (
+      content
     );
   }
 
