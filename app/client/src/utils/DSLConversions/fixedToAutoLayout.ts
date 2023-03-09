@@ -1,7 +1,12 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { partition } from "lodash";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import { alterLayoutForDesktop } from "utils/autoLayout/AutoLayoutUtils";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,
@@ -15,11 +20,37 @@ const unHandledWidgets = ["LIST_WIDGET", "FORM_WIDGET", "MODAL_WIDGET"];
 const nonFlexLayerWidgets = ["MODAL_WIDGET"];
 
 /**
+ * This method converts the fixed to Auto layout and updates the positions
+ * @param dsl DSL to be Converted
+ * @returns dsl in an AutoLayout dsl format
+ */
+export default function convertDSLtoAutoAndUpdatePositions(dsl: DSLWidget) {
+  const autoDSL = convertDSLtoAuto(dsl);
+
+  if (!autoDSL || !autoDSL.children) return autoDSL;
+
+  const normalizedAutoDSL = CanvasWidgetsNormalizer.normalize(autoDSL).entities
+    .canvasWidgets;
+
+  const alteredNormalizedAutoDSL = alterLayoutForDesktop(
+    normalizedAutoDSL,
+    MAIN_CONTAINER_WIDGET_ID,
+  );
+
+  const alteredAutoDSL: DSLWidget = CanvasWidgetsNormalizer.denormalize(
+    MAIN_CONTAINER_WIDGET_ID,
+    { canvasWidgets: alteredNormalizedAutoDSL },
+  );
+
+  return alteredAutoDSL;
+}
+
+/**
  *
  * @param dsl DSL to be Converted
  * @returns dsl in an AutoLayout dsl format
  */
-export default function convertDSLtoAuto(dsl: DSLWidget) {
+export function convertDSLtoAuto(dsl: DSLWidget) {
   if (!dsl || !dsl.children) return dsl;
 
   if (dsl.type === "CANVAS_WIDGET") {

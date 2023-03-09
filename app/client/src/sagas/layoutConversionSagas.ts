@@ -12,7 +12,7 @@ import { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getPageWidgets } from "selectors/entitiesSelector";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
-import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
+import convertToAutoLayout from "utils/DSLConversions/fixedToAutoLayout";
 import { DSLWidget } from "widgets/constants";
 import { createSnapshotSaga } from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
@@ -84,7 +84,7 @@ function* convertFromFixedToAutoSaga() {
         { canvasWidgets: normalizedDSL },
       );
 
-      const dsl: DSLWidget = convertDSLtoAuto(fixedDSL);
+      const dsl: DSLWidget = convertToAutoLayout(fixedDSL);
 
       pageLayouts.push({
         pageId,
