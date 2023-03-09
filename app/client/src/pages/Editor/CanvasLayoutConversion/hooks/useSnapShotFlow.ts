@@ -38,7 +38,7 @@ export const useSnapShotFlow = (
         iconColor: Colors.GRAY_600,
         textColor: Colors.GRAY_800,
       },
-      snapShotDetails: {
+      snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(SNAPSHOT_LABEL),
         icon: "history-line",
         text: buildSnapshotTimeString(readableSnapShotDetails),

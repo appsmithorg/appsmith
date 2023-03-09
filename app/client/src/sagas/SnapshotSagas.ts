@@ -79,7 +79,6 @@ function* restoreApplicationFromSnapshotSaga() {
     );
 
     if (isValidResponse) {
-      yield put(updateSnapshotDetails(undefined));
       yield put(
         setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
       );
