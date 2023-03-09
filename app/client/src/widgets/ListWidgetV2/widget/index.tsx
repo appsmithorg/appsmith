@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { isEmpty, floor, isString, throttle } from "lodash";
+import { isEmpty, floor, isString } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -129,6 +129,7 @@ class ListWidget extends BaseWidget<
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
   pageChangeEventTriggerFromPageNo?: number | null;
+  pageSizeUpdated: boolean;
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -191,11 +192,20 @@ class ListWidget extends BaseWidget<
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
+    /**
+     * Fix for
+     */
+    this.pageSizeUpdated = false;
   }
 
   componentDidMount() {
     this.pageSize = this.getPageSize();
-    if (this.shouldUpdatePageSize()) {
+
+    if (this.props.pageSize === this.pageSize) {
+      this.pageSizeUpdated = true;
+    }
+
+    if (this.shouldUpdatePageSize() && !this.pageSizeUpdated) {
       this.updatePageSize();
     }
 
@@ -231,11 +241,17 @@ class ListWidget extends BaseWidget<
 
     this.pageSize = this.getPageSize();
 
-    if (this.shouldUpdatePageSize()) {
+    if (this.shouldUpdatePageSize() && this.pageSizeUpdated) {
       this.updatePageSize();
+      this.pageSizeUpdated = false;
+
       if (this.props.serverSidePagination && this.pageSize) {
         this.executeOnPageChange();
       }
+    }
+
+    if (this.props.pageSize === this.pageSize) {
+      this.pageSizeUpdated = true;
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
@@ -526,15 +542,9 @@ class ListWidget extends BaseWidget<
    * it triggers another update, leading to an infinite loop.
    * Using 500ms for throttling as I noticed it was enough time for the datatree to update with the right value of pageSize to prevent the infinite loop.
    */
-  updatePageSize = throttle(
-    () => {
-      super.updateWidgetProperty("pageSize", this.pageSize);
-    },
-    500,
-    {
-      trailing: true,
-    },
-  );
+  updatePageSize = () => {
+    super.updateWidgetProperty("pageSize", this.pageSize);
+  };
 
   shouldUpdatePageSize = () => {
     return this.props.listData?.length && this.props.pageSize !== this.pageSize;
