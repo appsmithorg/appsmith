@@ -30,7 +30,7 @@ describe("Verify various Table_Filter combinations", function() {
   });
 
   it("2. Table Widget Search Functionality", function() {
-    table.ReadTableRowColumnData(1, 3, 2000).then((cellData) => {
+    table.ReadTableRowColumnData(1, 3,"v1", 2000).then((cellData) => {
       expect(cellData).to.eq("Lindsay Ferguson");
       table.SearchTable(cellData);
       table.ReadTableRowColumnData(0, 3).then((afterSearch) => {
@@ -187,10 +187,10 @@ describe("Verify various Table_Filter combinations", function() {
     table.ReadTableRowColumnData(0, 4).then(($cellData) => {
       expect($cellData).to.eq("Chicken Sandwich");
     });
-    table.ReadTableRowColumnData(1, 4, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Beef steak");
     });
-    table.ReadTableRowColumnData(2, 4, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Chicken Sandwich");
     });
 
