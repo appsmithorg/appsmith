@@ -1,14 +1,15 @@
+/* eslint-disable no-console */
 import React, { useCallback } from "react";
-import { Classes, MENU_HEIGHT } from "../gitSync/constants";
-import styled, { useTheme } from "styled-components";
-import { get } from "lodash";
-import { getIsBackOfficeModalOpen } from "selectors/backOfficeSelectors";
+import styled from "styled-components";
+import {
+  getIsBackOfficeConnected,
+  getIsBackOfficeModalOpen,
+} from "selectors/backOfficeSelectors";
 import { setIsBackOfficeModalOpen } from "actions/backOfficeActions";
 
-import { DialogComponent as Dialog, Icon, IconSize } from "design-system-old";
-
+import { Dialog } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
-import { Theme } from "constants/DefaultTheme";
+
 const Container = styled.div`
   height: 600px;
   width: 100%;
@@ -20,28 +21,15 @@ const Container = styled.div`
 
 const BodyContainer = styled.div`
   flex: 3;
-  height: calc(100% - ${MENU_HEIGHT}px);
-`;
-
-const CloseBtnContainer = styled.div`
-  position: absolute;
-  right: -5px;
-  top: 0;
-  padding: ${(props) => props.theme.spaces[1]}px 0;
-  border-radius: ${(props) => props.theme.radii[1]}px;
-
-  &:hover {
-    svg,
-    svg path {
-      fill: ${({ theme }) => get(theme, "colors.gitSyncModal.closeIconHover")};
-    }
-  }
+  height: calc(100% - 15px);
+  background-color: gray;
 `;
 
 function BackOfficeModal() {
-  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsBackOfficeModalOpen);
+  const isBackOfficeConnected = useSelector(getIsBackOfficeConnected);
+  console.log("BO connect: ", isBackOfficeConnected);
 
   const handleClose = useCallback(() => {
     dispatch(setIsBackOfficeModalOpen(false));
@@ -49,30 +37,32 @@ function BackOfficeModal() {
 
   return (
     <Dialog
+      backdropClassName={isBackOfficeConnected ? "hidden" : ""}
       canEscapeKeyClose
       canOutsideClickClose
-      className={Classes.GIT_SYNC_MODAL}
-      data-testid="t--git-sync-modal"
+      className={isBackOfficeConnected ? "hidden" : ""}
+      data-testid="t--back-office-modal"
       isOpen={isModalOpen}
-      maxWidth={"900px"}
-      noModalBodyMarginTop
       onClose={handleClose}
-      width={"535px"}
+      style={{
+        width: "1200px",
+        height: "calc(100% - 200px);",
+        background: "white",
+        padding: "1em",
+      }}
+      title="Connect to BackOffice"
+      icon="info-sign"
     >
       <Container>
         <BodyContainer>
-          <p>Connect BO</p>
-        </BodyContainer>
-        <CloseBtnContainer
-          className="t--close-git-sync-modal"
-          onClick={handleClose}
-        >
-          <Icon
-            fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-            name="close-modal"
-            size={IconSize.XXXXL}
+          <iframe
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+            src="https://backoffice.staging.manabie.io/architecture/configuration"
           />
-        </CloseBtnContainer>
+        </BodyContainer>
       </Container>
     </Dialog>
   );

@@ -21,7 +21,7 @@ const backOfficeReducer = createReducer(initialState, {
     action: ReduxAction<boolean>,
   ) => {
     // eslint-disable-next-line no-console
-    console.log(state);
+    console.log("Reducer SET_IS_BACK_OFFICE_MODAL_OPEN:", state);
     return { ...state, isBackOfficeModalOpen: action.payload };
   },
 });
