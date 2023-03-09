@@ -573,18 +573,22 @@ export function ReflowResizable(props: ResizableProps) {
       props.enableHorizontalResize,
       props.enableVerticalResize,
       handle.handleDirection,
-      props.isFlexChild,
-      props.responsiveBehavior,
     );
 
-    const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
-      widget.type,
-    );
+    let disableResizing = false;
 
-    const disableResizing = isResizingDisabled(
-      disableResizeHandles,
-      handle.handleDirection,
-    );
+    if (widget && widget.type) {
+      const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
+        widget.type,
+      );
+
+      disableResizing = isResizingDisabled(
+        disableResizeHandles,
+        handle.handleDirection,
+        props.isFlexChild,
+        props.responsiveBehavior,
+      );
+    }
 
     return (
       <ResizableHandle
