@@ -13,6 +13,7 @@ import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,
 } from "./widget/helper";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -51,6 +52,7 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     positioning: Positioning.Fixed,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
     responsiveBehavior: ResponsiveBehavior.Fill,
     dynamicBindingPathList: [
       {

@@ -1,7 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
-
 import { LabelPosition } from "components/constants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -40,7 +39,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     sliderSize: "m",
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
