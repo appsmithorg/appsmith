@@ -17,6 +17,7 @@ import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -35,6 +36,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Setter
 @Getter
@@ -84,6 +86,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
     }
 
     private Mono<OAuth2> generateOAuth2Token(DatasourceConfiguration datasourceConfiguration) {
+        AtomicInteger retryCount = new AtomicInteger(0);
         final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         final HttpClient securedHttpClient = this.getSecuredHttpClient(datasourceConfiguration);
 
@@ -139,6 +142,11 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                     oAuth2.setAuthenticationResponse(authenticationResponse);
                     log.debug("Entered token generation...");
                     return oAuth2;
+                }).doOnError(r ->{
+                    if(retryCount.incrementAndGet() <= 1) {
+                        log.debug("Token refreshed failed, retrying");
+                        generateOAuth2Token(datasourceConfiguration);
+                    }
                 });
     }
 
