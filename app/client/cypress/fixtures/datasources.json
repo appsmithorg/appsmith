@@ -41,12 +41,11 @@
   "smtp-password":"root",
 
   "OAuth_username":"testuser@appsmith.com",
+  "OAuth_host":"http://localhost:6001",
   "OAuth_ApiUrl": "http://host.docker.internal:6001",
   "OAUth_AccessTokenUrl": "http://host.docker.internal:6001/oauth/token",
   "OAuth_AuthUrl": "http://localhost:6001/oauth/authorize",
-  "OAuth-ClientId": "CI7fTJx74n3E7tblrF0kVBhT",
-  "OAuth-ClientSecret": "9pVyUj291A9xTf5YmMNgCIKhmxt7lAusHc8NJyknId5eIBOm",
-
+ 
   "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts",
   "connection-type": "Replica set",
   "database-url": "appsmith-f9fe4.firebaseio.com",

@@ -910,11 +910,13 @@ export class DataSources {
   public CreateOAuthDatasource(
     datasourceName: string,
     grantType: "ClientCredentials" | "AuthCode",
+    clientId: string,
+    clientSecret: string,
   ) {
     this.NavigateToDSCreateNew();
     //Click on Authenticated API
     cy.get(this._authApiDatasource).click({ force: true });
-    this.FillAPIOAuthForm(datasourceName, grantType);
+    this.FillAPIOAuthForm(datasourceName, grantType, clientId, clientSecret);
 
     // save datasource
     cy.wait(500);
@@ -931,6 +933,8 @@ export class DataSources {
   public FillAPIOAuthForm(
     dsName: string,
     grantType: "ClientCredentials" | "AuthCode",
+    clientId: string,
+    clientSecret: string,
   ) {
     if (dsName) {
       // Change the Datasource name
@@ -953,6 +957,14 @@ export class DataSources {
       this.agHelper.GetNClick(this._clientCredentails);
     else if (grantType == "AuthCode")
       this.agHelper.GetNClick(this._authorizationCode);
+      this.agHelper.TypeText(
+        this._clientID,
+        clientId,
+      );
+      this.agHelper.TypeText(
+        this._clientSecret,
+        clientSecret,
+      );
     this.agHelper.TypeText(
       this._accessTokenUrl,
       datasourceFormData["OAUth_AccessTokenUrl"],
@@ -961,14 +973,6 @@ export class DataSources {
     this.agHelper.TypeText(
       this._authorizationURL,
       datasourceFormData["OAuth_AuthUrl"],
-    );
-    this.agHelper.TypeText(
-      this._clientID,
-      datasourceFormData["OAuth-ClientId"],
-    );
-    this.agHelper.TypeText(
-      this._clientSecret,
-      datasourceFormData["OAuth-ClientSecret"],
     );
   }
 
