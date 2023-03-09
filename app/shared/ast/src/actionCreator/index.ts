@@ -933,7 +933,7 @@ export function getFunctionArguments(value: string, evaluationVersion: number): 
     simple(astWithComments, {
         CallExpression(node) {
             for (let argument of (node as CallExpressionNode).arguments) {
-                argumentsArray.push((argument as LiteralNode).value);
+                argumentsArray.push(generate(argument));
             }
         }
     });
@@ -958,8 +958,8 @@ export function getFunctionNameFromJsObjectExpression(value: string, evaluationV
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
-        MemberExpression(node) {
-            functionName = ((node as MemberExpressionNode).property as IdentifierNode).name;
+        CallExpression(node) {
+            functionName = `${(((node as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name}`;
         }
     });
 
