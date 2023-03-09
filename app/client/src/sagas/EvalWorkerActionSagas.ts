@@ -104,7 +104,7 @@ export function* confirmBeforeExecutingJsFunction(message: any) {
   const { entityName, jsObjectConfig, propertyPath } = data;
 
   const modalPayload = {
-    name: propertyPath,
+    name: `${entityName}.${propertyPath}`,
     modalOpen: true,
     modalType: ModalType.RUN_ACTION,
   };
