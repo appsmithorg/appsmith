@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.external.models.PageDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;
 

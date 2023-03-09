@@ -1,8 +1,8 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.QLayout;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QPage;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;

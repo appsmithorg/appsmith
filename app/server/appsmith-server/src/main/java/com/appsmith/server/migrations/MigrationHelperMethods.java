@@ -8,7 +8,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.external.helpers.CollectionUtils;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;

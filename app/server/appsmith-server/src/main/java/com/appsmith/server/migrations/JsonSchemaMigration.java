@@ -3,7 +3,7 @@ package com.appsmith.server.migrations;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.external.helpers.CollectionUtils;
+import com.appsmith.server.helpers.CollectionUtils;
 
 public class JsonSchemaMigration {
     private static boolean checkCompatibility(ApplicationJson applicationJson) {

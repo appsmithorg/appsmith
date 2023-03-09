@@ -1,7 +1,6 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Layout;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -1,11 +1,11 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.QLayout;
-import com.appsmith.external.models.QNewPage;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.external.models.NewPage;
-import com.appsmith.external.models.PageDTO;
+import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.QLayout;
+import com.appsmith.server.domains.QNewPage;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;

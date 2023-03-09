@@ -1,6 +1,6 @@
-package com.appsmith.external.helpers;
+package com.appsmith.server.helpers;
 
-import com.appsmith.external.models.DslActionDTO;
+import com.appsmith.server.dtos.DslActionDTO;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;

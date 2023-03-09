@@ -6,7 +6,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
-import com.appsmith.external.models.PageDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;

@@ -8,7 +8,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.external.models.PageDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import org.junit.jupiter.api.Test;

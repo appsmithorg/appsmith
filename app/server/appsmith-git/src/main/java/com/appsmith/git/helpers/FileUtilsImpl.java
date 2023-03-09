@@ -23,8 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -232,30 +230,6 @@ public class FileUtilsImpl implements FileInterface {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
-                        /*
-                            * Normalise the json file to get all the children aka widgets in the canvas
-                            * and save them in the file system.
-                            * Save the widgets name as reference and use it find what resource has to be deleted from file system.
-                            *
-                         */
-                        /*JSONObject layoutsDsl = new JSONObject(pageResource.getValue()).getJSONObject("unpublishedPage");
-                        String layoutString = layoutsDsl.getJSONArray("layouts").get(0).toString();
-                        JSONObject layoutJson = new JSONObject(layoutString);
-
-                        // Extract the widgets and write each widget into a file
-                        JSONObject jsonDSL = layoutJson.getJSONObject("dsl");
-
-                        // Remove the dsl from the layout json and update the resource
-                        layoutJson.remove("dsl");
-                        layoutsDsl.remove("layouts");
-                        JSONArray jsonArray = new JSONArray();
-                        jsonArray.put(layoutJson);
-                        layoutsDsl.put("layouts", jsonArray);
-
-                        JSONObject pageJson = new JSONObject(pageResource.getValue()).put("unpublishedPage", layoutsDsl);*/
-
-
-
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
                         }

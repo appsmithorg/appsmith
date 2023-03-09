@@ -1,6 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
-import com.appsmith.external.models.Layout;
+import com.appsmith.server.domains.Layout;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

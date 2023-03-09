@@ -1,7 +1,6 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.external.helpers.CompareDslActionDTO;
-import com.appsmith.external.models.DslActionDTO;
+import com.appsmith.server.dtos.DslActionDTO;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;

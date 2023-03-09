@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.PageDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -2,7 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.DslActionDTO;
+import com.appsmith.server.dtos.DslActionDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

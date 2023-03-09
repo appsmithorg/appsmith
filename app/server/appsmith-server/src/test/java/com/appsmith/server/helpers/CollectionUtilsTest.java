@@ -1,6 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.external.helpers.CollectionUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
