@@ -1,8 +1,8 @@
 package com.appsmith.server.models.export;
 
 import com.appsmith.external.exceptions.ErrorDTO;
-import com.appsmith.server.domains.ScreenType;
-import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.external.models.ScreenType;
+import com.appsmith.external.models.DslActionDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.json.JSONObject;

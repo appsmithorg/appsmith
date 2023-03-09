@@ -15,7 +15,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.NewPage;
+import com.appsmith.external.models.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;

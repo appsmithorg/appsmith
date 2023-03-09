@@ -8,7 +8,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.external.models.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;

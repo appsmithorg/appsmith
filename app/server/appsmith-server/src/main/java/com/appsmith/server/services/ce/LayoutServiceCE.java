@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.domains.Layout;
+import com.appsmith.external.models.Layout;
 import reactor.core.publisher.Mono;
 
 public interface LayoutServiceCE {

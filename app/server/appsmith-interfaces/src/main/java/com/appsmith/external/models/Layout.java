@@ -1,9 +1,7 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.CompareDslActionDTO;
+import com.appsmith.external.helpers.CollectionUtils;
+import com.appsmith.external.helpers.CompareDslActionDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

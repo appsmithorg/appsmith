@@ -5,7 +5,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
+import com.appsmith.external.models.NewPage;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.appsmith.server.dtos;
+package com.appsmith.external.models;
 
 import com.appsmith.external.models.PluginType;
 import com.fasterxml.jackson.annotation.JsonIgnore;

@@ -3,7 +3,7 @@ package com.appsmith.server.transactions;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
+import com.appsmith.external.models.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;

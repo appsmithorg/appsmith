@@ -2,10 +2,10 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ApplicationMode;
-import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewPage;
+import com.appsmith.external.models.Layout;
+import com.appsmith.external.models.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.external.models.PageDTO;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
