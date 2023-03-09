@@ -84,6 +84,7 @@ const MoreDropdownButton = ({
 
   return (
     <StyledMenuDropdownContainer
+      borderRadius={borderRadius}
       closeOnItemClick
       isOpen={isOpen}
       navColorStyle={navColorStyle}

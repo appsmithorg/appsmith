@@ -1,4 +1,4 @@
-import { NavigationSetting } from "constants/AppConstants";
+import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getMenuContainerBackgroundColor,
   getMenuItemBackgroundColorOnHover,
@@ -80,27 +80,53 @@ export const StyledMenuDropdownContainer = styled(Menu)<{
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
   .bp3-popover {
+    border-radius: ${({ borderRadius }) =>
+      `0 0 ${borderRadius} ${borderRadius}`};
+    overflow: hidden;
+  }
+
+  .bp3-popover-content {
     max-height: 750px;
     overflow-y: auto;
 
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
+    ${({ navColorStyle, primaryColor }) => {
+      const isThemeColorStyle =
+        navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
 
-    &::-webkit-scrollbar-track {
-      background: ${({ navColorStyle, primaryColor }) =>
-        getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-
-      &:hover {
-        background: ${({ navColorStyle, primaryColor }) =>
-          getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
-      }
-    }
+      return (
+        isThemeColorStyle &&
+        `
+          &::-webkit-scrollbar {
+            width: 6px;
+          }
+        
+          &::-webkit-scrollbar-track {
+            background: ${getMenuContainerBackgroundColor(
+              primaryColor,
+              navColorStyle,
+            )};
+          }
+        
+          &::-webkit-scrollbar-thumb {
+            background: ${primaryColor};
+        
+            &:hover {
+              background: ${getMenuItemBackgroundColorOnHover(
+                primaryColor,
+                navColorStyle,
+              )};
+            }
+          }
+  
+          &:hover::-webkit-scrollbar-thumb {
+            background: ${getMenuItemBackgroundColorWhenActive(
+              primaryColor,
+              navColorStyle,
+            )};
+          }
+        `
+      );
+    }}
   }
 
   .bp3-popover-content > div {
