@@ -38,6 +38,9 @@ export const getAllSubEntityCollapsibleStates = (state: AppState) =>
 export const getExplorerSwitchIndex = (state: AppState) =>
   state.ui.editorContext.explorerSwitchIndex;
 
+export const widgetPaneOpen = (state: AppState) =>
+  state.ui.editorContext.explorerSwitchIndex === 1;
+
 export const getPanelPropertyContext = createSelector(
   getPropertyPanelState,
   (_state: AppState, panelPropertyPath: string | undefined) =>
