@@ -224,7 +224,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const settingsComponent = isEditMode ? (
       <WidgetNameComponent
         errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
-        isFlexChild={!!this.props.isFlexChild}
         parentId={this.props.parentId}
         showControls
         topRow={this.props.detachFromLayout ? 4 : this.props.topRow}

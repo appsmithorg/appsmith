@@ -22,6 +22,7 @@ import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import SettingsControl, { Activities } from "./SettingsControl";
 import { theme } from "constants/DefaultTheme";
+import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
@@ -57,7 +58,6 @@ type WidgetNameComponentProps = {
   showControls?: boolean;
   topRow: number;
   errorCount: number;
-  isFlexChild: boolean;
   widgetWidth: number;
 };
 
@@ -75,10 +75,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
   );
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
-
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
@@ -143,11 +140,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       !isPreviewMode &&
       !isMultiSelectedWidget &&
       (isSnipingMode
-        ? focusedWidget === props.widgetId
+        ? isFocused
         : props.showControls ||
-          ((focusedWidget === props.widgetId || showAsSelected) &&
-            !isDragging &&
-            !isResizing))
+          ((isFocused || showAsSelected) && !isDragging && !isResizing))
     );
   };
 
@@ -160,7 +155,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     props.type === WidgetTypes.MODAL_WIDGET
       ? Activities.HOVERING
       : Activities.NONE;
-  if (focusedWidget === props.widgetId) currentActivity = Activities.HOVERING;
+  if (isFocused) currentActivity = Activities.HOVERING;
   if (showAsSelected) currentActivity = Activities.SELECTED;
   if (
     showAsSelected &&
