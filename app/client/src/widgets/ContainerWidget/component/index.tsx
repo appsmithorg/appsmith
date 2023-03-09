@@ -23,7 +23,7 @@ const StyledContainerComponent = styled.div<
   height: 100%;
   width: 100%;
   overflow: hidden;
-  ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
+  position: relative;
 
   ${(props) =>
     props.shouldScrollContents && !props.$noScroll ? scrollCSS : ``}
