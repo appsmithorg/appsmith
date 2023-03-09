@@ -10,9 +10,9 @@ import {
   PropertyNode,
   functionParam,
 } from "../index";
-import { SourceType, NodeTypes } from "../..";
+import { SourceType, NodeTypes } from "../../index";
 import { attachComments } from "astravel";
-import { extractContentByPosition } from "utils";
+import { extractContentByPosition } from "../utils";
 
 type JsObjectProperty = {
   key: string;
