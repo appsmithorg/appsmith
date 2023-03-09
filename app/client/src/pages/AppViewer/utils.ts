@@ -1,7 +1,7 @@
 import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import tinycolor from "tinycolor2";
-import { calulateHoverColor } from "widgets/WidgetUtils";
+import { calulateHoverColor, isLightColor } from "widgets/WidgetUtils";
 
 // Menu Item Background Color - Active
 export const getMenuItemBackgroundColorWhenActive = (
@@ -11,12 +11,15 @@ export const getMenuItemBackgroundColorWhenActive = (
 ) => {
   const colorHsl = tinycolor(color).toHsl();
 
-  if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-    colorHsl.l += 0.35;
-  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
-    colorHsl.l = tinycolor(color).isLight()
-      ? colorHsl.l + 0.2
-      : colorHsl.l - 0.2;
+  switch (navColorStyle) {
+    case NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT:
+      colorHsl.l -= 0.13;
+      break;
+    case NAVIGATION_SETTINGS.COLOR_STYLE.THEME:
+      if (isLightColor(color)) {
+        colorHsl.l -= 0.2;
+      }
+      break;
   }
 
   return tinycolor(colorHsl).toHexString();
