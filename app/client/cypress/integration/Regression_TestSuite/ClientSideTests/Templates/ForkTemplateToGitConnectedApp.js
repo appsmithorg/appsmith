@@ -2,7 +2,7 @@ import template from "../../../../locators/TemplatesLocators.json";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import widgetLocators from "../../../../locators/Widgets.json";
 let repoName;
-let appId;
+let newWorkspaceName;
 let branchName = "test/template";
 const jsObject = "Utils";
 const homePage = require("../../../../locators/HomePage");
@@ -13,7 +13,7 @@ describe("Fork a template to the current app", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
-      const newWorkspaceName = interception.response.body.data.name;
+      newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
     _.gitSync.CreateNConnectToGit(repoName);
@@ -90,7 +90,7 @@ describe("Fork a template to the current app", () => {
       cy.NavigateToHome();
       cy.get(homePage.searchInput)
         .clear()
-        .type(appId);
+        .type(newWorkspaceName);
       cy.wait(2000);
       cy.get(homePage.applicationCard)
         .first()
