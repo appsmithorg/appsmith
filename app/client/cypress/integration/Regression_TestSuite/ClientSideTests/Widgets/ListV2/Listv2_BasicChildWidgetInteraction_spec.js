@@ -235,7 +235,16 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     // Check radio with value=1 is selected
     checkSelectedRadioValue(publishLocators.radioWidget, "Y");
-
+    cy.wait(1000)
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.radioWidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
     // Check option 2 and then check it's value:
     cy.get(`${publishLocators.radioWidget} input`).check("N", { force: true });
     checkSelectedRadioValue(publishLocators.radioWidget, "N");
