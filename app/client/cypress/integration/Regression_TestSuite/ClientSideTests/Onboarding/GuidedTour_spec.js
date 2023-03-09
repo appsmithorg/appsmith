@@ -34,7 +34,7 @@ describe("Guided Tour", function() {
     // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");
     // Step 3: Add binding to the tableData property
-    _.propPane.TypeTextIntoField("tabledata", "{{getCustomers.data}}");
+    _.propPane.UpdatePropertyFieldValue("Table Data", "{{getCustomers.data}}");
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Renaming widgets // Commending below wait due to flakiness
@@ -45,8 +45,8 @@ describe("Guided Tour", function() {
       if ($body.find(guidedTourLocators.hintButton).length > 0) {
         cy.get(guidedTourLocators.hintButton).click();
         cy.wait(1000); //for NameInput to open
-        _.propPane.TypeTextIntoField(
-          "defaultvalue",
+        _.propPane.UpdatePropertyFieldValue(
+          "Default Value",
           "{{CustomersTable.selectedRow.name}}",
         );
       } else {
@@ -55,8 +55,8 @@ describe("Guided Tour", function() {
           .first()
           .clear({ force: true })
           .click({ force: true }); //Name input
-        _.propPane.TypeTextIntoField(
-          "defaultvalue",
+        _.propPane.UpdatePropertyFieldValue(
+          "Default Value",
           "{{CustomersTable.selectedRow.name}}",
         );
       }
@@ -67,8 +67,8 @@ describe("Guided Tour", function() {
       .eq(1)
       .clear({ force: true })
       .click({ force: true }); //Email input
-    _.propPane.TypeTextIntoField(
-      "defaultvalue",
+    _.propPane.UpdatePropertyFieldValue(
+      "Default Value",
       "{{CustomersTable.selectedRow.email}}",
     );
     cy.get(".t--entity-name")
@@ -79,8 +79,8 @@ describe("Guided Tour", function() {
       .eq(2)
       .clear({ force: true })
       .click({ force: true }); //Country input
-    _.propPane.TypeTextIntoField(
-      "defaultvalue",
+    _.propPane.UpdatePropertyFieldValue(
+      "Default Value",
       "{{CustomersTable.selectedRow.country}}",
     );
     cy.get(".t--entity-name")
