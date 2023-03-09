@@ -151,7 +151,7 @@ export const enumTypeSetter = (
     );
   } catch (e) {
     // showError();
-    throw e;
+    return currentValue;
   }
 };
 
@@ -187,7 +187,8 @@ export const callBackFieldSetter = (
     ) || currentValue}}}`;
   } catch (e) {
     // showError();
-    throw e;
+    // throw e;
+    return currentValue;
   }
 };
 

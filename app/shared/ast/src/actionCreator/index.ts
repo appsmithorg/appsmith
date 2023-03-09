@@ -242,26 +242,26 @@ export const setObjectAtPosition = (currentValue: string, changeValue: any, argN
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node)) {
-                // add 1 to get the starting position of the next
-                // node to ending position of previous
-                const startPosition = node.callee.end + NEXT_POSITION;
-                node.arguments[argNum] = {
-                    type: NodeTypes.Literal,
-                    value: changeValue,
-                    raw: String.raw`${changeValue}`,
-                    start: startPosition,
-                    // add 2 for quotes
-                    end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
-                };
-                changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
-            }
-        },
-    });
+    const node = findNodeAt(astWithComments, 0, undefined, (type, node) => isCallExpressionNode(node))?.node;
+    if(node && isCallExpressionNode(node)) {
+        const startPosition = node.callee.end + NEXT_POSITION;
+        node.arguments[argNum] = {
+            type: NodeTypes.Literal,
+            value: changeValue,
+            raw: String.raw`${changeValue}`,
+            start: startPosition,
+            // add 2 for quotes
+            end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
+        };
+        changedValue = generate(astWithComments, {comments: true}).trim();
+        try {
+            getAST(changedValue);
+        } catch(e) {
+            throw e;
+        }
+    }
 
-    return changedValue;
+    return `{{${changedValue}}}`;
 }
 
 export const getEnumArgumentAtPosition = (value: string, argNum: number, defaultValue: string, evaluationVersion: number): string => {
