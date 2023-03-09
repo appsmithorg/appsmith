@@ -422,7 +422,7 @@ function getCanvasWidth(
   const stack = [];
   let widget = canvas;
   while (widget.parentId) {
-    stack.push(widget);
+    if (widget.type === "CANVAS_WIDGET") stack.push(widget);
     widget = widgets[widget.parentId];
   }
   stack.push(widget);

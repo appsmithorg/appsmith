@@ -7,6 +7,7 @@ import {
 import _, { find, isString, reduce, remove } from "lodash";
 import {
   CONTAINER_GRID_PADDING,
+  FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
@@ -55,6 +56,7 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { MetaState } from "reducers/entityReducers/metaReducer";
+import { Positioning } from "utils/autoLayout/constants";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -739,13 +741,17 @@ export function getMousePositions(
  * @returns
  */
 export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
+  // For all widgets inside a container, we remove both container padding as well as widget padding from component width
   let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
   if (
     LayoutWidget.widgetId === MAIN_CONTAINER_WIDGET_ID ||
     LayoutWidget.type === "CONTAINER_WIDGET"
   ) {
-    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-    padding = CONTAINER_GRID_PADDING * 2;
+    // For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+    padding =
+      LayoutWidget.positioning === Positioning.Vertical
+        ? FLEXBOX_PADDING * 2
+        : CONTAINER_GRID_PADDING * 2;
   }
   if (LayoutWidget.noPad) {
     // Widgets like ListWidget choose to have no container padding so will only have widget padding
