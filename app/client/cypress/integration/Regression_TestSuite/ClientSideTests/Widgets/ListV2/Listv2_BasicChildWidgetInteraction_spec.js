@@ -52,12 +52,8 @@ function checkSelectedRadioValue(selector, value) {
 describe("List widget v2 - Basic Child Widget Interaction", () => {
   before(() => {
     cy.addDsl(emptyListDSL);
-    agHelper.RestoreLocalStorageCache();
     cy.get(publishLocators.containerWidget).should("have.length", 3);
-  });
-
-  after(() => {
-    agHelper.SaveLocalStorageCache();
+    cy.wait(3000); // for dsl to settle
   });
 
   it("1. Child widgets", () => {
@@ -187,7 +183,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     cy.get(publishLocators.switchwidget)
       .find("input")
       .should("be.checked");
-    cy.wait(1000)
+    cy.wait(1000);
     cy.waitUntil(() =>
       cy
         .get(
@@ -235,7 +231,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     // Check radio with value=1 is selected
     checkSelectedRadioValue(publishLocators.radioWidget, "Y");
-    cy.wait(1000)
+    cy.wait(1000);
     cy.waitUntil(() =>
       cy
         .get(
