@@ -118,6 +118,7 @@ describe("Git sync apps", function() {
     );
   });
   it("2. Create api queries from api pane and cURL import , bind it to widget and clone page from page settings", () => {
+    cy.fixture("datasources").then((datasourceFormData) => {
     cy.Createpage(newPage);
     cy.get(`.t--entity-item:contains(${newPage})`).click();
     cy.wait(1000);
@@ -129,7 +130,7 @@ describe("Git sync apps", function() {
     cy.get(apiwidget.resourceUrl)
       .first()
       .click({ force: true })
-      .type(_.agHelper.echoApiUrl, {
+      .type(datasourceFormData["echoApiUrl"], {
         parseSpecialCharSequences: false,
       });
     //.type("{esc}}");
@@ -150,7 +151,7 @@ describe("Git sync apps", function() {
       .click({ force: true });
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
-      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '+ _.agHelper.echoApiUrl,
+      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '+ datasourceFormData["echoApiUrl"],
       {
         force: true,
         parseSpecialCharSequences: false,
@@ -199,6 +200,7 @@ describe("Git sync apps", function() {
     );
     cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
     cy.wait("@getPage");
+    });
   });
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
