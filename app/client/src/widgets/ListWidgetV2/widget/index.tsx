@@ -129,7 +129,6 @@ class ListWidget extends BaseWidget<
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
   pageChangeEventTriggerFromPageNo?: number | null;
-  pageSizeUpdated: boolean;
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -192,23 +191,11 @@ class ListWidget extends BaseWidget<
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
-    /**
-     * To prevent an infinite loop, we use a flag to avoid recursively updating the pageSize property.
-     * This is necessary because the updateWidgetProperty function does not immediately update the property,
-     * and calling componentDidUpdate can trigger another update, causing an endless loop.
-     * By using this flag, we can prevent unnecessary and incessant invocations of the updatePageSize function.
-     */
-    this.pageSizeUpdated = false;
   }
 
   componentDidMount() {
     this.pageSize = this.getPageSize();
-
-    if (this.props.pageSize === this.pageSize) {
-      this.pageSizeUpdated = true;
-    }
-
-    if (this.shouldUpdatePageSize() && !this.pageSizeUpdated) {
+    if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
     }
 
@@ -244,17 +231,11 @@ class ListWidget extends BaseWidget<
 
     this.pageSize = this.getPageSize();
 
-    if (this.shouldUpdatePageSize() && this.pageSizeUpdated) {
+    if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
-      this.pageSizeUpdated = false;
-
       if (this.props.serverSidePagination && this.pageSize) {
         this.executeOnPageChange();
       }
-    }
-
-    if (this.props.pageSize === this.pageSize) {
-      this.pageSizeUpdated = true;
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
