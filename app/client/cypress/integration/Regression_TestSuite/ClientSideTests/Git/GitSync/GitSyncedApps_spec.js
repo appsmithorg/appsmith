@@ -129,7 +129,7 @@ describe("Git sync apps", function() {
     cy.get(apiwidget.resourceUrl)
       .first()
       .click({ force: true })
-      .type("https://mock-api.appsmith.com/echo/get", {
+      .type(_.agHelper.echoApiUrl, {
         parseSpecialCharSequences: false,
       });
     //.type("{esc}}");
@@ -150,7 +150,7 @@ describe("Git sync apps", function() {
       .click({ force: true });
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
-      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST https://mock-api.appsmith.com/echo/post',
+      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '+ _.agHelper.echoApiUrl,
       {
         force: true,
         parseSpecialCharSequences: false,
@@ -158,7 +158,7 @@ describe("Git sync apps", function() {
     );
     cy.importCurl();
     cy.RunAPI();
-    cy.ResponseStatusCheck("201 CREATED");
+    cy.ResponseStatusCheck("200");
     cy.get("@curlImport").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
       cy.get(apiwidget.ApiName)
@@ -183,7 +183,7 @@ describe("Git sync apps", function() {
     cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
       .last()
       .click({ force: true })
-      .type("{{get_data.data.headers.info}}", {
+      .type("{{get_data.data.headers.Info}}", {
         parseSpecialCharSequences: false,
       });
     cy.wait(2000);

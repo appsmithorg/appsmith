@@ -1,6 +1,7 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../locators/Pages.json");
 import ApiEditor from "../../../../locators/ApiEditor";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function() {
   it("Test curl import flow for POST action with JSON body", function() {
@@ -11,7 +12,7 @@ describe("Test curl import flow", function() {
       .click({ force: true });
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
-      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST https://mock-api.appsmith.com/echo/post',
+      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '+ _.agHelper.echoApiUrl,
       {
         force: true,
         parseSpecialCharSequences: false,
