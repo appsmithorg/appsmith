@@ -5,6 +5,7 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import {
   ARRAY_ITEM_KEY,
   FIELD_EXPECTING_OPTIONS,
@@ -340,6 +341,7 @@ const COMMON_PROPERTIES = {
         helpText: "Control the font size of the label associated",
         defaultValue: "0.875rem",
         controlType: "DROP_DOWN",
+        hidden: isAutoLayout,
         options: [
           {
             label: "S",
