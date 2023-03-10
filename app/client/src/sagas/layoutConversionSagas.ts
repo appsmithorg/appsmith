@@ -18,6 +18,7 @@ import { createSnapshotSaga } from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { saveAllPagesSaga } from "./PageSagas";
+import { getCanvasWidth } from "selectors/editorSelectors";
 
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   try {
@@ -25,6 +26,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
     );
+    const mainCanvasWidth: number = yield select(getCanvasWidth);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
 
     const pageLayouts = [];
@@ -35,6 +37,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
       const fixedLayoutDSL = convertNormalizedDSLToFixed(
         normalizedDSL,
         action.payload,
+        mainCanvasWidth,
       );
 
       const dsl: DSLWidget = CanvasWidgetsNormalizer.denormalize(

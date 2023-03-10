@@ -3,7 +3,7 @@ import {
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+// import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
@@ -18,7 +18,7 @@ import {
   getLeftColumn,
   getRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import { DSLWidget } from "widgets/constants";
+// import { DSLWidget } from "widgets/constants";
 
 const nonFlexLayerWidgets = ["MODAL_WIDGET"];
 
@@ -32,33 +32,33 @@ const deletedResponsiveProperties = [
   "flexVerticalAlignment",
 ];
 
-/**
- * Main Method to convert Auto DSL to Fixed DSL
- * @param dsl DSL to be Converted to Fixed Layout
- * @param destinationLayout Destination Layout Size
- * @returns Converted Fixed DSL
- */
-export default function convertDSLtoFixed(
-  dsl: DSLWidget,
-  destinationLayout: SupportedLayouts,
-) {
-  const allWidgets = CanvasWidgetsNormalizer.normalize(dsl).entities
-    .canvasWidgets;
+// /**
+//  * Main Method to convert Auto DSL to Fixed DSL
+//  * @param dsl DSL to be Converted to Fixed Layout
+//  * @param destinationLayout Destination Layout Size
+//  * @returns Converted Fixed DSL
+//  */
+// export default function convertDSLtoFixed(
+//   dsl: DSLWidget,
+//   destinationLayout: SupportedLayouts,
+// ) {
+//   const allWidgets = CanvasWidgetsNormalizer.normalize(dsl).entities
+//     .canvasWidgets;
 
-  const convertedWidgets = convertNormalizedDSLToFixed(
-    allWidgets,
-    destinationLayout,
-  );
+//   const convertedWidgets = convertNormalizedDSLToFixed(
+//     allWidgets,
+//     destinationLayout,
+//   );
 
-  const convertedDSL = CanvasWidgetsNormalizer.denormalize(
-    MAIN_CONTAINER_WIDGET_ID,
-    {
-      canvasWidgets: convertedWidgets,
-    },
-  );
+//   const convertedDSL = CanvasWidgetsNormalizer.denormalize(
+//     MAIN_CONTAINER_WIDGET_ID,
+//     {
+//       canvasWidgets: convertedWidgets,
+//     },
+//   );
 
-  return convertedDSL;
-}
+//   return convertedDSL;
+// }
 
 /**
  * Convert Normalized Auto DSL to Fixed Layout DSL
@@ -69,6 +69,7 @@ export default function convertDSLtoFixed(
 export function convertNormalizedDSLToFixed(
   widgets: CanvasWidgetsReduxState,
   destinationLayout: SupportedLayouts,
+  mainCanvasWidth: number,
 ) {
   const isMobile = getIsMobile(destinationLayout);
 
@@ -78,8 +79,9 @@ export function convertNormalizedDSLToFixed(
         MAIN_CONTAINER_WIDGET_ID,
         layoutConfigurations[destinationLayout].maxWidth ||
           layoutConfigurations.MOBILE.maxWidth,
+        mainCanvasWidth,
       )
-    : alterLayoutForDesktop(widgets, MAIN_CONTAINER_WIDGET_ID);
+    : alterLayoutForDesktop(widgets, MAIN_CONTAINER_WIDGET_ID, mainCanvasWidth);
 
   const convertedWidgets = getFixedCanvasWidget(
     alteredWidgets,

@@ -22,7 +22,10 @@ import {
 import { getWidgets } from "./selectors";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
-import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getCanvasWidth as getMainCanvasWidth,
+} from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
@@ -233,6 +236,7 @@ export function* updateLayoutPositioningSaga(
     const currPositioningType: AppPositioningTypes = yield select(
       getCurrentAppPositioningType,
     );
+    const mainCanvasWidth: number = yield select(getCanvasWidth);
     const payloadPositioningType = actionPayload.payload;
 
     if (currPositioningType === payloadPositioningType) return;
@@ -257,7 +261,9 @@ export function* updateLayoutPositioningSaga(
       yield call(recalculateOnPageLoad);
     } else {
       yield put(
-        updateAndSaveLayout(convertNormalizedDSLToFixed(allWidgets, "DESKTOP")),
+        updateAndSaveLayout(
+          convertNormalizedDSLToFixed(allWidgets, "DESKTOP", mainCanvasWidth),
+        ),
       );
     }
   } catch (error) {
