@@ -215,7 +215,9 @@ function getNextLayer(
       (widgetConfig.responsiveBehavior as ResponsiveBehavior) ||
       ResponsiveBehavior.Hug;
 
-    currWidget.dynamicHeight = widgetConfig.dynamicHeight;
+    if (widgetConfig.dynamicHeight && widgetConfig.isCanvas) {
+      currWidget.dynamicHeight = widgetConfig.dynamicHeight;
+    }
 
     //get minWidth of the type
     currWidget.minWidth = widgetConfig.minWidth || FILL_WIDGET_MIN_WIDTH;
