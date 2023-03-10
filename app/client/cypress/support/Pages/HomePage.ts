@@ -86,6 +86,10 @@ export class HomePage {
     "//span[text()='" + action + "']/ancestor::a";
   private _homeTab = ".t--apps-tab";
   private _templatesTab = ".t--templates-tab";
+  private _workSpaceByName = (wsName: string) =>
+    "//div[contains(@class, 't--applications-container')]//span[text()='" +
+    wsName +
+    "']";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -112,23 +116,19 @@ export class HomePage {
       });
   }
 
-  public RenameWorkspace(workspaceName: string, newWorkspaceName: string) {
-    cy.get(this._appContainer)
-      .contains(workspaceName)
+  public RenameWorkspace(oldName: string, newWorkspaceName: string) {
+    cy.xpath(this._workSpaceByName(oldName))
+      .last()
       .closest(this._workspaceCompleteSection)
-      .find(this._workspaceName)
+      .scrollIntoView()
       .find(this._optionsIcon)
       .click({ force: true });
     cy.get(this._renameWorkspaceInput)
       .should("be.visible")
       .type(newWorkspaceName.concat("{enter}"));
     this.agHelper.Sleep(2000);
-    cy.wait("@updateWorkspace").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.contains(newWorkspaceName);
+    this, this.agHelper.ValidateNetworkStatus("@updateWorkspace");
+    this.agHelper.AssertContains(newWorkspaceName);
   }
 
   //Maps to CheckShareIcon in command.js
