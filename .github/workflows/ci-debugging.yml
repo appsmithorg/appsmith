@@ -5,13 +5,14 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: 'Previous workflow run id:'
+        description: 'Run id to download artifacts:'
         required: true
         type: number      
 
 jobs:
-  ci-debugging:
+  ci-debugger:
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
     defaults:
       run:
         shell: bash
@@ -43,18 +44,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Timestamp will be used to create cache key
-      - id: timestamp
-        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
-
-      # Setup Java
-      - name: Set up JDK 17
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
       - name: Download Docker image artifact
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -74,17 +63,7 @@ jobs:
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
 
-      #Download the oldstacks from appsmithorg/ci-oldstack repo
-      - name: Download the oldstack
-        uses: actions/checkout@v3
-        with:
-          ref: main
-          repository: appsmithorg/ci-oldstack
-          token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          submodules: 'recursive'
-          path: cicontainerlocal/oldstack
-
-      - name: Load docker image
+      - name: Run docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
@@ -103,19 +82,12 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
             cicontainer
-
-      - name: Use Node.js 16.14.0
+            
+      - name: Execute access to ci-debug.sh
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v3
-        with:
-          node-version: "16.14.0"
-
-      # Install all the dependencies
-      - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
         run: |
-          cd app/client
-          yarn install
+          chmod +x ci-debug.sh
 
       # Start tmate session for tunnelling
       - name: Setup tmate session
