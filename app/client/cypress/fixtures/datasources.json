@@ -40,8 +40,8 @@
   "smtp-username":"root",
   "smtp-password":"root",
 
-  "OAuth_username":"testuser@appsmith.com",
-  "OAuth_host":"http://localhost:6001",
+  "OAuth_Username":"testuser@appsmith.com",
+  "OAuth_Host":"http://localhost:6001",
   "OAuth_ApiUrl": "http://host.docker.internal:6001",
   "OAUth_AccessTokenUrl": "http://host.docker.internal:6001/oauth/token",
   "OAuth_AuthUrl": "http://localhost:6001/oauth/authorize",

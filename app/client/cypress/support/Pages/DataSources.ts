@@ -911,8 +911,8 @@ export class DataSources {
 
     // Login to TED OAuth
     let formData = new FormData();
-    formData.append("username", datasourceFormData["OAuth_username"]);
-    cy.request("POST", datasourceFormData["OAuth_host"], formData).then(
+    formData.append("username", datasourceFormData["OAuth_Username"]);
+    cy.request("POST", datasourceFormData["OAuth_Host"], formData).then(
       (response) => {
         expect(response.status).to.equal(200);
       },
@@ -929,14 +929,14 @@ export class DataSources {
     clientData.append("token_endpoint_auth_method", "client_secret_post");
     cy.request(
       "POST",
-      datasourceFormData["OAuth_host"] + "/create_client",
+      datasourceFormData["OAuth_Host"] + "/create_client",
       clientData,
     ).then((response) => {
       expect(response.status).to.equal(200);
     });
 
     // Get Client Credentials
-    cy.request("GET", datasourceFormData["OAuth_host"]).then((response) => {
+    cy.request("GET", datasourceFormData["OAuth_Host"]).then((response) => {
       clientId = response.body.split("client_id: </strong>");
       clientId = clientId[1].split("<strong>client_secret: </strong>");
       clientSecret = clientId[1].split("<strong>");
