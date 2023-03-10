@@ -3,28 +3,14 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
-import {
-  getWidgetIdsByType,
-  getWidgetImmediateChildren,
-  getWidgets,
-} from "./selectors";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import { getWidgetImmediateChildren, getWidgets } from "./selectors";
 import {
   setSelectedWidgets,
   WidgetSelectionRequestPayload,
 } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppState } from "@appsmith/reducers";
-import { closeAllModals, showModal } from "actions/widgetActions";
 import history, { NavigationMethod } from "utils/history";
 import {
   getCurrentPageId,
@@ -32,11 +18,7 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { builderURL, widgetURL } from "RouteBuilder";
-import {
-  getAppMode,
-  getCanvasWidgets,
-  getParentModalId,
-} from "selectors/entitiesSelector";
+import { getAppMode, getCanvasWidgets } from "selectors/entitiesSelector";
 import {
   assertParentId,
   isInvalidSelectionRequest,
@@ -167,10 +149,6 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         );
       }
     }
-
-    if (parentId && newSelection.length === 1) {
-      yield call(setWidgetAncestry, parentId, allWidgets);
-    }
     if (areArraysEqual([...newSelection], [...selectedWidgets])) {
       yield call(focusOnWidgetSaga, setSelectedWidgets(newSelection));
       return;
@@ -220,50 +198,12 @@ function* appendSelectedWidgetToUrlSaga(
   }
 }
 
-function* canPerformSelectionSaga(saga: any, action: any) {
-  const isDragging: boolean = yield select(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
-  if (!isDragging) {
-    yield fork(saga, action);
-  }
-}
-
-function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
-  if (action.payload.widgetIds.length !== 1) return;
-
-  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
-  if (!isEditorInitialized) {
-    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
-  }
-
-  const selectedWidget = action.payload.widgetIds[0];
-
-  const modalWidgetIds: string[] = yield select(
-    getWidgetIdsByType,
-    "MODAL_WIDGET",
-  );
-
-  const widgetIsModal = modalWidgetIds.includes(selectedWidget);
-
-  if (widgetIsModal) {
-    yield put(showModal(selectedWidget));
-    return;
-  }
-
-  const widgetMap: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widget = widgetMap[selectedWidget];
-
-  if (widget && widget.parentId) {
-    const parentModalId = getParentModalId(widget, widgetMap);
-    const widgetInModal = modalWidgetIds.includes(parentModalId);
-    if (widgetInModal) {
-      yield put(showModal(parentModalId));
-      return;
-    }
-  }
-
-  yield put(closeAllModals());
+function* handleWidgetSelectionSaga(
+  action: ReduxAction<{ widgetIds: string[] }>,
+) {
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  yield call(setWidgetAncestry, action.payload.widgetIds[0], allWidgets);
+  yield call(focusOnWidgetSaga, action);
 }
 
 function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
@@ -284,9 +224,7 @@ export function* widgetSelectionSagas() {
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
     takeLatest(
       ReduxActionTypes.SET_SELECTED_WIDGETS,
-      canPerformSelectionSaga,
-      openOrCloseModalSaga,
+      handleWidgetSelectionSaga,
     ),
-    takeLatest(ReduxActionTypes.SET_SELECTED_WIDGETS, focusOnWidgetSaga),
   ]);
 }

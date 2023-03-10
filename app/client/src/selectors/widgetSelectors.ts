@@ -174,3 +174,6 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     },
   );
 };
+
+export const getWidgetAncestry = (state: AppState) =>
+  state.ui.widgetDragResize.selectedWidgetAncestry;

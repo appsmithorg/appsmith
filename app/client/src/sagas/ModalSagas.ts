@@ -1,12 +1,4 @@
-import {
-  all,
-  call,
-  delay,
-  put,
-  select,
-  takeEvery,
-  takeLatest,
-} from "redux-saga/effects";
+import { all, put, select, takeEvery, takeLatest } from "redux-saga/effects";
 
 import { generateReactKey } from "utils/generators";
 import {
@@ -29,7 +21,6 @@ import {
   getWidget,
   getWidgetByName,
   getWidgetIdsByType,
-  getWidgetMetaProps,
   getWidgets,
   getWidgetsMeta,
 } from "sagas/selectors";
@@ -38,16 +29,16 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetMetaPropAndEval } from "actions/metaActions";
-import { focusWidget, showModal } from "actions/widgetActions";
+import { focusWidget } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { Toaster } from "design-system-old";
-import { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -96,52 +87,10 @@ export function* showModalByNameSaga(
         : `showModal() was triggered`,
     });
 
-    yield put(showModal(modal.widgetId));
-  }
-}
-
-export function* showIfModalSaga(
-  action: ReduxAction<{ widgetId: string; type: string }>,
-) {
-  if (action.payload.type === "MODAL_WIDGET") {
-    yield put(showModal(action.payload.widgetId));
-  }
-}
-
-export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
-  // First we close the currently open modals (if any)
-  // Notice the empty payload.
-  yield call(closeModalSaga, {
-    type: ReduxActionTypes.CLOSE_MODAL,
-    payload: {
-      exclude: action.payload.modalId,
-    },
-  });
-
-  yield put(focusWidget(action.payload.modalId));
-
-  const widgetLikeProps = {
-    widgetId: action.payload.modalId,
-  } as WidgetProps;
-  const metaProps: Record<string, unknown> = yield select(
-    getWidgetMetaProps,
-    widgetLikeProps,
-  );
-  if (!metaProps || !metaProps.isVisible) {
-    // Then show the modal we would like to show.
     yield put(
-      updateWidgetMetaPropAndEval(action.payload.modalId, "isVisible", true),
+      selectWidgetInitAction(SelectionRequestType.One, [modal.widgetId]),
     );
-    yield delay(1000);
   }
-  yield put({
-    type: ReduxActionTypes.SHOW_PROPERTY_PANE,
-    payload: {
-      widgetId: action.payload.modalId,
-      callForDragOrResize: undefined,
-      force: true,
-    },
-  });
 }
 
 export function* closeModalSaga(
@@ -301,9 +250,7 @@ export default function* modalSagas() {
   yield all([
     takeEvery(ReduxActionTypes.CLOSE_MODAL, closeModalSaga),
     takeLatest(ReduxActionTypes.CREATE_MODAL_INIT, createModalSaga),
-    takeLatest(ReduxActionTypes.SHOW_MODAL, showModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL_BY_NAME, showModalByNameSaga),
-    takeLatest(WidgetReduxActionTypes.WIDGET_CHILD_ADDED, showIfModalSaga),
     takeLatest(WidgetReduxActionTypes.WIDGET_MODAL_RESIZE, resizeModalSaga),
   ]);
 }

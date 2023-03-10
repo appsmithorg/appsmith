@@ -40,6 +40,7 @@ import {
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
+import { getWidgetAncestry } from "../selectors/widgetSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -61,6 +62,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getWidget(state, widgetId),
     );
     const metaWidget = useSelector(getMetaWidget(widgetId));
+    const widgetAncestry = useSelector(getWidgetAncestry);
 
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
@@ -200,7 +202,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     widgetProps.googleMapsApiKey = googleMapsApiKey;
 
     // isVisible prop defines whether to render a detached widget
-    if (widgetProps.detachFromLayout && !widgetProps.isVisible) {
+    if (
+      widgetProps.detachFromLayout &&
+      !widgetProps.isVisible &&
+      !widgetAncestry.includes(widgetProps.widgetId)
+    ) {
       return null;
     }
 

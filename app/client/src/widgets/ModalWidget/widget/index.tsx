@@ -20,6 +20,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
+import { getWidgetAncestry } from "selectors/widgetSelectors";
 
 const minSize = 100;
 
@@ -181,7 +182,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   closeModal = (e: any) => {
-    this.props.updateWidgetMetaProperty("isVisible", false);
     this.selectWidgetRequest(SelectionRequestType.Empty);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
@@ -253,7 +253,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         height={this.props.height}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
-        isOpen={!!this.props.isVisible}
+        isOpen={this.props.selectedWidgetAncestry.includes(this.props.widgetId)}
         maxWidth={this.getMaxModalWidth()}
         minSize={minSize}
         onClose={this.closeModal}
@@ -304,6 +304,7 @@ export interface ModalWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   mainCanvasWidth: number;
+  selectedWidgetAncestry: string[];
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -333,6 +334,7 @@ const mapStateToProps = (state: AppState) => {
     focusedWidget: state.ui.widgetDragResize.focusedWidget,
     isDragging: state.ui.widgetDragResize.isDragging,
     isResizing: state.ui.widgetDragResize.isResizing,
+    selectedWidgetAncestry: getWidgetAncestry(state),
   };
   return props;
 };
