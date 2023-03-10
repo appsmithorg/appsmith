@@ -18,6 +18,8 @@ import { createSnapshotSaga } from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { saveAllPagesSaga } from "./PageSagas";
+import { updateApplicationLayout } from "actions/applicationActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   try {
@@ -52,6 +54,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     }
 
     yield call(saveAllPagesSaga, pageLayouts);
+    yield call(setLayoutTypePostConversion, action.payload);
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
@@ -120,6 +123,23 @@ function* logLayoutConversionErrorSaga() {
   } catch (e) {
     throw e;
   }
+}
+
+function* setLayoutTypePostConversion(selectedLayoutType: SupportedLayouts) {
+  let convertToLayoutType: SupportedLayouts = selectedLayoutType;
+  const applicationId: string = yield select(getCurrentApplicationId);
+
+  if (selectedLayoutType === "DESKTOP") {
+    convertToLayoutType = "FLUID";
+  }
+
+  yield put(
+    updateApplicationLayout(applicationId, {
+      appLayout: {
+        type: convertToLayoutType,
+      },
+    }),
+  );
 }
 
 export default function* layoutConversionSagas() {
