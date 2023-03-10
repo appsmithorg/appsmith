@@ -495,21 +495,9 @@ public class GitExecutorImpl implements GitExecutor {
                     if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/") && !x.endsWith("metadata.json")) {
-                        String queryName = x.substring(x.lastIndexOf("/") + 1);
-                        if (queriesModified.contains(queryName)) {
-                            continue;
-                        } else {
-                            queriesModified.add(queryName);
-                            modifiedQueries++;
-                        }
+                        modifiedQueries = getModifiedQueryCount(queriesModified, modifiedQueries, x);
                     } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/") && !x.endsWith("metadata.json")) {
-                        String queryName = x.substring(x.lastIndexOf("/") + 1);
-                        if (jsObjectsModified.contains(queryName)) {
-                            continue;
-                        } else {
-                            jsObjectsModified.add(queryName);
-                            modifiedJSObjects++;
-                        }
+                        modifiedJSObjects = getModifiedQueryCount(jsObjectsModified, modifiedJSObjects, x);
                     } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
                         modifiedDatasources++;
                     } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + "/")) {
@@ -552,6 +540,16 @@ public class GitExecutorImpl implements GitExecutor {
         .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .flatMap(response -> response)
         .subscribeOn(scheduler);
+    }
+
+    private int getModifiedQueryCount(Set<String> jsObjectsModified, int modifiedJSObjects, String filePath) {
+        String queryName = filePath.substring(filePath.lastIndexOf("/") + 1);
+        String pageName = filePath.split("/")[1];
+        if (!jsObjectsModified.contains(pageName + queryName)) {
+            jsObjectsModified.add(pageName + queryName);
+            modifiedJSObjects++;
+        }
+        return modifiedJSObjects;
     }
 
     @Override
