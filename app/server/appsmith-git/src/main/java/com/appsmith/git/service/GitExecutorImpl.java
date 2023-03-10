@@ -484,6 +484,8 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setAdded(status.getAdded());
                 response.setRemoved(status.getRemoved());
 
+                Set<String> queriesModified = new HashSet<>();
+                Set<String> jsObjectsModified = new HashSet<>();
                 int modifiedPages = 0;
                 int modifiedQueries = 0;
                 int modifiedJSObjects = 0;
@@ -492,10 +494,22 @@ public class GitExecutorImpl implements GitExecutor {
                 for (String x : modifiedAssets) {
                     if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
-                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
-                        modifiedQueries++;
-                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/")) {
-                        modifiedJSObjects++;
+                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/") && !x.endsWith("metadata.json")) {
+                        String queryName = x.substring(x.lastIndexOf("/") + 1);
+                        if (queriesModified.contains(queryName)) {
+                            continue;
+                        } else {
+                            queriesModified.add(queryName);
+                            modifiedQueries++;
+                        }
+                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/") && !x.endsWith("metadata.json")) {
+                        String queryName = x.substring(x.lastIndexOf("/") + 1);
+                        if (jsObjectsModified.contains(queryName)) {
+                            continue;
+                        } else {
+                            jsObjectsModified.add(queryName);
+                            modifiedJSObjects++;
+                        }
                     } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
                         modifiedDatasources++;
                     } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + "/")) {
