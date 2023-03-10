@@ -4,7 +4,8 @@
       "sectionName": "General",
       "hidden": {
         "comparison": "FEATURE_FLAG",
-        "value": true
+        "value": true,
+        "flagValue": "LIMITING_GOOGLE_SHEET_ACCESS"
       },
       "children": [
         {
@@ -50,7 +51,8 @@
       "sectionName": "General",
       "hidden": {
         "comparison": "FEATURE_FLAG",
-        "value": false
+        "value": false,
+        "flagValue": "LIMITING_GOOGLE_SHEET_ACCESS"
       },
       "isDefaultOpen": true,
       "children": [
