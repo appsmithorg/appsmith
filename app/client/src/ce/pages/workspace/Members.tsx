@@ -223,7 +223,7 @@ export const NoResultsText = styled.div`
   color: var(--appsmith-color-black-700);
 `;
 
-const RowWrapper = styled.div<{ isSubRow?: boolean }>`
+export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
   display: flex;
 
   ${({ isSubRow }) =>
