@@ -85,6 +85,9 @@ export const MembersWrapper = styled.div<{
       tr {
         td {
           word-break: break-word;
+          padding: 0 var(--ads-spaces-9);
+          border-bottom: none;
+          line-height: 2.8;
 
           &:first-child {
             text-align: left;
@@ -113,7 +116,7 @@ export const MembersWrapper = styled.div<{
 
               .bp3-popover-content {
                 > div {
-                  width: 440px;
+                  width: 340px;
                 }
               }
             }
@@ -218,6 +221,21 @@ export const NoResultsText = styled.div`
   font-size: 16px;
   line-height: 24px;
   color: var(--appsmith-color-black-700);
+`;
+
+const RowWrapper = styled.div<{ isSubRow?: boolean }>`
+  display: flex;
+
+  ${({ isSubRow }) =>
+    isSubRow
+      ? `padding-left: 12px;
+      > div {
+        padding: var(--ads-spaces-4) 0;
+      }`
+      : `> div {
+          margin-left: 8px;
+          padding: var(--ads-spaces-4) 0;
+        }`}
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -352,6 +370,20 @@ export default function MemberSettings(props: PageProps) {
               <HighlightText highlight={searchValue} text={member.username} />
             </>
           </EachUser>
+        );
+      },
+    },
+    {
+      Header: "Resource",
+      accessor: "resource",
+      Cell: function ResourceCell(cellProps: any) {
+        const isSubRow = cellProps.cell.row.id.split(".").length > 1;
+        return (
+          <RowWrapper isSubRow={isSubRow}>
+            <div className="resource-name">
+              {cellProps.cell.row.original.resource}
+            </div>
+          </RowWrapper>
         );
       },
     },
