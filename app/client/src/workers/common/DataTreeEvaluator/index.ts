@@ -160,6 +160,7 @@ export default class DataTreeEvaluator {
   validationDependencyMap: DependencyMap = {};
   sortedValidationDependencies: SortedDependencies = [];
   inverseValidationDependencyMap: DependencyMap = {};
+  asyncJSFunctionsInSyncFields: DependencyMap = {};
 
   /**
    * Sanitized eval values and errors
@@ -228,6 +229,7 @@ export default class DataTreeEvaluator {
     const createDependencyMapStartTime = performance.now();
     // Create dependency map
     const {
+      asyncJSFunctionsInDataFields,
       dependencyMap,
       invalidReferencesMap,
       triggerFieldDependencyMap,
@@ -253,6 +255,7 @@ export default class DataTreeEvaluator {
       dependencyMap,
       sortedDependencies: this.sortedDependencies,
     });
+    this.asyncJSFunctionsInSyncFields = asyncJSFunctionsInDataFields;
     this.inverseValidationDependencyMap = this.getInverseDependencyTree({
       dependencyMap: validationDependencyMap,
       sortedDependencies: this.sortedValidationDependencies,
