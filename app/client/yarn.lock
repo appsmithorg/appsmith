@@ -2734,26 +2734,6 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@draft-js-plugins/editor@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.npmjs.org/@draft-js-plugins/editor/-/editor-4.1.0.tgz"
-  dependencies:
-    immutable "~3.7.4"
-    prop-types "^15.5.8"
-
-"@draft-js-plugins/mention@^4.5.1":
-  version "4.5.1"
-  resolved "https://registry.npmjs.org/@draft-js-plugins/mention/-/mention-4.5.1.tgz"
-  dependencies:
-    "@popperjs/core" "^2.9.2"
-    "@types/lodash" "^4.14.168"
-    clsx "^1.0.4"
-    immutable "~3.7.4"
-    lodash "^4.17.21"
-    lodash-es "^4.17.21"
-    prop-types "^15.5.8"
-    react-popper "^2.2.5"
-
 "@emotion/babel-plugin@^11.10.6":
   version "11.10.6"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin/-/babel-plugin-11.10.6.tgz#a68ee4b019d661d6f37dec4b8903255766925ead"
@@ -3683,7 +3663,7 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.6.tgz#cee20bd55e68a1720bdab363ecf0c821ded4cd45"
   integrity sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==
 
-"@popperjs/core@^2.5.4", "@popperjs/core@^2.9.2":
+"@popperjs/core@^2.5.4":
   version "2.9.2"
   resolved "https://registry.npmjs.org/@popperjs/core/-/core-2.9.2.tgz"
 
@@ -5404,13 +5384,6 @@
   version "1.4.2"
   resolved "https://registry.npmjs.org/@types/downloadjs/-/downloadjs-1.4.2.tgz"
 
-"@types/draft-js@^0.11.1":
-  version "0.11.1"
-  resolved "https://registry.npmjs.org/@types/draft-js/-/draft-js-0.11.1.tgz"
-  dependencies:
-    "@types/react" "*"
-    immutable "~3.7.4"
-
 "@types/eslint-scope@^3.7.3":
   version "3.7.3"
   resolved "https://registry.npmjs.org/@types/eslint-scope/-/eslint-scope-3.7.3.tgz"
@@ -5652,10 +5625,6 @@
   version "4.14.191"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.191.tgz#09511e7f7cba275acd8b419ddac8da9a6a79e2fa"
   integrity sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==
-
-"@types/lodash@^4.14.168":
-  version "4.14.169"
-  resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.169.tgz"
 
 "@types/marked@^4.0.3":
   version "4.0.3"
@@ -9155,10 +9124,6 @@ core-js@^3.5.0:
   version "3.13.1"
   resolved "https://registry.npmjs.org/core-js/-/core-js-3.13.1.tgz"
 
-core-js@^3.6.4:
-  version "3.10.1"
-  resolved "https://registry.npmjs.org/core-js/-/core-js-3.10.1.tgz"
-
 core-js@^3.9.1:
   version "3.9.1"
   resolved "https://registry.npmjs.org/core-js/-/core-js-3.9.1.tgz"
@@ -9330,7 +9295,7 @@ cropperjs@1.5.7:
   version "1.5.7"
   resolved "https://registry.npmjs.org/cropperjs/-/cropperjs-1.5.7.tgz"
 
-cross-fetch@^3.0.4, cross-fetch@^3.1.5:
+cross-fetch@^3.1.5:
   version "3.1.5"
   resolved "https://registry.npmjs.org/cross-fetch/-/cross-fetch-3.1.5.tgz"
   integrity sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==
@@ -10332,14 +10297,6 @@ dotenv@^8.1.0:
 downloadjs@^1.4.7:
   version "1.4.7"
   resolved "https://registry.npmjs.org/downloadjs/-/downloadjs-1.4.7.tgz"
-
-draft-js@^0.11.7:
-  version "0.11.7"
-  resolved "https://registry.npmjs.org/draft-js/-/draft-js-0.11.7.tgz"
-  dependencies:
-    fbjs "^2.0.0"
-    immutable "~3.7.4"
-    object-assign "^4.1.1"
 
 duck@^0.1.12:
   version "0.1.12"
@@ -11481,19 +11438,6 @@ fbemitter@^3.0.0:
 fbjs-css-vars@^1.0.0:
   version "1.0.2"
   resolved "https://registry.npmjs.org/fbjs-css-vars/-/fbjs-css-vars-1.0.2.tgz"
-
-fbjs@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/fbjs/-/fbjs-2.0.0.tgz"
-  dependencies:
-    core-js "^3.6.4"
-    cross-fetch "^3.0.4"
-    fbjs-css-vars "^1.0.0"
-    loose-envify "^1.0.0"
-    object-assign "^4.1.0"
-    promise "^7.1.1"
-    setimmediate "^1.0.5"
-    ua-parser-js "^0.7.18"
 
 fbjs@^3.0.0, fbjs@^3.0.1:
   version "3.0.4"
@@ -13032,10 +12976,6 @@ immer@^9.0.7:
   version "9.0.14"
   resolved "https://registry.npmjs.org/immer/-/immer-9.0.14.tgz"
   integrity sha512-ubBeqQutOSLIFCUBN03jGeOS6a3DoYlSYwYJTa+gSKEZKU5redJIqkIdZ3JVv/4RZpfcXdAWH5zCNLWPRv2WDw==
-
-immutable@~3.7.4:
-  version "3.7.6"
-  resolved "https://registry.npmjs.org/immutable/-/immutable-3.7.6.tgz"
 
 import-fresh@^2.0.0:
   version "2.0.0"
@@ -14954,7 +14894,7 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
-lodash-es@4.17.21, lodash-es@^4.17.21:
+lodash-es@4.17.21:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.21.tgz"
 
@@ -18590,7 +18530,7 @@ react-popper@^1.3.7:
     typed-styles "^0.0.7"
     warning "^4.0.2"
 
-react-popper@^2.2.4, react-popper@^2.2.5:
+react-popper@^2.2.4:
   version "2.2.5"
   resolved "https://registry.npmjs.org/react-popper/-/react-popper-2.2.5.tgz"
   dependencies:
@@ -21581,7 +21521,7 @@ typescript@4.5.5:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.5.tgz#d8c953832d28924a9e3d37c73d729c846c5896f3"
   integrity sha512-TCTIul70LyWe6IJWT8QSYeA54WQe8EjQFU4wY52Fasj5UKx88LNYKCgBEHcOMOrFF1rKGbD8v/xcNWVUq9SymA==
 
-ua-parser-js@1.0.33, ua-parser-js@^0.7.18, ua-parser-js@^0.7.30, ua-parser-js@^1.0.2:
+ua-parser-js@1.0.33, ua-parser-js@^0.7.30, ua-parser-js@^1.0.2:
   version "1.0.33"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-1.0.33.tgz#f21f01233e90e7ed0f059ceab46eb190ff17f8f4"
   integrity sha512-RqshF7TPTE0XLYAqmjlu5cLLuGdKrNu9O1KLA/qp39QtbZwuzwv1dT46DZSopoUMsYgXpB3Cv8a03FI8b74oFQ==
