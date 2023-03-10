@@ -87,7 +87,7 @@ export const MembersWrapper = styled.div<{
           word-break: break-word;
           padding: 0 var(--ads-spaces-9);
           border-bottom: none;
-          line-height: 2.8;
+          line-height: 2.9;
 
           &:first-child {
             text-align: left;
@@ -228,13 +228,9 @@ const RowWrapper = styled.div<{ isSubRow?: boolean }>`
 
   ${({ isSubRow }) =>
     isSubRow
-      ? `padding-left: 12px;
-      > div {
-        padding: var(--ads-spaces-4) 0;
-      }`
+      ? `padding-left: 12px;`
       : `> div {
           margin-left: 8px;
-          padding: var(--ads-spaces-4) 0;
         }`}
 `;
 
@@ -380,9 +376,7 @@ export default function MemberSettings(props: PageProps) {
         const isSubRow = cellProps.cell.row.id.split(".").length > 1;
         return (
           <RowWrapper isSubRow={isSubRow}>
-            <div className="resource-name">
-              {cellProps.cell.row.original.resource}
-            </div>
+            <div className="resource-name">Workspace</div>
           </RowWrapper>
         );
       },
