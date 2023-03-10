@@ -117,7 +117,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: cicontainer
-          path: app/client
 
       - name: Load Docker image from tar file
         working-directory: "."
