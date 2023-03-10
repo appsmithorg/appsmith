@@ -18,7 +18,10 @@ import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
+import {
+  JS_ORIGIN_URI_FORM,
+  REDIRECT_URL_FORM,
+} from "@appsmith/constants/forms";
 
 const {
   disableLoginForm,
@@ -81,6 +84,17 @@ const GoogleAuth: AdminConfigType = {
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: GOOGLE_SIGNUP_SETUP_DOC,
+    },
+    {
+      id: "APPSMITH_OAUTH2_GOOGLE_JS_ORIGIN_URL",
+      category: SettingCategories.GOOGLE_AUTH,
+      subCategory: SettingSubCategories.GOOGLE,
+      controlType: SettingTypes.UNEDITABLEFIELD,
+      label: "Javascript Origin URL",
+      formName: JS_ORIGIN_URI_FORM,
+      fieldName: "js-origin-url-form",
+      value: "",
+      helpText: "Paste this URL in your Google developer console.",
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_REDIRECT_URL",
