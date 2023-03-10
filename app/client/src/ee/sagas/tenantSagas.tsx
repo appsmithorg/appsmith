@@ -41,6 +41,7 @@ import {
 } from "@appsmith/constants/messages";
 import { setBEBanner, showLicenseModal } from "@appsmith/actions/tenantActions";
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
+import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 
 export function* fetchCurrentTenantConfigSaga(): any {
   try {
@@ -135,11 +136,14 @@ export function* validateLicenseSaga(
     const license = response?.data?.tenantConfiguration?.license;
     if (isValidResponse) {
       if (license?.active) {
+        if (license?.type === LICENSE_TYPE.TRIAL) {
+          localStorage.setItem("showLicenseBanner", JSON.stringify(true));
+          yield put(setBEBanner(true));
+        } else {
+          localStorage.removeItem("showLicenseBanner");
+          yield put(setBEBanner(false));
+        }
         if (shouldRedirectOnUpdate) {
-          if (license?.type === "TRIAL") {
-            localStorage.setItem("showLicenseBanner", JSON.stringify(true));
-            yield put(setBEBanner(true));
-          }
           window.location.assign(redirectUrl);
         }
         if (shouldEnableFirstTimeUserOnboarding) {

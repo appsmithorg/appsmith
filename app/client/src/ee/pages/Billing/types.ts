@@ -28,3 +28,8 @@ export enum LICENSE_ORIGIN {
   SELF_SERVE = "SELF_SERVE",
   ENTERPRISE = "ENTERPRISE",
 }
+
+export enum LICENSE_TYPE {
+  TRIAL = "TRIAL",
+  PAID = "PAID",
+}

@@ -1,5 +1,6 @@
 export * from "ce/selectors/tenantSelectors";
 import { Status } from "@appsmith/pages/Billing/StatusBadge";
+import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 import { AppState } from "@appsmith/reducers";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { createSelector } from "reselect";
@@ -63,9 +64,8 @@ export const getRemainingDays = createSelector(getExpiry, (expiry) => {
   };
 });
 
-export const isTrialLicense = (state: AppState) => {
-  return state.tenant?.tenantConfiguration?.license?.type === "TRIAL";
-};
+export const isTrialLicense = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.type === LICENSE_TYPE.TRIAL;
 
 export const isBEBannerVisible = (state: AppState) => {
   const value = state.tenant?.tenantConfiguration?.license?.showBEBanner;
