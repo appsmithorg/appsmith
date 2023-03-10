@@ -1,4 +1,3 @@
-import { data } from "cypress/types/jquery";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("peek overlay", () => {
