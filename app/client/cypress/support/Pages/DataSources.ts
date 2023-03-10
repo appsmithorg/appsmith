@@ -955,7 +955,7 @@ export class DataSources {
   ) {
     this.NavigateToDSCreateNew();
     //Click on Authenticated API
-    cy.get(this._authApiDatasource).click({ force: true });
+    this.agHelper.GetNClick(this._authApiDatasource, 0, true)
     this.FillAPIOAuthForm(datasourceName, grantType, clientId, clientSecret);
 
     // save datasource
@@ -976,7 +976,7 @@ export class DataSources {
     clientId: string,
     clientSecret: string,
   ) {
-    this.agHelper.RenameWithInPane(dsName, false);
+    if (dsName) this.agHelper.RenameWithInPane(dsName, false);
     // Fill Auth Form
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("URL"),
