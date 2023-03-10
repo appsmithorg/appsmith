@@ -1,0 +1,99 @@
+name: Appsmith Build Docker Image Workflow
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'repository_dispatch'
+    defaults:
+      run:
+        shell: bash
+   
+    steps:
+      # Check out merge commit
+      - name: Fork based /ok-to-test checkout
+        if: inputs.pr != 0
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: "refs/pull/${{ inputs.pr }}/merge"
+          
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        if: inputs.pr == 0
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      # Setup Java
+      - name: Set up JDK 17
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/download-artifact@v3
+        with:
+          name: client-build
+          path: app/client/build
+
+      - name: Download the server build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/download-artifact@v3
+        with:
+          name: server-build
+          path: app/server/dist/
+
+      - name: Download the rts build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/download-artifact@v3
+        with:
+          name: rts-dist
+          path: app/rts/dist
+
+      - name: Un-tar the rts folder
+        run: |
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
+
+      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
+      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
+      - name: Build docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
+        run: |
+          docker build -t cicontainer .
+      
+      # Saving the docker image to tar file
+      - name: Save Docker image to tar file
+        run: |
+          docker save cicontainer -o cicontainer.tar
+          gzip cicontainer.tar
+      
+      # Uploading the artifact to use it in other subsequent runners
+      - name: Upload Docker image to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: cicontainer
+          path: cicontainer.tar.gz
+
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+        

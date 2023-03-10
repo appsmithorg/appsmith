@@ -46,8 +46,18 @@ jobs:
     with:
       pr: 0
 
-  ci-test:
+  build-docker-image:
     needs: [ client-build, server-build, rts-build ]
+    # Only run if the build step is successful
+    if: success()
+    name: build-docker-image
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  ci-test:
+    needs: [ build-docker-image ]
     # Only run if the build step is successful
     if: success()
     name: ci-test
