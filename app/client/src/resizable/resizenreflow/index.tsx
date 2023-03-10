@@ -362,6 +362,7 @@ export function ReflowResizable(props: ResizableProps) {
       props.enableVerticalResize,
       handle.handleDirection,
     );
+
     return (
       <ResizableHandle
         {...handle}

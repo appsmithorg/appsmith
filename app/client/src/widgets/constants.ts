@@ -20,8 +20,11 @@ export type WidgetSizeConfig = {
   configuration: (props: any) => { [key: string]: string | number };
 };
 
+type ResizeableOptions = { vertical?: boolean; horizontal?: boolean };
+
 export type AutoLayoutConfig = {
   widgetSize: Array<WidgetSizeConfig>;
+  disableResizeHandles?: ResizeableOptions;
   defaults?: Partial<WidgetConfigProps>;
 };
 

@@ -60,6 +60,16 @@ export const CONFIG = {
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
+
+  properties: {
+    derived: Widget.getDerivedPropertiesMap(),
+    default: Widget.getDefaultPropertiesMap(),
+    meta: Widget.getMetaPropertiesMap(),
+    config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
+  },
   autoLayout: {
     widgetSize: [
       {
@@ -71,15 +81,9 @@ export const CONFIG = {
         },
       },
     ],
-  },
-  properties: {
-    derived: Widget.getDerivedPropertiesMap(),
-    default: Widget.getDefaultPropertiesMap(),
-    meta: Widget.getMetaPropertiesMap(),
-    config: Widget.getPropertyPaneConfig(),
-    contentConfig: Widget.getPropertyPaneContentConfig(),
-    styleConfig: Widget.getPropertyPaneStyleConfig(),
-    stylesheetConfig: Widget.getStylesheetConfig(),
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
 };
 

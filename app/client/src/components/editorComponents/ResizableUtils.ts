@@ -90,8 +90,6 @@ export function isHandleResizeAllowed(
   horizontalEnabled: boolean,
   verticalEnabled: boolean,
   direction?: ReflowDirection,
-  isFlexChild?: boolean,
-  responsiveBehavior?: ResponsiveBehavior,
 ): boolean {
   if (direction === ReflowDirection.TOP || direction === ReflowDirection.BOTTOM)
     return verticalEnabled;
@@ -99,9 +97,36 @@ export function isHandleResizeAllowed(
     direction === ReflowDirection.LEFT ||
     direction === ReflowDirection.RIGHT
   ) {
-    return isFlexChild && responsiveBehavior === ResponsiveBehavior.Fill
-      ? false
-      : horizontalEnabled;
+    return horizontalEnabled;
   }
   return true;
+}
+
+export function isResizingDisabled(
+  handles: { horizontal?: boolean; vertical?: boolean } = {},
+  direction?: ReflowDirection,
+  isFlexChild?: boolean,
+  responsiveBehavior?: ResponsiveBehavior,
+) {
+  const { horizontal = false, vertical = false } = handles;
+
+  if (
+    (direction === ReflowDirection.TOP ||
+      direction === ReflowDirection.BOTTOM) &&
+    vertical
+  )
+    return true;
+
+  if (
+    direction === ReflowDirection.RIGHT ||
+    direction === ReflowDirection.LEFT
+  ) {
+    if (
+      horizontal ||
+      (isFlexChild && responsiveBehavior === ResponsiveBehavior.Fill)
+    )
+      return true;
+  }
+
+  return false;
 }

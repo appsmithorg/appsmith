@@ -44,7 +44,7 @@ export const CONFIG = {
   },
   autoLayout: {
     defaults: {
-      rows: 6.6,
+      rows: 7,
     },
     widgetSize: [
       {
@@ -56,6 +56,9 @@ export const CONFIG = {
         },
       },
     ],
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
 };
 

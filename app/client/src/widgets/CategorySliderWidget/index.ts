@@ -61,6 +61,9 @@ export const CONFIG = {
         },
       },
     ],
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
 };
 

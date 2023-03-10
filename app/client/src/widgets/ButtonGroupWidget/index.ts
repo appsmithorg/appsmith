@@ -160,6 +160,9 @@ export const CONFIG = {
         },
       },
     ],
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
