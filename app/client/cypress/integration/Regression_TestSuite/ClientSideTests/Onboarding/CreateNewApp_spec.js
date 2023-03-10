@@ -11,7 +11,7 @@ describe("Creating new app after discontinuing guided tour should not start the 
     _.homePage.NavigateToHome();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      workspaceName = "CreateNewAppWorkspace" + uid;
+      workspaceName = "CNAppWorspace" + uid;
       _.homePage.CreateNewWorkspace(workspaceName);
       _.homePage.CreateAppInWorkspace(workspaceName); //Since welcome tour always creates app in 1st workspace available
       _.homePage.NavigateToHome();
