@@ -37,7 +37,6 @@ import {
   listEntityPathDependencies,
   listTriggerFieldDependencies,
   listValidationDependencies,
-  mergeArrays,
   updateMap,
 } from "./utils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -363,11 +362,11 @@ export const updateDependencyMap = ({
                   );
                   for (const asyncJSFunc of asyncJSFunctionDependencies) {
                     extraPathsToLint.add(asyncJSFunc);
-                    dataTreeEvalRef.asyncJSFunctionsInSyncFields[
-                      asyncJSFunc
-                    ] = mergeArrays(
-                      dataTreeEvalRef.asyncJSFunctionsInSyncFields[asyncJSFunc],
+                    updateMap(
+                      dataTreeEvalRef.asyncJSFunctionsInSyncFields,
+                      asyncJSFunc,
                       [fullPropertyPath],
+                      { deleteOnEmpty: true },
                     );
                   }
                 }
@@ -711,9 +710,12 @@ export const updateDependencyMap = ({
                 );
                 asyncFunctionBindings.forEach((funcName) => {
                   extraPathsToLint.add(funcName);
-                  updateMap(asyncJSFunctionsInSyncFields, funcName, [
-                    fullPropertyPath,
-                  ]);
+                  updateMap(
+                    asyncJSFunctionsInSyncFields,
+                    funcName,
+                    [fullPropertyPath],
+                    { deleteOnEmpty: true },
+                  );
                 });
 
                 Object.keys(asyncJSFunctionsInSyncFields).forEach(
