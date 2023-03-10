@@ -224,6 +224,7 @@ export default function evaluateSync(
       context,
       evalArguments,
       isTriggerBased: isJSCollection,
+      enableJSObjectFactory: false,
     });
 
     const { script } = getUserScriptToEvaluate(
