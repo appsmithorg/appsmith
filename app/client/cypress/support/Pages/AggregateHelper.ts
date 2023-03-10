@@ -120,7 +120,7 @@ export class AggregateHelper {
     this.GetNClick(name, 0, true);
     cy.get(text)
       .clear({ force: true })
-      .type(renameVal, { force: true })
+      .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal)
       .blur();
     this.Sleep();
@@ -197,7 +197,12 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true, force = true) {
+  public ClickButton(
+    btnVisibleText: string,
+    index = 0,
+    shouldSleep = true,
+    force = true,
+  ) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
       .eq(index)
       .scrollIntoView()
@@ -559,7 +564,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectAll+"{del}");
+    return locator.type(this.selectAll + "{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
