@@ -17,7 +17,11 @@ describe("Table Widget Functionality", function() {
      * @param{ChartWidget}Mouseover
      * @param{ChartPre Css} Assertion
      */
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
+    cy.widgetText(
+      "Table1",
+      widgetsPage.tableWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
     //cy.get(widgetsPage.ColumnAction).click({ force: true });

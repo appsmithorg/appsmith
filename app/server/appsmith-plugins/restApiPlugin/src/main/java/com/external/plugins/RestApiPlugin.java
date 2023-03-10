@@ -186,9 +186,9 @@ public class RestApiPlugin extends BasePlugin {
                         if (! actionExecutionResult.getIsExecutionSuccess()) {
                             actionExecutionResult.setErrorInfo(
                                     new AppsmithPluginException(RestApiPluginError.API_EXECUTION_FAILED,
-                                            RestApiErrorMessages.API_EXECUTION_FAILED_ERROR_MSG,
-                                            actionExecutionResult.getBody(),
-                                            actionExecutionResult.getStatusCode()
+                                                                RestApiErrorMessages.API_EXECUTION_FAILED_ERROR_MSG,
+                                                                actionExecutionResult.getBody(),
+                                                                actionExecutionResult.getStatusCode()
                                     ));
                         }
                         return actionExecutionResult;

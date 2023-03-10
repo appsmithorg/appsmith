@@ -1,11 +1,11 @@
-import React, { CSSProperties } from "react";
-import { ControlIcons } from "icons/ControlIcons";
-import { Icon, IconSize } from "design-system-old";
+import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import styled from "styled-components";
-import { Tooltip, Classes } from "@blueprintjs/core";
+import { Icon, IconSize } from "design-system-old";
+import { ControlIcons } from "icons/ControlIcons";
+import React, { CSSProperties } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import styled from "styled-components";
 // I honestly can't think of a better name for this enum
 export enum Activities {
   HOVERING,

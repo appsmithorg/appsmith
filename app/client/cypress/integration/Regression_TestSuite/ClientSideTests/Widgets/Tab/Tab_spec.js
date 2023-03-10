@@ -15,7 +15,7 @@ describe("Tab widget test", function() {
      * @param{TabWidget}Mouseover
      * @param{TabPre Css} Assertion
      */
-    cy.widgetText("tab", Layoutpage.tabWidget, Layoutpage.tabInput);
+    cy.widgetText("tab", Layoutpage.tabWidget, widgetsPage.widgetNameSpan);
     /**
      * @param{IndexValue} Provide input Index Value
      * @param{Text} Provide Index Text Value

@@ -181,7 +181,7 @@ enum MODIFICATION_TYPE {
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
-  LIST_WIDGET_V2: ["currentItemsView"],
+  LIST_WIDGET_V2: ["currentItemsView", "selectedItemView", "triggeredItemView"],
 };
 /**
  * LEVEL_PATH_REGEX gives out following matches:
