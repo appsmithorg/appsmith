@@ -22,8 +22,6 @@ import {
   HighlightText,
   Icon,
   IconSize,
-  TableDropdown,
-  TableDropdownOption,
   Text,
   TextType,
 } from "design-system-old";
@@ -105,6 +103,26 @@ export const MembersWrapper = styled.div<{
 
           .cs-text {
             text-align: left;
+          }
+
+          .bp3-popover-target {
+            display: flex;
+
+            > * {
+              flex-grow: 0;
+            }
+
+            .t--user-status {
+              border: none;
+              padding: 0;
+              background: none;
+            }
+
+            .cs-text {
+              width: 100%;
+              margin-right: 10px;
+              color: var(--ads-text-color);
+            }
           }
 
           .bp3-overlay {
@@ -391,33 +409,37 @@ export default function MemberSettings(props: PageProps) {
           ? allRoles.map((role: any) => {
               return {
                 id: role.id,
-                name: role.name?.split(" - ")[0],
-                desc: role.description,
+                value: role.name?.split(" - ")[0],
+                label: role.description,
               };
             })
           : [];
-        const index = roles.findIndex(
-          (role: { id: string; name: string; desc: string }) =>
-            role.name?.split(" - ")[0] ===
+        const selectedRole = roles.find(
+          (role: { id: string; value: string; label: string }) =>
+            role.value?.split(" - ")[0] ===
             cellProps.cell.value?.split(" - ")[0],
         );
         if (data.username === currentUser?.username) {
           return cellProps.cell.value?.split(" - ")[0];
         }
         return (
-          <TableDropdown
+          <Dropdown
+            boundary="viewport"
+            className="t--user-status"
+            defaultIcon="downArrow"
+            dontUsePortal
+            height="31px"
             isLoading={
               roleChangingUserInfo &&
               roleChangingUserInfo.username === data.username
             }
-            onSelect={(option: TableDropdownOption) => {
+            onSelect={(_value: string, option: any) => {
               dispatch(
                 changeWorkspaceUserRole(workspaceId, option.id, data.username),
               );
             }}
             options={roles}
-            selectedIndex={index}
-            selectedTextWidth="90px"
+            selected={selectedRole}
           />
         );
       },
