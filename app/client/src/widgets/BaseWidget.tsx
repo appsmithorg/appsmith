@@ -56,7 +56,7 @@ import {
   EVAL_ERROR_PATH,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
 import Skeleton from "./Skeleton";
 import {
@@ -66,10 +66,6 @@ import {
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
-import {
-  WIDGET_WITH_DYNAMIC_HEIGHT,
-  WIDGET_WITH_DYNAMIC_WIDTH,
-} from "utils/layoutPropertiesUtils";
 
 /***
  * BaseWidget
@@ -622,12 +618,12 @@ abstract class BaseWidget<
       );
     }
     if (this.props.isFlexChild && !this.props.detachFromLayout) {
-      const shouldObserveWidth = WIDGET_WITH_DYNAMIC_WIDTH.includes(
+      const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
         this.props.type,
-      );
-      const shouldObserveHeight = WIDGET_WITH_DYNAMIC_HEIGHT.includes(
-        this.props.type,
-      );
+      ).autoDimension;
+
+      const shouldObserveWidth = autoDimensionConfig.width;
+      const shouldObserveHeight = autoDimensionConfig.height;
 
       if (!shouldObserveHeight && !shouldObserveWidth) return content;
 

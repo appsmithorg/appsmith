@@ -193,31 +193,3 @@ export const generateVerticalAlignmentConfig = (
 export function getLayoutConfig(alignment: Alignment, spacing: Spacing): any[] {
   return [generateAlignmentConfig(alignment), generateSpacingConfig(spacing)];
 }
-
-// TODO(aswathkk): See if this needs to be moved to widget config
-export const WIDGET_WITH_DYNAMIC_WIDTH = [
-  "BUTTON_WIDGET",
-  "ICON_BUTTON_WIDGET",
-  "MENU_BUTTON_WIDGET",
-  "FILE_PICKER_WIDGET_V2",
-  "RATE_WIDGET",
-];
-
-// TODO(aswathkk): See if this needs to be moved to widget config
-// This is used only for autoLayout
-export const WIDGET_WITH_DYNAMIC_HEIGHT = [
-  "BUTTON_GROUP_WIDGET",
-  "CHECKBOX_GROUP_WIDGET",
-  "SWITCH_GROUP_WIDGET",
-  "RADIO_GROUP_WIDGET",
-  "CHECKBOX_WIDGET",
-  "SWITCH_WIDGET",
-  "TEXT_WIDGET",
-  "INPUT_WIDGET_V2",
-  "PHONE_INPUT_WIDGET",
-  "CURRENCY_INPUT_WIDGET",
-  "SELECT_WIDGET",
-  "MULTI_SELECT_TREE_WIDGET",
-  "SINGLE_SELECT_TREE_WIDGET",
-  "MULTI_SELECT_WIDGET_V2",
-];

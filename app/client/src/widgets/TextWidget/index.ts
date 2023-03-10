@@ -43,6 +43,9 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    autoDimension: {
+      height: true,
+    },
     defaults: {
       columns: 4,
     },

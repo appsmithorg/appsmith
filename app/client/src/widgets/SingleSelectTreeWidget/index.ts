@@ -69,6 +69,9 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    autoDimension: {
+      height: true,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,

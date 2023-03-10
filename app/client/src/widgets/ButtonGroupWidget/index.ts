@@ -144,6 +144,9 @@ export const CONFIG = {
     },
   },
   autoLayout: {
+    autoDimension: {
+      height: true,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,

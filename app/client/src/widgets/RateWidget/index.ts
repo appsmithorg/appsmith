@@ -35,6 +35,9 @@ export const CONFIG = {
       columns: 7.272727,
       rows: 4,
     },
+    autoDimension: {
+      width: true,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,

@@ -41,6 +41,9 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    autoDimension: {
+      height: true,
+    },
     defaults: {
       rows: 7,
     },

@@ -201,6 +201,7 @@ class WidgetFactory {
                 return sizeConfig.configuration(props);
               },
             })) || [],
+          autoDimension: autoLayoutConfig.autoDimension ?? {},
         });
     }
   }
@@ -336,6 +337,7 @@ class WidgetFactory {
     const map = this.autoLayoutConfigMap.get(type);
     if (!map) {
       return {
+        autoDimension: {},
         widgetSize: [],
         disableResizeHandles: {},
       };
