@@ -90,11 +90,12 @@ const GoogleAuth: AdminConfigType = {
       category: SettingCategories.GOOGLE_AUTH,
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.UNEDITABLEFIELD,
-      label: "Javascript Origin URL",
+      label: "JavaScript Origin URL",
       formName: JS_ORIGIN_URI_FORM,
       fieldName: "js-origin-url-form",
       value: "",
-      helpText: "Paste this URL in your Google developer console.",
+      helpText:
+        "This URL will be used while configuring the Google OAuth Client ID's authorized JavaScript origins",
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_REDIRECT_URL",
@@ -105,7 +106,8 @@ const GoogleAuth: AdminConfigType = {
       formName: REDIRECT_URL_FORM,
       fieldName: "redirect-url-form",
       value: "/login/oauth2/code/google",
-      helpText: "Paste this URL in your Google developer console.",
+      helpText:
+        "This URL will be used while configuring the Google OAuth Client ID's authorized Redirect URIs",
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID",
