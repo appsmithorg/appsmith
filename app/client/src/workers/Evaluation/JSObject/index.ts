@@ -132,7 +132,7 @@ export function saveResolvedFunctionsAndJSUpdates(
                   `[${entityName}.${parsedElement.key}]`,
                   {
                     position: parsedElement.position,
-                    value: parsedElement.value,
+                    value: parsedElement.rawContent,
                   },
                 );
                 actions.push({
@@ -162,7 +162,7 @@ export function saveResolvedFunctionsAndJSUpdates(
             `[${entityName}.${parsedElement.key}]`,
             {
               position: parsedElement.position,
-              value: parsedElement.value,
+              value: parsedElement.rawContent,
             },
           );
         });

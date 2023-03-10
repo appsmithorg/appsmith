@@ -438,7 +438,10 @@ export function lintJSProperty(
     return [];
   }
   const scriptType = getScriptType(false, false);
-  const scriptToLint = getScriptToEval(jsPropertyState.value, scriptType);
+  const scriptToLint = getScriptToEval(
+    jsPropertyState.value,
+    EvaluationScriptType.OBJECT_PROPERTY,
+  );
   const propLintError = getLintingErrors({
     script: scriptToLint,
     data: globalData,

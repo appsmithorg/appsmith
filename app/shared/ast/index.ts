@@ -22,7 +22,6 @@ import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 
 // JSObjects
 import {
-  parseJSObjectWithAST,
   parseJSObject,
   isJSFunctionProperty,
   TParsedJSProperty,
@@ -52,7 +51,6 @@ export {
   extractInvalidTopLevelMemberExpressionsFromCode,
   getFunctionalParamsFromNode,
   isTypeOfFunction,
-  parseJSObjectWithAST,
   parseJSObject,
   ECMA_VERSION,
   SourceType,

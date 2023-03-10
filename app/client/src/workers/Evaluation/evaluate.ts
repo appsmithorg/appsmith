@@ -25,6 +25,7 @@ export enum EvaluationScriptType {
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
   ASYNC_ANONYMOUS_FUNCTION = "ASYNC_ANONYMOUS_FUNCTION",
   TRIGGERS = "TRIGGERS",
+  OBJECT_PROPERTY = "OBJECT_PROPERTY",
 }
 
 export const ScriptTemplate = "<<string>>";
@@ -57,6 +58,13 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   async function $$closedFn () {
     const $$result = ${ScriptTemplate};
     return await $$result
+  }
+  $$closedFn.call(THIS_CONTEXT)
+  `,
+  [EvaluationScriptType.OBJECT_PROPERTY]: `
+  function $$closedFn () {
+    const $$result = {${ScriptTemplate}}
+    return $$result
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
