@@ -46,7 +46,7 @@ describe("MySQL Datatype tests", function() {
             ? `INSERT INTO ${inputData.tableName} (${inputData.inputFieldName[i]}) VALUES ({{"${value}"}})`
             : `INSERT INTO ${inputData.tableName} (${inputData.inputFieldName[i]}) VALUES ({{${value}}})`;
         dataSources.EnterQuery(query);
-        dataSources.RunQuery(false);
+        dataSources.RunQuery(true, false);
       });
     });
     agHelper.Sleep(2000);
