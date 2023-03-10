@@ -585,8 +585,8 @@ export class DataSources {
   }
 
   RunQuery(
-    expectedStatus = true,
     toValidateResponse = true,
+    expectedStatus = true,
     waitTimeInterval = 500,
   ) {
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
