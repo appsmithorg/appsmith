@@ -117,7 +117,15 @@ export class AggregateHelper {
   public RenameWithInPane(renameVal: string, IsQuery = true) {
     const name = IsQuery ? this.locator._queryName : this.locator._dsName;
     const text = IsQuery ? this.locator._queryNameTxt : this.locator._dsNameTxt;
-    this.GetNClick(name, 0, true);
+    if (IsQuery) {
+      cy.get("body").then(($ele) => {
+        if ($ele.find(this.locator._queryNameTxt).length <= 0) {
+          this.GetNClick(name, 0, true);
+        }
+      });
+    } else {
+      this.GetNClick(name, 0, true);
+    }
     cy.get(text)
       .clear({ force: true })
       .type(renameVal, { force: true })
@@ -197,7 +205,12 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true, force = true) {
+  public ClickButton(
+    btnVisibleText: string,
+    index = 0,
+    shouldSleep = true,
+    force = true,
+  ) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
       .eq(index)
       .scrollIntoView()
@@ -559,7 +572,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectAll+"{del}");
+    return locator.type(this.selectAll + "{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
