@@ -342,6 +342,7 @@ class TabsWidget extends BaseWidget<
         boxShadow={this.props.boxShadow}
         onTabChange={this.onTabChange}
         primaryColor={this.props.primaryColor}
+        selectedTabWidgetId={this.getSelectedTabWidgetId()}
       >
         {this.renderComponent()}
       </TabsComponent>
@@ -349,7 +350,7 @@ class TabsWidget extends BaseWidget<
   }
 
   renderComponent = () => {
-    const selectedTabWidgetId = this.props.selectedTabWidgetId;
+    const selectedTabWidgetId = this.getSelectedTabWidgetId();
     const childWidgetData = {
       ...this.props.children?.filter(Boolean).filter((item) => {
         return selectedTabWidgetId === item.widgetId;
@@ -386,6 +387,17 @@ class TabsWidget extends BaseWidget<
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
+
+  private getSelectedTabWidgetId() {
+    let returnValue = this.props.selectedTabWidgetId;
+    if (this.props.children) {
+      returnValue =
+        this.props.children.find((tab) =>
+          this.context.selectedWidgetAncestry?.includes(tab.widgetId),
+        )?.widgetId ?? this.props.selectedTabWidgetId;
+    }
+    return returnValue;
+  }
 
   static getWidgetType(): string {
     return "TABS_WIDGET";

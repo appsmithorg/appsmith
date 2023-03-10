@@ -48,6 +48,8 @@ import {
   selectWidgetInitAction,
   WidgetSelectionRequest,
 } from "actions/widgetSelectionActions";
+import { AppState } from "@appsmith/reducers";
+import { getWidgetAncestry } from "selectors/widgetSelectors";
 
 export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -89,6 +91,7 @@ export type EditorContextType<TCache = unknown> = {
   deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
   updateMetaWidgetProperty?: (payload: UpdateMetaWidgetPropertyPayload) => void;
   selectWidgetRequest?: WidgetSelectionRequest;
+  selectedWidgetAncestry?: string[];
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -113,6 +116,7 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "updateWidgetAutoHeight",
   "checkContainersForAutoHeight",
   "selectWidgetRequest",
+  "selectedWidgetAncestry",
 ];
 
 const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [...COMMON_API_METHODS];
@@ -213,4 +217,11 @@ const mapDispatchToProps = {
   selectWidgetRequest: selectWidgetInitAction,
 };
 
-export default connect(null, mapDispatchToProps)(EditorContextProvider);
+const mapStateToProps = (state: AppState) => ({
+  selectedWidgetAncestry: getWidgetAncestry(state),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditorContextProvider);
