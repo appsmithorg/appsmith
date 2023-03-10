@@ -1,8 +1,9 @@
+import { LabelPosition } from "components/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { AlignWidgetTypes } from "widgets/constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { LabelPosition } from "components/constants";
-import { AlignWidgetTypes } from "widgets/constants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 
 export const CONFIG = {
   features: {
@@ -27,7 +28,7 @@ export const CONFIG = {
     version: 1,
     isDisabled: false,
     animateLoading: true,
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

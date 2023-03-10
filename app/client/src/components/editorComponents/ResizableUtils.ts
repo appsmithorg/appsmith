@@ -97,7 +97,6 @@ export function isHandleResizeAllowed(
     direction === ReflowDirection.LEFT ||
     direction === ReflowDirection.RIGHT
   ) {
-    // remove all the horizontal resize handlers for fill widgets
     return horizontalEnabled;
   }
   return true;

@@ -1,5 +1,6 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -18,7 +19,7 @@ export const CONFIG = {
     widgetName: "AudioRecorder",
     version: 1,
     animateLoading: true,
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

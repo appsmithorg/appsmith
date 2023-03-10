@@ -2,9 +2,9 @@ import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { Positioning } from "utils/autoLayout/constants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { WidgetProps } from "widgets/BaseWidget";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -112,7 +112,7 @@ export const CONFIG = {
         },
       ],
     },
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

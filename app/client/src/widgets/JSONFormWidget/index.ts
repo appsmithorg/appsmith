@@ -1,9 +1,10 @@
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "widgets/constants";
+
 import IconSVG from "./icon.svg";
 import Widget, { JSONFormWidgetProps } from "./widget";
 
@@ -28,7 +29,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     useSourceData: false,
     animateLoading: true,
