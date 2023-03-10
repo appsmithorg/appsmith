@@ -79,10 +79,9 @@ describe("Modal Widget Functionality", function() {
       .should("have.length", 1);
 
     //click on modal's widgetName Label
-    cy.get(
-      "div[data-testid='t--settings-controls-positioned-wrapper']:contains(Modal1)",
-    ).click({
-      ctrlKey: true,
+    cy.get(".t--modal-widget").click();
+    cy.get(widgets.widgetNameSpan).click({
+      force: true,
     });
 
     //verify the modal1 is selected

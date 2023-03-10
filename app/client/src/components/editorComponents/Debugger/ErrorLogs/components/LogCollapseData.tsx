@@ -12,7 +12,7 @@ const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
       ? " -20px"
       : " 4px"};
-  padding-left: 83px;
+  padding-left: 87px;
 `;
 
 type StyledCollapseProps = PropsWithChildren<{

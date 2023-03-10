@@ -58,11 +58,14 @@ describe("Statbox Widget Functionality", function() {
       cy.createModal("Modal", "Modal1");
     });
     // verifying the changed icon
-    cy.get(".bp3-icon-arrow-up").should("be.visible");
+    cy.get(".bp3-icon-arrow-up")
+      .should("be.visible")
+      .click({ force: true });
+
     // verifying modal has been added
-    cy.get(".t--draggable-iconbuttonwidget")
-      .last()
-      .click();
+    cy.get(".t--modal-widget .t--draggable-iconbuttonwidget").click({
+      force: true,
+    });
     cy.get("span:contains('Close')")
       .closest("div")
       .click();

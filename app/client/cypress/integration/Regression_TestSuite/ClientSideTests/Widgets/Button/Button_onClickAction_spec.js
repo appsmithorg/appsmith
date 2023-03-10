@@ -51,7 +51,11 @@ describe("Button Widget Functionality", function() {
     cy.onClickActions("Success", "Error", "onclick");
 
     cy.PublishtheApp();
-
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
+        cy.get(publishPage.buttonWidget).click();
+      }
+    });
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
     cy.get("body").then(($ele) => {
