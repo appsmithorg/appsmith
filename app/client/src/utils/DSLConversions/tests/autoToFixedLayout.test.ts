@@ -2,6 +2,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { convertNormalizedDSLToFixed } from "../autoToFixedLayout";
 
 describe("test Auto to Fixed Conversion methods", () => {
+  const mainCanvasWidth = 1166;
   const autoLayoutWidgets = ({
     "0": {
       widgetName: "MainContainer",
@@ -1122,14 +1123,18 @@ describe("test Auto to Fixed Conversion methods", () => {
   };
 
   it("Convert Normalized auto DSL to fixed Normalized DSl without wrap", () => {
-    expect(convertNormalizedDSLToFixed(autoLayoutWidgets, "DESKTOP")).toEqual(
-      fixedLayoutWidgets,
-    );
+    expect(
+      convertNormalizedDSLToFixed(
+        autoLayoutWidgets,
+        "DESKTOP",
+        mainCanvasWidth,
+      ),
+    ).toEqual(fixedLayoutWidgets);
   });
 
   it("Convert Normalized auto DSL to fixed Normalized DSl in mobile layout", () => {
-    expect(convertNormalizedDSLToFixed(autoLayoutWidgets, "MOBILE")).toEqual(
-      fixedLayoutMobileWidgets,
-    );
+    expect(
+      convertNormalizedDSLToFixed(autoLayoutWidgets, "MOBILE", mainCanvasWidth),
+    ).toEqual(fixedLayoutMobileWidgets);
   });
 });
