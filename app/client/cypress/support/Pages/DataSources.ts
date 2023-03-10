@@ -978,8 +978,8 @@ export class DataSources {
   ) {
     this.agHelper.RenameWithInPane(dsName, false);
     // Fill Auth Form
-    this.agHelper.TypeText(
-      this._urlInputControl,
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("URL"),
       datasourceFormData["OAuth_ApiUrl"],
     );
     this.agHelper.GetNClick(this._authType);
@@ -989,15 +989,26 @@ export class DataSources {
       this.agHelper.GetNClick(this._clientCredentails);
     else if (grantType == "AuthCode")
       this.agHelper.GetNClick(this._authorizationCode);
-    this.agHelper.TypeText(this._clientID, clientId);
-    this.agHelper.TypeText(this._clientSecret, clientSecret);
-    this.agHelper.TypeText(
-      this._accessTokenUrl,
+
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Access Token URL"),
       datasourceFormData["OAUth_AccessTokenUrl"],
     );
-    this.agHelper.TypeText(this._scope, "profile");
-    this.agHelper.TypeText(
-      this._authorizationURL,
+
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Client ID"),
+      clientId,
+    );
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Client Secret"),
+      clientSecret,
+    );
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Scope(s)"),
+      "profile",
+    );
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Authorization URL"),
       datasourceFormData["OAuth_AuthUrl"],
     );
   }
