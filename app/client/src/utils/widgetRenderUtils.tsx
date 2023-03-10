@@ -22,6 +22,11 @@ export const createCanvasWidget = (
   evaluatedWidget: DataTreeWidget,
   specificChildProps?: string[],
 ) => {
+  /**
+   * WIDGET_DSL_STRUCTURE_PROPS is required for Building the List widget meta widgets
+   *  requiresFlatWidgetChildren and hasMetaWidgets are the keys required.
+   */
+
   const widgetStaticProps = pick(canvasWidget, [
     ...Object.keys({ ...WIDGET_STATIC_PROPS, ...WIDGET_DSL_STRUCTURE_PROPS }),
     ...(canvasWidget.additionalStaticProps || []),
