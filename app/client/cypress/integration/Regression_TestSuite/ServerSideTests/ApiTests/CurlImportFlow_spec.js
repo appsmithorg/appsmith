@@ -2,7 +2,7 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../locators/Pages.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 import ApiEditor from "../../../../locators/ApiEditor";
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function() {
   it("Test curl import flow Run and Delete", function() {
@@ -47,7 +47,7 @@ describe("Test curl import flow", function() {
     cy.get(globalSearchLocators.createNew).click();
     cy.xpath("//span[text()='New cURL Import']").click();
     cy.get("textarea").type(
-      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST https://mock-api.appsmith.com/echo/post',
+      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '+ _.agHelper.echoApiUrl,
       {
         force: true,
         parseSpecialCharSequences: false,

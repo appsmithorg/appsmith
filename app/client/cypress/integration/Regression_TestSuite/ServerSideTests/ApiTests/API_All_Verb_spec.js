@@ -11,9 +11,9 @@ describe("API Panel Test Functionality", function() {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("1. PUT Action test API fetaure", function() {
+  it("1. PUT Action test API feature", function() {
     apiPage.CreateAndFillApi(
-      testdata.mockApiUrl + testdata.methodput,
+      testdata.baseUrl + testdata.echoMethod,
       "",
       10000,
       "PUT",
@@ -27,8 +27,8 @@ describe("API Panel Test Functionality", function() {
       apiPage.RunAPI();
       cy.validateRequest(
         "Api1",
-        testdata.mockApiUrl,
-        testdata.methodput,
+        testdata.baseUrl,
+        testdata.echoMethod,
         testdata.Put,
       );
     });
@@ -36,9 +36,9 @@ describe("API Panel Test Functionality", function() {
     cy.ResponseCheck("updatedAt");
   });
 
-  it("2. Post Action test API fetaure", function() {
+  it("2. Post Action test API feature", function() {
     apiPage.CreateAndFillApi(
-      testdata.mockApiUrl + testdata.methodpost,
+      testdata.baseUrl + testdata.echoMethod,
       "",
       10000,
       "POST",
@@ -52,18 +52,18 @@ describe("API Panel Test Functionality", function() {
       apiPage.RunAPI();
       cy.validateRequest(
         "Api1",
-        testdata.mockApiUrl,
-        testdata.methodpost,
+        testdata.baseUrl,
+        testdata.echoMethod,
         testdata.Post,
       );
     });
-    cy.ResponseStatusCheck("201 CREATED");
+    cy.ResponseStatusCheck("200 OK");
     cy.ResponseCheck("createdAt");
   });
 
-  it("3. PATCH Action test API fetaure", function() {
+  it("3. PATCH Action test API feature", function() {
     apiPage.CreateAndFillApi(
-      testdata.mockApiUrl + testdata.methodpatch,
+      testdata.baseUrl + testdata.echoMethod,
       "",
       10000,
       "PATCH",
@@ -77,8 +77,8 @@ describe("API Panel Test Functionality", function() {
       apiPage.RunAPI();
       cy.validateRequest(
         "Api1",
-        testdata.mockApiUrl,
-        testdata.methodpatch,
+        testdata.baseUrl,
+        testdata.echoMethod,
         testdata.Patch,
       );
     });
@@ -86,65 +86,70 @@ describe("API Panel Test Functionality", function() {
     cy.ResponseCheck("updatedAt");
   });
 
-  it("4. Delete Action test API fetaure", function() {
+  it("4. Delete Action test API feature", function() {
     apiPage.CreateAndFillApi(
-      testdata.mockApiUrl + testdata.methoddelete,
+      testdata.baseUrl + testdata.echoMethod,
       "",
       10000,
       "DELETE",
     );
     apiPage.EnterHeader(testdata.headerKey, testdata.headerValue);
+    cy.readFile("cypress/fixtures/patchjson.txt").then((json) => {
+      apiPage.SelectPaneTab("Body");
+      apiPage.SelectSubTab("JSON");
+    dataSources.EnterQuery(json);
     agHelper.AssertAutoSave();
     apiPage.RunAPI();
     cy.validateRequest(
       "Api1",
-      testdata.mockApiUrl,
-      testdata.methoddelete,
+      testdata.baseUrl,
+      testdata.echoMethod,
       testdata.Delete,
     );
+    });
     cy.ResponseStatusCheck("200");
   });
 
   it("5. Test GET Action for mock API with header and pagination", function() {
     //const apiname = "SecondAPI";
-    apiPage.CreateAndFillApi(testdata.mockApiUrl + testdata.mockApiMethods);
+    apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods);
     apiPage.EnterHeader(testdata.headerKey, testdata.headerValue);
     agHelper.AssertAutoSave();
     apiPage.RunAPI();
     cy.validateRequest(
       "Api1",
-      testdata.mockApiUrl,
-      testdata.mockApiMethods,
+      testdata.baseUrl,
+      testdata.methods,
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.ResponseCheck(testdata.responsetext);
     cy.switchToPaginationTab();
     cy.selectPaginationType(apiwidget.paginationWithUrl);
-    cy.enterUrl("Api1", apiwidget.panigationNextUrl, testdata.nextUrl);
+    cy.enterUrl(testdata.baseUrl, apiwidget.panigationNextUrl, testdata.nextUrl);
     cy.clickTest(apiwidget.TestNextUrl);
     cy.validateRequest(
       "Api1",
-      testdata.mockApiUrl,
-      testdata.mockApiMethods.concat(testdata.next),
+      testdata.baseUrl,
+      testdata.next,
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.ResponseCheck("Josh M Krantz");
     cy.switchToPaginationTab();
-    cy.enterUrl("Api1", apiwidget.panigationPrevUrl, testdata.prevUrl);
+    cy.enterUrl(testdata.baseUrl, apiwidget.panigationPrevUrl, testdata.prevUrl);
     cy.clickTest(apiwidget.TestPreUrl);
     cy.validateRequest(
       "Api1",
-      testdata.mockApiUrl,
-      testdata.mockApiMethods.concat(testdata.prev),
+      testdata.baseUrl,
+      testdata.prev,
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.ResponseCheck(testdata.responsetext);
   });
 
-  it("6. API check with query params test API fetaure", function() {
+  it("6. API check with query params test API feature", function() {
     apiPage.CreateAndFillApi(testdata.baseUrl + testdata.queryAndValue);
     apiPage.EnterHeader(testdata.headerKey, testdata.headerValue);
     agHelper.AssertAutoSave();

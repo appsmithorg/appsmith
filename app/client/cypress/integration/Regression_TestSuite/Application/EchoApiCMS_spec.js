@@ -17,7 +17,7 @@ describe("Content Management System App", function() {
   let repoName;
   it("1.Create Get echo Api call", function() {
     _.apiPage.CreateAndFillApi(
-      "http://host.docker.internal:5001/v1/mock-api/echo",
+     _.agHelper.echoApiUrl,
       "get_data",
     );
     // creating get request using echo
@@ -32,7 +32,7 @@ describe("Content Management System App", function() {
 
   it("2. Create Post echo Api call", function() {
     _.apiPage.CreateAndFillApi(
-      "http://host.docker.internal:5001/v1/mock-api/echo",
+      _.agHelper.echoApiUrl,
       "send_mail",
       10000,
       "POST",
@@ -49,7 +49,7 @@ describe("Content Management System App", function() {
 
   it("3. Create Delete echo Api call", function() {
     _.apiPage.CreateAndFillApi(
-      "http://host.docker.internal:5001/v1/mock-api/echo",
+      _.agHelper.echoApiUrl,
       "delete_proposal",
       10000,
       "DELETE",
