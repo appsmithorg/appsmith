@@ -39,12 +39,15 @@ export const extractContentByPosition = (
 
   for (let i = position.from.line; i <= position.to.line; i++) {
     if (i === position.from.line) {
-      returnedString = eachLine[position.from.line].slice(position.from.ch);
+      returnedString =
+        position.from.line !== position.to.line
+          ? eachLine[position.from.line].slice(position.from.ch)
+          : eachLine[position.from.line].slice(
+              position.from.ch,
+              position.to.ch + 1,
+            );
     } else if (i === position.to.line) {
-      returnedString += eachLine[position.to.line].slice(
-        0,
-        position.from.ch + 1,
-      );
+      returnedString += eachLine[position.to.line].slice(0, position.to.ch + 1);
     } else {
       returnedString += eachLine[i];
     }
@@ -52,6 +55,5 @@ export const extractContentByPosition = (
       returnedString += "\n";
     }
   }
-
   return returnedString;
 };

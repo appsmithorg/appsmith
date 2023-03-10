@@ -136,7 +136,7 @@ export const parseJSObject = (code: string) => {
             },
             to: {
               line: node.value.loc.end.line - 1,
-              ch: node.value.loc.end.column,
+              ch: node.value.loc.end.column - 1,
             },
           }),
           type: node.value.type,
