@@ -82,12 +82,18 @@ export function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
     flexLayers,
   } = fitChildWidgetsIntoLayers(dsl.children);
 
-  const bottomRow = calculatedBottomRow
+  let bottomRow = calculatedBottomRow
     ? calculatedBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
     : dsl.bottomRow;
-  const minHeight = calculatedBottomRow
+  let minHeight = calculatedBottomRow
     ? calculatedBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
     : dsl.minHeight;
+
+  if (dsl.widgetId === MAIN_CONTAINER_WIDGET_ID) {
+    bottomRow = Math.max(bottomRow, dsl.bottomRow);
+    minHeight =
+      minHeight && dsl.minHeight && Math.max(minHeight, dsl.minHeight);
+  }
 
   // Add responsive propertied to the Canvas Widget props
   return {
@@ -208,6 +214,8 @@ function getNextLayer(
     const responsiveBehavior =
       (widgetConfig.responsiveBehavior as ResponsiveBehavior) ||
       ResponsiveBehavior.Hug;
+
+    currWidget.dynamicHeight = widgetConfig.dynamicHeight;
 
     //get minWidth of the type
     currWidget.minWidth = widgetConfig.minWidth || FILL_WIDGET_MIN_WIDTH;
