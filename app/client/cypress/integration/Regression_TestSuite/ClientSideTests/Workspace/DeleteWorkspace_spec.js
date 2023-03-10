@@ -7,14 +7,11 @@ describe("Delete workspace test spec", function() {
 
   it("1. Should delete the workspace", function() {
     cy.visit("/applications");
-    cy.generateUUID().then((uid) => {
-      newWorkspaceName = uid;
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      newWorkspaceName = "Deleteworkspace" + uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
-      cy.wait(500);
-      cy.contains(".cs-text", "Delete Workspace")
-        .scrollIntoView()
-        .click();
-      cy.contains("Are you sure").click();
+      _.homePage.DeleteWorkspace(newWorkspaceName)
       cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(200);
       });
