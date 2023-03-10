@@ -18,6 +18,14 @@ Cypress.Commands.add("fillGoogleFormPartly", () => {
 });
 
 Cypress.Commands.add("fillGoogleForm", () => {
+  cy.get(googleForm.googleJSOriginUrl).should(
+    "contain",
+    `${cy.location().origin}`,
+  );
+  cy.get(googleForm.googleRedirectUrl).should(
+    "contain",
+    `${cy.location().origin}/login/oauth2/code/google`,
+  );
   cy.get(googleForm.googleClientId).type(
     Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"),
   );
