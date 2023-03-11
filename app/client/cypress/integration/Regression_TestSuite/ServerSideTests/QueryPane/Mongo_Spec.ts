@@ -660,7 +660,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-    dataSources.RunQuery(false);
+    dataSources.RunQuery(true, false);
     agHelper
       .GetText(dataSources._queryError)
       .then(($errorText) => expect($errorText).to.eq("ns not found."));
