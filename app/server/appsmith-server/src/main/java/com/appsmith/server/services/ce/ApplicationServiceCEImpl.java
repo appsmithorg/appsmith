@@ -301,6 +301,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                      */
                     if (application.getUnpublishedApplicationDetail() != null) {
                         ApplicationDetail presetApplicationDetail = ObjectUtils.defaultIfNull(branchedApplication.getApplicationDetail(), new ApplicationDetail());
+                        if (branchedApplication.getUnpublishedApplicationDetail() == null){
+                            branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+                        }
                         Application.NavigationSetting requestNavSetting = application.getUnpublishedApplicationDetail().getNavigationSetting();
                         if (requestNavSetting != null) {
                             Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(), new Application.NavigationSetting());
