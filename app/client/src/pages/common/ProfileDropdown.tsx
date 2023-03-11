@@ -25,6 +25,9 @@ import { PROFILE } from "constants/routes";
 import { Colors } from "constants/Colors";
 import { ACCOUNT_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { useSelector } from "react-redux";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { get } from "lodash";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
@@ -34,6 +37,15 @@ type TagProps = CommonComponentProps & {
   photoId?: string;
   hideEditProfileLink?: boolean;
 };
+
+const StyledMenu = styled(Menu)<{
+  borderRadius: string;
+}>`
+  .bp3-popover {
+    border-radius: ${({ borderRadius }) => `${borderRadius}`};
+    overflow: hidden;
+  }
+`;
 
 const StyledMenuItem = styled(MenuItem)`
   svg {
@@ -96,6 +108,13 @@ const UserNameWrapper = styled.div`
 `;
 
 export default function ProfileDropdown(props: TagProps) {
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const borderRadius = get(
+    selectedTheme,
+    "properties.borderRadius.appBorderRadius",
+    "inherit",
+  );
+
   const Profile = (
     <TooltipComponent
       content={createMessage(ACCOUNT_TOOLTIP)}
@@ -112,7 +131,8 @@ export default function ProfileDropdown(props: TagProps) {
   );
 
   return (
-    <Menu
+    <StyledMenu
+      borderRadius={borderRadius}
       className="profile-menu t--profile-menu"
       modifiers={props.modifiers}
       position={Position.BOTTOM_RIGHT}
@@ -157,6 +177,6 @@ export default function ProfileDropdown(props: TagProps) {
         }
         text="Sign Out"
       />
-    </Menu>
+    </StyledMenu>
   );
 }

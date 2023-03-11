@@ -80,8 +80,7 @@ export const StyledMenuDropdownContainer = styled(Menu)<{
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
   .bp3-popover {
-    border-radius: ${({ borderRadius }) =>
-      `0 0 ${borderRadius} ${borderRadius}`};
+    border-radius: ${({ borderRadius }) => `${borderRadius}`};
     overflow: hidden;
   }
 
