@@ -114,6 +114,7 @@ import {
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
+import { Plugin } from "../api/PluginApi";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -347,7 +348,7 @@ function* updateDatasourceSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const plugin = yield select(getPlugin, response?.data?.pluginId);
+      const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceName: response.data.name,
         pluginName: plugin?.name || "",
