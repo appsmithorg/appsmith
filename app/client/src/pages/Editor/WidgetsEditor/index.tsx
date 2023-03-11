@@ -36,7 +36,10 @@ import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
+import {
+  getAppSettingsPaneContext,
+  getIsAppSettingsPaneWithNavigationTabOpen,
+} from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 
@@ -56,8 +59,9 @@ function WidgetsEditor() {
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
   const navigationPreviewRef = useRef(null);
   const [navigationHeight, setNavigationHeight] = useState(0);
-  const isAppSettingsPaneWithNavigationTabOpen =
-    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {

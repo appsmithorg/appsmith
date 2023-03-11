@@ -33,8 +33,7 @@ import {
   StyledSidebar,
 } from "./Sidebar.styled";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
-import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
 
 type SidebarProps = {
@@ -78,9 +77,9 @@ export function Sidebar(props: SidebarProps) {
   const { x } = useMouse();
   const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(previewModeSelector);
-  const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
-  const isAppSettingsPaneWithNavigationTabOpen =
-    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
 
   useEffect(() => {
     setQuery(window.location.search);
