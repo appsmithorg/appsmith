@@ -1466,7 +1466,7 @@ export const APP_NAVIGATION_SETTING = {
   logoConfigurationLabel: () => "Logo Configuration",
   showSignInLabel: () => "Show Sign In",
   showSignInTooltip: () =>
-    "When a user is not logged in, should we show the sign in button in the navigation or not.",
+    "Toggle to show the sign-in button for users who are not logged in.",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
