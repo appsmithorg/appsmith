@@ -46,6 +46,10 @@ export const clearCommitErrorState = () => ({
   type: ReduxActionTypes.CLEAR_COMMIT_ERROR_STATE,
 });
 
+export const clearDiscardErrorState = () => ({
+  type: ReduxActionTypes.CLEAR_DISCARD_ERROR_STATE,
+});
+
 export type ConnectToGitResponse = {
   gitApplicationMetadata: GitApplicationMetadata;
 };
@@ -175,12 +179,9 @@ export const discardChangesSuccess = (payload: any) => ({
   payload,
 });
 
-export const discardChangesFailure = (payload: {
-  error: unknown;
-  show: boolean;
-}) => ({
+export const discardChangesFailure = (payload: any) => ({
   type: ReduxActionErrorTypes.GIT_DISCARD_CHANGES_ERROR,
-  payload: { error: payload.error, show: payload.show },
+  payload: { error: payload.error, show: false },
 });
 
 export const updateBranchLocally = (payload: string) => ({
