@@ -12,6 +12,7 @@ export class DataSources {
   private table = ObjectsRegistry.Table;
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
+  private homePage = ObjectsRegistry.HomePage;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources";
@@ -580,13 +581,14 @@ export class DataSources {
     cy.get("body").then(($ele) => {
       if ($ele.find(this._reconnectDataSourceModal).length) {
         this.agHelper.GetNClick(this._skiptoApplicationBtn);
+        this.homePage.NavigateToHome();
       }
     });
   }
 
   RunQuery(
-    expectedStatus = true,
     toValidateResponse = true,
+    expectedStatus = true,
     waitTimeInterval = 500,
   ) {
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
@@ -955,7 +957,7 @@ export class DataSources {
   ) {
     this.NavigateToDSCreateNew();
     //Click on Authenticated API
-    cy.get(this._authApiDatasource).click({ force: true });
+    this.agHelper.GetNClick(this._authApiDatasource, 0, true)
     this.FillAPIOAuthForm(datasourceName, grantType, clientId, clientSecret);
 
     // save datasource
@@ -976,7 +978,7 @@ export class DataSources {
     clientId: string,
     clientSecret: string,
   ) {
-    this.agHelper.RenameWithInPane(dsName, false);
+    if (dsName) this.agHelper.RenameWithInPane(dsName, false);
     // Fill Auth Form
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("URL"),

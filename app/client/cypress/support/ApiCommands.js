@@ -186,10 +186,10 @@ Cypress.Commands.add("switchToAPIInputTab", () => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("enterUrl", (apiname, url, value) => {
+Cypress.Commands.add("enterUrl", (baseUrl, url, value) => {
   cy.get(url)
     .first()
-    .type("{{".concat(apiname).concat(value), {
+    .type(baseUrl.concat(value), {
       force: true,
       parseSpecialCharSequences: false,
     });
