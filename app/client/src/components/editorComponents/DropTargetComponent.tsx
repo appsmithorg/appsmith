@@ -34,6 +34,7 @@ import {
   updateDOMDirectlyBasedOnAutoHeightAction,
 } from "actions/autoHeightActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -189,6 +190,9 @@ function useUpdateRows(
 export function DropTargetComponent(props: DropTargetComponentProps) {
   // Get if this is in preview mode.
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
   const { contextValue, dropTargetRef, rowRef } = useUpdateRows(
     props.bottomRow,
@@ -294,6 +298,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       isResizing ||
       isAutoHeightWithLimitsChanging) &&
     !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen &&
     !props.useAutoLayout;
 
   return (

@@ -1,6 +1,7 @@
 import { AppState } from "@appsmith/reducers";
 import React, { CSSProperties, memo } from "react";
 import { useSelector } from "react-redux";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import AutoHeightOverlayWithStateContext from "./AutoHeightOverlayWithStateContext";
@@ -30,12 +31,18 @@ const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> = me
     } = useSelector((state: AppState) => state.ui.widgetDragResize);
 
     const isPreviewMode = useSelector(previewModeSelector);
+    const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+      getIsAppSettingsPaneWithNavigationTabOpen,
+    );
 
     const isWidgetSelected = selectedWidget === widgetId;
     const multipleWidgetsSelected = selectedWidgets.length > 1;
     const isHidden = multipleWidgetsSelected || isDragging || isResizing;
 
-    if (isWidgetSelected && !isPreviewMode) {
+    if (
+      isWidgetSelected &&
+      (!isPreviewMode || !isAppSettingsPaneWithNavigationTabOpen)
+    ) {
       return (
         <AutoHeightOverlayWithStateContext isHidden={isHidden} {...props} />
       );
