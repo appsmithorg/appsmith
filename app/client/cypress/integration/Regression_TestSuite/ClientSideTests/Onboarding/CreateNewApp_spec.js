@@ -16,6 +16,7 @@ describe("Creating new app after discontinuing guided tour should not start the 
       _.homePage.CreateAppInWorkspace(workspaceName); //Since welcome tour always creates app in 1st workspace available
       _.homePage.NavigateToHome();
     });
+    _.agHelper.Sleep(4000); //Adding only because of the CI failure
     _.dataSources.CloseReconnectDataSourceModal(); // Check if reconnect data source modal is visible and close it
     cy.get(guidedTourLocators.welcomeTour)
       .click()
