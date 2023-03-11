@@ -3,11 +3,20 @@ const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const homePage = require("../../../../locators/HomePage");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+let workspaceName;
 
 describe("Creating new app after discontinuing guided tour should not start the same", function() {
   it("1. Creating new app after discontinuing guided tour should not start the same", function() {
     // Start guided tour
     _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      workspaceName = "CNAppWorspace" + uid;
+      _.homePage.CreateNewWorkspace(workspaceName);
+      _.homePage.CreateAppInWorkspace(workspaceName); //Since welcome tour always creates app in 1st workspace available
+      _.homePage.NavigateToHome();
+    });
+    _.agHelper.Sleep(4000); //Adding only because of the CI failure
     _.dataSources.CloseReconnectDataSourceModal(); // Check if reconnect data source modal is visible and close it
     cy.get(guidedTourLocators.welcomeTour)
       .click()

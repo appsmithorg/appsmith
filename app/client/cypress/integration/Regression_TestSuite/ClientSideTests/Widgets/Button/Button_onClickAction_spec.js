@@ -37,7 +37,10 @@ describe("Button Widget Functionality", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("buttonApi");
     cy.log("Creation of buttonApi Action successful");
-    cy.enterDatasourceAndPath(this.data.paginationUrl, "users?page=4&size=3");
+    cy.enterDatasourceAndPath(
+      this.data.paginationUrl,
+      "mock-api?records=20&page=4&size=3",
+    );
     cy.SaveAndRunAPI();
 
     // Going to HomePage where the button widget is located and opeing it's property pane.
