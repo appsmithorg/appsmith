@@ -6,6 +6,7 @@ import {
   getEntities,
   getPluginNameFromId,
   getPluginTypeFromDatasourceId,
+  getPluginPackageFromDatasourceId,
 } from "selectors/entitiesSelector";
 import {
   testDatasource,
@@ -134,6 +135,9 @@ function DatasourceAuth({
   const pluginName = useSelector((state: AppState) =>
     getPluginNameFromId(state, pluginId),
   );
+  const pluginPackageName = useSelector((state: AppState) =>
+    getPluginPackageFromDatasourceId(state, datasource?.id || ""),
+  );
 
   const datasourcePermissions = datasource.userPermissions || [];
 
@@ -261,6 +265,8 @@ function DatasourceAuth({
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
+      pluginName: pluginName || "",
+      pluginPackageName: pluginPackageName || "",
     });
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page

@@ -35,6 +35,7 @@ import {
   getPluginPackageFromDatasourceId,
   getDatasources,
   getDatasourceActionRouteInfo,
+  getPlugin,
 } from "selectors/entitiesSelector";
 import {
   changeDatasource,
@@ -346,8 +347,11 @@ function* updateDatasourceSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const plugin = yield select(getPlugin, response?.data?.pluginId);
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceName: response.data.name,
+        pluginName: plugin?.name || "",
+        pluginPackageName: plugin?.packageName || "",
       });
       Toaster.show({
         text: createMessage(DATASOURCE_UPDATE, response.data.name),
