@@ -53,6 +53,7 @@ const StyledButton = styled(Button)<{
       
       .bp3-button-text {
         ${getTypographyByKey("h5")}
+        font-weight: 400;
       }
     `;
   }}
