@@ -34,7 +34,7 @@ describe("Guided Tour", function() {
     // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");
     // Step 3: Add binding to the tableData property
-    cy.testJsontext("tabledata", "{{getCustomers.data}}");
+    _.propPane.UpdatePropertyFieldValue("Table Data", "{{getCustomers.data}}");
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Renaming widgets // Commending below wait due to flakiness
@@ -45,14 +45,20 @@ describe("Guided Tour", function() {
       if ($body.find(guidedTourLocators.hintButton).length > 0) {
         cy.get(guidedTourLocators.hintButton).click();
         cy.wait(1000); //for NameInput to open
-        cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
+        _.propPane.UpdatePropertyFieldValue(
+          "Default Value",
+          "{{CustomersTable.selectedRow.name}}",
+        );
       } else {
         cy.wait(1000);
         cy.get(guidedTourLocators.inputfields)
           .first()
           .clear({ force: true })
           .click({ force: true }); //Name input
-        cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
+        _.propPane.UpdatePropertyFieldValue(
+          "Default Value",
+          "{{CustomersTable.selectedRow.name}}",
+        );
       }
     });
     cy.get(guidedTourLocators.successButton).click();
@@ -61,7 +67,10 @@ describe("Guided Tour", function() {
       .eq(1)
       .clear({ force: true })
       .click({ force: true }); //Email input
-    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.email}}");
+    _.propPane.UpdatePropertyFieldValue(
+      "Default Value",
+      "{{CustomersTable.selectedRow.email}}",
+    );
     cy.get(".t--entity-name")
       .contains("CountryInput")
       .click({ force: true });
@@ -70,7 +79,10 @@ describe("Guided Tour", function() {
       .eq(2)
       .clear({ force: true })
       .click({ force: true }); //Country input
-    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.country}}");
+    _.propPane.UpdatePropertyFieldValue(
+      "Default Value",
+      "{{CustomersTable.selectedRow.country}}",
+    );
     cy.get(".t--entity-name")
       .contains("DisplayImage")
       .click({ force: true });
@@ -90,10 +102,12 @@ describe("Guided Tour", function() {
     )
       .eq(0)
       .click({ force: true })
+      .wait(500)
       .get("ul.bp3-menu")
       .children()
       .contains("Execute a query")
-      .click({ force: true })
+      .click()
+      .wait(500)
       .get("ul.bp3-menu")
       .children()
       .contains("getCustomers")

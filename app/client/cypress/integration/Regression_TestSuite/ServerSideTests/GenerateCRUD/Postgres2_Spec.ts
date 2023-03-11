@@ -624,7 +624,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("18. Verify application does not break when user runs the query with wrong table name", function() {
     ee.SelectEntityByName("DropVessels", "Queries/JS");
-    dataSources.RunQuery(false, false);
+    dataSources.RunQuery(false);
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(false);
       expect(
