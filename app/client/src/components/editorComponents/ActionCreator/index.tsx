@@ -96,16 +96,16 @@ const ActionCreator = React.forwardRef(
 
           // We show the message only when an action is deleted or changed
           // Prev value is ; when a new action is added
-          if (newFunction !== oldFunction && prevValue !== ";") {
-            Toaster.show({
-              text: `${oldFunction} was deleted`,
-              variant: Variant.success,
-              dispatchableAction: {
-                dispatch: store.dispatch,
-                ...undoAction(),
-              },
-            });
-          }
+          // if (newFunction !== oldFunction && prevValue !== ";") {
+          //   Toaster.show({
+          //     text: `${oldFunction} was deleted`,
+          //     variant: Variant.success,
+          //     dispatchableAction: {
+          //       dispatch: store.dispatch,
+          //       ...undoAction(),
+          //     },
+          //   });
+          // }
 
           if (newValueWithoutMoustache) {
             newActions[id] = newValueWithoutMoustache;
