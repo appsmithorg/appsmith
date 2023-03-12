@@ -449,20 +449,7 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
          * Similarly, for eg. appsmith.geolocation.getCurrentPosition(() => {}, () => {});
          * For this one, the first callee is getCurrentPosition
          */
-        let nodeToTraverse: Node = astWithComments.body[0].expression;
-        let firstCallExpressionNode: Node;
-
-        // @ts-ignore
-        if (nodeToTraverse.callee.type === NodeTypes.Identifier) {
-            firstCallExpressionNode = nodeToTraverse;
-        }
-
-        // @ts-ignore
-        while (nodeToTraverse?.callee?.object) {
-            firstCallExpressionNode = klona(nodeToTraverse);
-            // @ts-ignore
-            nodeToTraverse = nodeToTraverse?.callee?.object;
-        }
+        const firstCallExpressionNode = findRootCallExpression(astWithComments);
 
         // const firstCallExpressionNode = klona(nodeToTraverse);        
 
@@ -506,7 +493,7 @@ export const getFunction = (value: string, evaluationVersion: number): string =>
 
     const node = findRootCallExpression(astWithComments);
 
-    if (isCallExpressionNode(node)) {
+    if (node && isCallExpressionNode(node)) {
         const func = `${generate(node)}`;
         requiredFunction = func !== '{}' ? `{{${func}}}` : "";
     }
@@ -694,25 +681,10 @@ export function getFunctionName(value: string, evaluationVersion: number): strin
         });
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-        /**
-         * We need to traverse the ast to find the first callee
-         * For Eg. Api1.run(() => {}, () => {}).then(() => {}).catch(() => {})
-         * We have multiple callee above, the first one is run
-         * Similarly, for eg. appsmith.geolocation.getCurrentPosition(() => {}, () => {});
-         * For this one, the first callee is getCurrentPosition
-         */
-        let nodeToTraverse: Node = astWithComments.body[0]?.expression;
-        let firstCallExpressionNode: Node = nodeToTraverse;
+    const firstCallExpressionNode = findRootCallExpression(astWithComments);
 
-        // @ts-ignore
-        while (nodeToTraverse?.callee?.object) {
-            firstCallExpressionNode = klona(nodeToTraverse);
-            // @ts-ignore
-            nodeToTraverse = nodeToTraverse?.callee?.object;
-        }
+    return firstCallExpressionNode ? generate(firstCallExpressionNode?.callee, {comments: true}) : ""; 
 
-        // @ts-ignore
-        return firstCallExpressionNode ? generate(firstCallExpressionNode?.callee, {comments: true}) : "";
     } catch (error) {
         return functionName;
     }

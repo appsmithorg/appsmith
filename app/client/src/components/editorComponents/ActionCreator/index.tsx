@@ -1,11 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { getActionBlocks, getFunctionName } from "@shared/ast";
+import { getActionBlocks /*, getFunctionName */ } from "@shared/ast";
 import { ActionCreatorProps } from "./types";
 import { Action } from "./viewComponents/Action";
 import { getCodeFromMoustache } from "./utils";
-import { Toaster, Variant } from "design-system-old";
-import store from "store";
-import { undoAction } from "actions/pageActions";
 
 function uuidv4() {
   return String(1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
@@ -84,15 +81,15 @@ const ActionCreator = React.forwardRef(
         const newValueWithoutMoustache = getCodeFromMoustache(value);
         setActions((prev) => {
           const newActions = { ...prev };
-          const prevValue = prev[id];
-          const newFunction = getFunctionName(
-            newValueWithoutMoustache,
-            self.evaluationVersion,
-          );
-          const oldFunction = getFunctionName(
-            prevValue,
-            self.evaluationVersion,
-          );
+          // const prevValue = prev[id];
+          // const newFunction = getFunctionName(
+          //   newValueWithoutMoustache,
+          //   self.evaluationVersion,
+          // );
+          // const oldFunction = getFunctionName(
+          //   prevValue,
+          //   self.evaluationVersion,
+          // );
 
           // We show the message only when an action is deleted or changed
           // Prev value is ; when a new action is added
