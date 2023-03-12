@@ -290,7 +290,7 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
     if(node && isCallExpressionNode(node)) {
         if (node.arguments[argNum]) {
             let argument = node.arguments[argNum];
-            switch (argument.type) {
+            switch (argument?.type) {
                 case NodeTypes.Literal:
                     requiredArgument = argument.raw as string;
             }
@@ -373,7 +373,7 @@ export const getModalName = (value: string, evaluationVersion: number): string =
 
     if(node && isCallExpressionNode(node)) {
         let argument = node.arguments[0];
-        switch (argument.type){
+        switch (argument?.type){
             case NodeTypes.Literal:
                 modalName = argument.value as string;
         } 
