@@ -2,12 +2,11 @@ import React from "react";
 import styled from "styled-components";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
 import ActionCreator from "components/editorComponents/ActionCreator";
-import { Size, Category } from "design-system-old";
+import { Button } from "design-system";
 
 export interface ColumnAction {
   label?: string;
@@ -79,15 +78,14 @@ class ColumnActionSelectorControl extends BaseControl<
             );
           })}
 
-        <StyledPropertyPaneButton
-          category={Category.secondary}
-          icon="plus"
-          onClick={this.addColumnAction}
-          size={Size.medium}
-          tag="button"
-          text="New Button"
-          type="button"
-        />
+        <Button
+          kind="secondary"
+          onPress={this.addColumnAction}
+          size="md"
+          startIcon="plus"
+        >
+          New Button
+        </Button>
       </>
     );
   }

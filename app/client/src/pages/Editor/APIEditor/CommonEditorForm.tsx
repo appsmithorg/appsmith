@@ -30,20 +30,19 @@ import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  Button,
   Callout,
   Case,
   Classes,
   Icon,
   IconSize,
   SearchSnippet,
-  Size,
   TabComponent,
   Text,
   TextType,
   TooltipComponent,
   Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -750,16 +749,15 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
               <Button
                 className="t--apiFormRunBtn"
-                disabled={!isExecutePermitted}
+                isDisabled={!isExecutePermitted}
                 isLoading={isRunning}
-                onClick={() => {
+                onPress={() => {
                   onRunClick();
                 }}
-                size={Size.medium}
-                tag="button"
-                text="Run"
-                type="button"
-              />
+                size="md"
+              >
+                Run
+              </Button>
             </ActionButtons>
           </FormRow>
           <FormRow className="api-info-row">

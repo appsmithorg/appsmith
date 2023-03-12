@@ -9,7 +9,8 @@ import {
   UseFormResetField,
 } from "react-hook-form";
 import QuestionIcon from "remixicon-react/QuestionFillIcon";
-import { Button, Size, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
+import { Button } from "design-system";
 
 import { Inputs } from "./BrandingPage";
 import {
@@ -157,12 +158,12 @@ function SettingsForm(props: SettingsFormProps) {
         </div>
 
         <Button
-          disabled={disabled || !hasDirtyFields}
-          size={Size.medium}
-          tag="button"
-          text="submit"
+          isDisabled={disabled || !hasDirtyFields}
+          size="md"
           type="submit"
-        />
+        >
+          Submit
+        </Button>
       </div>
     </form>
   );

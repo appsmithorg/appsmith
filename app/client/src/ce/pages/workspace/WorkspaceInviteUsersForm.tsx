@@ -45,16 +45,15 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  Button,
   Classes,
   Callout,
   DropdownOption,
-  Size,
   Text,
   TextType,
   TextProps,
   Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
@@ -308,8 +307,6 @@ const validate = (values: any) => {
   return errors;
 };
 
-export const InviteButtonWidth = "88px";
-
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
@@ -510,14 +507,12 @@ function WorkspaceInviteUsersForm(props: any) {
           </div>
           <Button
             className="t--invite-user-btn"
-            disabled={!valid}
+            isDisabled={!valid}
             isLoading={submitting && !(submitFailed && !anyTouched)}
-            size={Size.large}
-            tag="button"
-            text="Invite"
-            variant={Variant.info}
-            width={InviteButtonWidth}
-          />
+            size="md"
+          >
+            Invite
+          </Button>
         </StyledInviteFieldGroup>
         {isLoading ? (
           <Loading size={30} />

@@ -9,7 +9,7 @@ import {
 } from "actions/pluginActionActions";
 import { DialogComponent } from "design-system-old";
 import styled from "styled-components";
-import { Button, Category, Size } from "design-system-old";
+import { Button } from "design-system";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
@@ -100,27 +100,27 @@ class RequestConfirmationModal extends React.Component<Props> {
               <b>{modalInfo.name}</b> ?
             </ModalBody>
             <ModalFooter>
+              {/* TODO (tanvi): cypress selector */}
               <Button
-                category={Category.secondary}
-                cypressSelector="t--cancel-modal-btn"
-                onClick={() => {
+                // cypressSelector="t--cancel-modal-btn"
+                kind="secondary"
+                onPress={() => {
                   dispatch(cancelActionConfirmationModal(modalInfo.name));
                   this.handleClose(modalInfo);
                 }}
-                size={Size.large}
-                tag="button"
-                text="No"
-                type="button"
-              />
+                size="md"
+              >
+                No
+              </Button>
+              {/* TODO (tanvi): cypress selector */}
               <Button
-                category={Category.primary}
-                cypressSelector="t--confirm-modal-btn"
-                onClick={() => this.onConfirm(modalInfo)}
-                size={Size.large}
-                tag="button"
-                text="Yes"
-                type="button"
-              />
+                // cypressSelector="t--confirm-modal-btn"
+                kind="primary"
+                onPress={() => this.onConfirm(modalInfo)}
+                size="md"
+              >
+                Yes
+              </Button>
             </ModalFooter>
           </DialogComponent>
         ))}

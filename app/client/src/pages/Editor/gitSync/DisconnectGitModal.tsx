@@ -8,18 +8,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { revokeGit, setIsDisconnectGitModalOpen } from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
-  Button,
-  Category,
   DialogComponent as Dialog,
   Icon,
   IconSize,
-  Size,
   Text,
   TextInput,
   TextType,
-  Variant,
 } from "design-system-old";
-
+import { Button } from "design-system";
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import InfoWrapper from "./components/InfoWrapper";
@@ -185,15 +181,13 @@ function DisconnectGitModal() {
 
           <ButtonContainer>
             <Button
-              category={Category.primary}
               className="t--git-revoke-button"
-              disabled={shouldDisableRevokeButton}
-              onClick={onDisconnectGit}
-              size={Size.large}
-              tag="button"
-              text={createMessage(REVOKE)}
-              variant={Variant.danger}
-            />
+              isDisabled={shouldDisableRevokeButton}
+              kind="error"
+              onPress={onDisconnectGit}
+            >
+              {createMessage(REVOKE)}
+            </Button>
           </ButtonContainer>
         </BodyContainer>
       </Container>

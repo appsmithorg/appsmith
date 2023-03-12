@@ -40,15 +40,13 @@ import {
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
-  Button,
-  Category,
   getTypographyByKey,
   Icon,
   IconName,
   IconSize,
-  Size,
   TooltipComponent as Tooltip,
 } from "design-system-old";
+import { Button } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
@@ -263,18 +261,19 @@ function ConnectGitPlaceholder() {
           <StyledIcon />
           {isGitConnectionEnabled ? (
             <Button
-              category={Category.secondary}
               className="t--connect-git-bottom-bar"
-              onClick={() => {
+              kind="secondary"
+              onPress={() => {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
                   source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
                 });
 
                 dispatch(showConnectGitModal());
               }}
-              size={Size.small}
-              text={createMessage(CONNECT_GIT_BETA)}
-            />
+              size="sm"
+            >
+              {createMessage(CONNECT_GIT_BETA)}
+            </Button>
           ) : (
             <PlaceholderButton className="t--disabled-connect-git-bottom-bar">
               {createMessage(CONNECT_GIT)}

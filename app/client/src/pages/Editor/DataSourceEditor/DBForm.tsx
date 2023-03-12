@@ -5,7 +5,7 @@ import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-import { Callout, Category, Variant } from "design-system-old";
+import { Callout, Variant } from "design-system-old";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 import { Datasource } from "entities/Datasource";
@@ -17,7 +17,6 @@ import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
 import { AppState } from "@appsmith/reducers";
 import {
-  EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
@@ -28,6 +27,7 @@ import DatasourceAuth from "pages/common/datasourceAuth";
 import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { Button } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -131,14 +131,15 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               />
             </FormTitleContainer>
             {viewMode && (
-              <EditDatasourceButton
-                category={Category.secondary}
+              <Button
                 className="t--edit-datasource"
-                onClick={() => {
+                kind="secondary"
+                onPress={() => {
                   this.props.setDatasourceViewMode(false);
                 }}
-                text="EDIT"
-              />
+              >
+                Edit
+              </Button>
             )}
           </Header>
         )}

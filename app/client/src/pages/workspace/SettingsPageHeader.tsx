@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import { DebouncedFunc } from "lodash";
 import {
-  Button,
   IconSize,
   Menu,
   MenuItem,
@@ -11,6 +10,7 @@ import {
   Icon,
   SearchVariant,
 } from "design-system-old";
+import { Button } from "design-system";
 import { HeaderWrapper } from "pages/Settings/components";
 import {
   HelpPopoverStyle,
@@ -132,11 +132,10 @@ export function SettingsPageHeader(props: PageHeaderProps) {
           {buttonText && showSearchNButton && (
             <StyledButton
               data-testid={"t--page-header-input"}
-              height="36"
-              onClick={props.onButtonClick}
-              tag="button"
-              text={buttonText}
-            />
+              onPress={props.onButtonClick}
+            >
+              {buttonText}
+            </StyledButton>
           )}
           {showMoreOptions && (
             <Menu

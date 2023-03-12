@@ -11,15 +11,13 @@ import {
 } from "actions/gitSyncActions";
 import styled, { useTheme } from "styled-components";
 import {
-  Button,
-  Category,
   DialogComponent as Dialog,
   Icon,
   IconSize,
-  Size,
   Text,
   TextType,
 } from "design-system-old";
+import { Button } from "design-system";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
@@ -227,18 +225,17 @@ function RepoLimitExceededErrorModal() {
           </InfoWrapper>
           <ButtonContainer>
             <Button
-              category={Category.secondary}
               className="t--contact-sales-button"
-              onClick={() => {
+              kind="secondary"
+              onPress={() => {
                 AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
                   source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
                 });
                 openIntercom();
               }}
-              size={Size.large}
-              tag="button"
-              text={createMessage(CONTACT_SUPPORT)}
-            />
+            >
+              {createMessage(CONTACT_SUPPORT)}
+            </Button>
           </ButtonContainer>
           <div style={{ marginTop: theme.spaces[15] }}>
             <Text color={Colors.BLACK} type={TextType.H1}>

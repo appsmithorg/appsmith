@@ -14,7 +14,8 @@ import {
 } from "@appsmith/constants/messages";
 import { CalloutV2, CalloutType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Button, Category, Icon, TooltipComponent } from "design-system-old";
+import { Icon, TooltipComponent } from "design-system-old";
+import { Button } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -101,12 +102,6 @@ export type AuthMethodType = {
   calloutBanner?: banner;
 };
 
-const StyledAuthButton = styled(Button)`
-  height: 30px;
-  width: 94px;
-  padding: 8px 16px;
-`;
-
 const Label = styled.span<{ business?: boolean }>`
   display: inline;
   ${(props) =>
@@ -154,17 +149,19 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   };
 
   return (
-    <StyledAuthButton
-      category={method.isConnected ? Category.primary : Category.secondary}
+    <Button
       className={`t--settings-sub-category-${
         method.needsUpgrade ? `upgrade-${method.category}` : method.category
       }`}
       data-cy="btn-auth-account"
-      onClick={() => onClickHandler(method)}
-      text={createMessage(
+      kind={method.isConnected ? "primary" : "secondary"}
+      onPress={() => onClickHandler(method)}
+      size="md"
+    >
+      {createMessage(
         method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
       )}
-    />
+    </Button>
   );
 }
 

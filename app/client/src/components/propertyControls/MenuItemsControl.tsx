@@ -1,15 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
-import { Category, Size } from "design-system-old";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import { Button } from "design-system";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -22,11 +21,6 @@ const MenuItemsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const AddMenuItemButton = styled(StyledPropertyPaneButton)`
-  justify-content: center;
-  flex-grow: 1;
 `;
 
 type State = {
@@ -114,16 +108,15 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           updateOption={this.updateOption}
         />
         <StyledPropertyPaneButtonWrapper>
-          <AddMenuItemButton
-            category={Category.secondary}
+          <Button
             className="t--add-menu-item-btn"
-            icon="plus"
-            onClick={this.addOption}
-            size={Size.medium}
-            tag="button"
-            text="Add a new Menu Item"
-            type="button"
-          />
+            kind="secondary"
+            onPress={this.addOption}
+            size="md"
+            startIcon="plus"
+          >
+            Add a new Menu Item
+          </Button>
         </StyledPropertyPaneButtonWrapper>
       </MenuItemsWrapper>
     );

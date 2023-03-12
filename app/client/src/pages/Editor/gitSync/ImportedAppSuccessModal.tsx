@@ -10,7 +10,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Icon } from "design-system-old";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Button, Category, Size } from "design-system-old";
+import { Button } from "design-system";
 import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
@@ -47,10 +47,6 @@ const ActionButtonWrapper = styled.div`
   position: absolute;
   width: 100%;
   bottom: 0px;
-`;
-
-const ActionButton = styled(Button)`
-  margin-right: 16px;
 `;
 
 function ImportedApplicationSuccessModal() {
@@ -97,15 +93,14 @@ function ImportedApplicationSuccessModal() {
             {createMessage(APPLICATION_IMPORT_SUCCESS_DESCRIPTION)}
           </Text>
           <ActionButtonWrapper>
-            <ActionButton
-              category={Category.primary}
+            <Button
               className="t--import-success-modal-got-it"
-              onClick={() => {
+              onPress={() => {
                 onClose();
               }}
-              size={Size.medium}
-              text="GOT IT"
-            />
+            >
+              Got it
+            </Button>
           </ActionButtonWrapper>
         </BodyContainer>
       </Container>

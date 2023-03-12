@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Button, Size } from "design-system-old";
+import { Button } from "design-system";
 import { flushErrors } from "actions/errorActions";
 
 import Page from "./Page";
@@ -21,17 +21,17 @@ function ClientError(props: Props) {
     <Page
       cta={
         <Button
-          category="primary"
           className="button-position"
-          icon="right-arrow"
-          iconAlignment="right"
-          onClick={() => {
+          endIcon="right-arrow"
+          kind="primary"
+          onPress={() => {
             flushErrors();
             window.open("https://discord.gg/rBTTVJp", "_blank");
           }}
-          size={Size.large}
-          text="Contact us on discord"
-        />
+          size="md"
+        >
+          Contact us on discord
+        </Button>
       }
       description={createMessage(PAGE_CLIENT_ERROR_DESCRIPTION)}
       title={createMessage(PAGE_CLIENT_ERROR_TITLE)}

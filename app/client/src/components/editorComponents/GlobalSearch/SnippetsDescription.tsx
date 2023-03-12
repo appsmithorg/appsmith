@@ -12,7 +12,8 @@ import {
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
 import CodeEditor from "../CodeEditor";
-import { Button, Size, TabComponent } from "design-system-old";
+import { TabComponent } from "design-system-old";
+import { Button } from "design-system";
 import {
   evaluateArgument,
   evaluateSnippet,
@@ -369,13 +370,12 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
               {language === "javascript" && (
                 <Button
                   className="t--apiFormRunBtn snippet-execute"
-                  disabled={executionInProgress}
-                  onClick={handleRun}
-                  size={Size.medium}
-                  tag="button"
-                  text="Run"
-                  type="button"
-                />
+                  isDisabled={executionInProgress}
+                  onPress={handleRun}
+                  size="md"
+                >
+                  Run
+                </Button>
               )}
             </div>
             <div id="snippet-evaluator">

@@ -26,12 +26,8 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
-import {
-  Button,
-  Category,
-  FormGroup as StyledFormGroup,
-  Size,
-} from "design-system-old";
+import { FormGroup as StyledFormGroup } from "design-system-old";
+import { Button } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 
 const DetailsFormWrapper = styled.div`
@@ -141,15 +137,14 @@ export default function DetailsForm(
         )}
         <ButtonWrapper>
           <Button
-            category={Category.secondary}
             className="t--welcome-form-next-button"
-            disabled={props.invalid}
-            onClick={props.onNext}
-            size={Size.medium}
-            tag="button"
-            text="Next"
-            type="button"
-          />
+            isDisabled={props.invalid}
+            kind="secondary"
+            onPress={props.onNext}
+            size="md"
+          >
+            Next
+          </Button>
         </ButtonWrapper>
       </StyledFormBodyWrapper>
     </DetailsFormWrapper>

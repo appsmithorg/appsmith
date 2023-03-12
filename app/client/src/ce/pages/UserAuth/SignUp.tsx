@@ -28,8 +28,8 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
-import { Button, FormGroup, FormMessage, Size } from "design-system-old";
-
+import { FormGroup, FormMessage } from "design-system-old";
+import { Button } from "design-system";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
 import { SignupFormValues } from "pages/UserAuth/helpers";
@@ -199,11 +199,12 @@ export function SignUp(props: SignUpFormProps) {
             />
           </FormGroup>
           <FormActions>
+            {/* TODO (tanvi): Submit button*/}
             <Button
-              disabled={shouldDisableSignupButton}
-              fill
+              isDisabled={shouldDisableSignupButton}
               isLoading={submitting}
-              onClick={() => {
+              kind="primary"
+              onPress={() => {
                 AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                   signupMethod: "EMAIL",
                 });
@@ -211,11 +212,10 @@ export function SignUp(props: SignUpFormProps) {
                   PerformanceTransactionName.SIGN_UP,
                 );
               }}
-              size={Size.large}
-              tag="button"
-              text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
-              type="submit"
-            />
+              size="md"
+            >
+              {createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
+            </Button>
           </FormActions>
         </SpacedSubmitForm>
       )}

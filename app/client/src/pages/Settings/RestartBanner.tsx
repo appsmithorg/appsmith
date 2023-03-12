@@ -1,12 +1,6 @@
 import React from "react";
-import {
-  Button,
-  Category,
-  hexToRgba,
-  Icon,
-  IconSize,
-  Size,
-} from "design-system-old";
+import { hexToRgba, Icon, IconSize } from "design-system-old";
+import { Button } from "design-system";
 import {
   getIsRestartFailed,
   getRestartingState,
@@ -162,12 +156,12 @@ export default function RestartBanner() {
         </RestartMessageWrapper>
         {isRestartFailed && (
           <Button
-            category={Category.primary}
             data-cy="btn-refresh"
-            onClick={() => dispatch(retryServerRestart())}
-            size={Size.large}
-            text={createMessage(RETRY_BUTTON)}
-          />
+            onPress={() => dispatch(retryServerRestart())}
+            size="md"
+          >
+            {createMessage(RETRY_BUTTON)}
+          </Button>
         )}
       </RestartContainer>
     </RestartBannerWrapper>

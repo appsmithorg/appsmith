@@ -5,7 +5,6 @@ import { Template as TemplateInterface } from "api/TemplatesApi";
 import {
   Button,
   getTypographyByKey,
-  Size,
   TooltipComponent as Tooltip,
 } from "design-system-old";
 import ForkTemplateDialog from "../ForkTemplate";
@@ -79,22 +78,6 @@ const TemplateDatasources = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: ${(props) => props.theme.spaces[1]}px;
-`;
-
-const StyledButton = styled(Button)`
-  border-radius: 18px;
-  && {
-    & > span {
-      margin-right: ${(props) => props.theme.spaces[0]}px;
-    }
-  }
-  height: 31px;
-  width: 31px;
-
-  svg {
-    height: 20px;
-    width: 20px;
-  }
 `;
 
 export interface TemplateProps {
@@ -187,12 +170,12 @@ export function TemplateLayout(props: TemplateLayoutProps) {
                 minimal
                 position={Position.BOTTOM}
               >
-                <StyledButton
+                <Button
                   className="t--fork-template fork-button"
-                  icon="plus"
-                  onClick={onForkButtonTrigger}
-                  size={Size.medium}
-                  tag="button"
+                  isIconButton
+                  onPress={onForkButtonTrigger}
+                  size="md"
+                  startIcon="plus"
                 />
               </Tooltip>
             )}

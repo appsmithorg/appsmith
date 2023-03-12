@@ -1,6 +1,7 @@
 import React from "react";
 import { Icon } from "@blueprintjs/core";
-import { Button, Category, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -122,11 +123,6 @@ const CompeleteMarkerIcon = styled.div<{ success: boolean }>`
 
 const StyledCompleteMarker = styled.div`
   flex-basis: 40px;
-`;
-
-const StyledButton = styled(Button)`
-  width: 218px;
-  height: 30px;
 `;
 
 const Backbutton = styled.span`
@@ -280,12 +276,9 @@ export default function OnboardingChecklist() {
           <BannerText>
             {createMessage(ONBOARDING_CHECKLIST_BANNER_BODY)}
           </BannerText>
-          <StyledButton
-            category={Category.primary}
-            onClick={() => history.push(APPLICATIONS_URL)}
-            text={createMessage(ONBOARDING_CHECKLIST_BANNER_BUTTON)}
-            type="button"
-          />
+          <Button onPress={() => history.push(APPLICATIONS_URL)}>
+            {createMessage(ONBOARDING_CHECKLIST_BANNER_BUTTON)}
+          </Button>
         </Banner>
       )}
       <Pageheader className="font-bold py-6">
@@ -332,18 +325,18 @@ export default function OnboardingChecklist() {
             {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal)}
           </ChecklistText>
           {!datasources.length && !actions.length && (
-            <StyledButton
-              category={
+            <Button
+              className="t--checklist-datasource-button"
+              data-testid="checklist-datasource-button"
+              kind={
                 suggestedNextAction ===
                 createMessage(
                   () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_A_DATASOURCE,
                 )
-                  ? Category.primary
-                  : Category.secondary
+                  ? "primary"
+                  : "secondary"
               }
-              className="t--checklist-datasource-button"
-              data-testid="checklist-datasource-button"
-              onClick={() => {
+              onPress={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
                   from: "CHECKLIST",
                 });
@@ -354,11 +347,11 @@ export default function OnboardingChecklist() {
                   }),
                 );
               }}
-              text={createMessage(
+            >
+              {createMessage(
                 () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_A_DATASOURCE,
               )}
-              type="button"
-            />
+            </Button>
           )}
         </StyledListItem>
         <StyledListItem>
@@ -384,17 +377,17 @@ export default function OnboardingChecklist() {
             &nbsp;{createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal)}
           </ChecklistText>
           {!actions.length && (
-            <StyledButton
-              category={
-                suggestedNextAction ===
-                createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.CREATE_A_QUERY)
-                  ? Category.primary
-                  : Category.secondary
-              }
+            <Button
               className="t--checklist-action-button"
               data-testid="checklist-action-button"
-              disabled={!datasources.length}
-              onClick={() => {
+              isDisabled={!datasources.length}
+              kind={
+                suggestedNextAction ===
+                createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.CREATE_A_QUERY)
+                  ? "primary"
+                  : "secondary"
+              }
+              onPress={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_QUERY_CLICK", {
                   from: "CHECKLIST",
                 });
@@ -405,12 +398,9 @@ export default function OnboardingChecklist() {
                   }),
                 );
               }}
-              tag="button"
-              text={createMessage(
-                () => ONBOARDING_CHECKLIST_ACTIONS.CREATE_A_QUERY,
-              )}
-              type="button"
-            />
+            >
+              {createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.CREATE_A_QUERY)}
+            </Button>
           )}
         </StyledListItem>
         <StyledListItem>
@@ -436,16 +426,16 @@ export default function OnboardingChecklist() {
             &nbsp;{createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
           </ChecklistText>
           {Object.keys(widgets).length === 1 && (
-            <StyledButton
-              category={
-                suggestedNextAction ===
-                createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS)
-                  ? Category.primary
-                  : Category.secondary
-              }
+            <Button
               className="t--checklist-widget-button"
               data-testid="checklist-widget-button"
-              onClick={() => {
+              kind={
+                suggestedNextAction ===
+                createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS)
+                  ? "primary"
+                  : "secondary"
+              }
+              onPress={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                   from: "CHECKLIST",
                 });
@@ -453,11 +443,9 @@ export default function OnboardingChecklist() {
                 dispatch(forceOpenWidgetPanel(true));
                 history.push(builderURL({ pageId }));
               }}
-              text={createMessage(
-                () => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS,
-              )}
-              type="button"
-            />
+            >
+              {createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS)}
+            </Button>
           )}
         </StyledListItem>
         <StyledListItem>
@@ -484,25 +472,24 @@ export default function OnboardingChecklist() {
             {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.normal)}
           </ChecklistText>
           {!isConnectionPresent && (
-            <StyledButton
-              category={
+            <Button
+              className="t--checklist-connection-button"
+              data-testid="checklist-connection-button"
+              isDisabled={Object.keys(widgets).length === 1 || !actions.length}
+              kind={
                 suggestedNextAction ===
                 createMessage(
                   () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_DATA_TO_WIDGET,
                 )
-                  ? Category.primary
-                  : Category.secondary
+                  ? "primary"
+                  : "secondary"
               }
-              className="t--checklist-connection-button"
-              data-testid="checklist-connection-button"
-              disabled={Object.keys(widgets).length === 1 || !actions.length}
-              onClick={onconnectYourWidget}
-              tag="button"
-              text={createMessage(
+              onPress={onconnectYourWidget}
+            >
+              {createMessage(
                 () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_DATA_TO_WIDGET,
               )}
-              type="button"
-            />
+            </Button>
           )}
         </StyledListItem>
         <StyledListItem>
@@ -527,18 +514,18 @@ export default function OnboardingChecklist() {
             {createMessage(ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.normal)}
           </ChecklistText>
           {!isDeployed && (
-            <StyledButton
-              category={
+            <Button
+              className="t--checklist-deploy-button"
+              data-testid="checklist-deploy-button"
+              kind={
                 suggestedNextAction ===
                 createMessage(
                   () => ONBOARDING_CHECKLIST_ACTIONS.DEPLOY_APPLICATIONS,
                 )
-                  ? Category.primary
-                  : Category.secondary
+                  ? "primary"
+                  : "secondary"
               }
-              className="t--checklist-deploy-button"
-              data-testid="checklist-deploy-button"
-              onClick={() => {
+              onPress={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
                   from: "CHECKLIST",
                 });
@@ -549,11 +536,11 @@ export default function OnboardingChecklist() {
                   },
                 });
               }}
-              text={createMessage(
+            >
+              {createMessage(
                 () => ONBOARDING_CHECKLIST_ACTIONS.DEPLOY_APPLICATIONS,
               )}
-              type="button"
-            />
+            </Button>
           )}
         </StyledListItem>
       </StyledList>

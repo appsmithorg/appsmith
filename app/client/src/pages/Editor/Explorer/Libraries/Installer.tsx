@@ -7,13 +7,10 @@ import React, {
 } from "react";
 import styled from "styled-components";
 import {
-  Button,
-  Category,
   FormGroup,
   Icon,
   IconSize,
   MenuDivider,
-  Size,
   Spinner,
   Text,
   TextInput,
@@ -21,6 +18,7 @@ import {
   Toaster,
   Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import {
   createMessage,
   customJSLibraryMessages,
@@ -442,17 +440,14 @@ export function Installer(props: { left: number }) {
               />
             </FormGroup>
             <Button
-              category={Category.primary}
               data-testid="install-library-btn"
-              disabled={!(URL && isValid)}
-              icon="download"
+              isDisabled={!(URL && isValid)}
               isLoading={queuedLibraries.length > 0}
-              onClick={() => installLibrary()}
-              size={Size.medium}
-              tag="button"
-              text="INSTALL"
-              type="button"
-            />
+              onPress={() => installLibrary()}
+              startIcon="download"
+            >
+              Install
+            </Button>
           </div>
         </div>
         <div className="search-CTA mb-3 text-xs">

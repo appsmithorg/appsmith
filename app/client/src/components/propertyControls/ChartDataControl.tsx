@@ -2,7 +2,7 @@ import React from "react";
 import { get, isString } from "lodash";
 import styled from "styled-components";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
+import { ControlWrapper } from "./StyledControls";
 import { FormIcons } from "icons/FormIcons";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
@@ -11,7 +11,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Size, Category } from "design-system-old";
+import { Button } from "design-system";
 import { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
@@ -270,15 +270,14 @@ class ChartDataControl extends BaseControl<ControlProps> {
           })}
         </Wrapper>
 
-        <StyledPropertyPaneButton
-          category={Category.secondary}
-          icon="plus"
-          onClick={this.addOption}
-          size={Size.medium}
-          tag="button"
-          text="Add Series"
-          type="button"
-        />
+        <Button
+          kind="secondary"
+          onPress={this.addOption}
+          size="md"
+          startIcon="plus"
+        >
+          Add Series
+        </Button>
       </>
     );
   }

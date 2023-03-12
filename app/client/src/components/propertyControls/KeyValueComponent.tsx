@@ -1,17 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { FormIcons } from "icons/FormIcons";
-import {
-  ControlWrapper,
-  StyledInputGroup,
-  StyledPropertyPaneButton,
-} from "./StyledControls";
+import { ControlWrapper, StyledInputGroup } from "./StyledControls";
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
-import { Category, Size } from "design-system-old";
+import { Button } from "design-system";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { PressEvent } from "@react-types/shared";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -45,38 +41,8 @@ function updateOptionValue<T>(
   });
 }
 
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
-  cursor: pointer;
-
-  && svg path {
-    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
-  }
-
-  &&:hover {
-    svg path {
-      fill: ${(props) => props.theme.colors.propertyPane.title};
-    }
-  }
-`;
-
 const StyledBox = styled.div`
   width: 10px;
-`;
-
-const StyledButton = styled.button`
-  width: 28px;
-  height: 28px;
-
-  &&& svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  &&:focus {
-    svg path {
-      fill: ${(props) => props.theme.colors.propertyPane.title};
-    }
-  }
 `;
 
 type UpdatePairFunction = (
@@ -221,27 +187,27 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               value={pair.value}
             />
             <StyledBox />
-            <StyledButton
-              onClick={(e: React.MouseEvent) => {
-                deletePair(index, e.detail === 0);
+            <Button
+              isIconButton
+              onPress={(e: PressEvent) => {
+                deletePair(index, e.hasOwnProperty("detail"));
               }}
-            >
-              <StyledDeleteIcon />
-            </StyledButton>
+              size="sm"
+              startIcon="delete-bin-line"
+            />
           </ControlWrapper>
         );
       })}
 
-      <StyledPropertyPaneButton
-        category={Category.secondary}
+      <Button
         className="t--property-control-options-add"
-        icon="plus"
-        onClick={addPair}
-        size={Size.medium}
-        tag="button"
-        text={props.addLabel || "Option"}
-        type="button"
-      />
+        kind="secondary"
+        onPress={() => addPair}
+        size="md"
+        startIcon="plus"
+      >
+        {props.addLabel || "Option"}
+      </Button>
     </>
   );
 }

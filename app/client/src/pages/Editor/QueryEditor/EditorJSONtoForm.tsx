@@ -21,14 +21,11 @@ import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
 import {
-  Button,
   Callout,
-  Category,
   Classes,
   Icon as AdsIcon,
   IconSize,
   SearchSnippet,
-  Size,
   Spinner,
   TabComponent,
   Text,
@@ -36,6 +33,7 @@ import {
   TooltipComponent,
   Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
@@ -101,8 +99,6 @@ import {
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   responseTabComponent,
-  InlineButton,
-  CancelRequestButton,
   LoadingOverlayContainer,
   handleCancelActionExecution,
 } from "components/editorComponents/ApiResponseView";
@@ -872,15 +868,14 @@ export function EditorJSONtoForm(props: Props) {
               <AdsIcon name="no-response" />
               <Text type={TextType.P1}>
                 {createMessage(ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF)}
-                <InlineButton
-                  disabled={!isExecutePermitted}
+                <Button
+                  isDisabled={!isExecutePermitted}
                   isLoading={isRunning}
-                  onClick={responeTabOnRunClick}
-                  size={Size.medium}
-                  tag="button"
-                  text="Run"
-                  type="button"
-                />
+                  onPress={responeTabOnRunClick}
+                  size="md"
+                >
+                  Run
+                </Button>
                 {createMessage(ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF)}
               </Text>
             </NoResponseContainer>
@@ -999,14 +994,13 @@ export function EditorJSONtoForm(props: Props) {
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
-              disabled={!isExecutePermitted}
+              isDisabled={!isExecutePermitted}
               isLoading={isRunning}
-              onClick={onRunClick}
-              size={Size.medium}
-              tag="button"
-              text="Run"
-              type="button"
-            />
+              onPress={onRunClick}
+              size="md"
+            >
+              Run
+            </Button>
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>
@@ -1119,17 +1113,16 @@ export function EditorJSONtoForm(props: Props) {
                       <Text textAlign={"center"} type={TextType.P1}>
                         {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
                       </Text>
-                      <CancelRequestButton
-                        category={Category.secondary}
+                      <Button
                         className={`t--cancel-action-button`}
-                        onClick={() => {
+                        kind="secondary"
+                        onPress={() => {
                           handleCancelActionExecution();
                         }}
-                        size={Size.medium}
-                        tag="button"
-                        text="Cancel Request"
-                        type="button"
-                      />
+                        size="md"
+                      >
+                        Cancel Request
+                      </Button>
                     </div>
                   </LoadingOverlayContainer>
                 </>

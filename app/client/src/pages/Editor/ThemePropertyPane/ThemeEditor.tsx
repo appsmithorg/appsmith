@@ -29,12 +29,8 @@ import { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
-import {
-  Button,
-  Category,
-  Classes as CsClasses,
-  Size,
-} from "design-system-old";
+import { Classes as CsClasses } from "design-system-old";
+import { Button } from "design-system";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
@@ -168,12 +164,12 @@ function ThemeEditor() {
             className={`absolute left-0 top-0 bottom-0 right-0 items-center justify-center hidden group-hover:flex  backdrop-filter bg-gray-900 bg-opacity-50 backdrop-blur-sm `}
           >
             <Button
-              category={Category.primary}
               className="t--change-theme-btn"
-              onClick={onClickChangeThemeButton}
-              size={Size.medium}
-              text="Change Theme"
-            />
+              onPress={onClickChangeThemeButton}
+              size="md"
+            >
+              Change Theme
+            </Button>
           </aside>
         </ThemeCard>
       </header>

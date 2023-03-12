@@ -29,13 +29,10 @@ import { noop, omit } from "lodash";
 import {
   AppIcon,
   AppIconName,
-  Button,
-  Category,
   Classes as CsClasses,
   ColorSelector,
   EditableText,
   EditInteractionKind,
-  IconPositions,
   Icon,
   IconSelector,
   IconSize,
@@ -51,6 +48,7 @@ import {
   TooltipComponent,
   Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,
@@ -226,15 +224,6 @@ const ApplicationImage = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    & {
-      .control {
-        button {
-          span {
-            font-weight: ${(props) => props.theme.fontWeights[3]};
-          }
-        }
-      }
-    }
   }
 `;
 
@@ -312,10 +301,6 @@ type ApplicationCardProps = {
   isMobile?: boolean;
   hasCreateNewApplicationPermission?: boolean;
 };
-
-const EditButton = styled(Button)`
-  margin-bottom: 0;
-`;
 
 const ContextDropdownWrapper = styled.div``;
 
@@ -849,29 +834,25 @@ export function ApplicationCard(props: ApplicationCardProps) {
               <ApplicationImage className="image-container">
                 <Control className="control">
                   {hasEditPermission && !isMenuOpen && (
-                    <EditButton
+                    <Button
                       className="t--application-edit-link"
-                      fill
-                      href={editModeURL}
-                      icon={"edit"}
-                      iconPosition={IconPositions.left}
-                      onClick={editApp}
-                      size={Size.medium}
-                      text="Edit"
-                    />
+                      onPress={editApp}
+                      size="md"
+                      startIcon={"edit"}
+                    >
+                      Edit
+                    </Button>
                   )}
                   {!isMenuOpen && (
                     <Button
-                      category={Category.secondary}
                       className="t--application-view-link"
-                      fill
-                      href={viewModeURL}
-                      icon={"rocket"}
-                      iconPosition={IconPositions.left}
-                      onClick={launchApp}
-                      size={Size.medium}
-                      text="Launch"
-                    />
+                      kind="secondary"
+                      onPress={launchApp}
+                      size="md"
+                      startIcon={"rocket"}
+                    >
+                      Launch
+                    </Button>
                   )}
                 </Control>
               </ApplicationImage>

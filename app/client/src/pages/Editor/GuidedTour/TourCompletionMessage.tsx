@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Rating from "react-rating";
-import {
-  Button,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Size,
-} from "design-system-old";
+import { getTypographyByKey, Icon, IconSize } from "design-system-old";
+import { Button } from "design-system";
 import {
   getPostWelcomeTourState,
   setPostWelcomeTourState,
@@ -158,14 +153,9 @@ function CongratulationsView() {
             <Title>{createMessage(END_TITLE)}</Title>
             <Description>{createMessage(END_DESCRIPTION)}</Description>
           </div>
-          <Button
-            className="t--start-building"
-            height="38"
-            onClick={hideMessage}
-            size={Size.large}
-            tag="button"
-            text={createMessage(END_BUTTON_TEXT)}
-          />
+          <Button className="t--start-building" onPress={hideMessage}>
+            {createMessage(END_BUTTON_TEXT)}
+          </Button>
         </Wrapper>
       </Container>
     );

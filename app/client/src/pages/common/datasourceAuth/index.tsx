@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { ActionButton } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
@@ -33,7 +32,8 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Category, Toaster, Variant } from "design-system-old";
+import { Toaster, Variant } from "design-system-old";
+import { Button } from "design-system";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -87,13 +87,6 @@ export const DatasourceButtonType: Record<
   TEST: "TEST",
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
-
-const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
-  &&&& {
-    height: 32px;
-    width: ${(props) => (props.fluidWidth ? "" : "87px")};
-  }
-`;
 
 const SaveButtonContainer = styled.div`
   margin-top: 24px;
@@ -347,74 +340,59 @@ function DatasourceAuth({
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
     return {
       [DatasourceButtonType.DELETE]: (
-        <ActionButton
-          category={Category.primary}
+        <Button
           className="t--delete-datasource"
-          disabled={createMode || !canDeleteDatasource}
+          isDisabled={createMode || !canDeleteDatasource}
           isLoading={isDeleting}
           key={buttonType}
-          onClick={() => {
+          kind="error"
+          onPress={() => {
             if (!isDeleting) {
               confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
             }
           }}
-          size="medium"
-          tag="button"
-          text={
-            isDeleting
-              ? createMessage(CONFIRM_CONTEXT_DELETING)
-              : confirmDelete
-              ? createMessage(CONFIRM_CONTEXT_DELETE)
-              : createMessage(CONTEXT_DELETE)
-          }
-          variant={Variant.danger}
-        />
+        >
+          {isDeleting
+            ? createMessage(CONFIRM_CONTEXT_DELETING)
+            : confirmDelete
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE)}
+        </Button>
       ),
       [DatasourceButtonType.TEST]: (
-        <ActionButton
-          category={Category.secondary}
+        <Button
           className="t--test-datasource"
           isLoading={isTesting}
           key={buttonType}
-          onClick={handleDatasourceTest}
-          size="medium"
-          tag="button"
-          text="Test"
-          variant={Variant.success}
-        />
+          kind="secondary"
+          onPress={handleDatasourceTest}
+        >
+          Test
+        </Button>
       ),
       [DatasourceButtonType.SAVE]: (
-        <ActionButton
-          category={Category.primary}
+        <Button
           className="t--save-datasource"
-          disabled={
+          isDisabled={
             isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
           }
-          filled
           isLoading={isSaving}
           key={buttonType}
-          onClick={handleDefaultAuthDatasourceSave}
-          size="medium"
-          tag="button"
-          text="Save"
-          variant={Variant.success}
-        />
+          onPress={handleDefaultAuthDatasourceSave}
+        >
+          Save
+        </Button>
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
-        <StyledButton
-          category={Category.primary}
+        <Button
           className="t--save-datasource"
-          disabled={isInvalid || (!createMode && !canManageDatasource)}
-          filled
-          fluidWidth
+          isDisabled={isInvalid || (!createMode && !canManageDatasource)}
           isLoading={isSaving}
           key={buttonType}
-          onClick={handleOauthDatasourceSave}
-          size="medium"
-          tag="button"
-          text="Save and Authorize"
-          variant={Variant.success}
-        />
+          onPress={handleOauthDatasourceSave}
+        >
+          Save and Authorize
+        </Button>
       ),
     }[buttonType];
   };

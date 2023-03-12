@@ -8,15 +8,8 @@ import {
   LEARN_MORE,
   OPEN_REPO,
 } from "@appsmith/constants/messages";
-import {
-  Button,
-  Category,
-  Size,
-  Text,
-  TextType,
-  Icon,
-  IconSize,
-} from "design-system-old";
+import { Text, TextType, Icon, IconSize } from "design-system-old";
+import { Button } from "design-system";
 import { Colors } from "constants/Colors";
 
 const Row = styled.div`
@@ -24,7 +17,7 @@ const Row = styled.div`
   align-items: center;
 `;
 
-const OpenRepoButton = styled(Button)`
+const StyledButton = styled(Button)`
   margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -58,16 +51,10 @@ export default function ConflictInfo({
         </div>
       </InfoWrapper>
       <Row>
-        <OpenRepoButton
-          category={Category.secondary}
-          className="t--commit-button"
-          href={browserSupportedRemoteUrl}
-          size={Size.large}
-          tag="a"
-          target="_blank"
-          text={createMessage(OPEN_REPO)}
-          width="max-content"
-        />
+        {/* TODO (tanvi): browserSupportedRemoteUrl href link button*/}
+        <StyledButton className="t--commit-button" kind="secondary">
+          {createMessage(OPEN_REPO)}
+        </StyledButton>
       </Row>
     </ConflictInfoContainer>
   );

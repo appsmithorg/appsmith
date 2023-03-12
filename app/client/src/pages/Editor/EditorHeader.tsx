@@ -43,17 +43,14 @@ import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import {
-  Category,
   EditInteractionKind,
-  IconPositions,
   SavingState,
-  Button,
   getTypographyByKey,
   Icon,
   IconSize,
   TooltipComponent,
-  Size,
 } from "design-system-old";
+import { Button } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -113,7 +110,7 @@ const HeaderWrapper = styled.div`
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
   box-shadow: none;
-  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};	
+  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
   & .editable-application-name {
     ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};
@@ -216,17 +213,6 @@ const HamburgerContainer = styled.div`
   }
 `;
 
-const StyledButton = styled(Button)`
-  padding: 0 6px;
-  height: ${(props) => props.theme.smallHeaderHeight};
-  color: ${Colors.GREY_900};
-
-  svg {
-    height: 18px;
-    width: 18px;
-  }
-`;
-
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
@@ -250,15 +236,14 @@ const GlobalSearch = lazy(() => {
 
 export function ShareButtonComponent() {
   return (
-    <StyledButton
-      category={Category.tertiary}
+    <Button
       className="t--application-share-btn"
-      icon={"share-line"}
-      iconPosition={IconPositions.left}
-      size={Size.medium}
-      tag={"button"}
-      text={createMessage(EDITOR_HEADER.share)}
-    />
+      kind="tertiary"
+      size="md"
+      startIcon={"share-line"}
+    >
+      {createMessage(EDITOR_HEADER.share)}
+    </Button>
   );
 }
 
@@ -517,19 +502,17 @@ export function EditorHeader(props: EditorHeaderProps) {
                 hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                 position="bottom-right"
               >
-                <StyledButton
-                  category={Category.tertiary}
+                <Button
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
-                  icon={"rocket"}
-                  iconPosition={IconPositions.left}
                   isLoading={isPublishing}
-                  onClick={() => handleClickDeploy(true)}
-                  size={Size.medium}
-                  tag={"button"}
-                  text={DEPLOY_MENU_OPTION()}
-                  width={"88px"}
-                />
+                  kind="tertiary"
+                  onPress={() => handleClickDeploy(true)}
+                  size="md"
+                  startIcon={"rocket"}
+                >
+                  {DEPLOY_MENU_OPTION()}
+                </Button>
               </TooltipComponent>
 
               <DeployLinkButtonDialog

@@ -12,18 +12,16 @@ import { useDispatch, useSelector } from "react-redux";
 import TabMenu from "./Menu";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
-  Button,
-  Category,
   DialogComponent as Dialog,
   Icon,
   IconSize,
-  Size,
   Toaster,
   Text,
   TextType,
   TooltipComponent,
   Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import { Colors } from "constants/Colors";
 
 import styled, { useTheme } from "styled-components";
@@ -599,18 +597,19 @@ function ReconnectDatasourceModal() {
             position="bottom-right"
           >
             <Button
-              category={Category.secondary}
               className="t--skip-to-application-btn"
               href={appURL}
-              onClick={() => {
+              kind="secondary"
+              onPress={() => {
                 AnalyticsUtil.logEvent(
                   "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
                 );
                 localStorage.setItem("importedAppPendingInfo", "null");
               }}
-              size={Size.medium}
-              text={createMessage(SKIP_TO_APPLICATION)}
-            />
+              renderAs="a"
+            >
+              {createMessage(SKIP_TO_APPLICATION)}
+            </Button>
           </TooltipComponent>
         </SkipToAppButtonWrapper>
         <CloseBtnContainer

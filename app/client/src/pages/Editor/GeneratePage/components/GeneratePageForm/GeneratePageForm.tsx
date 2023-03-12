@@ -23,17 +23,15 @@ import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";
 import {
-  Button,
-  Category,
   Dropdown,
   DropdownOption,
   getTypographyByKey,
   IconName,
   IconSize,
   RenderDropdownOptionType,
-  Size,
   TooltipComponent as Tooltip,
 } from "design-system-old";
+import { Button } from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -104,16 +102,6 @@ const FormWrapper = styled.div`
   align-items: center;
 `;
 
-const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
-  ${getTypographyByKey("btnLarge")};
-  color: ${Colors.DOVE_GRAY2};
-  margin: 10px 0px;
-`;
-
-const EditDatasourceButton = styled(Button)`
-  margin-top: 30px;
-`;
-
 const DescWrapper = styled.div`
   flex: 1;
   display: flex;
@@ -157,16 +145,15 @@ function GeneratePageSubmitBtn({
   disabled: boolean;
 }) {
   return showSubmitButton ? (
-    <FormSubmitButton
-      category={Category.secondary}
+    <Button
       data-cy="t--generate-page-form-submit"
-      disabled={disabled}
+      isDisabled={disabled}
       isLoading={isLoading}
-      onClick={() => !disabled && onSubmit()}
-      size={Size.large}
-      text="Generate Page"
-      type="button"
-    />
+      kind="secondary"
+      onPress={() => !disabled && onSubmit()}
+    >
+      Generate Page
+    </Button>
   ) : null;
 }
 
@@ -671,13 +658,9 @@ function GeneratePageForm() {
           </SelectWrapper>
         ) : null}
         {showEditDatasourceBtn && (
-          <EditDatasourceButton
-            category={Category.secondary}
-            onClick={goToEditDatasource}
-            size={Size.medium}
-            text="Edit Datasource"
-            type="button"
-          />
+          <Button kind="secondary" onPress={goToEditDatasource}>
+            Edit Datasource
+          </Button>
         )}
         {!isGoogleSheetPlugin ? (
           <>

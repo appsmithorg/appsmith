@@ -2,17 +2,14 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import {
-  Button,
-  Category,
   Classes,
   getTypographyByKey,
   Icon,
   IconSize,
-  Size,
   Text,
   TextType,
-  Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import { useState } from "react";
 import history from "utils/history";
 import Connections from "./Connections";
@@ -148,16 +145,6 @@ const Placeholder = styled.div`
   text-align: center;
 `;
 
-const BackButton = styled.div`
-  display: flex;
-  cursor: pointer;
-  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
-  .${Classes.TEXT} {
-    margin-left: ${(props) => props.theme.spaces[3]}px;
-    letter-spacing: 0;
-  }
-`;
-
 type CollapsibleProps = {
   expand?: boolean;
   children: ReactNode;
@@ -266,15 +253,10 @@ function ActionSidebar({
 
   return (
     <SideBar>
-      <BackButton onClick={navigateToCanvas}>
-        <Icon
-          fillColor={Colors.DOVE_GRAY}
-          keepColors
-          name="chevron-left"
-          size={IconSize.XS}
-        />
+      {/* TODO (tanvi): Does this button need an icon with a custom color and some custom text? Why?*/}
+      <Button onPress={navigateToCanvas} startIcon="chevron-left">
         <Text type={TextType.H6}>{createMessage(BACK_TO_CANVAS)}</Text>
-      </BackButton>
+      </Button>
 
       {hasConnections && (
         <Connections
@@ -287,15 +269,13 @@ function ActionSidebar({
           {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>
             <Button
-              category={Category.secondary}
               className={"t--select-in-canvas"}
-              onClick={handleBindData}
-              size={Size.medium}
-              tag="button"
-              text="Select Widget"
-              type="button"
-              variant={Variant.info}
-            />
+              kind="secondary"
+              onPress={handleBindData}
+              size="md"
+            >
+              Select Widget
+            </Button>
           </SnipingWrapper>
         </Collapsible>
       )}

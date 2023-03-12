@@ -5,14 +5,12 @@ import styled from "styled-components";
 import DatasourceChip from "../DatasourceChip";
 import { Colors } from "constants/Colors";
 import {
-  Button,
   FontWeight,
   getTypographyByKey,
-  IconPositions,
-  Size,
   Text,
   TextType,
 } from "design-system-old";
+import { Button } from "design-system";
 import {
   createMessage,
   DATASOURCES,
@@ -126,14 +124,12 @@ function TemplateDescription(props: TemplateDescriptionProps) {
               <Button
                 className="template-fork-button"
                 data-cy="template-fork-button"
-                icon="fork-2"
-                iconPosition={IconPositions.left}
-                onClick={onForkButtonTrigger}
-                size={Size.large}
-                tag="button"
-                text={createMessage(FORK_THIS_TEMPLATE)}
-                width="228px"
-              />
+                onPress={onForkButtonTrigger}
+                size="md"
+                startIcon="fork-2"
+              >
+                {createMessage(FORK_THIS_TEMPLATE)}
+              </Button>
             </ForkTemplate>
           )}
         </Section>

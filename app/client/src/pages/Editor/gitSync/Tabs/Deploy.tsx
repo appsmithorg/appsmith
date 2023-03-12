@@ -16,20 +16,17 @@ import {
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
 import {
-  Button,
-  Category,
   getTypographyByKey,
   Icon,
   IconSize,
   LabelContainer,
   ScrollIndicator,
-  Size,
   Text,
   TextInput,
   TextType,
   TooltipComponent as Tooltip,
-  Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
@@ -394,12 +391,10 @@ function Deploy() {
             <Button
               className="t--pull-button"
               isLoading={isPullingProgress}
-              onClick={handlePull}
-              size={Size.large}
-              tag="button"
-              text={createMessage(PULL_CHANGES)}
-              width="max-content"
-            />
+              onPress={handlePull}
+            >
+              {createMessage(PULL_CHANGES)}
+            </Button>
           )}
 
           {showCommitButton && (
@@ -411,37 +406,32 @@ function Deploy() {
             >
               <Button
                 className="t--commit-button"
-                disabled={commitButtonDisabled}
+                isDisabled={commitButtonDisabled}
                 isLoading={commitButtonLoading}
-                onClick={() => handleCommit(true)}
-                size={Size.large}
-                tag="button"
-                text={commitButtonText}
-                width="max-content"
-              />
+                onPress={() => handleCommit(true)}
+              >
+                {commitButtonText}
+              </Button>
             </Tooltip>
           )}
           {showDiscardChangesButton && (
             <Button
-              category={Category.secondary}
               className="t--discard-button discard-changes-link"
-              disabled={!showDiscardChangesButton}
+              isDisabled={!showDiscardChangesButton}
               isLoading={
                 isPullingProgress ||
                 isFetchingGitStatus ||
                 isCommittingInProgress
               }
-              onClick={() =>
+              kind="error"
+              onPress={() =>
                 shouldDiscard ? onDiscardChanges() : onDiscardInit()
               }
-              size={Size.large}
-              text={
-                showDiscardWarning
-                  ? createMessage(ARE_YOU_SURE)
-                  : createMessage(DISCARD_CHANGES)
-              }
-              variant={Variant.danger}
-            />
+            >
+              {showDiscardWarning
+                ? createMessage(ARE_YOU_SURE)
+                : createMessage(DISCARD_CHANGES)}
+            </Button>
           )}
         </ActionsContainer>
         {isConflicting && (

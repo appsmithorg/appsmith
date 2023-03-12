@@ -2,15 +2,14 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import PagesLineIcon from "remixicon-react/PagesLineIcon";
 import {
-  Button,
   CheckboxType,
   Checkmark,
   Classes,
-  Size,
   Text,
   TextType,
   IconWrapper,
 } from "design-system-old";
+import { Button } from "design-system";
 import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import { Template } from "api/TemplatesApi";
@@ -224,13 +223,12 @@ function PageSelection(props: PageSelectionProps) {
         })}
         <StyledButton
           data-cy="template-fork-button"
-          disabled={!selectedPages.length}
-          onClick={importPagesToApp}
-          size={Size.large}
-          tag="button"
-          text={createMessage(FILTER_SELECT_PAGES)}
-          width="100%"
-        />
+          isDisabled={!selectedPages.length}
+          onPress={importPagesToApp}
+          size="md"
+        >
+          {createMessage(FILTER_SELECT_PAGES)}
+        </StyledButton>
       </Card>
     </Wrapper>
   );

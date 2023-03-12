@@ -2,13 +2,8 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  Button,
-  Category,
-  DialogComponent as Dialog,
-  Size,
-  TextInput,
-} from "design-system-old";
+import { DialogComponent as Dialog, TextInput } from "design-system-old";
+import { Button } from "design-system";
 import { saveSelectedThemeAction } from "actions/appThemingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getAppThemes } from "selectors/appThemingSelectors";
@@ -141,20 +136,17 @@ function SaveThemeModal(props: SaveThemeModalProps) {
           </div>
           <div className="">
             <div className="flex items-center space-x-3">
+              <Button kind="secondary" onPress={onClose} size="md">
+                Cancel
+              </Button>
               <Button
-                category={Category.secondary}
-                onClick={onClose}
-                size={Size.medium}
-                text="Cancel"
-              />
-              <Button
-                category={Category.primary}
-                disabled={!name}
-                onClick={onSubmit}
-                size={Size.medium}
-                text="Save theme"
+                isDisabled={!name}
+                onPress={onSubmit}
+                size="md"
                 type="submit"
-              />
+              >
+                Save theme
+              </Button>
             </div>
           </div>
         </form>

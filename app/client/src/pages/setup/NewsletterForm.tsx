@@ -1,7 +1,8 @@
 import { noop } from "lodash";
 import React from "react";
 import styled from "styled-components";
-import { Button, Category, Toggle, Size } from "design-system-old";
+import { Toggle } from "design-system-old";
+import { Button } from "design-system";
 import {
   AllowToggle,
   AllowToggleLabel,
@@ -20,13 +21,8 @@ import {
   WELCOME_FORM_SUBMIT_LABEL,
 } from "@appsmith/constants/messages";
 
-export const StyledButton = styled(Button)`
-  width: 201px;
-  height: 38px;
-`;
-
 const NewsletterContainer = styled.div`
-  widht: 100%;
+  width: 100%;
   position: relative;
   padding-left: ${(props) => props.theme.spaces[17] * 2}px;
   margin-top: ${(props) => props.theme.spaces[12] * 2}px;
@@ -56,14 +52,13 @@ export default memo(function NewsletterForm() {
           </AllowToggleLabel>
         </AllowToggleWrapper>
         <ButtonWrapper>
-          <StyledButton
-            category={Category.primary}
+          <Button
             className="t--welcome-form-create-button"
-            size={Size.medium}
-            tag="button"
-            text={createMessage(WELCOME_FORM_SUBMIT_LABEL)}
+            size="md"
             type="submit"
-          />
+          >
+            {createMessage(WELCOME_FORM_SUBMIT_LABEL)}
+          </Button>
         </ButtonWrapper>
       </FormBodyWrapper>
     </NewsletterContainer>

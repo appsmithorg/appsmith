@@ -6,7 +6,8 @@ import {
   REGENERATE_KEY_CONFIRM_MESSAGE,
   YES,
 } from "@appsmith/constants/messages";
-import { Button, Category, Size, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 
 /**
  * getConfirmMenuItem
@@ -22,12 +23,9 @@ export function getConfirmMenuItem(regenerateKey: () => void) {
         <Text type={TextType.P1}>
           {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
         </Text>
-        <Button
-          category={Category.primary}
-          onClick={regenerateKey}
-          size={Size.xs}
-          text={createMessage(YES)}
-        />
+        <Button onPress={regenerateKey} size="sm">
+          {createMessage(YES)}
+        </Button>
       </ConfirmRegeneration>
     </ConfirmMenuItem>
   );

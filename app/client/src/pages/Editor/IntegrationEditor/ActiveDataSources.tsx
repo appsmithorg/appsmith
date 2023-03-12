@@ -4,7 +4,8 @@ import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { Datasource } from "entities/Datasource";
 import DatasourceCard from "./DatasourceCard";
-import { Button, Category, Size, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { keyBy } from "lodash";
 import {
@@ -26,11 +27,6 @@ const QueryHomePage = styled.div`
     font-size: ${(props) => props.theme.fontSizes[4]}px;
     margin-top: 10px;
   }
-`;
-
-const CreateButton = styled(Button)`
-  display: inline;
-  padding: 4px 8px;
 `;
 
 const EmptyActiveDatasource = styled.div`
@@ -73,14 +69,9 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
       <EmptyActiveDatasource>
         <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
           {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
-          <CreateButton
-            category={Category.primary}
-            disabled={!canCreateDatasource}
-            onClick={props.onCreateNew}
-            size={Size.medium}
-            tag="button"
-            text="Create New"
-          />
+          <Button isDisabled={!canCreateDatasource} onPress={props.onCreateNew}>
+            Create New
+          </Button>
         </Text>
       </EmptyActiveDatasource>
     );

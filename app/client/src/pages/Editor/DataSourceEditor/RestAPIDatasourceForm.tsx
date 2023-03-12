@@ -17,7 +17,8 @@ import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, Category, Toaster, Variant } from "design-system-old";
+import { Toaster, Variant } from "design-system-old";
+import { Button } from "design-system";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -102,19 +103,6 @@ type Props = DatasourceRestApiEditorProps &
 
 const FormInputContainer = styled.div`
   margin-top: 16px;
-`;
-
-const StyledButton = styled(Button)`
-  &&&& {
-    width: 87px;
-    height: 32px;
-  }
-`;
-
-const AuthorizeButton = styled(StyledButton)`
-  &&&& {
-    width: 180px;
-  }
 `;
 
 class DatasourceRestAPIEditor extends React.Component<
@@ -420,12 +408,11 @@ class DatasourceRestAPIEditor extends React.Component<
           _.get(authentication, "grantType") ===
             GrantType.AuthorizationCode && (
             <FormInputContainer>
-              <AuthorizeButton
-                category={Category.primary}
+              <Button
                 className="t--save-and-authorize-datasource"
-                disabled={this.validate()}
+                isDisabled={this.validate()}
                 isLoading={isSaving}
-                onClick={() =>
+                onPress={() =>
                   this.save(
                     redirectAuthorizationCode(
                       pageId,
@@ -434,12 +421,9 @@ class DatasourceRestAPIEditor extends React.Component<
                     ),
                   )
                 }
-                tag="button"
-                text={
-                  isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
-                }
-                variant={Variant.success}
-              />
+              >
+                {isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
+              </Button>
             </FormInputContainer>
           )}
       </>

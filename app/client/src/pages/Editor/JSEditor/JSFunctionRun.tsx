@@ -3,14 +3,13 @@ import styled from "styled-components";
 import FlagBadge from "components/utils/FlagBadge";
 import { JSCollection } from "entities/JSCollection";
 import {
-  Button,
   Dropdown,
   DropdownOnSelect,
   DropdownContainer,
-  Size,
   StyledButton,
   TooltipComponent as Tooltip,
 } from "design-system-old";
+import { Button } from "design-system";
 import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,
@@ -88,14 +87,12 @@ export function JSFunctionRun({
       >
         <Button
           className={testLocators.runJSAction}
-          height={RUN_BUTTON_DEFAULTS.HEIGHT}
           isLoading={isLoading}
-          onClick={onButtonClick}
-          size={Size.medium}
-          tag="button"
-          text={RUN_BUTTON_DEFAULTS.CTA_TEXT}
-          type="button"
-        />
+          onPress={() => onButtonClick}
+          size="md"
+        >
+          {RUN_BUTTON_DEFAULTS.CTA_TEXT}
+        </Button>
       </Tooltip>
     </DropdownWithCTAWrapper>
   );

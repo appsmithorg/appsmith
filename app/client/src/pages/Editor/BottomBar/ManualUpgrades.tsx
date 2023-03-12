@@ -2,14 +2,8 @@ import {
   ApplicationVersion,
   updateApplication,
 } from "actions/applicationActions";
-import {
-  Button,
-  Category,
-  Icon,
-  IconSize,
-  IconWrapper,
-  Size,
-} from "design-system-old";
+import { Icon, IconSize, IconWrapper } from "design-system-old";
+import { Button } from "design-system";
 import { TooltipComponent, Text, TextType } from "design-system-old";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
@@ -159,18 +153,14 @@ function UpdatesModal({
           </div>
         ))}
         <div className="flex justify-end gap-2 items-center">
+          <Button kind="secondary" onPress={closeModal} size="md">
+            Dismiss
+          </Button>
           <Button
-            category={Category.secondary}
-            onClick={closeModal}
-            size={Size.large}
-            tag="button"
-            text="Dismiss"
-          />
-          <Button
-            category={Category.primary}
             className="t--upgrade-confirm"
             isLoading={isLoading}
-            onClick={() => {
+            kind="primary"
+            onPress={() => {
               setIsLoading(true);
               AnalyticsUtil.logEvent("MANUAL_UPGRADE_CLICK");
               dispatch(
@@ -183,10 +173,10 @@ function UpdatesModal({
                 ),
               );
             }}
-            size={Size.large}
-            tag="button"
-            text="Update"
-          />
+            size="md"
+          >
+            Update
+          </Button>
         </div>
       </BodyContainer>
     </ModalComponent>

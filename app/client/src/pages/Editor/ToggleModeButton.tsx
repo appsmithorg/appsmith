@@ -1,13 +1,7 @@
 import React, { useCallback } from "react";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Button,
-  Category,
-  IconPositions,
-  Size,
-  TooltipComponent,
-} from "design-system-old";
+import { TooltipComponent } from "design-system-old";
+import { Button } from "design-system";
 
 import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
@@ -17,25 +11,7 @@ import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
 import { isExploringSelector } from "selectors/onboardingSelectors";
-import { Colors } from "constants/Colors";
 import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
-
-const StyledButton = styled(Button)<{ active: boolean }>`
-  ${(props) =>
-    props.active &&
-    `
-  background-color: ${Colors.GREY_200};
-  border: 1.2px solid transparent;
-  `}
-  padding: 0 ${(props) => props.theme.spaces[2]}px;
-  color: ${Colors.GREY_900};
-  height: ${(props) => props.theme.smallHeaderHeight};
-
-  svg {
-    height: 18px;
-    width: 18px;
-  }
-`;
 
 function ToggleModeButton() {
   const dispatch = useDispatch();
@@ -66,17 +42,16 @@ function ToggleModeButton() {
       hoverOpenDelay={1000}
       position="bottom"
     >
-      <StyledButton
-        active={isPreviewMode}
-        category={Category.tertiary}
+      <Button
         data-cy={`${isPreviewMode ? "preview" : "edit"}-mode`}
-        icon={"play-circle-line"}
-        iconPosition={IconPositions.left}
-        onClick={onClickPreviewModeButton}
-        size={Size.medium}
-        tag={"button"}
-        text={createMessage(EDITOR_HEADER.previewTooltip.text).toUpperCase()}
-      />
+        isDisabled={!isPreviewMode}
+        kind="tertiary"
+        onPress={onClickPreviewModeButton}
+        size="md"
+        startIcon="play-circle-line"
+      >
+        {createMessage(EDITOR_HEADER.previewTooltip.text).toUpperCase()}
+      </Button>
     </TooltipComponent>
   );
 }

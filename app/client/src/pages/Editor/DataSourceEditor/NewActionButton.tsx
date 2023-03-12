@@ -1,13 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { PluginType } from "entities/Action";
-import styled from "styled-components";
-import {
-  Button,
-  Classes,
-  IconPositions,
-  Toaster,
-  Variant,
-} from "design-system-old";
+import { Toaster, Variant } from "design-system-old";
+import { Button } from "design-system";
 import {
   createMessage,
   ERROR_ADD_API_INVALID_URL,
@@ -22,25 +16,6 @@ import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { noop } from "utils/AppsmithUtils";
-
-const ActionButton = styled(Button)`
-  padding: 10px 10px;
-  font-size: 12px;
-  &&&& {
-    height: 36px;
-    width: 136px;
-  }
-  svg {
-    width: 14px;
-    height: 14px;
-  }
-  .${Classes.ICON} {
-    svg {
-      width: 16px;
-      height: 16px;
-    }
-  }
-`;
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -93,21 +68,17 @@ function NewActionButton(props: NewActionButtonProps) {
   );
 
   return (
-    <ActionButton
+    <Button
       className="t--create-query"
-      disabled={!!disabled}
-      icon="plus"
-      iconPosition={IconPositions.left}
+      isDisabled={!!disabled}
       isLoading={isSelected || props.isLoading}
-      onClick={disabled ? noop : createQueryAction}
-      style={style}
-      tag="button"
-      text={
-        pluginType === PluginType.DB || pluginType === PluginType.SAAS
-          ? createMessage(NEW_QUERY_BUTTON_TEXT)
-          : createMessage(NEW_API_BUTTON_TEXT)
-      }
-    />
+      onPress={disabled ? noop : createQueryAction}
+      startIcon="plus"
+    >
+      {pluginType === PluginType.DB || pluginType === PluginType.SAAS
+        ? createMessage(NEW_QUERY_BUTTON_TEXT)
+        : createMessage(NEW_API_BUTTON_TEXT)}
+    </Button>
   );
 }
 

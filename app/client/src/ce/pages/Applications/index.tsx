@@ -46,8 +46,6 @@ import {
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import {
   AppIconCollection,
-  Button,
-  Category,
   Classes,
   EditableText,
   EditInteractionKind,
@@ -62,6 +60,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
+import { Button } from "design-system";
 import {
   duplicateApplication,
   updateApplication,
@@ -756,12 +755,12 @@ export function ApplicationsSection(props: any) {
                       title={`Invite Users to ${workspace.name}`}
                       trigger={
                         <Button
-                          category={Category.secondary}
-                          icon={"share-line"}
-                          size={Size.medium}
-                          tag="button"
-                          text={"Share"}
-                        />
+                          kind="secondary"
+                          size="md"
+                          startIcon={"share-line"}
+                        >
+                          Share
+                        </Button>
                       }
                       workspaceId={workspace.id}
                     />
@@ -771,16 +770,16 @@ export function ApplicationsSection(props: any) {
                     applications.length !== 0 && (
                       <Button
                         className="t--new-button createnew"
-                        icon={"plus"}
                         isLoading={
                           creatingApplicationMap &&
                           creatingApplicationMap[workspace.id]
                         }
                         onClick={() => onClickAddNewButton(workspace.id)}
-                        size={Size.medium}
-                        tag="button"
-                        text={"New"}
-                      />
+                        size="md"
+                        startIcon={"plus"}
+                      >
+                        New
+                      </Button>
                     )}
                   {(currentUser || isFetchingApplications) &&
                     !isMobile &&
@@ -944,16 +943,16 @@ export function ApplicationsSection(props: any) {
                   {hasCreateNewApplicationPermission && (
                     <Button
                       className="t--new-button createnew"
-                      icon={"plus"}
                       isLoading={
                         creatingApplicationMap &&
                         creatingApplicationMap[workspace.id]
                       }
-                      onClick={() => onClickAddNewButton(workspace.id)}
-                      size={Size.medium}
-                      tag="button"
-                      text={"New"}
-                    />
+                      onPress={() => onClickAddNewButton(workspace.id)}
+                      size="md"
+                      startIcon={"plus"}
+                    >
+                      New
+                    </Button>
                   )}
                 </NoAppsFound>
               )}

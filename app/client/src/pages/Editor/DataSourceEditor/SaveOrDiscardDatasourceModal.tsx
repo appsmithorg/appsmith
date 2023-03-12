@@ -5,12 +5,8 @@ import {
   DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT,
   SAVE_OR_DISCARD_DATASOURCE_WARNING,
 } from "@appsmith/constants/messages";
-import {
-  Button,
-  Category,
-  DialogComponent as Dialog,
-  Size,
-} from "design-system-old";
+import { DialogComponent as Dialog } from "design-system-old";
+import { Button } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
@@ -56,20 +52,19 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
       <div className="">
         <div className="flex items-center justify-end space-x-3">
           <Button
-            category={Category.secondary}
             className="t--datasource-modal-do-not-save"
-            onClick={onDiscard}
-            size={Size.medium}
-            text={createMessage(DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT)}
-          />
+            kind="secondary"
+            onPress={onDiscard}
+          >
+            {createMessage(DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT)}
+          </Button>
           <Button
-            category={Category.primary}
             className="t--datasource-modal-save"
-            disabled={disableSaveButton}
-            onClick={!disableSaveButton && onSave}
-            size={Size.medium}
-            text={saveButtonText}
-          />
+            isDisabled={disableSaveButton}
+            onPress={onSave}
+          >
+            {saveButtonText}
+          </Button>
         </div>
       </div>
     </Dialog>

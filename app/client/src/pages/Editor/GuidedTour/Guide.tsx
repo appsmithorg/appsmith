@@ -3,7 +3,8 @@ import {
   showInfoMessage,
   toggleLoader,
 } from "actions/onboardingActions";
-import { Button, getTypographyByKey, Icon, IconSize } from "design-system-old";
+import { getTypographyByKey, Icon, IconSize } from "design-system-old";
+import { Button } from "design-system";
 import { isArray } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -105,10 +106,6 @@ const ContentWrapper = styled.div`
 `;
 
 const GuideButton = styled(Button)<{ isVisible?: boolean }>`
-  padding: ${(props) => props.theme.spaces[0]}px
-    ${(props) => props.theme.spaces[6]}px;
-  height: 38px;
-  ${getTypographyByKey("btnMedium")};
   visibility: ${({ isVisible = true }) => (isVisible ? "visible" : "hidden")};
 `;
 
@@ -258,10 +255,10 @@ function InitialContent() {
           className="t--start-building"
           isLoading={isLoading}
           isVisible={!queryAction?.isLoading && !!queryAction?.data}
-          onClick={setupFirstStep}
-          tag="button"
-          text={createMessage(BUTTON_TEXT)}
-        />
+          onPress={setupFirstStep}
+        >
+          {createMessage(BUTTON_TEXT)}
+        </GuideButton>
       </ContentWrapper>
       <Hint>
         <span className="hint-text">
@@ -330,10 +327,10 @@ function GuideStepsContent(props: {
             {currentHint.button && (
               <GuideButton
                 className="t--hint-button"
-                onClick={hintButtonOnClick}
-                tag="button"
-                text={createMessage(PROCEED)}
-              />
+                onPress={hintButtonOnClick}
+              >
+                {createMessage(PROCEED)}
+              </GuideButton>
             )}
           </HintTextWrapper>
           {isArray(hintSteps) &&
@@ -424,10 +421,10 @@ function CompletionContent(props: CompletionContentProps) {
             <GuideButton
               className="t--success-button"
               isVisible={showSuccessButton}
-              onClick={onSuccessButtonClick}
-              tag="button"
-              text={success?.buttonText ?? createMessage(CONTINUE)}
-            />
+              onPress={onSuccessButtonClick}
+            >
+              {success?.buttonText ?? createMessage(CONTINUE)}
+            </GuideButton>
           </div>
         </div>
       </SuccessMessageWrapper>
@@ -439,12 +436,9 @@ function CompletionContent(props: CompletionContentProps) {
           <Icon fillColor="#F86A2B" name={info?.icon} size={IconSize.XXXXL} />
 
           <Description className="info">{info?.text}</Description>
-          <GuideButton
-            className="t--info-button"
-            onClick={onInfoButtonClick}
-            tag="button"
-            text={info?.buttonText ?? createMessage(PROCEED_TO_NEXT_STEP)}
-          />
+          <GuideButton className="t--info-button" onPress={onInfoButtonClick}>
+            {info?.buttonText ?? createMessage(PROCEED_TO_NEXT_STEP)}
+          </GuideButton>
         </div>
       </SuccessMessageWrapper>
     );

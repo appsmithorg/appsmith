@@ -4,14 +4,8 @@ import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
-import {
-  Button,
-  Category,
-  Dropdown,
-  IconSize,
-  Size,
-  Spinner,
-} from "design-system-old";
+import { Dropdown, IconSize, Spinner } from "design-system-old";
+import { Button } from "design-system";
 import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
@@ -150,24 +144,24 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
 
             <ButtonWrapper>
               <Button
-                category={Category.secondary}
-                disabled={forkingApplication}
-                onClick={() => {
+                isDisabled={forkingApplication}
+                kind="secondary"
+                onPress={() => {
                   setModalClose && setModalClose(false);
                   handleClose();
                 }}
-                size={Size.large}
-                tag="button"
-                text={createMessage(CANCEL)}
-              />
+                size="md"
+              >
+                {createMessage(CANCEL)}
+              </Button>
               <Button
                 className="t--fork-app-to-workspace-button"
                 isLoading={forkingApplication}
-                onClick={forkApplication}
-                size={Size.large}
-                tag="button"
-                text={createMessage(FORK)}
-              />
+                onPress={forkApplication}
+                size="md"
+              >
+                {createMessage(FORK)}
+              </Button>
             </ButtonWrapper>
           </>
         )

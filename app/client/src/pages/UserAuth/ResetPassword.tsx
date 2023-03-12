@@ -9,13 +9,12 @@ import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
 import FormTextField from "components/utils/ReduxFormTextField";
 import {
-  Button,
   FormGroup,
   FormMessage,
   FormMessageProps,
   MessageAction,
-  Size,
 } from "design-system-old";
+import { Button } from "design-system";
 import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
@@ -194,14 +193,13 @@ export function ResetPassword(props: ResetPasswordProps) {
         <Field component="input" name="token" type="hidden" />
         <FormActions>
           <Button
-            disabled={pristine || submitSucceeded}
-            fill
+            isDisabled={pristine || submitSucceeded}
             isLoading={submitting}
-            size={Size.large}
-            tag="button"
-            text={createMessage(RESET_PASSWORD_SUBMIT_BUTTON_TEXT)}
+            size="md"
             type="submit"
-          />
+          >
+            {createMessage(RESET_PASSWORD_SUBMIT_BUTTON_TEXT)}
+          </Button>
         </FormActions>
       </StyledForm>
     </Container>

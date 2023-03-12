@@ -1,11 +1,6 @@
 import React, { ReactNode, useState } from "react";
-import {
-  Button,
-  Category,
-  DialogComponent as Dialog,
-  Dropdown,
-  Size,
-} from "design-system-old";
+import { DialogComponent as Dialog, Dropdown } from "design-system-old";
+import { Button } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {
@@ -92,21 +87,21 @@ function ForkTemplate({
         />
         <ButtonsWrapper>
           <Button
-            category={Category.secondary}
-            disabled={isImportingTemplate}
-            onClick={onClose}
-            size={Size.large}
-            tag="button"
-            text={createMessage(CANCEL)}
-          />
+            isDisabled={isImportingTemplate}
+            kind="secondary"
+            onPress={() => onClose}
+            size="md"
+          >
+            {createMessage(CANCEL)}
+          </Button>
           <Button
             className="t--fork-template-button"
             isLoading={isImportingTemplate}
-            onClick={onFork}
-            size={Size.large}
-            tag="button"
-            text={createMessage(FORK_TEMPLATE)}
-          />
+            onPress={onFork}
+            size="md"
+          >
+            {createMessage(FORK_TEMPLATE)}
+          </Button>
         </ButtonsWrapper>
       </StyledDialog>
     </>

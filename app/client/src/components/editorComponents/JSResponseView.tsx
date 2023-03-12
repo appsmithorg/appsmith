@@ -30,15 +30,14 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import {
-  Button,
   Callout,
   Classes,
   Icon,
-  Size,
   Text,
   TextType,
   Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationError } from "utils/DynamicBindingUtils";
@@ -145,10 +144,6 @@ const StyledCallout = styled(Callout)`
 const NoReturnValueWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-top: ${(props) => props.theme.spaces[6]}px;
-`;
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
 `;
 
 export enum JSResponseState {
@@ -265,15 +260,14 @@ function JSResponseView(props: Props) {
                     <Icon name="no-response" />
                     <Text type={TextType.P1}>
                       {createMessage(EMPTY_RESPONSE_FIRST_HALF)}
-                      <InlineButton
-                        disabled={disabled}
+                      <Button
+                        isDisabled={disabled}
                         isLoading={isLoading}
-                        onClick={onButtonClick}
-                        size={Size.medium}
-                        tag="button"
-                        text="Run"
-                        type="button"
-                      />
+                        onPress={() => onButtonClick}
+                        size="md"
+                      >
+                        Run
+                      </Button>
                       {createMessage(EMPTY_JS_RESPONSE_LAST_HALF)}
                     </Text>
                   </NoResponseContainer>

@@ -8,7 +8,6 @@ import { Skin } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import {
-  Button,
   Dropdown,
   InputWrapper,
   TextInput,
@@ -320,22 +319,6 @@ export const StyledPinIcon = styled(ControlIcons.PIN)`
 
 export const FlexWrapper = styled.div`
   display: flex;
-`;
-
-export const StyledPropertyPaneButton = styled(Button)`
-  margin-top: 4px;
-  margin-left: auto;
-  display: flex;
-  justify-content: flex-end;
-
-  &&& svg {
-    width: 14px;
-    height: 14px;
-    path {
-      fill: ${Colors.GREY_8};
-      stroke: ${Colors.GREY_8};
-    }
-  }
 `;
 
 export const StyledOptionControlInputGroup = styled(StyledInputGroup)<{

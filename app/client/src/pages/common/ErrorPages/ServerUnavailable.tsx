@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Size } from "design-system-old";
+import { Button } from "design-system";
 
 import Page from "./Page";
 import {
@@ -14,15 +14,13 @@ function ServerUnavailable() {
     <Page
       cta={
         <Button
-          category="primary"
           className="button-position"
-          fill="true"
-          onClick={() => window.location.reload()}
-          size={Size.large}
-          tag="button"
-          text={"Retry"}
-          variant="info"
-        />
+          kind="primary"
+          onPress={() => window.location.reload()}
+          size="md"
+        >
+          Retry
+        </Button>
       }
       description={createMessage(PAGE_SERVER_UNAVAILABLE_DESCRIPTION)}
       errorCode={createMessage(PAGE_SERVER_UNAVAILABLE_ERROR_CODE)}
