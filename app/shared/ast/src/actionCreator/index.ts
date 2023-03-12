@@ -45,42 +45,40 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments[argNum]) {
-                let argument = node.arguments[argNum];
-                // return appropriate values based on the type of node
-                switch (argument.type) {
-                    case NodeTypes.ObjectExpression:
-                        // this is for objects
-                        requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
-                        break;
-                    case NodeTypes.Literal:
-                        requiredArgument = typeof argument.value === "string" ? argument.value : `{{${argument.value}}}`;
-                        break;
-                    case NodeTypes.MemberExpression:
-                        // this is for cases where we have {{appsmith.mode}} or {{Jsobj1.mytext}}
-                        requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
-                        break;
-                    case NodeTypes.BinaryExpression:
-                        // this is cases where we have string concatenation
-                        requiredArgument = `{{${generate(argument,  {comments: true}).trim()}}}`;
-                        break;
-                    case NodeTypes.ArrowFunctionExpression:
-                    case NodeTypes.CallExpression:
-                        if (value.indexOf(".then") === -1) {
-                            // this is for cases where we need to extract functions with no .then
-                            requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
-                        } else {
-                            // this is for cases with a .then in the value
-                            const requiredArg = ((node.callee as MemberExpressionNode)?.object as CallExpressionNode)?.arguments[argNum];
-                            requiredArgument = (requiredArg as LiteralNode)?.value;
-                        }
-                        break;
+    const node = findRootCallExpression(astWithComments);
+
+    if(node && isCallExpressionNode(node)) {
+        let argument = node.arguments[argNum];
+        // return appropriate values based on the type of node
+        switch (argument.type) {
+            case NodeTypes.ObjectExpression:
+                // this is for objects
+                requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
+                break;
+            case NodeTypes.Literal:
+                requiredArgument = typeof argument.value === "string" ? argument.value : `{{${argument.value}}}`;
+                break;
+            case NodeTypes.MemberExpression:
+                // this is for cases where we have {{appsmith.mode}} or {{Jsobj1.mytext}}
+                requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
+                break;
+            case NodeTypes.BinaryExpression:
+                // this is cases where we have string concatenation
+                requiredArgument = `{{${generate(argument,  {comments: true}).trim()}}}`;
+                break;
+            case NodeTypes.ArrowFunctionExpression:
+            case NodeTypes.CallExpression:
+                if (value.indexOf(".then") === -1) {
+                    // this is for cases where we need to extract functions with no .then
+                    requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
+                } else {
+                    // this is for cases with a .then in the value
+                    const requiredArg = ((node.callee as MemberExpressionNode)?.object as CallExpressionNode)?.arguments[argNum];
+                    requiredArgument = (requiredArg as LiteralNode)?.value;
                 }
-            }
-        },
-    });
+                break;
+        } 
+    }
 
     return requiredArgument;
 }
@@ -116,24 +114,20 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node)) {
-                // add 1 to get the starting position of the next
-                // node to ending position of previous
-                const startPosition = node.callee.end + NEXT_POSITION;
-                node.arguments[argNum] = {
-                    type: NodeTypes.Literal,
-                    value: changeValue,
-                    raw: rawValue,
-                    start: startPosition,
-                    // add 2 for quotes
-                    end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
-                };
-                changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
-            }
-        },
-    });
+    const node = findRootCallExpression(astWithComments);
+
+    if(node && isCallExpressionNode(node)) {
+        const startPosition = node.callee.end + NEXT_POSITION;
+        node.arguments[argNum] = {
+            type: NodeTypes.Literal,
+            value: changeValue,
+            raw: rawValue,
+            start: startPosition,
+            // add 2 for quotes
+            end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
+        };
+        changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`; 
+    }
 
     return changedValue;
 }
@@ -242,7 +236,7 @@ export const setObjectAtPosition = (currentValue: string, changeValue: any, argN
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    const node = findNodeAt(astWithComments, 0, undefined, (type, node) => isCallExpressionNode(node))?.node;
+    const node = findRootCallExpression(astWithComments);
     if(node && isCallExpressionNode(node)) {
         const startPosition = node.callee.end + NEXT_POSITION;
         node.arguments[argNum] = {
@@ -290,19 +284,17 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
 
     // Api1.run(() => { showAlert("", () => { showAlert("") }) })
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments[argNum]) {
-                if (node.arguments[argNum]) {
-                    let argument = node.arguments[argNum];
-                    switch (argument.type) {
-                        case NodeTypes.Literal:
-                            requiredArgument = argument.raw as string;
-                    }
-                }
+    const node = findRootCallExpression(astWithComments);
+
+    if(node && isCallExpressionNode(node)) {
+        if (node.arguments[argNum]) {
+            let argument = node.arguments[argNum];
+            switch (argument.type) {
+                case NodeTypes.Literal:
+                    requiredArgument = argument.raw as string;
             }
-        },
-    });
+        } 
+    }
 
     return requiredArgument;
 }
@@ -333,24 +325,22 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node)) {
-                // add 1 to get the starting position of the next
+    const node = findRootCallExpression(astWithComments);
+
+    if(node && isCallExpressionNode(node)) {
+                       // add 1 to get the starting position of the next
                 // node to ending position of previous
-                const startPosition = node.callee.end + NEXT_POSITION;
-                node.arguments[argNum] = {
-                    type: NodeTypes.Literal,
-                    value: `${changeValue}`,
-                    raw: String.raw`${changeValue}`,
-                    start: startPosition,
-                    // add 2 for quotes
-                    end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
-                };
-                changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
-            }
-        },
-    });
+        const startPosition = node.callee.end + NEXT_POSITION;
+        node.arguments[argNum] = {
+            type: NodeTypes.Literal,
+            value: `${changeValue}`,
+            raw: String.raw`${changeValue}`,
+            start: startPosition,
+            // add 2 for quotes
+            end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
+        };
+        changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`; 
+    }
 
     return changedValue;
 }
@@ -378,17 +368,15 @@ export const getModalName = (value: string, evaluationVersion: number): string =
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments.length > 0) {
-                let argument = node.arguments[0];
-                switch (argument.type){
-                    case NodeTypes.Literal:
-                        modalName = argument.value as string;
-                }
-            }
-        },
-    });
+    const node = findRootCallExpression(astWithComments);
+
+    if(node && isCallExpressionNode(node)) {
+        let argument = node.arguments[0];
+        switch (argument.type){
+            case NodeTypes.Literal:
+                modalName = argument.value as string;
+        } 
+    }
 
     return modalName;
 }
@@ -417,26 +405,22 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node)) {
-                // add 1 to get the starting position of the next
-                // node to ending position of previous
-                const startPosition = node.callee.end + NEXT_POSITION;
-                const newNode: LiteralNode = {
-                    type: NodeTypes.Literal,
-                    value: `${changeValue}`,
-                    raw: String.raw`'${changeValue}'`,
-                    start: startPosition,
-                    // add 2 for quotes
-                    end: startPosition + (changeValue.length + LENGTH_OF_QUOTES),
-                };
-                node.arguments = [newNode];
-                changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
-            }
-        },
-    });
-
+    const node = findRootCallExpression(astWithComments);
+    if (node && isCallExpressionNode(node)) {
+        // add 1 to get the starting position of the next
+        // node to ending position of previous
+        const startPosition = node.callee.end + NEXT_POSITION;
+        const newNode: LiteralNode = {
+            type: NodeTypes.Literal,
+            value: `${changeValue}`,
+            raw: String.raw`'${changeValue}'`,
+            start: startPosition,
+            // add 2 for quotes
+            end: startPosition + (changeValue.length + LENGTH_OF_QUOTES),
+        };
+        node.arguments = [newNode];
+        changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
+    }
     return changedValue;
 }
 
@@ -520,14 +504,12 @@ export const getFunction = (value: string, evaluationVersion: number): string =>
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node)) {
-                const func = `${generate(node)}`;
-                requiredFunction = func !== '{}' ? `{{${func}}}` : "";
-            }
-        },
-    });
+    const node = findRootCallExpression(astWithComments);
+
+    if (isCallExpressionNode(node)) {
+        const func = `${generate(node)}`;
+        requiredFunction = func !== '{}' ? `{{${func}}}` : "";
+    }
 
     return requiredFunction;
 }
@@ -994,4 +976,22 @@ export function getCallExpressions(value: string, evaluationVersion: number): Ar
     });
 
     return callExpressions;
+}
+
+function findRootCallExpression(ast: Node) {
+    const callExpressions: CallExpressionNode[] = [];
+
+    simple(ast, {
+        CallExpression(node) {
+            if(isCallExpressionNode(node))
+                callExpressions.push(node);
+        }
+    });
+
+    let rootCallExpression = callExpressions[0];
+    for(const ce of callExpressions) {
+        rootCallExpression = rootCallExpression.start > ce.start ? ce : rootCallExpression;
+    }
+
+    return rootCallExpression;
 }

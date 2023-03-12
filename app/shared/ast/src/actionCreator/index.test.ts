@@ -9,6 +9,7 @@ import {
   setThenBlockInQuery,
   setCatchBlockInQuery,
   setTextArgumentAtPosition,
+  getEnumArgumentAtPosition,
 } from "./index";
 
 describe("getFuncExpressionAtPosition", () => {
@@ -357,4 +358,22 @@ describe("setCatchBlockInQuery", () => {
       "Api2.run().then(() => {\n  a();\n}).catch(() => {\n  b();\n});",
     );
   });
+});
+
+
+describe("Tests AST methods around function arguments", function() {
+    it("Sets argument at 0th index", function() {
+        const code1 = 'showAlert("", "")';
+        const modified1 = setTextArgumentAtPosition(code1, "Hello", 0, 2);
+        expect(modified1).toEqual(`{{showAlert("Hello", "");}}`);
+
+        const code2 = 'showAlert("", 2).then(() => "Hello")'; 
+        const modified2 = setTextArgumentAtPosition(code2, "Hello", 0, 2);
+        expect(modified2).toEqual(`{{showAlert("Hello", 2).then(() => "Hello");}}`);
+
+
+        const arg1 = getEnumArgumentAtPosition(code2, 1, "", 2);
+        expect(arg1).toBe("2");
+
+    })
 });
