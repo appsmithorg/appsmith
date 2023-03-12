@@ -50,7 +50,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
     if(node && isCallExpressionNode(node)) {
         let argument = node.arguments[argNum];
         // return appropriate values based on the type of node
-        switch (argument.type) {
+        switch (argument?.type) {
             case NodeTypes.ObjectExpression:
                 // this is for objects
                 requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
@@ -118,6 +118,7 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
 
     if(node && isCallExpressionNode(node)) {
         const startPosition = node.callee.end + NEXT_POSITION;
+        node.arguments = node.arguments || [];
         node.arguments[argNum] = {
             type: NodeTypes.Literal,
             value: changeValue,
