@@ -11,7 +11,6 @@ const jsCode = `//TextWidget, InputWidget, QueryRefactor and RefactorAPI are use
   return 10;`;
 const query =
   "SELECT * FROM paintings ORDER BY id LIMIT {{JSObject1.myFun1()}};";
-const apiURL = _.agHelper.mockApiUrl;
 const refactorInput = {
   api: { oldName: "RefactorAPI", newName: "RefactorAPIRenamed" },
   query: { oldName: "QueryRefactor", newName: "QueryRefactorRenamed" },
@@ -38,6 +37,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
   });
 
   it("1. Selecting paintings table from MySQL DS", () => {
+    cy.fixture("datasources").then((datasourceFormData : any) => {
     //Initialize new JSObject with custom code
     _.jsEditor.CreateJSObject(jsCode);
     //Initialize new Query entity with custom query
@@ -46,8 +46,9 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     _.agHelper.GetNClick(_.dataSources._templateMenu);
     _.dataSources.EnterQuery(query);
     //Initialize new API entity with custom header
-    _.apiPage.CreateAndFillApi(apiURL, refactorInput.api.oldName);
+    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], refactorInput.api.oldName);
     _.apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);
+    });
   });
 
   it("2. Refactor Widget, API, Query and JSObject", () => {
