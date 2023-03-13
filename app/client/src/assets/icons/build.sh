@@ -1,5 +1,5 @@
 #!/bin/bash
-# assumes yarn is installed globally
+# assumes pnpm is installed globally
 
 cd "$(dirname "$0")"
 mkdir fonts;

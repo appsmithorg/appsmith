@@ -3,7 +3,7 @@
 1. Install the npm library of your choice in the client codebase
 ```
 $ cd app/client
-$ yarn install myLibrary
+$ pnpm install myLibrary -w
 ```
 2. In the file `app/client/src/worker/common/JSLibrary/index.ts` find the const `defaultLibraries` and add details about your library in the codebase
 ```

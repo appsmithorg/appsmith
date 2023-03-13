@@ -75,7 +75,7 @@ pretty_print "Starting server build ..."
 pushd app/server > /dev/null && ./build.sh -DskipTests > /dev/null && pretty_print "Server build successful. Starting client build ..."
 
 popd
-pushd app/client > /dev/null && yarn > /dev/null && yarn build > /dev/null && pretty_print "Client build successful. Starting RTS build ..."
+pushd app/client > /dev/null && pnpm > /dev/null && pnpm build > /dev/null && pretty_print "Client build successful. Starting RTS build ..."
 
 popd
 pushd app/rts > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful. Starting Docker build ..."

@@ -67,7 +67,7 @@ sudo mv mkcert /usr/local/bin
 
 ### Steps to build & run the code:
 
-1. Run `yarn install`.
+1. Run `pnpm install`.
 
    Note:
 
@@ -77,7 +77,7 @@ sudo mv mkcert /usr/local/bin
      echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
      ```
 
-2. Run `yarn start`.
+2. Run `pnpm start`.
 
    🎉 Your Appsmith client is now running on https://dev.appsmith.com.
 
@@ -88,7 +88,7 @@ sudo mv mkcert /usr/local/bin
 - By default, your client app points to the local API server - `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. If you don't have the API server running on your local system, your page will load with errors. To set up the API server on your local system, please follow the instructions [here](https://github.com/appsmithorg/appsmith/blob/release/contributions/ServerSetup.md)
 - If you cannot set up the API server on your local system, you can also [use Appsmith's staging API server](#if-you-would-like-to-hit-a-different-appsmith-server).
 
-#### If yarn start throws mismatch node version error
+#### If pnpm start throws mismatch node version error
 
 This error occurs because the node version is not compatible with the app environment. In this case, Node version manager can be used, allowing multiple node versions in different projects. Check below for installation and usage details:
 
@@ -106,8 +106,8 @@ This error occurs because the node version is not compatible with the app enviro
 - Run
 
   ```
-  yarn
-  yarn start
+  pnpm i
+  pnpm start
   ```
 
 ### Running Tests on Client
@@ -133,7 +133,7 @@ This error occurs because the node version is not compatible with the app enviro
 
 ```bash
   cd app/client
-  yarn run test
+  pnpm run test
 ```
 
 Please check out our [Testing Contribution](docs/TestAutomation.md) guide for more details on setting up & troubleshooting Cypress runs on your machine.
@@ -142,7 +142,7 @@ Please check out our [Testing Contribution](docs/TestAutomation.md) guide for mo
 
 ```bash
   cd app/client
-  yarn run test:unit
+  pnpm run test:unit
 ```
 
 ### Windows WSL2 Setup

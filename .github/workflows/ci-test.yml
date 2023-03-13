@@ -175,7 +175,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           cd app/client
-          yarn install \
+          pnpm install \
           --cwd cypress \
           --modules-folder ../node_modules
 

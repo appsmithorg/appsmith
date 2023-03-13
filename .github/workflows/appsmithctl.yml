@@ -83,12 +83,12 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests
         if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
-        run: yarn run test
+        run: pnpm run test
 
       # Set status = failure
       - name: Set result as failed if there are build failures

@@ -96,7 +96,7 @@ Widget code resides in the `src/widgets` folder of the Appsmith codebase. Each w
 
 We can generate the folder structure using this command from the CLI -
 
-`cd app/client && yarn generate:widget`
+`cd app/client && pnpm run generate:widget`
 
 ### Widget Registration
 

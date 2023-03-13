@@ -70,13 +70,13 @@ jobs:
         with:
           # npm dependencies are stored in `~/.m2` on Linux/macOS
           path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Create the bundle
         env:
@@ -88,7 +88,7 @@ jobs:
           REACT_APP_VERSION_EDITION: "Community"
         run: |
           REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
-            yarn build
+            pnpm build
           ls -l build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
@@ -171,7 +171,7 @@ jobs:
       - name: Build
         run: |
           echo 'export const VERSION = "${{ needs.prelude.outputs.tag }}"' > src/version.js
-          yarn build
+          pnpm build
 
       # Tar the bundles to speed up the upload & download process
       - name: Tar the rts bundles

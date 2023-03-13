@@ -82,8 +82,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
-          cache: "yarn"
-          cache-dependency-path: "app/rts/yarn.lock"
+          cache: "pnpm"
+          cache-dependency-path: "app/rts/pnpm-lock.yaml"
 
       
 
@@ -107,18 +107,18 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn run test:unit
+        run: pnpm run test:unit
 
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
-          yarn build
+          pnpm build
 
       # Set status = failure
       - name: Set result as failed if there are build failures

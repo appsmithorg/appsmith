@@ -11,7 +11,8 @@
 /stacks
 
 # production
-/build
+build
+dist
 
 # misc
 .DS_Store
@@ -40,7 +41,6 @@ results/
 /docker/nginx.conf
 /docker/nginx-root.conf
 
-storybook-static/*
 build-storybook.log
 
 .eslintcache
@@ -50,3 +50,6 @@ TODO
 /nginx
 
 /public/static/wds/
+storybook-static
+
+stats.json

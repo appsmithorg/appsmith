@@ -99,13 +99,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16.14.0'
-          cache: 'yarn'
-          cache-dependency-path: 'app/client/yarn.lock'
+          cache: 'pnpm'
+          cache-dependency-path: 'app/client/pnpm-lock.yaml'
 
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Installing Yarn serve
         if: steps.run_result.outputs.run_result != 'success'
@@ -208,7 +208,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/client/perf
         shell: bash
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'

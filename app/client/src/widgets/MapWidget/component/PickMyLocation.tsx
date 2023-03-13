@@ -27,7 +27,7 @@ interface PickMyLocationProps {
 }
 
 const PickMyLocation: React.FC<PickMyLocationProps> = (props) => {
-  const { allowZoom, isEnabled, title, updateCenter } = props;
+  const { allowZoom, isEnabled, updateCenter } = props;
   const [clicked, setClicked] = React.useState(false);
   const [selected, setSelected] = React.useState(false);
 
@@ -60,7 +60,6 @@ const PickMyLocation: React.FC<PickMyLocationProps> = (props) => {
           getUserLocation();
         }
       }}
-      title={title}
     />
   );
 };

@@ -92,13 +92,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
-          cache: "yarn"
-          cache-dependency-path: "app/client/yarn.lock"
+          cache: "pnpm"
+          cache-dependency-path: "app/client/pnpm-lock.yaml"
 
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success'
@@ -122,7 +122,7 @@ jobs:
       # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
       - name: Run the jest tests
         if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0 && inputs.skip-tests != 'true'
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} pnpm run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
@@ -139,7 +139,7 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_VERSION_EDITION="Community" \
-            yarn build
+            pnpm build
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle

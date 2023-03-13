@@ -69,8 +69,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
-          cache: "yarn"
-          cache-dependency-path: "app/client/yarn.lock"
+          cache: "pnpm"
+          cache-dependency-path: "app/client/pnpm-lock.yaml"
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
