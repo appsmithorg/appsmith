@@ -1,22 +1,41 @@
 import styled from "styled-components";
 import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { getMenuContainerBackgroundColor } from "../../utils";
+import {
+  getMenuContainerBackgroundColor,
+  getMenuItemBackgroundColorWhenActive,
+} from "../../utils";
 
 export const HeaderRow = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
+  navStyle: NavigationSetting["navStyle"];
 }>`
   width: 100%;
   display: flex;
   flex-direction: row;
 
-  ${({ navColorStyle, theme }) => {
-    const isLightColorStyle =
-      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  ${({ navColorStyle, navStyle, primaryColor, theme }) => {
+    const isThemeColorStyle =
+      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
+    const isTopStackedNavStyle =
+      navStyle === NAVIGATION_SETTINGS.NAV_STYLE.STACKED;
 
-    return isLightColorStyle
-      ? `border-bottom: 1px solid ${theme.colors.header.tabsHorizontalSeparator}`
-      : "";
+    if (isThemeColorStyle) {
+      if (isTopStackedNavStyle) {
+        return `
+          border-bottom: 1px solid ${getMenuItemBackgroundColorWhenActive(
+            primaryColor,
+            navColorStyle,
+          )};
+        `;
+      }
+
+      return "";
+    } else {
+      return `
+        border-bottom: 1px solid ${theme.colors.header.tabsHorizontalSeparator};
+      `;
+    }
   }}
 `;
 

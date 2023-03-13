@@ -48,6 +48,9 @@ const TopHeader = (props: TopHeaderProps) => {
   const navColorStyle =
     currentApplicationDetails?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const navStyle =
+    currentApplicationDetails?.navigationSetting?.navStyle ||
+    NAVIGATION_SETTINGS.NAV_STYLE.INLINE;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -71,6 +74,7 @@ const TopHeader = (props: TopHeaderProps) => {
       <HeaderRow
         className="relative h-12 px-3 md:px-6"
         navColorStyle={navColorStyle}
+        navStyle={navStyle}
         primaryColor={primaryColor}
       >
         <section className="flex items-center py-3">

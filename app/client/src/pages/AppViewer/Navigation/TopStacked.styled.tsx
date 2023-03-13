@@ -1,4 +1,4 @@
-import { NavigationSetting } from "constants/AppConstants";
+import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import styled from "styled-components";
 import {
   getMenuContainerBackgroundColor,
@@ -13,8 +13,17 @@ export const Container = styled.div<{
   align-items: center;
   background-color: ${({ navColorStyle, primaryColor }) =>
     getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-  border-bottom: 1px solid
-    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
+
+  ${({ navColorStyle, theme }) => {
+    const isLightColorStyle =
+      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+
+    if (isLightColorStyle) {
+      return `
+        border-bottom: 1px solid ${theme.colors.header.tabsHorizontalSeparator};
+      `;
+    }
+  }}
 
   & {
     .scroll-arrows svg path,
