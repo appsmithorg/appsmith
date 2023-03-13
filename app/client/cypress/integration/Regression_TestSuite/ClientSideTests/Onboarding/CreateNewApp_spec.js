@@ -8,19 +8,7 @@ describe("Creating new app after discontinuing guided tour should not start the 
   it("1. Creating new app after discontinuing guided tour should not start the same", function() {
     // Start guided tour
     _.homePage.NavigateToHome();
-    _.agHelper.Sleep(4000); //Adding only because of the CI failure
-    _.dataSources.CloseReconnectDataSourceModal(); // Check if reconnect data source modal is visible and close it
-    cy.get(guidedTourLocators.welcomeTour)
-      .click()
-      .wait(2000);
-    _.dataSources.CloseReconnectDataSourceModal(); // Check if reconnect data source modal is visible and close it
-    cy.get("body").then(($ele) => {
-      if ($ele.find(guidedTourLocators.welcomeTour).length) {
-        cy.get(guidedTourLocators.welcomeTour)
-          .click()
-          .wait(2000);
-      }
-    });
+    cy.get(guidedTourLocators.welcomeTour).click();
     _.dataSources.CloseReconnectDataSourceModal(); // Check if reconnect data source modal is visible and close it
 
     cy.get("body").then(($ele) => {
