@@ -79,7 +79,10 @@ describe("View Permission flow ", function() {
           cy.Createpage("page2");
           // verify user is able to create new query
           cy.CreateAPI("Api123");
-          cy.enterDatasourceAndPath(testdata.baseUrl, "{{ '/users' }}");
+          cy.enterDatasourceAndPath(
+            testdata.baseUrl,
+            "/mock-api?records=20&page=4&size=3",
+          );
           cy.SaveAndRunAPI();
           cy.ResponseStatusCheck("200");
           cy.PublishtheApp();
