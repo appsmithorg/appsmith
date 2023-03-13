@@ -93,17 +93,19 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const changeValueScript = sanitizeScript(rawValue, evaluationVersion);
-        getAST(changeValueScript, {
+        const changeValueAst = getAST(changeValueScript, {
             locations: true,
             ranges: true,
         });
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = getAST(sanitizedScript, {
+        const __ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: commentArray,
         });
+        // clone ast to avoid mutating original ast
+        ast = klona(__ast);
     } catch (error) {
         // if ast is invalid return original string
         throw error;
@@ -225,12 +227,14 @@ export const setObjectAtPosition = (currentValue: string, changeValue: any, argN
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = getAST(sanitizedScript, {
+        const __ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: commentArray,
         });
+        // clone ast to avoid mutating original ast
+        ast = klona(__ast);
     } catch (error) {
         // if ast is invalid throw error
         throw error;
@@ -312,12 +316,14 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = getAST(sanitizedScript, {
+        const __ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: commentArray,
         });
+        // clone ast to avoid mutating original ast
+        ast = klona(__ast);
     } catch (error) {
         // if ast is invalid throw error
         throw error;
@@ -329,8 +335,8 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
     const node = findRootCallExpression(astWithComments);
 
     if(node && isCallExpressionNode(node)) {
-        // add 1 to get the starting position of the next
-        // node to ending position of previous
+                       // add 1 to get the starting position of the next
+                // node to ending position of previous
         const startPosition = node.callee.end + NEXT_POSITION;
         node.arguments[argNum] = {
             type: NodeTypes.Literal,
@@ -390,12 +396,14 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = getAST(sanitizedScript, {
+        const __ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: commentArray,
         });
+        // clone ast to avoid mutating original ast
+        ast = klona(__ast);
     } catch (error) {
         // if ast is invalid throw error
         throw error;
