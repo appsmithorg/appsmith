@@ -132,7 +132,11 @@ export function SettingsForm(
     }
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
-      if (setting && setting.controlType == SettingTypes.TOGGLE) {
+      if (
+        setting &&
+        (setting.controlType == SettingTypes.TOGGLE ||
+          setting.controlType == SettingTypes.CHECKBOX)
+      ) {
         const settingsStr = props.settingsConfig[settingName].toString();
         if (settingName.toLowerCase().includes("enable")) {
           props.settingsConfig[settingName] =

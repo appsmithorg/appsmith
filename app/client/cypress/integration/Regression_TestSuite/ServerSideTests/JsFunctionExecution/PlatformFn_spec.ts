@@ -7,7 +7,8 @@ import {
 
 describe("Tests functionality of platform function", () => {
   it("1. Tests access to outer variable", () => {
-    apiPage.CreateAndFillApi(agHelper.mockApiUrl, "getAllUsers");
+    cy.fixture("datasources").then((datasourceFormData : any) => {
+    apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "getAllUsers");
     jsEditor.CreateJSObject(
       `export default {
         myFun1: () => {
@@ -140,6 +141,7 @@ describe("Tests functionality of platform function", () => {
       agHelper.Sleep(2000);
       debuggerHelper.filter("JSObject1.metaDataApiTest");
       debuggerHelper.DoesConsoleLogExist("Hello from setTimeout inside API");
+    });
     });
   });
 });

@@ -785,6 +785,25 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add(
+  "dragAndDropToWidgetBySelector",
+  (widgetType, destinationSelector, { x, y }) => {
+    const selector = `.t--widget-card-draggable-${widgetType}`;
+    cy.wait(800);
+    cy.get(selector)
+      .scrollIntoView()
+      .trigger("dragstart", { force: true })
+      .trigger("mousemove", x, y, { force: true });
+    cy.get(destinationSelector)
+      .first()
+      .scrollIntoView()
+      .scrollTo("top", { ensureScrollable: false })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  },
+);
+
 Cypress.Commands.add("changeButtonColor", (buttonColor) => {
   cy.get(widgetsPage.buttonColor)
     .click({ force: true })
@@ -1095,93 +1114,99 @@ Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
   });
 });
 
-Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("Queries/JS");
-  cy.get(".t--entity-name")
-    .contains("Api2")
-    .click({ force: true });
-  cy.wait(3000);
-  cy.NavigateToPaginationTab();
-  cy.RunAPI();
-  cy.get(ApiEditor.apiPaginationNextTest).click();
-  cy.wait("@postExecute");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.get(runTestCss).click();
-  cy.wait("@postExecute");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.get(ApiEditor.formActionButtons).should("be.visible");
-  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-  cy.get(ApiEditor.responseBody)
-    .contains("name")
-    .siblings("span")
-    .invoke("text")
-    .then((tabData) => {
-      const respBody = tabData.match(/"(.*)"/)[0];
-      localStorage.setItem("respBody", respBody);
-      cy.log(respBody);
+Cypress.Commands.add(
+  "ValidatePaginateResponseUrlData",
+  (runTestCss, isNext) => {
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    cy.get(".t--entity-name")
+      .contains("Api2")
+      .click({ force: true });
+    cy.wait(3000);
+    cy.NavigateToPaginationTab();
+    cy.RunAPI();
+    cy.get(ApiEditor.apiPaginationNextTest).click();
+    cy.wait("@postExecute");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get(runTestCss).click();
+    cy.wait("@postExecute").then((interception) => {
+      let valueToTest = JSON.stringify(
+        interception.response.body.data.body[0].name,
+      );
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       cy.get(".t--entity-name")
         .contains("Table1")
         .click({ force: true });
       cy.isSelectRow(0);
-      cy.readTabledata("0", "1").then((tabData) => {
+      if (isNext) {
+        cy.wait("@postExecute").then((interception) => {
+          valueToTest = JSON.stringify(
+            interception.response.body.data.body[0].name,
+          );
+        });
+      }
+      cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(respBody);
+        expect(`\"${tableData}\"`).to.equal(valueToTest);
       });
     });
-});
+  },
+);
 
-Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("Queries/JS");
-  cy.get(".t--entity-name")
-    .contains("Api2")
-    .click({ force: true });
-  cy.wait(3000);
-  cy.NavigateToPaginationTab();
-  cy.RunAPI();
-  cy.get(ApiEditor.apiPaginationNextTest).click();
-  cy.wait("@postExecute");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.get(runTestCss).click();
-  cy.wait("@postExecute");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.get(ApiEditor.formActionButtons).should("be.visible");
-  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-  cy.get(ApiEditor.responseBody)
-    .contains("name")
-    .siblings("span")
-    .invoke("text")
-    .then((tabData) => {
-      const respBody = tabData.match(/"(.*)"/)[0];
-      localStorage.setItem("respBody", respBody);
-      cy.log(respBody);
+Cypress.Commands.add(
+  "ValidatePaginateResponseUrlDataV2",
+  (runTestCss, isNext) => {
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    cy.get(".t--entity-name")
+      .contains("Api2")
+      .click({ force: true });
+    cy.wait(3000);
+    cy.NavigateToPaginationTab();
+    cy.RunAPI();
+    cy.get(ApiEditor.apiPaginationNextTest).click();
+    cy.wait("@postExecute");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get(runTestCss).click();
+    cy.wait("@postExecute").then((interception) => {
+      let valueToTest = JSON.stringify(
+        interception.response.body.data.body[0].name,
+      );
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       cy.get(".t--entity-name")
         .contains("Table1")
         .click({ force: true });
       cy.isSelectRow(0);
-      cy.readTableV2data("0", "1").then((tabData) => {
+      if (isNext) {
+        cy.wait("@postExecute").then((interception) => {
+          valueToTest = JSON.stringify(
+            interception.response.body.data.body[0].name,
+          );
+        });
+      }
+      cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(respBody);
+        expect(`\"${tableData}\"`).to.equal(valueToTest);
       });
     });
-});
+  },
+);
 
-Cypress.Commands.add("ValidatePaginationInputData", () => {
+Cypress.Commands.add("ValidatePaginationInputData", (valueToTest) => {
   cy.isSelectRow(0);
-  cy.readTabledataPublish("0", "1").then((tabData) => {
+  cy.readTabledataPublish("0", "5").then((tabData) => {
     const tableData = tabData;
-    expect(`\"${tableData}\"`).to.equal(localStorage.getItem("respBody"));
+    expect(`\"${tableData}\"`).to.equal(valueToTest);
   });
 });
 
-Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
+Cypress.Commands.add("ValidatePaginationInputDataV2", (valueToTest) => {
   cy.isSelectRow(0);
-  cy.readTableV2dataPublish("0", "1").then((tabData) => {
+  cy.readTableV2dataPublish("0", "5").then((tabData) => {
     const tableData = tabData;
-    expect(`\"${tableData}\"`).to.equal(localStorage.getItem("respBody"));
+    expect(`\"${tableData}\"`).to.equal(valueToTest);
   });
 });
 

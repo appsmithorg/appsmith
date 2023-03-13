@@ -79,6 +79,7 @@ Cypress.Commands.add("fillAuthenticatedAPIForm", () => {
 Cypress.Commands.add("runQuery", (expectedRes = true) => {
   cy.onlyQueryRun();
   AggregateHelper.CheckForErrorToast("Failed to initialize pool");
+  cy.wait(2000); //for postexecute to go thru
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.data.isExecutionSuccess",
@@ -159,6 +160,7 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
 Cypress.Commands.add("executeDbQuery", (queryName) => {
   cy.get(widgetsPage.buttonOnClick)
     .get(commonlocators.dropdownSelectButton)
+    .eq(0)
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()

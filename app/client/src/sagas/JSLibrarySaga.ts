@@ -62,11 +62,18 @@ function* handleInstallationFailure(
   toast.show(message || `Failed to install library script at ${url}`, {
     kind: "error",
   });
+  const applicationid: ReturnType<typeof getCurrentApplicationId> = yield select(
+    getCurrentApplicationId,
+  );
   yield put({
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
     payload: { url, show: false },
   });
-  AnalyticsUtil.logEvent("INSTALL_LIBRARY", { url, success: false });
+  AnalyticsUtil.logEvent("INSTALL_LIBRARY", {
+    url,
+    success: false,
+    applicationid,
+  });
   log.error(message);
 }
 
@@ -207,6 +214,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     url,
     namespace: accessor.join("."),
     success: true,
+    applicationId,
   });
 
   AppsmithConsole.info({
