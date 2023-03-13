@@ -402,7 +402,6 @@ abstract class BaseWidget<
   }, JSON.stringify);
 
   render() {
-    debugger;
     return this.getWidgetView();
   }
 
