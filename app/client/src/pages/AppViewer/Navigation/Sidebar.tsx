@@ -85,6 +85,17 @@ export function Sidebar(props: SidebarProps) {
     setQuery(window.location.search);
   }, [location]);
 
+  // Mark default page as first page
+  const appPages = pages;
+  if (appPages.length > 1) {
+    appPages.forEach((item, i) => {
+      if (item.isDefault) {
+        appPages.splice(i, 1);
+        appPages.unshift(item);
+      }
+    });
+  }
+
   useEffect(() => {
     setIsOpen(isPinned);
   }, [isPinned]);
@@ -166,7 +177,7 @@ export function Sidebar(props: SidebarProps) {
         navColorStyle={navColorStyle}
         primaryColor={primaryColor}
       >
-        {pages.map((page) => {
+        {appPages.map((page) => {
           return (
             <MenuItem
               isMinimal={isMinimal}
