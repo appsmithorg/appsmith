@@ -256,31 +256,31 @@
   },
   "semantic": {
     "bgAccent": {
-      "value": "#000",
+      "value": "#15c847",
       "type": "color"
     },
     "bgAccentHover": {
-      "value": "#000",
+      "value": "#2bd251",
       "type": "color"
     },
     "bgAccentLight": {
-      "value": "#dedede",
+      "value": "#6aff81",
       "type": "color"
     },
     "bgAccentActive": {
-      "value": "#000",
+      "value": "#15c847",
       "type": "color"
     },
     "bgAccentLightActive": {
-      "value": "#dedede",
+      "value": "#72f586",
       "type": "color"
     },
     "bgAccentLightHover": {
-      "value": "#e8e8e8",
+      "value": "#7dff90",
       "type": "color"
     },
     "textAccent": {
-      "value": "#000",
+      "value": "#15c847",
       "type": "color"
     },
     "textOnaccent": {
@@ -288,15 +288,15 @@
       "type": "color"
     },
     "borderAccent": {
-      "value": "#000",
+      "value": "#15c847",
       "type": "color"
     },
     "borderOnaccent": {
-      "value": "#000",
+      "value": "#00a721",
       "type": "color"
     },
     "borderOnaccentLight": {
-      "value": "#f8f8f8",
+      "value": "#fbfffa",
       "type": "color"
     }
   }
