@@ -193,7 +193,7 @@ public class OraclePlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug("Before executing Oracle query: Hikari Pool stats : active - {} , idle - {}, " +
+                        log.debug("Before executing Oracle query [{}] : Hikari Pool stats : active - {} , idle - {}, " +
                                         "awaiting - {} , total - {}", query, activeConnections, idleConnections,
                                 threadsAwaitingConnection, totalConnections);
                         try {
@@ -233,8 +233,8 @@ public class OraclePlugin extends BasePlugin {
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug("After executing Oracle query: Hikari Pool stats : active - {} , idle - {}, " +
-                                            "awaiting - {} , total - {}", query, activeConnections, idleConnections,
+                            log.debug("After executing Oracle query [{}] : Hikari Pool stats : active - {} , idle - " +
+                                            "{}, awaiting - {} , total - {}", query, activeConnections, idleConnections,
                                     threadsAwaitingConnection, totalConnections);
 
                             closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
