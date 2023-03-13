@@ -221,6 +221,7 @@ export function* initLicenseStatusCheckSaga(): unknown {
     url.pathname.includes(PAGE_NOT_FOUND_URL);
 
   if (!skipLicenseCheck) {
+    yield delay(60 * 60 * 1000);
     const task = yield fork(startLicenseStatusCheckSaga);
     yield take(ReduxActionTypes.STOP_LICENSE_STATUS_CHECK);
     yield cancel(task);
