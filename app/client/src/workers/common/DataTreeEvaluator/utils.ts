@@ -1,9 +1,16 @@
 import {
   getEntityNameAndPropertyPath,
   isAction,
+  isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeAction,
+  DataTreeEntity,
+  DataTreeJSAction,
+  DataTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {
@@ -30,4 +37,10 @@ export function hasAsyncBinding(
   });
 
   return hasAsyncFunctionInvocation;
+}
+
+export function isWidgetActionOrJsObject(
+  entity: DataTreeEntity,
+): entity is DataTreeAction | DataTreeJSAction | DataTreeWidget {
+  return isWidget(entity) || isAction(entity) || isJSAction(entity);
 }

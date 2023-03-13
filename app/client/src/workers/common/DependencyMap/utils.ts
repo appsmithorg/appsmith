@@ -416,28 +416,3 @@ export function isJSFunction(unevalTree: DataTree, fullPath: string) {
   const entity = unevalTree[entityName];
   return isJSAction(entity) && propertyPath && propertyPath in entity.meta;
 }
-export function getFunctionInvocationRegex(funcName: string) {
-  return new RegExp(`${funcName}[.call | .apply]*\s*\\(.*?\\)`, "g");
-}
-
-export function getAsyncJSFunctionDependencies(
-  dependencies: string[],
-  unEvalTree: DataTree,
-  fullPath: string,
-) {
-  const asyncJSFunctions = new Set<string>();
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-  const entity = unEvalTree[entityName];
-  const unevalPropValue = get(entity, propertyPath);
-
-  dependencies.forEach((dependant) => {
-    if (
-      isAsyncJSFunction(unEvalTree, dependant) &&
-      getFunctionInvocationRegex(dependant).test(unevalPropValue)
-    ) {
-      asyncJSFunctions.add(dependant);
-    }
-  });
-
-  return Array.from(asyncJSFunctions);
-}

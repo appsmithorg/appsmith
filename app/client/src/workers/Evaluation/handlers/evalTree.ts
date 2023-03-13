@@ -26,6 +26,7 @@ import {
   EvalWorkerSyncRequest,
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
+import { asyncJsFunctionInDataFields } from "../JSObject/asyncJsFunctionInDataField";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -86,8 +87,7 @@ export default function(request: EvalWorkerSyncRequest) {
         ),
         requiresLinting,
         jsPropertiesState: dataTreeEvaluator.JSPropertiesState,
-        asyncJSFunctionsInSyncFields:
-          dataTreeEvaluator.asyncJSFunctionsInSyncFields,
+        asyncJSFunctionsInSyncFields: asyncJsFunctionInDataFields.getMap(),
       });
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -132,8 +132,7 @@ export default function(request: EvalWorkerSyncRequest) {
         ),
         requiresLinting,
         jsPropertiesState: dataTreeEvaluator.JSPropertiesState,
-        asyncJSFunctionsInSyncFields:
-          dataTreeEvaluator.asyncJSFunctionsInSyncFields,
+        asyncJSFunctionsInSyncFields: asyncJsFunctionInDataFields.getMap(),
       });
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -170,8 +169,7 @@ export default function(request: EvalWorkerSyncRequest) {
         ),
         requiresLinting,
         jsPropertiesState: dataTreeEvaluator.JSPropertiesState,
-        asyncJSFunctionsInSyncFields:
-          dataTreeEvaluator.asyncJSFunctionsInSyncFields,
+        asyncJSFunctionsInSyncFields: asyncJsFunctionInDataFields.getMap(),
       });
 
       nonDynamicFieldValidationOrder =
