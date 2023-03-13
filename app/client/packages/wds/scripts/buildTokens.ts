@@ -21,8 +21,8 @@ inquirer
     const transformedSemanticTokens: any = {};
     for (const [key, value] of Object.entries(semanticColors)) {
       transformedSemanticTokens[key] = {
-        $value: value,
-        $type: "color",
+        value: value,
+        type: "color",
       };
     }
 
