@@ -33,10 +33,6 @@ inquirer
       },
     };
 
-    console.log(chalk.green("Writing tokens to file..."));
-
-    console.log({ finalTokens });
-
     fs.writeFileSync(
       `${__dirname}/../src/dictionary/build.json`,
       JSON.stringify(finalTokens, null, 2),
