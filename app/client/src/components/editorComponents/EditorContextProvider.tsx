@@ -49,7 +49,7 @@ import {
   WidgetSelectionRequest,
 } from "actions/widgetSelectionActions";
 import { AppState } from "@appsmith/reducers";
-import { getWidgetAncestry } from "selectors/widgetSelectors";
+import { getSelectedWidgetAncestry } from "selectors/widgetSelectors";
 
 export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -218,7 +218,7 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state: AppState) => ({
-  selectedWidgetAncestry: getWidgetAncestry(state),
+  selectedWidgetAncestry: getSelectedWidgetAncestry(state),
 });
 
 export default connect(

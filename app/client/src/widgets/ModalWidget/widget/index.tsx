@@ -20,7 +20,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
-import { getWidgetAncestry } from "selectors/widgetSelectors";
+import { getSelectedWidgetAncestry } from "selectors/widgetSelectors";
 
 const minSize = 100;
 
@@ -242,6 +242,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       />
     ) : null;
 
+    const isOpen = this.props.selectedWidgetAncestry.includes(
+      this.props.widgetId,
+    );
+
     return (
       <ModalComponent
         background={this.props.backgroundColor}
@@ -253,7 +257,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         height={this.props.height}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
-        isOpen={this.props.selectedWidgetAncestry.includes(this.props.widgetId)}
+        isOpen={isOpen}
         maxWidth={this.getMaxModalWidth()}
         minSize={minSize}
         onClose={this.closeModal}
@@ -334,7 +338,7 @@ const mapStateToProps = (state: AppState) => {
     focusedWidget: state.ui.widgetDragResize.focusedWidget,
     isDragging: state.ui.widgetDragResize.isDragging,
     isResizing: state.ui.widgetDragResize.isResizing,
-    selectedWidgetAncestry: getWidgetAncestry(state),
+    selectedWidgetAncestry: getSelectedWidgetAncestry(state),
   };
   return props;
 };

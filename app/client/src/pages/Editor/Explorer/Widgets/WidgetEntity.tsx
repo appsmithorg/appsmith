@@ -15,7 +15,7 @@ import { useLocation } from "react-router";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { NavigationMethod } from "utils/history";
-import { getWidgetAncestry } from "selectors/widgetSelectors";
+import { getEntityExplorerWidgetsToExpand } from "selectors/widgetSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -72,7 +72,7 @@ export type WidgetEntityProps = {
 };
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
-  const widgetsToExpand = useSelector(getWidgetAncestry);
+  const widgetsToExpand = useSelector(getEntityExplorerWidgetsToExpand);
   const icon = <WidgetIcon type={props.widgetType} />;
   const location = useLocation();
 

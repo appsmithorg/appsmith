@@ -150,7 +150,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       }
     }
     if (areArraysEqual([...newSelection], [...selectedWidgets])) {
-      yield call(focusOnWidgetSaga, setSelectedWidgets(newSelection));
+      yield put(setSelectedWidgets(newSelection));
       return;
     }
     yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
@@ -177,9 +177,13 @@ function* appendSelectedWidgetToUrlSaga(
   invokedBy?: NavigationMethod,
 ) {
   const isSnipingMode: boolean = yield select(snipingModeSelector);
+  if (isSnipingMode) return;
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
-  if (isSnipingMode || viewMode) return;
+  if (viewMode) {
+    yield put(setSelectedWidgets(selectedWidgets));
+    return;
+  }
   const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
   const currentURL = pathname;
@@ -219,11 +223,22 @@ function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   }
 }
 
+function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
+  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+  const appMode: APP_MODE = yield select(getAppMode);
+  const viewMode = appMode === APP_MODE.PUBLISHED;
+  if (!isEditorInitialized && !viewMode) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+  }
+  yield call(saga, action);
+}
+
 export function* widgetSelectionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
     takeLatest(
       ReduxActionTypes.SET_SELECTED_WIDGETS,
+      waitForInitialization,
       handleWidgetSelectionSaga,
     ),
   ]);

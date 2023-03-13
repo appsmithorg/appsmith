@@ -40,7 +40,7 @@ import {
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
-import { getWidgetAncestry } from "../selectors/widgetSelectors";
+import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -62,7 +62,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getWidget(state, widgetId),
     );
     const metaWidget = useSelector(getMetaWidget(widgetId));
-    const widgetAncestry = useSelector(getWidgetAncestry);
+    const widgetAncestry = useSelector(getSelectedWidgetAncestry);
 
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
@@ -212,6 +212,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     const shouldCollapseWidgetInViewOrPreviewMode =
       !widgetProps.isVisible &&
+      !widgetAncestry.includes(widgetProps.widgetId) &&
       (renderMode === RenderModes.PAGE || isPreviewMode);
 
     const shouldResetCollapsedContainerHeightInViewOrPreviewMode =
