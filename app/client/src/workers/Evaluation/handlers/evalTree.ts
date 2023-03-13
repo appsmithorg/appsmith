@@ -76,14 +76,19 @@ export default function(request: EvalWorkerSyncRequest) {
       lintOrder = setupFirstTreeResponse.lintOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-      initiateLinting(
+      initiateLinting({
         lintOrder,
-        makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
-          sanitizeDataTree: false,
-        }),
+        unevalTree: makeEntityConfigsAsObjProperties(
+          dataTreeEvaluator.oldUnEvalTree,
+          {
+            sanitizeDataTree: false,
+          },
+        ),
         requiresLinting,
-        dataTreeEvaluator.JSPropertiesState,
-      );
+        jsPropertiesState: dataTreeEvaluator.JSPropertiesState,
+        asyncJSFunctionsInSyncFields:
+          dataTreeEvaluator.asyncJSFunctionsInSyncFields,
+      });
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
@@ -117,14 +122,19 @@ export default function(request: EvalWorkerSyncRequest) {
       lintOrder = setupFirstTreeResponse.lintOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-      initiateLinting(
+      initiateLinting({
         lintOrder,
-        makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
-          sanitizeDataTree: false,
-        }),
+        unevalTree: makeEntityConfigsAsObjProperties(
+          dataTreeEvaluator.oldUnEvalTree,
+          {
+            sanitizeDataTree: false,
+          },
+        ),
         requiresLinting,
-        dataTreeEvaluator.JSPropertiesState,
-      );
+        jsPropertiesState: dataTreeEvaluator.JSPropertiesState,
+        asyncJSFunctionsInSyncFields:
+          dataTreeEvaluator.asyncJSFunctionsInSyncFields,
+      });
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
@@ -150,14 +160,19 @@ export default function(request: EvalWorkerSyncRequest) {
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
       pathsToClearErrorsFor = setupUpdateTreeResponse.pathsToClearErrorsFor;
 
-      initiateLinting(
+      initiateLinting({
         lintOrder,
-        makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
-          sanitizeDataTree: false,
-        }),
+        unevalTree: makeEntityConfigsAsObjProperties(
+          dataTreeEvaluator.oldUnEvalTree,
+          {
+            sanitizeDataTree: false,
+          },
+        ),
         requiresLinting,
-        dataTreeEvaluator.JSPropertiesState,
-      );
+        jsPropertiesState: dataTreeEvaluator.JSPropertiesState,
+        asyncJSFunctionsInSyncFields:
+          dataTreeEvaluator.asyncJSFunctionsInSyncFields,
+      });
 
       nonDynamicFieldValidationOrder =
         setupUpdateTreeResponse.nonDynamicFieldValidationOrder;

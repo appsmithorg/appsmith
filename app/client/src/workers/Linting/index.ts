@@ -3,12 +3,11 @@ import {
   isATriggerPath,
   isJSAction,
 } from "ce/workers/Evaluation/evaluationUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set } from "lodash";
 import { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
-import { TJSPropertiesState } from "workers/common/DataTreeEvaluator";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { getActionTriggerFunctionNames } from "workers/Evaluation/fns";
+import { getlintErrorsFromTreeProps } from "./types";
 import {
   lintBindingPath,
   lintJSObject,
@@ -16,12 +15,13 @@ import {
   pathRequiresLinting,
 } from "./utils";
 
-export function getlintErrorsFromTree(
-  pathsToLint: string[],
-  unEvalTree: DataTree,
-  jsPropertiesState: TJSPropertiesState,
-  cloudHosting: boolean,
-): LintErrorsStore {
+export function getlintErrorsFromTree({
+  asyncJSFunctionsInSyncFields,
+  cloudHosting,
+  jsPropertiesState,
+  pathsToLint,
+  unEvalTree,
+}: getlintErrorsFromTreeProps): LintErrorsStore {
   const lintTreeErrors: LintErrorsStore = {};
   const evalContext = createEvaluationContext({
     dataTree: unEvalTree,
@@ -91,7 +91,11 @@ export function getlintErrorsFromTree(
         const lintErrors = lintJSObject(
           entityName,
           jspropertyState,
-          evalContext,
+          {
+            dataWithFunctions: evalContext,
+            dataWithoutFunctions: evalContextWithOutFunctions,
+          },
+          asyncJSFunctionsInSyncFields,
         );
         set(lintTreeErrors, `["${entityName}.body"]`, lintErrors);
       });

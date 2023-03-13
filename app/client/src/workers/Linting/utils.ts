@@ -6,6 +6,7 @@ import {
 
 import { Position } from "codemirror";
 import {
+  DependencyMap,
   isDynamicValue,
   isPathADynamicBinding,
   LintError,
@@ -51,6 +52,7 @@ import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCre
 import {
   getLintingErrorsProps,
   lintBindingPathProps,
+  LintTreeSagaRequestData,
   lintTriggerPathProps,
 } from "./types";
 import { JSLibraries } from "workers/common/JSLibrary";
@@ -398,19 +400,28 @@ function getInvalidPropertyErrorsFromScript(
   return invalidPropertyErrors;
 }
 
-export function initiateLinting(
-  lintOrder: string[],
-  unevalTree: DataTree,
-  requiresLinting: boolean,
-  JSPropertiesState: TJSPropertiesState,
-) {
+export function initiateLinting({
+  asyncJSFunctionsInSyncFields,
+  jsPropertiesState,
+  lintOrder,
+  requiresLinting,
+  unevalTree,
+}: {
+  asyncJSFunctionsInSyncFields: DependencyMap;
+  lintOrder: string[];
+  unevalTree: DataTree;
+  requiresLinting: boolean;
+  jsPropertiesState: TJSPropertiesState;
+}) {
+  const data = {
+    pathsToLint: lintOrder,
+    unevalTree,
+    jsPropertiesState,
+    asyncJSFunctionsInSyncFields,
+  } as LintTreeSagaRequestData;
   if (!requiresLinting) return;
   WorkerMessenger.ping({
-    data: {
-      lintOrder,
-      unevalTree,
-      JSPropertiesState,
-    },
+    data,
     method: MAIN_THREAD_ACTION.LINT_TREE,
   });
 }
@@ -465,29 +476,66 @@ export function lintJSProperty(
 export function lintJSObject(
   jsObjectName: string,
   jsObjectState: Record<string, TJSpropertyState>,
-  globalData: DataTree,
+  data: { dataWithFunctions: DataTree; dataWithoutFunctions: DataTree },
+  asyncJSFunctionsInSyncFields: DependencyMap,
 ) {
   let lintErrors: LintError[] = [];
 
   // An empty state shows that there is a parse error in the jsObject, so we lint the entire body
   // instead of each property
   if (isEmpty(jsObjectState)) {
-    const jsObject = globalData[jsObjectName];
+    const jsObject = data.dataWithFunctions[jsObjectName];
     const jsBodyToLint = getJSToLint(
       jsObject,
       ((jsObject as unknown) as UnEvalTreeJSAction).body,
       "body",
     );
-    const jsObjectBodyLintErrors = lintJSObjectBody(jsBodyToLint, globalData);
+    const jsObjectBodyLintErrors = lintJSObjectBody(
+      jsBodyToLint,
+      data.dataWithFunctions,
+    );
     return jsObjectBodyLintErrors;
   }
 
   for (const jsProperty of Object.keys(jsObjectState)) {
     const jsPropertyLintErrors = lintJSProperty(
       jsObjectState[jsProperty],
-      globalData,
+      asyncJSFunctionsInSyncFields.hasOwnProperty(
+        `${jsObjectName}.${jsProperty}`,
+      )
+        ? data.dataWithoutFunctions
+        : data.dataWithFunctions,
     );
     lintErrors = lintErrors.concat(jsPropertyLintErrors);
+
+    if (
+      asyncJSFunctionsInSyncFields.hasOwnProperty(
+        `${jsObjectName}.${jsProperty}`,
+      )
+    ) {
+      lintErrors.push({
+        errorType: PropertyEvaluationErrorType.LINT,
+        raw: "test",
+        severity: getLintSeverity("CUSTOM"),
+        errorMessage: {
+          name: "LintingError",
+          message: getLintErrorMessage(
+            `${
+              asyncJSFunctionsInSyncFields[`${jsObjectName}.${jsProperty}`][0]
+            } contains reference to async framework actions that cause widget bindings to fail.`,
+            "CUSTOM",
+            [jsProperty],
+          ),
+        },
+        errorSegment: `${jsObjectName}.${jsProperty}`,
+        originalBinding: "test",
+        // By keeping track of these variables we can highlight the exact text that caused the error.
+        variables: [jsProperty, null, null, null],
+        code: "CUSTOM",
+        line: jsObjectState[jsProperty].position.keyStartLine - 1,
+        ch: jsObjectState[jsProperty].position.keyStartColumn + 1,
+      });
+    }
   }
   return lintErrors;
 }

@@ -66,17 +66,19 @@ function eventRequestHandler({
       const lintTreeResponse: LintTreeResponse = { errors: {} };
       try {
         const {
+          asyncJSFunctionsInSyncFields,
           cloudHosting,
-          JSPropertiesState,
+          jsPropertiesState,
           pathsToLint,
-          unevalTree,
+          unevalTree: unEvalTree,
         } = requestData as LintTreeRequest;
-        const lintErrors = getlintErrorsFromTree(
+        const lintErrors = getlintErrorsFromTree({
           pathsToLint,
-          unevalTree,
-          JSPropertiesState,
+          unEvalTree,
+          jsPropertiesState,
           cloudHosting,
-        );
+          asyncJSFunctionsInSyncFields,
+        });
         lintTreeResponse.errors = lintErrors;
       } catch (e) {}
       return lintTreeResponse;

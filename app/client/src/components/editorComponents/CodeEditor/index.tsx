@@ -1181,6 +1181,22 @@ class CodeEditor extends Component<Props, State> {
     };
   };
 
+  getAsyncFuncError(errors: EvaluationError[]) {
+    const asyncInvocationError = errors.find((error) => !!error.rootcause)
+      ?.rootcause;
+    if (!asyncInvocationError) return undefined;
+
+    const jsObjectNavigationData = this.props.entitiesForNavigation[
+      asyncInvocationError.split(".")[0]
+    ];
+
+    const jsFuncNavigationData =
+      jsObjectNavigationData &&
+      jsObjectNavigationData.children[asyncInvocationError.split(".")[1]];
+
+    return jsFuncNavigationData?.url;
+  }
+
   render() {
     const {
       border,
@@ -1233,6 +1249,7 @@ class CodeEditor extends Component<Props, State> {
 
     const showEvaluatedValue =
       showFeatures && (this.state.isDynamic || isInvalid);
+    const asyncInvocationPath = this.getAsyncFuncError(errors);
 
     return (
       <DynamicAutocompleteInputWrapper
@@ -1257,7 +1274,9 @@ class CodeEditor extends Component<Props, State> {
             text="/"
           />
         )}
+
         <EvaluatedValuePopup
+          asyncInvocationErrors={asyncInvocationPath}
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}
           entity={entityInformation}

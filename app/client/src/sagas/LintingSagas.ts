@@ -38,7 +38,12 @@ function* updateLintGlobals(action: ReduxAction<TJSLibrary>) {
 }
 
 export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
-  const { JSPropertiesState, pathsToLint, unevalTree } = action.payload;
+  const {
+    asyncJSFunctionsInSyncFields,
+    jsPropertiesState,
+    pathsToLint,
+    unevalTree,
+  } = action.payload;
   // only perform lint operations in edit mode
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode !== APP_MODE.EDIT) return;
@@ -46,8 +51,9 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   const lintTreeRequestData: LintTreeRequest = {
     pathsToLint,
     unevalTree,
-    JSPropertiesState,
+    jsPropertiesState,
     cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
+    asyncJSFunctionsInSyncFields,
   };
 
   const { errors }: LintTreeResponse = yield call(

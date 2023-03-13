@@ -39,6 +39,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
+import { Link } from "react-router-dom";
+import { showDebugger } from "actions/debuggerActions";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -189,6 +191,23 @@ const StyledTitleName = styled.p`
   cursor: pointer;
 `;
 
+const AsyncFunctionErrorLink = styled(Link)`
+  color: black;
+  font-weight: 600;
+  cursor: pointer;
+  font-style: normal;
+  display: flex;
+  &:hover {
+    color: black;
+  }
+`;
+
+const AsyncFunctionErrorView = styled.div`
+  display: flex;
+  margin-top: 12px;
+  justify-content: space-between;
+`;
+
 function CollapseToggle(props: { isOpen: boolean }) {
   const { isOpen } = props;
   return (
@@ -231,6 +250,7 @@ interface Props {
   dataTreePath?: string;
   evaluatedPopUpLabel?: string;
   editorRef?: React.RefObject<HTMLDivElement>;
+  asyncInvocationErrors?: string;
 }
 
 interface PopoverContentProps {
@@ -248,6 +268,7 @@ interface PopoverContentProps {
   dataTreePath?: string;
   evaluatedPopUpLabel?: string;
   editorRef?: React.RefObject<HTMLDivElement>;
+  asyncInvocationErrors?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -484,6 +505,12 @@ function PopoverContent(props: PopoverContentProps) {
   if (hasError) {
     error = errors[0];
   }
+  const openDebugger = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    dispatch(showDebugger());
+  };
 
   useEffect(() => {
     dispatch(
@@ -520,13 +547,25 @@ function PopoverContent(props: PopoverContentProps) {
             {/* errorMessage could be an empty string */}
             {getErrorMessage(error.errorMessage)}
           </span>
-          <EvaluatedValueDebugButton
-            entity={props.entity}
-            error={{
-              type: error.errorType,
-              message: error.errorMessage,
-            }}
-          />
+
+          {props.asyncInvocationErrors ? (
+            <AsyncFunctionErrorView>
+              <AsyncFunctionErrorLink onClick={(e) => openDebugger(e)} to="">
+                See Error (Ctrl D)
+              </AsyncFunctionErrorLink>
+              <AsyncFunctionErrorLink to={props.asyncInvocationErrors}>
+                View Source
+              </AsyncFunctionErrorLink>
+            </AsyncFunctionErrorView>
+          ) : (
+            <EvaluatedValueDebugButton
+              entity={props.entity}
+              error={{
+                type: error.errorType,
+                message: error.errorMessage,
+              }}
+            />
+          )}
         </ErrorText>
       )}
       {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
@@ -614,6 +653,7 @@ function EvaluatedValuePopup(props: Props) {
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
+          asyncInvocationErrors={props.asyncInvocationErrors}
           dataTreePath={props.dataTreePath}
           editorRef={props?.editorRef}
           entity={props.entity}

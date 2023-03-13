@@ -365,6 +365,7 @@ export interface EvaluationError extends DataTreeError {
     | PropertyEvaluationErrorType.PARSE
     | PropertyEvaluationErrorType.VALIDATION;
   originalBinding?: string;
+  rootcause?: string;
 }
 
 export interface LintError extends DataTreeError {

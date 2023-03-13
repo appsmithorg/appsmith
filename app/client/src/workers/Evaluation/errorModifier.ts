@@ -1,5 +1,6 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
+import { EvaluationError } from "utils/DynamicBindingUtils";
 
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
@@ -36,16 +37,26 @@ class ErrorModifier {
 
     return errorMessage;
   }
+  modifyAsyncError(errors: EvaluationError[], asyncFunc: string) {
+    return errors.map((error) => {
+      if (error.errorMessage.message === FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE) {
+        error.rootcause = asyncFunc;
+      }
+      return error;
+    });
+  }
 }
 
 export const errorModifier = new ErrorModifier();
+
+const FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE =
+  "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
 
 export class FoundPromiseInSyncEvalError extends Error {
   constructor() {
     super();
     this.name = "";
-    this.message =
-      "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
+    this.message = FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE;
   }
 }
 

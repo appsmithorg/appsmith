@@ -6,6 +6,7 @@ import {
   createEvaluationContext,
   EvaluationScriptType,
 } from "workers/Evaluation/evaluate";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
@@ -19,8 +20,9 @@ export interface LintTreeResponse {
 export interface LintTreeRequest {
   pathsToLint: string[];
   unevalTree: DataTree;
-  JSPropertiesState: TJSPropertiesState;
+  jsPropertiesState: TJSPropertiesState;
   cloudHosting: boolean;
+  asyncJSFunctionsInSyncFields: DependencyMap;
 }
 
 export type LintWorkerRequest = WorkerRequest<
@@ -31,7 +33,8 @@ export type LintWorkerRequest = WorkerRequest<
 export type LintTreeSagaRequestData = {
   pathsToLint: string[];
   unevalTree: DataTree;
-  JSPropertiesState: TJSPropertiesState;
+  jsPropertiesState: TJSPropertiesState;
+  asyncJSFunctionsInSyncFields: DependencyMap;
 };
 
 export interface lintTriggerPathProps {
@@ -53,4 +56,12 @@ export interface getLintingErrorsProps {
   // {{user's code}}
   originalBinding: string;
   scriptType: EvaluationScriptType;
+}
+
+export interface getlintErrorsFromTreeProps {
+  pathsToLint: string[];
+  unEvalTree: DataTree;
+  jsPropertiesState: TJSPropertiesState;
+  cloudHosting: boolean;
+  asyncJSFunctionsInSyncFields: DependencyMap;
 }
