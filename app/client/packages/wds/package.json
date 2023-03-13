@@ -5,8 +5,14 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
     "@types/react": "^17.0.2",
-    "@types/react-dom": "^17.0.2"
+    "@types/react-dom": "^17.0.2",
+    "babel-preset-env": "^1.7.0",
+    "chalk": "^4.1.1",
+    "inquirer": "8.0.0",
+    "tsconfig-paths": "^4.1.2"
   },
   "dependencies": {
     "@capsizecss/core": "^3.1.0",
@@ -14,5 +20,8 @@
     "colorjs.io": "^0.4.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
+  },
+  "scripts": {
+    "tokens:build": "ts-node -r tsconfig-paths/register ./scripts/buildTokens.ts"
   }
 }
