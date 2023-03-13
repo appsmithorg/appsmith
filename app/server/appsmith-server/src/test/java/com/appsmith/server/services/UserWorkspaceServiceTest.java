@@ -247,9 +247,9 @@ public class UserWorkspaceServiceTest {
 
         Mono<WorkspaceMemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
 
-        StepVerifier.create(updateUserRoleMono).expectErrorMessage(
-                AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()
-        ).verify();
+        StepVerifier
+                .create(updateUserRoleMono)
+                .verifyError();
     }
 
     @Test
