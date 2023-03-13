@@ -204,6 +204,12 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
 
         changedValue = generate(currentValueAstWithComments, {comments: true}).trim();
 
+        try {
+            getAST(changedValue);
+        } catch(e) {
+            throw e;
+        }
+
     }
 
     return changedValue;
