@@ -37,7 +37,7 @@ class ErrorModifier {
 
     return errorMessage;
   }
-  modifyAsyncError(errors: EvaluationError[], asyncFunc: string) {
+  modifyAsyncErrors(errors: EvaluationError[], asyncFunc: string) {
     return errors.map((error) => {
       if (error.errorMessage.message === FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE) {
         error.rootcause = asyncFunc;

@@ -11,7 +11,6 @@ import {
   DataTreeJSAction,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
-import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {
   return (endTime - startTime).toFixed(2) + " ms";
@@ -23,20 +22,6 @@ export function isDataField(fullPath: string, unevalTree: DataTree) {
     return !(propertyPath in entity.triggerPaths);
   }
   return isAction(entity);
-}
-
-export function hasAsyncBinding(
-  asyncFunctionsInSyncFields: DependencyMap,
-  fullPath: string,
-) {
-  let hasAsyncFunctionInvocation = undefined;
-  Object.keys(asyncFunctionsInSyncFields).forEach((path) => {
-    if (asyncFunctionsInSyncFields[path].includes(fullPath)) {
-      return (hasAsyncFunctionInvocation = path);
-    }
-  });
-
-  return hasAsyncFunctionInvocation;
 }
 
 export function isWidgetActionOrJsObject(

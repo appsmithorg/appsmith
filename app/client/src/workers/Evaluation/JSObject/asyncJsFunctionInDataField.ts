@@ -188,7 +188,17 @@ class AsyncJsFunctionInDataField {
     return this.asyncFunctionsInDataFieldsMap;
   }
   deleteFunctionFromMap(funcName: string) {
-    delete this.asyncFunctionsInDataFieldsMap[funcName];
+    this.asyncFunctionsInDataFieldsMap[funcName] &&
+      delete this.asyncFunctionsInDataFieldsMap[funcName];
+  }
+  getAsyncFunctionBindingInDataField(fullPath: string): string | undefined {
+    let hasAsyncFunctionInvocation: string | undefined = undefined;
+    Object.keys(this.asyncFunctionsInDataFieldsMap).forEach((path) => {
+      if (this.asyncFunctionsInDataFieldsMap[path].includes(fullPath)) {
+        return (hasAsyncFunctionInvocation = path);
+      }
+    });
+    return hasAsyncFunctionInvocation;
   }
 }
 

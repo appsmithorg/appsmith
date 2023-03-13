@@ -92,7 +92,7 @@ import {
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
 } from "workers/Evaluation/JSObject";
-import { getFixedTimeDifference, hasAsyncBinding, isDataField } from "./utils";
+import { getFixedTimeDifference, isDataField } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
@@ -1016,7 +1016,7 @@ export default class DataTreeEvaluator {
             });
           }
 
-          const { errors, result } = this.evaluateDynamicBoundValue(
+          const { errors: evalErrors, result } = this.evaluateDynamicBoundValue(
             toBeSentForEval,
             data,
             resolvedFunctions,
@@ -1024,22 +1024,21 @@ export default class DataTreeEvaluator {
             contextData,
             callBackData,
           );
-          if (fullPropertyPath && errors.length) {
-            let pathErrors = errors;
+          let pathErrors = evalErrors;
+          if (fullPropertyPath && evalErrors.length) {
             //modify
             if (isDataField(fullPropertyPath, data)) {
-              const asyncBinding = hasAsyncBinding(
-                asyncJsFunctionInDataFields.getMap(),
+              const asyncFunctionBindingInPath = asyncJsFunctionInDataFields.getAsyncFunctionBindingInDataField(
                 fullPropertyPath,
               );
-              if (asyncBinding) {
-                pathErrors = errorModifier.modifyAsyncError(
-                  errors,
-                  asyncBinding,
+              if (asyncFunctionBindingInPath) {
+                pathErrors = errorModifier.modifyAsyncErrors(
+                  evalErrors,
+                  asyncFunctionBindingInPath,
                 );
               }
             }
-            //update
+
             addErrorToEntityProperty({
               errors: pathErrors,
               evalProps: this.evalProps,
