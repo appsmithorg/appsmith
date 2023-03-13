@@ -42,6 +42,7 @@ import {
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
+import classNames from "classnames";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -157,7 +158,10 @@ function WidgetsEditor() {
             <div className="relative flex flex-col w-full overflow-hidden">
               <CanvasTopSection />
               <div
-                className="relative flex flex-row w-full overflow-hidden justify-center"
+                className={classNames({
+                  "relative flex flex-row w-full overflow-hidden justify-center": true,
+                  "pointer-events-none select-none": isAppSettingsPaneWithNavigationTabOpen,
+                })}
                 data-testid="widgets-editor"
                 draggable
                 id="widgets-editor"
