@@ -45,6 +45,7 @@ export default function(request: EvalWorkerSyncRequest) {
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
   let pathsToClearErrorsFor: any[] = [];
+  let isNewWidgetAdded = false;
 
   const {
     allActionValidationConfig,
@@ -147,6 +148,7 @@ export default function(request: EvalWorkerSyncRequest) {
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
       pathsToClearErrorsFor = setupUpdateTreeResponse.pathsToClearErrorsFor;
+      isNewWidgetAdded = setupUpdateTreeResponse.isNewWidgetAdded;
 
       initiateLinting(
         lintOrder,
@@ -218,6 +220,7 @@ export default function(request: EvalWorkerSyncRequest) {
     isCreateFirstTree,
     staleMetaIds,
     pathsToClearErrorsFor,
+    isNewWidgetAdded,
   };
 
   return evalTreeResponse;

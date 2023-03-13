@@ -46,6 +46,7 @@ import {
   isNewEntity,
   getStaleMetaStateIds,
   convertJSFunctionsToString,
+  DataTreeDiffEvent,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -362,6 +363,7 @@ export default class DataTreeEvaluator {
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
     pathsToClearErrorsFor: any[];
+    isNewWidgetAdded: boolean;
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
 
@@ -431,14 +433,26 @@ export default class DataTreeEvaluator {
         lintOrder: [],
         jsUpdates: {},
         nonDynamicFieldValidationOrder: [],
+        isNewWidgetAdded: false,
       };
     }
+    let isNewWidgetAdded = false;
+
     //find all differences which can lead to updating of dependency map
     const translatedDiffs = flatten(
       differences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
+
+    /** We need to know if a new widget was added so that we do not fire WIDGET_BINDING_SUCCESS event */
+    const newEvent = translatedDiffs.find(
+      (diffEvent) => diffEvent.event === DataTreeDiffEvent.NEW,
+    );
+    if (newEvent) {
+      isNewWidgetAdded = true;
+    }
+
     const diffCheckTimeStopTime = performance.now();
     this.logs.push({
       differences,
@@ -547,6 +561,7 @@ export default class DataTreeEvaluator {
         nonDynamicFieldValidationOrderSet,
       ),
       pathsToClearErrorsFor,
+      isNewWidgetAdded,
     };
   }
 

@@ -48,4 +48,5 @@ export interface EvalTreeResponseData {
   isCreateFirstTree: boolean;
   staleMetaIds: string[];
   pathsToClearErrorsFor: any[];
+  isNewWidgetAdded: boolean;
 }

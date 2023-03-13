@@ -39,7 +39,7 @@ export enum DataTreeDiffEvent {
   NEW = "NEW",
   DELETE = "DELETE",
   EDIT = "EDIT",
-  NOOP = "NOOP",
+  NOOP = "NOOP", // No Operation (don’t do anything)
 }
 
 export type DataTreeDiff = {

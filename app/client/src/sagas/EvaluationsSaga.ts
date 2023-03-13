@@ -182,6 +182,7 @@ export function* evaluateTreeSaga(
     isCreateFirstTree = false,
     staleMetaIds,
     pathsToClearErrorsFor,
+    isNewWidgetAdded,
   } = workerResponse;
 
   PerformanceTracker.stopAsyncTracking(
@@ -230,6 +231,7 @@ export function* evaluateTreeSaga(
       updatedDataTree,
       evaluationOrder,
       isCreateFirstTree,
+      isNewWidgetAdded,
     );
 
     yield fork(
