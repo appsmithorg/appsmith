@@ -125,7 +125,7 @@ export class HomePage {
       .click({ force: true });
     cy.get(this._renameWorkspaceInput)
       .should("be.visible")
-      .type(newWorkspaceName.concat("{enter}"));
+      .type(newWorkspaceName.concat("{enter}"), {delay : 0});
     this.agHelper.Sleep(2000);
     this, this.agHelper.ValidateNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);

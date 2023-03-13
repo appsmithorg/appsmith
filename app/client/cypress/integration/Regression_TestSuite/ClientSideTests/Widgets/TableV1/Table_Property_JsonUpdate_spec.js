@@ -15,7 +15,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // Open property pane
     cy.SearchEntityandOpen("Table1");
     // Change the table data to Apil data users
-    cy.testJsontext("tabledata", "{{Api1.data.users}}");
+    cy.testJsontext("tabledata", "{{Api1.data}}");
     // Check server sided pagination
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open property pane of Text1
@@ -29,8 +29,10 @@ describe("Test Create Api and Bind to Table widget", function() {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });
-    // Validate the table 1st index
-    cy.ValidateTableData("1");
+    cy.readTabledata("0", "4").then((tabData) => {
+      const tableData = tabData;
+      expect(tableData).to.equal("1");
+    })
     // Add new column
     cy.addColumn("CustomColumn");
   });
