@@ -10,6 +10,7 @@ import {
   Point,
 } from "utils/autoLayout/highlightSelectionUtils";
 import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { useRef } from "react";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
@@ -34,7 +35,7 @@ export const useAutoLayoutHighlights = ({
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
   const isMobile = useSelector(getIsMobile);
-  let highlights: HighlightInfo[] = [];
+  const highlights = useRef<HighlightInfo[]>([]);
   let lastActiveHighlight: HighlightInfo | undefined;
   let isFillWidget = false;
 
@@ -45,7 +46,7 @@ export const useAutoLayoutHighlights = ({
   const cleanUpTempStyles = () => {
     // reset state
     lastActiveHighlight = undefined;
-    highlights = [];
+    highlights.current = [];
   };
 
   const checkForFillWidget = (): boolean => {
@@ -76,7 +77,7 @@ export const useAutoLayoutHighlights = ({
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
       isFillWidget = checkForFillWidget();
-      highlights = deriveHighlightsFromLayers(
+      highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
         snapColumnSpace,
@@ -85,8 +86,8 @@ export const useAutoLayoutHighlights = ({
         isMobile,
       );
     }
-    // console.log("#### highlights", highlights);
-    return highlights;
+    // console.log("#### highlights", highlights.current);
+    return highlights.current;
   };
 
   /**
@@ -106,8 +107,8 @@ export const useAutoLayoutHighlights = ({
   ) => {
     if (mouseUp && lastActiveHighlight) return lastActiveHighlight;
 
-    if (!highlights || !highlights.length)
-      highlights = deriveHighlightsFromLayers(
+    if (!highlights || !highlights?.current?.length)
+      highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
         snapColumnSpace,
@@ -117,7 +118,7 @@ export const useAutoLayoutHighlights = ({
       );
 
     const highlight: HighlightInfo | undefined = getHighlightPayload(
-      highlights,
+      highlights.current,
       e || null,
       val,
     );
