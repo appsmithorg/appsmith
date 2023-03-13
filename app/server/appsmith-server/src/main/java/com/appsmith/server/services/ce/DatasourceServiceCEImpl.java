@@ -22,12 +22,14 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
@@ -40,6 +42,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -63,11 +66,13 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.featureflags.FeatureFlagEnum.ORACLE_PLUGIN;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
 public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceServiceCE {
 
+    private static final String ORACLE_PLUGIN_PACKAGE_NAME = "oracle-plugin";
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     private final PluginService pluginService;
@@ -78,6 +83,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
+
+    @Autowired
+    FeatureFlagService featureFlagService;
 
     @Autowired
     public DatasourceServiceCEImpl(Scheduler scheduler,
@@ -112,7 +120,28 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
-        return createEx(datasource, Optional.of(workspacePermission.getDatasourceCreatePermission()));
+        return pluginService.findById(datasource.getPluginId())
+                .flatMap(plugin -> {
+                    /**
+                     * Oracle plugin is currently under feature flag. Hence, datasource creation will only be allowed
+                     * if the flag is enabled.
+                     */
+                    if (ORACLE_PLUGIN_PACKAGE_NAME.equalsIgnoreCase(plugin.getPackageName())) {
+                        return featureFlagService.check(ORACLE_PLUGIN);
+                    }
+                    else {
+                        return Mono.just(true);
+                    }
+                })
+                .flatMap(isPluginEnabled -> {
+                    if (isPluginEnabled) {
+                        return createEx(datasource, Optional.of(workspacePermission.getDatasourceCreatePermission()));
+                    }
+                    else {
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED,
+                                datasource.getPluginId()));
+                    }
+                });
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.utils.OracleDatasourceUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
+import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -61,6 +62,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+@Slf4j
 public class OraclePlugin extends BasePlugin {
 
     public OraclePlugin(PluginWrapper wrapper) {
@@ -80,7 +82,7 @@ public class OraclePlugin extends BasePlugin {
 
             return Mono
                     .fromCallable(() -> {
-                        System.out.println(Thread.currentThread().getName() + ": Connecting to Oracle db");
+                        log.debug(Thread.currentThread().getName() + ": Connecting to Oracle db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
@@ -172,7 +174,7 @@ public class OraclePlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            System.out.println("Exception Occurred while getting connection from pool" + e.getMessage());
+                            log.debug("Exception Occurred while getting connection from pool" + e.getMessage());
                             e.printStackTrace(System.out);
                             return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                         }
@@ -191,7 +193,7 @@ public class OraclePlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        System.out.println(Thread.currentThread().getName() + ": Before executing oracle query [" +
+                        log.debug(Thread.currentThread().getName() + ": Before executing oracle query [" +
                                 query +
                                 "] Hikari Pool stats : active - " + activeConnections +
                                 ", idle - " + idleConnections +
@@ -226,15 +228,15 @@ public class OraclePlugin extends BasePlugin {
                             populateRowsAndColumns(rowsList, columnsList, resultSet, isResultSet, preparedStatement,
                                     statement, preparedQuery);
                         } catch (SQLException e) {
-                            System.out.println(Thread.currentThread().getName() + ": In the OraclePlugin, got action execution error");
-                            System.out.println(e.getMessage());
+                            log.debug(Thread.currentThread().getName() + ": In the OraclePlugin, got action execution error");
+                            log.debug(e.getMessage());
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
                         } finally {
                             idleConnections = poolProxy.getIdleConnections();
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            System.out.println(Thread.currentThread().getName() + ": After executing oracle query, Hikari Pool stats active - " + activeConnections +
+                            log.debug(Thread.currentThread().getName() + ": After executing oracle query, Hikari Pool stats active - " + activeConnections +
                                     ", idle - " + idleConnections +
                                     ", awaiting - " + threadsAwaitingConnection +
                                     ", total - " + totalConnections);
@@ -246,7 +248,7 @@ public class OraclePlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        System.out.println(Thread.currentThread().getName() + ": In the OraclePlugin, got action execution result");
+                        log.debug(Thread.currentThread().getName() + ": In the OraclePlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
