@@ -193,12 +193,9 @@ public class OraclePlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug(Thread.currentThread().getName() + ": Before executing oracle query [" +
-                                query +
-                                "] Hikari Pool stats : active - " + activeConnections +
-                                ", idle - " + idleConnections +
-                                ", awaiting - " + threadsAwaitingConnection +
-                                ", total - " + totalConnections);
+                        log.debug("Before executing Oracle query: Hikari Pool stats : active - {} , idle - {}, " +
+                                        "awaiting - {} , total - {}", query, activeConnections, idleConnections,
+                                threadsAwaitingConnection, totalConnections);
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = connectionFromPool.createStatement();
@@ -236,10 +233,9 @@ public class OraclePlugin extends BasePlugin {
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug(Thread.currentThread().getName() + ": After executing oracle query, Hikari Pool stats active - " + activeConnections +
-                                    ", idle - " + idleConnections +
-                                    ", awaiting - " + threadsAwaitingConnection +
-                                    ", total - " + totalConnections);
+                            log.debug("After executing Oracle query: Hikari Pool stats : active - {} , idle - {}, " +
+                                            "awaiting - {} , total - {}", query, activeConnections, idleConnections,
+                                    threadsAwaitingConnection, totalConnections);
 
                             closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
                         }
