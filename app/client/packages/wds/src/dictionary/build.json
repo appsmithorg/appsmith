@@ -256,48 +256,48 @@
   },
   "semantic": {
     "bgAccent": {
-      "$value": "#000",
-      "$type": "color"
+      "value": "#000",
+      "type": "color"
     },
     "bgAccentHover": {
-      "$value": "#000",
-      "$type": "color"
+      "value": "#000",
+      "type": "color"
     },
     "bgAccentLight": {
-      "$value": "#dedede",
-      "$type": "color"
+      "value": "#dedede",
+      "type": "color"
     },
     "bgAccentActive": {
-      "$value": "#000",
-      "$type": "color"
+      "value": "#000",
+      "type": "color"
     },
     "bgAccentLightActive": {
-      "$value": "#dedede",
-      "$type": "color"
+      "value": "#dedede",
+      "type": "color"
     },
     "bgAccentLightHover": {
-      "$value": "#e8e8e8",
-      "$type": "color"
+      "value": "#e8e8e8",
+      "type": "color"
     },
     "textAccent": {
-      "$value": "#000",
-      "$type": "color"
+      "value": "#000",
+      "type": "color"
     },
     "textOnaccent": {
-      "$value": "#fff",
-      "$type": "color"
+      "value": "#fff",
+      "type": "color"
     },
     "borderAccent": {
-      "$value": "#000",
-      "$type": "color"
+      "value": "#000",
+      "type": "color"
     },
     "borderOnaccent": {
-      "$value": "#000",
-      "$type": "color"
+      "value": "#000",
+      "type": "color"
     },
     "borderOnaccentLight": {
-      "$value": "#f8f8f8",
-      "$type": "color"
+      "value": "#f8f8f8",
+      "type": "color"
     }
   }
 }
