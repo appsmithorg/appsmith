@@ -4,12 +4,15 @@ import {
   BannerMessage,
   Button,
   Category,
+  Collapsible,
   Dropdown,
   DropdownOption,
   Icon,
   IconSize,
   Size,
   Spinner,
+  TextType,
+  Text,
 } from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
@@ -35,6 +38,11 @@ export type ConversionProps = {
   primaryButton?: { text: string; onClick: () => void };
   secondaryButton?: { text: string; onClick: () => void };
   conversionComplete?: ConversionCompleteLayoutProps;
+  collapsibleMessage?: {
+    title: string;
+    messageHeader: string;
+    messagePoints: string[];
+  };
   selectDropDown?: {
     selected: DropdownOption;
     onSelect: (value: string, option: DropdownOption) => void;
@@ -48,6 +56,7 @@ export type ConversionProps = {
   };
 };
 
+//This Conversion form renders conversion form flow based on props from conversionHook
 export function ConversionForm<T>(
   conversionHook: (onCancel: () => void, hookProps?: T) => ConversionProps,
   hookProps?: T,
@@ -56,6 +65,7 @@ export function ConversionForm<T>(
     const {
       bannerMessageDetails,
       cancelButtonText,
+      collapsibleMessage,
       conversionComplete,
       infoBlocks,
       primaryButton,
@@ -94,17 +104,31 @@ export function ConversionForm<T>(
         {spinner && (
           <div className="flex flex-col items-center py-12">
             <Spinner size={IconSize.XXXXL} />
-            <p className="pt-4 text-base">{spinner}</p>
+            <Text className="pt-4" type={TextType.P0}>
+              {spinner}
+            </Text>
           </div>
         )}
         {conversionComplete && (
           <ConversionCompleteLayout {...conversionComplete} />
         )}
+        {collapsibleMessage && (
+          <Collapsible className="pt-5" title={collapsibleMessage.title}>
+            <Text color={Colors.GRAY_900} type={TextType.P1}>
+              {collapsibleMessage.messageHeader}
+            </Text>
+            <ul className="text-sm text-gray-500 list-disc pl-4">
+              {collapsibleMessage.messagePoints.map((text, id) => (
+                <li key={id}>{text}</li>
+              ))}
+            </ul>
+          </Collapsible>
+        )}
         {selectDropDown && (
           <>
-            <p className="pt-4 pb-1 text-sm font-normal">
-              {selectDropDown.labelText}
-            </p>
+            <div className="pt-4 pb-1">
+              <Text type={TextType.P1}>{selectDropDown.labelText}</Text>
+            </div>
             <Dropdown
               onSelect={selectDropDown.onSelect}
               options={selectDropDown.options}
@@ -117,12 +141,12 @@ export function ConversionForm<T>(
         {snapShotDetails && (
           <>
             {snapShotDetails.labelText && (
-              <p className="pt-6 pb-1 text-base font-normal">
-                {snapShotDetails.labelText}
-              </p>
+              <div className="pt-6 pb-1">
+                <Text type={TextType.P0}>{snapShotDetails.labelText}</Text>
+              </div>
             )}
             <div
-              className="h-14 flex flex-row border border-gray-200 items-center"
+              className="h-14 mb-4 flex flex-row border border-gray-200 items-center"
               style={snapShotDetails.labelText ? {} : { marginTop: "24px" }}
             >
               <Icon
@@ -133,7 +157,7 @@ export function ConversionForm<T>(
                 withWrapper
                 wrapperColor={Colors.GRAY_600_OPAQUE}
               />
-              <p className="text-base font-medium">{snapShotDetails.text}</p>
+              <Text type={TextType.H4}>{snapShotDetails.text}</Text>
             </div>
           </>
         )}

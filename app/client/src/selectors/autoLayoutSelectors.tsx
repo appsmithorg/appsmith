@@ -1,6 +1,9 @@
 import { AppState } from "ce/reducers";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
-import moment from "moment";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import relativeTime from "dayjs/plugin/relativeTime";
+import advancedFormat from "dayjs/plugin/advancedFormat";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
 import {
@@ -11,6 +14,11 @@ import {
 } from "utils/autoLayout/autoLayoutTypes";
 import { getAlignmentColumnInfo } from "utils/autoLayout/AutoLayoutUtils";
 import { getIsMobile } from "./mainCanvasSelectors";
+
+//add formatting plugins
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
+dayjs.extend(advancedFormat);
 
 export type ReadableSnapShotDetails = {
   timeSince: string;
@@ -76,16 +84,17 @@ export const getReadableSnapShotDetails = createSelector(
     if (Date.now() - lastUpdatedDate.getTime() <= 0) return;
 
     const millisecondsPerHour = 60 * 60 * 1000;
-    const ExpirationHours = 5 * 24;
-    const hoursPassedSince =
-      (Date.now() - lastUpdatedDate.getTime()) / millisecondsPerHour;
+    const ExpirationInMilliseconds = 5 * 24 * millisecondsPerHour;
+    const timePassedSince = Date.now() - lastUpdatedDate.getTime();
 
-    const timeSince: string = getStringFromHours(hoursPassedSince);
-    const timeTillExpiration: string = getStringFromHours(
-      ExpirationHours - hoursPassedSince,
-    );
+    const timeSince: string = dayjs
+      .duration(timePassedSince, "milliseconds")
+      .humanize();
+    const timeTillExpiration: string = dayjs
+      .duration(ExpirationInMilliseconds - timePassedSince, "milliseconds")
+      .humanize();
 
-    const readableDate = moment(lastUpdatedDate).format("Do MMMM, YYYY h:mm a");
+    const readableDate = dayjs(lastUpdatedDate).format("Do MMMM, YYYY h:mm a");
 
     return {
       timeSince,
@@ -94,30 +103,6 @@ export const getReadableSnapShotDetails = createSelector(
     };
   },
 );
-
-function getStringFromHours(hours: number) {
-  if (hours > 48) return `${Math.round(hours / 24)} days`;
-  else if (hours < 48 && hours > 24) return `1 day`;
-  else if (hours > 1) return `${Math.round(hours)} hours`;
-  else if (hours > 0) return `less than an hour`;
-  else return "";
-}
-
-export function buildSnapshotTimeString(
-  readableSnapShotDetails: ReadableSnapShotDetails | undefined,
-) {
-  if (!readableSnapShotDetails) return "";
-  const { readableDate, timeSince } = readableSnapShotDetails;
-  return `Snapshot from ${timeSince} ago (${readableDate})`;
-}
-
-export function buildSnapshotExpirationTimeString(
-  readableSnapShotDetails: ReadableSnapShotDetails | undefined,
-) {
-  if (!readableSnapShotDetails) return "";
-  const { timeTillExpiration } = readableSnapShotDetails;
-  return `Snapshot expires in ${timeTillExpiration}`;
-}
 
 export const getAlignmentColumns = (widgetId: string, layerIndex: number) =>
   createSelector(

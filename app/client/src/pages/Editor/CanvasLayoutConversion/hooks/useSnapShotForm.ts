@@ -4,6 +4,7 @@ import {
   createMessage,
   RESTORING_SNAPSHOT,
   SNAPSHOT_LABEL,
+  SNAPSHOT_TIME_FROM_MESSAGE,
   USE_SNAPSHOT,
   USE_SNAPSHOT_TEXT,
 } from "ce/constants/messages";
@@ -12,15 +13,19 @@ import { ConversionProps } from "../ConversionForm";
 import { Dispatch } from "redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { useCommonConversionFlows } from "./useCommonConversionFlows";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
-  buildSnapshotTimeString,
+  getReadableSnapShotDetails,
   ReadableSnapShotDetails,
 } from "selectors/autoLayoutSelectors";
 import { Colors } from "constants/Colors";
+import { commonConversionFlows } from "./CommonConversionFlows";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "@appsmith/reducers";
+import { useEffect } from "react";
 
-export const useSnapShotFlow = (
+//returns props for using snapshot flows based on which the Conversion Form can be rendered
+export const snapShotFlow = (
   dispatch: Dispatch<any>,
   readableSnapShotDetails: ReadableSnapShotDetails | undefined,
   onCancel: () => void,
@@ -41,7 +46,11 @@ export const useSnapShotFlow = (
       snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(SNAPSHOT_LABEL),
         icon: "history-line",
-        text: buildSnapshotTimeString(readableSnapShotDetails),
+        text: createMessage(
+          SNAPSHOT_TIME_FROM_MESSAGE,
+          readableSnapShotDetails.timeSince,
+          readableSnapShotDetails.readableDate,
+        ),
       },
       primaryButton: {
         text: createMessage(USE_SNAPSHOT),
@@ -69,6 +78,26 @@ export const useSnapShotFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       spinner: createMessage(RESTORING_SNAPSHOT),
     },
-    ...useCommonConversionFlows(dispatch, onCancel),
+    ...commonConversionFlows(dispatch, onCancel),
   };
+};
+
+export const useSnapShotForm = (onCancel: () => void) => {
+  const conversionState = useSelector(
+    (state: AppState) => state.ui.layoutConversion.conversionState,
+  );
+  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setLayoutConversionStateAction(CONVERSION_STATES.SNAPSHOT_START));
+  }, []);
+
+  const snapshotFlowStates = snapShotFlow(
+    dispatch,
+    readableSnapShotDetails,
+    onCancel,
+  );
+
+  return snapshotFlowStates[conversionState] || {};
 };

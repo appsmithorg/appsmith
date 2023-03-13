@@ -6,7 +6,6 @@ import {
   getCurrentPageId,
   getIsFetchingPage,
   getViewModePageList,
-  previewModeSelector,
   showCanvasTopSectionSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -15,7 +14,7 @@ import { getCanvasClassName } from "utils/generators";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import classNames from "classnames";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { BannerMessage, IconSize, Spinner } from "design-system-old";
+import { IconSize, Spinner } from "design-system-old";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { useDispatch } from "react-redux";
@@ -34,18 +33,11 @@ import {
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { CanvasResizer } from "widgets/CanvasResizer";
 import Canvas from "../Canvas";
-import { Colors } from "constants/Colors";
-import {
-  createMessage,
-  SNAPSHOT_BANNER_MESSAGE,
-  DISCARD_SNAPSHOT_CTA,
-} from "@appsmith/constants/messages";
-import {
-  buildSnapshotExpirationTimeString,
-  getReadableSnapShotDetails,
-} from "selectors/autoLayoutSelectors";
-import { SnapShotButton } from "../CanvasLayoutConversion/SnapShotButton";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+
+type CanvasContainerProps = {
+  isPreviewMode: boolean;
+  shouldShowSnapShotBanner: boolean;
+};
 
 const Container = styled.section<{
   $isAutoLayout: boolean;
@@ -70,8 +62,10 @@ const Container = styled.section<{
   }
 `;
 
-function CanvasContainer() {
+function CanvasContainer(props: CanvasContainerProps) {
   const dispatch = useDispatch();
+  const { isPreviewMode, shouldShowSnapShotBanner } = props;
+
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const canvasWidth = useSelector(getCanvasWidth);
@@ -79,15 +73,11 @@ function CanvasContainer() {
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
-  const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
-  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
-
-  const shouldShowSnapShotBanner = readableSnapShotDetails && !isPreviewMode;
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -122,22 +112,11 @@ function CanvasContainer() {
     );
   }
 
-  const bannerMessageCTA = (
-    <>
-      <SnapShotButton />
-      <p
-        className="font-semibold text-xs m-0 py-1 px-2 hover:bg-orange-200 cursor-pointer"
-        onClick={() => dispatch({ type: ReduxActionTypes.DELETE_SNAPSHOT })}
-      >
-        {createMessage(DISCARD_SNAPSHOT_CTA)}
-      </p>
-    </>
-  );
-
+  const topMargin = shouldShowSnapShotBanner ? "4rem" : "0rem";
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
-  const heightWithTopMargin = `calc(100vh - 2rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
-  const resizerTop = `calc(2rem + ${theme.smallHeaderHeight})`;
+  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
+  const resizerTop = `calc(2rem + ${topMargin} + ${theme.smallHeaderHeight})`;
   return (
     <>
       <Container
@@ -155,6 +134,7 @@ function CanvasContainer() {
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
             !showCanvasTopSection,
+          "mt-24": shouldShowSnapShotBanner,
         })}
         id={"canvas-viewport"}
         key={currentPageId}
@@ -163,23 +143,6 @@ function CanvasContainer() {
           fontFamily: fontFamily,
         }}
       >
-        {shouldShowSnapShotBanner && (
-          <BannerMessage
-            backgroundColor={Colors.WARNING_ORANGE}
-            ctaChildren={bannerMessageCTA}
-            fontWeight="400"
-            icon="warning-line"
-            iconColor={Colors.WARNING_SOLID}
-            iconFlexPosition="start"
-            iconSize={IconSize.XXXXL}
-            intentLine
-            message={createMessage(SNAPSHOT_BANNER_MESSAGE)}
-            messageHeader={buildSnapshotExpirationTimeString(
-              readableSnapShotDetails,
-            )}
-            textColor={Colors.GRAY_800}
-          />
-        )}
         <WidgetGlobaStyles
           fontFamily={selectedTheme.properties.fontFamily.appFont}
           primaryColor={selectedTheme.properties.colors.primaryColor}

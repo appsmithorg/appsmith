@@ -55,6 +55,11 @@ export function* updateLayoutForMobileCheckpoint(
   }
 }
 
+/**
+ * This Method is called when fixed and Auto are switched between each other using the Switch button on the right Pane
+ * @param actionPayload
+ * @returns
+ */
 export function* updateLayoutPositioningSaga(
   actionPayload: ReduxAction<AppPositioningTypes>,
 ) {
@@ -68,6 +73,7 @@ export function* updateLayoutPositioningSaga(
 
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
+    //Convert Fixed Layout to Auto
     if (payloadPositioningType === AppPositioningTypes.AUTO) {
       const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
         MAIN_CONTAINER_WIDGET_ID,
@@ -84,7 +90,9 @@ export function* updateLayoutPositioningSaga(
       );
 
       yield call(recalculateOnPageLoad);
-    } else {
+    }
+    // Convert Auto layout to fixed
+    else {
       yield put(
         updateAndSaveLayout(convertNormalizedDSLToFixed(allWidgets, "DESKTOP")),
       );
@@ -100,6 +108,7 @@ export function* updateLayoutPositioningSaga(
   }
 }
 
+//This Method is used to re calculate Positions based on canvas width
 export function* recalculateOnPageLoad() {
   const appPositioningType: AppPositioningTypes = yield select(
     getCurrentAppPositioningType,

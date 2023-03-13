@@ -1505,6 +1505,20 @@ export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm all the pages are converted correctly before editing. Use the snapshot to go back. Discard only after reviewing all the pages.";
 export const USE_SNAPSHOT_CTA = () => "USE THE SNAPSHOT";
 export const DISCARD_SNAPSHOT_CTA = () => "DISCARD THE SNAPSHOT";
+export const MORE_DETAILS = () => "More details";
+export const CONVERSION_ERROR_MESSAGE_HEADER = () =>
+  "To resolve this error please:";
+export const CONVERSION_ERROR_MESSAGE_TEXT_ONE = () =>
+  "Check your internet connection.";
+export const CONVERSION_ERROR_MESSAGE_TEXT_TWO = () =>
+  "Send us a report. Sending a report will only inform us that the failure happened and will give us your email address to reach out to.";
+export const SNAPSHOT_TIME_FROM_MESSAGE = (
+  timeSince: string,
+  readableDate: string,
+) => `Snapshot from ${timeSince} ago (${readableDate})`;
+export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
+  timeTillExpiration: string,
+) => `Snapshot expires in ${timeTillExpiration}`;
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },

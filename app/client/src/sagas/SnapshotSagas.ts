@@ -15,11 +15,12 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 
+//Saga to create application snapshot
 export function* createSnapshotSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    response = yield ApplicationApi.createSnapShotOfApplication({
+    response = yield ApplicationApi.createApplicationSnapShot({
       applicationId,
     });
 
@@ -37,6 +38,7 @@ export function* createSnapshotSaga() {
   }
 }
 
+//Saga to fetch application snapshot
 export function* fetchSnapshotSaga() {
   let response: ApiResponse<SnapShotDetails> | undefined;
   try {
@@ -64,11 +66,12 @@ export function* fetchSnapshotSaga() {
   }
 }
 
+//Saga to restore application snapshot
 function* restoreApplicationFromSnapshotSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    response = yield ApplicationApi.restoreSnapShotOfApplication({
+    response = yield ApplicationApi.restoreApplicationFromSnapshot({
       applicationId,
     });
 
@@ -79,12 +82,14 @@ function* restoreApplicationFromSnapshotSaga() {
     );
 
     if (isValidResponse) {
+      //update conversion form state to success
       yield put(
         setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
       );
     }
   } catch (error) {
     log.error(error);
+    //update conversion form state to error
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR),
     );
@@ -92,11 +97,12 @@ function* restoreApplicationFromSnapshotSaga() {
   }
 }
 
+//Saga to delete application snapshot
 function* deleteApplicationSnapshotSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    response = yield ApplicationApi.deleteSnapShotOfApplication({
+    response = yield ApplicationApi.deleteApplicationSnapShot({
       applicationId,
     });
 
@@ -115,6 +121,7 @@ function* deleteApplicationSnapshotSaga() {
   }
 }
 
+//Saga to update snapshot details by fetching info from backend
 function* updateSnapshotDetailsSaga() {
   try {
     const snapShotDetails: { updatedTime: Date } | undefined = yield call(

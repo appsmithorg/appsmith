@@ -15,8 +15,9 @@ import { Dispatch } from "redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { useCommonConversionFlows } from "./useCommonConversionFlows";
+import { commonConversionFlows } from "./CommonConversionFlows";
 
+//returns props for Fixed to Auto layout conversion flows based on which the Conversion Form can be rendered
 export const useFixedToAutoLayoutFlow = (
   dispatch: Dispatch<any>,
   onCancel: () => void,
@@ -58,6 +59,6 @@ export const useFixedToAutoLayoutFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       spinner: createMessage(CONVERTING_APP),
     },
-    ...useCommonConversionFlows(dispatch, onCancel),
+    ...commonConversionFlows(dispatch, onCancel),
   };
 };

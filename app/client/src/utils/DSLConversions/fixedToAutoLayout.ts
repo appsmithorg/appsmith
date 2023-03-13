@@ -209,18 +209,18 @@ function getNextLayer(
       unHandledWidgets.indexOf(widget.type) < 0
         ? convertDSLtoAuto(widget)
         : { ...widget, positioning: Positioning.Fixed };
-    const widgetConfig = WidgetFactory.getWidgetConfigMap(currWidget.type);
+    const widgetConfig = WidgetFactory.widgetConfigMap.get(currWidget.type);
     //get Responsive Behaviour
     const responsiveBehavior =
-      (widgetConfig.responsiveBehavior as ResponsiveBehavior) ||
+      (widgetConfig?.responsiveBehavior as ResponsiveBehavior) ||
       ResponsiveBehavior.Hug;
 
-    if (widgetConfig.dynamicHeight && widgetConfig.isCanvas) {
+    if (widgetConfig?.dynamicHeight && widgetConfig.isCanvas) {
       currWidget.dynamicHeight = widgetConfig.dynamicHeight;
     }
 
     //get minWidth of the type
-    currWidget.minWidth = widgetConfig.minWidth || FILL_WIDGET_MIN_WIDTH;
+    currWidget.minWidth = widgetConfig?.minWidth || FILL_WIDGET_MIN_WIDTH;
 
     //Get Alignment of the Widget
     alignment = alignmentMap[currWidget.widgetId] || FlexLayerAlignment.Start;

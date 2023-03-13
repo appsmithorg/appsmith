@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system-old";
+import { Icon, IconSize, Text, TextType } from "design-system-old";
 import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
 
 const AlertIcons = {
@@ -22,20 +22,18 @@ export const ConversionCompleteLayout = (
 ) => {
   return (
     <div className="flex flex-col items-center pt-3">
-      <Icon
-        className="pb-4"
-        name={AlertIcons[props.alertType]}
-        size={IconSize.XXXXL}
-      />
-      <h2 className="text-base font-medium py-1">{props.headerText}</h2>
+      <Icon name={AlertIcons[props.alertType]} size={IconSize.XXXXL} />
+      <Text className="py-1" type={TextType.H4}>
+        {props.headerText}
+      </Text>
       {props.errorText && (
-        <p className="text-sm font-normal" style={{ color: Colors.ERROR_600 }}>
+        <Text color={Colors.ERROR_600} type={TextType.P1}>
           {props.errorText}
-        </p>
+        </Text>
       )}
-      <p className="text-sm font-normal" style={{ color: Colors.GRAY_500 }}>
+      <Text color={Colors.GRAY_500} type={TextType.P1}>
         {props.infoText}
-      </p>
+      </Text>
     </div>
   );
 };

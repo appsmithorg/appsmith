@@ -12,6 +12,7 @@ import {
   SAVE_SNAPSHOT,
   SAVE_SNAPSHOT_TEXT,
   SNAPSHOT_LABEL,
+  SNAPSHOT_TIME_FROM_MESSAGE,
   USE_SNAPSHOT,
 } from "@appsmith/constants/messages";
 import { ConversionProps } from "../ConversionForm";
@@ -21,16 +22,14 @@ import { useState } from "react";
 import { DropdownOption } from "design-system-old";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
-import { useCommonConversionFlows } from "./useCommonConversionFlows";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
-import {
-  buildSnapshotTimeString,
-  getReadableSnapShotDetails,
-} from "selectors/autoLayoutSelectors";
+import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { useSnapShotFlow } from "./useSnapShotFlow";
+import { snapShotFlow } from "./useSnapShotForm";
+import { commonConversionFlows } from "./CommonConversionFlows";
 
+//returns props for Auto to Fixed Layout conversion flows based on which the Conversion Form can be rendered
 export const useAutoToFixedLayoutFlow = (
   dispatch: Dispatch<any>,
   onCancel: () => void,
@@ -111,10 +110,14 @@ export const useAutoToFixedLayoutFlow = (
         iconColor: Colors.WARNING_SOLID,
         textColor: Colors.GRAY_800,
       },
-      snapShotDetails: {
+      snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(SNAPSHOT_LABEL),
         icon: "history-line",
-        text: buildSnapshotTimeString(readableSnapShotDetails),
+        text: createMessage(
+          SNAPSHOT_TIME_FROM_MESSAGE,
+          readableSnapShotDetails.timeSince,
+          readableSnapShotDetails.readableDate,
+        ),
       },
       primaryButton: {
         text: createMessage(USE_SNAPSHOT),
@@ -145,8 +148,8 @@ export const useAutoToFixedLayoutFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       spinner: createMessage(CONVERTING_APP),
     },
-    ...useCommonConversionFlows(dispatch, onCancel),
-    ...useSnapShotFlow(
+    ...commonConversionFlows(dispatch, onCancel),
+    ...snapShotFlow(
       dispatch,
       readableSnapShotDetails,
       onCancel,

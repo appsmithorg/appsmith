@@ -223,15 +223,6 @@ class WidgetFactory {
     return Array.from(this.widgetMap.keys());
   }
 
-  static getWidgetConfigMap(widgetType: WidgetType): Partial<WidgetProps> {
-    const map = this.widgetConfigMap.get(widgetType);
-    if (!map) {
-      log.error("Widget type validation is not defined");
-      return {};
-    }
-    return map;
-  }
-
   static getWidgetDerivedPropertiesMap(
     widgetType: WidgetType,
   ): DerivedPropertiesMap {

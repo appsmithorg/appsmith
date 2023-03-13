@@ -10,6 +10,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
   getCurrentPageId,
   getCurrentPageName,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import {
@@ -30,6 +31,17 @@ import CanvasContainer from "./CanvasContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import PageTabs from "./PageTabs";
 import PropertyPaneContainer from "./PropertyPaneContainer";
+import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
+import { BannerMessage, IconSize, TextType, Text } from "design-system-old";
+import { Colors } from "constants/Colors";
+import {
+  createMessage,
+  DISCARD_SNAPSHOT_CTA,
+  SNAPSHOT_BANNER_MESSAGE,
+  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
+} from "@appsmith/constants/messages";
+import SnapShotButton from "../CanvasLayoutConversion/SnapShotButton";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -40,6 +52,10 @@ function WidgetsEditor() {
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+
+  const shouldShowSnapShotBanner = !!readableSnapShotDetails && !isPreviewMode;
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -95,6 +111,22 @@ function WidgetsEditor() {
     [allowDragToSelect],
   );
 
+  const bannerMessageCTA = (
+    <>
+      <SnapShotButton />
+      <div>
+        <Text
+          className="m-0 py-1 px-2 hover:bg-orange-200 cursor-pointer"
+          onClick={() => dispatch({ type: ReduxActionTypes.DELETE_SNAPSHOT })}
+          type={TextType.H5}
+          weight={600}
+        >
+          {createMessage(DISCARD_SNAPSHOT_CTA)}
+        </Text>
+      </div>
+    </>
+  );
+
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider renderMode="CANVAS">
@@ -103,6 +135,7 @@ function WidgetsEditor() {
       ) : (
         <>
           {guidedTourEnabled && <Guide />}
+
           <div className="relative flex flex-row w-full overflow-hidden">
             <div className="relative flex flex-col w-full overflow-hidden">
               <CanvasTopSection />
@@ -114,8 +147,35 @@ function WidgetsEditor() {
                 onClick={handleWrapperClick}
                 onDragStart={onDragStart}
               >
+                {shouldShowSnapShotBanner && (
+                  <div className="absolute top-0 z-1 w-full">
+                    <BannerMessage
+                      backgroundColor={Colors.WARNING_ORANGE}
+                      ctaChildren={bannerMessageCTA}
+                      fontWeight="400"
+                      icon="warning-line"
+                      iconColor={Colors.WARNING_SOLID}
+                      iconFlexPosition="start"
+                      iconSize={IconSize.XXXXL}
+                      intentLine
+                      message={createMessage(SNAPSHOT_BANNER_MESSAGE)}
+                      messageHeader={
+                        readableSnapShotDetails
+                          ? createMessage(
+                              SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
+                              readableSnapShotDetails.timeTillExpiration,
+                            )
+                          : ""
+                      }
+                      textColor={Colors.GRAY_800}
+                    />
+                  </div>
+                )}
                 <PageTabs />
-                <CanvasContainer />
+                <CanvasContainer
+                  isPreviewMode={isPreviewMode}
+                  shouldShowSnapShotBanner={shouldShowSnapShotBanner}
+                />
                 <CrudInfoModal />
                 <Debugger />
               </div>

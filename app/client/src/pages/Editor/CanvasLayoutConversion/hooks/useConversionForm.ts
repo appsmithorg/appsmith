@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useAutoToFixedLayoutFlow } from "./useAutoToFixedLayoutFlow";
 import { useFixedToAutoLayoutFlow } from "./useFixedToAutoLayoutFlow";
 
+//Hook that helps with rendering of conversion form based on the Flow
 export const useConversionForm = (
   onCancel: () => void,
   hookProps?: { isAutoLayout: boolean },

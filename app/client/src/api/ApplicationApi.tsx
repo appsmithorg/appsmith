@@ -7,6 +7,7 @@ import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { APP_MODE } from "entities/App";
 import { ApplicationVersion } from "actions/applicationActions";
 import { Datasource } from "entities/Datasource";
+import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 
 export type EvaluationVersion = number;
 
@@ -211,7 +212,6 @@ export interface PageDefaultMeta {
 
 export interface snapShotApplicationRequest {
   applicationId: string;
-  branchName?: string;
 }
 
 class ApplicationApi extends Api {
@@ -344,31 +344,20 @@ class ApplicationApi extends Api {
     );
   }
 
-  static createSnapShotOfApplication(request: snapShotApplicationRequest) {
-    return Api.post(
-      ApplicationApi.baseURL + "/snapshot/" + request.applicationId,
-    );
+  static createApplicationSnapShot(request: snapShotApplicationRequest) {
+    return Api.post(getSnapShotAPIRoute(request.applicationId));
   }
 
   static getSnapShotDetails(request: snapShotApplicationRequest) {
-    return Api.get(
-      ApplicationApi.baseURL + "/snapshot/" + request.applicationId,
-    );
+    return Api.get(getSnapShotAPIRoute(request.applicationId));
   }
 
-  static restoreSnapShotOfApplication(request: snapShotApplicationRequest) {
-    return Api.post(
-      ApplicationApi.baseURL +
-        "/snapshot/" +
-        request.applicationId +
-        "/restore",
-    );
+  static restoreApplicationFromSnapshot(request: snapShotApplicationRequest) {
+    return Api.post(getSnapShotAPIRoute(request.applicationId) + "/restore");
   }
 
-  static deleteSnapShotOfApplication(request: snapShotApplicationRequest) {
-    return Api.delete(
-      ApplicationApi.baseURL + "/snapshot/" + request.applicationId,
-    );
+  static deleteApplicationSnapShot(request: snapShotApplicationRequest) {
+    return Api.delete(getSnapShotAPIRoute(request.applicationId));
   }
 }
 

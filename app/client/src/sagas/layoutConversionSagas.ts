@@ -21,9 +21,14 @@ import { saveAllPagesSaga } from "./PageSagas";
 import { updateApplicationLayout } from "actions/applicationActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
+/**
+ * This method is used to convert from Auto layout to Fixed layout
+ * @param action
+ */
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   try {
     yield call(createSnapshotSaga);
+    //Set conversion form to indicated conversion loading state
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
     );
@@ -31,6 +36,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 
     const pageLayouts = [];
 
+    //Convert all the pages into Fixed layout by iterating over the list
     for (const [pageId, page] of Object.entries(pageWidgetsList)) {
       const { dsl: normalizedDSL, layoutId } = page;
 
@@ -54,12 +60,15 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     }
 
     yield call(saveAllPagesSaga, pageLayouts);
+    //Set type of fixed layout
     yield call(setLayoutTypePostConversion, action.payload);
+    //update conversion form state to success
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
   } catch (e) {
     log.error(e);
+    //update conversion form state to error
     yield put(
       setLayoutConversionStateAction(
         CONVERSION_STATES.COMPLETED_ERROR,
@@ -69,6 +78,10 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   }
 }
 
+/**
+ * This method is used to convert from Fixed layout to Auto layout
+ * @param action
+ */
 function* convertFromFixedToAutoSaga() {
   try {
     yield call(createSnapshotSaga);
@@ -99,11 +112,13 @@ function* convertFromFixedToAutoSaga() {
     }
 
     yield call(saveAllPagesSaga, pageLayouts);
+    //update conversion form state to success
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
   } catch (e) {
     log.error(e);
+    //update conversion form state to error
     yield put(
       setLayoutConversionStateAction(
         CONVERSION_STATES.COMPLETED_ERROR,
@@ -113,6 +128,7 @@ function* convertFromFixedToAutoSaga() {
   }
 }
 
+//Saga to log conversion sentry error when user reports it
 function* logLayoutConversionErrorSaga() {
   try {
     const error: Error = yield select(
@@ -125,6 +141,10 @@ function* logLayoutConversionErrorSaga() {
   }
 }
 
+/**
+ * Set layout type of Application based on user selection while converting
+ * @param selectedLayoutType
+ */
 function* setLayoutTypePostConversion(selectedLayoutType: SupportedLayouts) {
   let convertToLayoutType: SupportedLayouts = selectedLayoutType;
   const applicationId: string = yield select(getCurrentApplicationId);

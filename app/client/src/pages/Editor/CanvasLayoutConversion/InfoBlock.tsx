@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system-old";
+import { Icon, IconSize, Text, TextType } from "design-system-old";
 import React from "react";
 
 export type InfoBlockProps = {
@@ -19,8 +19,10 @@ export const InfoBlock = (props: InfoBlockProps) => {
         wrapperColor={Colors.PRIMARY_ORANGE_OPAQUE}
       />
       <div className="flex flex-col">
-        <h2 className="text-base font-medium pb-1">{props.header}</h2>
-        <p className="text-sm font-normal">{props.info}</p>
+        <Text className="pb-1" type={TextType.H4}>
+          {props.header}
+        </Text>
+        <Text type={TextType.P1}>{props.info}</Text>
       </div>
     </div>
   );
