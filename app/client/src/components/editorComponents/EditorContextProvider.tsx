@@ -116,13 +116,18 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "updateWidgetAutoHeight",
   "checkContainersForAutoHeight",
   "selectWidgetRequest",
-  "selectedWidgetAncestry",
 ];
 
-const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [...COMMON_API_METHODS];
+const COMMON_STATE: EditorContextTypeKey[] = ["selectedWidgetAncestry"];
+
+const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [
+  ...COMMON_API_METHODS,
+  ...COMMON_STATE,
+];
 
 const CANVAS_MODE_API_METHODS: EditorContextTypeKey[] = [
   ...COMMON_API_METHODS,
+  ...COMMON_STATE,
   "deleteWidgetProperty",
   "disableDrag",
   "updateWidget",

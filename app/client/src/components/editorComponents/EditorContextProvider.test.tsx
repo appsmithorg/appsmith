@@ -24,7 +24,7 @@ const TestParent = () => {
 
 describe("EditorContextProvider", () => {
   it("it checks context methods in Edit mode", () => {
-    const expectedMethods = [
+    const expectedProps = [
       "batchUpdateWidgetProperty",
       "executeAction",
       "getWidgetCache",
@@ -42,6 +42,7 @@ describe("EditorContextProvider", () => {
       "updateWidgetProperty",
       "updateWidgetAutoHeight",
       "checkContainersForAutoHeight",
+      "selectedWidgetAncestry",
     ].sort();
 
     const testRenderer = TestRenderer.create(
@@ -56,11 +57,11 @@ describe("EditorContextProvider", () => {
       Object.keys(testInstance.findByType(TestChild).props.editorContext) || []
     ).sort();
 
-    expect(result).toEqual(expectedMethods);
+    expect(result).toEqual(expectedProps);
   });
 
   it("it checks context methods in View mode", () => {
-    const expectedMethods = [
+    const expectedProps = [
       "batchUpdateWidgetProperty",
       "deleteMetaWidgets",
       "executeAction",
@@ -74,6 +75,7 @@ describe("EditorContextProvider", () => {
       "triggerEvalOnMetaUpdate",
       "updateWidgetAutoHeight",
       "checkContainersForAutoHeight",
+      "selectedWidgetAncestry",
     ].sort();
 
     const testRenderer = TestRenderer.create(
@@ -88,6 +90,6 @@ describe("EditorContextProvider", () => {
       Object.keys(testInstance.findByType(TestChild).props.editorContext) || []
     ).sort();
 
-    expect(result).toEqual(expectedMethods);
+    expect(result).toEqual(expectedProps);
   });
 });
