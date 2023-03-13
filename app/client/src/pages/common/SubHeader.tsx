@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback } from "react";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
@@ -71,6 +71,10 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
     <Button size={Size.medium} text={props.add.title} />
   );
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   return (
     <SubHeaderWrapper
       isBannerVisible={props.isBannerVisible}
@@ -96,9 +100,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
       {props.add && (
         <FormDialogComponent
           Form={props.add.form}
-          onOpenOrClose={(isOpen) =>
-            dispatch(setShowAppInviteUsersDialog(isOpen))
-          }
+          onOpenOrClose={handleFormOpenOrClose}
           title={props.add.title}
           trigger={createTrigger}
         />

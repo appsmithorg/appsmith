@@ -122,6 +122,10 @@ export default function Settings() {
     }
   }, [dispatch, currentWorkspace]);
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   const GeneralSettingsComponent = (
     <SentryRoute
       component={GeneralSettings}
@@ -222,9 +226,7 @@ export default function Settings() {
         canOutsideClickClose
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onOpenOrClose={(isOpen) =>
-          dispatch(setShowAppInviteUsersDialog(isOpen))
-        }
+        onOpenOrClose={handleFormOpenOrClose}
         placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
         title={`Invite Users to ${currentWorkspace?.name}`}
         trigger

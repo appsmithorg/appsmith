@@ -367,6 +367,10 @@ export function EditorHeader(props: EditorHeaderProps) {
     ];
   }, []);
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper
@@ -490,9 +494,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               canOutsideClickClose
               isOpen={showAppInviteUsersDialog}
               noModalBodyMarginTop
-              onOpenOrClose={(isOpen) =>
-                dispatch(setShowAppInviteUsersDialog(isOpen))
-              }
+              onOpenOrClose={handleFormOpenOrClose}
               placeholder={createMessage(
                 INVITE_USERS_PLACEHOLDER,
                 cloudHosting,

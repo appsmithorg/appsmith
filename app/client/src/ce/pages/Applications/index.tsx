@@ -652,6 +652,10 @@ export function ApplicationsSection(props: any) {
     });
   };
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   let updatedWorkspaces;
   if (!isFetchingApplications) {
     updatedWorkspaces = userWorkspaces;
@@ -750,9 +754,7 @@ export function ApplicationsSection(props: any) {
                         INVITE_USERS_MESSAGE,
                         cloudHosting,
                       )}
-                      onOpenOrClose={(isOpen) =>
-                        dispatch(setShowAppInviteUsersDialog(isOpen))
-                      }
+                      onOpenOrClose={handleFormOpenOrClose}
                       placeholder={createMessage(
                         INVITE_USERS_PLACEHOLDER,
                         cloudHosting,

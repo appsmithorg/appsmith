@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import {
@@ -95,6 +95,10 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
   const dispatch = useDispatch();
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   if (hideHeader) return <HtmlTitle />;
 
   return (
@@ -145,9 +149,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                     }}
                     isOpen={showAppInviteUsersDialog}
                     message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
-                    onOpenOrClose={(isOpen) =>
-                      dispatch(setShowAppInviteUsersDialog(isOpen))
-                    }
+                    onOpenOrClose={handleFormOpenOrClose}
                     placeholder={createMessage(
                       INVITE_USERS_PLACEHOLDER,
                       cloudHosting,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   ApplicationPayload,
   Page,
@@ -81,6 +81,10 @@ export function PageMenu(props: AppViewerHeaderProps) {
     });
   }
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   return (
     <>
       {/* BG OVERLAY */}
@@ -123,9 +127,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
               }}
               isOpen={showAppInviteUsersDialog}
               message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
-              onOpenOrClose={(isOpen) =>
-                dispatch(setShowAppInviteUsersDialog(isOpen))
-              }
+              onOpenOrClose={handleFormOpenOrClose}
               placeholder={createMessage(
                 INVITE_USERS_PLACEHOLDER,
                 cloudHosting,
