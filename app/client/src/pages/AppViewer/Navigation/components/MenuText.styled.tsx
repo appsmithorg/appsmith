@@ -1,4 +1,4 @@
-import { NavigationSetting } from "constants/AppConstants";
+import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getTypographyByKey } from "design-system-old";
 import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import styled from "styled-components";
@@ -30,10 +30,18 @@ export const StyledMenuItemText = styled.div<{
     align-items: center;
   }
 
-  ${StyledMenuItem}:hover &, 
+  ${StyledMenuItem}:hover & {
+    ${({ navColorStyle, primaryColor }) => {
+      if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+        return `color: ${getMenuItemTextColor(primaryColor, navColorStyle)};`;
+      }
+    }}
+  }
+
   ${StyledMenuItem}.is-active &, 
   ${StyledMenuItemInDropdown}.is-active & {
     color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemTextColor(primaryColor, navColorStyle)};
+    }
   }
 `;
