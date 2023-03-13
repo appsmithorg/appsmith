@@ -189,6 +189,14 @@ describe("getFunctionBodyStatements", () => {
     expect(result).toEqual(["API1.run(() => {});", "API2.run();"]);
   });
 
+  it("should return the function body that is not a block statement", () => {
+    const value = "() => API1.run(() => {})";
+
+    const result = getFunctionBodyStatements(value, 2);
+
+    expect(result).toEqual(["API1.run(() => {})"]); 
+  });
+
   it("should return an array of statements for nested statements", () => {
     const value = `() => {
       Query1.run(() => {console.log('hello');}, () => {}, {});
@@ -270,25 +278,19 @@ describe("getThenCatchBlocksFromQuery", () => {
 
     const result = getThenCatchBlocksFromQuery(value, 2);
 
-    expect(JSON.stringify(result)).toEqual(
-      JSON.stringify({
-        catch: "() => {\n  b();\n}",
-        then: "() => {\n  a();\n}",
-      }),
-    );
+    expect(result).toMatchObject({
+      then: "() => {\n  a();\n}",
+      catch: "() => {\n  b();\n}",
+    });
   });
 
   it("should return then/catch callbacks appropriately", () => {
     const value = "Api1.run().catch(() => { a() }).then(() => { b() });";
-
     const result = getThenCatchBlocksFromQuery(value, 2);
-
-    expect(JSON.stringify(result)).toEqual(
-      JSON.stringify({
-        then: `() => {\n  b();\n}`,
-        catch: `() => {\n  a();\n}`,
-      }),
-    );
+    expect(result).toEqual({
+      then: `() => {\n  b();\n}`,
+      catch: `() => {\n  a();\n}`,
+    });
   });
 
   it("should return then callback appropriately", () => {

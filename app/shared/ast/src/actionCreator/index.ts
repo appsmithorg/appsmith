@@ -10,7 +10,7 @@ import {
     CallExpressionNode,
     BinaryExpressionNode,
     BlockStatementNode,
-    IdentifierNode, ExpressionStatement, isExpressionStatementNode, Program,
+    IdentifierNode, isIdentifierNode,
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {findNodeAt, simple} from "acorn-walk";
@@ -627,13 +627,15 @@ export function getFunctionBodyStatements(
 
         switch(mainBody.type) {
             case NodeTypes.ExpressionStatement:
-                statementsBody = mainBody.expression.body.body;
+                if(mainBody.expression.body.type === NodeTypes.BlockStatement)
+                    statementsBody = mainBody.expression.body.body;
+                else if(mainBody.expression.body.type === NodeTypes.CallExpression)
+                    statementsBody = [mainBody.expression.body]
                 break;
             case NodeTypes.FunctionDeclaration:
                 statementsBody = mainBody.body.body;
                 break;
         }
-
         return statementsBody.map((node: Node) => generate(node, {comments: true}).trim());
     } catch (error) {
         return [];
@@ -704,7 +706,6 @@ export function getFunctionName(value: string, evaluationVersion: number): strin
 export function getThenCatchBlocksFromQuery(value: string, evaluationVersion: number) {
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
-    let firstBlock, firstBlockType, secondBlock, secondBlockType;
     let returnValue: Record<string, string> = {};
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
@@ -715,20 +716,53 @@ export function getThenCatchBlocksFromQuery(value: string, evaluationVersion: nu
         });
 
         const astWithComments = attachCommentsToAst(ast, commentArray);
-        const changeValueNodeFound = findNodeAt(astWithComments, 0, undefined, (type) => type === "Program");
 
-        // @ts-ignore
-        const requiredNode = changeValueNodeFound && changeValueNodeFound.node.body[0];
-        firstBlock = ((requiredNode as ExpressionStatement).expression as CallExpressionNode).arguments[0];
-        firstBlockType = ((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name;
-        returnValue = {
-            [firstBlockType]: `${generate(firstBlock)}`,
-        };
+        const rootCallExpression = findRootCallExpression(astWithComments);
+        if(!rootCallExpression) return returnValue;
 
-        if (value.indexOf("then") >= 0 && value.indexOf("catch") >= 0) {
-            secondBlock = ((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).object as CallExpressionNode).arguments[0];
-            secondBlockType = ((((((requiredNode as ExpressionStatement).expression as CallExpressionNode).callee as MemberExpressionNode).object as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name;
-            returnValue = { ...returnValue, [secondBlockType]: `${generate(secondBlock)}`};
+        let firstBlockType;
+
+        const firstBlock = findNodeAt(astWithComments, 0, undefined, function(type, node) {
+            if(isCallExpressionNode(node)) {
+                if(isMemberExpressionNode(node.callee)) {
+                    if(node.callee.object === rootCallExpression) {
+                        if(isIdentifierNode(node.callee.property)) {
+                            if(['then', 'catch'].includes(node.callee.property.name)) {
+                                firstBlockType = node.callee.property.name;
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        })?.node;
+
+        if(!firstBlock) return returnValue;
+        if(!isCallExpressionNode(firstBlock) || !firstBlockType) return returnValue;
+
+        const args = firstBlock.arguments;
+        if(args.length) {
+            returnValue[firstBlockType] = generate(args[0]);
+        }
+        const secondBlockType = firstBlockType === "then" ? "catch" : "then";
+        const secondBlock = findNodeAt(ast, 0, undefined, function(type, node) {
+            if(isCallExpressionNode(node)) {
+                if(isMemberExpressionNode(node.callee)) {
+                    if(node.callee.object === firstBlock) {
+                        if(isIdentifierNode(node.callee.property))
+                            return node.callee.property.name === secondBlockType;
+                    }
+                }
+            }
+            return false;
+        })?.node; 
+        
+        if(secondBlock && isCallExpressionNode(secondBlock)) {
+            const args = secondBlock.arguments;
+            if(args.length > 0) {
+                returnValue[secondBlockType] = generate(args[0]);
+            }
         }
 
         return returnValue;
