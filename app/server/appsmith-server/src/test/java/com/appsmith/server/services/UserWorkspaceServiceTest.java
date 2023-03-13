@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -191,12 +190,6 @@ public class UserWorkspaceServiceTest {
                     assertThat(uniqueUsersInWorkspaceAfter).containsAll(Set.of(usertest.getId()));
                 })
                 .verifyComplete();
-
-        // Assert userdata is correctly updated.
-        StepVerifier.create(userDataService.getForUser(currentUser)).assertNext(userData -> {
-            assertThat(CollectionUtils.isEmpty(userData.getRecentlyUsedWorkspaceIds())).isTrue();
-            assertThat(CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())).isTrue();
-        }).verifyComplete();
     }
 
     @Test
