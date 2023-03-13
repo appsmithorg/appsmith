@@ -483,8 +483,6 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setAdded(status.getAdded());
                 response.setRemoved(status.getRemoved());
 
-                Set<String> queriesModified = new HashSet<>();
-                Set<String> jsObjectsModified = new HashSet<>();
                 int modifiedPages = 0;
                 int modifiedQueries = 0;
                 int modifiedJSObjects = 0;
@@ -493,20 +491,10 @@ public class GitExecutorImpl implements GitExecutor {
                 for (String x : modifiedAssets) {
                     if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
-                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/") && !x.endsWith(".json")) {
-                        String queryName = x.substring(x.lastIndexOf("/") + 1);
-                        String pageName = x.split("/")[1];
-                        if (!queriesModified.contains(pageName + queryName)) {
-                            queriesModified.add(pageName + queryName);
-                            modifiedQueries++;
-                        }
-                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/") && !x.endsWith(".json")) {
-                        String queryName = x.substring(x.lastIndexOf("/") + 1);
-                        String pageName = x.split("/")[1];
-                        if (!jsObjectsModified.contains(pageName + queryName)) {
-                            jsObjectsModified.add(pageName + queryName);
-                            modifiedJSObjects++;
-                        }
+                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
+                        modifiedQueries++;
+                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/")) {
+                        modifiedJSObjects++;
                     } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
                         modifiedDatasources++;
                     } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + "/")) {
@@ -549,16 +537,6 @@ public class GitExecutorImpl implements GitExecutor {
         .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .flatMap(response -> response)
         .subscribeOn(scheduler);
-    }
-
-    private int getModifiedQueryCount(Set<String> jsObjectsModified, int modifiedCount, String filePath) {
-        String queryName = filePath.substring(filePath.lastIndexOf("/") + 1);
-        String pageName = filePath.split("/")[1];
-        if (!jsObjectsModified.contains(pageName + queryName)) {
-            jsObjectsModified.add(pageName + queryName);
-            modifiedCount++;
-        }
-        return modifiedCount;
     }
 
     @Override
