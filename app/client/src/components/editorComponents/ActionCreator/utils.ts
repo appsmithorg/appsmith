@@ -369,6 +369,7 @@ export const chainableFns = [
   AppsmithFunction.copyToClipboard,
   AppsmithFunction.resetWidget,
   AppsmithFunction.showModal,
+  AppsmithFunction.download,
 ];
 
 export function actionToCode(

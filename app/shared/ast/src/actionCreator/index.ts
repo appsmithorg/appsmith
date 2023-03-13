@@ -967,9 +967,18 @@ function findRootCallExpression(ast: Node) {
         }
     });
 
+    /**
+     * rootCallExpression should have the smallest start offset.
+     * In case there are multiple CallExpressions with the same start offset, 
+     * pick the one the that has the least end offset.
+     */
     let rootCallExpression = callExpressions[0];
     for(const ce of callExpressions) {
-        rootCallExpression = rootCallExpression.start > ce.start ? ce : rootCallExpression;
+        if(rootCallExpression.start === ce.start) {
+            rootCallExpression = ce.end < rootCallExpression.end ? ce : rootCallExpression; 
+        } else if(rootCallExpression.start > ce.start) {
+            rootCallExpression = ce;
+        }
     }
 
     return rootCallExpression;
