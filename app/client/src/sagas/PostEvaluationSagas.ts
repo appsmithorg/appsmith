@@ -322,7 +322,7 @@ export function* logSuccessfulBindings(
 
   const successfulBindingPaths: any = !successfulBindingsMap
     ? {}
-    : { ...successfulBindingsMap.getSuccessfulBindings() };
+    : { ...successfulBindingsMap.get() };
 
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -389,7 +389,7 @@ export function* logSuccessfulBindings(
   if (!successfulBindingsMap) {
     successfulBindingsMap = new SuccessfulBindingMap(successfulBindingPaths);
   } else {
-    successfulBindingsMap.setSuccessfulBindings(successfulBindingPaths);
+    successfulBindingsMap.set(successfulBindingPaths);
   }
 }
 

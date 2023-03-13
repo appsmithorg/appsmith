@@ -5,11 +5,11 @@ export default class SuccessfulBindingMap {
     this.successfulBindings = successfulBindings;
   }
 
-  setSuccessfulBindings(successfulBindings: Record<string, unknown>) {
+  set(successfulBindings: Record<string, unknown>) {
     this.successfulBindings = successfulBindings;
   }
 
-  getSuccessfulBindings() {
+  get() {
     return this.successfulBindings;
   }
 }

@@ -446,11 +446,17 @@ export default class DataTreeEvaluator {
     );
 
     /** We need to know if a new widget was added so that we do not fire WIDGET_BINDING_SUCCESS event */
-    const newEvent = translatedDiffs.find(
-      (diffEvent) => diffEvent.event === DataTreeDiffEvent.NEW,
-    );
-    if (newEvent) {
-      isNewWidgetAdded = true;
+    for (let i = 0; i < translatedDiffs.length; i++) {
+      const diffEvent = translatedDiffs[i];
+      if (diffEvent.event === DataTreeDiffEvent.NEW) {
+        const entity = localUnEvalTree[diffEvent.payload.propertyPath];
+
+        if (isWidget(entity)) {
+          isNewWidgetAdded = true;
+
+          break;
+        }
+      }
     }
 
     const diffCheckTimeStopTime = performance.now();
