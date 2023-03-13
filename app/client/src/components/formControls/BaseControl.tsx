@@ -4,6 +4,7 @@ import { InputType } from "components/constants";
 import { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
 import { DropdownOption } from "design-system-old";
 import { ViewTypes } from "./utils";
+import FeatureFlags from "entities/FeatureFlags";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -29,6 +30,7 @@ export type Condition = {
   path: string;
   comparison: ComparisonOperations;
   value: any;
+  flagValue: keyof FeatureFlags;
 };
 
 export type Conditions = Array<Condition> | ConditionObject;

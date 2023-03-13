@@ -6,7 +6,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Test_Add users api, execute it and go to sniping mode.", function() {
-    cy.createAndFillApi(this.data.userApi, "/users");
+    cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
     cy.RunAPI();
     cy.get(".t--select-in-canvas").click();
     cy.get(".t--sniping-mode-banner").should("be.visible");
