@@ -440,7 +440,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     }
                                 }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                String accessToken = "", projectID = "";
+                                String accessToken = "";
+                                String projectID = "";
                                 if (oAuth2.getScope() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
                                     accessToken = (String) tokenResponse.get(ACCESS_TOKEN_KEY);
                                     projectID = authenticationResponse.getProjectID();
