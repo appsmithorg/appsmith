@@ -457,7 +457,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       {
         kind: "error",
         action: {
-          actionText: "debug",
+          text: "debug",
           effect: () => onDebugClick,
           className: "t--toast-debug-button",
         },

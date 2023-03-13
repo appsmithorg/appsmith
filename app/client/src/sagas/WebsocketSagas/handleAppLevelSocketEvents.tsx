@@ -23,7 +23,7 @@ export default function* handleAppLevelSocketEvents(event: any) {
         toast.show(createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST), {
           kind: "info",
           action: {
-            actionText: "refresh",
+            text: "refresh",
             effect: () => location.reload(),
           },
         });

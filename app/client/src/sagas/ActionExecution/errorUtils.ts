@@ -114,7 +114,7 @@ export const logActionExecutionError = (
     toast.show(errorMessage, {
       kind: "error",
       action: {
-        actionText: "debug",
+        text: "debug",
         effect: () => onDebugClick(),
         className: "t--toast-debug-button",
       },

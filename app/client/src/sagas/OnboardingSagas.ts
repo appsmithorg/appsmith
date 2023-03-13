@@ -402,7 +402,7 @@ function* endFirstTimeUserOnboardingSaga() {
   toast.show(createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER), {
     kind: "success",
     action: {
-      actionText: "undo",
+      text: "undo",
       effect: () => {
         store.dispatch({
           type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,

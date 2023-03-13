@@ -159,7 +159,7 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
         {
           kind: response.data ? "info" : "error",
           action: {
-            actionText: createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT),
+            text: createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT),
             effect: () => window.open(EMAIL_SETUP_DOC, "blank"),
           },
         },
