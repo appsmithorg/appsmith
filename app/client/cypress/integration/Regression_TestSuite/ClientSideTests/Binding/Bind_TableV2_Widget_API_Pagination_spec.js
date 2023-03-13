@@ -12,7 +12,7 @@ describe("Test Create Api and Bind to Table widget V2", function() {
 
   it("2. Validate Table V2 with API data and then add a column", function() {
     cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", "{{Api1.data.users}}");
+    cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     cy.get(`.t--widget-tablewidgetv2 .page-item`)
       .first()
