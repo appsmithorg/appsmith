@@ -1,7 +1,11 @@
 import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import tinycolor from "tinycolor2";
-import { calulateHoverColor, isLightColor } from "widgets/WidgetUtils";
+import {
+  calulateHoverColor,
+  getComplementaryGrayscaleColor,
+  isLightColor,
+} from "widgets/WidgetUtils";
 
 // Menu Item Background Color - Active
 export const getMenuItemBackgroundColorWhenActive = (
@@ -12,16 +16,24 @@ export const getMenuItemBackgroundColorWhenActive = (
   const colorHsl = tinycolor(color).toHsl();
 
   switch (navColorStyle) {
-    case NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT:
-      colorHsl.l -= 0.13;
+    case NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT: {
+      if (isLightColor(color)) {
+        colorHsl.l -= 0.1;
+      } else {
+        colorHsl.l += 0.35;
+      }
+
       break;
-    case NAVIGATION_SETTINGS.COLOR_STYLE.THEME:
+    }
+    case NAVIGATION_SETTINGS.COLOR_STYLE.THEME: {
       if (isLightColor(color)) {
         colorHsl.l -= 0.2;
       } else {
         colorHsl.l += 0.2;
       }
+
       break;
+    }
   }
 
   return tinycolor(colorHsl).toHexString();
@@ -38,9 +50,7 @@ export const getMenuItemBackgroundColorOnHover = (
   } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
     const colorHsl = tinycolor(color).toHsl();
 
-    colorHsl.l = tinycolor(color).isLight()
-      ? colorHsl.l - 0.1
-      : colorHsl.l + 0.1;
+    colorHsl.l = isLightColor(color) ? colorHsl.l - 0.1 : colorHsl.l + 0.1;
 
     return tinycolor(colorHsl).toHexString();
   }
@@ -53,14 +63,39 @@ export const getMenuItemTextColor = (
     .COLOR_STYLE.LIGHT,
   isDefaultState = false,
 ) => {
-  if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-    const colorHsl = tinycolor(color).toHsl();
-    colorHsl.l -= 0.13;
+  let resultantColor: tinycolor.ColorFormats.HSLA | string = tinycolor(
+    color,
+  ).toHsl();
 
-    return isDefaultState ? Colors.GREY_9 : tinycolor(colorHsl).toHexString();
-  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
-    return tinycolor(color).isLight() ? Colors.BLACK : Colors.WHITE;
+  switch (navColorStyle) {
+    case NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT: {
+      if (isDefaultState) {
+        resultantColor = Colors.GREY_9;
+
+        break;
+      }
+
+      if (isLightColor(color)) {
+        resultantColor.l += 0.35;
+      } else {
+        if (resultantColor.l < 0.15) {
+          // if the color is extremely dark
+          resultantColor = getComplementaryGrayscaleColor(color);
+        } else {
+          resultantColor.l -= 0.1;
+        }
+      }
+
+      break;
+    }
+    case NAVIGATION_SETTINGS.COLOR_STYLE.THEME: {
+      resultantColor = getComplementaryGrayscaleColor(color);
+
+      break;
+    }
   }
+
+  return tinycolor(resultantColor).toHexString();
 };
 
 // Menu Container Background Color
@@ -84,7 +119,7 @@ export const getApplicationNameTextColor = (
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     return Colors.GREY_9;
   } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
-    return tinycolor(color).isLight() ? Colors.BLACK : Colors.WHITE;
+    return getComplementaryGrayscaleColor(color);
   }
 };
 
@@ -98,14 +133,13 @@ export const getSignInButtonStyles = (
     backgroundOnHover: Colors.GRAY_100,
     color: Colors.BLACK,
   };
-  const isLight = tinycolor(color).isLight();
 
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     styles.background = color;
-    styles.color = isLight ? Colors.BLACK : Colors.WHITE;
+    styles.color = getComplementaryGrayscaleColor(color);
   } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
-    styles.background = isLight ? Colors.BLACK : Colors.WHITE;
-    styles.color = isLight ? Colors.WHITE : color;
+    styles.background = getComplementaryGrayscaleColor(color);
+    styles.color = isLightColor(color) ? Colors.WHITE : color;
   }
 
   styles.backgroundOnHover = calulateHoverColor(styles.background, false);
