@@ -28,4 +28,6 @@ public class AuthenticationResponse implements AppsmithDomain {
 
     @Encrypted
     Object tokenResponse;
+
+    String projectID;
 }

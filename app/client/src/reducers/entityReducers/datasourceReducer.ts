@@ -27,6 +27,7 @@ export interface DatasourceDataState {
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   gsheetToken: string;
+  gsheetProjectID: string;
 }
 
 const initialState: DatasourceDataState = {
@@ -45,6 +46,7 @@ const initialState: DatasourceDataState = {
   isDatasourceBeingSaved: false,
   isDatasourceBeingSavedFromPopup: false,
   gsheetToken: "",
+  gsheetProjectID: "",
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -459,11 +461,12 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_GSHEET_TOKEN]: (
     state: DatasourceDataState,
-    action: ReduxAction<{ gsheetToken: string }>,
+    action: ReduxAction<{ gsheetToken: string; gsheetProjectID: string }>,
   ) => {
     return {
       ...state,
       gsheetToken: action.payload.gsheetToken,
+      gsheetProjectID: action.payload.gsheetProjectID,
     };
   },
 });
