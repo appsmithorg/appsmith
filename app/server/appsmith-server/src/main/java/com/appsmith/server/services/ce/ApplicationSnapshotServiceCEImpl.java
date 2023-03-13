@@ -91,7 +91,11 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                     return importExportApplicationService.importApplicationInWorkspace(
                             application.getWorkspaceId(), applicationJson, application.getId(), branchName
                     );
-                });
+                })
+                .flatMap(application ->
+                    applicationSnapshotRepository.deleteAllByApplicationId(application.getId())
+                            .thenReturn(application)
+                );
     }
 
     private Mono<String> getApplicationJsonStringFromSnapShot(String applicationId) {
@@ -133,5 +137,17 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
             chunkOrder++;
         }
         return applicationSnapshots;
+    }
+
+    @Override
+    public Mono<Boolean> deleteSnapshot(String applicationId, String branchName) {
+        // find root application by applicationId and branchName
+        return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
+                )
+                .flatMap(branchedAppId ->
+                        applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId).thenReturn(Boolean.TRUE)
+                );
     }
 }

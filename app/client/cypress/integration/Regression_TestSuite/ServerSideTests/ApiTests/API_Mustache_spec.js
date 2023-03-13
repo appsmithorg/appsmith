@@ -10,8 +10,8 @@ describe("Moustache test Functionality", function() {
   });
   it("Moustache test Functionality", function() {
     cy.openPropertyPane("textwidget");
-    cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.widgetNameSpan);
-    cy.testCodeMirror("users");
+    cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
+    cy.testCodeMirror(testdata.methods);
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("TestAPINew");
