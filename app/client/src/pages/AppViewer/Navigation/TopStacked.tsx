@@ -131,6 +131,7 @@ export function TopStacked(props: TopStackedProps) {
 
       <div
         className="flex w-full hidden-scrollbar gap-x-2  items-center"
+        onScroll={() => setShowScrollArrows()}
         ref={measuredTabsRef}
       >
         {appPages.map((page) => {
