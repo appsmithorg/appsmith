@@ -169,7 +169,9 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
       );
 
     case AppsmithFunction.clearInterval:
-      return FIELD_CONFIG[FieldType.ID_FIELD].getter(code) || "Add ID";
+      return (
+        FIELD_CONFIG[FieldType.CLEAR_INTERVAL_ID_FIELD].getter(code) || "Add ID"
+      );
 
     case AppsmithFunction.getGeolocation:
       return (
