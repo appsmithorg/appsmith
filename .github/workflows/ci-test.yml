@@ -116,15 +116,48 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      - name: Download Docker image artifact
+      # Setup Java
+      - name: Set up JDK 17
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
-          name: cicontainer
+          name: client-build
+          path: app/client/build
 
-      - name: Load Docker image from tar file
+      - name: Download the server build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/download-artifact@v3
+        with:
+          name: server-build
+          path: app/server/dist/
+
+      - name: Download the rts build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/download-artifact@v3
+        with:
+          name: rts-dist
+          path: app/rts/dist
+
+      - name: Un-tar the rts folder
         run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
+
+      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
+      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
+      - name: Build docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
+        run: |
+          docker build -t cicontainer .
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -144,7 +177,7 @@ jobs:
           submodules: 'recursive'
           path: cicontainerlocal/oldstack
 
-      - name: Run docker image
+      - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
@@ -175,9 +208,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           cd app/client
-          yarn install \
-          --cwd cypress \
-          --modules-folder ../node_modules
+          yarn install
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
