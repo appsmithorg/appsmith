@@ -9,7 +9,8 @@ describe("JSEditor tests", function() {
   });
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {
-    _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl, "TC1api");
+    cy.fixture("datasources").then((datasourceFormData) => {
+    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "TC1api");
     _.apiPage.RunAPI();
     _.jsEditor.CreateJSObject(
       `export default {
@@ -111,6 +112,7 @@ describe("JSEditor tests", function() {
       "Success running API query",
       "GREEN",
     ); */
+    })
   });
 
   //Skipping reason? to add
