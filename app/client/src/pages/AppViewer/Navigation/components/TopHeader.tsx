@@ -50,7 +50,7 @@ const TopHeader = (props: TopHeaderProps) => {
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const navStyle =
     currentApplicationDetails?.navigationSetting?.navStyle ||
-    NAVIGATION_SETTINGS.NAV_STYLE.INLINE;
+    NAVIGATION_SETTINGS.NAV_STYLE.STACKED;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",

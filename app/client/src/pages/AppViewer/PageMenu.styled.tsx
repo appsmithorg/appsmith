@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { NavigationSetting } from "constants/AppConstants";
+import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getMenuContainerBackgroundColor,
   getMenuItemBackgroundColorOnHover,
@@ -15,26 +15,44 @@ export const PageMenuContainer = styled.div<{
   background-color: ${({ navColorStyle, primaryColor }) =>
     getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
 
-  .page-list-container {
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
+  ${({ navColorStyle, primaryColor }) => {
+    const isThemeColorStyle =
+      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
 
-    &::-webkit-scrollbar-track {
-      background: ${({ navColorStyle, primaryColor }) =>
-        getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-
-      &:hover {
-        background: ${({ navColorStyle, primaryColor }) =>
-          getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
-      }
-    }
-  }
+    return (
+      isThemeColorStyle &&
+      `
+          &::-webkit-scrollbar {
+            width: 6px;
+          }
+        
+          &::-webkit-scrollbar-track {
+            background: ${getMenuContainerBackgroundColor(
+              primaryColor,
+              navColorStyle,
+            )};
+          }
+        
+          &::-webkit-scrollbar-thumb {
+            background: ${primaryColor};
+        
+            &:hover {
+              background: ${getMenuItemBackgroundColorOnHover(
+                primaryColor,
+                navColorStyle,
+              )};
+            }
+          }
+  
+          &:hover::-webkit-scrollbar-thumb {
+            background: ${getMenuItemBackgroundColorWhenActive(
+              primaryColor,
+              navColorStyle,
+            )};
+          }
+        `
+    );
+  }}
 `;
 
 export const StyledNavLink = styled(NavLink)<{

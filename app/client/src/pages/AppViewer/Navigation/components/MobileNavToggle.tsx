@@ -7,7 +7,7 @@ import { NavigationSetting } from "constants/AppConstants";
 type MobileNavToggleProps = {
   isMenuOpen: boolean;
   setMenuOpen: (prevState: boolean) => void;
-  navColorStyle: NavigationSetting["navStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
   primaryColor: string;
 };
 
