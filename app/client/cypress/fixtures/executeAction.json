@@ -78,7 +78,7 @@
                   ],
                   "shouldTruncate": false,
                   "truncateButtonColor": "#FFC13D",
-                  "text": "User count :{{Api1.data.users.length}}",
+                  "text": "User count :{{Api1.data.length}}",
                   "key": "i4b3tj04fv",
                   "isDeprecated": false,
                   "rightColumn": 38.0,
@@ -169,7 +169,7 @@
                   ],
                   "shouldTruncate": false,
                   "truncateButtonColor": "#FFC13D",
-                  "text": "User count :{{Api1.data.users.length}}",
+                  "text": "User count :{{Api1.data.length}}",
                   "key": "i4b3tj04fv",
                   "isDeprecated": false,
                   "rightColumn": 38.0,
@@ -267,7 +267,7 @@
                   ],
                   "shouldTruncate": false,
                   "truncateButtonColor": "#FFC13D",
-                  "text": "User count :{{Api1.data.users.length}}",
+                  "text": "User count :{{Api1.data.length}}",
                   "key": "i4b3tj04fv",
                   "isDeprecated": false,
                   "rightColumn": 38.0,
@@ -357,7 +357,7 @@
                   ],
                   "shouldTruncate": false,
                   "truncateButtonColor": "#FFC13D",
-                  "text": "User count :{{Api1.data.users.length}}",
+                  "text": "User count :{{Api1.data.length}}",
                   "key": "i4b3tj04fv",
                   "isDeprecated": false,
                   "rightColumn": 38.0,
@@ -423,7 +423,7 @@
           "name": "DEFAULT_REST_DATASOURCE",
           "pluginId": "restapi-plugin",
           "datasourceConfiguration": {
-            "url": "https://mock-api.appsmith.com"
+            "url": "http://host.docker.internal:5001/v1"
           },
           "invalids": [],
           "messages": [],
@@ -434,12 +434,12 @@
         "actionConfiguration": {
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
-          "path": "/users",
+          "path": "/mock-api",
           "headers": [],
           "encodeParamsToggle": true,
           "queryParameters": [
             {
-              "key": "pageSize",
+              "key": "records",
               "value": "5"
             }
           ],
@@ -471,7 +471,7 @@
           "name": "DEFAULT_REST_DATASOURCE",
           "pluginId": "restapi-plugin",
           "datasourceConfiguration": {
-            "url": "https://mock-api.appsmith.com"
+            "url": "http://host.docker.internal:5001/v1"
           },
           "invalids": [],
           "messages": [],
@@ -482,12 +482,12 @@
         "actionConfiguration": {
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
-          "path": "/users",
+          "path": "/mock-api",
           "headers": [],
           "encodeParamsToggle": true,
           "queryParameters": [
             {
-              "key": "pageSize",
+              "key": "records",
               "value": "5"
             }
           ],
@@ -531,7 +531,7 @@
           "name": "DEFAULT_REST_DATASOURCE",
           "pluginId": "restapi-plugin",
           "datasourceConfiguration": {
-            "url": "https://mock-api.appsmith.com"
+            "url": "http://host.docker.internal:5001/v1"
           },
           "invalids": [],
           "messages": [],
@@ -542,12 +542,12 @@
         "actionConfiguration": {
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
-          "path": "/users",
+          "path": "/mock-api",
           "headers": [],
           "encodeParamsToggle": true,
           "queryParameters": [
             {
-              "key": "pageSize",
+              "key": "records",
               "value": "10"
             }
           ],
@@ -579,7 +579,7 @@
           "name": "DEFAULT_REST_DATASOURCE",
           "pluginId": "restapi-plugin",
           "datasourceConfiguration": {
-            "url": "https://mock-api.appsmith.com"
+            "url": "http://host.docker.internal:5001/v1"
           },
           "invalids": [],
           "messages": [],
@@ -590,12 +590,12 @@
         "actionConfiguration": {
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
-          "path": "/users",
+          "path": "/mock-api",
           "headers": [],
           "encodeParamsToggle": true,
           "queryParameters": [
             {
-              "key": "pageSize",
+              "key": "records",
               "value": "10"
             }
           ],
