@@ -89,7 +89,7 @@ export function* updateLayoutPositioningSaga(
         ),
       );
 
-      yield call(recalculateOnPageLoad);
+      yield call(recalculateAutoLayoutColumns);
     }
     // Convert Auto layout to fixed
     else {
@@ -109,7 +109,7 @@ export function* updateLayoutPositioningSaga(
 }
 
 //This Method is used to re calculate Positions based on canvas width
-export function* recalculateOnPageLoad() {
+export function* recalculateAutoLayoutColumns() {
   const appPositioningType: AppPositioningTypes = yield select(
     getCurrentAppPositioningType,
   );
