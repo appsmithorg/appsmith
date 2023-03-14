@@ -123,6 +123,7 @@ function NonSuperUser(
           className="t--get-started-button"
           disabled={props.invalid}
           onClick={() =>
+            !props.invalid && // temp fix - design system needs to be fixed for disabling click
             props.onGetStarted &&
             props.onGetStarted(
               props.role !== "other" ? props.role : props.role_name,
