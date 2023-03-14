@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let appName: string = "",
-  datasourceName: string = "GraphQL_DS_",
+  datasourceName: string = "GraphQL_DS",
   apiName: string = "GraphQL_API_";
 let tokenToAuthorizeGraphQl: string = "",
   authoemail = "";
@@ -44,18 +44,13 @@ describe("GraphQL Datasource Implementation", function() {
     appName = localStorage.getItem("AppName") || "";
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      datasourceName = `${datasourceName}${uid}`;
       apiName = `${apiName}${uid}`;
       authoemail = `ci${uid}@appsmith.com`;
-      _.dataSources.CreateGraphqlDatasource(datasourceName);
+      _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
     });
   });
 
   it("1. Should execute the API and validate the response", function() {
-    /* Create an API */
-    _.dataSources.CreateQueryAfterDSSaved();
-    _.agHelper.ValidateNetworkStatus("@createNewApi", 201);
-
     _.apiPage.SelectPaneTab("Body");
     _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_QUERY,
@@ -71,7 +66,7 @@ describe("GraphQL Datasource Implementation", function() {
 
   it("2. Pagination for limit based should work without offset", function() {
     /* Create an API */
-    _.dataSources.NavigateFromActiveDS(datasourceName, true);
+    _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
     _.apiPage.SelectPaneTab("Body");
     _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
@@ -99,7 +94,7 @@ describe("GraphQL Datasource Implementation", function() {
 
   it("3. Pagination for limit based should work with offset", function() {
     /* Create an API */
-    _.dataSources.NavigateFromActiveDS(datasourceName, true);
+    _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
     _.apiPage.SelectPaneTab("Body");
     _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
@@ -129,8 +124,8 @@ describe("GraphQL Datasource Implementation", function() {
     _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("4. Authenticated GraphQL", () => {
-    _.dataSources.NavigateFromActiveDS(datasourceName, true);
+  it("4. Authenticated GraphQL from GraphQL", () => {
+    _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
     _.apiPage.SelectPaneTab("Body");
     _.dataSources.UpdateGraphqlQueryAndVariable({
       query:
@@ -150,10 +145,6 @@ describe("GraphQL Datasource Implementation", function() {
       tokenToAuthorizeGraphQl = JSON.stringify(
         interception.response.body.data.body.data.signup.jwtToken,
       ).replace(/['"]+/g, "");
-      _.agHelper.ActionContextMenuWithInPane("Delete");
-
-      _.dataSources.NavigateFromActiveDS(datasourceName, true);
-      _.apiPage.SelectPaneTab("Body");
 
       _.dataSources.UpdateGraphqlQueryAndVariable({
         query: `mutation {
@@ -168,29 +159,100 @@ describe("GraphQL Datasource Implementation", function() {
         "Bearer " + tokenToAuthorizeGraphQl,
         1,
       );
-      _.apiPage.RunAPI(false);
-      _.apiPage.ResponseStatusCheck("200 OK");
-      cy.wait("@postExecute").should("not.have.a.property", "errors");
+      RunNValidateGraphQL();
+    });
+  });
 
-      _.apiPage.RunAPI(false);
-      _.agHelper.Sleep(2000);
+  it("5. Authenticated GraphQL from Authenticated GraphQL", () => {
+    //Trying to delete without Autho code to see validation error
+    _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
+    _.apiPage.SelectPaneTab("Body");
+    _.dataSources.UpdateGraphqlQueryAndVariable({
+      query: `mutation {
+        deletePostById(input: {id: 7}) {
+          clientMutationId
+          deletedPostId
+        }
+      }`,
+    });
+    _.apiPage.RunAPI(false);
+    _.agHelper.Sleep(2000);
+    cy.wait("@postExecute").then((interception: any) => {
+      let errors = JSON.stringify(
+        interception.response.body.data.body.errors[0].message,
+      ).replace(/['"]+/g, "");
+      expect(errors).to.eq("permission denied for table posts");
+    });
 
-      //to alter & try below:
-      //cy.wait("@postExecute").should("have.deep.nested.property", 'errors', "No values were deleted in collection 'posts' because no values you can delete were found matching these criteria.");
-
-      cy.get("@postExecute").then((interception: any) => {
-        let errors = JSON.stringify(
-          interception.response.body.data.body.errors[0].message,
-        ).replace(/['"]+/g, "");
-        expect(errors).to.eq(
-          "No values were deleted in collection posts because no values you can delete were found matching these criteria.",
-        );
+    //Create Autho code to validate Delete operation
+    cy.get("@guid").then((uid) => {
+      authoemail = `ci${uid}@appsmith.com`;
+      _.dataSources.UpdateGraphqlQueryAndVariable({
+        query:
+          `mutation {
+        signup(
+          input: {username: "appsmith", email:"` +
+          authoemail +
+          `", password: "appsmith"}
+        ) {
+          jwtToken
+        }
+      }`,
       });
     });
-    _.agHelper.ActionContextMenuWithInPane("Delete");
+
+    _.apiPage.RunAPI(false);
+    _.agHelper.Sleep(2000);
+    cy.wait("@postExecute").then((interception: any) => {
+      tokenToAuthorizeGraphQl = JSON.stringify(
+        interception.response.body.data.body.data.signup.jwtToken,
+      ).replace(/['"]+/g, "");
+
+      _.agHelper.ActionContextMenuWithInPane("Delete");
+
+      //Create Auth GraphQL to verify Delete operation
+      _.dataSources.CreateNFillAuthenticatedGraphQLDSForm(
+        datasourceName,
+        "Authorization",
+        "Bearer " + tokenToAuthorizeGraphQl,
+      );
+
+      _.dataSources.CreateQueryAfterDSSaved();
+      _.dataSources.UpdateGraphqlQueryAndVariable({
+        query: `mutation {
+          deletePostById(input: {id: 7}) {
+            clientMutationId
+            deletedPostId
+          }
+        }`,
+      });
+      RunNValidateGraphQL();
+    });
+    cy.get("@dsName").then(($dsName: any) => {
+      _.dataSources.DeleteDatasouceFromActiveTab($dsName);
+    });
   });
 
-  after("Delete the created GraphQL ds", () => {
-    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName);
-  });
+  function RunNValidateGraphQL() {
+    _.apiPage.RunAPI(false);
+    _.apiPage.ResponseStatusCheck("200 OK");
+    cy.wait("@postExecute").should("not.have.a.property", "errors");
+
+    //Running query again to see data is deleted fine & does not exists
+    _.apiPage.RunAPI(false);
+    _.agHelper.Sleep(2000);
+
+    //to alter & try below:
+    //cy.wait("@postExecute").should("have.deep.nested.property", 'errors', "No values were deleted in collection 'posts' because no values you can delete were found matching these criteria.");
+
+    cy.get("@postExecute").then((interception: any) => {
+      let errors = JSON.stringify(
+        interception.response.body.data.body.errors[0].message,
+      ).replace(/['"]+/g, "");
+      expect(errors).to.eq(
+        "No values were deleted in collection posts because no values you can delete were found matching these criteria.",
+      );
+    });
+    _.agHelper.ActionContextMenuWithInPane("Delete");
+  }
 });
