@@ -1,3 +1,4 @@
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -17,6 +18,7 @@ export const CONFIG = {
     columns: 12,
     widgetName: "Image",
     version: 1,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     animateLoading: true,
   },
   properties: {
