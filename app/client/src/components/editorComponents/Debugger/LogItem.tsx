@@ -31,6 +31,7 @@ import {
 import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";
+import moment from "moment";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -303,7 +304,9 @@ function LogItem(props: LogItemProps) {
           size={IconSize.XL}
         />
         <span className={`debugger-time ${props.severity}`}>
-          {props.timestamp}
+          {props.severity === Severity.ERROR
+            ? moment(parseInt(props.timestamp)).format("HH:mm:ss")
+            : props.timestamp}
         </span>
 
         <Icon
