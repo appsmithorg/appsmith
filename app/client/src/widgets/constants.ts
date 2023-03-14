@@ -33,7 +33,7 @@ export type AutoLayoutConfig = {
   // default values for the widget specifi to auto layout
   defaults?: Partial<WidgetConfigProps>;
   // default values for the properties that are hidden/disabled in auto layout
-  disabledPropsDefaults: Partial<WidgetProps>;
+  disabledPropsDefaults?: Partial<WidgetProps>;
 };
 
 export interface WidgetConfiguration {
