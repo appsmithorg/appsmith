@@ -628,6 +628,7 @@ export function ReflowResizable(props: ResizableProps) {
           $prevents={pointerEvents}
           className={props.className}
           id={`resize-${props.widgetId}`}
+          inverted={props.topRow <= 2}
           isHovered={props.isHovered}
           ref={resizableRef}
           showBoundaries={props.showResizeBoundary}

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
+  getCurrentAppPositioningType,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -23,18 +24,25 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import SettingsControl, { Activities } from "./SettingsControl";
 import { theme } from "constants/DefaultTheme";
 import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { RESIZE_BORDER_BUFFER } from "resizable/common";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
 
-const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
+const PositionStyle = styled.div<{
+  positionOffset: [number, number];
+  topRow: number;
+  isSnipingMode: boolean;
+}>`
   position: absolute;
   top: ${(props) =>
     props.topRow > 2
-      ? `${-1 * WidgetNameComponentHeight + 1}px`
-      : "calc(100% - 1px)"};
+      ? `${-1 * WidgetNameComponentHeight + 1 + props.positionOffset[0]}px`
+      : `calc(100% - ${1 + props.positionOffset[0]}px)`};
   height: ${WidgetNameComponentHeight}px;
-  ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0px")};
+  ${(props) =>
+    props.isSnipingMode ? "left: -7px" : `right: ${props.positionOffset[1]}px`};
   display: flex;
   cursor: pointer;
   z-index: ${Layers.widgetName};
@@ -68,6 +76,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const showTableFilterPane = useShowTableFilterPane();
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
@@ -167,13 +177,16 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     currentActivity = Activities.ACTIVE;
 
   // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
-  // const popperOffset: any = [-RESIZE_BORDER_BUFFER, RESIZE_BORDER_BUFFER - 1];
+  const positionOffset: [number, number] = isAutoLayout
+    ? [-RESIZE_BORDER_BUFFER, -RESIZE_BORDER_BUFFER]
+    : [0, 0];
   return showWidgetName ? (
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
       data-testid="t--settings-controls-positioned-wrapper"
       id={"widget_name_" + props.widgetId}
       isSnipingMode={isSnipingMode}
+      positionOffset={positionOffset}
       topRow={props.topRow}
     >
       <ControlGroup>
@@ -190,4 +203,4 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   ) : null;
 }
 
-export default React.memo(WidgetNameComponent);
+export default WidgetNameComponent;
