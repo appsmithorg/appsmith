@@ -13,6 +13,9 @@ jest.mock("react-dnd", () => ({
 describe("<DividerWidget />", () => {
   const initialState = {
     ui: {
+      appSettingsPane: {
+        isOpen: false,
+      },
       users: {
         featureFlag: {
           data: {

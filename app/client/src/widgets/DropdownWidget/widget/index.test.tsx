@@ -17,6 +17,9 @@ jest.mock("react-dnd", () => ({
 describe("<DropdownWidget />", () => {
   const initialState = {
     ui: {
+      appSettingsPane: {
+        isOpen: false,
+      },
       widgetDragResize: {
         lastSelectedWidget: "Widget1",
         selectedWidgets: ["Widget1"],

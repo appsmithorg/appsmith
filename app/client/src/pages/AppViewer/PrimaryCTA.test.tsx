@@ -42,6 +42,9 @@ export const initialState: any = {
     },
   },
   ui: {
+    appSettingsPane: {
+      isOpen: false,
+    },
     appTheming: {
       selectedTheme: {
         properties: {
