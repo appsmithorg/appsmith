@@ -24,7 +24,7 @@ type ResizeableOptions = { vertical?: boolean; horizontal?: boolean };
 type AutoDimensionOptions = { width?: boolean; height?: boolean };
 
 export type AutoLayoutConfig = {
-  autoDimension: AutoDimensionOptions;
+  autoDimension?: AutoDimensionOptions;
   widgetSize: Array<WidgetSizeConfig>;
   disableResizeHandles?: ResizeableOptions;
   defaults?: Partial<WidgetConfigProps>;

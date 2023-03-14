@@ -622,8 +622,8 @@ abstract class BaseWidget<
         this.props.type,
       ).autoDimension;
 
-      const shouldObserveWidth = autoDimensionConfig.width;
-      const shouldObserveHeight = autoDimensionConfig.height;
+      const shouldObserveWidth = autoDimensionConfig?.width;
+      const shouldObserveHeight = autoDimensionConfig?.height;
 
       if (!shouldObserveHeight && !shouldObserveWidth) return content;
 
