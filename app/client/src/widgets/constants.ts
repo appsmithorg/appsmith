@@ -61,6 +61,11 @@ export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
 
+//placeHolder for widget responsive
+export type AutoLayoutConfig = {
+  disabledPropsDefaults?: Partial<WidgetProps>;
+};
+
 interface LayoutProps {
   positioning?: Positioning;
   useAutoLayout?: boolean;

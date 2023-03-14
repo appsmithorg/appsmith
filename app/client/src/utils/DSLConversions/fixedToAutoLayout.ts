@@ -205,7 +205,7 @@ function getNextLayer(
 
   //Recursively call convertDSLtoAuto to convert Children Widgets
   for (const widget of widgetsInLayer) {
-    const currWidget =
+    let currWidget =
       unHandledWidgets.indexOf(widget.type) < 0
         ? convertDSLtoAuto(widget)
         : { ...widget, positioning: Positioning.Fixed };
@@ -217,6 +217,16 @@ function getNextLayer(
 
     if (widgetConfig?.dynamicHeight && widgetConfig.isCanvas) {
       currWidget.dynamicHeight = widgetConfig.dynamicHeight;
+    }
+
+    //Add widget specific property Defaults, for autoLayout widget
+    const { disabledPropsDefaults } =
+      WidgetFactory.getWidgetAutoLayoutConfig(currWidget.type) || {};
+    if (disabledPropsDefaults) {
+      currWidget = {
+        ...currWidget,
+        ...disabledPropsDefaults,
+      };
     }
 
     //get minWidth of the type

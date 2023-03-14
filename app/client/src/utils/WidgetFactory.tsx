@@ -6,7 +6,7 @@ import { RenderMode } from "constants/WidgetConstants";
 import { Stylesheet } from "entities/AppTheming";
 import * as log from "loglevel";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import { CanvasWidgetStructure } from "widgets/constants";
+import { AutoLayoutConfig, CanvasWidgetStructure } from "widgets/constants";
 import {
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,
@@ -306,6 +306,15 @@ class WidgetFactory {
       return [];
     }
     return map;
+  }
+
+  //placeholder for WidgetResponsive props for conversion Algorithm
+  static getWidgetAutoLayoutConfig(type: WidgetType): AutoLayoutConfig {
+    if (!type) return {};
+
+    return {
+      disabledPropsDefaults: {},
+    };
   }
 
   static getWidgetTypeConfigMap(): WidgetTypeConfigMap {
