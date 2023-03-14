@@ -802,6 +802,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 ).thenReturn(application);
                                             })
                             )
+                            .flatMap(application -> publish(application.getId(), false))
                             .flatMap(application -> sendCloneApplicationAnalyticsEvent(sourceApplication, application));
                 });
 
