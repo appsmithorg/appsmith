@@ -625,42 +625,45 @@ const PropertyControl = memo((props: Props) => {
       ) {
         isToggleDisabled = false;
       }
-    }
 
-    if (config.controlType === "ACTION_SELECTOR") {
-      const codeFromProperty = getCodeFromMoustache(propertyValue);
+      if (config.controlType === "ACTION_SELECTOR") {
+        const codeFromProperty = getCodeFromMoustache(propertyValue);
 
-      const actionsArray: string[] = [];
-      const jsActionsArray: string[] = [];
+        const actionsArray: string[] = [];
+        const jsActionsArray: string[] = [];
 
-      actions.forEach((action) =>
-        actionsArray.push(action.config.name + ".run"),
-      );
-      jsActions.forEach((jsAction) =>
-        jsAction.config.actions.forEach((action) => {
-          jsActionsArray.push(jsAction.config.name + "." + action.name);
-        }),
-      );
+        actions.forEach((action) => {
+          actionsArray.push(action.config.name + ".run");
+          actionsArray.push(action.config.name + ".clear");
+        });
+        jsActions.forEach((jsAction) =>
+          jsAction.config.actions.forEach((action) => {
+            jsActionsArray.push(jsAction.config.name + "." + action.name);
+          }),
+        );
 
-      const actionBlockFunctions = getActionBlockFunctionNames(
-        codeFromProperty,
-        self.evaluationVersion,
-      );
+        const actionBlockFunctions = getActionBlockFunctionNames(
+          codeFromProperty,
+          self.evaluationVersion,
+        );
 
-      actionBlockFunctions.forEach((func) => {
-        if (
-          ![
-            ...AppsmithFunctionsWithFields,
-            ...actionsArray,
-            ...jsActionsArray,
-          ].includes(func)
-        ) {
+        if (codeFromProperty.trim() && !actionBlockFunctions.length) {
           isToggleDisabled = true;
-          if (!isDynamic) {
-            toggleDynamicProperty(propertyName, isDynamic);
+        }
+
+        for (const fn of actionBlockFunctions) {
+          if (
+            ![
+              ...AppsmithFunctionsWithFields,
+              ...actionsArray,
+              ...jsActionsArray,
+            ].includes(fn)
+          ) {
+            isToggleDisabled = true;
+            break;
           }
         }
-      });
+      }
     }
 
     const helpText =
