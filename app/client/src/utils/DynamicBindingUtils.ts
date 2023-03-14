@@ -354,6 +354,15 @@ export enum PropertyEvaluationErrorType {
   PARSE = "PARSE",
   LINT = "LINT",
 }
+
+export enum PropertyEvaluationErrorCategory {
+  ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD = "ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD",
+}
+export interface PropertyEvaluationErrorKind {
+  category: PropertyEvaluationErrorCategory;
+  rootcause: string;
+}
+
 export interface DataTreeError {
   raw: string;
   errorMessage: Error;
@@ -365,7 +374,7 @@ export interface EvaluationError extends DataTreeError {
     | PropertyEvaluationErrorType.PARSE
     | PropertyEvaluationErrorType.VALIDATION;
   originalBinding?: string;
-  rootcause?: string;
+  kind?: PropertyEvaluationErrorKind;
 }
 
 export interface LintError extends DataTreeError {

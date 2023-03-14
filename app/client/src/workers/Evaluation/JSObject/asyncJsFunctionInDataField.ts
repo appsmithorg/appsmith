@@ -176,7 +176,7 @@ class AsyncJsFunctionInDataField {
     dependencies.forEach((dependant) => {
       if (
         isAsyncJSFunction(unEvalTree, dependant) &&
-        getFunctionInvocationRegex(dependant).test(unevalPropValue)
+        this.getFunctionInvocationRegex(dependant).test(unevalPropValue)
       ) {
         asyncJSFunctions.add(dependant);
       }
@@ -200,10 +200,9 @@ class AsyncJsFunctionInDataField {
     });
     return hasAsyncFunctionInvocation;
   }
+  getFunctionInvocationRegex(funcName: string) {
+    return new RegExp(`${funcName}[.call | .apply]*\s*\\(.*?\\)`, "g");
+  }
 }
 
 export const asyncJsFunctionInDataFields = new AsyncJsFunctionInDataField();
-
-export function getFunctionInvocationRegex(funcName: string) {
-  return new RegExp(`${funcName}[.call | .apply]*\s*\\(.*?\\)`, "g");
-}

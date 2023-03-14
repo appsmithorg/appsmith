@@ -135,6 +135,7 @@ import {
   PeekOverlayStateProps,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
+import { addThisReference } from "./utils/entityNavigationUtils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1181,18 +1182,17 @@ class CodeEditor extends Component<Props, State> {
     };
   };
 
-  getAsyncFuncError(errors: EvaluationError[]) {
-    const asyncInvocationError = errors.find((error) => !!error.rootcause)
+  getAsyncFuncErrorRootCauseUrl(errors: EvaluationError[]) {
+    const asyncInvocationError = errors.find((error) => !!error.kind)?.kind
       ?.rootcause;
     if (!asyncInvocationError) return undefined;
-
-    const jsObjectNavigationData = this.props.entitiesForNavigation[
-      asyncInvocationError.split(".")[0]
-    ];
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      asyncInvocationError,
+    );
+    const jsObjectNavigationData = this.props.entitiesForNavigation[entityName];
 
     const jsFuncNavigationData =
-      jsObjectNavigationData &&
-      jsObjectNavigationData.children[asyncInvocationError.split(".")[1]];
+      jsObjectNavigationData && jsObjectNavigationData.children[propertyPath];
 
     return jsFuncNavigationData?.url;
   }
@@ -1249,7 +1249,6 @@ class CodeEditor extends Component<Props, State> {
 
     const showEvaluatedValue =
       showFeatures && (this.state.isDynamic || isInvalid);
-    const asyncInvocationPath = this.getAsyncFuncError(errors);
 
     return (
       <DynamicAutocompleteInputWrapper
@@ -1276,7 +1275,9 @@ class CodeEditor extends Component<Props, State> {
         )}
 
         <EvaluatedValuePopup
-          asyncInvocationErrors={asyncInvocationPath}
+          asyncFuncErrorRootCauseUrl={this.getAsyncFuncErrorRootCauseUrl(
+            errors,
+          )}
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}
           entity={entityInformation}
@@ -1405,16 +1406,3 @@ const mapDispatchToProps = (dispatch: any) => ({
 export default Sentry.withProfiler(
   connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
 );
-
-const addThisReference = (
-  navigationData: EntityNavigationData,
-  entityName?: string,
-) => {
-  if (entityName && entityName in navigationData) {
-    return {
-      ...navigationData,
-      this: navigationData[entityName],
-    };
-  }
-  return navigationData;
-};

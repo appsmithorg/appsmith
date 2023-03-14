@@ -250,7 +250,7 @@ interface Props {
   dataTreePath?: string;
   evaluatedPopUpLabel?: string;
   editorRef?: React.RefObject<HTMLDivElement>;
-  asyncInvocationErrors?: string;
+  asyncFuncErrorRootCauseUrl?: string;
 }
 
 interface PopoverContentProps {
@@ -268,7 +268,7 @@ interface PopoverContentProps {
   dataTreePath?: string;
   evaluatedPopUpLabel?: string;
   editorRef?: React.RefObject<HTMLDivElement>;
-  asyncInvocationErrors?: string;
+  asyncFuncErrorRootCauseUrl?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -548,12 +548,12 @@ function PopoverContent(props: PopoverContentProps) {
             {getErrorMessage(error.errorMessage)}
           </span>
 
-          {props.asyncInvocationErrors ? (
+          {props.asyncFuncErrorRootCauseUrl ? (
             <AsyncFunctionErrorView>
               <AsyncFunctionErrorLink onClick={(e) => openDebugger(e)} to="">
                 See Error (Ctrl D)
               </AsyncFunctionErrorLink>
-              <AsyncFunctionErrorLink to={props.asyncInvocationErrors}>
+              <AsyncFunctionErrorLink to={props.asyncFuncErrorRootCauseUrl}>
                 View Source
               </AsyncFunctionErrorLink>
             </AsyncFunctionErrorView>
@@ -653,7 +653,7 @@ function EvaluatedValuePopup(props: Props) {
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
-          asyncInvocationErrors={props.asyncInvocationErrors}
+          asyncFuncErrorRootCauseUrl={props.asyncFuncErrorRootCauseUrl}
           dataTreePath={props.dataTreePath}
           editorRef={props?.editorRef}
           entity={props.entity}
