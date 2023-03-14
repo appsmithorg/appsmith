@@ -37,5 +37,6 @@ export const SETTINGS_FORM_NAME = "SettingsForm";
 export const WELCOME_NON_SUPER_FORM_NAME = "WelcomeNonSuperSetupForm";
 
 export const SAVE_THEME_FORM_NAME = "SaveThemeForm";
+export const JS_ORIGIN_URI_FORM = "JSOriginURIForm";
 export const REDIRECT_URL_FORM = "RedirectURLForm";
 export const ENTITYID_URL_FORM = "EntityIdURLForm";
