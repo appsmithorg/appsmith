@@ -202,29 +202,29 @@ export const useDynamicAppLayout = () => {
     paneCount,
   ]);
 
-  const immediateDebouncedResize = useCallback(debounce(resizeToLayout), [
-    mainCanvasProps,
-    screenWidth,
-    currentPageId,
-    appMode,
-    appLayout,
-    isPreviewMode,
-  ]);
+  // const immediateDebouncedResize = useCallback(debounce(resizeToLayout), [
+  //   mainCanvasProps,
+  //   screenWidth,
+  //   currentPageId,
+  //   appMode,
+  //   appLayout,
+  //   isPreviewMode,
+  // ]);
 
-  const resizeObserver = new ResizeObserver(immediateDebouncedResize);
-  useEffect(() => {
-    const ele: any = document.getElementById("canvas-viewport");
-    if (ele) {
-      if (appLayout?.type === "FLUID") {
-        resizeObserver.observe(ele);
-      } else {
-        resizeObserver.unobserve(ele);
-      }
-    }
-    return () => {
-      ele && resizeObserver.unobserve(ele);
-    };
-  }, [appLayout, currentPageId, isPreviewMode]);
+  // const resizeObserver = new ResizeObserver(immediateDebouncedResize);
+  // useEffect(() => {
+  //   const ele: any = document.getElementById("canvas-viewport");
+  //   if (ele) {
+  //     if (appLayout?.type === "FLUID") {
+  //       resizeObserver.observe(ele);
+  //     } else {
+  //       resizeObserver.unobserve(ele);
+  //     }
+  //   }
+  //   return () => {
+  //     ele && resizeObserver.unobserve(ele);
+  //   };
+  // }, [appLayout, currentPageId, isPreviewMode]);
 
   /**
    * when screen height is changed, update canvas layout
