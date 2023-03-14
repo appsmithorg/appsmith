@@ -202,6 +202,7 @@ class WidgetFactory {
               },
             })) || [],
           autoDimension: autoLayoutConfig.autoDimension ?? {},
+          disabledPropsDefaults: autoLayoutConfig.disabledPropsDefaults ?? {},
         });
     }
   }
@@ -340,6 +341,7 @@ class WidgetFactory {
         autoDimension: {},
         widgetSize: [],
         disableResizeHandles: {},
+        disabledPropsDefaults: {},
       };
     }
     return map;

@@ -49,6 +49,9 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    disabledPropsDefaults: {
+      labelPosition: LabelPosition.Top,
+    },
     autoDimension: {
       height: true,
     },

@@ -43,6 +43,9 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    disabledPropsDefaults: {
+      labelTextSize: "0.875rem",
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,

@@ -31,6 +31,9 @@ export const CONFIG = {
     widgetName: "Rating",
   },
   autoLayout: {
+    disabledPropsDefaults: {
+      size: "SMALL",
+    },
     defaults: {
       columns: 7.272727,
       rows: 4,

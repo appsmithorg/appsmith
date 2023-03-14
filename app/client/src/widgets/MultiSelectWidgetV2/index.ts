@@ -56,6 +56,10 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    disabledPropsDefaults: {
+      labelPosition: LabelPosition.Top,
+      labelTextSize: "0.875rem",
+    },
     autoDimension: {
       height: true,
     },
