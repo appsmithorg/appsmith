@@ -228,7 +228,7 @@ export function ReflowResizable(props: ResizableProps) {
         }
 
         //if it should not resize horizontally, we keep keep the previous horizontal dimensions
-        if (!canHorizontalMove || !canResizeHorizontally) {
+        if (!canHorizontalMove || !(canResizeHorizontally || hasFillChild)) {
           newRect = {
             ...newRect,
             width: prevState.width,
