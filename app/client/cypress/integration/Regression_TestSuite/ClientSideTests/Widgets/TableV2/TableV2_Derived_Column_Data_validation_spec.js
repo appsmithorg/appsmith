@@ -18,7 +18,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // Open property pane
     cy.SearchEntityandOpen("Table1");
     // Clear Table data and enter Apil data into table data
-    cy.testJsontext("tabledata", "{{Api1.data.users}}");
+    cy.testJsontext("tabledata", "{{Api1.data}}");
     // Check Widget properties
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open Text1 in propert pane
@@ -33,7 +33,10 @@ describe("Test Create Api and Bind to Table widget", function() {
       localStorage.setItem("tableDataPage1", tableData);
     });
     // Verify 1st index data
-    cy.ValidateTableV2Data("1");
+    cy.readTableV2data("0", "4").then((tabData) => {
+      const tableData = tabData;
+      expect(tableData).to.equal("1");
+    })
     // add new column
     cy.addColumnV2("CustomColumn");
   });
@@ -58,7 +61,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // verify the cell background color
     cy.readTableV2dataValidateCSS(
       "1",
-      "0",
+      "4",
       "background-color",
       "rgb(0, 128, 0)",
     );
@@ -69,10 +72,10 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.editColumn("customColumn1");
     cy.moveToContentTab();
     // Enter Apil 1st user email data into customColumn1
-    cy.readTableV2dataPublish("1", "9").then((tabData) => {
+    cy.readTableV2dataPublish("1", "7").then((tabData) => {
       const tabValue = tabData;
-      cy.updateComputedValueV2("{{Api1.data.users[0].email}}");
-      cy.readTableV2dataPublish("1", "9").then((tabData) => {
+      cy.updateComputedValueV2("{{Api1.data[0].email}}");
+      cy.readTableV2dataPublish("1", "7").then((tabData) => {
         expect(tabData).not.to.be.equal(tabValue);
         cy.log("computed value of plain text " + tabData);
       });

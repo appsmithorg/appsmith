@@ -124,6 +124,12 @@ class FormWidget extends ContainerWidget {
     };
   }
 
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      hasChanges: false,
+    };
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return { positioning: Positioning.Fixed };
   }

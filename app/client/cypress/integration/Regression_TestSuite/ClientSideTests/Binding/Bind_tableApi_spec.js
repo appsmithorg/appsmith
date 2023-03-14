@@ -9,8 +9,9 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("1. Test_Add users api and execute api", function() {
-    cy.createAndFillApi(this.data.userApi, "/users");
+    cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
     cy.RunAPI();
+    cy.get(apiPage.jsonResponseTab).click();
     cy.get(apiPage.responseBody)
       .contains("name")
       .siblings("span")
@@ -27,17 +28,20 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("2. Test_Validate the Api data is updated on Table widget", function() {
     cy.SearchEntityandOpen("Table1");
     //cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", "{{ Api1.data.users }}");
+    cy.testJsontext("tabledata", "{{ Api1.data}}");
 
     /**
      * readTabledata--> is to read the table contents
      * @param --> "row num" and "col num"
      */
-    cy.readTabledata("0", "1").then((tabData) => {
+    cy.readTabledata("0", "5").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
     cy.PublishtheApp();
-    cy.readTabledataPublish("0", "1").then((tabData) => {
+    cy.wait("@postExecute").then((interception) => {
+      apiData = JSON.stringify(interception.response.body.data.body[0].name);
+    });
+    cy.readTabledataPublish("0", "5").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
     cy.get(commonlocators.backToEditor).click();
@@ -51,8 +55,11 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(".t--widget-tablewidget .t--search-input")
       .first()
       .type("Currey");
+    cy.wait("@postExecute").then((interception) => {
+      apiData = JSON.stringify(interception.response.body.data.body[0].name);
+    });
     cy.wait(5000);
-    cy.readTabledataPublish("0", "1").then((tabData) => {
+    cy.readTabledataPublish("0", "5").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
   });
