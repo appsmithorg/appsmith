@@ -323,18 +323,9 @@ importers:
       '@redux-saga/types': 1.1.0
       '@sentry/react': 6.2.4_react@17.0.2
       '@sentry/tracing': 6.2.4
-      '@sentry/utils': 6.2.4
       '@shared/ast': link:packages/ast
       '@tanstack/virtual-core': 3.0.0-beta.18
-      '@testing-library/dom': 8.0.0
       '@tinymce/tinymce-react': 3.13.0_sfoxds7t5ydpegc3knd667wn6m
-      '@types/google.maps': 3.51.0
-      '@types/history': 4.7.8
-      '@types/react-instantsearch-core': 6.3.1
-      '@types/react-page-visibility': 6.4.1
-      '@types/react-router': 5.1.8
-      '@types/shallowequal': 1.1.1
-      '@types/testing-library__jest-dom': 5.9.4
       '@uppy/core': 1.16.0
       '@uppy/dashboard': 1.16.0_@uppy+core@1.16.0
       '@uppy/file-input': 1.4.22_@uppy+core@1.16.0
@@ -493,7 +484,9 @@ importers:
       '@babel/helper-string-parser': 7.19.4
       '@craco/craco': 7.0.0_solse7pejalkbluoy47t4bek74
       '@faker-js/faker': 7.4.0
+      '@sentry/utils': 6.2.4
       '@sentry/webpack-plugin': 1.18.9
+      '@testing-library/dom': 8.0.0
       '@testing-library/jest-dom': 5.16.1
       '@testing-library/react': 12.1.2_sfoxds7t5ydpegc3knd667wn6m
       '@testing-library/react-hooks': 7.0.2_wsb7ucfy44thmemmuxb25xtb6i
@@ -503,6 +496,8 @@ importers:
       '@types/dom-mediacapture-record': 1.0.11
       '@types/downloadjs': 1.4.2
       '@types/eslint': 8.4.2
+      '@types/google.maps': 3.51.0
+      '@types/history': 4.7.8
       '@types/hoist-non-react-statics': 3.3.1
       '@types/jest': 27.4.1
       '@types/js-beautify': 1.13.2
@@ -522,9 +517,12 @@ importers:
       '@types/react-dom': 17.0.18
       '@types/react-google-recaptcha': 2.1.1
       '@types/react-helmet': 5.0.16
+      '@types/react-instantsearch-core': 6.3.1
       '@types/react-instantsearch-dom': 6.3.0
       '@types/react-modal': 3.13.1
+      '@types/react-page-visibility': 6.4.1
       '@types/react-redux': 7.1.9
+      '@types/react-router': 5.1.8
       '@types/react-router-dom': 5.1.6
       '@types/react-select': 3.0.22
       '@types/react-syntax-highlighter': 13.5.2
@@ -535,9 +533,11 @@ importers:
       '@types/redux-form': 8.3.0
       '@types/redux-mock-store': 1.0.2
       '@types/resize-observer-browser': 0.1.5
+      '@types/shallowequal': 1.1.1
       '@types/showdown': 1.9.4
       '@types/styled-components': 5.1.26
       '@types/tern': 0.22.0
+      '@types/testing-library__jest-dom': 5.9.4
       '@types/tinycolor2': 1.4.2
       '@types/toposort': 2.0.3
       '@types/webfontloader': 1.6.33
@@ -4420,7 +4420,6 @@ packages:
   /@sentry/types/6.2.4:
     resolution: {integrity: sha512-c+vEExoj8H67NPaskTvxJBSAtDWzfFXOmlkicEZPUWbkL+Yxxlbzp1lI8K6GOks56UYMUBUU/fwQvv/34cO96g==}
     engines: {node: '>=6'}
-    dev: false
 
   /@sentry/utils/6.2.4:
     resolution: {integrity: sha512-lavbb3yQMUleVffmDkPH7X3dlgbXlyiFNmfER+swJ6WRxa4Yq6I8yea2s6maoqnZMhZe+yztn455DPwXIItfCA==}
@@ -4428,7 +4427,6 @@ packages:
     dependencies:
       '@sentry/types': 6.2.4
       tslib: 1.14.1
-    dev: false
 
   /@sentry/webpack-plugin/1.18.9:
     resolution: {integrity: sha512-+TrenJrgFM0QTOwBnw0ZXWMvc0PiOebp6GN5EbGEx3JPCQqXOfXFzCaEjBtASKRgcNCL7zGly41S25YR6Hm+jw==}
@@ -6236,6 +6234,7 @@ packages:
       dom-accessibility-api: 0.5.14
       lz-string: 1.4.4
       pretty-format: 27.5.1
+    dev: true
 
   /@testing-library/dom/8.20.0:
     resolution: {integrity: sha512-d9ULIT+a4EXLX3UU8FBjauG9NnsZHkHztXoIcTsOKoOw030fyjheN9svkTULjJxtYag9DZz5Jz5qkWZDPxTFwA==}
@@ -6362,12 +6361,15 @@ packages:
     resolution: {integrity: sha512-JN1wq/yLxxBcc6MeSe57F9Aqv8wL964L0nBOUTSQ5OECzWxaECuGYV06VnGKn/c+9AGB97RAgqx2PUbYflZNqA==}
     dependencies:
       '@types/algoliasearch': 3.34.11
+    dev: true
 
   /@types/algoliasearch/3.34.11:
     resolution: {integrity: sha512-FFMbpmXCHcgbypnOUY98SDEoiLc2bXO51gxgX02ypb8srZZnZCPV/8VKknuEtgr1VkgYLrqLi5BoYzZRVni6Fw==}
+    dev: true
 
   /@types/aria-query/4.2.2:
     resolution: {integrity: sha512-HnYpAE1Y6kRyKM/XkEuiRQhTHvkzMBurTHnpFLYLBGPIylZNPs9jJcuOOYWxPLJCSEtmZT0Y8rHDokKN7rRTig==}
+    dev: true
 
   /@types/aria-query/5.0.1:
     resolution: {integrity: sha512-XTIieEY+gvJ39ChLcB4If5zHtPxt3Syj5rgZR+e1ctpmK8NjPf0zFqsz4JpLJT0xla9GFDKjy8Cpu331nrmE1Q==}
@@ -6528,7 +6530,7 @@ packages:
 
   /@types/google.maps/3.51.0:
     resolution: {integrity: sha512-44/oQYjc5D6kxBcI3Qk9rk3IIOMwnlEMWDV7pwPJ2YI89s5Q1OzDrFvR7QJ3LFrpVXEhig+gyagFg54+foinFg==}
-    dev: false
+    dev: true
 
   /@types/graceful-fs/4.1.4:
     resolution: {integrity: sha512-mWA/4zFQhfvOA8zWkXobwJvBD7vzcxgrOQ0J5CH1votGqdq9m7+FwtGaqyCZqC3NyyBkc9z4m+iry4LlqcMWJg==}
@@ -6542,6 +6544,7 @@ packages:
 
   /@types/history/4.7.8:
     resolution: {integrity: sha512-S78QIYirQcUoo6UJZx9CSP0O2ix9IaeAXwQi26Rhr/+mg7qqPy8TzaxHSUut7eGjL8WmLccT7/MXf304WjqHcA==}
+    dev: true
 
   /@types/hoist-non-react-statics/3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
@@ -6605,6 +6608,7 @@ packages:
     dependencies:
       jest-matcher-utils: 27.5.1
       pretty-format: 27.5.1
+    dev: true
 
   /@types/jest/29.0.3:
     resolution: {integrity: sha512-F6ukyCTwbfsEX5F2YmVYmM5TcTHy1q9P5rWlRbrk56KyMh3v9xRGUO3aa8+SkvMi0SHXtASJv1283enXimC0Og==}
@@ -6794,6 +6798,7 @@ packages:
     dependencies:
       '@types/algoliasearch-helper': 2.26.1
       '@types/react': 17.0.52
+    dev: true
 
   /@types/react-instantsearch-dom/6.3.0:
     resolution: {integrity: sha512-sq4WXWSVVhH8NV7s6xcc/c+SkiyMewRefCPleXK3p9676rIFyKwotRkh8x7IoXOBV3V2avfU3Xr65Y9scRZlZQ==}
@@ -6812,7 +6817,7 @@ packages:
     resolution: {integrity: sha512-vNlYAqKhB2SU1HmF9ARFTFZN0NSPzWn8HSjBpFqYuQlJhsb/aSYeIZdygeqfSjAg0PZ70id2IFWHGULJwe59Aw==}
     dependencies:
       '@types/react': 17.0.52
-    dev: false
+    dev: true
 
   /@types/react-reconciler/0.26.7:
     resolution: {integrity: sha512-mBDYl8x+oyPX/VBb3E638N0B7xG+SPk/EAMcVPeexqus/5aTpTphQi0curhhshOqRrc9t6OPoJfEUkbymse/lQ==}
@@ -6856,6 +6861,7 @@ packages:
     dependencies:
       '@types/history': 4.7.8
       '@types/react': 17.0.52
+    dev: true
 
   /@types/react-select/3.0.22:
     resolution: {integrity: sha512-fqgmC979JPr/6476Pau6QnmI9zVV664R7Q92Ld1rgTn+umtUXT5X3+PO/x6O4imCZnh7XCqZcouabWAlAQJNpQ==}
@@ -6972,7 +6978,6 @@ packages:
 
   /@types/shallowequal/1.1.1:
     resolution: {integrity: sha512-Lhni3aX80zbpdxRuWhnuYPm8j8UQaa571lHP/xI4W+7BAFhSIhRReXnqjEgT/XzPoXZTJkCqstFMJ8CZTK6IlQ==}
-    dev: false
 
   /@types/showdown/1.9.4:
     resolution: {integrity: sha512-50ehC3IAijfkvoNqmQ+VL73S7orOxmAK8ljQAFBv8o7G66lAZyxQj1L3BAv2dD86myLXI+sgKP1kcxAaxW356w==}
@@ -7026,6 +7031,7 @@ packages:
     resolution: {integrity: sha512-6spmpkKOCVCO9XolAR23gfv09Nfd4QByRM3WbnYnPhVfjmOzEKlNrcj6GqFLZKduUvtJIH7Mf5t2TY6rs93zDA==}
     dependencies:
       '@types/jest': 27.4.1
+    dev: true
 
   /@types/through/0.0.30:
     resolution: {integrity: sha512-FvnCJljyxhPM3gkRgWmxmDZyAQSiBQQWLI0A0VFL0K7W1oRUrPJSqNO0NvTnLkBcotdlp3lKvaT0JrnyRDkzOg==}
@@ -11158,6 +11164,7 @@ packages:
 
   /dom-accessibility-api/0.5.14:
     resolution: {integrity: sha512-NMt+m9zFMPZe0JcY9gN224Qvk6qLIdqex29clBvc/y75ZBX9YA9wNK3frsYvu2DI1xcCIwxwnX+TlsJ2DSOADg==}
+    dev: true
 
   /dom-align/1.12.2:
     resolution: {integrity: sha512-pHuazgqrsTFrGU2WLDdXxCFabkdQDx72ddkraZNih1KsMcN5qsRSTR9O4VJRlwTPCPb5COYg3LOfiMHHcPInHg==}
@@ -16662,6 +16669,7 @@ packages:
   /lz-string/1.4.4:
     resolution: {integrity: sha512-0ckx7ZHRPqb0oUm8zNr+90mtf9DQB60H1wMCjBtfi62Kl3a7JbHob6gA2bC+xRvZoOL+1hzUK8jeuEIQE8svEQ==}
     hasBin: true
+    dev: true
 
   /magic-string/0.25.9:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
