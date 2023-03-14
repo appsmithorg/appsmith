@@ -41,6 +41,7 @@ import { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
 import { Link } from "react-router-dom";
 import { showDebugger } from "actions/debuggerActions";
+import { isMacOrIOS } from "utils/helpers";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -551,7 +552,7 @@ function PopoverContent(props: PopoverContentProps) {
           {props.asyncFuncErrorRootCauseUrl ? (
             <AsyncFunctionErrorView>
               <AsyncFunctionErrorLink onClick={(e) => openDebugger(e)} to="">
-                See Error (Ctrl D)
+                See Error ({isMacOrIOS() ? `CMD + D` : `Ctrl + D`})
               </AsyncFunctionErrorLink>
               <AsyncFunctionErrorLink to={props.asyncFuncErrorRootCauseUrl}>
                 View Source
