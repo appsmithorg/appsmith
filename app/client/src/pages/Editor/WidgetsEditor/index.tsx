@@ -159,7 +159,7 @@ function WidgetsEditor() {
               <CanvasTopSection />
               <div
                 className={classNames({
-                  "relative flex flex-row w-full overflow-hidden justify-center": true,
+                  "relative flex flex-row w-full overflow-hidden": true,
                   "pointer-events-none select-none": isAppSettingsPaneWithNavigationTabOpen,
                 })}
                 data-testid="widgets-editor"
