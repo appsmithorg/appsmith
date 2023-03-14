@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>modal</title>
+    <g id="modal" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M15,1 C15.5522847,1 16,1.44771525 16,2 L16,14 C16,14.5522847 15.5522847,15 15,15 L1,15 C0.44771525,15 0,14.5522847 0,14 L0,2 C0,1.44771525 0.44771525,1 1,1 L15,1 Z M14,5 L2,5 L2,13 L14,13 L14,5 Z M11,2 L9,2 L9,4 L11,4 L11,2 Z M14,2 L12,2 L12,4 L14,4 L14,2 Z" id="Combined-Shape" fill="#000000" fill-rule="nonzero"></path>
+    </g>
+</svg>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 58 (84663) - https://sketch.com -->
+    <title>pt-icon-new-layer</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M11.5128347,2.66268595 C11.1940178,3.01699625 11,3.48584049 11,4 C11,5.1045695 11.8954305,6 13,6 L14,6 L14,7 C14,8.1045695 14.8954305,9 16,9 C17.1045695,9 18,8.1045695 18,7 L18,6.26666667 L19.5,7.1 C19.8,7.3 20,7.6 20,8 C20,8.4 19.8,8.7 19.5,8.9 L10.5,13.9 C10.3,14 10.2,14 10,14 C9.8,14 9.7,14 9.5,13.9 L0.5,8.9 C0.2,8.7 0,8.4 0,8 C0,7.6 0.2,7.3 0.5,7.1 L9.5,2.1 C9.7,2 9.8,2 10,2 C10.2,2 10.3,2 10.5,2.1 L11.5128347,2.66268595 Z M17,3 L19,3 C19.5522847,3 20,3.44771525 20,4 C20,4.55228475 19.5522847,5 19,5 L17,5 L17,7 C17,7.5522847 16.5522847,8 16,8 C15.4477153,8 15,7.5522847 15,7 L15,5 L13,5 C12.4477153,5 12,4.55228475 12,4 C12,3.44771525 12.4477153,3 13,3 L15,3 L15,1 C15,0.44771525 15.4477153,0 16,0 C16.5522847,0 17,0.44771525 17,1 L17,3 Z" id="path-1"></path>
+    </defs>
+    <g id="pt-icon-new-layer" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="pt-icon-new-layer-20" transform="translate(0.000000, 3.000000)">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <use id="path-1" fill="#000000" xlink:href="#path-1"></use>
+        </g>
+    </g>
+</svg>

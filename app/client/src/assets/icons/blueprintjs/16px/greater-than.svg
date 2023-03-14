@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>greater-than</title>
+    <desc>Created with Sketch.</desc>
+    <g id="greater-than" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M2.71265211,5.95782629 C2.18365926,5.79912843 1.88347586,5.24164496 2.04217371,4.71265211 C2.20087157,4.18365926 2.75835504,3.88347586 3.28734789,4.04217371 L13.2873479,7.04217371 C14.2375507,7.32723456 14.2375507,8.67276544 13.2873479,8.95782629 L3.28734789,11.9578263 C2.75835504,12.1165241 2.20087157,11.8163407 2.04217371,11.2873479 C1.88347586,10.758355 2.18365926,10.2008716 2.71265211,10.0421737 L9.51989783,8 L2.71265211,5.95782629 Z" fill="#000000" fill-rule="nonzero"></path>
+    </g>
+</svg>

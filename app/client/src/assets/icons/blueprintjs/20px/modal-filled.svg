@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>modal-filled</title>
+    <g id="modal-filled" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M20,5 L20,18 C20,18.5522847 19.5522847,19 19,19 L1,19 C0.44771525,19 0,18.5522847 0,18 L0,5 L20,5 Z M17,1 L19,1 C19.5522847,1 20,1.44771525 20,2 L20,3 L17,3 L17,1 Z M15,3 L0,3 L0,2 C0,1.44771525 0.44771525,1 1,1 L15,1 L15,3 Z" id="Shape" fill="#000000" fill-rule="nonzero"></path>
+    </g>
+</svg>

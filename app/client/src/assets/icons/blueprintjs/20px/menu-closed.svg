@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve">
+<g id="hamburger_close">
+	<g>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M8,6h11c0.55,0,1-0.45,1-1c0-0.55-0.45-1-1-1H8C7.45,4,7,4.45,7,5
+			C7,5.55,7.45,6,8,6z M4,6C3.72,6,3.47,6.11,3.29,6.29l-3,3C0.11,9.47,0,9.72,0,10c0,0.28,0.11,0.53,0.29,0.71l3,3
+			C3.47,13.89,3.72,14,4,14c0.55,0,1-0.45,1-1V7C5,6.45,4.55,6,4,6z M19,14H8c-0.55,0-1,0.45-1,1c0,0.55,0.45,1,1,1h11
+			c0.55,0,1-0.45,1-1C20,14.45,19.55,14,19,14z M19,9H8c-0.55,0-1,0.45-1,1c0,0.55,0.45,1,1,1h11c0.55,0,1-0.45,1-1
+			C20,9.45,19.55,9,19,9z"/>
+	</g>
+</g>
+</svg>

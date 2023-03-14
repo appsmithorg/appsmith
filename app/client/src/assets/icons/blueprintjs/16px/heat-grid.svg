@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+<g id="heat_grid">
+	<g>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M0,10h5V7H0V10z M1,8h3v1H1V8z M15,3h-4v3h5V4C16,3.45,15.55,3,15,3z M15,5h-3V4
+			h3V5z M0,4v2h5V3H1C0.45,3,0,3.45,0,4z M0,13c0,0.55,0.45,1,1,1h4v-3H0V13z M6,6h4V3H6V6z M6,14h4v-3H6V14z M7,12h2v1H7V12z
+			 M11,14h4c0.55,0,1-0.45,1-1v-2h-5V14z M11,10h5V7h-5V10z M6,10h4V7H6V10z"/>
+	</g>
+</g>
+</svg>

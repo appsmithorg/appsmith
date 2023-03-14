@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve">
+<g id="step_chart">
+	<g>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M19,16H2v-3h4c0.55,0,1-0.45,1-1V8h3v2c0,0.55,0.45,1,1,1h5c0.55,0,1-0.45,1-1V6
+			h2c0.55,0,1-0.45,1-1c0-0.55-0.45-1-1-1h-3c-0.55,0-1,0.45-1,1v4h-3V7c0-0.55-0.45-1-1-1H6C5.45,6,5,6.45,5,7v4H2V3
+			c0-0.55-0.45-1-1-1S0,2.45,0,3v14c0,0.55,0.45,1,1,1h18c0.55,0,1-0.45,1-1C20,16.45,19.55,16,19,16z"/>
+	</g>
+</g>
+</svg>

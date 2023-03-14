@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.3 (67297) - http://www.bohemiancoding.com/sketch -->
+    <title>Artboard</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M10,10 L13,10 L14.7808703,7.77391208 C14.9227198,7.5966002 15.0000005,7.37629139 15.0000015,7.14922138 L15.0000139,4.29998746 L16,3.4 L16,14 C16,14.6 15.6,15 15,15 L1,15 C0.4,15 0,14.6 0,14 L0,2 C0,1.5 0.4,1 1,1 L5.33333333,1 L9,4.3 L9,5 L7,5 L7,7 L9,7 L9,8 L7,8 L7,10 L10,10 Z M6,13 L6,11 L2,11 L2,13 L6,13 Z M6,10 L6,8 L2,8 L2,10 L6,10 Z M6,7 L6,5 L2,5 L2,7 L6,7 Z M14,13 L14,11 L7,11 L7,13 L14,13 Z" id="pt-icon-th" fill="#000000" fill-rule="nonzero"></path>
+        <path d="M15.48,0 C15.79,0 16,0.26 16,0.57 C16,0.73 15.94,0.87 15.83,0.98 L12.97,3.71 L12.97,6.34 C12.97,6.5 12.91,6.64 12.8,6.75 L11.98,7.85 C11.88,7.95 11.73,8.02 11.57,8.02 C11.26,8.02 11,7.76 11,7.45 L11,3.71 L8.17,0.98 C8.06,0.87 8,0.73 8,0.57 C8,0.26 8.26,0 8.57,0 L15.48,0 Z" id="Path" fill="#000000" fill-rule="nonzero"></path>
+    </g>
+</svg>

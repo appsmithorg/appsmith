@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve">
+<g id="gantt_chart">
+	<g>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M4,7h5c0.55,0,1-0.45,1-1V5c0-0.55-0.45-1-1-1H4C3.45,4,3,4.45,3,5v1
+			C3,6.55,3.45,7,4,7z M7,9v1c0,0.55,0.45,1,1,1h6c0.55,0,1-0.45,1-1V9c0-0.55-0.45-1-1-1H8C7.45,8,7,8.45,7,9z M19,12h-6
+			c-0.55,0-1,0.45-1,1v1c0,0.55,0.45,1,1,1h6c0.55,0,1-0.45,1-1v-1C20,12.45,19.55,12,19,12z M19,16H2V3c0-0.55-0.45-1-1-1
+			S0,2.45,0,3v14c0,0.55,0.45,1,1,1h18c0.55,0,1-0.45,1-1C20,16.45,19.55,16,19,16z"/>
+	</g>
+</g>
+</svg>

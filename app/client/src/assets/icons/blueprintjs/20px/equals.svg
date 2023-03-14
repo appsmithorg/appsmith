@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>equals</title>
+    <desc>Created with Sketch.</desc>
+    <g id="equals" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(3.000000, 7.000000)" fill="#000000" fill-rule="nonzero" id="Combined-Shape">
+            <path d="M1,0 L13,0 C13.5522847,0 14,0.44771525 14,1 C14,1.55228475 13.5522847,2 13,2 L1,2 C0.44771525,2 0,1.55228475 0,1 C0,0.44771525 0.44771525,0 1,0 Z M1,4 L13,4 C13.5522847,4 14,4.4477153 14,5 C14,5.5522847 13.5522847,6 13,6 L1,6 C0.44771525,6 0,5.5522847 0,5 C0,4.4477153 0.44771525,4 1,4 Z"></path>
+        </g>
+    </g>
+</svg>

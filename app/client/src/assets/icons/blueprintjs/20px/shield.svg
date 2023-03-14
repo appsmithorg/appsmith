@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.2 (51160) - http://www.bohemiancoding.com/sketch -->
+    <title>Shield</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Shield" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M10,20 C16,16.1904762 19,10.952381 19,4.28571429 C17,4.28571429 14,2.85714286 10,0 C6,2.85714286 3,4.28571429 1,4.28571429 C1,10.952381 4,16.1904762 10,20 Z M10,2.65153372 C12.5774629,4.38606625 14.7761194,5.53147121 16.6672983,6.07056698 C16.2275668,10.6976488 14.0310218,14.4242709 10,17.3677394 L10,2.65153372 Z" fill="#000000"></path>
+    </g>
+</svg>

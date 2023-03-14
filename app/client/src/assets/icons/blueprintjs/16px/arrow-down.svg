@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 16 16"
+	 enable-background="new 0 0 16 16" xml:space="preserve">
+<title>Shape</title>
+<desc>Created with Sketch.</desc>
+<g id="Page-1" sketch:type="MSPage">
+	<g id="Artboard-1" transform="translate(-2.000000, -1.000000)" sketch:type="MSArtboardGroup">
+		<path id="Shape" sketch:type="MSShapeGroup" d="M15,9c-0.3,0-0.5,0.1-0.7,0.3L11,12.6V3c0-0.5-0.4-1-1-1S9,2.5,9,3v9.6L5.7,9.3
+			C5.5,9.1,5.3,9,5,9c-0.5,0-1,0.5-1,1c0,0.3,0.1,0.5,0.3,0.7l5,5C9.5,15.9,9.7,16,10,16s0.5-0.1,0.7-0.3l5-5
+			c0.2-0.2,0.3-0.4,0.3-0.7C16,9.4,15.6,9,15,9L15,9z"/>
+	</g>
+</g>
+</svg>

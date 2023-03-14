@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>pt-icon-lab-test-small</title>
+    <desc>Created with Sketch.</desc>
+    <g id="pt-icon-lab-test-small" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M11,1 C11.5522847,1 12,1.44771525 12,2 C12,2.55228475 11.5522847,3 11,3 L11,6 L14,13 L14,14.25 C14,14.6642136 13.6642136,15 13.25,15 L2.75,15 C2.33578644,15 2,14.6642136 2,14.25 L2,13 L5,6 L5,3 C4.44771525,3 4,2.55228475 4,2 C4,1.44771525 4.44771525,1 5,1 L11,1 Z M9,3 L7,3 L7,6 L5.286,10 L10.714,10 L9,6 L9,3 Z" id="Combined-Shape" fill="#000000"></path>
+    </g>
+</svg>

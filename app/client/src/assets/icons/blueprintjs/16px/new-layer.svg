@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 58 (84663) - https://sketch.com -->
+    <title>pt-icon-new-layer</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M13.9816117,6.27234954 L15.5,7.14 L15.49,7.15 C15.79,7.32 16,7.63 16,8 C16,8.37 15.79,8.68 15.49,8.85 L15.5,8.86 L8.5,12.86 L8.49,12.85 C8.34,12.94 8.18,13 8,13 C7.82,13 7.66,12.94 7.51,12.85 L7.5,12.86 L0.5,8.86 L0.51,8.85 C0.21,8.68 0,8.37 0,8 C0,7.63 0.21,7.32 0.51,7.14 L0.5,7.13 L7.5,3.13 L7.51,3.15 C7.66,3.06 7.82,3 8,3 C8.08626374,3 8.167934,3.01378043 8.24611149,3.03803921 C8.08923388,3.32345769 8,3.651308 8,4 C8,5.1045695 8.8954305,6 10,6 C10,7.1045695 10.8954305,8 12,8 C13.0121896,8 13.8487598,7.2480836 13.9816117,6.27234954 Z M14,3 C14.55,3 15,3.45 15,4 C15,4.55 14.55,5 14,5 L13,5 L13,6 C13,6.55 12.55,7 12,7 C11.45,7 11,6.55 11,6 L11,5 L10,5 C9.45,5 9,4.55 9,4 C9,3.45 9.45,3 10,3 L11,3 L11,2 C11,1.45 11.45,1 12,1 C12.55,1 13,1.45 13,2 L13,3 L14,3 Z" id="path-1"></path>
+    </defs>
+    <g id="pt-icon-new-layer" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="path-1" fill="#000000" xlink:href="#path-1"></use>
+    </g>
+</svg>

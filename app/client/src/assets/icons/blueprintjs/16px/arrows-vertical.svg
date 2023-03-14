@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 16 16"
+	 enable-background="new 0 0 16 16" xml:space="preserve">
+<title>Shape</title>
+<desc>Created with Sketch.</desc>
+<g id="Page-1" sketch:type="MSPage">
+	<g id="Artboard-1" transform="translate(-3.000000, 0.000000)" sketch:type="MSArtboardGroup">
+		<path id="Shape" sketch:type="MSShapeGroup" d="M15,10c-0.3,0-0.5,0.1-0.7,0.3L12,12.6V3.4l2.3,2.3C14.5,5.9,14.7,6,15,6
+			c0.6,0,1-0.4,1-1c0-0.3-0.1-0.5-0.3-0.7l-4-4C11.5,0.1,11.3,0,11,0s-0.5,0.1-0.7,0.3l-4,4C6.1,4.5,6,4.7,6,5c0,0.6,0.5,1,1,1
+			c0.3,0,0.5-0.1,0.7-0.3L10,3.4v9.2l-2.3-2.3C7.5,10.1,7.3,10,7,10c-0.5,0-1,0.4-1,1c0,0.3,0.1,0.5,0.3,0.7l4,4
+			c0.2,0.2,0.4,0.3,0.7,0.3s0.5-0.1,0.7-0.3l4-4c0.2-0.2,0.3-0.4,0.3-0.7C16,10.4,15.6,10,15,10L15,10z"/>
+	</g>
+</g>
+</svg>

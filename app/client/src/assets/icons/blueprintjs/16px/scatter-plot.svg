@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+<g id="scatter_plot">
+	<g>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M15,12H2V3c0-0.55-0.45-1-1-1S0,2.45,0,3v10c0,0.55,0.45,1,1,1h14
+			c0.55,0,1-0.45,1-1S15.55,12,15,12z M14.5,5C15.33,5,16,4.33,16,3.5S15.33,2,14.5,2S13,2.67,13,3.5S13.67,5,14.5,5z M11.5,9
+			C12.33,9,13,8.33,13,7.5S12.33,6,11.5,6S10,6.67,10,7.5S10.67,9,11.5,9z M7.5,7C8.33,7,9,6.33,9,5.5S8.33,4,7.5,4S6,4.67,6,5.5
+			S6.67,7,7.5,7z M4.5,11C5.33,11,6,10.33,6,9.5S5.33,8,4.5,8S3,8.67,3,9.5S3.67,11,4.5,11z"/>
+	</g>
+</g>
+</svg>

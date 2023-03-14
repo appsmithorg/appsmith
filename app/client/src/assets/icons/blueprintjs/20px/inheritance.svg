@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>Inheritance</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Inheritance" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M6,10 C6,12.21 7.79,14 10,14 L16.59,14 L14.3,11.71 C14.11,11.53 14,11.28 14,11 C14,10.45 14.45,10 15,10 C15.28,10 15.53,10.11 15.71,10.29 L19.71,14.29 C19.89,14.47 20,14.72 20,15 C20,15.28 19.89,15.53 19.71,15.71 L15.71,19.71 C15.53,19.89 15.28,20 15,20 C14.45,20 14,19.55 14,19 C14,18.72 14.11,18.47 14.29,18.29 L16.59,16 L10,16 C6.69,16 4,13.31 4,10 L1,10 C0.44771525,10 6.76353751e-17,9.55228475 0,9 L0,1 C-6.76353751e-17,0.44771525 0.44771525,1.01453063e-16 1,0 L9,0 C9.55228475,-1.01453063e-16 10,0.44771525 10,1 L10,9 C10,9.55228475 9.55228475,10 9,10 L6,10 Z M2,2 L2,8 L8,8 L8,2 L2,2 Z" id="Combined-Shape" fill="#000000" fill-rule="nonzero"></path>
+    </g>
+</svg>

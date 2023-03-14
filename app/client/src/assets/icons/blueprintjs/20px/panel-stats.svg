@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 45.2 (43514) - http://www.bohemiancoding.com/sketch -->
+    <title>pt-icon-panel-stats</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="pt-icon-panel-stats" fill="#182026">
+            <path d="M1,1 L19,1 C19.5522847,1 20,1.44771525 20,2 L20,17 C20,17.5522847 19.5522847,18 19,18 L1,18 C0.44771525,18 6.76353751e-17,17.5522847 0,17 L0,2 L0,2 C-6.76353751e-17,1.44771525 0.44771525,1 1,1 L1,1 Z M2,3 L2,16 L18,16 L18,3 L2,3 Z M11,3 L12,3 L12,16 L11,16 L11,3 Z M13,10 L16.952381,10 L16.952381,11 L13,11 L13,10 Z M13,12 L16.952381,12 L16.952381,13 L13,13 L13,12 Z M13,14 L16.952381,14 L16.952381,15 L13,15 L13,14 Z M13,8 L16.952381,8 L16.952381,9 L13,9 L13,8 Z M13,6 L16.952381,6 L16.952381,7 L13,7 L13,6 Z M13,4 L16.952381,4 L16.952381,5 L13,5 L13,4 Z" id="pt-icon-panel-stats-20"></path>
+        </g>
+    </g>
+</svg>

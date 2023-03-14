@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve">
+<g id="waterfall_chart">
+	<g>
+		<path d="M13,7h2c0.55,0,1-0.45,1-1V5c0-0.55-0.45-1-1-1h-2c-0.55,0-1,0.45-1,1v1C12,6.55,12.45,7,13,7z M4,15h1c0.55,0,1-0.45,1-1
+			v-4c0-0.55-0.45-1-1-1H4c-0.55,0-1,0.45-1,1v4C3,14.55,3.45,15,4,15z M8,9h2c0.55,0,1-0.45,1-1c0-0.55-0.45-1-1-1H8
+			C7.45,7,7,7.45,7,8C7,8.55,7.45,9,8,9z M19,4h-1c-0.55,0-1,0.45-1,1v9c0,0.55,0.45,1,1,1h1c0.55,0,1-0.45,1-1V5
+			C20,4.45,19.55,4,19,4z M19,16H2V3c0-0.55-0.45-1-1-1S0,2.45,0,3v14c0,0.14,0.03,0.27,0.08,0.39C0.23,17.75,0.59,18,1,18h18
+			c0.55,0,1-0.45,1-1C20,16.45,19.55,16,19,16z"/>
+	</g>
+</g>
+</svg>

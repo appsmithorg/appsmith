@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>filter-open</title>
+    <desc>Created with Sketch.</desc>
+    <g id="filter-open" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M15.7071068,10.2928932 C16.0976311,10.6834175 16.0976311,11.3165825 15.7071068,11.7071068 L12.7071068,14.7071068 C12.0771419,15.3370716 11,14.8909049 11,14 L11,8 C11,7.10909515 12.0771419,6.66292836 12.7071068,7.29289322 L15.7071068,10.2928932 Z M12,2 C12,2.28 11.89,2.53 11.71,2.7 L8,6.41 L8,10 C8,10.28 7.89,10.53 7.71,10.71 L5.71,12.71 C5.53,12.89 5.28,13 5,13 C4.45,13 4,12.55 4,12 L4,6.41 L0.29,2.71 C0.11,2.53 -5.32907052e-15,2.28 -5.32907052e-15,2 C-5.32907052e-15,1.45 0.45,1 1,1 L11,1 C11.55,1 12,1.45 12,2 Z" fill="#000000"></path>
+    </g>
+</svg>

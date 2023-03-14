@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>Artboard</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="list-columns" transform="translate(0.000000, 1.000000)" fill="#000000" fill-rule="nonzero">
+            <path d="M6,0 C6.55,0 7,0.45 7,1 C7,1.55 6.55,2 6,2 L1,2 C0.45,2 0,1.55 0,1 C0,0.45 0.45,0 1,0 L6,0 Z M6,4 C6.55,4 7,4.45 7,5 C7,5.55 6.55,6 6,6 L1,6 C0.45,6 0,5.55 0,5 C0,4.45 0.45,4 1,4 L6,4 Z M6,8 C6.55,8 7,8.45 7,9 C7,9.55 6.55,10 6,10 L1,10 C0.45,10 0,9.55 0,9 C0,8.45 0.45,8 1,8 L6,8 Z M6,12 C6.55,12 7,12.45 7,13 C7,13.55 6.55,14 6,14 L1,14 C0.45,14 0,13.55 0,13 C0,12.45 0.45,12 1,12 L6,12 Z M15,0 C15.55,0 16,0.45 16,1 C16,1.55 15.55,2 15,2 L10,2 C9.45,2 9,1.55 9,1 C9,0.45 9.45,0 10,0 L15,0 Z M15,4 C15.55,4 16,4.45 16,5 C16,5.55 15.55,6 15,6 L10,6 C9.45,6 9,5.55 9,5 C9,4.45 9.45,4 10,4 L15,4 Z M15,8 C15.55,8 16,8.45 16,9 C16,9.55 15.55,10 15,10 L10,10 C9.45,10 9,9.55 9,9 C9,8.45 9.45,8 10,8 L15,8 Z M15,12 C15.55,12 16,12.45 16,13 C16,13.55 15.55,14 15,14 L10,14 C9.45,14 9,13.55 9,13 C9,12.45 9.45,12 10,12 L15,12 Z" id="Combined-Shape"></path>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>less-than</title>
+    <desc>Created with Sketch.</desc>
+    <g id="less-than" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M2.7129154,5.95808958 C2.18392255,5.79939172 1.88373915,5.24190825 2.042437,4.7129154 C2.20113486,4.18392255 2.75861833,3.88373915 3.28761118,4.042437 L13.2876112,7.042437 C14.237814,7.32749785 14.237814,8.67302873 13.2876112,8.95808958 L3.28761118,11.9580896 C2.75861833,12.1167874 2.20113486,11.816604 2.042437,11.2876112 C1.88373915,10.7586183 2.18392255,10.2011349 2.7129154,10.042437 L9.52016112,8.00026329 L2.7129154,5.95808958 Z" fill="#000000" fill-rule="nonzero" transform="translate(8.000132, 8.000263) scale(-1, 1) translate(-8.000132, -8.000263) "></path>
+    </g>
+</svg>

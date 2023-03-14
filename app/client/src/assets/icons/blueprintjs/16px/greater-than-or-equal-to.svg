@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>greater-than-or-equal-to</title>
+    <desc>Created with Sketch.</desc>
+    <g id="greater-than-or-equal-to" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(2.000000, 2.000000)" fill="#000000" fill-rule="nonzero" id="Combined-Shape">
+            <path d="M0.71265211,1.95782629 C0.18365926,1.79912843 -0.11652414,1.24164496 0.04217371,0.71265211 C0.20087157,0.18365926 0.75835504,-0.11652414 1.28734789,0.04217371 L11.2873479,3.04217371 C12.2375507,3.32723456 12.2375507,4.67276544 11.2873479,4.95782629 L1.28734789,7.95782629 C0.75835504,8.1165241 0.20087157,7.81634074 0.04217371,7.28734789 C-0.11652414,6.75835504 0.18365926,6.20087157 0.71265211,6.04217371 L7.51989783,4 L0.71265211,1.95782629 Z M1,10 L11,10 C11.5522847,10 12,10.4477153 12,11 C12,11.5522847 11.5522847,12 11,12 L1,12 C0.44771525,12 0,11.5522847 0,11 C0,10.4477153 0.44771525,10 1,10 Z"></path>
+        </g>
+    </g>
+</svg>

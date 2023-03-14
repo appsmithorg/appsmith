@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 56.3 (81716) - https://sketch.com -->
+    <title>stopwatch</title>
+    <desc>Created with Sketch.</desc>
+    <g id="stopwatch" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M9,2 L9,3.08295844 C11.8377133,3.55903653 14,6.02700371 14,9 C14,12.3137085 11.3137085,15 8,15 C4.6862915,15 2,12.3137085 2,9 C2,6.02700371 4.16228666,3.55903653 7,3.08295844 L7,2 L6,2 C5.44771525,2 5,1.55228475 5,1 C5,0.44771525 5.44771525,1.01453063e-16 6,0 L10,0 C10.5522847,-1.01453063e-16 11,0.44771525 11,1 C11,1.55228475 10.5522847,2 10,2 L9,2 Z M8,5 C5.790861,5 4,6.790861 4,9 C4,11.209139 5.790861,13 8,13 C10.209139,13 12,11.209139 12,9 L8,9 L8,5 Z" id="Combined-Shape" fill="#000000"></path>
+    </g>
+</svg>
