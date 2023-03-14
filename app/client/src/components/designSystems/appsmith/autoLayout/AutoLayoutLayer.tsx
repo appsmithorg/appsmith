@@ -91,7 +91,6 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
       if (startColumns === 0) arr[0] = null;
       if (centerColumns === 0) arr[1] = null;
       if (endColumns === 0) arr[2] = null;
-      console.log(arr);
     }
     return arr.filter((item) => item !== null);
   };
