@@ -113,13 +113,14 @@ export function alterLayoutForMobile(
           GridDefaults.DEFAULT_GRID_COLUMNS,
         );
       }
-      if (
-        widget.mobileTopRow === undefined ||
-        widget.mobileBottomRow === undefined
-      ) {
-        widget.mobileTopRow = widget.topRow;
-        widget.mobileBottomRow = widget.bottomRow;
-      }
+    }
+    if (
+      widget.mobileTopRow === undefined ||
+      widget.mobileBottomRow === undefined ||
+      widget.mobileTopRow + widget.mobileBottomRow === 0
+    ) {
+      widget.mobileTopRow = widget.topRow;
+      widget.mobileBottomRow = widget.bottomRow;
     }
 
     widgets = alterLayoutForMobile(
