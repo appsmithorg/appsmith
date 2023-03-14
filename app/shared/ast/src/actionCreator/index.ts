@@ -10,7 +10,7 @@ import {
     CallExpressionNode,
     BinaryExpressionNode,
     BlockStatementNode,
-    IdentifierNode, isIdentifierNode,
+    IdentifierNode, isIdentifierNode, isExpressionStatementNode,
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {findNodeAt, simple} from "acorn-walk";
@@ -628,10 +628,11 @@ export function getActionBlockFunctionNames(
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
     astWithComments.body.forEach((node: Node) => {
-        if (node.type === "ExpressionStatement") {
-            // @ts-ignore
-            const requiredName = node?.expression?.callee;
-            const functionName =  requiredName?.name || requiredName?.object.name + "." + requiredName?.property.name || "";
+        if (isExpressionStatementNode(node)) {
+            const expression = node.expression;
+            const rootCallExpression = findRootCallExpression(expression) as CallExpressionNode;
+            if(!rootCallExpression) return;
+            const functionName = generate(rootCallExpression.callee);
             actionBlockFunctionNames.push(functionName);
         }
     })
