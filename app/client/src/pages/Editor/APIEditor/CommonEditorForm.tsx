@@ -521,25 +521,20 @@ function renderImportedDatasButton(
   attributeName: string,
 ) {
   return (
-    <ShowHideImportedHeaders
+    <Button
       className="t--show-imported-datas"
+      kind="tertiary"
       onClick={(e) => {
         e.preventDefault();
         onClick(!showInheritedAttributes);
       }}
+      size="sm"
+      startIcon="eye-on-off"
     >
-      <Icon
-        className="eye-on-off"
-        name={showInheritedAttributes ? "eye-on" : "eye-off"}
-        size={IconSize.XXL}
-      />
-      &nbsp;&nbsp;
-      <Text case={Case.CAPITALIZE} type={TextType.P2}>
-        {showInheritedAttributes
-          ? `${attributeName}`
-          : `${dataCount} ${attributeName}`}
-      </Text>
-    </ShowHideImportedHeaders>
+      {showInheritedAttributes
+        ? `${attributeName}`
+        : `${dataCount} ${attributeName}`}
+    </Button>
   );
 }
 
