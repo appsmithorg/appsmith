@@ -1,8 +1,6 @@
 import fs from "fs";
-import chalk from "chalk";
 import inquirer from "inquirer";
 
-import rawTokens from "../src/dictionary/raw.js";
 import { createSemanticColorTokens } from "../src/utils/createTokens";
 
 inquirer
@@ -11,6 +9,7 @@ inquirer
       type: "input",
       name: "seedColor",
       message: "Enter the seed color",
+      default: "#1a7f37",
     },
   ])
   .then((answers) => {
@@ -27,17 +26,32 @@ inquirer
     }
 
     const finalTokens = {
-      ...rawTokens,
       semantic: {
         ...transformedSemanticTokens,
       },
+      raw: {
+        0: {
+          value: "0px",
+          type: "sizing",
+        },
+        1: {
+          value: "4px",
+          type: "sizing",
+        },
+        2: {
+          value: "8px",
+          type: "sizing",
+        },
+        3: {
+          value: "12px",
+          type: "sizing",
+        },
+      },
     };
 
+    // write to file
     fs.writeFileSync(
-      `${__dirname}/../src/dictionary/build.json`,
+      `${__dirname}/../tokens.json`,
       JSON.stringify(finalTokens, null, 2),
     );
-  })
-  .catch((error) => {
-    console.log({ error });
   });
