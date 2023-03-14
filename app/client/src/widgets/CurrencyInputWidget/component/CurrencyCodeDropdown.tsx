@@ -251,7 +251,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
         enableSearch
         height="36px"
         onSelect={props.onCurrencyTypeChange}
-        optionWidth="340px"
+        optionWidth="360px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
         portalContainer={document.getElementById("art-board") || undefined}

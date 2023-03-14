@@ -15,7 +15,29 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
 
+export type WidgetSizeConfig = {
+  viewportMinWidth: number;
+  configuration: (props: any) => { [key: string]: string | number };
+};
+
+type ResizeableOptions = { vertical?: boolean; horizontal?: boolean };
+type AutoDimensionOptions = { width?: boolean; height?: boolean };
+
+export type AutoLayoutConfig = {
+  // Indicates if a widgets dimensions should be auto adjusted according to content inside it
+  autoDimension?: AutoDimensionOptions;
+  // min/max sizes for the widget
+  widgetSize: Array<WidgetSizeConfig>;
+  // Indicates if the widgets resize handles should be disabled
+  disableResizeHandles?: ResizeableOptions;
+  // default values for the widget specifi to auto layout
+  defaults?: Partial<WidgetConfigProps>;
+  // default values for the properties that are hidden/disabled in auto layout
+  disabledPropsDefaults?: Partial<WidgetProps>;
+};
+
 export interface WidgetConfiguration {
+  autoLayout?: AutoLayoutConfig;
   type: string;
   name: string;
   iconSVG?: string;
@@ -60,11 +82,6 @@ export type FlattenedWidgetProps = WidgetProps & {
 export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
-
-//placeHolder for widget responsive
-export type AutoLayoutConfig = {
-  disabledPropsDefaults?: Partial<WidgetProps>;
-};
 
 interface LayoutProps {
   positioning?: Positioning;

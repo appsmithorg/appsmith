@@ -40,6 +40,7 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import {
+  getCanvasWidth,
   getContainerWidgetSpacesSelector,
   getCurrentAppPositioningType,
   getCurrentPageId,
@@ -102,7 +103,7 @@ import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
 import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import { flashElementsById } from "utils/helpers";
 import history from "utils/history";
 import {
@@ -113,6 +114,7 @@ import { BlueprintOperationTypes } from "widgets/constants";
 import {
   addChildToPastedFlexLayers,
   getFlexLayersForSelectedWidgets,
+  getLayerIndexOfWidget,
   getNewFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
@@ -184,6 +186,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const appPositioningType: AppPositioningTypes = yield select(
       getCurrentAppPositioningType,
     );
+    const mainCanvasWidth: number = yield select(getCanvasWidth);
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
@@ -211,10 +214,12 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const isMobile: boolean = yield select(getIsMobile);
     let updatedWidgetsAfterResizing = movedWidgets;
     if (appPositioningType === AppPositioningTypes.AUTO) {
-      updatedWidgetsAfterResizing = updateWidgetPositions(
+      updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
         parentId,
+        getLayerIndexOfWidget(widgets[parentId]?.flexLayers, widgetId),
         isMobile,
+        mainCanvasWidth,
       );
     }
     log.debug("resize computations took", performance.now() - start, "ms");
@@ -1351,6 +1356,7 @@ function* pasteWidgetSaga(
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
   const isMobile: boolean = yield select(getIsMobile);
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   try {
     let reflowedMovementMap,
@@ -1724,6 +1730,7 @@ function* pasteWidgetSaga(
                     widget,
                     reverseWidgetIdMap[widget.widgetId],
                     isMobile,
+                    mainCanvasWidth,
                   );
                 else if (widget.type !== "CANVAS_WIDGET")
                   widgets = addChildToPastedFlexLayers(
@@ -1731,6 +1738,7 @@ function* pasteWidgetSaga(
                     widget,
                     widgetIdMap,
                     isMobile,
+                    mainCanvasWidth,
                   );
               }
             }

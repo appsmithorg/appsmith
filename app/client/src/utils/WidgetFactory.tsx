@@ -16,6 +16,7 @@ import {
   PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
 import { WidgetFeatures } from "./WidgetFeatures";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -73,6 +74,8 @@ class WidgetFactory {
     Record<NonSerialisableWidgetConfigs, unknown>
   > = new Map();
 
+  static autoLayoutConfigMap: Map<WidgetType, AutoLayoutConfig> = new Map();
+
   static registerWidgetBuilder(
     widgetType: string,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
@@ -85,6 +88,7 @@ class WidgetFactory {
     features?: WidgetFeatures,
     loadingProperties?: Array<RegExp>,
     stylesheetConfig?: Stylesheet,
+    autoLayoutConfig?: AutoLayoutConfig,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -178,6 +182,28 @@ class WidgetFactory {
           WidgetFactory.getWidgetPropertyPaneStyleConfig(widgetType),
         ),
       );
+
+      autoLayoutConfig &&
+        this.autoLayoutConfigMap.set(widgetType, {
+          ...autoLayoutConfig,
+          widgetSize:
+            autoLayoutConfig.widgetSize?.map((sizeConfig) => ({
+              ...sizeConfig,
+              configuration: (props: WidgetProps) => {
+                if (!props)
+                  return {
+                    minWidth:
+                      this.widgetConfigMap.get(widgetType)?.minWidth ||
+                      FILL_WIDGET_MIN_WIDTH,
+                    minHeight:
+                      this.widgetConfigMap.get(widgetType)?.minHeight || 80,
+                  };
+                return sizeConfig.configuration(props);
+              },
+            })) || [],
+          autoDimension: autoLayoutConfig.autoDimension ?? {},
+          disabledPropsDefaults: autoLayoutConfig.disabledPropsDefaults ?? {},
+        });
     }
   }
 
@@ -308,13 +334,17 @@ class WidgetFactory {
     return map;
   }
 
-  //placeholder for WidgetResponsive props for conversion Algorithm
   static getWidgetAutoLayoutConfig(type: WidgetType): AutoLayoutConfig {
-    if (!type) return {};
-
-    return {
-      disabledPropsDefaults: {},
-    };
+    const map = this.autoLayoutConfigMap.get(type);
+    if (!map) {
+      return {
+        autoDimension: {},
+        widgetSize: [],
+        disableResizeHandles: {},
+        disabledPropsDefaults: {},
+      };
+    }
+    return map;
   }
 
   static getWidgetTypeConfigMap(): WidgetTypeConfigMap {

@@ -4,16 +4,18 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
+  getCanvasDimensions,
   getFlexLayersForSelectedWidgets,
   getLayerIndexOfWidget,
   getNewFlexLayers,
   pasteWidgetInFlexLayers,
   updateFlexLayersOnDelete,
 } from "./AutoLayoutUtils";
-import { data } from "./testData";
+import { data, dataForgetCanvasDimensions } from "./testData";
 import { FlexLayerAlignment } from "./constants";
 
 describe("test AutoLayoutUtils methods", () => {
+  const mainCanvasWidth = 960;
   describe("test updateFlexLayersOnDelete method", () => {
     it("should remove deleted widgets from flex layers of the parent", () => {
       const widgets = { ...data };
@@ -24,6 +26,7 @@ describe("test AutoLayoutUtils methods", () => {
         deletedWidgetId,
         parentId,
         false,
+        mainCanvasWidth,
       );
       expect(result[parentId].flexLayers?.length).toEqual(1);
       const layerIndex = getLayerIndexOfWidget(
@@ -41,6 +44,7 @@ describe("test AutoLayoutUtils methods", () => {
         deletedWidgetId,
         parentId,
         false,
+        mainCanvasWidth,
       );
       expect(result[parentId].flexLayers?.length).toEqual(1);
       expect(result[parentId].flexLayers[0]?.children.length).toEqual(2);
@@ -53,12 +57,14 @@ describe("test AutoLayoutUtils methods", () => {
         "pt32jvs72k",
         parentId,
         false,
+        mainCanvasWidth,
       );
       const result: CanvasWidgetsReduxState = updateFlexLayersOnDelete(
         updatedWidgets,
         "tg6jcd1kjp",
         parentId,
         false,
+        mainCanvasWidth,
       );
       expect(result[parentId].flexLayers?.length).toEqual(0);
     });
@@ -89,6 +95,7 @@ describe("test AutoLayoutUtils methods", () => {
         copiedWidget,
         originalWidgetId,
         false,
+        mainCanvasWidth,
       );
 
       expect(result[newParentId].flexLayers?.length).toEqual(1);
@@ -139,6 +146,7 @@ describe("test AutoLayoutUtils methods", () => {
         copiedWidget,
         originalWidgetId,
         false,
+        mainCanvasWidth,
       );
       // layer count should remain the same. => no new layer is created.
       expect(result[parentId].flexLayers?.length).toEqual(2);
@@ -150,6 +158,83 @@ describe("test AutoLayoutUtils methods", () => {
         ),
       ).toEqual(
         getLayerIndexOfWidget(result[parentId]?.flexLayers, originalWidgetId),
+      );
+    });
+  });
+
+  describe("test getCanvasDimensions method", () => {
+    /**
+     * +---------------------------------------------------------------------------------------+
+     * | MainContainer                                                                         |
+     * | +-----------------------------------------------------------------------------------+ |
+     * | | Container1                                                                        | |
+     * | +-----------------------------------------------------------------------------------+ |
+     * | +------------------+ +------------------+ +------------------+ +--------------------+ |
+     * | |    Container2    | |                  | |                  | |                    | |
+     * | +------------------+ +------------------+ +------------------+ +--------------------+ |
+     * | +-----------------------------------------------------------------------------------+ |
+     * | | +----------------+ +------------------+ +------------------+ +------------------+ | |
+     * | | |   Container3   | |                  | |                  | |                  | | |
+     * | | +----------------+ +------------------+ +------------------+ +------------------+ | |
+     * | +-----------------------------------------------------------------------------------+ |
+     * +---------------------------------------------------------------------------------------+
+     */
+    const mainCanvasWidth = 1166;
+    const widgets = dataForgetCanvasDimensions;
+    const mainContainerPadding = 4 * 2;
+    const containerPadding = (4 + 6) * 2;
+    it("should return proper dimension for MainContainer", () => {
+      const button0parent = widgets["kv4o6eopdn"]
+        .parentId as keyof typeof widgets;
+      const { canvasWidth } = getCanvasDimensions(
+        widgets[button0parent] as any,
+        widgets as any,
+        mainCanvasWidth,
+        false,
+      );
+      expect(canvasWidth).toEqual(mainCanvasWidth - mainContainerPadding);
+    });
+
+    it("should return proper dimension for Container1", () => {
+      const button1parent = widgets["phf8e237zg"]
+        .parentId as keyof typeof widgets;
+      const { canvasWidth } = getCanvasDimensions(
+        widgets[button1parent] as any,
+        widgets as any,
+        mainCanvasWidth,
+        false,
+      );
+      expect(canvasWidth).toEqual(
+        mainCanvasWidth - mainContainerPadding - containerPadding,
+      );
+    });
+
+    it("should return proper dimension for Container2", () => {
+      const button2parent = widgets["alvcydt4he"]
+        .parentId as keyof typeof widgets;
+      const { canvasWidth } = getCanvasDimensions(
+        widgets[button2parent] as any,
+        widgets as any,
+        mainCanvasWidth,
+        false,
+      );
+      expect(canvasWidth).toEqual(
+        (mainCanvasWidth - mainContainerPadding) / 4 - containerPadding,
+      );
+    });
+
+    it("should return proper dimension for Container3", () => {
+      const button3parent = widgets["cq25w8hz6n"]
+        .parentId as keyof typeof widgets;
+      const { canvasWidth } = getCanvasDimensions(
+        widgets[button3parent] as any,
+        widgets as any,
+        mainCanvasWidth,
+        false,
+      );
+      expect(canvasWidth).toEqual(
+        (mainCanvasWidth - mainContainerPadding - containerPadding) / 4 -
+          containerPadding,
       );
     });
   });

@@ -30,6 +30,7 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
 import {
+  getCanvasWidth,
   getCurrentAppPositioningType,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
@@ -343,12 +344,14 @@ function* moveWidgetsSaga(
        * then update the flex layers.
        */
       const isMobile: boolean = yield select(getIsMobile);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),
         updatedWidgets,
         canvasId,
         true,
         isMobile,
+        mainCanvasWidth,
       );
     }
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(

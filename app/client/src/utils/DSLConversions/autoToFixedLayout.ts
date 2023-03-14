@@ -72,14 +72,20 @@ export function convertNormalizedDSLToFixed(
 ) {
   const isMobile = getIsMobile(destinationLayout);
 
+  const mobileWidth =
+    layoutConfigurations[destinationLayout].maxWidth ||
+    layoutConfigurations.MOBILE.maxWidth;
+  const deskTopWidth =
+    layoutConfigurations[destinationLayout].maxWidth ||
+    layoutConfigurations.DESKTOP.maxWidth;
   const alteredWidgets = isMobile
     ? alterLayoutForMobile(
         widgets,
         MAIN_CONTAINER_WIDGET_ID,
-        layoutConfigurations[destinationLayout].maxWidth ||
-          layoutConfigurations.MOBILE.maxWidth,
+        mobileWidth,
+        mobileWidth,
       )
-    : alterLayoutForDesktop(widgets, MAIN_CONTAINER_WIDGET_ID);
+    : alterLayoutForDesktop(widgets, MAIN_CONTAINER_WIDGET_ID, deskTopWidth);
 
   const convertedWidgets = getFixedCanvasWidget(
     alteredWidgets,

@@ -50,6 +50,20 @@ export const updateSnapshotDetails = (
     payload: snapShotDetails,
   };
 };
+export function updateWidgetDimensionAction(
+  widgetId: string,
+  width: number,
+  height: number,
+) {
+  return {
+    type: ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,
+    payload: {
+      widgetId,
+      width,
+      height,
+    },
+  };
+}
 
 export const setAutoCanvasResizing = (isAutoCanvasResizing: boolean) => {
   return {

@@ -17,6 +17,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import RadioGroupComponent from "../component";
 import { RadioOption } from "../constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 /**
  * Validation rules:
@@ -251,6 +252,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },

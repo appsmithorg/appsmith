@@ -135,8 +135,13 @@ export const StyledButton = styled((props) => (
   line-height: ${({ compactMode }) =>
     compactMode === "SHORT" ? "24px" : "28px"};
 
-
-
+  .auto-layout & {
+    min-height: 32px;
+    min-width: 32px;
+    height: 32px;
+    width: 32px;
+  }
+  
   ${({ buttonColor, buttonVariant, compactMode, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${

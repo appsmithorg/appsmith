@@ -73,7 +73,6 @@ const TooltipStyles = createGlobalStyle`
 `;
 
 const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
-height: 100%;
 background-image: none !important;
 font-weight: ${(props) => props.theme.fontWeights[2]};
 outline: none;
@@ -121,13 +120,10 @@ ${({ buttonColor, buttonVariant, theme }) => `
   }
 
   & > span {
-    max-height: 100%;
-    max-width: 99%;
+    display: inline-block;
     text-overflow: ellipsis;
     overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
     line-height: normal;
 
     color: ${

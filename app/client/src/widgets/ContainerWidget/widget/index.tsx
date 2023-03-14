@@ -1,12 +1,5 @@
 import React from "react";
 
-import {
-  CONTAINER_GRID_PADDING,
-  FLEXBOX_PADDING,
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import ContainerComponent, { ContainerStyle } from "../component";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -17,6 +10,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -154,30 +148,9 @@ export class ContainerWidget extends BaseWidget<
 
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
-    // For all widgets inside a container, we remove both container padding as well as widget padding from component width
-    let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
-    if (
-      this.props.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-      this.props.type === "CONTAINER_WIDGET"
-    ) {
-      //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-      padding =
-        this.props.positioning === Positioning.Vertical
-          ? FLEXBOX_PADDING * 2
-          : CONTAINER_GRID_PADDING * 2;
-    }
-    if (this.props.noPad) {
-      // Widgets like ListWidget choose to have no container padding so will only have widget padding
-      padding = WIDGET_PADDING * 2;
-    }
-    let width = componentWidth;
-    width -= padding;
-    return {
-      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      snapColumnSpace: componentWidth
-        ? width / GridDefaults.DEFAULT_GRID_COLUMNS
-        : 0,
-    };
+    const { snapGrid } = getSnappedGrid(this.props, componentWidth);
+
+    return snapGrid;
   };
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {

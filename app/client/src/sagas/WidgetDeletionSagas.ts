@@ -19,6 +19,7 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import { getCanvasWidth } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -94,12 +95,14 @@ function* deleteTabChildSaga(
       };
       // Update flex layers of a canvas upon deletion of a widget.
       const isMobile: boolean = yield select(getIsMobile);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
       const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = yield call(
         updateFlexLayersOnDelete,
         parentUpdatedWidgets,
         widgetId,
         tabWidget.parentId,
         isMobile,
+        mainCanvasWidth,
       );
       yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
@@ -224,12 +227,14 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         const isMobile: boolean = yield select(getIsMobile);
+        const mainCanvasWidth: number = yield select(getCanvasWidth);
         // Update flex layers of a canvas upon deletion of a widget.
         const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = updateFlexLayersOnDelete(
           finalWidgets,
           widgetId,
           parentId,
           isMobile,
+          mainCanvasWidth,
         );
         yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
@@ -303,6 +308,7 @@ function* deleteAllSelectedWidgetsSaga(
     let widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = finalWidgets;
     if (parentId) {
       const isMobile: boolean = yield select(getIsMobile);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
       for (const widgetId of selectedWidgets) {
         widgetsAfterUpdatingFlexLayers = yield call(
           updateFlexLayersOnDelete,
@@ -310,6 +316,7 @@ function* deleteAllSelectedWidgetsSaga(
           widgetId,
           parentId,
           isMobile,
+          mainCanvasWidth,
         );
       }
     }

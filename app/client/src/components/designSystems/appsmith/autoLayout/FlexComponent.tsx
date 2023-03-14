@@ -21,7 +21,6 @@ export type AutoLayoutProps = {
   componentWidth: number;
   direction: LayoutDirection;
   focused?: boolean;
-  minWidth?: number;
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
   selected?: boolean;

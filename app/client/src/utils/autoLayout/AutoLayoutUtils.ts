@@ -1,8 +1,11 @@
 import { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import {
   FLEXBOX_PADDING,
+  layoutConfigurations,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
+  WIDGET_PADDING,
+  CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
 import {
   CanvasWidgetsReduxState,
@@ -15,15 +18,19 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
-import { AlignmentColumnInfo } from "./autoLayoutTypes";
+import {
+  updatePositionsOfParentAndSiblings,
+  updateWidgetPositions,
+} from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "./flexWidgetUtils";
+import { AlignmentColumnInfo } from "./autoLayoutTypes";
 
 export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   parentId: string,
-  isMobile?: boolean,
+  isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   if (
@@ -75,13 +82,20 @@ export function updateFlexLayersOnDelete(
   };
   widgets[parentId] = parent;
 
-  return updateWidgetPositions(widgets, parentId, isMobile);
+  return updatePositionsOfParentAndSiblings(
+    widgets,
+    parentId,
+    layerIndex,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
 
 export function alterLayoutForMobile(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   canvasWidth: number,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -119,17 +133,19 @@ export function alterLayoutForMobile(
       child,
       (canvasWidth * (widget.mobileRightColumn || 1)) /
         GridDefaults.DEFAULT_GRID_COLUMNS,
+      mainCanvasWidth,
     );
     widgets[child] = widget;
-    widgets = updateWidgetPositions(widgets, child, true);
+    widgets = updateWidgetPositions(widgets, child, true, mainCanvasWidth);
   }
-  widgets = updateWidgetPositions(widgets, parentId, true);
+  widgets = updateWidgetPositions(widgets, parentId, true, mainCanvasWidth);
   return widgets;
 }
 
 export function alterLayoutForDesktop(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -138,9 +154,9 @@ export function alterLayoutForDesktop(
   if (!isStack(allWidgets, parent)) return widgets;
   if (!children || !children.length) return widgets;
 
-  widgets = updateWidgetPositions(widgets, parentId, false);
+  widgets = updateWidgetPositions(widgets, parentId, false, mainCanvasWidth);
   for (const child of children) {
-    widgets = alterLayoutForDesktop(widgets, child);
+    widgets = alterLayoutForDesktop(widgets, child, mainCanvasWidth);
   }
   return widgets;
 }
@@ -155,10 +171,12 @@ export function pasteWidgetInFlexLayers(
   widget: any,
   originalWidgetId: string,
   isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
   let flexLayers: FlexLayer[] = parent.flexLayers || [];
+  let flexLayerIndex = -1;
   /**
    * If the new parent is not the same as the original parent,
    * then add a new flex layer.
@@ -185,7 +203,7 @@ export function pasteWidgetInFlexLayers(
      */
     let rowIndex = -1,
       alignment = FlexLayerAlignment.Start;
-    const flexLayerIndex = flexLayers.findIndex((layer: FlexLayer) => {
+    flexLayerIndex = flexLayers.findIndex((layer: FlexLayer) => {
       const temp = layer.children.findIndex(
         (child: LayerChild) => child.id === originalWidgetId,
       );
@@ -218,7 +236,13 @@ export function pasteWidgetInFlexLayers(
       flexLayers,
     },
   };
-  return updateWidgetPositions(widgets, parentId, isMobile);
+  return updatePositionsOfParentAndSiblings(
+    widgets,
+    parentId,
+    flexLayerIndex,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
 
 /**
@@ -232,6 +256,7 @@ export function addChildToPastedFlexLayers(
   widget: any,
   widgetIdMap: Record<string, string>,
   isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[widget.parentId];
@@ -264,7 +289,12 @@ export function addChildToPastedFlexLayers(
       flexLayers,
     },
   };
-  return updateWidgetPositions(widgets, parent.widgetId, isMobile);
+  return updateWidgetPositions(
+    widgets,
+    parent.widgetId,
+    isMobile,
+    mainCanvasWidth,
+  );
 }
 
 export function isStack(
@@ -300,6 +330,15 @@ export function getLayerIndexOfWidget(
     );
   });
 }
+
+export function getViewportClassName(viewportWidth: number) {
+  if (viewportWidth > layoutConfigurations.MOBILE.maxWidth) {
+    return "desktop-view";
+  } else {
+    return "mobile-view";
+  }
+}
+
 export function getFillWidgetLengthForLayer(
   layer: any,
   allWidgets: any,
@@ -352,6 +391,72 @@ export function getAlignmentColumnInfo(
     [FlexLayerAlignment.End]: end,
     [FlexLayerAlignment.None]: 0,
   };
+}
+
+export function getCanvasDimensions(
+  canvas: FlattenedWidgetProps,
+  widgets: CanvasWidgetsReduxState,
+  mainCanvasWidth: number,
+  isMobile: boolean,
+): { canvasWidth: number; columnSpace: number } {
+  const canvasWidth: number = getCanvasWidth(
+    canvas,
+    widgets,
+    mainCanvasWidth,
+    isMobile,
+  );
+
+  const columnSpace: number = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
+
+  return { canvasWidth: canvasWidth, columnSpace };
+}
+
+function getCanvasWidth(
+  canvas: FlattenedWidgetProps,
+  widgets: CanvasWidgetsReduxState,
+  mainCanvasWidth: number,
+  isMobile: boolean,
+): number {
+  if (!mainCanvasWidth) return 0;
+  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID)
+    return mainCanvasWidth - getPadding(canvas);
+
+  const stack = [];
+  let widget = canvas;
+  while (widget.parentId) {
+    stack.push(widget);
+    widget = widgets[widget.parentId];
+  }
+  stack.push(widget);
+
+  let width = mainCanvasWidth;
+  while (stack.length) {
+    const widget = stack.pop();
+    if (!widget) continue;
+    const columns = getWidgetWidth(widget, isMobile);
+    const padding = getPadding(widget);
+    const factor =
+      columns > GridDefaults.DEFAULT_GRID_COLUMNS
+        ? 1
+        : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+    width = width * factor - padding;
+  }
+
+  return width;
+}
+
+function getPadding(canvas: FlattenedWidgetProps): number {
+  let padding = 0;
+  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) {
+    padding = FLEXBOX_PADDING * 2;
+  } else if (canvas.type === "CONTAINER_WIDGET") {
+    padding = (CONTAINER_GRID_PADDING + FLEXBOX_PADDING) * 2;
+  }
+  if (canvas.noPad) {
+    // Widgets like ListWidget choose to have no container padding so will only have widget padding
+    padding = WIDGET_PADDING * 2;
+  }
+  return padding;
 }
 
 /**

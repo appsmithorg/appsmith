@@ -1,6 +1,7 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   GridDefaults,
+  layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { partition } from "lodash";
@@ -35,6 +36,7 @@ export default function convertDSLtoAutoAndUpdatePositions(dsl: DSLWidget) {
   const alteredNormalizedAutoDSL = alterLayoutForDesktop(
     normalizedAutoDSL,
     MAIN_CONTAINER_WIDGET_ID,
+    layoutConfigurations.DESKTOP.maxWidth,
   );
 
   const alteredAutoDSL: DSLWidget = CanvasWidgetsNormalizer.denormalize(

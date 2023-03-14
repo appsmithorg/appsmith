@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
+import { getViewportClassName } from "utils/autoLayout/AutoLayoutUtils";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -52,7 +53,9 @@ const Canvas = (props: CanvasProps) => {
       <Container
         $isAutoLayout={!!props.isAutoLayout}
         background={backgroundForCanvas}
-        className={`relative t--canvas-artboard pb-52 ${marginHorizontalClass}`}
+        className={`relative t--canvas-artboard pb-52 ${marginHorizontalClass} ${getViewportClassName(
+          canvasWidth,
+        )}`}
         data-testid="t--canvas-artboard"
         id="art-board"
         ref={focusRef}

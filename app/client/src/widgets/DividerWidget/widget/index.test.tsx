@@ -40,6 +40,9 @@ describe("<DividerWidget />", () => {
       autoHeightUI: {
         isAutoHeightWithLimitsChanging: false,
       },
+      mainCanvas: {
+        width: 1159,
+      },
       canvasSelection: {
         isDraggingForSelection: false,
       },

@@ -9,6 +9,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -226,6 +227,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             helpText: "Controls the size of the stars in the widget",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               {
                 label: "Small",

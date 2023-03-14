@@ -36,7 +36,6 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { NonResizableWidgets } from "utils/layoutPropertiesUtils";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
   WidgetOperations,
@@ -310,9 +309,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     !isAutoHeightEnabledForWidget(props) ||
     !props.isCanvas;
 
-  const allowResize: boolean =
-    !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
-    !props.isFlexChild;
+  const allowResize: boolean = !isMultiSelected || !props.isFlexChild;
+
   const isHovered = isFocused && !isSelected;
   const showResizeBoundary =
     !isPreviewMode && !isDragging && (isHovered || isSelected);
