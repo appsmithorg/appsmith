@@ -384,13 +384,7 @@ export function actionToCode(
     return code;
   }
 
-  const shouldChain = errorBlocks.length || successBlocks.length;
-
-  if (
-    chainableFns.includes(actionType as any) &&
-    multipleActions &&
-    shouldChain
-  ) {
+  if (chainableFns.includes(actionType as any) && multipleActions) {
     const successCallbackCodes = successBlocks
       .filter(
         ({ actionType, type }) =>

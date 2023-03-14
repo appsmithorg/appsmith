@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { getActionBlocks /*, getFunctionName */ } from "@shared/ast";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { getActionBlocks } from "@shared/ast";
 import { ActionCreatorProps } from "./types";
 import { Action } from "./viewComponents/Action";
 import { getCodeFromMoustache } from "./utils";
+import { diff } from "deep-diff";
 
 function uuidv4() {
   return String(1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
@@ -32,6 +33,9 @@ const ActionCreator = React.forwardRef(
       return res;
     });
 
+    const updatedIdRef = useRef<string>("");
+    const previousBlocks = useRef<string[]>([]);
+
     useEffect(() => {
       setActions((prev) => {
         const newActions: Record<string, string> = {};
@@ -48,7 +52,6 @@ const ActionCreator = React.forwardRef(
           const prevIdValuePair = prevIdValuePairs.find(
             ([, value]) => value === block,
           );
-
           if (prevIdValuePair) {
             newActions[prevIdValuePair[0]] = block;
 
@@ -56,64 +59,68 @@ const ActionCreator = React.forwardRef(
             prevIdValuePairs = prevIdValuePairs.filter(
               ([id]) => id !== prevIdValuePair[0],
             );
+          } else if (childUpdate.current && updatedIdRef?.current) {
+            newActions[updatedIdRef.current] = block;
+            updatedIdRef.current = "";
+            childUpdate.current = false;
           } else {
+            const differences = diff(previousBlocks.current, newBlocks);
+            if (differences?.length === 1 && differences[0].kind === "E") {
+              const edit = differences[0];
+              //@ts-expect-error fix later
+              const prevBlock = edit.lhs as string;
+              const prevIdValuePair = prevIdValuePairs.find(
+                ([, value]) => value === prevBlock,
+              );
+              if (prevIdValuePair) {
+                newActions[prevIdValuePair[0]] = block;
+                prevIdValuePairs = prevIdValuePairs.filter(
+                  ([id]) => id !== prevIdValuePair[0],
+                );
+                return;
+              }
+            }
             newActions[uuidv4()] = block;
           }
         });
-
+        previousBlocks.current = [...newBlocks];
         return newActions;
       });
     }, [props.value]);
 
-    useEffect(() => {
-      props.onValueChange(
-        Object.values(actions).length > 0
-          ? `{{${Object.values(actions)
-              .filter(Boolean)
-              .join("\n")}}}`
-          : "",
-        false,
-      );
-    }, [actions]);
+    const save = useCallback(
+      (newActions) => {
+        props.onValueChange(
+          Object.values(newActions).length > 0
+            ? `{{${Object.values(newActions)
+                .filter(Boolean)
+                .join("\n")}}}`
+            : "",
+          false,
+        );
+      },
+      [props.onValueChange],
+    );
+
+    /** This variable will be set for all changes that happen from the Action blocks
+     * It will be unset for all the changes that happen from the parent components (Undo/Redo)
+     */
+    const childUpdate = React.useRef(false);
 
     const handleActionChange = useCallback(
       (id: string) => (value: string) => {
         const newValueWithoutMoustache = getCodeFromMoustache(value);
-        setActions((prev) => {
-          const newActions = { ...prev };
-          // const prevValue = prev[id];
-          // const newFunction = getFunctionName(
-          //   newValueWithoutMoustache,
-          //   self.evaluationVersion,
-          // );
-          // const oldFunction = getFunctionName(
-          //   prevValue,
-          //   self.evaluationVersion,
-          // );
-
-          // We show the message only when an action is deleted or changed
-          // Prev value is ; when a new action is added
-          // if (newFunction !== oldFunction && prevValue !== ";") {
-          //   Toaster.show({
-          //     text: `${oldFunction} was deleted`,
-          //     variant: Variant.success,
-          //     dispatchableAction: {
-          //       dispatch: store.dispatch,
-          //       ...undoAction(),
-          //     },
-          //   });
-          // }
-
-          if (newValueWithoutMoustache) {
-            newActions[id] = newValueWithoutMoustache;
-          } else {
-            delete newActions[id];
-          }
-
-          return newActions;
-        });
+        const newActions = { ...actions };
+        updatedIdRef.current = id;
+        childUpdate.current = true;
+        if (newValueWithoutMoustache) {
+          newActions[id] = newValueWithoutMoustache;
+        } else {
+          delete newActions[id];
+        }
+        save(newActions);
       },
-      [],
+      [save, actions],
     );
 
     // We need a unique id for each action when it's mapped

@@ -37,7 +37,6 @@ export const Action: React.FC<Props> = ({
   onValueChange,
   value,
 }) => {
-  const firstRender = React.useRef(true);
   const isActionInteraction = React.useRef(!isEmptyBlock(value));
   const [isOpen, setOpen] = useState(isEmptyBlock(value));
   const [
@@ -58,13 +57,8 @@ export const Action: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
-
-    onValueChange(`{{${actionToCode(actionTree)}}}`, false);
-  }, [actionTree]);
+    setActionTree(() => codeToAction(value, integrationOptions));
+  }, [value]);
 
   const handleCloseClick = () => {
     setOpen(false);
@@ -158,29 +152,27 @@ export const Action: React.FC<Props> = ({
     if (!selectedCallbackBlock) return;
 
     const { index, type } = selectedCallbackBlock;
-
     setSelectedCallbackBlock(null);
-
-    setActionTree((prevActionTree) => {
-      const newActionTree = cloneDeep(prevActionTree);
-      if (type === "success") {
-        newActionTree.successBlocks.splice(index, 1);
-      } else {
-        newActionTree.errorBlocks.splice(index, 1);
-      }
-      return newActionTree;
-    });
-  }, [selectedCallbackBlock]);
+    const newActionTree = cloneDeep(actionTree);
+    if (type === "success") {
+      newActionTree.successBlocks.splice(index, 1);
+    } else {
+      newActionTree.errorBlocks.splice(index, 1);
+    }
+    const code = actionToCode(newActionTree);
+    onValueChange(code, false);
+  }, [selectedCallbackBlock, onValueChange, actionTree]);
 
   const deleteMainAction = useCallback(() => {
     setOpen(false);
-    setActionTree({
+    const code = actionToCode({
       code: "",
       actionType: AppsmithFunction.none,
       successBlocks: [],
       errorBlocks: [],
     });
-  }, []);
+    onValueChange(code, false);
+  }, [onValueChange]);
 
   const handleMouseEnter = () => {
     isActionInteraction.current = true;
@@ -209,18 +201,16 @@ export const Action: React.FC<Props> = ({
         key={action.actionType + index}
         modalDropdownList={modalDropdownList}
         onValueChange={(newValue) => {
-          setActionTree((prevActionTree) => {
-            const newActionTree = cloneDeep(prevActionTree);
-            const action = newActionTree.successBlocks[index];
-            action.code = getCodeFromMoustache(newValue);
-            const selectedField = getSelectedFieldFromValue(
-              newValue,
-              integrationOptions,
-            );
-            action.actionType = (selectedField.type ||
-              selectedField.value) as any;
-            return newActionTree;
-          });
+          const newActionTree = cloneDeep(actionTree);
+          const action = newActionTree.successBlocks[index];
+          action.code = getCodeFromMoustache(newValue);
+          const selectedField = getSelectedFieldFromValue(
+            newValue,
+            integrationOptions,
+          );
+          action.actionType = (selectedField.type ||
+            selectedField.value) as any;
+          onValueChange(`{{${actionToCode(newActionTree)}}}`, false);
         }}
         pageDropdownOptions={pageDropdownOptions}
         value={valueWithMoustache}
@@ -239,18 +229,16 @@ export const Action: React.FC<Props> = ({
         key={action.actionType + index}
         modalDropdownList={modalDropdownList}
         onValueChange={(newValue) => {
-          setActionTree((prevActionTree) => {
-            const newActionTree = cloneDeep(prevActionTree);
-            const action = newActionTree.errorBlocks[index];
-            action.code = getCodeFromMoustache(newValue);
-            const selectedField = getSelectedFieldFromValue(
-              newValue,
-              integrationOptions,
-            );
-            action.actionType = (selectedField.type ||
-              selectedField.value) as any;
-            return newActionTree;
-          });
+          const newActionTree = cloneDeep(actionTree);
+          const action = newActionTree.errorBlocks[index];
+          action.code = getCodeFromMoustache(newValue);
+          const selectedField = getSelectedFieldFromValue(
+            newValue,
+            integrationOptions,
+          );
+          action.actionType = (selectedField.type ||
+            selectedField.value) as any;
+          onValueChange(`{{${actionToCode(newActionTree)}}}`, false);
         }}
         pageDropdownOptions={pageDropdownOptions}
         value={valueWithMoustache}
@@ -309,21 +297,15 @@ export const Action: React.FC<Props> = ({
                   integrationOptions={integrationOptions}
                   modalDropdownList={modalDropdownList}
                   onValueChange={(newValue) => {
-                    setActionTree((actionTree) => {
-                      const selectedField = getSelectedFieldFromValue(
-                        newValue,
-                        integrationOptions,
-                      );
-                      const actionType = (selectedField.type ||
-                        selectedField.value) as any;
-
-                      return {
-                        code: getCodeFromMoustache(newValue),
-                        actionType,
-                        successBlocks: actionTree.successBlocks,
-                        errorBlocks: actionTree.errorBlocks,
-                      };
-                    });
+                    const newActionTree = cloneDeep(actionTree);
+                    newActionTree.code = getCodeFromMoustache(newValue);
+                    const selectedField = getSelectedFieldFromValue(
+                      newValue,
+                      integrationOptions,
+                    );
+                    newActionTree.actionType = (selectedField.type ||
+                      selectedField.value) as any;
+                    onValueChange(`{{${actionToCode(newActionTree)}}}`, false);
                   }}
                   pageDropdownOptions={pageDropdownOptions}
                   value={`{{${value}}}`}
