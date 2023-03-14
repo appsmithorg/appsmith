@@ -9,6 +9,8 @@ const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
 const adminSettings = require("../locators/AdminsSettings");
 
+const BASE_URL = Cypress.config().baseUrl;
+
 Cypress.Commands.add("fillGoogleFormPartly", () => {
   cy.get(googleForm.googleClientId).type(
     Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"),
@@ -18,6 +20,12 @@ Cypress.Commands.add("fillGoogleFormPartly", () => {
 });
 
 Cypress.Commands.add("fillGoogleForm", () => {
+  const baseUrl = BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
+  cy.get(googleForm.googleJSOriginUrl).should("have.value", `${baseUrl}`);
+  cy.get(googleForm.googleRedirectUrl).should(
+    "have.value",
+    `${baseUrl}/login/oauth2/code/google`,
+  );
   cy.get(googleForm.googleClientId).type(
     Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"),
   );
