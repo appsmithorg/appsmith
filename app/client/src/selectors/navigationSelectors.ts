@@ -42,13 +42,14 @@ export const getEntitiesForNavigation = createSelector(
   getDataTree,
   (actions, plugins, jsActions, widgets, pageId, dataTree: DataTree) => {
     const navigationData: EntityNavigationData = {};
+    if (!dataTree) return navigationData;
 
     actions.forEach((action) => {
       const plugin = plugins.find(
         (plugin) => plugin.id === action.config.pluginId,
       );
       const config = getActionConfig(action.config.pluginType);
-      const result = dataTree && getActionChildrenNavData(action, dataTree);
+      const result = getActionChildrenNavData(action, dataTree);
       if (!config) return;
       navigationData[action.config.name] = createNavData({
         id: action.config.id,
@@ -67,8 +68,7 @@ export const getEntitiesForNavigation = createSelector(
     });
 
     jsActions.forEach((jsAction) => {
-      const result =
-        dataTree && getJsChildrenNavData(jsAction, pageId, dataTree);
+      const result = getJsChildrenNavData(jsAction, pageId, dataTree);
       navigationData[jsAction.config.name] = createNavData({
         id: jsAction.config.id,
         name: jsAction.config.name,
@@ -81,8 +81,7 @@ export const getEntitiesForNavigation = createSelector(
     });
 
     Object.values(widgets).forEach((widget) => {
-      const result =
-        dataTree && getWidgetChildrenNavData(widget, dataTree, pageId);
+      const result = getWidgetChildrenNavData(widget, dataTree, pageId);
       navigationData[widget.widgetName] = createNavData({
         id: widget.widgetId,
         name: widget.widgetName,
@@ -93,8 +92,9 @@ export const getEntitiesForNavigation = createSelector(
         children: result?.childNavData || {},
       });
     });
-    navigationData["appsmith"] =
-      dataTree && getAppsmithNavData(dataTree.appsmith as DataTreeAppsmith);
+    navigationData["appsmith"] = getAppsmithNavData(
+      dataTree.appsmith as DataTreeAppsmith,
+    );
     return navigationData;
   },
 );
