@@ -34,9 +34,9 @@ export const ResizeWrapper = styled(animated.div)<{
   border-radius: 4px 0px 4px 4px;
   ${(props) => {
     if (props.inverted) {
-      return `border-radius: 4px 4px 0px 4px;`;
+      return `border-radius: 4px 4px 4px 0px;`;
     } else {
-      return `border-radius: 4px 0px 4px 4px;`;
+      return `border-radius: 0px 4px 4px 4px;`;
     }
   }}
   border: ${resizeBorder}px solid;

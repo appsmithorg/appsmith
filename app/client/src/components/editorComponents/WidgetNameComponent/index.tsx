@@ -41,8 +41,7 @@ const PositionStyle = styled.div<{
       ? `${-1 * WidgetNameComponentHeight + 1 + props.positionOffset[0]}px`
       : `calc(100% - ${1 + props.positionOffset[0]}px)`};
   height: ${WidgetNameComponentHeight}px;
-  ${(props) =>
-    props.isSnipingMode ? "left: -7px" : `right: ${props.positionOffset[1]}px`};
+  ${(props) => `margin-left: ${props.positionOffset[1]}px`};
   display: flex;
   cursor: pointer;
   z-index: ${Layers.widgetName};
@@ -179,7 +178,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
   const positionOffset: [number, number] = isAutoLayout
     ? [-RESIZE_BORDER_BUFFER, -RESIZE_BORDER_BUFFER]
-    : [0, 0];
+    : [0, -RESIZE_BORDER_BUFFER];
   return showWidgetName ? (
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
