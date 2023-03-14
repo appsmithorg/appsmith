@@ -104,12 +104,15 @@ function FlexBoxComponent(props: FlexBoxProps) {
     return (
       <AutoLayoutLayer
         center={center}
+        centerColumns={centerColumns}
         direction={direction}
         end={end}
+        endColumns={endColumns}
         index={index}
         isMobile={isMobile}
         key={index}
         start={start}
+        startColumns={startColumns}
         widgetId={props.widgetId}
         wrapCenter={centerColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
         wrapEnd={endColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
