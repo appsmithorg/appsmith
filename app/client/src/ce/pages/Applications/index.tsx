@@ -64,7 +64,7 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { Position } from "@blueprintjs/core";
 import type { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,

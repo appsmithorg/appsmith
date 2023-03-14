@@ -39,7 +39,13 @@
     "react/jsx-no-useless-fragment": "error",
     "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}],
     "no-console": "warn",
-    "no-debugger": "warn"
+    "no-debugger": "warn",
+    "no-restricted-imports": ["error", {
+      "patterns": [{
+        "group": ["@blueprintjs/core/lib/esnext/*"],
+        "message": "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory."
+      }]
+  }]
   },
   "settings": {
     "import/resolver": {
