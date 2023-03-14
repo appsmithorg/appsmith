@@ -101,7 +101,7 @@ export function* processTriggerHandler(message: any) {
 export function* confirmBeforeExecutingJsFunction(message: any) {
   const { body } = message;
   const { data } = body;
-  const { entityName, jsObjectConfig, propertyPath } = data;
+  const { actionId, entityName, propertyPath } = data;
 
   const modalPayload = {
     name: `${entityName}.${propertyPath}`,
@@ -117,7 +117,7 @@ export function* confirmBeforeExecutingJsFunction(message: any) {
   if (!confirmed) {
     yield put({
       type: ReduxActionTypes.RUN_ACTION_CANCELLED,
-      payload: { id: jsObjectConfig.id },
+      payload: { id: actionId },
     });
     Toaster.show({
       text: createMessage(

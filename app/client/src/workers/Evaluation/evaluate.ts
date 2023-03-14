@@ -189,7 +189,7 @@ export const assignJSFunctionsToContext = (
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
       const data = jsObject[fnName]?.data;
       jsObjectFunction[fnName] = isTriggerBased
-        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
+        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName, dataTree)
         : fn;
       if (!!data) {
         jsObjectFunction[fnName]["data"] = data;
