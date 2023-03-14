@@ -242,6 +242,7 @@ function ActionSidebar({
   const navigateToCanvas = useCallback(() => {
     history.push(builderURL({ pageId }));
   }, [pageId]);
+
   const hasWidgets = Object.keys(widgets).length > 1;
 
   const pagePermissions = useSelector(getPagePermissions);
@@ -258,7 +259,7 @@ function ActionSidebar({
 
   return (
     <SideBar>
-      {/* TODO (tanvi): Does this button need an icon with a custom color and some custom text? Why?*/}
+      {/* TODO (tanvi): replace this with a link*/}
       <BackToCanvasButton
         kind="tertiary"
         onPress={navigateToCanvas}
