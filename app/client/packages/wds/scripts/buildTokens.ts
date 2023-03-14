@@ -1,5 +1,6 @@
 import fs from "fs";
 import inquirer from "inquirer";
+import { camelCase, startCase } from "lodash";
 
 import { createSemanticColorTokens } from "../src/utils/createTokens";
 
@@ -19,33 +20,29 @@ inquirer
 
     const transformedSemanticTokens: any = {};
     for (const [key, value] of Object.entries(semanticColors)) {
-      transformedSemanticTokens[key] = {
+      transformedSemanticTokens[camelCase(`color${startCase(key)}`)] = {
         value: value,
         type: "color",
       };
     }
 
     const finalTokens = {
-      semantic: {
-        ...transformedSemanticTokens,
+      ...transformedSemanticTokens,
+      "spacing-0": {
+        value: "0px",
+        type: "sizing",
       },
-      raw: {
-        0: {
-          value: "0px",
-          type: "sizing",
-        },
-        1: {
-          value: "4px",
-          type: "sizing",
-        },
-        2: {
-          value: "8px",
-          type: "sizing",
-        },
-        3: {
-          value: "12px",
-          type: "sizing",
-        },
+      "spacing-1": {
+        value: "4px",
+        type: "sizing",
+      },
+      "spacing-2": {
+        value: "8px",
+        type: "sizing",
+      },
+      "spacing-3": {
+        value: "12px",
+        type: "sizing",
       },
     };
 
