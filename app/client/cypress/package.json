@@ -1,0 +1,43 @@
+{
+    "name": "appsmith-ci-test",
+    "version": "0.1.0",
+    "private": true,
+    "engines": {
+      "node": "^16.14.0",
+      "npm": "^8.5.5"
+    },
+    "scripts": {
+      "install": "node apply-patches.js"
+    },
+    "browserslist": [
+      ">0.2%",
+      "not dead",
+      "not ie <= 11",
+      "not op_mini all"
+    ],
+    "devDependencies": {
+      "@blueprintjs/core": "^3.36.0",
+      "@blueprintjs/datetime": "^3.23.6",
+      "@blueprintjs/icons": "^3.10.0",
+      "@blueprintjs/popover2": "^0.5.0",
+      "@blueprintjs/select": "^3.10.0",
+      "@typescript-eslint/eslint-plugin": "^5.25.0",
+      "@typescript-eslint/parser": "^5.25.0",
+      "@faker-js/faker": "^7.4.0",
+      "cypress-log-to-output": "^1.1.2",
+      "cy-verify-downloads": "^0.0.5",
+      "cypress": "9.7.0",
+      "cypress-file-upload": "^4.1.1",
+      "cypress-image-snapshot": "^4.0.1",
+      "cypress-multi-reporters": "^1.2.4",
+      "cypress-real-events": "^1.7.1",
+      "cypress-wait-until": "^1.7.2",
+      "cypress-xpath": "^1.4.0",
+      "eslint-plugin-cypress": "^2.11.2",
+      "dotenv": "^8.1.0",
+      "typescript": "4.5.5",
+      "diff": "^5.0.0",
+      "chalk": "^4.1.1",
+      "tinycolor2": "^1.4.2"
+    }
+}

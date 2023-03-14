@@ -77,6 +77,7 @@
                 "displayName": "List V2",
                 "iconSVG": "/static/media/icon.9925ee17dee37bf1ba7374412563a8a7.svg",
                 "topRow": 5,
+                "pageSize": 4,
                 "bottomRow": 60,
                 "parentRowSpace": 10,
                 "currentItemsView": "{{[]}}",
