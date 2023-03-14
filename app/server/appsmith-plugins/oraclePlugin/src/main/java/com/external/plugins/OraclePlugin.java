@@ -193,7 +193,7 @@ public class OraclePlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug("Before executing Oracle query[{}] : Hikari Pool stats : active - {} , idle - {}, " +
+                        log.debug("Before executing Oracle query [{}] : Hikari Pool stats : active - {} , idle - {}, " +
                                         "awaiting - {} , total - {}", query, activeConnections, idleConnections,
                                 threadsAwaitingConnection, totalConnections);
                         try {
