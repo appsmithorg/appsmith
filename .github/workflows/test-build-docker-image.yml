@@ -36,8 +36,18 @@ jobs:
     with:
       pr: 0
 
+  build-docker-image:
+    needs: [ client-build, server-build, rts-build ]
+    # Only run if the build step is successful
+    if: success()
+    name: build-docker-image
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: 0
+
   perf-test:
-    needs: [client-build, server-build, rts-build]
+    needs: [ build-docker-image ]
     # Only run if the build step is successful
     if: success()
     name: perf-test
@@ -47,7 +57,7 @@ jobs:
       pr: 0
 
   ci-test:
-    needs: [ client-build, server-build, rts-build ]
+    needs: [ build-docker-image ]
     # Only run if the build step is successful
     if: success()
     name: ci-test
@@ -219,6 +229,8 @@ jobs:
           context: .
           push: true
           platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
 
@@ -264,6 +276,8 @@ jobs:
         with:
           context: app/server
           push: true
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
 

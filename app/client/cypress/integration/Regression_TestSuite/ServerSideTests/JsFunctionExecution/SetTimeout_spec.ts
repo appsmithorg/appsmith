@@ -146,7 +146,8 @@ describe("Tests setTimeout API", function() {
   });
 
   it("6. Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
-    apiPage.CreateAndFillApi(agHelper.mockApiUrl);
+    cy.fixture("datasources").then((datasourceFormData : any) => {
+    apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -194,6 +195,7 @@ describe("Tests setTimeout API", function() {
       userName = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
       agHelper.AssertContains(userName);
     });
+  });
   });
 
   it("7. Verifies whether setTimeout executes on page load", () => {

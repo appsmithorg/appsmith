@@ -7,6 +7,19 @@ describe("Git import empty repository", function() {
   const assertConnectFailure = true;
   const failureMessage =
     "git import failed. \nDetails: Cannot import app from an empty repo";
+  before(() => {
+    cy.NavigateToHome();
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+    });
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+      _.gitSync.CreateTestGiteaRepo(repoName);
+      //cy.createTestGithubRepo(repoName);
+    });
+  });
 
   it("Bug #12749 Git Import - Empty Repo NullPointerException", () => {
     cy.get(homePage.homeIcon).click();
