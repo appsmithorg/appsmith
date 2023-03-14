@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { LayoutDirection } from "utils/autoLayout/constants";
 
@@ -44,6 +44,12 @@ const SubWrapper = styled.div<{
   align-items: flex-start;
   align-self: stretch;
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
+
+  ${({ wrap }) =>
+    wrap &&
+    css`
+      justify-content: center !important;
+    `};
 `;
 
 const StartWrapper = styled(SubWrapper)`
