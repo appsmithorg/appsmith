@@ -76,7 +76,7 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   controlType: SettingTypes.CHECKBOX,
   label: "Appsmith Watermark",
   text: "Show Appsmith Watermark",
-  needsUpgrade: true,
+  needsUpgrade: false,
   isDisabled: () => true,
   textSuffix: <BrandingBadge />,
   upgradeLogEventName: "ADMIN_SETTINGS_UPGRADE_WATERMARK",
