@@ -22,7 +22,7 @@ const StyledTooltip = styled(Tooltip)<{
 `;
 const WidgetNameBoundary = 1;
 const BORDER_RADIUS = 4;
-const SettingsWrapper = styled.div<{ widgetWidth: number }>`
+const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
   justify-self: flex-end;
   height: 100%;
   padding: 0 5px;
@@ -38,10 +38,18 @@ const SettingsWrapper = styled.div<{ widgetWidth: number }>`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
-  border-top-left-radius: ${BORDER_RADIUS}px;
-  border-top-right-radius: ${BORDER_RADIUS}px;
   border: ${WidgetNameBoundary}px solid ${Colors.GREY_1};
-  border-bottom: none;
+  ${(props) => {
+    if (props.inverted) {
+      return `border-bottom-left-radius: ${BORDER_RADIUS}px;
+      border-bottom-right-radius: ${BORDER_RADIUS}px;
+      border-top: none;`;
+    } else {
+      return `border-top-left-radius: ${BORDER_RADIUS}px;
+      border-top-right-radius: ${BORDER_RADIUS}px;
+      border-bottom: none;`;
+    }
+  }}
 `;
 
 const WidgetName = styled.span`
@@ -67,6 +75,7 @@ type SettingsControlProps = {
   activity: Activities;
   name: string;
   errorCount: number;
+  inverted: boolean;
   widgetWidth: number;
 };
 
@@ -131,6 +140,7 @@ export function SettingsControl(props: SettingsControlProps) {
       <SettingsWrapper
         className="t--widget-propertypane-toggle"
         data-testid="t--widget-propertypane-toggle"
+        inverted={props.inverted}
         onClick={props.toggleSettings}
         style={getStyles(props.activity, props.errorCount, isSnipingMode)}
         widgetWidth={props.widgetWidth}

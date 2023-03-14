@@ -339,6 +339,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       responsiveBehavior={props.responsiveBehavior}
       showResizeBoundary={showResizeBoundary}
       snapGrid={snapGrid}
+      topRow={props.topRow}
       updateBottomRow={updateBottomRow}
       // Used only for performance tracking, can be removed after optimization.
       widgetId={props.widgetId}

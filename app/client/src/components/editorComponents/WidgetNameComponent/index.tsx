@@ -30,9 +30,11 @@ export const WidgetNameComponentHeight = theme.spaces[10];
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
   top: ${(props) =>
-    props.topRow > 2 ? `${-1 * WidgetNameComponentHeight}px` : "calc(100%)"};
+    props.topRow > 2
+      ? `${-1 * WidgetNameComponentHeight + 1}px`
+      : "calc(100% - 1px)"};
   height: ${WidgetNameComponentHeight}px;
-  ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0")};
+  ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0px")};
   display: flex;
   cursor: pointer;
   z-index: ${Layers.widgetName};
@@ -178,6 +180,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
         <SettingsControl
           activity={currentActivity}
           errorCount={shouldHideErrors ? 0 : props.errorCount}
+          inverted={props.topRow <= 2}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
           widgetWidth={props.widgetWidth}
