@@ -5,6 +5,7 @@ export const PageViewContainer = styled.div<{
   sidebarWidth: number;
   isPreviewMode?: boolean;
 }>`
+  width: inherit;
   ${({ hasPinnedSidebar, sidebarWidth }) =>
     hasPinnedSidebar ? `margin-left: ${sidebarWidth}px;` : ""};
   ${({ isPreviewMode }) => (isPreviewMode ? "width: 100%" : "")};

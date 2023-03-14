@@ -251,9 +251,11 @@ const CanvasContainer = (props: {
    * - 2. top bar (header with preview/share/deploy buttons)
    * - 3. bottom bar (footer with debug/logs buttons)
    */
-  const heightWithTopMargin = `calc(100vh - ${navigationHeight}px - ${
-    theme.smallHeaderHeight
-  } - ${isPreviewMode ? "0px" : theme.bottomBarHeight})`;
+  const heightWithTopMargin = `calc(100vh - ${
+    navigationHeight ? navigationHeight + "px" : "2.25rem"
+  } - ${theme.smallHeaderHeight} - ${
+    isPreviewMode ? "0px" : theme.bottomBarHeight
+  })`;
 
   return (
     <Container
