@@ -12,6 +12,7 @@ import {
 import equal from "fast-deep-equal/es6";
 import { isEmpty } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { useContext, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
@@ -31,7 +32,6 @@ import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
 import { snapToGrid } from "utils/helpers";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { XYCord } from "./useRenderBlocksOnCanvas";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
