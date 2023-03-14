@@ -201,6 +201,14 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(applicationSnapshot -> new ResponseDTO<>(HttpStatus.OK.value(), applicationSnapshot, null));
     }
 
+    @DeleteMapping("/snapshot/{id}")
+    public Mono<ResponseDTO<Boolean>> deleteSnapshotWithoutApplicationJson(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to delete snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.deleteSnapshot(id, branchName)
+                .map(isDeleted -> new ResponseDTO<>(HttpStatus.OK.value(), isDeleted, null));
+    }
+
     @PostMapping("/snapshot/{id}/restore")
     public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
